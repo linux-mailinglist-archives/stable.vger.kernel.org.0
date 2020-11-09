@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1102ABAF7
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9428B2AB904
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731140AbgKINQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:16:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
+        id S1729452AbgKINDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:03:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbgKINQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:16:20 -0500
+        id S1730635AbgKINCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:02:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1364F206D8;
-        Mon,  9 Nov 2020 13:16:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82AEC206C0;
+        Mon,  9 Nov 2020 13:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927779;
-        bh=RvtglgkjK8v6GrPDnqdopI5OLfj6V1mtOQlb7pKog7Y=;
+        s=default; t=1604926935;
+        bh=IZBRiAHqmL6Yx4kCr9ZgH/HKRNFI1eQziKvA+vt/HGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oe/ZqdtMgRCX1ImnqXaCruXNjZdxPMoYpQe7SrW6ZjR4/k16Y7/ad2UQiblfzAhso
-         vU/m7LcoLfKhavlylslia+aXjaWJwrFXGbhEj+0cmmdHXHyF8ZeXJTGDB2oIVrW/x4
-         9JNaTOdXBmIIVe1zJ1dyIqInm/FJL8lKaNUZb6xE=
+        b=K6UrOjaY/3oqmNZYvtsk8Nr5QnJHKjvYWTIfEdQEKj8p6IlYhDS4W+YqYX8qEAcIp
+         HQ3JUE3HMT6UnxMmKhOrPRwTXdtgS7zocmkZDyyImclXMa+YwQ94K/BXDuQZPG4nbL
+         37f4WLl2A7UU9VlqVpt5llFMZbPTHRZXRXGKb2ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 019/133] drm/i915: Restore ILK-M RPS support
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>
+Subject: [PATCH 4.9 055/117] w1: mxc_w1: Fix timeout resolution problem leading to bus error
 Date:   Mon,  9 Nov 2020 13:54:41 +0100
-Message-Id: <20201109125031.641290503@linuxfoundation.org>
+Message-Id: <20201109125028.284906535@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 5cbd7685b22823ebf432ec71eac1691b71c41037 upstream.
+commit c9723750a699c3bd465493ac2be8992b72ccb105 upstream.
 
-Restore RPS for ILK-M. We lost it when an extra HAS_RPS()
-check appeared in intel_rps_enable().
+On my platform (i.MX53) bus access sometimes fails with
+	w1_search: max_slave_count 64 reached, will continue next search.
 
-Unfortunaltey this just makes the performance worse on my
-ILK because intel_ips insists on limiting the GPU freq to
-the minimum. If we don't do the RPS init then intel_ips will
-not limit the frequency for whatever reason. Either it can't
-get at some required information and thus makes wrong decisions,
-or we mess up some weights/etc. and cause it to make the wrong
-decisions when RPS init has been done, or the entire thing is
-just wrong. Would require a bunch of reverse engineering to
-figure out what's going on.
+The reason is the use of jiffies to implement a 200us timeout in
+mxc_w1_ds2_touch_bit().
+On some platforms the jiffies timer resolution is insufficient for this.
 
-Cc: stable@vger.kernel.org
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Fixes: 9c878557b1eb ("drm/i915/gt: Use the RPM config register to determine clk frequencies")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201021131443.25616-1-ville.syrjala@linux.intel.com
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-(cherry picked from commit 2bf06370bcfb0dea5655e9a5ad460c7f7dca7739)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fix by replacing jiffies by ktime_get().
+
+For consistency apply the same change to the other use of jiffies in
+mxc_w1_ds2_reset_bus().
+
+Fixes: f80b2581a706 ("w1: mxc_w1: Optimize mxc_w1_ds2_touch_bit()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Link: https://lore.kernel.org/r/1601455030-6607-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_pci.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/w1/masters/mxc_w1.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_pci.c
-+++ b/drivers/gpu/drm/i915/i915_pci.c
-@@ -389,6 +389,7 @@ static const struct intel_device_info il
- 	GEN5_FEATURES,
- 	PLATFORM(INTEL_IRONLAKE),
- 	.is_mobile = 1,
-+	.has_rps = true,
- 	.display.has_fbc = 1,
- };
+--- a/drivers/w1/masters/mxc_w1.c
++++ b/drivers/w1/masters/mxc_w1.c
+@@ -15,7 +15,7 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+-#include <linux/jiffies.h>
++#include <linux/ktime.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
  
+@@ -48,12 +48,12 @@ struct mxc_w1_device {
+ static u8 mxc_w1_ds2_reset_bus(void *data)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_RPP, dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for reset sequence 511+512us, use 1500us for sure */
+-	timeout = jiffies + usecs_to_jiffies(1500);
++	timeout = ktime_add_us(ktime_get(), 1500);
+ 
+ 	udelay(511 + 512);
+ 
+@@ -63,7 +63,7 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
+ 		/* PST bit is valid after the RPP bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_RPP))
+ 			return !(ctrl & MXC_W1_CONTROL_PST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 1;
+ }
+@@ -76,12 +76,12 @@ static u8 mxc_w1_ds2_reset_bus(void *dat
+ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_WR(bit), dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for read/write bit (60us, Max 120us), use 200us for sure */
+-	timeout = jiffies + usecs_to_jiffies(200);
++	timeout = ktime_add_us(ktime_get(), 200);
+ 
+ 	udelay(60);
+ 
+@@ -91,7 +91,7 @@ static u8 mxc_w1_ds2_touch_bit(void *dat
+ 		/* RDST bit is valid after the WR1/RD bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_WR(bit)))
+ 			return !!(ctrl & MXC_W1_CONTROL_RDST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 0;
+ }
 
 
