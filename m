@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2742ABCFA
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 369AE2ABDC4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:50:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730546AbgKINmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:42:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55066 "EHLO mail.kernel.org"
+        id S1730324AbgKINtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:49:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730544AbgKINA7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:59 -0500
+        id S1729814AbgKIM4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:56:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 069F221D46;
-        Mon,  9 Nov 2020 13:00:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E32120867;
+        Mon,  9 Nov 2020 12:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926858;
-        bh=RAApNINermXK/f6q2UBCW/71796ZPIc1C8iRoEvxzYQ=;
+        s=default; t=1604926572;
+        bh=HeiXkDo1qNKRPsCL1z6v8tavI/15Fj5RsL4khe7PqzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/Qf5fs9lcPrRrte5bUE48THrTV1f9yI5b7QFLxRzj/wDKvgfA5YG/3aV58wrxEZx
-         c9dZJnDOFIhYEAh1P762glA7WSSQtBvGxOKP2b8TQuOIt5RhFvW75IL6gJEtWYQt/L
-         d/sOAR4Awo61yXFYXj7iqTHp65el23LdzCYmWsWw=
+        b=klXxp9MTlJ7gUXiLBgXhsMvvJAqcdV9XzywYfY3UCJ0uxPMhZctqQV0dcdkdaDqYN
+         mOYWKY1f7/DOAK+xsKKhxuz1jTEk563L8lDFZ3qOX1Va15nhsDpoHD8REsnMQlId6Y
+         AB5ML/ijbjrfw5elPv0jKhsZJhz3fuTbnxnB3WLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <avolmat@me.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 029/117] cpufreq: sti-cpufreq: add stih418 support
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 08/86] ata: sata_rcar: Fix DMA boundary mask
 Date:   Mon,  9 Nov 2020 13:54:15 +0100
-Message-Id: <20201109125027.035471484@linuxfoundation.org>
+Message-Id: <20201109125021.261018273@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <avolmat@me.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 01a163c52039e9426c7d3d3ab16ca261ad622597 ]
+commit df9c590986fdb6db9d5636d6cd93bc919c01b451 upstream.
 
-The STiH418 can be controlled the same way as STiH407 &
-STiH410 regarding cpufreq.
+Before commit 9495b7e92f716ab2 ("driver core: platform: Initialize
+dma_parms for platform devices"), the R-Car SATA device didn't have DMA
+parameters.  Hence the DMA boundary mask supplied by its driver was
+silently ignored, as __scsi_init_queue() doesn't check the return value
+of dma_set_seg_boundary(), and the default value of 0xffffffff was used.
 
-Signed-off-by: Alain Volmat <avolmat@me.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Now the device has gained DMA parameters, the driver-supplied value is
+used, and the following warning is printed on Salvator-XS:
+
+    DMA-API: sata_rcar ee300000.sata: mapping sg segment across boundary [start=0x00000000ffffe000] [end=0x00000000ffffefff] [boundary=0x000000001ffffffe]
+    WARNING: CPU: 5 PID: 38 at kernel/dma/debug.c:1233 debug_dma_map_sg+0x298/0x300
+
+(the range of start/end values depend on whether IOMMU support is
+ enabled or not)
+
+The issue here is that SATA_RCAR_DMA_BOUNDARY doesn't have bit 0 set, so
+any typical end value, which is odd, will trigger the check.
+
+Fix this by increasing the DMA boundary value by 1.
+
+This also fixes the following WRITE DMA EXT timeout issue:
+
+    # dd if=/dev/urandom of=/mnt/de1/file1-1024M bs=1M count=1024
+    ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
+    ata1.00: failed command: WRITE DMA EXT
+    ata1.00: cmd 35/00:00:00:e6:0c/00:0a:00:00:00/e0 tag 0 dma 1310720 out
+    res 40/00:01:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
+    ata1.00: status: { DRDY }
+
+as seen by Shimoda-san since commit 429120f3df2dba2b ("block: fix
+splitting segments on boundary masks").
+
+Fixes: 8bfbeed58665dbbf ("sata_rcar: correct 'sata_rcar_sht'")
+Fixes: 9495b7e92f716ab2 ("driver core: platform: Initialize dma_parms for platform devices")
+Fixes: 429120f3df2dba2b ("block: fix splitting segments on boundary masks")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpufreq/sti-cpufreq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/ata/sata_rcar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
-index b366e6d830ea3..2cb3346e82d35 100644
---- a/drivers/cpufreq/sti-cpufreq.c
-+++ b/drivers/cpufreq/sti-cpufreq.c
-@@ -144,7 +144,8 @@ static const struct reg_field sti_stih407_dvfs_regfields[DVFS_MAX_REGFIELDS] = {
- static const struct reg_field *sti_cpufreq_match(void)
- {
- 	if (of_machine_is_compatible("st,stih407") ||
--	    of_machine_is_compatible("st,stih410"))
-+	    of_machine_is_compatible("st,stih410") ||
-+	    of_machine_is_compatible("st,stih418"))
- 		return sti_stih407_dvfs_regfields;
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -122,7 +122,7 @@
+ /* Descriptor table word 0 bit (when DTA32M = 1) */
+ #define SATA_RCAR_DTEND			BIT(0)
  
- 	return NULL;
-@@ -260,7 +261,8 @@ static int sti_cpufreq_init(void)
- 	int ret;
+-#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFEUL
++#define SATA_RCAR_DMA_BOUNDARY		0x1FFFFFFFUL
  
- 	if ((!of_machine_is_compatible("st,stih407")) &&
--		(!of_machine_is_compatible("st,stih410")))
-+		(!of_machine_is_compatible("st,stih410")) &&
-+		(!of_machine_is_compatible("st,stih418")))
- 		return -ENODEV;
- 
- 	ddata.cpu = get_cpu_device(0);
--- 
-2.27.0
-
+ /* Gen2 Physical Layer Control Registers */
+ #define RCAR_GEN2_PHY_CTL1_REG		0x1704
 
 
