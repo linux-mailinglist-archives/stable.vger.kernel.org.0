@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D971C2ABB1E
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 152052ABA46
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387595AbgKINYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:24:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46116 "EHLO mail.kernel.org"
+        id S1730287AbgKINRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:17:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbgKINSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:18:47 -0500
+        id S1732327AbgKINRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:17:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 961F120731;
-        Mon,  9 Nov 2020 13:18:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FF2C206D8;
+        Mon,  9 Nov 2020 13:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927926;
-        bh=E28vdnPt6e8xzeM4ATXGAUZwGqi6W3a7h1Nf1PRKSys=;
+        s=default; t=1604927833;
+        bh=81AaFuK1HpKyNz0GTHs3QANVJVpbojE6iqbD9c855H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOTDGFFhXC7vcN31wsEQFwYYJiHHjaf/e7i6HEsH5R4r0YJjHX1Mubvp2feU6xMEL
-         2ysC16eN1YsQSARpEqDTSdUgA2cpR9oKOvzBzzXa3Mwj5mrFTm2BI/579bepQjeb5l
-         97m4xaQqSXLlzqx7AEZqE6VXbjD35peuocfy+C+c=
+        b=zkG7L6SBbp8WeBy26NDDwi/ghlBBD2UGiTsZgu7I+8+NPW/MyTpAXpzWu/UqOxY2k
+         VRwdo9EYj5TsY/nDQ03myVDk7kZ1G8PdohEtfqI/FqxmIegYq2O5m9YzR+AvnGHEPX
+         D+sopWjWVRs2+zoQRwq9RFckECVLGN9297bEv2nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>
-Subject: [PATCH 5.9 028/133] gianfar: Replace skb_realloc_headroom with skb_cow_head for PTP
-Date:   Mon,  9 Nov 2020 13:54:50 +0100
-Message-Id: <20201109125032.074358576@linuxfoundation.org>
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 029/133] gianfar: Account for Tx PTP timestamp in the skb headroom
+Date:   Mon,  9 Nov 2020 13:54:51 +0100
+Message-Id: <20201109125032.121468721@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -45,68 +45,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-[ Upstream commit d145c9031325fed963a887851d9fa42516efd52b ]
+[ Upstream commit d6a076d68c6b5d6a5800f3990a513facb7016dea ]
 
 When PTP timestamping is enabled on Tx, the controller
 inserts the Tx timestamp at the beginning of the frame
-buffer, between SFD and the L2 frame header.  This means
+buffer, between SFD and the L2 frame header. This means
 that the skb provided by the stack is required to have
 enough headroom otherwise a new skb needs to be created
 by the driver to accommodate the timestamp inserted by h/w.
-Up until now the driver was relying on skb_realloc_headroom()
-to create new skbs to accommodate PTP frames.  Turns out that
-this method is not reliable in this context at least, as
-skb_realloc_headroom() for PTP frames can cause random crashes,
-mostly in subsequent skb_*() calls, when multiple concurrent
-TCP streams are run at the same time with the PTP flow
-on the same device (as seen in James' report).  I also noticed
-that when the system is loaded by sending multiple TCP streams,
-the driver receives cloned skbs in large numbers.
-skb_cow_head() instead proves to be stable in this scenario,
-and not only handles cloned skbs too but it's also more efficient
-and widely used in other drivers.
-The commit introducing skb_realloc_headroom in the driver
-goes back to 2009, commit 93c1285c5d92
-("gianfar: reallocate skb when headroom is not enough for fcb").
-For practical purposes I'm referencing a newer commit (from 2012)
-that brings the code to its current structure (and fixes the PTP
-case).
+Up until now the driver was relying on the second option,
+using skb_realloc_headroom() to create a new skb to accommodate
+PTP frames. Turns out that this method is not reliable, as
+reallocation of skbs for PTP frames along with the required
+overhead (skb_set_owner_w, consume_skb) is causing random
+crashes in subsequent skb_*() calls, when multiple concurrent
+TCP streams are run at the same time on the same device
+(as seen in James' report).
+Note that these crashes don't occur with a single TCP stream,
+nor with multiple concurrent UDP streams, but only when multiple
+TCP streams are run concurrently with the PTP packet flow
+(doing skb reallocation).
+This patch enforces the first method, by requesting enough
+headroom from the stack to accommodate PTP frames, and so avoiding
+skb_realloc_headroom() & co, and the crashes no longer occur.
+There's no reason not to set needed_headroom to a large enough
+value to accommodate PTP frames, so in this regard this patch
+is a fix.
 
-Fixes: 9c4886e5e63b ("gianfar: Fix invalid TX frames returned on error queue when time stamping")
 Reported-by: James Jurack <james.jurack@ametek.com>
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
 Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20201029081057.8506-1-claudiu.manoil@nxp.com
+Link: https://lore.kernel.org/r/20201020173605.1173-1-claudiu.manoil@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c |   12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/freescale/gianfar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/freescale/gianfar.c
 +++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -1829,20 +1829,12 @@ static netdev_tx_t gfar_start_xmit(struc
- 		fcb_len = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
+@@ -3372,7 +3372,7 @@ static int gfar_probe(struct platform_de
  
- 	/* make space for additional header when fcb is needed */
--	if (fcb_len && unlikely(skb_headroom(skb) < fcb_len)) {
--		struct sk_buff *skb_new;
--
--		skb_new = skb_realloc_headroom(skb, fcb_len);
--		if (!skb_new) {
-+	if (fcb_len) {
-+		if (unlikely(skb_cow_head(skb, fcb_len))) {
- 			dev->stats.tx_errors++;
- 			dev_kfree_skb_any(skb);
- 			return NETDEV_TX_OK;
- 		}
--
--		if (skb->sk)
--			skb_set_owner_w(skb_new, skb->sk);
--		dev_consume_skb_any(skb);
--		skb = skb_new;
- 	}
+ 	if (dev->features & NETIF_F_IP_CSUM ||
+ 	    priv->device_flags & FSL_GIANFAR_DEV_HAS_TIMER)
+-		dev->needed_headroom = GMAC_FCB_LEN;
++		dev->needed_headroom = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
  
- 	/* total number of fragments in the SKB */
+ 	/* Initializing some of the rx/tx queue level parameters */
+ 	for (i = 0; i < priv->num_tx_queues; i++) {
 
 
