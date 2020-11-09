@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C65212ABD74
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C515F2ABD56
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729869AbgKINqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52406 "EHLO mail.kernel.org"
+        id S1729585AbgKIM6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:58:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730048AbgKIM54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:57:56 -0500
+        id S1729984AbgKIM60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83DED20684;
-        Mon,  9 Nov 2020 12:57:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDFA92076E;
+        Mon,  9 Nov 2020 12:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926675;
-        bh=/7iPuDw2ohkrgK6YVxiwMBHOTMtO991rB38B1r8Yk7s=;
+        s=default; t=1604926705;
+        bh=/y7H92Kxy/9wo+t0QSJYuIYPw2TgRjpkBGgOFB+T/No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5ARhfBVJBvA1a6NEFUjtS0vXe8RH3v5HseHuBR/JTaDsH2LIrWurCOf8erJ7iGcy
-         /ipR4S4H2R/2GfGbBAuWXcM+MCIPIwhbAjWZ7K2WAE00LIn/TC81zV/lkvBTXn8RHR
-         SGnSpmCaY2DsTvVmEKuXb5n1z4sR8PDjOU3J8KUs=
+        b=hCMeAK/1zV4sDYeKttvLpJEkeAEarrbmwhG/6lgg+zmFnsofXeuIdfN2A+X9LRz2z
+         WQm5cMzWumQUh/PpxBZDngXJWDKZ+NSX4f6itl2fSpJVw7Pmd6OoiHj5vHgyph76mG
+         jNtfNLpPEYVTbYN6KcmDzQRL3BqpwhGOKfG7tngA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.4 44/86] dmaengine: dma-jz4780: Fix race in jz4780_dma_tx_status
-Date:   Mon,  9 Nov 2020 13:54:51 +0100
-Message-Id: <20201109125022.968623429@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.4 45/86] iio:gyro:itg3200: Fix timestamp alignment and prevent data leak.
+Date:   Mon,  9 Nov 2020 13:54:52 +0100
+Message-Id: <20201109125023.004403488@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -43,57 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit baf6fd97b16ea8f981b8a8b04039596f32fc2972 upstream.
+commit 10ab7cfd5522f0041028556dac864a003e158556 upstream.
 
-The jz4780_dma_tx_status() function would check if a channel's cookie
-state was set to 'completed', and if not, it would enter the critical
-section. However, in that time frame, the jz4780_dma_chan_irq() function
-was able to set the cookie to 'completed', and clear the jzchan->vchan
-pointer, which was deferenced in the critical section of the first
-function.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 16 byte array of smaller elements on the stack.
+This is fixed by using an explicit c structure. As there are no
+holes in the structure, there is no possiblity of data leakage
+in this case.
 
-Fix this race by checking the channel's cookie state after entering the
-critical function and not before.
+The explicit alignment of ts is not strictly necessary but potentially
+makes the code slightly less fragile.  It also removes the possibility
+of this being cut and paste into another driver where the alignment
+isn't already true.
 
-Fixes: d894fc6046fe ("dmaengine: jz4780: add driver for the Ingenic JZ4780 DMA controller")
-Cc: stable@vger.kernel.org # v4.0
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reported-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Artur Rojek <contact@artur-rojek.eu>
-Link: https://lore.kernel.org/r/20201004140307.885556-1-paul@crapouillou.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 36e0371e7764 ("iio:itg3200: Use iio_push_to_buffers_with_timestamp()")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200722155103.979802-6-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dma-jz4780.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/gyro/itg3200_buffer.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -563,11 +563,11 @@ static enum dma_status jz4780_dma_tx_sta
- 	enum dma_status status;
- 	unsigned long flags;
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -49,13 +49,20 @@ static irqreturn_t itg3200_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct itg3200 *st = iio_priv(indio_dev);
+-	__be16 buf[ITG3200_SCAN_ELEMENTS + sizeof(s64)/sizeof(u16)];
++	/*
++	 * Ensure correct alignment and padding including for the
++	 * timestamp that may be inserted.
++	 */
++	struct {
++		__be16 buf[ITG3200_SCAN_ELEMENTS];
++		s64 ts __aligned(8);
++	} scan;
  
-+	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+
- 	status = dma_cookie_status(chan, cookie, txstate);
- 	if ((status == DMA_COMPLETE) || (txstate == NULL))
--		return status;
--
--	spin_lock_irqsave(&jzchan->vchan.lock, flags);
-+		goto out_unlock_irqrestore;
+-	int ret = itg3200_read_all_channels(st->i2c, buf);
++	int ret = itg3200_read_all_channels(st->i2c, scan.buf);
+ 	if (ret < 0)
+ 		goto error_ret;
  
- 	vdesc = vchan_find_desc(&jzchan->vchan, cookie);
- 	if (vdesc) {
-@@ -584,6 +584,7 @@ static enum dma_status jz4780_dma_tx_sta
- 	    && jzchan->desc->status & (JZ_DMA_DCS_AR | JZ_DMA_DCS_HLT))
- 		status = DMA_ERROR;
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
  
-+out_unlock_irqrestore:
- 	spin_unlock_irqrestore(&jzchan->vchan.lock, flags);
- 	return status;
- }
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 
 
