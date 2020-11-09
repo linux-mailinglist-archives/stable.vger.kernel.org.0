@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A25F2ABA22
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5339F2ABB44
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732801AbgKINQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:16:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42960 "EHLO mail.kernel.org"
+        id S1732122AbgKIN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:26:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387420AbgKINQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:16:03 -0500
+        id S2387435AbgKINQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:16:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3DE2208FE;
-        Mon,  9 Nov 2020 13:16:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8330920789;
+        Mon,  9 Nov 2020 13:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927762;
-        bh=XvjeH3eqI8qrSv4FQyYupaTcNbZkt1CBRAYb1VDSO6o=;
+        s=default; t=1604927765;
+        bh=nDWBTN3tydoQgWWr1p6c9vEgYdjvmncGkNVAie8d72M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LURNk0tXnloRlUJ+mVkdTDYm5smYRNs9ylXMiFrwtA9nYtUInFHxzRpiWCf6NSCO5
-         edcNb9Qw82kmokrTprYRWWW7dwQjXCXbmB0VjAQaiYOqf6M/jgEZK+3vHWWmSXeaFU
-         jduQbRv1fFZwPGOcFTm1ktr+aKBU7HzFoOwMyCxE=
+        b=Fbrktsd5SiYNwTGhLUi4acy+icZmdka/JXWk1HSIdlIzNoxJUtwG4BkXE34bzWhTk
+         v1b7RMkNJqXUkKMfvyuZcZsqQasMOdJE5awaYYW1n7CJe1Lh7HRkWnEJfZQZRt9YAg
+         KzCp23ck58AFIe9TJ51MgQGfx8hNVqFRZmR9b2zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Bruce Chang <yu.bruce.chang@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Yan Zhao <yan.y.zhao@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 013/133] drm/i915/gt: Delay execlist processing for tgl
-Date:   Mon,  9 Nov 2020 13:54:35 +0100
-Message-Id: <20201109125031.358299349@linuxfoundation.org>
+Subject: [PATCH 5.9 014/133] drm/i915: Drop runtime-pm assert from vgpu io accessors
+Date:   Mon,  9 Nov 2020 13:54:36 +0100
+Message-Id: <20201109125031.408251352@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -47,53 +46,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 9b99e5ba3e5d68039bd6b657e4bbe520a3521f4c upstream.
+commit 5c6c13cd1102caf92d006a3cf4591c0229019daf upstream.
 
-When running gem_exec_nop, it floods the system with many requests (with
-the goal of userspace submitting faster than the HW can process a single
-empty batch). This causes the driver to continually resubmit new
-requests onto the end of an active context, a flood of lite-restore
-preemptions. If we time this just right, Tigerlake hangs.
+The "mmio" writes into vgpu registers are simple memory traps from the
+guest into the host. We do not need to assert in the guest that the
+device is awake for the io as we do not write to the device itself.
 
-Inserting a small delay between the processing of CS events and
-submitting the next context, prevents the hang. Naturally it does not
-occur with debugging enabled. The suspicion then is that this is related
-to the issues with the CS event buffer, and inserting an mmio read of
-the CS pointer status appears to be very successful in preventing the
-hang. Other registers, or uncached reads, or plain mb, do not prevent
-the hang, suggesting that register is key -- but that the hang can be
-prevented by a simple udelay, suggests it is just a timing issue like
-that encountered by commit 233c1ae3c83f ("drm/i915/gt: Wait for CSB
-entries on Tigerlake"). Also note that the hang is not prevented by
-applying CTX_DESC_FORCE_RESTORE, or by inserting a delay on the GPU
-between requests.
+However, over time we have refactored all the mmio accessors with the
+result that the vgpu reuses the gen2 accessors and so inherits the
+assert for runtime-pm of the native device. The assert though has
+actually been there since commit 3be0bf5acca6 ("drm/i915: Create vGPU
+specific MMIO operations to reduce traps").
 
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Bruce Chang <yu.bruce.chang@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Yan Zhao <yan.y.zhao@intel.com>
+Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Cc: stable@vger.kernel.org
-Acked-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201015195023.32346-1-chris@chris-wilson.co.uk
-(cherry picked from commit 6ca7217dffaf1abba91558e67a2efb655ac91405)
+Link: https://patchwork.freedesktop.org/patch/msgid/20200811092532.13753-1-chris@chris-wilson.co.uk
+(cherry picked from commit 0e65ce24a33c1d37da4bf43c34e080334ec6cb60)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/i915/intel_uncore.c |   27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -2661,6 +2661,9 @@ static void process_csb(struct intel_eng
- 			smp_wmb(); /* complete the seqlock */
- 			WRITE_ONCE(execlists->active, execlists->inflight);
+--- a/drivers/gpu/drm/i915/intel_uncore.c
++++ b/drivers/gpu/drm/i915/intel_uncore.c
+@@ -1209,6 +1209,18 @@ unclaimed_reg_debug(struct intel_uncore
+ 		spin_unlock(&uncore->debug->lock);
+ }
  
-+			/* XXX Magic delay for tgl */
-+			ENGINE_POSTING_READ(engine, RING_CONTEXT_STATUS_PTR);
++#define __vgpu_read(x) \
++static u##x \
++vgpu_read##x(struct intel_uncore *uncore, i915_reg_t reg, bool trace) { \
++	u##x val = __raw_uncore_read##x(uncore, reg); \
++	trace_i915_reg_rw(false, reg, val, sizeof(val), trace); \
++	return val; \
++}
++__vgpu_read(8)
++__vgpu_read(16)
++__vgpu_read(32)
++__vgpu_read(64)
 +
- 			WRITE_ONCE(execlists->pending[0], NULL);
- 		} else {
- 			if (GEM_WARN_ON(!*execlists->active)) {
+ #define GEN2_READ_HEADER(x) \
+ 	u##x val = 0; \
+ 	assert_rpm_wakelock_held(uncore->rpm);
+@@ -1414,6 +1426,16 @@ __gen_reg_write_funcs(gen8);
+ #undef GEN6_WRITE_FOOTER
+ #undef GEN6_WRITE_HEADER
+ 
++#define __vgpu_write(x) \
++static void \
++vgpu_write##x(struct intel_uncore *uncore, i915_reg_t reg, u##x val, bool trace) { \
++	trace_i915_reg_rw(true, reg, val, sizeof(val), trace); \
++	__raw_uncore_write##x(uncore, reg, val); \
++}
++__vgpu_write(8)
++__vgpu_write(16)
++__vgpu_write(32)
++
+ #define ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, x) \
+ do { \
+ 	(uncore)->funcs.mmio_writeb = x##_write8; \
+@@ -1735,7 +1757,10 @@ static void uncore_raw_init(struct intel
+ {
+ 	GEM_BUG_ON(intel_uncore_has_forcewake(uncore));
+ 
+-	if (IS_GEN(uncore->i915, 5)) {
++	if (intel_vgpu_active(uncore->i915)) {
++		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, vgpu);
++		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, vgpu);
++	} else if (IS_GEN(uncore->i915, 5)) {
+ 		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, gen5);
+ 		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, gen5);
+ 	} else {
 
 
