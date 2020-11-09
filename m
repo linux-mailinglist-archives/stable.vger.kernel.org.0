@@ -2,228 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EDE2AC2E3
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:54:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F372AC2EC
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729292AbgKIRyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 12:54:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726410AbgKIRyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 12:54:19 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 282FC2067D;
-        Mon,  9 Nov 2020 17:54:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604944458;
-        bh=afkzYTJH2FFHP7OdK2XxjTbf6mK9wq4riukRrL18tjo=;
-        h=Subject:To:From:Date:From;
-        b=JtTvCm0Mmy0XJZV4Hx2Y9Jp0Q6G+z8FJy7U4KLvop/4T50vX/zSN5p1j9tNp10n9B
-         JMP2q5YCHseAnqjanaKgQ0CsfgYILmVUyVrxelqzKB8Jw/t30crLCJHTD7/JIfNmXq
-         +zCaDyNvF4L5jOKuKZuB+cOZ9chg4YI/L43gtO2U=
-Subject: patch "uio: Fix use-after-free in uio_unregister_device()" added to char-misc-linus
-To:     shinichiro.kawasaki@wdc.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Nov 2020 18:55:17 +0100
-Message-ID: <1604944517209210@kroah.com>
+        id S1729831AbgKIR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:56:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38828 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729533AbgKIR4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 12:56:16 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45751C0613CF
+        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 09:56:15 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id w14so6243815pfd.7
+        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 09:56:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ZOS+zogJ0H7n4Eok6jLW7rx+e7LepvrL/VFawtv6Svk=;
+        b=ZPYbwviGRvgETJi1LdLV0+tV4Yes2VPdOJKr85XB3JB2VVroH46gGWa7alOeCJll1z
+         3y7FdOVo5e+ByyXymSdUMelmBFgOu25FBibwuaO8mRgv+cPGZ2wsbTentHG+UU+xLQQf
+         QVxUZ7OceVXvPGZovcRkY6KsuEfG/C2q6E+p1IQO0fiKhErMOSUA1Ua9aGEldj1mcIMi
+         Io4iSc81vcT7URfGPpguFSreasDHGI/hcJFPH77SxZ4XZDMMnK0fqKQc1zNB4DS+5qON
+         32sDBvKso29HjP4hmmmtwH3mWYf/Txq3YgUrsQ/vJbYYBoZQ6ZTfbHfZjI8sSyhWmZCk
+         Ciow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ZOS+zogJ0H7n4Eok6jLW7rx+e7LepvrL/VFawtv6Svk=;
+        b=eIMHUuujFb9sc8Yg8CwlPMh/BvX/GdKLmMvggwLIgPXBpy/E4M6+FC7N9wcQU3AzbG
+         dNdbCc+kCGkfQDm0DZYTG/6jR0Y4twLsQbL1+tOz7NewwYk2R4ZoyFfOwxIVsM6E73p5
+         fNlORnBb9K7fwKXmXXcvwWC3DBVF/I8AZQT0Dx7Rvd3uq7QcfE8Jt2dq30BMQreX0Bs7
+         6TilOQrjWKqvZ0F7rMG/39fDkl0kHYonzH4plaUrEOHtXv5rWqVbdBUI3gNsemmSvhWm
+         mpEll9+0WVzdrw1Aq7uir0lqItHzlF6CM/tW1dwgnnSDsNTk22+t2JK8rs6K5axvo7Yt
+         oW3w==
+X-Gm-Message-State: AOAM532TMP9iIo7nxn/GnXbleY3XTd+g2H1CZLU4ICNJXfWmwhI+4VGO
+        hM73+BEGwNTMt21fDQM/466n+6FfWfqbVQ==
+X-Google-Smtp-Source: ABdhPJw2AMhh+fHgEAPw/oXaevkBPBHeNYUKwyXbMnSxJWb0G7tfJJlEt/QL4tUBEn+s3n6LSsft5w==
+X-Received: by 2002:a17:90a:4dc8:: with SMTP id r8mr330564pjl.1.1604944574416;
+        Mon, 09 Nov 2020 09:56:14 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h16sm136641pjz.10.2020.11.09.09.56.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2020 09:56:13 -0800 (PST)
+Message-ID: <5fa982bd.1c69fb81.b7074.0657@mx.google.com>
+Date:   Mon, 09 Nov 2020 09:56:13 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.241-117-g27cd0d331274
+Subject: stable-rc/queue/4.9 baseline: 144 runs,
+ 1 regressions (v4.9.241-117-g27cd0d331274)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.9 baseline: 144 runs, 1 regressions (v4.9.241-117-g27cd0d=
+331274)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    uio: Fix use-after-free in uio_unregister_device()
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 092561f06702dd4fdd7fb74dd3a838f1818529b7 Mon Sep 17 00:00:00 2001
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Date: Mon, 2 Nov 2020 21:28:19 +0900
-Subject: uio: Fix use-after-free in uio_unregister_device()
-
-Commit 8fd0e2a6df26 ("uio: free uio id after uio file node is freed")
-triggered KASAN use-after-free failure at deletion of TCM-user
-backstores [1].
-
-In uio_unregister_device(), struct uio_device *idev is passed to
-uio_free_minor() to refer idev->minor. However, before uio_free_minor()
-call, idev is already freed by uio_device_release() during call to
-device_unregister().
-
-To avoid reference to idev->minor after idev free, keep idev->minor
-value in a local variable. Also modify uio_free_minor() argument to
-receive the value.
-
-[1]
-BUG: KASAN: use-after-free in uio_unregister_device+0x166/0x190
-Read of size 4 at addr ffff888105196508 by task targetcli/49158
-
-CPU: 3 PID: 49158 Comm: targetcli Not tainted 5.10.0-rc1 #1
-Hardware name: Supermicro Super Server/X10SRL-F, BIOS 2.0 12/17/2015
-Call Trace:
- dump_stack+0xae/0xe5
- ? uio_unregister_device+0x166/0x190
- print_address_description.constprop.0+0x1c/0x210
- ? uio_unregister_device+0x166/0x190
- ? uio_unregister_device+0x166/0x190
- kasan_report.cold+0x37/0x7c
- ? kobject_put+0x80/0x410
- ? uio_unregister_device+0x166/0x190
- uio_unregister_device+0x166/0x190
- tcmu_destroy_device+0x1c4/0x280 [target_core_user]
- ? tcmu_release+0x90/0x90 [target_core_user]
- ? __mutex_unlock_slowpath+0xd6/0x5d0
- target_free_device+0xf3/0x2e0 [target_core_mod]
- config_item_cleanup+0xea/0x210
- configfs_rmdir+0x651/0x860
- ? detach_groups.isra.0+0x380/0x380
- vfs_rmdir.part.0+0xec/0x3a0
- ? __lookup_hash+0x20/0x150
- do_rmdir+0x252/0x320
- ? do_file_open_root+0x420/0x420
- ? strncpy_from_user+0xbc/0x2f0
- ? getname_flags.part.0+0x8e/0x450
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f9e2bfc91fb
-Code: 73 01 c3 48 8b 0d 9d ec 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa b8 54 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 6d ec 0c 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffdd2baafe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000054
-RAX: ffffffffffffffda RBX: 00007f9e2beb44a0 RCX: 00007f9e2bfc91fb
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007f9e1c20be90
-RBP: 00007ffdd2bab000 R08: 0000000000000000 R09: 00007f9e2bdf2440
-R10: 00007ffdd2baaf37 R11: 0000000000000246 R12: 00000000ffffff9c
-R13: 000055f9abb7e390 R14: 000055f9abcf9558 R15: 00007f9e2be7a780
-
-Allocated by task 34735:
- kasan_save_stack+0x1b/0x40
- __kasan_kmalloc.constprop.0+0xc2/0xd0
- __uio_register_device+0xeb/0xd40
- tcmu_configure_device+0x5a0/0xbc0 [target_core_user]
- target_configure_device+0x12f/0x760 [target_core_mod]
- target_dev_enable_store+0x32/0x50 [target_core_mod]
- configfs_write_file+0x2bb/0x450
- vfs_write+0x1ce/0x610
- ksys_write+0xe9/0x1b0
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Freed by task 49158:
- kasan_save_stack+0x1b/0x40
- kasan_set_track+0x1c/0x30
- kasan_set_free_info+0x1b/0x30
- __kasan_slab_free+0x110/0x150
- slab_free_freelist_hook+0x5a/0x170
- kfree+0xc6/0x560
- device_release+0x9b/0x210
- kobject_put+0x13e/0x410
- uio_unregister_device+0xf9/0x190
- tcmu_destroy_device+0x1c4/0x280 [target_core_user]
- target_free_device+0xf3/0x2e0 [target_core_mod]
- config_item_cleanup+0xea/0x210
- configfs_rmdir+0x651/0x860
- vfs_rmdir.part.0+0xec/0x3a0
- do_rmdir+0x252/0x320
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The buggy address belongs to the object at ffff888105196000
- which belongs to the cache kmalloc-2k of size 2048
-The buggy address is located 1288 bytes inside of
- 2048-byte region [ffff888105196000, ffff888105196800)
-The buggy address belongs to the page:
-page:0000000098e6ca81 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x105190
-head:0000000098e6ca81 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0x17ffffc0010200(slab|head)
-raw: 0017ffffc0010200 dead000000000100 dead000000000122 ffff888100043040
-raw: 0000000000000000 0000000000080008 00000001ffffffff ffff88810eb55c01
-page dumped because: kasan: bad access detected
-page->mem_cgroup:ffff88810eb55c01
-
-Memory state around the buggy address:
- ffff888105196400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff888105196480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff888105196500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff888105196580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff888105196600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: 8fd0e2a6df26 ("uio: free uio id after uio file node is freed")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Link: https://lore.kernel.org/r/20201102122819.2346270-1-shinichiro.kawasaki@wdc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- drivers/uio/uio.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
-index 6dca744e39e9..be06f1a961c2 100644
---- a/drivers/uio/uio.c
-+++ b/drivers/uio/uio.c
-@@ -413,10 +413,10 @@ static int uio_get_minor(struct uio_device *idev)
- 	return retval;
- }
- 
--static void uio_free_minor(struct uio_device *idev)
-+static void uio_free_minor(unsigned long minor)
- {
- 	mutex_lock(&minor_lock);
--	idr_remove(&uio_idr, idev->minor);
-+	idr_remove(&uio_idr, minor);
- 	mutex_unlock(&minor_lock);
- }
- 
-@@ -990,7 +990,7 @@ int __uio_register_device(struct module *owner,
- err_uio_dev_add_attributes:
- 	device_del(&idev->dev);
- err_device_create:
--	uio_free_minor(idev);
-+	uio_free_minor(idev->minor);
- 	put_device(&idev->dev);
- 	return ret;
- }
-@@ -1042,11 +1042,13 @@ EXPORT_SYMBOL_GPL(__devm_uio_register_device);
- void uio_unregister_device(struct uio_info *info)
- {
- 	struct uio_device *idev;
-+	unsigned long minor;
- 
- 	if (!info || !info->uio_dev)
- 		return;
- 
- 	idev = info->uio_dev;
-+	minor = idev->minor;
- 
- 	mutex_lock(&idev->info_lock);
- 	uio_dev_del_attributes(idev);
-@@ -1062,7 +1064,7 @@ void uio_unregister_device(struct uio_info *info)
- 
- 	device_unregister(&idev->dev);
- 
--	uio_free_minor(idev);
-+	uio_free_minor(minor);
- 
- 	return;
- }
--- 
-2.29.2
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.241-117-g27cd0d331274/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.241-117-g27cd0d331274
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      27cd0d3312745bf513e0980377fef00f315b35a9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fa94f283ab0ece32ddb887f
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-1=
+17-g27cd0d331274/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.241-1=
+17-g27cd0d331274/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fa94f283ab0ece=
+32ddb8884
+        failing since 0 day (last pass: v4.9.241-98-gbb5ddb48abfd8, first f=
+ail: v4.9.241-101-ge8d0a6534ab3)
+        2 lines =
+
+ =20
