@@ -2,195 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D99B82AC178
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 17:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B222AC1F1
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730508AbgKIQzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 11:55:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57506 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730149AbgKIQzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 11:55:06 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5165C0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 08:55:06 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id t22so5013433plr.9
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 08:55:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=E2B/3KJwRbfihJCJrrdkWi5UmsNPw1Ae5w3Jt1xeez4=;
-        b=PNHpB/xfHwnEj/voYFyJIs9//yZOUluuzDptDlHecFoh3w908OO3rbMRyjRADjHwFl
-         NSA2HLM4GKSLdW/lgHO2/3MbTQmPAqsxPRSWtuNEUgkbJWPhIMvVlNyR0dQKM4ACqyi0
-         NWac63yXk9rfyjhwaDUOXeXkq1O6EQLtBQehyFGSAvv1O2cVWnG3n8l/k6N5cdLg8S9C
-         2U/AOx+BBAL0IrvdEGKMdDlbqyfs/Fk/TRy/2Xk0UG53KNFJ4pM1kUCiENuvu/uUmv45
-         ctUq/8KOWIDcBFNXMuc4ZVr9DEcUuREYN+GOKqJWGtnrwGovslfEjXQX+9c/NV0n8OrN
-         UIxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=E2B/3KJwRbfihJCJrrdkWi5UmsNPw1Ae5w3Jt1xeez4=;
-        b=RcQaN5NVmVeAbP9yc8chgGaB4wiaQJjtePt/393cSnMpPmIa5L6I0IrS3fRV13rkDt
-         Tom+CmSGQhnhYqM/tcSTphy5tdV+Cp/Z9cJgnmznzbFPGhNqD/Z8H6TCVktpRMyh/iyh
-         cADJAHt4pC1/fq25oxh/vG+t9VKWLRVsXfP/bo8jeCyX4vpoxc14l9zT88D9VKCA7x4+
-         vy1f5MgQrwY+hY4Cn/x/3/j/NmSOCoRqIBE6qcfMROh5QCoLdlwDdjMxiLy/aBvJ6qPE
-         BktaxhnPf4UISymV8PseRrn3LU7lNPiaW+nxbPc4i2tpApVUooFRR5QtkEAetb4JalxY
-         /4Rg==
-X-Gm-Message-State: AOAM530jjY7fe3i9nuRHyTNosU5nj6SD0yPTZzcc2m3Kwl0vdpgeduCs
-        87z05NYzgpedjRD1LksiHYVd+iDXqmIdpA==
-X-Google-Smtp-Source: ABdhPJyXfJy9RRZLgNLOIQOrPya0PSM2ByqrMeSgVrXgwCAvLaq8bdXB9mjT3AT+e9xMXwKS6DaixQ==
-X-Received: by 2002:a17:902:ab94:b029:d6:9c3:e99e with SMTP id f20-20020a170902ab94b02900d609c3e99emr13307411plr.68.1604940905461;
-        Mon, 09 Nov 2020 08:55:05 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w131sm11590120pfd.14.2020.11.09.08.55.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2020 08:55:04 -0800 (PST)
-Message-ID: <5fa97468.1c69fb81.d5a6a.8ec1@mx.google.com>
-Date:   Mon, 09 Nov 2020 08:55:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1730189AbgKIRSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:18:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729432AbgKIRSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 12:18:32 -0500
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81D8120E65;
+        Mon,  9 Nov 2020 17:18:30 +0000 (UTC)
+Date:   Mon, 9 Nov 2020 12:18:28 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] ring-buffer: Fix recursion protection
+ transitions between" failed to apply to 4.14-stable tree
+Message-ID: <20201109121828.4bf8bd2e@oasis.local.home>
+In-Reply-To: <1604763982232117@kroah.com>
+References: <1604763982232117@kroah.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.8
-X-Kernelci-Kernel: v5.8.18-26-g1bfb85c48918
-Subject: stable-rc/queue/5.8 baseline: 150 runs,
- 3 regressions (v5.8.18-26-g1bfb85c48918)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 150 runs, 3 regressions (v5.8.18-26-g1bfb85c4=
-8918)
+On Sat, 07 Nov 2020 16:46:22 +0100
+<gregkh@linuxfoundation.org> wrote:
 
-Regressions Summary
--------------------
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b    | arm64 | lab-baylibre | gcc-8    | defconfig         | =
-1          =
-
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.18-26-g1bfb85c48918/plan/baseline/
+This should work for 4.14, 4.9 and 4.4:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.18-26-g1bfb85c48918
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1bfb85c489183b525740034743fb01971ef72127 =
+-- Steve
 
+>From b02414c8f045ab3b9afc816c3735bc98c5c3d262 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Mon, 2 Nov 2020 15:31:27 -0500
+Subject: [PATCH] ring-buffer: Fix recursion protection transitions between
+ interrupt context
 
+The recursion protection of the ring buffer depends on preempt_count() to be
+correct. But it is possible that the ring buffer gets called after an
+interrupt comes in but before it updates the preempt_count(). This will
+trigger a false positive in the recursion code.
 
-Test Regressions
----------------- =
+Use the same trick from the ftrace function callback recursion code which
+uses a "transition" bit that gets set, to allow for a single recursion for
+to handle transitions between contexts.
 
+Cc: stable@vger.kernel.org
+Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b    | arm64 | lab-baylibre | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa943f65065e370f1db8870
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa943f65065e370f1db8=
-871
-        new failure (last pass: v5.8.18-26-g348ca36c1eb0) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa94234a1e90d80a7db886d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
-i-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
-i-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa94234a1e90d80a7db8=
-86e
-        new failure (last pass: v5.8.18-26-g2f46df01d254e) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fa944a1d1988680ffdb8884
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.18-26=
--g1bfb85c48918/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fa944a1d1988680ffdb8=
-885
-        new failure (last pass: v5.8.18-26-g2f46df01d254e) =
-
- =20
+Index: linux-test.git/kernel/trace/ring_buffer.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/ring_buffer.c
++++ linux-test.git/kernel/trace/ring_buffer.c
+@@ -416,14 +416,16 @@ struct rb_event_info {
+ 
+ /*
+  * Used for which event context the event is in.
+- *  NMI     = 0
+- *  IRQ     = 1
+- *  SOFTIRQ = 2
+- *  NORMAL  = 3
++ *  TRANSITION = 0
++ *  NMI     = 1
++ *  IRQ     = 2
++ *  SOFTIRQ = 3
++ *  NORMAL  = 4
+  *
+  * See trace_recursive_lock() comment below for more details.
+  */
+ enum {
++	RB_CTX_TRANSITION,
+ 	RB_CTX_NMI,
+ 	RB_CTX_IRQ,
+ 	RB_CTX_SOFTIRQ,
+@@ -2553,10 +2555,10 @@ rb_wakeups(struct ring_buffer *buffer, s
+  * a bit of overhead in something as critical as function tracing,
+  * we use a bitmask trick.
+  *
+- *  bit 0 =  NMI context
+- *  bit 1 =  IRQ context
+- *  bit 2 =  SoftIRQ context
+- *  bit 3 =  normal context.
++ *  bit 1 =  NMI context
++ *  bit 2 =  IRQ context
++ *  bit 3 =  SoftIRQ context
++ *  bit 4 =  normal context.
+  *
+  * This works because this is the order of contexts that can
+  * preempt other contexts. A SoftIRQ never preempts an IRQ
+@@ -2579,6 +2581,30 @@ rb_wakeups(struct ring_buffer *buffer, s
+  * The least significant bit can be cleared this way, and it
+  * just so happens that it is the same bit corresponding to
+  * the current context.
++ *
++ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
++ * is set when a recursion is detected at the current context, and if
++ * the TRANSITION bit is already set, it will fail the recursion.
++ * This is needed because there's a lag between the changing of
++ * interrupt context and updating the preempt count. In this case,
++ * a false positive will be found. To handle this, one extra recursion
++ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
++ * bit is already set, then it is considered a recursion and the function
++ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
++ *
++ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
++ * to be cleared. Even if it wasn't the context that set it. That is,
++ * if an interrupt comes in while NORMAL bit is set and the ring buffer
++ * is called before preempt_count() is updated, since the check will
++ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
++ * NMI then comes in, it will set the NMI bit, but when the NMI code
++ * does the trace_recursive_unlock() it will clear the TRANSTION bit
++ * and leave the NMI bit set. But this is fine, because the interrupt
++ * code that set the TRANSITION bit will then clear the NMI bit when it
++ * calls trace_recursive_unlock(). If another NMI comes in, it will
++ * set the TRANSITION bit and continue.
++ *
++ * Note: The TRANSITION bit only handles a single transition between context.
+  */
+ 
+ static __always_inline int
+@@ -2597,8 +2623,16 @@ trace_recursive_lock(struct ring_buffer_
+ 	} else
+ 		bit = RB_CTX_NORMAL;
+ 
+-	if (unlikely(val & (1 << bit)))
+-		return 1;
++	if (unlikely(val & (1 << bit))) {
++		/*
++		 * It is possible that this was called by transitioning
++		 * between interrupt context, and preempt_count() has not
++		 * been updated yet. In this case, use the TRANSITION bit.
++		 */
++		bit = RB_CTX_TRANSITION;
++		if (val & (1 << bit))
++			return 1;
++	}
+ 
+ 	val |= (1 << bit);
+ 	cpu_buffer->current_context = val;
