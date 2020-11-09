@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DEB2ABD15
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:43:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF5A2ABD0C
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:43:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbgKINmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:42:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54698 "EHLO mail.kernel.org"
+        id S1730417AbgKINAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:00:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730507AbgKINAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:33 -0500
+        id S1730433AbgKINAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A7B5221F9;
-        Mon,  9 Nov 2020 13:00:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0914207BC;
+        Mon,  9 Nov 2020 13:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926832;
-        bh=3+iVDUeYUQtCG1b7ztjZJ6YpyRlZ9aI6xSrMEGpP3f8=;
+        s=default; t=1604926811;
+        bh=zZ7orDji2vb815BGMy8W7wwBHaPtZXTZ24EOyC1X92c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSkmlikiWs58l0640PBypqud7tvfuwyLNYfXFSJ8bwS0UcE5/BfnpCRtmqpgieMb2
-         2tU12Z6zNnD0fZ/m+a3ZQAxKfEQ9pqBsqffJ/JRun8VAjMfPDVeLKHjtBkUrIH5a5r
-         GIpkR94QJlmHvqpRsk+FdiA04gdomvn/Z17TrCkU=
+        b=lDc0gqe73viFOZyBkro6jVyO5Llsu6209jvvEnJrbmL+BX90zv0v5r6HkyfKx9V+a
+         Y23n9GStOU4VMJqq2eT+6Si9vneafbewk69JRt7wBjmc9vvefKsKOdMtVGtOoebwei
+         Q14RJrcUdJtQG4bbkwvnFYuRaa4OA1knoSbl3Slg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mukesh Ojha <mukesh02@linux.vnet.ibm.com>,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH 4.9 003/117] powerpc/powernv/opal-dump : Use IRQ_HANDLED instead of numbers in interrupt handler
-Date:   Mon,  9 Nov 2020 13:53:49 +0100
-Message-Id: <20201109125025.792602108@linuxfoundation.org>
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 005/117] ravb: Fix bit fields checking in ravb_hwtstamp_get()
+Date:   Mon,  9 Nov 2020 13:53:51 +0100
+Message-Id: <20201109125025.892293291@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -44,59 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukesh Ojha <mukesh02@linux.vnet.ibm.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-commit b29336c0e1785a28bc40a9fd47c2321671e9792e upstream.
+[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
 
-Fixes: 8034f715f ("powernv/opal-dump: Convert to irq domain")
+In the function ravb_hwtstamp_get() in ravb_main.c with the existing
+values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
+(0x6)
 
-Converts all the return explicit number to a more proper IRQ_HANDLED,
-which looks proper incase of interrupt handler returning case.
+if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
+	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
+	config.rx_filter = HWTSTAMP_FILTER_ALL;
 
-Here, It also removes error message like "nobody cared" which was
-getting unveiled while returning -1 or 0 from handler.
+if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
+it will never be reached.
 
-Signed-off-by: Mukesh Ojha <mukesh02@linux.vnet.ibm.com>
-Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Kamal Mostafa <kamal@canonical.com>
+This issue can be verified with 'hwtstamp_config' testing program
+(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
+to ALL and subsequent retrieving it gives incorrect value:
+
+$ hwtstamp_config eth0 OFF ALL
+flags = 0
+tx_type = OFF
+rx_filter = ALL
+$ hwtstamp_config eth0
+flags = 0
+tx_type = OFF
+rx_filter = PTP_V2_L2_EVENT
+
+Correct this by converting if-else's to switch.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/powerpc/platforms/powernv/opal-dump.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/opal-dump.c
-+++ b/arch/powerpc/platforms/powernv/opal-dump.c
-@@ -385,13 +385,12 @@ static irqreturn_t process_dump(int irq,
- {
- 	int rc;
- 	uint32_t dump_id, dump_size, dump_type;
--	struct dump_obj *dump;
- 	char name[22];
- 	struct kobject *kobj;
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1729,12 +1729,16 @@ static int ravb_hwtstamp_get(struct net_
+ 	config.flags = 0;
+ 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
+ 						HWTSTAMP_TX_OFF;
+-	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
++	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
++	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
+ 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+-	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
++		break;
++	case RAVB_RXTSTAMP_TYPE_ALL:
+ 		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-	else
++		break;
++	default:
+ 		config.rx_filter = HWTSTAMP_FILTER_NONE;
++	}
  
- 	rc = dump_read_info(&dump_id, &dump_size, &dump_type);
- 	if (rc != OPAL_SUCCESS)
--		return rc;
-+		return IRQ_HANDLED;
- 
- 	sprintf(name, "0x%x-0x%x", dump_type, dump_id);
- 
-@@ -403,12 +402,10 @@ static irqreturn_t process_dump(int irq,
- 	if (kobj) {
- 		/* Drop reference added by kset_find_obj() */
- 		kobject_put(kobj);
--		return 0;
-+		return IRQ_HANDLED;
- 	}
- 
--	dump = create_dump_obj(dump_id, dump_size, dump_type);
--	if (!dump)
--		return -1;
-+	create_dump_obj(dump_id, dump_size, dump_type);
- 
- 	return IRQ_HANDLED;
- }
+ 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
+ 		-EFAULT : 0;
 
 
