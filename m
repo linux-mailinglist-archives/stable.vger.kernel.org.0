@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FDB2AB9C6
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A6C2AB973
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:09:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732630AbgKINMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:12:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38206 "EHLO mail.kernel.org"
+        id S1731186AbgKINJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:09:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732670AbgKINMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:34 -0500
+        id S1731848AbgKINJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:09:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 609AE20663;
-        Mon,  9 Nov 2020 13:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C6F12076E;
+        Mon,  9 Nov 2020 13:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927554;
-        bh=9LVOaEv1xpEcM9vQKHt3zgpBF4iz0IYaLh3kK7/X2og=;
+        s=default; t=1604927364;
+        bh=Z1wDiC3HwG946bzh2U4H7Ti5P50tZ77K2E8iE2Ezgis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCiYZvi6Fh8cZRZe8F2FGpuG6vkrioYiEF/276KXBbk4rP4D0gCRzs0GXhknIadxV
-         1qygUMAYyFEadAYYpT5FB4xzFO+u4ibBBqg3D47jQWW0WjHywxr5LXTYY7wuqRE/eb
-         kbjzqm9plUgdZNCU0972fxBKX+IAf5UgrHXW1Xm8=
+        b=kXTJBoKvq1OAwcBTsxU75saVcjbu9/XarkhmeWgt2vHzpJS9reFzeh4VDd9ykLf2k
+         WJfz3MSUz1PYlFU8Fd0Rci77jfsDIyi+CtYQqaWYsLCMgdV2QFag6NDZm7gEDJ+Nl2
+         ds9zdDBU93sFH0o/IW9SO5wEssRKQBXhhDObz29E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Yan Zhao <yan.y.zhao@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.4 03/85] drm/i915: Drop runtime-pm assert from vgpu io accessors
-Date:   Mon,  9 Nov 2020 13:55:00 +0100
-Message-Id: <20201109125022.782239088@linuxfoundation.org>
+        stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>
+Subject: [PATCH 4.19 07/71] gianfar: Replace skb_realloc_headroom with skb_cow_head for PTP
+Date:   Mon,  9 Nov 2020 13:55:01 +0100
+Message-Id: <20201109125020.250512772@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit 5c6c13cd1102caf92d006a3cf4591c0229019daf upstream.
+[ Upstream commit d145c9031325fed963a887851d9fa42516efd52b ]
 
-The "mmio" writes into vgpu registers are simple memory traps from the
-guest into the host. We do not need to assert in the guest that the
-device is awake for the io as we do not write to the device itself.
+When PTP timestamping is enabled on Tx, the controller
+inserts the Tx timestamp at the beginning of the frame
+buffer, between SFD and the L2 frame header.  This means
+that the skb provided by the stack is required to have
+enough headroom otherwise a new skb needs to be created
+by the driver to accommodate the timestamp inserted by h/w.
+Up until now the driver was relying on skb_realloc_headroom()
+to create new skbs to accommodate PTP frames.  Turns out that
+this method is not reliable in this context at least, as
+skb_realloc_headroom() for PTP frames can cause random crashes,
+mostly in subsequent skb_*() calls, when multiple concurrent
+TCP streams are run at the same time with the PTP flow
+on the same device (as seen in James' report).  I also noticed
+that when the system is loaded by sending multiple TCP streams,
+the driver receives cloned skbs in large numbers.
+skb_cow_head() instead proves to be stable in this scenario,
+and not only handles cloned skbs too but it's also more efficient
+and widely used in other drivers.
+The commit introducing skb_realloc_headroom in the driver
+goes back to 2009, commit 93c1285c5d92
+("gianfar: reallocate skb when headroom is not enough for fcb").
+For practical purposes I'm referencing a newer commit (from 2012)
+that brings the code to its current structure (and fixes the PTP
+case).
 
-However, over time we have refactored all the mmio accessors with the
-result that the vgpu reuses the gen2 accessors and so inherits the
-assert for runtime-pm of the native device. The assert though has
-actually been there since commit 3be0bf5acca6 ("drm/i915: Create vGPU
-specific MMIO operations to reduce traps").
-
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Yan Zhao <yan.y.zhao@intel.com>
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20200811092532.13753-1-chris@chris-wilson.co.uk
-(cherry picked from commit 0e65ce24a33c1d37da4bf43c34e080334ec6cb60)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 9c4886e5e63b ("gianfar: Fix invalid TX frames returned on error queue when time stamping")
+Reported-by: James Jurack <james.jurack@ametek.com>
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20201029081057.8506-1-claudiu.manoil@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/i915/intel_uncore.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/gianfar.c |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_uncore.c
-+++ b/drivers/gpu/drm/i915/intel_uncore.c
-@@ -1124,6 +1124,18 @@ unclaimed_reg_debug(struct intel_uncore
- 		spin_unlock(&uncore->debug->lock);
- }
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -2370,20 +2370,12 @@ static netdev_tx_t gfar_start_xmit(struc
+ 		fcb_len = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
  
-+#define __vgpu_read(x) \
-+static u##x \
-+vgpu_read##x(struct intel_uncore *uncore, i915_reg_t reg, bool trace) { \
-+	u##x val = __raw_uncore_read##x(uncore, reg); \
-+	trace_i915_reg_rw(false, reg, val, sizeof(val), trace); \
-+	return val; \
-+}
-+__vgpu_read(8)
-+__vgpu_read(16)
-+__vgpu_read(32)
-+__vgpu_read(64)
-+
- #define GEN2_READ_HEADER(x) \
- 	u##x val = 0; \
- 	assert_rpm_wakelock_held(uncore->rpm);
-@@ -1327,6 +1339,16 @@ __gen_reg_write_funcs(gen8);
- #undef GEN6_WRITE_FOOTER
- #undef GEN6_WRITE_HEADER
+ 	/* make space for additional header when fcb is needed */
+-	if (fcb_len && unlikely(skb_headroom(skb) < fcb_len)) {
+-		struct sk_buff *skb_new;
+-
+-		skb_new = skb_realloc_headroom(skb, fcb_len);
+-		if (!skb_new) {
++	if (fcb_len) {
++		if (unlikely(skb_cow_head(skb, fcb_len))) {
+ 			dev->stats.tx_errors++;
+ 			dev_kfree_skb_any(skb);
+ 			return NETDEV_TX_OK;
+ 		}
+-
+-		if (skb->sk)
+-			skb_set_owner_w(skb_new, skb->sk);
+-		dev_consume_skb_any(skb);
+-		skb = skb_new;
+ 	}
  
-+#define __vgpu_write(x) \
-+static void \
-+vgpu_write##x(struct intel_uncore *uncore, i915_reg_t reg, u##x val, bool trace) { \
-+	trace_i915_reg_rw(true, reg, val, sizeof(val), trace); \
-+	__raw_uncore_write##x(uncore, reg, val); \
-+}
-+__vgpu_write(8)
-+__vgpu_write(16)
-+__vgpu_write(32)
-+
- #define ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, x) \
- do { \
- 	(uncore)->funcs.mmio_writeb = x##_write8; \
-@@ -1647,7 +1669,10 @@ static void uncore_raw_init(struct intel
- {
- 	GEM_BUG_ON(intel_uncore_has_forcewake(uncore));
- 
--	if (IS_GEN(uncore->i915, 5)) {
-+	if (intel_vgpu_active(uncore->i915)) {
-+		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, vgpu);
-+		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, vgpu);
-+	} else if (IS_GEN(uncore->i915, 5)) {
- 		ASSIGN_RAW_WRITE_MMIO_VFUNCS(uncore, gen5);
- 		ASSIGN_RAW_READ_MMIO_VFUNCS(uncore, gen5);
- 	} else {
+ 	/* total number of fragments in the SKB */
 
 
