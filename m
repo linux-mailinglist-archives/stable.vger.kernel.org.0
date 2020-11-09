@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF552ABB99
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AFC62ABD49
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732520AbgKINMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:12:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37704 "EHLO mail.kernel.org"
+        id S1730248AbgKINoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:44:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731754AbgKINMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:12:09 -0500
+        id S1730112AbgKIM6q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:58:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0418B2076E;
-        Mon,  9 Nov 2020 13:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A933B20684;
+        Mon,  9 Nov 2020 12:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927527;
-        bh=82ARF8VW8Cb/tdz6bDaXzW7N5BR3Z08ejxisgk1ciMo=;
+        s=default; t=1604926725;
+        bh=Ddoh0zPJ0nESyfDNkjlmhetNYQNkUuxzicuDI5+jPMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOuTlW4ICet5sXaUssQQ+RQALoIe3sWnBfGbyNSHcXhSPLOpJFoVA+5kYyziGa5C5
-         bZdnCBn9VyWZwHb7NlNg5PTSgM+EcqBfL9FtiXzBo+UKg2GKZ94vSJBsS7HPogvBuY
-         /N/w8upjt1+ffe4J0HGxwoLODUC4hMabBZt/heUk=
+        b=Nr7tV3QfUj3BsZ7ip5yID9cj1V+GGZs7xBDfW6mNH310c/FgabxlB05iZdsoXl9CN
+         /MeqLSTmAKhmO7KO6pl1K8Wf6mq0J6whEbUGBCaqqAblTe0n5SE/e/KeMjIExICZD/
+         2BNNKPXhVa4B5OYHbZTHtAPsMUBkNle/MytO53Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 19/85] powerpc/vnic: Extend "failover pending" window
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 69/86] ALSA: usb-audio: Add implicit feedback quirk for Qu-16
 Date:   Mon,  9 Nov 2020 13:55:16 +0100
-Message-Id: <20201109125023.510258188@linuxfoundation.org>
+Message-Id: <20201109125024.095376661@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,137 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-[ Upstream commit 1d8504937478fdc2f3ef2174a816fd3302eca882 ]
+commit 0938ecae432e7ac8b01080c35dd81d50a1e43033 upstream.
 
-Commit 5a18e1e0c193b introduced the 'failover_pending' state to track
-the "failover pending window" - where we wait for the partner to become
-ready (after a transport event) before actually attempting to failover.
-i.e window is between following two events:
+This patch fixes audio distortion on playback for the Allen&Heath
+Qu-16.
 
-        a. we get a transport event due to a FAILOVER
-
-        b. later, we get CRQ_INITIALIZED indicating the partner is
-           ready  at which point we schedule a FAILOVER reset.
-
-and ->failover_pending is true during this window.
-
-If during this window, we attempt to open (or close) a device, we pretend
-that the operation succeded and let the FAILOVER reset path complete the
-operation.
-
-This is fine, except if the transport event ("a" above) occurs during the
-open and after open has already checked whether a failover is pending. If
-that happens, we fail the open, which can cause the boot scripts to leave
-the interface down requiring administrator to manually bring up the device.
-
-This fix "extends" the failover pending window till we are _actually_
-ready to perform the failover reset (i.e until after we get the RTNL
-lock). Since open() holds the RTNL lock, we can be sure that we either
-finish the open or if the open() fails due to the failover pending window,
-we can again pretend that open is done and let the failover complete it.
-
-We could try and block the open until failover is completed but a) that
-could still timeout the application and b) Existing code "pretends" that
-failover occurred "just after" open succeeded, so marks the open successful
-and lets the failover complete the open. So, mark the open successful even
-if the transport event occurs before we actually start the open.
-
-Fixes: 5a18e1e0c193 ("ibmvnic: Fix failover case for non-redundant configuration")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Acked-by: Dany Madden <drt@linux.ibm.com>
-Link: https://lore.kernel.org/r/20201030170711.1562994-1-sukadev@linux.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201104115717.GA19046@b4.vu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/ibm/ibmvnic.c |   36 ++++++++++++++++++++++++++++++++----
- 1 file changed, 32 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1109,18 +1109,27 @@ static int ibmvnic_open(struct net_devic
- 	if (adapter->state != VNIC_CLOSED) {
- 		rc = ibmvnic_login(netdev);
- 		if (rc)
--			return rc;
-+			goto out;
+---
+ sound/usb/pcm.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -332,6 +332,7 @@ static int set_sync_ep_implicit_fb_quirk
+ 	switch (subs->stream->chip->usb_id) {
+ 	case USB_ID(0x0763, 0x2030): /* M-Audio Fast Track C400 */
+ 	case USB_ID(0x0763, 0x2031): /* M-Audio Fast Track C600 */
++	case USB_ID(0x22f0, 0x0006): /* Allen&Heath Qu-16 */
+ 		ep = 0x81;
+ 		iface = usb_ifnum_to_if(dev, 3);
  
- 		rc = init_resources(adapter);
- 		if (rc) {
- 			netdev_err(netdev, "failed to initialize resources\n");
- 			release_resources(adapter);
--			return rc;
-+			goto out;
- 		}
- 	}
- 
- 	rc = __ibmvnic_open(netdev);
- 
-+out:
-+	/*
-+	 * If open fails due to a pending failover, set device state and
-+	 * return. Device operation will be handled by reset routine.
-+	 */
-+	if (rc && adapter->failover_pending) {
-+		adapter->state = VNIC_OPEN;
-+		rc = 0;
-+	}
- 	return rc;
- }
- 
-@@ -1842,6 +1851,13 @@ static int do_reset(struct ibmvnic_adapt
- 		   rwi->reset_reason);
- 
- 	rtnl_lock();
-+	/*
-+	 * Now that we have the rtnl lock, clear any pending failover.
-+	 * This will ensure ibmvnic_open() has either completed or will
-+	 * block until failover is complete.
-+	 */
-+	if (rwi->reset_reason == VNIC_RESET_FAILOVER)
-+		adapter->failover_pending = false;
- 
- 	netif_carrier_off(netdev);
- 	adapter->reset_reason = rwi->reset_reason;
-@@ -2112,6 +2128,13 @@ static void __ibmvnic_reset(struct work_
- 			/* CHANGE_PARAM requestor holds rtnl_lock */
- 			rc = do_change_param_reset(adapter, rwi, reset_state);
- 		} else if (adapter->force_reset_recovery) {
-+			/*
-+			 * Since we are doing a hard reset now, clear the
-+			 * failover_pending flag so we don't ignore any
-+			 * future MOBILITY or other resets.
-+			 */
-+			adapter->failover_pending = false;
-+
- 			/* Transport event occurred during previous reset */
- 			if (adapter->wait_for_reset) {
- 				/* Previous was CHANGE_PARAM; caller locked */
-@@ -2176,9 +2199,15 @@ static int ibmvnic_reset(struct ibmvnic_
- 	unsigned long flags;
- 	int ret;
- 
-+	/*
-+	 * If failover is pending don't schedule any other reset.
-+	 * Instead let the failover complete. If there is already a
-+	 * a failover reset scheduled, we will detect and drop the
-+	 * duplicate reset when walking the ->rwi_list below.
-+	 */
- 	if (adapter->state == VNIC_REMOVING ||
- 	    adapter->state == VNIC_REMOVED ||
--	    adapter->failover_pending) {
-+	    (adapter->failover_pending && reason != VNIC_RESET_FAILOVER)) {
- 		ret = EBUSY;
- 		netdev_dbg(netdev, "Adapter removing or pending failover, skipping reset\n");
- 		goto err;
-@@ -4532,7 +4561,6 @@ static void ibmvnic_handle_crq(union ibm
- 		case IBMVNIC_CRQ_INIT:
- 			dev_info(dev, "Partner initialized\n");
- 			adapter->from_passive_init = true;
--			adapter->failover_pending = false;
- 			if (!completion_done(&adapter->init_done)) {
- 				complete(&adapter->init_done);
- 				adapter->init_done_rc = -EIO;
 
 
