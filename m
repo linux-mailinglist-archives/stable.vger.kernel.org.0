@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D36582ABCCE
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5BC2ABC86
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733195AbgKINjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:39:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
+        id S1730712AbgKINiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:38:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730675AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730664AbgKINDl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 9 Nov 2020 08:03:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A43222203;
-        Mon,  9 Nov 2020 13:02:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C16C2220B;
+        Mon,  9 Nov 2020 13:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926980;
-        bh=jX58UfIJGWVQV/mjB3kASkMntzspVbtxFRc6eguK0yM=;
+        s=default; t=1604926983;
+        bh=y7ZK+pDC5G/MNWFHAgykspgjpyRitgHR80fbbwpq6o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mAC4pzC99YafjCamYUEEJ5p3WncG/bQLqFVCZ9w+xzKlyDX0oBzXe2SaJsz4ssb31
-         PWWcYDw0hGKScznohN7bAzJwq68OtcNxzPsql5fgbpicr5XtfJES9K6xgNM3oQ6zc/
-         vCKl9qtpMdYGCf/T2xYsfg26MzLOKvb/Ow7SgjeY=
+        b=nbWy9V4pRzCn0kFShOIU3FJZquufnKb51bEYfxhHVH/Dhc/IHtQOQfxBkylB8ogtr
+         KqLCk6Pqkt1zjPC3rAz7+VJVbyG9mAlfLIInSMk1qKD1gsE1DYCOIACxXF80HKoj3G
+         DOK5LwocPin+BThg7Oa9FMvWBVby1FKB91kGO6Z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 069/117] powerpc: Warn about use of smt_snooze_delay
-Date:   Mon,  9 Nov 2020 13:54:55 +0100
-Message-Id: <20201109125028.952500547@linuxfoundation.org>
+Subject: [PATCH 4.9 070/117] powerpc/powernv/elog: Fix race while processing OPAL error log event.
+Date:   Mon,  9 Nov 2020 13:54:56 +0100
+Message-Id: <20201109125029.002479558@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -43,104 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 
-commit a02f6d42357acf6e5de6ffc728e6e77faf3ad217 upstream.
+commit aea948bb80b478ddc2448f7359d574387521a52d upstream.
 
-It's not done anything for a long time. Save the percpu variable, and
-emit a warning to remind users to not expect it to do anything.
+Every error log reported by OPAL is exported to userspace through a
+sysfs interface and notified using kobject_uevent(). The userspace
+daemon (opal_errd) then reads the error log and acknowledges the error
+log is saved safely to disk. Once acknowledged the kernel removes the
+respective sysfs file entry causing respective resources to be
+released including kobject.
 
-This uses pr_warn_once instead of pr_warn_ratelimit as testing
-'ppc64_cpu --smt=off' on a 24 core / 4 SMT system showed the warning
-to be noisy, as the online/offline loop is slow.
+However it's possible the userspace daemon may already be scanning
+elog entries when a new sysfs elog entry is created by the kernel.
+User daemon may read this new entry and ack it even before kernel can
+notify userspace about it through kobject_uevent() call. If that
+happens then we have a potential race between
+elog_ack_store->kobject_put() and kobject_uevent which can lead to
+use-after-free of a kernfs object resulting in a kernel crash. eg:
 
-Fixes: 3fa8cad82b94 ("powerpc/pseries/cpuidle: smt-snooze-delay cleanup.")
-Cc: stable@vger.kernel.org # v3.14
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+  BUG: Unable to handle kernel data access on read at 0x6b6b6b6b6b6b6bfb
+  Faulting instruction address: 0xc0000000008ff2a0
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
+  CPU: 27 PID: 805 Comm: irq/29-opal-elo Not tainted 5.9.0-rc2-gcc-8.2.0-00214-g6f56a67bcbb5-dirty #363
+  ...
+  NIP kobject_uevent_env+0xa0/0x910
+  LR  elog_event+0x1f4/0x2d0
+  Call Trace:
+    0x5deadbeef0000122 (unreliable)
+    elog_event+0x1f4/0x2d0
+    irq_thread_fn+0x4c/0xc0
+    irq_thread+0x1c0/0x2b0
+    kthread+0x1c4/0x1d0
+    ret_from_kernel_thread+0x5c/0x6c
+
+This patch fixes this race by protecting the sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
+
+The function create_elog_obj() returns the elog object which if used
+by caller function will end up in use-after-free problem again.
+However, the return value of create_elog_obj() function isn't being
+used today and there is no need as well. Hence change it to return
+void to make this fix complete.
+
+Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
+Cc: stable@vger.kernel.org # v3.15+
+Reported-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+[mpe: Rework the logic to use a single return, reword comments, add oops]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200902000012.3440389-1-joel@jms.id.au
+Link: https://lore.kernel.org/r/20201006122051.190176-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/sysfs.c |   42 +++++++++++++++++-------------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ arch/powerpc/platforms/powernv/opal-elog.c |   33 ++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kernel/sysfs.c
-+++ b/arch/powerpc/kernel/sysfs.c
-@@ -28,29 +28,27 @@
- 
- static DEFINE_PER_CPU(struct cpu, cpu_devices);
- 
--/*
-- * SMT snooze delay stuff, 64-bit only for now
-- */
--
- #ifdef CONFIG_PPC64
- 
--/* Time in microseconds we delay before sleeping in the idle loop */
--static DEFINE_PER_CPU(long, smt_snooze_delay) = { 100 };
-+/*
-+ * Snooze delay has not been hooked up since 3fa8cad82b94 ("powerpc/pseries/cpuidle:
-+ * smt-snooze-delay cleanup.") and has been broken even longer. As was foretold in
-+ * 2014:
-+ *
-+ *  "ppc64_util currently utilises it. Once we fix ppc64_util, propose to clean
-+ *  up the kernel code."
-+ *
-+ * powerpc-utils stopped using it as of 1.3.8. At some point in the future this
-+ * code should be removed.
-+ */
- 
- static ssize_t store_smt_snooze_delay(struct device *dev,
- 				      struct device_attribute *attr,
- 				      const char *buf,
- 				      size_t count)
- {
--	struct cpu *cpu = container_of(dev, struct cpu, dev);
--	ssize_t ret;
--	long snooze;
--
--	ret = sscanf(buf, "%ld", &snooze);
--	if (ret != 1)
--		return -EINVAL;
--
--	per_cpu(smt_snooze_delay, cpu->dev.id) = snooze;
-+	pr_warn_once("%s (%d) stored to unsupported smt_snooze_delay, which has no effect.\n",
-+		     current->comm, current->pid);
+--- a/arch/powerpc/platforms/powernv/opal-elog.c
++++ b/arch/powerpc/platforms/powernv/opal-elog.c
+@@ -183,14 +183,14 @@ static ssize_t raw_attr_read(struct file
  	return count;
  }
  
-@@ -58,9 +56,9 @@ static ssize_t show_smt_snooze_delay(str
- 				     struct device_attribute *attr,
- 				     char *buf)
+-static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
++static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
  {
--	struct cpu *cpu = container_of(dev, struct cpu, dev);
--
--	return sprintf(buf, "%ld\n", per_cpu(smt_snooze_delay, cpu->dev.id));
-+	pr_warn_once("%s (%d) read from unsupported smt_snooze_delay\n",
-+		     current->comm, current->pid);
-+	return sprintf(buf, "100\n");
+ 	struct elog_obj *elog;
+ 	int rc;
+ 
+ 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
+ 	if (!elog)
+-		return NULL;
++		return;
+ 
+ 	elog->kobj.kset = elog_kset;
+ 
+@@ -223,18 +223,37 @@ static struct elog_obj *create_elog_obj(
+ 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
+ 	if (rc) {
+ 		kobject_put(&elog->kobj);
+-		return NULL;
++		return;
+ 	}
+ 
++	/*
++	 * As soon as the sysfs file for this elog is created/activated there is
++	 * a chance the opal_errd daemon (or any userspace) might read and
++	 * acknowledge the elog before kobject_uevent() is called. If that
++	 * happens then there is a potential race between
++	 * elog_ack_store->kobject_put() and kobject_uevent() which leads to a
++	 * use-after-free of a kernfs object resulting in a kernel crash.
++	 *
++	 * To avoid that, we need to take a reference on behalf of the bin file,
++	 * so that our reference remains valid while we call kobject_uevent().
++	 * We then drop our reference before exiting the function, leaving the
++	 * bin file to drop the last reference (if it hasn't already).
++	 */
++
++	/* Take a reference for the bin file */
++	kobject_get(&elog->kobj);
+ 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
+-	if (rc) {
++	if (rc == 0) {
++		kobject_uevent(&elog->kobj, KOBJ_ADD);
++	} else {
++		/* Drop the reference taken for the bin file */
+ 		kobject_put(&elog->kobj);
+-		return NULL;
+ 	}
+ 
+-	kobject_uevent(&elog->kobj, KOBJ_ADD);
++	/* Drop our reference */
++	kobject_put(&elog->kobj);
+ 
+-	return elog;
++	return;
  }
  
- static DEVICE_ATTR(smt_snooze_delay, 0644, show_smt_snooze_delay,
-@@ -68,16 +66,10 @@ static DEVICE_ATTR(smt_snooze_delay, 064
- 
- static int __init setup_smt_snooze_delay(char *str)
- {
--	unsigned int cpu;
--	long snooze;
--
- 	if (!cpu_has_feature(CPU_FTR_SMT))
- 		return 1;
- 
--	snooze = simple_strtol(str, NULL, 10);
--	for_each_possible_cpu(cpu)
--		per_cpu(smt_snooze_delay, cpu) = snooze;
--
-+	pr_warn("smt-snooze-delay command line option has no effect\n");
- 	return 1;
- }
- __setup("smt-snooze-delay=", setup_smt_snooze_delay);
+ static irqreturn_t elog_event(int irq, void *data)
 
 
