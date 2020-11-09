@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16AE32ABB61
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4572ABAE0
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733215AbgKINOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:14:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41266 "EHLO mail.kernel.org"
+        id S2387955AbgKINUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:20:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731892AbgKINOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:14:49 -0500
+        id S2387976AbgKINUq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:20:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E66BC20867;
-        Mon,  9 Nov 2020 13:14:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC5B2206D8;
+        Mon,  9 Nov 2020 13:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927688;
-        bh=TCj67ClWiMRJkTMqqqomrJynDRG5J06ZNnfcLOzKfA0=;
+        s=default; t=1604928045;
+        bh=BwQ6VG+gjhfz0EqD6NV1hgsz137g69CXNnH/vrOTCFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qq1gf3T7kE595nEOvWjcJLAXY6ZLFbCHRo8vnNzjEp4M+FUG0xgH5CPxfLKltw/+O
-         LJaGxi5Ege+yqyioyJvY85FixvBVucCtKWZA9tUluCU7reeNh73jJT5ZiLzihVXCQM
-         CPZekf3u4pUkg01MAiEjF0UIAnvRSZLv1BoR/oCU=
+        b=L/tIGRzaKjsubk45Vl3at9pWXn7x1aSMNx7xN78sAwGjwExFK8R9sGMtIxOYD0MFx
+         0B/A24L0/yg/wZOFbmygPGhIFmD3TZng47qU8LglsBOGfJEzT/vjfVkL6S+Qa1iIaQ
+         fXjdGXf+zSuUUUMS8bhEc0EHbNXGu7mIVLvAWVOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>
-Subject: [PATCH 5.4 74/85] tty: serial: fsl_lpuart: LS1021A has a FIFO size of 16 words, like LS1028A
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.9 109/133] entry: Fix the incorrect ordering of lockdep and RCU check
 Date:   Mon,  9 Nov 2020 13:56:11 +0100
-Message-Id: <20201109125026.130739118@linuxfoundation.org>
+Message-Id: <20201109125035.932625125@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit c97f2a6fb3dfbfbbc88edc8ea62ef2b944e18849 upstream.
+commit 9d820f68b2bdba5b2e7bf135123c3f57c5051d05 upstream.
 
-Prior to the commit that this one fixes, the FIFO size was derived from
-the read-only register LPUARTx_FIFO[TXFIFOSIZE] using the following
-formula:
+When an exception/interrupt hits kernel space and the kernel is not
+currently in the idle task then RCU must be watching.
 
-TX FIFO size = 2 ^ (LPUARTx_FIFO[TXFIFOSIZE] - 1)
+irqentry_enter() validates this via rcu_irq_enter_check_tick(), which in
+turn invokes lockdep when taking a lock. But at that point lockdep does not
+yet know about the fact that interrupts have been disabled by the CPU,
+which triggers a lockdep splat complaining about inconsistent state.
 
-The documentation for LS1021A is a mess. Under chapter 26.1.3 LS1021A
-LPUART module special consideration, it mentions TXFIFO_SZ and RXFIFO_SZ
-being equal to 4, and in the register description for LPUARTx_FIFO, it
-shows the out-of-reset value of TXFIFOSIZE and RXFIFOSIZE fields as "011",
-even though these registers read as "101" in reality.
+Invoking trace_hardirqs_off() before rcu_irq_enter_check_tick() defeats the
+point of rcu_irq_enter_check_tick() because trace_hardirqs_off() uses RCU.
 
-And when LPUART on LS1021A was working, the "101" value did correspond
-to "16 datawords", by applying the formula above, even though the
-documentation is wrong again (!!!!) and says that "101" means 64 datawords
-(hint: it doesn't).
+So use the same sequence as for the idle case and tell lockdep about the
+irq state change first, invoke the RCU check and then do the lockdep and
+tracer update.
 
-So the "new" formula created by commit f77ebb241ce0 has all the premises
-of being wrong for LS1021A, because it relied only on false data and no
-actual experimentation.
-
-Interestingly, in commit c2f448cff22a ("tty: serial: fsl_lpuart: add
-LS1028A support"), Michael Walle applied a workaround to this by manually
-setting the FIFO widths for LS1028A. It looks like the same values are
-used by LS1021A as well, in fact.
-
-When the driver thinks that it has a deeper FIFO than it really has,
-getty (user space) output gets truncated.
-
-Many thanks to Michael for pointing out where to look.
-
-Fixes: f77ebb241ce0 ("tty: serial: fsl_lpuart: correct the FIFO depth size")
-Suggested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20201023013429.3551026-1-vladimir.oltean@nxp.com
-Reviewed-by：Fugang Duan <fugang.duan@nxp.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: a5497bab5f72 ("entry: Provide generic interrupt entry/exit code")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87y2jhl19s.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/fsl_lpuart.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ kernel/entry/common.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -318,9 +318,10 @@ MODULE_DEVICE_TABLE(of, lpuart_dt_ids);
- /* Forward declare this for the dma callbacks*/
- static void lpuart_dma_tx_complete(void *arg);
- 
--static inline bool is_ls1028a_lpuart(struct lpuart_port *sport)
-+static inline bool is_layerscape_lpuart(struct lpuart_port *sport)
- {
--	return sport->devtype == LS1028A_LPUART;
-+	return (sport->devtype == LS1021A_LPUART ||
-+		sport->devtype == LS1028A_LPUART);
- }
- 
- static inline bool is_imx8qxp_lpuart(struct lpuart_port *sport)
-@@ -1566,11 +1567,11 @@ static int lpuart32_startup(struct uart_
- 					    UARTFIFO_FIFOSIZE_MASK);
- 
- 	/*
--	 * The LS1028A has a fixed length of 16 words. Although it supports the
--	 * RX/TXSIZE fields their encoding is different. Eg the reference manual
--	 * states 0b101 is 16 words.
-+	 * The LS1021A and LS1028A have a fixed FIFO depth of 16 words.
-+	 * Although they support the RX/TXSIZE fields, their encoding is
-+	 * different. Eg the reference manual states 0b101 is 16 words.
+--- a/kernel/entry/common.c
++++ b/kernel/entry/common.c
+@@ -338,10 +338,10 @@ noinstr irqentry_state_t irqentry_enter(
+ 	 * already contains a warning when RCU is not watching, so no point
+ 	 * in having another one here.
  	 */
--	if (is_ls1028a_lpuart(sport)) {
-+	if (is_layerscape_lpuart(sport)) {
- 		sport->rxfifo_size = 16;
- 		sport->txfifo_size = 16;
- 		sport->port.fifosize = sport->txfifo_size;
++	lockdep_hardirqs_off(CALLER_ADDR0);
+ 	instrumentation_begin();
+ 	rcu_irq_enter_check_tick();
+-	/* Use the combo lockdep/tracing function */
+-	trace_hardirqs_off();
++	trace_hardirqs_off_finish();
+ 	instrumentation_end();
+ 
+ 	return ret;
 
 
