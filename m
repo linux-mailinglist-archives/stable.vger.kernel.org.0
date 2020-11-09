@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E85E2AB9AD
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D2C2ABAD2
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:23:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731543AbgKINLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:11:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37012 "EHLO mail.kernel.org"
+        id S1732885AbgKINWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:22:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731757AbgKINL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:11:27 -0500
+        id S2388129AbgKINVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:21:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8937F2076E;
-        Mon,  9 Nov 2020 13:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14FD52065D;
+        Mon,  9 Nov 2020 13:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927487;
-        bh=H64nzRCPW422wYyOo1zSeWbPHtd0/Fy7QeE82Wz53Ow=;
+        s=default; t=1604928112;
+        bh=pVUynB4smWTSxPgjCWr8eQ4kLWOtP1rvGVYvEQklTOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWTe2sEIWCFl88iAUkivit6q9xAuVG3z9XsSkfpychUhk8mDnuPBqx84ygtq3Z8iw
-         RaKSTE77cBHKx/nOzwd6jnLGxxDCdnEkswNPvXrhTExMfyvw2SdzjyG1xkBGBgBXtO
-         T3fh8gzJf1bk7ubHfkxXu9A3s8uzIIpqyjRRntdA=
+        b=GHER4GEgb1KecEbhgQk7zxDbmhtPgQXqpD1OXznVJzp7vBLiwAC9BoJl1Pn94buvX
+         +9yb5vpmRq22ixSj7RAYy6cY1wkfGGuP68TzsQuYNRagLUVdhKpySF7kobr718U223
+         PH8fkB1JcqbE3wzlgaAw9nzysKhZcbz2Aq66/qYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 69/71] tools: perf: Fix build error in v4.19.y
+        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 101/133] usb: cdns3: gadget: suspicious implicit sign extension
 Date:   Mon,  9 Nov 2020 13:56:03 +0100
-Message-Id: <20201109125023.136764212@linuxfoundation.org>
+Message-Id: <20201109125035.547057101@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Peter Chen <peter.chen@nxp.com>
 
-perf may fail to build in v4.19.y with the following error.
+[ Upstream commit 5fca3f062879f8e5214c56f3e3e2be6727900f5d ]
 
-util/evsel.c: In function ‘perf_evsel__exit’:
-util/util.h:25:28: error:
-	passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
+The code:
+trb->length = cpu_to_le32(TRB_BURST_LEN(priv_ep->trb_burst_size)
+	       	| TRB_LEN(length));
 
-This is observed (at least) with gcc v6.5.0. The underlying problem is
-the following statement.
-	zfree(&evsel->pmu_name);
-evsel->pmu_name is decared 'const *'. zfree in turn is defined as
-	#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
-and thus passes the const * to free(). The problem is not seen
-in the upstream kernel since zfree() has been rewritten there.
+TRB_BURST_LEN(priv_ep->trb_burst_size) may be overflow for int 32 if
+priv_ep->trb_burst_size is equal or larger than 0x80;
 
-The problem has been introduced into v4.19.y with the backport of upstream
-commit d4953f7ef1a2 (perf parse-events: Fix 3 use after frees found with
-clang ASAN).
+Below is the Coverity warning:
+sign_extension: Suspicious implicit sign extension: priv_ep->trb_burst_size
+with type u8 (8 bits, unsigned) is promoted in priv_ep->trb_burst_size << 24
+to type int (32 bits, signed), then sign-extended to type unsigned long
+(64 bits, unsigned). If priv_ep->trb_burst_size << 24 is greater than 0x7FFFFFFF,
+the upper bits of the result will all be 1.
 
-One possible fix of this problem would be to not declare pmu_name
-as const. This patch chooses to typecast the parameter of zfree()
-to void *, following the guidance from the upstream kernel which
-does the same since commit 7f7c536f23e6a ("tools lib: Adopt
-zalloc()/zfree() from tools/perf")
+To fix it, it needs to add an explicit cast to unsigned int type for ((p) << 24).
 
-Fixes: a0100a363098 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-This patch only applies to v4.19.y and has no upstream equivalent.
-
- tools/perf/util/util.h |    2 +-
+ drivers/usb/cdns3/gadget.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/util.h
-+++ b/tools/perf/util/util.h
-@@ -22,7 +22,7 @@ static inline void *zalloc(size_t size)
- 	return calloc(1, size);
- }
+diff --git a/drivers/usb/cdns3/gadget.h b/drivers/usb/cdns3/gadget.h
+index 8212bddf6c8d1..5be0ff2ae079c 100644
+--- a/drivers/usb/cdns3/gadget.h
++++ b/drivers/usb/cdns3/gadget.h
+@@ -1067,7 +1067,7 @@ struct cdns3_trb {
+ #define TRB_TDL_SS_SIZE_GET(p)	(((p) & GENMASK(23, 17)) >> 17)
  
--#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
-+#define zfree(ptr) ({ free((void *)*ptr); *ptr = NULL; })
+ /* transfer_len bitmasks - bits 31:24 */
+-#define TRB_BURST_LEN(p)	(((p) << 24) & GENMASK(31, 24))
++#define TRB_BURST_LEN(p)	((unsigned int)((p) << 24) & GENMASK(31, 24))
+ #define TRB_BURST_LEN_GET(p)	(((p) & GENMASK(31, 24)) >> 24)
  
- struct dirent;
- struct nsinfo;
+ /* Data buffer pointer bitmasks*/
+-- 
+2.27.0
+
 
 
