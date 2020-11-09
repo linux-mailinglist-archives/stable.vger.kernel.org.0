@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1932ABD67
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B8A2ABBDE
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730109AbgKINpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:45:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
+        id S1731423AbgKINcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:32:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730119AbgKIM6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:58:13 -0500
+        id S1730569AbgKINIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:08:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C68F12076E;
-        Mon,  9 Nov 2020 12:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CB8520867;
+        Mon,  9 Nov 2020 13:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926691;
-        bh=6x+p8QctiVGPPP6oeefOf0nlAAUqaZgX5q0YDOKw/jo=;
+        s=default; t=1604927294;
+        bh=BwgKW1aqstHsbbwJVK/meH0BSrcNVm6TxkJLdXJ1XlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeQYPXyAIixucAOcOpnvkMDxVAfdL7ud/dce/9tO9Zu1lFVtfexfV0RXJiavaKtaq
-         k0BzO4BJRIfTOn8AQpuBvHii1p1+wNNUYxhCWZjSIB2Tg9xJV0m1LH4z4xiwZEXcI7
-         OcAmm+ZXZHYOI8YKAWDeTvT/8O7+Oi4JGYhBAh/E=
+        b=f1IQHRU9ODuln+y4TkIomJ0nOsDPQE8KRmpzCVCjCDfzKM+mbjYE17ny4azB1pEXD
+         UNwtIrP/3fOpg3lD12TDMpbzx67FT0RSgfQgbdBhppzhc5KaPcINjqL6cPVhxtzXlK
+         f/miq7YWTAknighOTjYqkzOZ6iTGFwvOZZ9U4o6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.4 58/86] hil/parisc: Disable HIL driver when it gets stuck
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 11/71] sfp: Fix error handing in sfp_probe()
 Date:   Mon,  9 Nov 2020 13:55:05 +0100
-Message-Id: <20201109125023.566965799@linuxfoundation.org>
+Message-Id: <20201109125020.445572052@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 879bc2d27904354b98ca295b6168718e045c4aa2 upstream.
+[ Upstream commit 9621618130bf7e83635367c13b9a6ee53935bb37 ]
 
-When starting a HP machine with HIL driver but without an HIL keyboard
-or HIL mouse attached, it may happen that data written to the HIL loop
-gets stuck (e.g. because the transaction queue is full).  Usually one
-will then have to reboot the machine because all you see is and endless
-output of:
- Transaction add failed: transaction already queued?
+gpiod_to_irq() never return 0, but returns negative in
+case of error, check it and set gpio_irq to 0.
 
-In the higher layers hp_sdc_enqueue_transaction() is called to queued up
-a HIL packet. This function returns an error code, and this patch adds
-the necessary checks for this return code and disables the HIL driver if
-further packets can't be sent.
-
-Tested on a HP 730 and a HP 715/64 machine.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+Fixes: 73970055450e ("sfp: add SFP module support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20201031031053.25264-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/serio/hil_mlc.c    |   21 ++++++++++++++++++---
- drivers/input/serio/hp_sdc_mlc.c |    8 ++++----
- include/linux/hil_mlc.h          |    2 +-
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ drivers/net/phy/sfp.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -74,7 +74,7 @@ EXPORT_SYMBOL(hil_mlc_unregister);
- static LIST_HEAD(hil_mlcs);
- static DEFINE_RWLOCK(hil_mlcs_lock);
- static struct timer_list	hil_mlcs_kicker;
--static int			hil_mlcs_probe;
-+static int			hil_mlcs_probe, hil_mlc_stop;
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1886,7 +1886,8 @@ static int sfp_probe(struct platform_dev
+ 			continue;
  
- static void hil_mlcs_process(unsigned long unused);
- static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
-@@ -704,9 +704,13 @@ static int hilse_donode(hil_mlc *mlc)
- 		if (!mlc->ostarted) {
- 			mlc->ostarted = 1;
- 			mlc->opacket = pack;
--			mlc->out(mlc);
-+			rc = mlc->out(mlc);
- 			nextidx = HILSEN_DOZE;
- 			write_unlock_irqrestore(&mlc->lock, flags);
-+			if (rc) {
-+				hil_mlc_stop = 1;
-+				return 1;
-+			}
- 			break;
+ 		irq = gpiod_to_irq(sfp->gpio[i]);
+-		if (!irq) {
++		if (irq < 0) {
++			irq = 0;
+ 			poll = true;
+ 			continue;
  		}
- 		mlc->ostarted = 0;
-@@ -717,8 +721,13 @@ static int hilse_donode(hil_mlc *mlc)
- 
- 	case HILSE_CTS:
- 		write_lock_irqsave(&mlc->lock, flags);
--		nextidx = mlc->cts(mlc) ? node->bad : node->good;
-+		rc = mlc->cts(mlc);
-+		nextidx = rc ? node->bad : node->good;
- 		write_unlock_irqrestore(&mlc->lock, flags);
-+		if (rc) {
-+			hil_mlc_stop = 1;
-+			return 1;
-+		}
- 		break;
- 
- 	default:
-@@ -786,6 +795,12 @@ static void hil_mlcs_process(unsigned lo
- 
- static void hil_mlcs_timer(unsigned long data)
- {
-+	if (hil_mlc_stop) {
-+		/* could not send packet - stop immediately. */
-+		pr_warn(PREFIX "HIL seems stuck - Disabling HIL MLC.\n");
-+		return;
-+	}
-+
- 	hil_mlcs_probe = 1;
- 	tasklet_schedule(&hil_mlcs_tasklet);
- 	/* Re-insert the periodic task. */
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -213,7 +213,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	priv->tseq[2] = 1;
- 	priv->tseq[3] = 0;
- 	priv->tseq[4] = 0;
--	__hp_sdc_enqueue_transaction(&priv->trans);
-+	return __hp_sdc_enqueue_transaction(&priv->trans);
-  busy:
- 	return 1;
-  done:
-@@ -222,7 +222,7 @@ static int hp_sdc_mlc_cts(hil_mlc *mlc)
- 	return 0;
- }
- 
--static void hp_sdc_mlc_out(hil_mlc *mlc)
-+static int hp_sdc_mlc_out(hil_mlc *mlc)
- {
- 	struct hp_sdc_mlc_priv_s *priv;
- 
-@@ -237,7 +237,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
-  do_data:
- 	if (priv->emtestmode) {
- 		up(&mlc->osem);
--		return;
-+		return 0;
- 	}
- 	/* Shouldn't be sending commands when loop may be busy */
- 	BUG_ON(down_trylock(&mlc->csem));
-@@ -299,7 +299,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
- 		BUG_ON(down_trylock(&mlc->csem));
- 	}
-  enqueue:
--	hp_sdc_enqueue_transaction(&priv->trans);
-+	return hp_sdc_enqueue_transaction(&priv->trans);
- }
- 
- static int __init hp_sdc_mlc_init(void)
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -103,7 +103,7 @@ struct hilse_node {
- 
- /* Methods for back-end drivers, e.g. hp_sdc_mlc */
- typedef int	(hil_mlc_cts) (hil_mlc *mlc);
--typedef void	(hil_mlc_out) (hil_mlc *mlc);
-+typedef int	(hil_mlc_out) (hil_mlc *mlc);
- typedef int	(hil_mlc_in)  (hil_mlc *mlc, suseconds_t timeout);
- 
- struct hil_mlc_devinfo {
 
 
