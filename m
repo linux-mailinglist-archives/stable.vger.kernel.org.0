@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3C02ABB73
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5614D2AB993
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733010AbgKIN2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:28:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39812 "EHLO mail.kernel.org"
+        id S1732069AbgKINK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:10:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732987AbgKINNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:13:47 -0500
+        id S1731261AbgKINK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:10:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63CBC216C4;
-        Mon,  9 Nov 2020 13:13:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3634320663;
+        Mon,  9 Nov 2020 13:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927627;
-        bh=2j4ZU0oH9+4KcUTae6zEzhfNzufWY1o8U8CZGAAN2Bc=;
+        s=default; t=1604927426;
+        bh=FrGFnYVtKu4a5On7eAOPWzNYFNNKSIQ2Y5MlWzgAYCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UR77vK0AlEIEdPcQBhqr3hgXKqZhqwUmeOFNPJEtr2RZ9o8MrMu/kRzd2FCY+xRNH
-         HA2J6xhzb1TZN7W3m386moLDoUKk15gDiH8TTzzbqBRw7ekWSRw3ZuRF7/q6owMPwn
-         p1Z1lQfW8RRK8yRR1hMReP69LOWujUxSjYTHBuPs=
+        b=qS78Wdme28T4DhXJLvzgWnbSqnOoCT0q97rCv3hARUUv0Z8wAarS5XRufsZWt6Zt3
+         rzWn3WDmUmGIJPWfv48pzBGSyIQU2Ji+U66xnfhFEHULzhPLS3iiTISlqwwUJk47CH
+         6okEX1Bq98Yl73a+zNJvh2IDGAWe9Mf1FeVfF2DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        "Tianci.Yin" <tianci.yin@amd.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/85] drm/amdgpu: add DID for navi10 blockchain SKU
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Minh Yuan <yuanmingbuaa@gmail.com>, Greg KH <greg@kroah.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 4.19 55/71] vt: Disable KD_FONT_OP_COPY
 Date:   Mon,  9 Nov 2020 13:55:49 +0100
-Message-Id: <20201109125025.076988245@linuxfoundation.org>
+Message-Id: <20201109125022.487432418@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianci.Yin <tianci.yin@amd.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 8942881144a7365143f196f5eafed24783a424a3 ]
+commit 3c4e0dff2095c579b142d5a0693257f1c58b4804 upstream.
 
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Tianci.Yin <tianci.yin@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's buggy:
+
+On Fri, Nov 06, 2020 at 10:30:08PM +0800, Minh Yuan wrote:
+> We recently discovered a slab-out-of-bounds read in fbcon in the latest
+> kernel ( v5.10-rc2 for now ).  The root cause of this vulnerability is that
+> "fbcon_do_set_font" did not handle "vc->vc_font.data" and
+> "vc->vc_font.height" correctly, and the patch
+> <https://lkml.org/lkml/2020/9/27/223> for VT_RESIZEX can't handle this
+> issue.
+>
+> Specifically, we use KD_FONT_OP_SET to set a small font.data for tty6, and
+> use  KD_FONT_OP_SET again to set a large font.height for tty1. After that,
+> we use KD_FONT_OP_COPY to assign tty6's vc_font.data to tty1's vc_font.data
+> in "fbcon_do_set_font", while tty1 retains the original larger
+> height. Obviously, this will cause an out-of-bounds read, because we can
+> access a smaller vc_font.data with a larger vc_font.height.
+
+Further there was only one user ever.
+- Android's loadfont, busybox and console-tools only ever use OP_GET
+  and OP_SET
+- fbset documentation only mentions the kernel cmdline font: option,
+  not anything else.
+- systemd used OP_COPY before release 232 published in Nov 2016
+
+Now unfortunately the crucial report seems to have gone down with
+gmane, and the commit message doesn't say much. But the pull request
+hints at OP_COPY being broken
+
+https://github.com/systemd/systemd/pull/3651
+
+So in other words, this never worked, and the only project which
+foolishly every tried to use it, realized that rather quickly too.
+
+Instead of trying to fix security issues here on dead code by adding
+missing checks, fix the entire thing by removing the functionality.
+
+Note that systemd code using the OP_COPY function ignored the return
+value, so it doesn't matter what we're doing here really - just in
+case a lone server somewhere happens to be extremely unlucky and
+running an affected old version of systemd. The relevant code from
+font_copy_to_all_vcs() in systemd was:
+
+	/* copy font from active VT, where the font was uploaded to */
+	cfo.op = KD_FONT_OP_COPY;
+	cfo.height = vcs.v_active-1; /* tty1 == index 0 */
+	(void) ioctl(vcfd, KDFONTOP, &cfo);
+
+Note this just disables the ioctl, garbage collecting the now unused
+callbacks is left for -next.
+
+v2: Tetsuo found the old mail, which allowed me to find it on another
+archive. Add the link too.
+
+Acked-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Peilin Ye <yepeilin.cs@gmail.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://lore.kernel.org/r/20201108153806.3140315-1-daniel.vetter@ffwll.ch
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/vt/vt.c |   24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index fa2c0f29ad4de..e8e1720104160 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1011,6 +1011,7 @@ static const struct pci_device_id pciidlist[] = {
- 	{0x1002, 0x7319, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI10},
- 	{0x1002, 0x731A, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI10},
- 	{0x1002, 0x731B, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI10},
-+	{0x1002, 0x731E, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI10},
- 	{0x1002, 0x731F, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI10},
- 	/* Navi14 */
- 	{0x1002, 0x7340, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI14},
--- 
-2.27.0
-
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -4574,27 +4574,6 @@ static int con_font_default(struct vc_da
+ 	return rc;
+ }
+ 
+-static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
+-{
+-	int con = op->height;
+-	int rc;
+-
+-
+-	console_lock();
+-	if (vc->vc_mode != KD_TEXT)
+-		rc = -EINVAL;
+-	else if (!vc->vc_sw->con_font_copy)
+-		rc = -ENOSYS;
+-	else if (con < 0 || !vc_cons_allocated(con))
+-		rc = -ENOTTY;
+-	else if (con == vc->vc_num)	/* nothing to do */
+-		rc = 0;
+-	else
+-		rc = vc->vc_sw->con_font_copy(vc, con);
+-	console_unlock();
+-	return rc;
+-}
+-
+ int con_font_op(struct vc_data *vc, struct console_font_op *op)
+ {
+ 	switch (op->op) {
+@@ -4605,7 +4584,8 @@ int con_font_op(struct vc_data *vc, stru
+ 	case KD_FONT_OP_SET_DEFAULT:
+ 		return con_font_default(vc, op);
+ 	case KD_FONT_OP_COPY:
+-		return con_font_copy(vc, op);
++		/* was buggy and never really used */
++		return -EINVAL;
+ 	}
+ 	return -ENOSYS;
+ }
 
 
