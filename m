@@ -2,157 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B222AC1F1
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F59C2AC21A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 18:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730189AbgKIRSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 12:18:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
+        id S1731344AbgKIRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 12:23:47 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:57492 "EHLO pegase1.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729432AbgKIRSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 12:18:32 -0500
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81D8120E65;
-        Mon,  9 Nov 2020 17:18:30 +0000 (UTC)
-Date:   Mon, 9 Nov 2020 12:18:28 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] ring-buffer: Fix recursion protection
- transitions between" failed to apply to 4.14-stable tree
-Message-ID: <20201109121828.4bf8bd2e@oasis.local.home>
-In-Reply-To: <1604763982232117@kroah.com>
-References: <1604763982232117@kroah.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1731290AbgKIRXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 12:23:47 -0500
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4CVHs56PXTz9tyRh;
+        Mon,  9 Nov 2020 18:23:37 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id 4ePLM5wTEiVr; Mon,  9 Nov 2020 18:23:37 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4CVHs557KHz9tyRD;
+        Mon,  9 Nov 2020 18:23:37 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 5768C8B7C3;
+        Mon,  9 Nov 2020 18:23:43 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id dEAEUXC_H1PK; Mon,  9 Nov 2020 18:23:43 +0100 (CET)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id ED5F78B78A;
+        Mon,  9 Nov 2020 18:23:42 +0100 (CET)
+Subject: Re: FAILED: patch "[PATCH] powerpc/603: Always fault when
+ _PAGE_ACCESSED is not set" failed to apply to 5.9-stable tree
+To:     gregkh@linuxfoundation.org, mpe@ellerman.id.au
+Cc:     stable@vger.kernel.org
+References: <1604916596142143@kroah.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <e53550ea-761f-14b1-f74f-627b77f7caf9@csgroup.eu>
+Date:   Mon, 9 Nov 2020 18:23:42 +0100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1604916596142143@kroah.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 07 Nov 2020 16:46:22 +0100
-<gregkh@linuxfoundation.org> wrote:
+Hi,
 
-> The patch below does not apply to the 4.14-stable tree.
+It does apply, but you have to increase your merge.renamelimit, that's because the file name changed 
+recently.
+
+Thanks
+Christophe
+
+Le 09/11/2020 à 11:09, gregkh@linuxfoundation.org a écrit :
+> 
+> The patch below does not apply to the 5.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 > 
-
-
-This should work for 4.14, 4.9 and 4.4:
-
--- Steve
-
->From b02414c8f045ab3b9afc816c3735bc98c5c3d262 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Mon, 2 Nov 2020 15:31:27 -0500
-Subject: [PATCH] ring-buffer: Fix recursion protection transitions between
- interrupt context
-
-The recursion protection of the ring buffer depends on preempt_count() to be
-correct. But it is possible that the ring buffer gets called after an
-interrupt comes in but before it updates the preempt_count(). This will
-trigger a false positive in the recursion code.
-
-Use the same trick from the ftrace function callback recursion code which
-uses a "transition" bit that gets set, to allow for a single recursion for
-to handle transitions between contexts.
-
-Cc: stable@vger.kernel.org
-Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
-Index: linux-test.git/kernel/trace/ring_buffer.c
-===================================================================
---- linux-test.git.orig/kernel/trace/ring_buffer.c
-+++ linux-test.git/kernel/trace/ring_buffer.c
-@@ -416,14 +416,16 @@ struct rb_event_info {
- 
- /*
-  * Used for which event context the event is in.
-- *  NMI     = 0
-- *  IRQ     = 1
-- *  SOFTIRQ = 2
-- *  NORMAL  = 3
-+ *  TRANSITION = 0
-+ *  NMI     = 1
-+ *  IRQ     = 2
-+ *  SOFTIRQ = 3
-+ *  NORMAL  = 4
-  *
-  * See trace_recursive_lock() comment below for more details.
-  */
- enum {
-+	RB_CTX_TRANSITION,
- 	RB_CTX_NMI,
- 	RB_CTX_IRQ,
- 	RB_CTX_SOFTIRQ,
-@@ -2553,10 +2555,10 @@ rb_wakeups(struct ring_buffer *buffer, s
-  * a bit of overhead in something as critical as function tracing,
-  * we use a bitmask trick.
-  *
-- *  bit 0 =  NMI context
-- *  bit 1 =  IRQ context
-- *  bit 2 =  SoftIRQ context
-- *  bit 3 =  normal context.
-+ *  bit 1 =  NMI context
-+ *  bit 2 =  IRQ context
-+ *  bit 3 =  SoftIRQ context
-+ *  bit 4 =  normal context.
-  *
-  * This works because this is the order of contexts that can
-  * preempt other contexts. A SoftIRQ never preempts an IRQ
-@@ -2579,6 +2581,30 @@ rb_wakeups(struct ring_buffer *buffer, s
-  * The least significant bit can be cleared this way, and it
-  * just so happens that it is the same bit corresponding to
-  * the current context.
-+ *
-+ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
-+ * is set when a recursion is detected at the current context, and if
-+ * the TRANSITION bit is already set, it will fail the recursion.
-+ * This is needed because there's a lag between the changing of
-+ * interrupt context and updating the preempt count. In this case,
-+ * a false positive will be found. To handle this, one extra recursion
-+ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
-+ * bit is already set, then it is considered a recursion and the function
-+ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
-+ *
-+ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
-+ * to be cleared. Even if it wasn't the context that set it. That is,
-+ * if an interrupt comes in while NORMAL bit is set and the ring buffer
-+ * is called before preempt_count() is updated, since the check will
-+ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
-+ * NMI then comes in, it will set the NMI bit, but when the NMI code
-+ * does the trace_recursive_unlock() it will clear the TRANSTION bit
-+ * and leave the NMI bit set. But this is fine, because the interrupt
-+ * code that set the TRANSITION bit will then clear the NMI bit when it
-+ * calls trace_recursive_unlock(). If another NMI comes in, it will
-+ * set the TRANSITION bit and continue.
-+ *
-+ * Note: The TRANSITION bit only handles a single transition between context.
-  */
- 
- static __always_inline int
-@@ -2597,8 +2623,16 @@ trace_recursive_lock(struct ring_buffer_
- 	} else
- 		bit = RB_CTX_NORMAL;
- 
--	if (unlikely(val & (1 << bit)))
--		return 1;
-+	if (unlikely(val & (1 << bit))) {
-+		/*
-+		 * It is possible that this was called by transitioning
-+		 * between interrupt context, and preempt_count() has not
-+		 * been updated yet. In this case, use the TRANSITION bit.
-+		 */
-+		bit = RB_CTX_TRANSITION;
-+		if (val & (1 << bit))
-+			return 1;
-+	}
- 
- 	val |= (1 << bit);
- 	cpu_buffer->current_context = val;
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+>  From 11522448e641e8f1690c9db06e01985e8e19b401 Mon Sep 17 00:00:00 2001
+> From: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Date: Sat, 10 Oct 2020 15:14:30 +0000
+> Subject: [PATCH] powerpc/603: Always fault when _PAGE_ACCESSED is not set
+> 
+> The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+> 
+> Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+> is not already set, regardless of the selection of CONFIG_SWAP.
+> 
+> Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+> 
+> diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
+> index 5eb9eedac920..2aa16d5368e1 100644
+> --- a/arch/powerpc/kernel/head_book3s_32.S
+> +++ b/arch/powerpc/kernel/head_book3s_32.S
+> @@ -457,11 +457,7 @@ InstructionTLBMiss:
+>   	cmplw	0,r1,r3
+>   #endif
+>   	mfspr	r2, SPRN_SPRG_PGDIR
+> -#ifdef CONFIG_SWAP
+>   	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+> -#else
+> -	li	r1,_PAGE_PRESENT | _PAGE_EXEC
+> -#endif
+>   #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
+>   	bgt-	112f
+>   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+> @@ -523,11 +519,7 @@ DataLoadTLBMiss:
+>   	lis	r1, TASK_SIZE@h		/* check if kernel address */
+>   	cmplw	0,r1,r3
+>   	mfspr	r2, SPRN_SPRG_PGDIR
+> -#ifdef CONFIG_SWAP
+>   	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+> -#else
+> -	li	r1, _PAGE_PRESENT
+> -#endif
+>   	bgt-	112f
+>   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+>   	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+> @@ -603,11 +595,7 @@ DataStoreTLBMiss:
+>   	lis	r1, TASK_SIZE@h		/* check if kernel address */
+>   	cmplw	0,r1,r3
+>   	mfspr	r2, SPRN_SPRG_PGDIR
+> -#ifdef CONFIG_SWAP
+>   	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+> -#else
+> -	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
+> -#endif
+>   	bgt-	112f
+>   	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+>   	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+> 
