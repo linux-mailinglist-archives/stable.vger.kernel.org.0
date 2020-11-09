@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B94CB2AB970
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C16932ABB06
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731473AbgKINJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:09:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
+        id S2387723AbgKINSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:18:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731812AbgKINJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:09:14 -0500
+        id S1729997AbgKINSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:18:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349D520663;
-        Mon,  9 Nov 2020 13:09:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5C0E20867;
+        Mon,  9 Nov 2020 13:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927353;
-        bh=CWceMhB0cPrlGmheUzrBUAb/GEZjuNyVqksjiSGqbSw=;
+        s=default; t=1604927917;
+        bh=D5SHBHsRTkXq5KDi778HGo7A3C0ktql2c10EKLI6+ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laiU8ncdX46hu8Fbk93haEmt4ZLVdC1YNYVV6yXGTqQmC2kJxcXSaz3ZGzoSW0qo+
-         VnRKbWV4Z/Dj/ijUD1Kaf5lW495ZYm0tEmWQ6l7pDbaJz7m3X3DX49kd/Gx9q5uEqN
-         OMTysYfE0anhw/1hso4bRQzJAf5kK1yWwZl2VpfE=
+        b=mYlw5LjQwxj8ksZPtCiCOiWpZVv1lqMwCv1IWMO31Uim6RU6aiVnNf4wA10wsioZo
+         QY5nWZ0MEpIy3sghcob/UKiLeVYC2LMm9/s5ltlFOwEP+l+uRMHz+LxX4kaXxkfJjd
+         4QYwd5WvuFf25qsgm/AmXv2ZB2w2vP72S72mAbBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Christian Brauner <christian@brauner.io>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 03/71] ptrace: fix task_join_group_stop() for the case when current is traced
+        stable@vger.kernel.org, Petr Malat <oss@malat.biz>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 035/133] sctp: Fix COMM_LOST/CANT_STR_ASSOC err reporting on big-endian platforms
 Date:   Mon,  9 Nov 2020 13:54:57 +0100
-Message-Id: <20201109125020.066127281@linuxfoundation.org>
+Message-Id: <20201109125032.400840224@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,116 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Petr Malat <oss@malat.biz>
 
-commit 7b3c36fc4c231ca532120bbc0df67a12f09c1d96 upstream.
+[ Upstream commit b6df8c81412190fbd5eaa3cec7f642142d9c16cd ]
 
-This testcase
+Commit 978aa0474115 ("sctp: fix some type cast warnings introduced since
+very beginning")' broke err reading from sctp_arg, because it reads the
+value as 32-bit integer, although the value is stored as 16-bit integer.
+Later this value is passed to the userspace in 16-bit variable, thus the
+user always gets 0 on big-endian platforms. Fix it by reading the __u16
+field of sctp_arg union, as reading err field would produce a sparse
+warning.
 
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <pthread.h>
-	#include <assert.h>
-
-	void *tf(void *arg)
-	{
-		return NULL;
-	}
-
-	int main(void)
-	{
-		int pid = fork();
-		if (!pid) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-
-			return 0;
-		}
-
-		waitpid(pid, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, pid, 0, PTRACE_O_TRACECLONE);
-		waitpid(pid, NULL, 0);
-
-		ptrace(PTRACE_CONT, pid, 0,0);
-		waitpid(pid, NULL, 0);
-
-		int status;
-		int thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != pid);
-		assert(status == 0x80137f);
-
-		return 0;
-	}
-
-fails and triggers WARN_ON_ONCE(!signr) in do_jobctl_trap().
-
-This is because task_join_group_stop() has 2 problems when current is traced:
-
-	1. We can't rely on the "JOBCTL_STOP_PENDING" check, a stopped tracee
-	   can be woken up by debugger and it can clone another thread which
-	   should join the group-stop.
-
-	   We need to check group_stop_count || SIGNAL_STOP_STOPPED.
-
-	2. If SIGNAL_STOP_STOPPED is already set, we should not increment
-	   sig->group_stop_count and add JOBCTL_STOP_CONSUME. The new thread
-	   should stop without another do_notify_parent_cldstop() report.
-
-To clarify, the problem is very old and we should blame
-ptrace_init_task().  But now that we have task_join_group_stop() it makes
-more sense to fix this helper to avoid the code duplication.
-
-Reported-by: syzbot+3485e3773f7da290eecc@syzkaller.appspotmail.com
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201019134237.GA18810@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 978aa0474115 ("sctp: fix some type cast warnings introduced since very beginning")
+Signed-off-by: Petr Malat <oss@malat.biz>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/20201030132633.7045-1-oss@malat.biz
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/signal.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ net/sctp/sm_sideeffect.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -385,16 +385,17 @@ static bool task_participate_group_stop(
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1601,12 +1601,12 @@ static int sctp_cmd_interpreter(enum sct
+ 			break;
  
- void task_join_group_stop(struct task_struct *task)
- {
-+	unsigned long mask = current->jobctl & JOBCTL_STOP_SIGMASK;
-+	struct signal_struct *sig = current->signal;
-+
-+	if (sig->group_stop_count) {
-+		sig->group_stop_count++;
-+		mask |= JOBCTL_STOP_CONSUME;
-+	} else if (!(sig->flags & SIGNAL_STOP_STOPPED))
-+		return;
-+
- 	/* Have the new thread join an on-going signal group stop */
--	unsigned long jobctl = current->jobctl;
--	if (jobctl & JOBCTL_STOP_PENDING) {
--		struct signal_struct *sig = current->signal;
--		unsigned long signr = jobctl & JOBCTL_STOP_SIGMASK;
--		unsigned long gstop = JOBCTL_STOP_PENDING | JOBCTL_STOP_CONSUME;
--		if (task_set_jobctl_pending(task, signr | gstop)) {
--			sig->group_stop_count++;
--		}
--	}
-+	task_set_jobctl_pending(task, mask | JOBCTL_STOP_PENDING);
- }
+ 		case SCTP_CMD_INIT_FAILED:
+-			sctp_cmd_init_failed(commands, asoc, cmd->obj.u32);
++			sctp_cmd_init_failed(commands, asoc, cmd->obj.u16);
+ 			break;
  
- /*
+ 		case SCTP_CMD_ASSOC_FAILED:
+ 			sctp_cmd_assoc_failed(commands, asoc, event_type,
+-					      subtype, chunk, cmd->obj.u32);
++					      subtype, chunk, cmd->obj.u16);
+ 			break;
+ 
+ 		case SCTP_CMD_INIT_COUNTER_INC:
 
 
