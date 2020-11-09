@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1562ABC77
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:37:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5292ABB98
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:32:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730574AbgKINhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:37:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57050 "EHLO mail.kernel.org"
+        id S1731839AbgKINMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:12:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730227AbgKINDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:03:53 -0500
+        id S1732530AbgKINMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:12:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F50920663;
-        Mon,  9 Nov 2020 13:03:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52E332083B;
+        Mon,  9 Nov 2020 13:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927032;
-        bh=hPgsxO9ZApL6kah0bzEpqu+hBXmweWunePuwqSSb7Hc=;
+        s=default; t=1604927522;
+        bh=lt5oKQFQOGzq15uQBXdGdsuwBvzOBaHjB9Lqet8QaCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4FnaBwXWq3S5Lg/kK+iIOeQamCh5Ebuw4LglwQj6b9Hdi+TFNku/4ZO7lPkgTKJ0
-         79SBKNGSYyVMgvaZuDXpR7+is4RB4YsKXXt93LHO0bhGwU88bLbypRGkrFXl2EwQxb
-         svVU20r1wHUwjsdS8iYiPRVOmOid0QhrC3QrKjII=
+        b=sJrPIA+paJjGTlXADKVOGlV0TjIiq3yLJ7PSfbQM/E5a3NlHceLQSGcp1eNzNVwNv
+         y9yr12nONGxdl4Zs4CR0wc3DAHh2MeOHv78m6D0dQRpB1LL3szmOV7iJPQxkWh41UD
+         VxojRVx424zIyEkQfK70PaC/Dej4hnzroCNfhOb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.9 088/117] KVM: arm64: Fix AArch32 handling of DBGD{CCINT,SCRext} and DBGVCR
+        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 17/85] ip_tunnel: fix over-mtu packet send fail without TUNNEL_DONT_FRAGMENT flags
 Date:   Mon,  9 Nov 2020 13:55:14 +0100
-Message-Id: <20201109125029.868357384@linuxfoundation.org>
+Message-Id: <20201109125023.415219038@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: wenxu <wenxu@ucloud.cn>
 
-commit 4a1c2c7f63c52ccb11770b5ae25920a6b79d3548 upstream.
+[ Upstream commit 20149e9eb68c003eaa09e7c9a49023df40779552 ]
 
-The DBGD{CCINT,SCRext} and DBGVCR register entries in the cp14 array
-are missing their target register, resulting in all accesses being
-targetted at the guard sysreg (indexed by __INVALID_SYSREG__).
+The tunnel device such as vxlan, bareudp and geneve in the lwt mode set
+the outer df only based TUNNEL_DONT_FRAGMENT.
+And this was also the behavior for gre device before switching to use
+ip_md_tunnel_xmit in commit 962924fa2b7a ("ip_gre: Refactor collect
+metatdata mode tunnel xmit to ip_md_tunnel_xmit")
 
-Point the emulation code at the actual register entries.
+When the ip_gre in lwt mode xmit with ip_md_tunnel_xmi changed the rule and
+make the discrepancy between handling of DF by different tunnels. So in the
+ip_md_tunnel_xmit should follow the same rule like other tunnels.
 
-Fixes: bdfb4b389c8d ("arm64: KVM: add trap handlers for AArch32 debug registers")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201029172409.2768336-1-maz@kernel.org
+Fixes: cfc7381b3002 ("ip_tunnel: add collect_md mode to IPIP tunnel")
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Link: https://lore.kernel.org/r/1604028728-31100-1-git-send-email-wenxu@ucloud.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    6 +++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ net/ipv4/ip_tunnel.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -188,6 +188,7 @@ enum vcpu_sysreg {
- #define cp14_DBGWCR0	(DBGWCR0_EL1 * 2)
- #define cp14_DBGWVR0	(DBGWVR0_EL1 * 2)
- #define cp14_DBGDCCINT	(MDCCINT_EL1 * 2)
-+#define cp14_DBGVCR	(DBGVCR32_EL2 * 2)
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -614,9 +614,6 @@ void ip_md_tunnel_xmit(struct sk_buff *s
+ 			ttl = ip4_dst_hoplimit(&rt->dst);
+ 	}
  
- #define NR_COPRO_REGS	(NR_SYS_REGS * 2)
- 
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1207,9 +1207,9 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 1), Op2( 0), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(1),
- 	/* DBGDCCINT */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 0), trap_debug32, NULL, cp14_DBGDCCINT },
- 	/* DBGDSCRext */
--	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 2), Op2( 2), trap_debug32, NULL, cp14_DBGDSCRext },
- 	DBG_BCR_BVR_WCR_WVR(2),
- 	/* DBGDTR[RT]Xint */
- 	{ Op1( 0), CRn( 0), CRm( 3), Op2( 0), trap_raz_wi },
-@@ -1224,7 +1224,7 @@ static const struct sys_reg_desc cp14_re
- 	{ Op1( 0), CRn( 0), CRm( 6), Op2( 2), trap_raz_wi },
- 	DBG_BCR_BVR_WCR_WVR(6),
- 	/* DBGVCR */
--	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32 },
-+	{ Op1( 0), CRn( 0), CRm( 7), Op2( 0), trap_debug32, NULL, cp14_DBGVCR },
- 	DBG_BCR_BVR_WCR_WVR(7),
- 	DBG_BCR_BVR_WCR_WVR(8),
- 	DBG_BCR_BVR_WCR_WVR(9),
+-	if (!df && skb->protocol == htons(ETH_P_IP))
+-		df = inner_iph->frag_off & htons(IP_DF);
+-
+ 	headroom += LL_RESERVED_SPACE(rt->dst.dev) + rt->dst.header_len;
+ 	if (headroom > dev->needed_headroom)
+ 		dev->needed_headroom = headroom;
 
 
