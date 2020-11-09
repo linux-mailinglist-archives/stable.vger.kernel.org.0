@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA80A2ABA3F
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0CD2ABA3E
 	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732185AbgKINRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:17:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
+        id S2387545AbgKINRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:17:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732047AbgKINRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:17:02 -0500
+        id S2387550AbgKINRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:17:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8791320663;
-        Mon,  9 Nov 2020 13:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FA5C206D8;
+        Mon,  9 Nov 2020 13:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927821;
-        bh=Dt963VQVF/Yn9lMdtsjavxzMWIClMh2WbziDfSARqgE=;
+        s=default; t=1604927824;
+        bh=XaVMIKk/Fu7nd4j8T4EkH/lhmw7SGKRwAW1MZpKBHpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7fgPCh9Pv/W3bPebw4Ip3u9EEixUblpThaKXnpBRc66G0UpVymMnEV864Wz91Xeg
-         YTdpv6sPuITwPd/lXwi840+45LukmPxvOO2oyvftaTxyyOn4XpsF5SQ8bBFa3Jz4be
-         VUL8LcvCholtR0SPtu5XY5UUd1yxr8p97sryV/FM=
+        b=T+UtMm0eRmiUCfQZd0K05oO+3wAljSsIwmF0uNHeRkEysSxP8KWcVhUaF9x7DWv+h
+         CdBCyh2DXE+AIiLJ3/ZHlxUyqM2fyVTJzfwPYPjFQKnZ08U2pNQP2u6/kKV8bR6Sep
+         Fol/w52sWYa2HFRGucDjWk71ZM+9efdh9Tw0G/ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 007/133] drm/i915: Break up error capture compression loops with cond_resched()
-Date:   Mon,  9 Nov 2020 13:54:29 +0100
-Message-Id: <20201109125031.072983289@linuxfoundation.org>
+Subject: [PATCH 5.9 008/133] drm/i915: Cancel outstanding work after disabling heartbeats on an engine
+Date:   Mon,  9 Nov 2020 13:54:30 +0100
+Message-Id: <20201109125031.119093258@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -45,46 +46,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 7d5553147613b50149238ac1385c60e5c7cacb34 upstream.
+commit 7d442ea7c504adcc9798b07cd8f6a0d235fca2da upstream.
 
-As the error capture will compress user buffers as directed to by the
-user, it can take an arbitrary amount of time and space. Break up the
-compression loops with a call to cond_resched(), that will allow other
-processes to schedule (avoiding the soft lockups) and also serve as a
-warning should we try to make this loop atomic in the future.
+We only allow persistent requests to remain on the GPU past the closure
+of their containing context (and process) so long as they are continuously
+checked for hangs or allow other requests to preempt them, as we need to
+ensure forward progress of the system. If we allow persistent contexts
+to remain on the system after the the hangcheck mechanism is disabled,
+the system may grind to a halt. On disabling the mechanism, we sent a
+pulse along the engine to remove all executing contexts from the engine
+which would check for hung contexts -- but we did not prevent those
+contexts from being resubmitted if they survived the final hangcheck.
 
-Testcase: igt/gem_exec_capture/many-*
+Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_ctx_persistence/heartbeat-stop
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200916090059.3189-2-chris@chris-wilson.co.uk
-(cherry picked from commit 293f43c80c0027ff9299036c24218ac705ce584e)
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.7+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Acked-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200928221510.26044-1-chris@chris-wilson.co.uk
+(cherry picked from commit 7a991cd3e3da9a56d5616b62d425db000a3242f2)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_gpu_error.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_engine.h |    9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c    |    5 +++++
+ 2 files changed, 14 insertions(+)
 
---- a/drivers/gpu/drm/i915/i915_gpu_error.c
-+++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-@@ -311,6 +311,8 @@ static int compress_page(struct i915_vma
- 
- 		if (zlib_deflate(zstream, Z_NO_FLUSH) != Z_OK)
- 			return -EIO;
-+
-+		cond_resched();
- 	} while (zstream->avail_in);
- 
- 	/* Fallback to uncompressed if we increase size? */
-@@ -397,6 +399,7 @@ static int compress_page(struct i915_vma
- 	if (!(wc && i915_memcpy_from_wc(ptr, src, PAGE_SIZE)))
- 		memcpy(ptr, src, PAGE_SIZE);
- 	dst->pages[dst->page_count++] = ptr;
-+	cond_resched();
- 
- 	return 0;
+--- a/drivers/gpu/drm/i915/gt/intel_engine.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+@@ -357,4 +357,13 @@ intel_engine_has_preempt_reset(const str
+ 	return intel_engine_has_preemption(engine);
  }
+ 
++static inline bool
++intel_engine_has_heartbeat(const struct intel_engine_cs *engine)
++{
++	if (!IS_ACTIVE(CONFIG_DRM_I915_HEARTBEAT_INTERVAL))
++		return false;
++
++	return READ_ONCE(engine->props.heartbeat_interval_ms);
++}
++
+ #endif /* _INTEL_RINGBUFFER_H_ */
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -549,8 +549,13 @@ bool __i915_request_submit(struct i915_r
+ 	if (i915_request_completed(request))
+ 		goto xfer;
+ 
++	if (unlikely(intel_context_is_closed(request->context) &&
++		     !intel_engine_has_heartbeat(engine)))
++		intel_context_set_banned(request->context);
++
+ 	if (unlikely(intel_context_is_banned(request->context)))
+ 		i915_request_set_error_once(request, -EIO);
++
+ 	if (unlikely(fatal_error(request->fence.error)))
+ 		__i915_request_skip(request);
+ 
 
 
