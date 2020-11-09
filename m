@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4E42ABB48
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E85E2AB9AD
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732913AbgKIN0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:26:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
+        id S1731543AbgKINLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732105AbgKINPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:15:36 -0500
+        id S1731757AbgKINL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 505612076E;
-        Mon,  9 Nov 2020 13:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8937F2076E;
+        Mon,  9 Nov 2020 13:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927735;
-        bh=u1RFd9eUWYMDgsfHmJHaW91FwZzOe0yAYKR+coiZDfE=;
+        s=default; t=1604927487;
+        bh=H64nzRCPW422wYyOo1zSeWbPHtd0/Fy7QeE82Wz53Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyTf98hM3fpl5fVFYFkjKSU3ep4dgF/LNm8qrNmodqTxaVg1RipHhxHttN/Zu3Ywd
-         RrNkE34w8FqqzVQTbcimt7R2gQO1nc7DxL0CFKnD8gJ7be5SgnCRaDckQyP5dI2OX1
-         ROQPhOAfTZxgAWfztRha19vQBjRBnQeLApWY6Mhs=
+        b=NWTe2sEIWCFl88iAUkivit6q9xAuVG3z9XsSkfpychUhk8mDnuPBqx84ygtq3Z8iw
+         RaKSTE77cBHKx/nOzwd6jnLGxxDCdnEkswNPvXrhTExMfyvw2SdzjyG1xkBGBgBXtO
+         T3fh8gzJf1bk7ubHfkxXu9A3s8uzIIpqyjRRntdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Egorenkov <Alexander.Egorenkov@ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.4 66/85] s390/pkey: fix paes selftest failure with paes and pkey static build
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 69/71] tools: perf: Fix build error in v4.19.y
 Date:   Mon,  9 Nov 2020 13:56:03 +0100
-Message-Id: <20201109125025.741176408@linuxfoundation.org>
+Message-Id: <20201109125023.136764212@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-References: <20201109125022.614792961@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
+References: <20201109125019.906191744@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 5b35047eb467c8cdd38a31beb9ac109221777843 upstream.
+perf may fail to build in v4.19.y with the following error.
 
-When both the paes and the pkey kernel module are statically build
-into the kernel, the paes cipher selftests run before the pkey
-kernel module is initialized. So a static variable set in the pkey
-init function and used in the pkey_clr2protkey function is not
-initialized when the paes cipher's selftests request to call pckmo for
-transforming a clear key value into a protected key.
+util/evsel.c: In function ‘perf_evsel__exit’:
+util/util.h:25:28: error:
+	passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
 
-This patch moves the initial setup of the static variable into
-the function pck_clr2protkey. So it's possible, to use the function
-for transforming a clear to a protected key even before the pkey
-init function has been called and the paes selftests may run
-successful.
+This is observed (at least) with gcc v6.5.0. The underlying problem is
+the following statement.
+	zfree(&evsel->pmu_name);
+evsel->pmu_name is decared 'const *'. zfree in turn is defined as
+	#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
+and thus passes the const * to free(). The problem is not seen
+in the upstream kernel since zfree() has been rewritten there.
 
-Reported-by: Alexander Egorenkov <Alexander.Egorenkov@ibm.com>
-Cc: <stable@vger.kernel.org> # 4.20
-Fixes: f822ad2c2c03 ("s390/pkey: move pckmo subfunction available checks away from module init")
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+The problem has been introduced into v4.19.y with the backport of upstream
+commit d4953f7ef1a2 (perf parse-events: Fix 3 use after frees found with
+clang ASAN).
+
+One possible fix of this problem would be to not declare pmu_name
+as const. This patch chooses to typecast the parameter of zfree()
+to void *, following the guidance from the upstream kernel which
+does the same since commit 7f7c536f23e6a ("tools lib: Adopt
+zalloc()/zfree() from tools/perf")
+
+Fixes: a0100a363098 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/s390/crypto/pkey_api.c |   30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+This patch only applies to v4.19.y and has no upstream equivalent.
 
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -33,9 +33,6 @@ MODULE_DESCRIPTION("s390 protected key i
- #define KEYBLOBBUFSIZE 8192  /* key buffer size used for internal processing */
- #define MAXAPQNSINLIST 64    /* max 64 apqns within a apqn list */
+ tools/perf/util/util.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -22,7 +22,7 @@ static inline void *zalloc(size_t size)
+ 	return calloc(1, size);
+ }
  
--/* mask of available pckmo subfunctions, fetched once at module init */
--static cpacf_mask_t pckmo_functions;
--
- /*
-  * debug feature data and functions
-  */
-@@ -78,6 +75,9 @@ static int pkey_clr2protkey(u32 keytype,
- 			    const struct pkey_clrkey *clrkey,
- 			    struct pkey_protkey *protkey)
- {
-+	/* mask of available pckmo subfunctions */
-+	static cpacf_mask_t pckmo_functions;
-+
- 	long fc;
- 	int keysize;
- 	u8 paramblock[64];
-@@ -101,11 +101,13 @@ static int pkey_clr2protkey(u32 keytype,
- 		return -EINVAL;
- 	}
+-#define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
++#define zfree(ptr) ({ free((void *)*ptr); *ptr = NULL; })
  
--	/*
--	 * Check if the needed pckmo subfunction is available.
--	 * These subfunctions can be enabled/disabled by customers
--	 * in the LPAR profile or may even change on the fly.
--	 */
-+	/* Did we already check for PCKMO ? */
-+	if (!pckmo_functions.bytes[0]) {
-+		/* no, so check now */
-+		if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
-+			return -ENODEV;
-+	}
-+	/* check for the pckmo subfunction we need now */
- 	if (!cpacf_test_func(&pckmo_functions, fc)) {
- 		DEBUG_ERR("%s pckmo functions not available\n", __func__);
- 		return -ENODEV;
-@@ -1504,7 +1506,7 @@ static struct miscdevice pkey_dev = {
-  */
- static int __init pkey_init(void)
- {
--	cpacf_mask_t kmc_functions;
-+	cpacf_mask_t func_mask;
- 
- 	/*
- 	 * The pckmo instruction should be available - even if we don't
-@@ -1512,15 +1514,15 @@ static int __init pkey_init(void)
- 	 * is also the minimum level for the kmc instructions which
- 	 * are able to work with protected keys.
- 	 */
--	if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
-+	if (!cpacf_query(CPACF_PCKMO, &func_mask))
- 		return -ENODEV;
- 
- 	/* check for kmc instructions available */
--	if (!cpacf_query(CPACF_KMC, &kmc_functions))
-+	if (!cpacf_query(CPACF_KMC, &func_mask))
- 		return -ENODEV;
--	if (!cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_128) ||
--	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_192) ||
--	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_256))
-+	if (!cpacf_test_func(&func_mask, CPACF_KMC_PAES_128) ||
-+	    !cpacf_test_func(&func_mask, CPACF_KMC_PAES_192) ||
-+	    !cpacf_test_func(&func_mask, CPACF_KMC_PAES_256))
- 		return -ENODEV;
- 
- 	pkey_debug_init();
+ struct dirent;
+ struct nsinfo;
 
 
