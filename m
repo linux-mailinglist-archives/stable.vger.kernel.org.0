@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E48892AB92D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 142062ABA5A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730884AbgKINGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:06:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59318 "EHLO mail.kernel.org"
+        id S1733233AbgKINSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:18:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731101AbgKINGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:06:33 -0500
+        id S2387659AbgKINSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:18:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33A81206B2;
-        Mon,  9 Nov 2020 13:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F21EF2083B;
+        Mon,  9 Nov 2020 13:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927192;
-        bh=bBOPXahczJMWEma0bKzrrtfJ7ARjPV24msxAKPLzGag=;
+        s=default; t=1604927882;
+        bh=XQ8KUiXSzjdjZ9/rGV6OUkkc+zV4V6c4XOesKNgU1BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gP0goEuc2Bu8QalWVPoQ4wu5IVca+ldSKdhbkqIHscjqvFjWV+kVWzN0dkGN49Epz
-         8IGEifC20TyzLeEKhP/3cmrlMLC3neBQ5RjYIhmKu6S8qEbNu0CH5/XtxsTG/T5fe7
-         N+K2RQpRUk9TcIToJ+8VkAV7OiU8iyX6W+hA2piA=
+        b=eTOj8Hn4EclGhBNuEw07WP7icrxxdAm5lR12GWixawYci5DsaEmdCbfe42DnMkYVe
+         aigtyFCcyxk1nnZKGutV6YepzoKUqkrkjNPVq682v4t8iHo34iszno2Uu+eFIoupRW
+         TYFyNIyx4uLKvckhih+4lVllxuo57DgxANOTbJkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Jurack <james.jurack@ametek.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 05/48] gianfar: Account for Tx PTP timestamp in the skb headroom
-Date:   Mon,  9 Nov 2020 13:55:14 +0100
-Message-Id: <20201109125017.003586848@linuxfoundation.org>
+        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.9 053/133] mm: mempolicy: fix potential pte_unmap_unlock pte error
+Date:   Mon,  9 Nov 2020 13:55:15 +0100
+Message-Id: <20201109125033.272440345@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125016.734107741@linuxfoundation.org>
-References: <20201109125016.734107741@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Shijie Luo <luoshijie1@huawei.com>
 
-[ Upstream commit d6a076d68c6b5d6a5800f3990a513facb7016dea ]
+commit 3f08842098e842c51e3b97d0dcdebf810b32558e upstream.
 
-When PTP timestamping is enabled on Tx, the controller
-inserts the Tx timestamp at the beginning of the frame
-buffer, between SFD and the L2 frame header. This means
-that the skb provided by the stack is required to have
-enough headroom otherwise a new skb needs to be created
-by the driver to accommodate the timestamp inserted by h/w.
-Up until now the driver was relying on the second option,
-using skb_realloc_headroom() to create a new skb to accommodate
-PTP frames. Turns out that this method is not reliable, as
-reallocation of skbs for PTP frames along with the required
-overhead (skb_set_owner_w, consume_skb) is causing random
-crashes in subsequent skb_*() calls, when multiple concurrent
-TCP streams are run at the same time on the same device
-(as seen in James' report).
-Note that these crashes don't occur with a single TCP stream,
-nor with multiple concurrent UDP streams, but only when multiple
-TCP streams are run concurrently with the PTP packet flow
-(doing skb reallocation).
-This patch enforces the first method, by requesting enough
-headroom from the stack to accommodate PTP frames, and so avoiding
-skb_realloc_headroom() & co, and the crashes no longer occur.
-There's no reason not to set needed_headroom to a large enough
-value to accommodate PTP frames, so in this regard this patch
-is a fix.
+When flags in queue_pages_pte_range don't have MPOL_MF_MOVE or
+MPOL_MF_MOVE_ALL bits, code breaks and passing origin pte - 1 to
+pte_unmap_unlock seems like not a good idea.
 
-Reported-by: James Jurack <james.jurack@ametek.com>
-Fixes: bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20201020173605.1173-1-claudiu.manoil@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+queue_pages_pte_range can run in MPOL_MF_MOVE_ALL mode which doesn't
+migrate misplaced pages but returns with EIO when encountering such a
+page.  Since commit a7f40cfe3b7a ("mm: mempolicy: make mbind() return
+-EIO when MPOL_MF_STRICT is specified") and early break on the first pte
+in the range results in pte_unmap_unlock on an underflow pte.  This can
+lead to lockups later on when somebody tries to lock the pte resp.
+page_table_lock again..
+
+Fixes: a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when MPOL_MF_STRICT is specified")
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Shijie Luo <luoshijie1@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201019074853.50856-1-luoshijie1@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/freescale/gianfar.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -1388,7 +1388,7 @@ static int gfar_probe(struct platform_de
+---
+ mm/mempolicy.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -525,7 +525,7 @@ static int queue_pages_pte_range(pmd_t *
+ 	unsigned long flags = qp->flags;
+ 	int ret;
+ 	bool has_unmovable = false;
+-	pte_t *pte;
++	pte_t *pte, *mapped_pte;
+ 	spinlock_t *ptl;
  
- 	if (dev->features & NETIF_F_IP_CSUM ||
- 	    priv->device_flags & FSL_GIANFAR_DEV_HAS_TIMER)
--		dev->needed_headroom = GMAC_FCB_LEN;
-+		dev->needed_headroom = GMAC_FCB_LEN + GMAC_TXPAL_LEN;
+ 	ptl = pmd_trans_huge_lock(pmd, vma);
+@@ -539,7 +539,7 @@ static int queue_pages_pte_range(pmd_t *
+ 	if (pmd_trans_unstable(pmd))
+ 		return 0;
  
- 	/* Initializing some of the rx/tx queue level parameters */
- 	for (i = 0; i < priv->num_tx_queues; i++) {
+-	pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
++	mapped_pte = pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
+ 	for (; addr != end; pte++, addr += PAGE_SIZE) {
+ 		if (!pte_present(*pte))
+ 			continue;
+@@ -571,7 +571,7 @@ static int queue_pages_pte_range(pmd_t *
+ 		} else
+ 			break;
+ 	}
+-	pte_unmap_unlock(pte - 1, ptl);
++	pte_unmap_unlock(mapped_pte, ptl);
+ 	cond_resched();
+ 
+ 	if (has_unmovable)
 
 
