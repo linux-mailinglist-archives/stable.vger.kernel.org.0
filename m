@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 530D72ABA3C
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA80A2ABA3F
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbgKINRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:17:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
+        id S1732185AbgKINRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:17:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387534AbgKINQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:16:59 -0500
+        id S1732047AbgKINRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:17:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E3B620731;
-        Mon,  9 Nov 2020 13:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8791320663;
+        Mon,  9 Nov 2020 13:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927818;
-        bh=iBl7QcHeW99nusJn/uI8V7dx1V2IUg4flcnANZ0veZ8=;
+        s=default; t=1604927821;
+        bh=Dt963VQVF/Yn9lMdtsjavxzMWIClMh2WbziDfSARqgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+gnzV4qJX8m3nR9Cj4/Cb2vdJ+M9bK71PCQaa+ggCboGUKeWeA8/NoR1KBt6kHQ7
-         MTrhgCvMNdfisY6ZuzWEn4SXz4eonkIJ7AakqnhsDueUy8H1TA67xEHqQT1K7ezRj2
-         GFSw1ChG6mlMZoWRA3pWgSdG0PtutJPUuJkzKpgI=
+        b=J7fgPCh9Pv/W3bPebw4Ip3u9EEixUblpThaKXnpBRc66G0UpVymMnEV864Wz91Xeg
+         YTdpv6sPuITwPd/lXwi840+45LukmPxvOO2oyvftaTxyyOn4XpsF5SQ8bBFa3Jz4be
+         VUL8LcvCholtR0SPtu5XY5UUd1yxr8p97sryV/FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 006/133] drm/i915/gt: Always send a pulse down the engine after disabling heartbeat
-Date:   Mon,  9 Nov 2020 13:54:28 +0100
-Message-Id: <20201109125031.022270314@linuxfoundation.org>
+Subject: [PATCH 5.9 007/133] drm/i915: Break up error capture compression loops with cond_resched()
+Date:   Mon,  9 Nov 2020 13:54:29 +0100
+Message-Id: <20201109125031.072983289@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
 References: <20201109125030.706496283@linuxfoundation.org>
@@ -46,171 +45,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit ca65fc0d8e01dca8fc82f0ccf433725469256c71 upstream.
+commit 7d5553147613b50149238ac1385c60e5c7cacb34 upstream.
 
-Currently, we check we can send a pulse prior to disabling the
-heartbeat to verify that we can change the heartbeat, but since we may
-re-evaluate execution upon changing the heartbeat interval we need another
-pulse afterwards to refresh execution.
+As the error capture will compress user buffers as directed to by the
+user, it can take an arbitrary amount of time and space. Break up the
+compression loops with a call to cond_resched(), that will allow other
+processes to schedule (avoiding the soft lockups) and also serve as a
+warning should we try to make this loop atomic in the future.
 
-v2: Tvrtko asked if we could reduce the double pulse to a single, which
-opened up a discussion of how we should handle the pulse-error after
-attempting to change the property, and the desire to serialise
-adjustment of the property with its validating pulse, and unwind upon
-failure.
-
-Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_exec_capture/many-*
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.7+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Acked-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200928221510.26044-2-chris@chris-wilson.co.uk
-(cherry picked from commit 3dd66a94de59d7792e7917eb3075342e70f06f44)
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916090059.3189-2-chris@chris-wilson.co.uk
+(cherry picked from commit 293f43c80c0027ff9299036c24218ac705ce584e)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c |  106 ++++++++++++++---------
- 1 file changed, 67 insertions(+), 39 deletions(-)
+ drivers/gpu/drm/i915/i915_gpu_error.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-@@ -177,36 +177,82 @@ void intel_engine_init_heartbeat(struct
- 	INIT_DELAYED_WORK(&engine->heartbeat.work, heartbeat);
- }
+--- a/drivers/gpu/drm/i915/i915_gpu_error.c
++++ b/drivers/gpu/drm/i915/i915_gpu_error.c
+@@ -311,6 +311,8 @@ static int compress_page(struct i915_vma
  
-+static int __intel_engine_pulse(struct intel_engine_cs *engine)
-+{
-+	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
-+	struct intel_context *ce = engine->kernel_context;
-+	struct i915_request *rq;
+ 		if (zlib_deflate(zstream, Z_NO_FLUSH) != Z_OK)
+ 			return -EIO;
 +
-+	lockdep_assert_held(&ce->timeline->mutex);
-+	GEM_BUG_ON(!intel_engine_has_preemption(engine));
-+	GEM_BUG_ON(!intel_engine_pm_is_awake(engine));
-+
-+	intel_context_enter(ce);
-+	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
-+	intel_context_exit(ce);
-+	if (IS_ERR(rq))
-+		return PTR_ERR(rq);
-+
-+	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
-+	idle_pulse(engine, rq);
-+
-+	__i915_request_commit(rq);
-+	__i915_request_queue(rq, &attr);
-+	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
-+
-+	return 0;
-+}
-+
-+static unsigned long set_heartbeat(struct intel_engine_cs *engine,
-+				   unsigned long delay)
-+{
-+	unsigned long old;
-+
-+	old = xchg(&engine->props.heartbeat_interval_ms, delay);
-+	if (delay)
-+		intel_engine_unpark_heartbeat(engine);
-+	else
-+		intel_engine_park_heartbeat(engine);
-+
-+	return old;
-+}
-+
- int intel_engine_set_heartbeat(struct intel_engine_cs *engine,
- 			       unsigned long delay)
- {
--	int err;
-+	struct intel_context *ce = engine->kernel_context;
-+	int err = 0;
++		cond_resched();
+ 	} while (zstream->avail_in);
  
--	/* Send one last pulse before to cleanup persistent hogs */
--	if (!delay && IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT)) {
--		err = intel_engine_pulse(engine);
--		if (err)
--			return err;
--	}
-+	if (!delay && !intel_engine_has_preempt_reset(engine))
-+		return -ENODEV;
-+
-+	intel_engine_pm_get(engine);
-+
-+	err = mutex_lock_interruptible(&ce->timeline->mutex);
-+	if (err)
-+		goto out_rpm;
+ 	/* Fallback to uncompressed if we increase size? */
+@@ -397,6 +399,7 @@ static int compress_page(struct i915_vma
+ 	if (!(wc && i915_memcpy_from_wc(ptr, src, PAGE_SIZE)))
+ 		memcpy(ptr, src, PAGE_SIZE);
+ 	dst->pages[dst->page_count++] = ptr;
++	cond_resched();
  
--	WRITE_ONCE(engine->props.heartbeat_interval_ms, delay);
-+	if (delay != engine->props.heartbeat_interval_ms) {
-+		unsigned long saved = set_heartbeat(engine, delay);
- 
--	if (intel_engine_pm_get_if_awake(engine)) {
--		if (delay)
--			intel_engine_unpark_heartbeat(engine);
--		else
--			intel_engine_park_heartbeat(engine);
--		intel_engine_pm_put(engine);
-+		/* recheck current execution */
-+		if (intel_engine_has_preemption(engine)) {
-+			err = __intel_engine_pulse(engine);
-+			if (err)
-+				set_heartbeat(engine, saved);
-+		}
- 	}
- 
--	return 0;
-+	mutex_unlock(&ce->timeline->mutex);
-+
-+out_rpm:
-+	intel_engine_pm_put(engine);
-+	return err;
- }
- 
- int intel_engine_pulse(struct intel_engine_cs *engine)
- {
--	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
- 	struct intel_context *ce = engine->kernel_context;
--	struct i915_request *rq;
- 	int err;
- 
- 	if (!intel_engine_has_preemption(engine))
-@@ -215,30 +261,12 @@ int intel_engine_pulse(struct intel_engi
- 	if (!intel_engine_pm_get_if_awake(engine))
- 		return 0;
- 
--	if (mutex_lock_interruptible(&ce->timeline->mutex)) {
--		err = -EINTR;
--		goto out_rpm;
-+	err = -EINTR;
-+	if (!mutex_lock_interruptible(&ce->timeline->mutex)) {
-+		err = __intel_engine_pulse(engine);
-+		mutex_unlock(&ce->timeline->mutex);
- 	}
- 
--	intel_context_enter(ce);
--	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
--	intel_context_exit(ce);
--	if (IS_ERR(rq)) {
--		err = PTR_ERR(rq);
--		goto out_unlock;
--	}
--
--	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
--	idle_pulse(engine, rq);
--
--	__i915_request_commit(rq);
--	__i915_request_queue(rq, &attr);
--	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
--	err = 0;
--
--out_unlock:
--	mutex_unlock(&ce->timeline->mutex);
--out_rpm:
- 	intel_engine_pm_put(engine);
- 	return err;
+ 	return 0;
  }
 
 
