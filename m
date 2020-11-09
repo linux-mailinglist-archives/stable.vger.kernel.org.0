@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8B22ABDAC
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9572ABCED
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgKINsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:48:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51206 "EHLO mail.kernel.org"
+        id S1730170AbgKINlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:41:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729804AbgKIM41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:56:27 -0500
+        id S1730591AbgKINBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:01:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EB7520684;
-        Mon,  9 Nov 2020 12:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81A9620679;
+        Mon,  9 Nov 2020 13:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926587;
-        bh=Ed4kK7zk2WPTs4uwc7GM7aRTDxJUIEU8//d1xkhIiG8=;
+        s=default; t=1604926903;
+        bh=mhZVlYlOw2yc0uAA3UI/KnbYED2JazQjwZkQeI1Kf+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgfZn/Wn2Nn8LJid2G+bENtGWSK3SDoKV9vqOg6WJVGXlZYIAv4yi4s5Bucv9LcSt
-         D3wDd2YcO3TGYL0o7+7Malhrmbw6GhNhsveeA20/v8sOv3pLkwljlxeU65vJEAG70E
-         Kb6j4//hVMogrdvGBImCBwbhRXr4leg3ZAWoiAeg=
+        b=JgC3N8Cp45lkcEwX0xKlVl9D3wbRlUCLElxxdE9UdHO+du6qiCXwfvVM9Q4S2m0UU
+         f/6iT8pOsEWm5gxkEEqTSJQ82/GWZcD/pmWIl6XOyx5BKiq4wRJF6C2BFvvioCiI4p
+         4zFh6Ld0aunmwH09MGj+nshHpRl4WpwV4px64adQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 21/86] USB: adutux: fix debugging
+Subject: [PATCH 4.9 042/117] ARM: dts: s5pv210: remove DMA controller bus node name to fix dtschema warnings
 Date:   Mon,  9 Nov 2020 13:54:28 +0100
-Message-Id: <20201109125021.894088840@linuxfoundation.org>
+Message-Id: <20201109125027.658169262@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
-References: <20201109125020.852643676@linuxfoundation.org>
+In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
+References: <20201109125025.630721781@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit c56150c1bc8da5524831b1dac2eec3c67b89f587 ]
+[ Upstream commit ea4e792f3c8931fffec4d700cf6197d84e9f35a6 ]
 
-Handling for removal of the controller was missing at one place.
-Add it.
+There is no need to keep DMA controller nodes under AMBA bus node.
+Remove the "amba" node to fix dtschema warnings like:
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20200917112600.26508-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  amba: $nodename:0: 'amba' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Jonathan Bakker <xc-racer2@live.ca>
+Link: https://lore.kernel.org/r/20200907161141.31034-6-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/adutux.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/s5pv210.dtsi | 49 +++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/usb/misc/adutux.c b/drivers/usb/misc/adutux.c
-index ba5c0a4591ac9..012d97f9c30c7 100644
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -210,6 +210,7 @@ static void adu_interrupt_out_callback(struct urb *urb)
+diff --git a/arch/arm/boot/dts/s5pv210.dtsi b/arch/arm/boot/dts/s5pv210.dtsi
+index 0c10ba517cd04..57f64a7160290 100644
+--- a/arch/arm/boot/dts/s5pv210.dtsi
++++ b/arch/arm/boot/dts/s5pv210.dtsi
+@@ -129,35 +129,28 @@
+ 			};
+ 		};
  
- 	if (status != 0) {
- 		if ((status != -ENOENT) &&
-+		    (status != -ESHUTDOWN) &&
- 		    (status != -ECONNRESET)) {
- 			dev_dbg(&dev->udev->dev,
- 				"%s :nonzero status received: %d\n", __func__,
+-		amba {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges;
+-
+-			pdma0: dma@e0900000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0900000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <19>;
+-				clocks = <&clocks CLK_PDMA0>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma0: dma@e0900000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0900000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <19>;
++			clocks = <&clocks CLK_PDMA0>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
++		};
+ 
+-			pdma1: dma@e0a00000 {
+-				compatible = "arm,pl330", "arm,primecell";
+-				reg = <0xe0a00000 0x1000>;
+-				interrupt-parent = <&vic0>;
+-				interrupts = <20>;
+-				clocks = <&clocks CLK_PDMA1>;
+-				clock-names = "apb_pclk";
+-				#dma-cells = <1>;
+-				#dma-channels = <8>;
+-				#dma-requests = <32>;
+-			};
++		pdma1: dma@e0a00000 {
++			compatible = "arm,pl330", "arm,primecell";
++			reg = <0xe0a00000 0x1000>;
++			interrupt-parent = <&vic0>;
++			interrupts = <20>;
++			clocks = <&clocks CLK_PDMA1>;
++			clock-names = "apb_pclk";
++			#dma-cells = <1>;
++			#dma-channels = <8>;
++			#dma-requests = <32>;
+ 		};
+ 
+ 		spi0: spi@e1300000 {
 -- 
 2.27.0
 
