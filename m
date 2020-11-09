@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925F72AB8EF
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E74A2AB8F1
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:00:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730388AbgKIM7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 07:59:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
+        id S1729828AbgKIM7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 07:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729493AbgKIM7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 07:59:41 -0500
+        id S1729857AbgKIM7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:59:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F12A020789;
-        Mon,  9 Nov 2020 12:59:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F1F20684;
+        Mon,  9 Nov 2020 12:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926779;
-        bh=ZoIqSowvd9AcHwa//C2hMy5BtF8+rdktiD/XC6VSwCM=;
+        s=default; t=1604926785;
+        bh=l6anSHEtzawePlKPuHqUQ05Fhfkezuk2+iq5efPwSyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsEl2xusQAHDn7BlsWS5duwdmOiyPLNQNaP4Ss4EY+F4gyobA1dQQg/VuFhvgZd6h
-         zVYK2R8IuHhKKR4EoZ5qSc4O196H9eEb6jptWlLo/5DjKYDTqBpCvtvdYnd+aSjXBV
-         lj2xmpFOMVKqLzMueXwwigONiU7+aQPcVmuk7QJo=
+        b=H1X9bCGTLdDJRug26ITdN9ZIECnHyQaYGFnfXIwMYNdA9Lf0r8NHsO6oS3OAhGo7N
+         bMclxtK0cRHIPuDQE8eX/CHC7VOjH2CWNy2UmcYxFkf8QvsSUOmGyigr75y0EkmZAb
+         jyQW1j9A6AzZr4ykuo0n+nj1rEXtVff3Ok9BJGtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH 4.4 80/86] serial: txx9: add missing platform_driver_unregister() on error in serial_txx9_init
-Date:   Mon,  9 Nov 2020 13:55:27 +0100
-Message-Id: <20201109125024.633978087@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 82/86] USB: serial: option: add LE910Cx compositions 0x1203, 0x1230, 0x1231
+Date:   Mon,  9 Nov 2020 13:55:29 +0100
+Message-Id: <20201109125024.736639024@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
 References: <20201109125020.852643676@linuxfoundation.org>
@@ -41,36 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 0c5fc92622ed5531ff324b20f014e9e3092f0187 upstream.
+commit 489979b4aab490b6b917c11dc02d81b4b742784a upstream.
 
-Add the missing platform_driver_unregister() before return
-from serial_txx9_init in the error handling case when failed
-to register serial_txx9_pci_driver with macro ENABLE_SERIAL_TXX9_PCI
-defined.
+Add following Telit LE910Cx compositions:
 
-Fixes: ab4382d27412 ("tty: move drivers/serial/ to drivers/tty/serial/")
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201103084942.109076-1-miaoqinglang@huawei.com
-Cc: stable <stable@vger.kernel.org>
+0x1203: rndis, tty, adb, tty, tty, tty, tty
+0x1230: tty, adb, rmnet, audio, tty, tty, tty, tty
+0x1231: rndis, tty, adb, audio, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20201031225458.10512-1-dnlplm@gmail.com
+[ johan: add comments after entries ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/serial_txx9.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/tty/serial/serial_txx9.c
-+++ b/drivers/tty/serial/serial_txx9.c
-@@ -1287,6 +1287,9 @@ static int __init serial_txx9_init(void)
- 
- #ifdef ENABLE_SERIAL_TXX9_PCI
- 	ret = pci_register_driver(&serial_txx9_pci_driver);
-+	if (ret) {
-+		platform_driver_unregister(&serial_txx9_plat_driver);
-+	}
- #endif
- 	if (ret == 0)
- 		goto out;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1186,6 +1186,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1203, 0xff),	/* Telit LE910Cx (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
+@@ -1200,6 +1202,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1230, 0xff),	/* Telit LE910Cx (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1231, 0xff),	/* Telit LE910Cx (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
 
 
