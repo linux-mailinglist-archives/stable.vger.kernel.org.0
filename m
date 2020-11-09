@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF562AB989
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:10:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7923C2AB9E1
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731140AbgKINKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:10:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35370 "EHLO mail.kernel.org"
+        id S1732956AbgKINNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:13:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730637AbgKINKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:10:13 -0500
+        id S1731621AbgKINNd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:13:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A25E12076E;
-        Mon,  9 Nov 2020 13:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 101262083B;
+        Mon,  9 Nov 2020 13:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927412;
-        bh=fNHrt/GdcOtMrdpxZLIszplS2BMx/sgK37xpgdSdbCU=;
+        s=default; t=1604927612;
+        bh=VLse2Z6NhS8fDKFaVBcSRIry1Vxk7y3pzIPZuEQfV0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAoR7wjomNbsu6c3e6i9hRBVa8wzVLYJQKtMgaWpqeC/bc5R5tgRX7bNNsQBrTJvT
-         smf3xWdpy9Hr5mt5h35wxlutM2hy9YJBbqo3q8Egu0KsmAgHhP5wfdIEDjctXP+6I/
-         qFX8VOCf7BXwFGROwLjlrhqex8aIAVd3RerNK4NQ=
+        b=TMWUh4lfRk2h7TM3o8YcxrqA9B2kR5EB5SOvqZZgQS1XpkRwvi7MeKI3yXYs5dGqK
+         P4lgQwrIoT+Erm7PKr/ZMmDY8lMK1ed8EN0RGmV6euF/s5FjmZ4wymzqPdho+G2aVf
+         IHQV/79+RXy/C6yr2OWYYBLvYPIMLra+B39euyic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/71] blk-cgroup: Pre-allocate tree node on blkg_conf_prep
+        stable@vger.kernel.org, Taras Galchenko <tpgalchenko@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 47/85] drm/sun4i: frontend: Reuse the ch0 phase for RGB formats
 Date:   Mon,  9 Nov 2020 13:55:44 +0100
-Message-Id: <20201109125022.246579367@linuxfoundation.org>
+Message-Id: <20201109125024.849356191@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
-References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit f255c19b3ab46d3cad3b1b2e1036f4c926cb1d0c ]
+[ Upstream commit 2db9ef9d9e6ea89a9feb5338f58d1f8f83875577 ]
 
-Similarly to commit 457e490f2b741 ("blkcg: allocate struct blkcg_gq
-outside request queue spinlock"), blkg_create can also trigger
-occasional -ENOMEM failures at the radix insertion because any
-allocation inside blkg_create has to be non-blocking, making it more
-likely to fail.  This causes trouble for userspace tools trying to
-configure io weights who need to deal with this condition.
+When using the scaler on the A10-like frontend with single-planar formats,
+the current code will setup the channel 0 filter (used for the R or Y
+component) with a different phase parameter than the channel 1 filter (used
+for the G/B or U/V components).
 
-This patch reduces the occurrence of -ENOMEMs on this path by preloading
-the radix tree element on a GFP_KERNEL context, such that we guarantee
-the later non-blocking insertion won't fail.
+This creates a bleed out that keeps repeating on of the last line of the
+RGB plane across the rest of the display. The Allwinner BSP either applies
+the same phase parameter over both channels or use a separate one, the
+condition being whether the input format is YUV420 or not.
 
-A similar solution exists in blkcg_init_queue for the same situation.
+Since YUV420 is both subsampled and multi-planar, and since YUYV is
+subsampled but single-planar, we can rule out the subsampling and assume
+that the condition is actually whether the format is single or
+multi-planar. And it looks like applying the same phase parameter over both
+channels for single-planar formats fixes our issue, while we keep the
+multi-planar formats working properly.
 
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Taras Galchenko <tpgalchenko@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201015093642.261440-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_frontend.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 51fc803c999d7..85bd46e0a745f 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -876,6 +876,12 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 			goto fail;
- 		}
+diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.c b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+index 7462801b1fa8e..c4959d9e16391 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_frontend.c
++++ b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+@@ -407,6 +407,7 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+ 	struct drm_framebuffer *fb = state->fb;
+ 	const struct drm_format_info *format = fb->format;
+ 	uint64_t modifier = fb->modifier;
++	unsigned int ch1_phase_idx;
+ 	u32 out_fmt_val;
+ 	u32 in_fmt_val, in_mod_val, in_ps_val;
+ 	unsigned int i;
+@@ -442,18 +443,19 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
+ 	 * I have no idea what this does exactly, but it seems to be
+ 	 * related to the scaler FIR filter phase parameters.
+ 	 */
++	ch1_phase_idx = (format->num_planes > 1) ? 1 : 0;
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZPHASE_REG,
+ 		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZPHASE_REG,
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE0_REG,
+ 		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE0_REG,
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE1_REG,
+ 		     frontend->data->ch_phase[0]);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE1_REG,
+-		     frontend->data->ch_phase[1]);
++		     frontend->data->ch_phase[ch1_phase_idx]);
  
-+		if (radix_tree_preload(GFP_KERNEL)) {
-+			blkg_free(new_blkg);
-+			ret = -ENOMEM;
-+			goto fail;
-+		}
-+
- 		rcu_read_lock();
- 		spin_lock_irq(q->queue_lock);
- 
-@@ -883,7 +889,7 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 		if (IS_ERR(blkg)) {
- 			ret = PTR_ERR(blkg);
- 			blkg_free(new_blkg);
--			goto fail_unlock;
-+			goto fail_preloaded;
- 		}
- 
- 		if (blkg) {
-@@ -892,10 +898,12 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 			blkg = blkg_create(pos, q, new_blkg);
- 			if (unlikely(IS_ERR(blkg))) {
- 				ret = PTR_ERR(blkg);
--				goto fail_unlock;
-+				goto fail_preloaded;
- 			}
- 		}
- 
-+		radix_tree_preload_end();
-+
- 		if (pos == blkcg)
- 			goto success;
- 	}
-@@ -905,6 +913,8 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
- 	ctx->body = body;
- 	return 0;
- 
-+fail_preloaded:
-+	radix_tree_preload_end();
- fail_unlock:
- 	spin_unlock_irq(q->queue_lock);
- 	rcu_read_unlock();
+ 	/*
+ 	 * Checking the input format is sufficient since we currently only
 -- 
 2.27.0
 
