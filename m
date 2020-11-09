@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E44B42AB8F5
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 523FB2AB902
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730487AbgKINAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:00:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54490 "EHLO mail.kernel.org"
+        id S1730653AbgKINCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:02:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbgKINAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:20 -0500
+        id S1730134AbgKINCD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:02:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A87DF20684;
-        Mon,  9 Nov 2020 13:00:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3D8E208FE;
+        Mon,  9 Nov 2020 13:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926820;
-        bh=yq56alpSp8nwIw3snokF1ceZ19rUu9MMXV9XI93QnR0=;
+        s=default; t=1604926920;
+        bh=mgiKYMZ1G5/mlLzwZQO8O2vlltscUETpG/xMIDLBWBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUOw/4JAL6sdk4gT1dPV5z8w26S49+SkO5+49JyVUOK+ltSmjWZS6T4m0ByVdUvxb
-         k/hu+3eoN31rmY3WTlK/MUWngRoSGro/lfXyq3MWLZBwQWijd/cR1WfgvEKfEHs5Ac
-         70gc6Hf5RDdZSTsKIgYuNjYZ9qW2PgD1RCEMCcBY=
+        b=NYK1GZdyx7o+9uvo1PxMFSPCfBdOM2H4xGj3AqfqaSwYiycerK4MXevlvzH8Esbog
+         ztS5+Id5NPNruBuiz2TugJ/9Q8g00uZ9NDRyRw1PUAnJdDF50XwsjDLk3PJHUTHrT1
+         YUGW1EMwV+MBN0brbS3y+N+dQnrWGr1XN1Uv5jmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pradeep P V K <ppvk@codeaurora.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.9 008/117] fuse: fix page dereference after free
-Date:   Mon,  9 Nov 2020 13:53:54 +0100
-Message-Id: <20201109125026.044111558@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 019/117] f2fs: fix to check segment boundary during SIT page readahead
+Date:   Mon,  9 Nov 2020 13:54:05 +0100
+Message-Id: <20201109125026.559927430@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -42,111 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
+[ Upstream commit 6a257471fa42c8c9c04a875cd3a2a22db148e0f0 ]
 
-After unlock_request() pages from the ap->pages[] array may be put (e.g. by
-aborting the connection) and the pages can be freed.
+As syzbot reported:
 
-Prevent use after free by grabbing a reference to the page before calling
-unlock_request().
+kernel BUG at fs/f2fs/segment.h:657!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 16220 Comm: syz-executor.0 Not tainted 5.9.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:f2fs_ra_meta_pages+0xa51/0xdc0 fs/f2fs/segment.h:657
+Call Trace:
+ build_sit_entries fs/f2fs/segment.c:4195 [inline]
+ f2fs_build_segment_manager+0x4b8a/0xa3c0 fs/f2fs/segment.c:4779
+ f2fs_fill_super+0x377d/0x6b80 fs/f2fs/super.c:3633
+ mount_bdev+0x32e/0x3f0 fs/super.c:1417
+ legacy_get_tree+0x105/0x220 fs/fs_context.c:592
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1547
+ do_new_mount fs/namespace.c:2875 [inline]
+ path_mount+0x1387/0x2070 fs/namespace.c:3192
+ do_mount fs/namespace.c:3205 [inline]
+ __do_sys_mount fs/namespace.c:3413 [inline]
+ __se_sys_mount fs/namespace.c:3390 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3390
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The original patch was created by Pradeep P V K.
+@blkno in f2fs_ra_meta_pages could exceed max segment count, causing panic
+in following sanity check in current_sit_addr(), add check condition to
+avoid this issue.
 
-Reported-by: Pradeep P V K <ppvk@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+3698081bcf0bb2d12174@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |   28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ fs/f2fs/checkpoint.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -846,15 +846,16 @@ static int fuse_try_move_page(struct fus
- 	struct page *newpage;
- 	struct pipe_buffer *buf = cs->pipebufs;
- 
-+	get_page(oldpage);
- 	err = unlock_request(cs->req);
- 	if (err)
--		return err;
-+		goto out_put_old;
- 
- 	fuse_copy_finish(cs);
- 
- 	err = pipe_buf_confirm(cs->pipe, buf);
- 	if (err)
--		return err;
-+		goto out_put_old;
- 
- 	BUG_ON(!cs->nr_segs);
- 	cs->currbuf = buf;
-@@ -894,7 +895,7 @@ static int fuse_try_move_page(struct fus
- 	err = replace_page_cache_page(oldpage, newpage, GFP_KERNEL);
- 	if (err) {
- 		unlock_page(newpage);
--		return err;
-+		goto out_put_old;
- 	}
- 
- 	get_page(newpage);
-@@ -913,14 +914,19 @@ static int fuse_try_move_page(struct fus
- 	if (err) {
- 		unlock_page(newpage);
- 		put_page(newpage);
--		return err;
-+		goto out_put_old;
- 	}
- 
- 	unlock_page(oldpage);
-+	/* Drop ref for ap->pages[] array */
- 	put_page(oldpage);
- 	cs->len = 0;
- 
--	return 0;
-+	err = 0;
-+out_put_old:
-+	/* Drop ref obtained in this function */
-+	put_page(oldpage);
-+	return err;
- 
- out_fallback_unlock:
- 	unlock_page(newpage);
-@@ -929,10 +935,10 @@ out_fallback:
- 	cs->offset = buf->offset;
- 
- 	err = lock_request(cs->req);
--	if (err)
--		return err;
-+	if (!err)
-+		err = 1;
- 
--	return 1;
-+	goto out_put_old;
- }
- 
- static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
-@@ -944,14 +950,16 @@ static int fuse_ref_page(struct fuse_cop
- 	if (cs->nr_segs == cs->pipe->buffers)
- 		return -EIO;
- 
-+	get_page(page);
- 	err = unlock_request(cs->req);
--	if (err)
-+	if (err) {
-+		put_page(page);
- 		return err;
-+	}
- 
- 	fuse_copy_finish(cs);
- 
- 	buf = cs->pipebufs;
--	get_page(page);
- 	buf->page = page;
- 	buf->offset = offset;
- 	buf->len = count;
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index c1b24d7aa6ef1..5e9f8ec8251d3 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -201,6 +201,8 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages,
+ 					blkno * NAT_ENTRY_PER_BLOCK);
+ 			break;
+ 		case META_SIT:
++			if (unlikely(blkno >= TOTAL_SEGS(sbi)))
++				goto out;
+ 			/* get sit block addr */
+ 			fio.new_blkaddr = current_sit_addr(sbi,
+ 					blkno * SIT_ENTRY_PER_BLOCK);
+-- 
+2.27.0
+
 
 
