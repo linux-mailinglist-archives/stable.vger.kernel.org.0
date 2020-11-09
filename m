@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64692AB90A
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:03:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F0C2ABAF4
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:27:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730315AbgKINDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:03:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56932 "EHLO mail.kernel.org"
+        id S1732711AbgKINPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729958AbgKINDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:03:47 -0500
+        id S1731894AbgKINPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:15:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B898120663;
-        Mon,  9 Nov 2020 13:03:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4AB120663;
+        Mon,  9 Nov 2020 13:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927026;
-        bh=EYRumyErUTxrVqHqK8oQl1eUV8edC0J4Y1cYCFAVQIc=;
+        s=default; t=1604927752;
+        bh=PRDHuO/C+mpdzivCNEYkAPBD0OkCwi78rvQaLYe4U4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuQ6b3jUt9ByLnzk/90Z0VJTXz2VnzvW2//WQf6+bN1rMrzDgHzcTqfIgC2hzo3lK
-         TiQJe+cDC+e/aqIfAMfByuRgvdsKhPkWBFppubV8IcI5nUSWcQ4P5C51PaoeSAL5BK
-         vkWgYNskN9/fVoYV8aIEW/4xqXo+ROdz40O70NjQ=
+        b=bLruVHVsyxa4OxVqPQ+G2DR2AciGj3Duq87RcbR8l68w+d/nBeFM6lZqRAQkDkWbj
+         xtoODX2Mpe/H+PlB4wwngJcceLPEw12oMNBmV4z+Od3SWhS2S6C19v7T16e5OOZO/C
+         y4x1sJAW7lWH2NGm38pV7Zks8R+QfgUtIrf3h1CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KoWei Sung <winders@amazon.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.9 045/117] md/raid5: fix oops during stripe resizing
-Date:   Mon,  9 Nov 2020 13:54:31 +0100
-Message-Id: <20201109125027.802650252@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.9 010/133] drm/i915: Fix TGL DKL PHY DP vswing handling
+Date:   Mon,  9 Nov 2020 13:54:32 +0100
+Message-Id: <20201109125031.216282421@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
+References: <20201109125030.706496283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit b44c018cdf748b96b676ba09fdbc5b34fc443ada upstream.
+commit f0b707c125a2e228bcc047cd46040943bef61931 upstream.
 
-KoWei reported crash during raid5 reshape:
+The HDMI vs. not-HDMI check got inverted whem the bogus encoder->type
+checks were eliminated. So now we're using 0 as the link rate on DP
+and potentially non-zero on HDMI, which is exactly the opposite of
+what we want. The original bogus check actually worked more correctly
+by accident since if would always evaluate to true. Due to this we
+now always use the RBR/HBR1 vswing table and never ever the HBR2+
+vswing table. That is probably not a good way to get a high quality
+signal at HBR2+ rates. Fix the check so we pick the right table.
 
-[ 1032.252932] Oops: 0002 [#1] SMP PTI
-[...]
-[ 1032.252943] RIP: 0010:memcpy_erms+0x6/0x10
-[...]
-[ 1032.252947] RSP: 0018:ffffba1ac0c03b78 EFLAGS: 00010286
-[ 1032.252949] RAX: 0000784ac0000000 RBX: ffff91bec3d09740 RCX: 0000000000001000
-[ 1032.252951] RDX: 0000000000001000 RSI: ffff91be6781c000 RDI: 0000784ac0000000
-[ 1032.252953] RBP: ffffba1ac0c03bd8 R08: 0000000000001000 R09: ffffba1ac0c03bf8
-[ 1032.252954] R10: 0000000000000000 R11: 0000000000000000 R12: ffffba1ac0c03bf8
-[ 1032.252955] R13: 0000000000001000 R14: 0000000000000000 R15: 0000000000000000
-[ 1032.252958] FS:  0000000000000000(0000) GS:ffff91becf500000(0000) knlGS:0000000000000000
-[ 1032.252959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1032.252961] CR2: 0000784ac0000000 CR3: 000000031780a002 CR4: 00000000001606e0
-[ 1032.252962] Call Trace:
-[ 1032.252969]  ? async_memcpy+0x179/0x1000 [async_memcpy]
-[ 1032.252977]  ? raid5_release_stripe+0x8e/0x110 [raid456]
-[ 1032.252982]  handle_stripe_expansion+0x15a/0x1f0 [raid456]
-[ 1032.252988]  handle_stripe+0x592/0x1270 [raid456]
-[ 1032.252993]  handle_active_stripes.isra.0+0x3cb/0x5a0 [raid456]
-[ 1032.252999]  raid5d+0x35c/0x550 [raid456]
-[ 1032.253002]  ? schedule+0x42/0xb0
-[ 1032.253006]  ? schedule_timeout+0x10e/0x160
-[ 1032.253011]  md_thread+0x97/0x160
-[ 1032.253015]  ? wait_woken+0x80/0x80
-[ 1032.253019]  kthread+0x104/0x140
-[ 1032.253022]  ? md_start_sync+0x60/0x60
-[ 1032.253024]  ? kthread_park+0x90/0x90
-[ 1032.253027]  ret_from_fork+0x35/0x40
-
-This is because cache_size_mutex was unlocked too early in resize_stripes,
-which races with grow_one_stripe() that grow_one_stripe() allocates a
-stripe with wrong pool_size.
-
-Fix this issue by unlocking cache_size_mutex after updating pool_size.
-
-Cc: <stable@vger.kernel.org> # v4.4+
-Reported-by: KoWei Sung <winders@amazon.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Cc: stable@vger.kernel.org
+Cc: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com>
+Fixes: 94641eb6c696 ("drm/i915/display: Fix the encoder type check")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200930223642.28565-1-ville.syrjala@linux.intel.com
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+(cherry picked from commit 945b18fb4803b01e822ade6aef6cc0b6e4bd644f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/raid5.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_ddi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2259,8 +2259,6 @@ static int resize_stripes(struct r5conf
- 	} else
- 		err = -ENOMEM;
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2655,7 +2655,7 @@ tgl_dkl_phy_ddi_vswing_sequence(struct i
+ 	u32 n_entries, val, ln, dpcnt_mask, dpcnt_val;
+ 	int rate = 0;
  
--	mutex_unlock(&conf->cache_size_mutex);
--
- 	conf->slab_cache = sc;
- 	conf->active_name = 1-conf->active_name;
+-	if (type == INTEL_OUTPUT_HDMI) {
++	if (type != INTEL_OUTPUT_HDMI) {
+ 		struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
  
-@@ -2283,6 +2281,8 @@ static int resize_stripes(struct r5conf
- 
- 	if (!err)
- 		conf->pool_size = newsize;
-+	mutex_unlock(&conf->cache_size_mutex);
-+
- 	return err;
- }
- 
+ 		rate = intel_dp->link_rate;
 
 
