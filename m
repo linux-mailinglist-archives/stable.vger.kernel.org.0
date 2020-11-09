@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 947152ABC85
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2422ABCA6
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730659AbgKINiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:38:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55932 "EHLO mail.kernel.org"
+        id S2387536AbgKINjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:39:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730614AbgKINB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:01:58 -0500
+        id S1730498AbgKINCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:02:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D53BA206C0;
-        Mon,  9 Nov 2020 13:01:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABC3921D46;
+        Mon,  9 Nov 2020 13:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926917;
-        bh=gB8obUv6WNp1jhhZllmd3FJBO+me5pu0XTCl/9bAw3M=;
+        s=default; t=1604926923;
+        bh=8IoPhvaNi50VZ4kDbgG2391J0F0bfxVrFVK+xANb+9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sIeu2QLgUmXYYauJTcWjJGshX0CMLa89zCMfZgwABGI+/RWLoftg4PXwyhdsTHscO
-         CK1F5L8CykLr+KWovQ7rCf0taJxO3EVEk5vwmKcmPEmaiCqrYl2hM+3JfAToSsjyWh
-         z38InwOLABTchUMNrtApzdRhPqyrikiKigPWoTzg=
+        b=ZRqdXKUr0U3wmAeIHF/DGKT/pXpn4ZoTk7kk9tCl0HMWNnLPh3/ipPx1Qs88U8m/6
+         2nYTTkYpezeBOZ1CEFbOJcjXPB+IkhVtxZbEfo33/0qKTNdq5gPmQ/TxUlabBbnFAw
+         tWVqWmhCGI9kfPn9YuxEAXFXxBvjDr9j0HYj6+zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 018/117] f2fs: add trace exit in exception path
-Date:   Mon,  9 Nov 2020 13:54:04 +0100
-Message-Id: <20201109125026.512041324@linuxfoundation.org>
+Subject: [PATCH 4.9 020/117] um: change sigio_spinlock to a mutex
+Date:   Mon,  9 Nov 2020 13:54:06 +0100
+Message-Id: <20201109125026.607068564@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -43,38 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 9b66482282888d02832b7d90239e1cdb18e4b431 ]
+[ Upstream commit f2d05059e15af3f70502074f4e3a504530af504a ]
 
-Missing the trace exit in f2fs_sync_dirty_inodes
+Lockdep complains at boot:
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+=============================
+[ BUG: Invalid wait context ]
+5.7.0-05093-g46d91ecd597b #98 Not tainted
+-----------------------------
+swapper/1 is trying to lock:
+0000000060931b98 (&desc[i].request_mutex){+.+.}-{3:3}, at: __setup_irq+0x11d/0x623
+other info that might help us debug this:
+context-{4:4}
+1 lock held by swapper/1:
+ #0: 000000006074fed8 (sigio_spinlock){+.+.}-{2:2}, at: sigio_lock+0x1a/0x1c
+stack backtrace:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0-05093-g46d91ecd597b #98
+Stack:
+ 7fa4fab0 6028dfd1 0000002a 6008bea5
+ 7fa50700 7fa50040 7fa4fac0 6028e016
+ 7fa4fb50 6007f6da 60959c18 00000000
+Call Trace:
+ [<60023a0e>] show_stack+0x13b/0x155
+ [<6028e016>] dump_stack+0x2a/0x2c
+ [<6007f6da>] __lock_acquire+0x515/0x15f2
+ [<6007eb50>] lock_acquire+0x245/0x273
+ [<6050d9f1>] __mutex_lock+0xbd/0x325
+ [<6050dc76>] mutex_lock_nested+0x1d/0x1f
+ [<6008e27e>] __setup_irq+0x11d/0x623
+ [<6008e8ed>] request_threaded_irq+0x169/0x1a6
+ [<60021eb0>] um_request_irq+0x1ee/0x24b
+ [<600234ee>] write_sigio_irq+0x3b/0x76
+ [<600383ca>] sigio_broken+0x146/0x2e4
+ [<60020bd8>] do_one_initcall+0xde/0x281
+
+Because we hold sigio_spinlock and then get into requesting
+an interrupt with a mutex.
+
+Change the spinlock to a mutex to avoid that.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/um/kernel/sigio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 0b061bbf1639a..c1b24d7aa6ef1 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -904,8 +904,12 @@ int sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type)
- 				get_pages(sbi, is_dir ?
- 				F2FS_DIRTY_DENTS : F2FS_DIRTY_DATA));
- retry:
--	if (unlikely(f2fs_cp_error(sbi)))
-+	if (unlikely(f2fs_cp_error(sbi))) {
-+		trace_f2fs_sync_dirty_inodes_exit(sbi->sb, is_dir,
-+				get_pages(sbi, is_dir ?
-+				F2FS_DIRTY_DENTS : F2FS_DIRTY_DATA));
- 		return -EIO;
-+	}
+diff --git a/arch/um/kernel/sigio.c b/arch/um/kernel/sigio.c
+index b5e0cbb343828..476ded92affac 100644
+--- a/arch/um/kernel/sigio.c
++++ b/arch/um/kernel/sigio.c
+@@ -36,14 +36,14 @@ int write_sigio_irq(int fd)
+ }
  
- 	spin_lock(&sbi->inode_lock[type]);
+ /* These are called from os-Linux/sigio.c to protect its pollfds arrays. */
+-static DEFINE_SPINLOCK(sigio_spinlock);
++static DEFINE_MUTEX(sigio_mutex);
  
+ void sigio_lock(void)
+ {
+-	spin_lock(&sigio_spinlock);
++	mutex_lock(&sigio_mutex);
+ }
+ 
+ void sigio_unlock(void)
+ {
+-	spin_unlock(&sigio_spinlock);
++	mutex_unlock(&sigio_mutex);
+ }
 -- 
 2.27.0
 
