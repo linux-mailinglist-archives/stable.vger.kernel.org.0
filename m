@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A282ABD03
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8A62ABDBB
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:49:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730523AbgKINm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:42:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+        id S1730092AbgKINtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:49:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730528AbgKINAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:50 -0500
+        id S1727774AbgKIM4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 07:56:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E7732084C;
-        Mon,  9 Nov 2020 13:00:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B32F20789;
+        Mon,  9 Nov 2020 12:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926850;
-        bh=Q6bDaJS34z/8dLa28ozlSl9YUGCmH0TY7XAVGCgRy9Q=;
+        s=default; t=1604926563;
+        bh=Gy1INmgzVa101CJQ1K0c5cIKHch/wKesicOi6sAcLy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btEtDOw1fxqg8NjbLrcfpzSdDDpAkNNVjKDhZ9ip56Y71Lp+Dcr3PECHe+Uia9HIB
-         BJV8oGODuAzzt1C1oPaZBdQHt6SckFapROit776fFUgk9UQCskmKVQpWh7TxR95Q3C
-         t0XMuw4yDPT/e21pei+eLat18gKgj54nTOmQUkzw=
+        b=q0UYeMLaCsMO/Cjnc0PuKLqnlhrVda2CdRgIlTz3yIIIIFolYvAEwLISlMerAeIQc
+         Xhz9DDzC2qM3/iFvPNcTA/HK6y3U6YnkS+6ebzGR3CEj7BlLzCRtWOu5kTMjEpBbmf
+         3VNAwv7r1ZUcz03o0sJGJ7whJfMnk/ak5NXzzBg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/117] mmc: via-sdmmc: Fix data race bug
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 05/86] ravb: Fix bit fields checking in ravb_hwtstamp_get()
 Date:   Mon,  9 Nov 2020 13:54:12 +0100
-Message-Id: <20201109125026.896527896@linuxfoundation.org>
+Message-Id: <20201109125021.118420615@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-References: <20201109125025.630721781@linuxfoundation.org>
+In-Reply-To: <20201109125020.852643676@linuxfoundation.org>
+References: <20201109125020.852643676@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-[ Upstream commit 87d7ad089b318b4f319bf57f1daa64eb6d1d10ad ]
+[ Upstream commit 68b9f0865b1ef545da180c57d54b82c94cb464a4 ]
 
-via_save_pcictrlreg() should be called with host->lock held
-as it writes to pm_pcictrl_reg, otherwise there can be a race
-condition between via_sd_suspend() and via_sdc_card_detect().
-The same pattern is used in the function via_reset_pcictrl()
-as well, where via_save_pcictrlreg() is called with host->lock
-held.
+In the function ravb_hwtstamp_get() in ravb_main.c with the existing
+values for RAVB_RXTSTAMP_TYPE_V2_L2_EVENT (0x2) and RAVB_RXTSTAMP_TYPE_ALL
+(0x6)
 
-Found by Linux Driver Verification project (linuxtesting.org).
+if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
+	config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
+	config.rx_filter = HWTSTAMP_FILTER_ALL;
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200822061528.7035-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+if the test on RAVB_RXTSTAMP_TYPE_ALL should be true,
+it will never be reached.
+
+This issue can be verified with 'hwtstamp_config' testing program
+(tools/testing/selftests/net/hwtstamp_config.c). Setting filter type
+to ALL and subsequent retrieving it gives incorrect value:
+
+$ hwtstamp_config eth0 OFF ALL
+flags = 0
+tx_type = OFF
+rx_filter = ALL
+$ hwtstamp_config eth0
+flags = 0
+tx_type = OFF
+rx_filter = PTP_V2_L2_EVENT
+
+Correct this by converting if-else's to switch.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Link: https://lore.kernel.org/r/20201026102130.29368-1-andrew_gabbasov@mentor.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/renesas/ravb_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index 63fac78b3d46a..b455e9cf95afc 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -1269,11 +1269,14 @@ static void via_init_sdc_pm(struct via_crdr_mmc_host *host)
- static int via_sd_suspend(struct pci_dev *pcidev, pm_message_t state)
- {
- 	struct via_crdr_mmc_host *host;
-+	unsigned long flags;
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1572,12 +1572,16 @@ static int ravb_hwtstamp_get(struct net_
+ 	config.flags = 0;
+ 	config.tx_type = priv->tstamp_tx_ctrl ? HWTSTAMP_TX_ON :
+ 						HWTSTAMP_TX_OFF;
+-	if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_V2_L2_EVENT)
++	switch (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE) {
++	case RAVB_RXTSTAMP_TYPE_V2_L2_EVENT:
+ 		config.rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
+-	else if (priv->tstamp_rx_ctrl & RAVB_RXTSTAMP_TYPE_ALL)
++		break;
++	case RAVB_RXTSTAMP_TYPE_ALL:
+ 		config.rx_filter = HWTSTAMP_FILTER_ALL;
+-	else
++		break;
++	default:
+ 		config.rx_filter = HWTSTAMP_FILTER_NONE;
++	}
  
- 	host = pci_get_drvdata(pcidev);
- 
-+	spin_lock_irqsave(&host->lock, flags);
- 	via_save_pcictrlreg(host);
- 	via_save_sdcreg(host);
-+	spin_unlock_irqrestore(&host->lock, flags);
- 
- 	pci_save_state(pcidev);
- 	pci_enable_wake(pcidev, pci_choose_state(pcidev, state), 0);
--- 
-2.27.0
-
+ 	return copy_to_user(req->ifr_data, &config, sizeof(config)) ?
+ 		-EFAULT : 0;
 
 
