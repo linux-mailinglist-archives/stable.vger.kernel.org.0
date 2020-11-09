@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 811AC2ABCF8
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2742ABCFA
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731960AbgKINmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730546AbgKINmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 9 Nov 2020 08:42:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbgKINA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:56 -0500
+        id S1730544AbgKINA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 364DC20684;
-        Mon,  9 Nov 2020 13:00:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 069F221D46;
+        Mon,  9 Nov 2020 13:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926855;
-        bh=LR6TJwTFeV/7ptm/etcGeH6qT/PUkytplgnA/IRB8NY=;
+        s=default; t=1604926858;
+        bh=RAApNINermXK/f6q2UBCW/71796ZPIc1C8iRoEvxzYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eU0vBIHQvygJ1yiwTCWTSQQ9+UnAnG0+d7V/pkf64O9eMvsWhzKQE4fs2JHyI3vTs
-         lim+OOuMcPcPNJY4achWXWDpZMc7v4DEf/gEFmT67CsXYpnxODEpNqoZJXxfbVtUE5
-         qLRv0chmkQy6J1qZSHGDu9IEWGxS2vQNaDoZU6Jo=
+        b=k/Qf5fs9lcPrRrte5bUE48THrTV1f9yI5b7QFLxRzj/wDKvgfA5YG/3aV58wrxEZx
+         c9dZJnDOFIhYEAh1P762glA7WSSQtBvGxOKP2b8TQuOIt5RhFvW75IL6gJEtWYQt/L
+         d/sOAR4Awo61yXFYXj7iqTHp65el23LdzCYmWsWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, Alain Volmat <avolmat@me.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 028/117] kgdb: Make "kgdbcon" work properly with "kgdb_earlycon"
-Date:   Mon,  9 Nov 2020 13:54:14 +0100
-Message-Id: <20201109125026.984670452@linuxfoundation.org>
+Subject: [PATCH 4.9 029/117] cpufreq: sti-cpufreq: add stih418 support
+Date:   Mon,  9 Nov 2020 13:54:15 +0100
+Message-Id: <20201109125027.035471484@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -43,68 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Alain Volmat <avolmat@me.com>
 
-[ Upstream commit b18b099e04f450cdc77bec72acefcde7042bd1f3 ]
+[ Upstream commit 01a163c52039e9426c7d3d3ab16ca261ad622597 ]
 
-On my system the kernel processes the "kgdb_earlycon" parameter before
-the "kgdbcon" parameter.  When we setup "kgdb_earlycon" we'll end up
-in kgdb_register_callbacks() and "kgdb_use_con" won't have been set
-yet so we'll never get around to starting "kgdbcon".  Let's remedy
-this by detecting that the IO module was already registered when
-setting "kgdb_use_con" and registering the console then.
+The STiH418 can be controlled the same way as STiH407 &
+STiH410 regarding cpufreq.
 
-As part of this, to avoid pre-declaring things, move the handling of
-the "kgdbcon" further down in the file.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200630151422.1.I4aa062751ff5e281f5116655c976dff545c09a46@changeid
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Alain Volmat <avolmat@me.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/debug/debug_core.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/cpufreq/sti-cpufreq.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index 321ccdbb73649..bc791cec58e63 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -94,14 +94,6 @@ int dbg_switch_cpu;
- /* Use kdb or gdbserver mode */
- int dbg_kdb_mode = 1;
- 
--static int __init opt_kgdb_con(char *str)
--{
--	kgdb_use_con = 1;
--	return 0;
--}
--
--early_param("kgdbcon", opt_kgdb_con);
--
- module_param(kgdb_use_con, int, 0644);
- module_param(kgdbreboot, int, 0644);
- 
-@@ -811,6 +803,20 @@ static struct console kgdbcons = {
- 	.index		= -1,
- };
- 
-+static int __init opt_kgdb_con(char *str)
-+{
-+	kgdb_use_con = 1;
-+
-+	if (kgdb_io_module_registered && !kgdb_con_registered) {
-+		register_console(&kgdbcons);
-+		kgdb_con_registered = 1;
-+	}
-+
-+	return 0;
-+}
-+
-+early_param("kgdbcon", opt_kgdb_con);
-+
- #ifdef CONFIG_MAGIC_SYSRQ
- static void sysrq_handle_dbg(int key)
+diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
+index b366e6d830ea3..2cb3346e82d35 100644
+--- a/drivers/cpufreq/sti-cpufreq.c
++++ b/drivers/cpufreq/sti-cpufreq.c
+@@ -144,7 +144,8 @@ static const struct reg_field sti_stih407_dvfs_regfields[DVFS_MAX_REGFIELDS] = {
+ static const struct reg_field *sti_cpufreq_match(void)
  {
+ 	if (of_machine_is_compatible("st,stih407") ||
+-	    of_machine_is_compatible("st,stih410"))
++	    of_machine_is_compatible("st,stih410") ||
++	    of_machine_is_compatible("st,stih418"))
+ 		return sti_stih407_dvfs_regfields;
+ 
+ 	return NULL;
+@@ -260,7 +261,8 @@ static int sti_cpufreq_init(void)
+ 	int ret;
+ 
+ 	if ((!of_machine_is_compatible("st,stih407")) &&
+-		(!of_machine_is_compatible("st,stih410")))
++		(!of_machine_is_compatible("st,stih410")) &&
++		(!of_machine_is_compatible("st,stih418")))
+ 		return -ENODEV;
+ 
+ 	ddata.cpu = get_cpu_device(0);
 -- 
 2.27.0
 
