@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982142ABD4D
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEDE2ABD1A
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732868AbgKINpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:45:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
+        id S1730502AbgKINnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:43:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730471AbgKINAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:00:18 -0500
+        id S1730500AbgKINAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:00:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8763207BC;
-        Mon,  9 Nov 2020 13:00:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A16C420789;
+        Mon,  9 Nov 2020 13:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604926817;
-        bh=chF+2QcwmhwhuONQqb9eOn0GYA5ZJm1n4K2hP20r7lw=;
+        s=default; t=1604926823;
+        bh=Mq9T2I5lz78Cwv1Ns8Lttt5Ot8InoesOyxtqrAR41+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIK20osHboYNpP8MdQ8iGI1ySwb7kOqJ/+euRZYR8pIqogdqoXYRF4eSZDI8X0+e4
-         bD+8e+ipE2RpXSKfdLDqRchFh8mH3OSrX2jQfYl2e1j23trcu4I6SV5B3zdhsqwqL9
-         lt3LcAXnJ1fKCSTwF+TG6IFHp+Aul/FMAcnxaBQg=
+        b=EJcDzyGX194LnPxPk5dn6cCU9tMsUpFO3LVySSYE+y7clb6OBcQzJTMXjBWyaYbRW
+         iy4icyixd8+z9sBQjezcmGbP4Tu/5sPbOfBAP+7KFVpb80Z4kLZYKlsOJmr+R7Ohw7
+         yc6l4Dg2RNvCx1VVkVNJQl2fLSnjcxANaIh14UYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Eranian <stephane.eranian@google.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.9 007/117] arch/x86/amd/ibs: Fix re-arming IBS Fetch
-Date:   Mon,  9 Nov 2020 13:53:53 +0100
-Message-Id: <20201109125025.992020322@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju@tsinghua.edu.cn>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 009/117] p54: avoid accessing the data mapped to streaming DMA
+Date:   Mon,  9 Nov 2020 13:53:55 +0100
+Message-Id: <20201109125026.092455728@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
 References: <20201109125025.630721781@linuxfoundation.org>
@@ -44,76 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
 
-commit 221bfce5ebbdf72ff08b3bf2510ae81058ee568b upstream.
+commit 478762855b5ae9f68fa6ead1edf7abada70fcd5f upstream.
 
-Stephane Eranian found a bug in that IBS' current Fetch counter was not
-being reset when the driver would write the new value to clear it along
-with the enable bit set, and found that adding an MSR write that would
-first disable IBS Fetch would make IBS Fetch reset its current count.
+In p54p_tx(), skb->data is mapped to streaming DMA on line 337:
+  mapping = pci_map_single(..., skb->data, ...);
 
-Indeed, the PPR for AMD Family 17h Model 31h B0 55803 Rev 0.54 - Sep 12,
-2019 states "The periodic fetch counter is set to IbsFetchCnt [...] when
-IbsFetchEn is changed from 0 to 1."
+Then skb->data is accessed on line 349:
+  desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
 
-Explicitly set IbsFetchEn to 0 and then to 1 when re-enabling IBS Fetch,
-so the driver properly resets the internal counter to 0 and IBS
-Fetch starts counting again.
+This access may cause data inconsistency between CPU cache and hardware.
 
-A family 15h machine tested does not have this problem, and the extra
-wrmsr is also not needed on Family 19h, so only do the extra wrmsr on
-families 16h through 18h.
+To fix this problem, ((struct p54_hdr *)skb->data)->req_id is stored in
+a local variable before DMA mapping, and then the driver accesses this
+local variable instead of skb->data.
 
-Reported-by: Stephane Eranian <stephane.eranian@google.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-[peterz: optimized]
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jia-Ju Bai <baijiaju@tsinghua.edu.cn>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200802132949.26788-1-baijiaju@tsinghua.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/amd/ibs.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intersil/p54/p54pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -88,6 +88,7 @@ struct perf_ibs {
- 	u64				max_period;
- 	unsigned long			offset_mask[1];
- 	int				offset_max;
-+	unsigned int			fetch_count_reset_broken : 1;
- 	struct cpu_perf_ibs __percpu	*pcpu;
+--- a/drivers/net/wireless/intersil/p54/p54pci.c
++++ b/drivers/net/wireless/intersil/p54/p54pci.c
+@@ -332,10 +332,12 @@ static void p54p_tx(struct ieee80211_hw
+ 	struct p54p_desc *desc;
+ 	dma_addr_t mapping;
+ 	u32 idx, i;
++	__le32 device_addr;
  
- 	struct attribute		**format_attrs;
-@@ -374,7 +375,12 @@ perf_ibs_event_update(struct perf_ibs *p
- static inline void perf_ibs_enable_event(struct perf_ibs *perf_ibs,
- 					 struct hw_perf_event *hwc, u64 config)
- {
--	wrmsrl(hwc->config_base, hwc->config | config | perf_ibs->enable_mask);
-+	u64 tmp = hwc->config | config;
-+
-+	if (perf_ibs->fetch_count_reset_broken)
-+		wrmsrl(hwc->config_base, tmp & ~perf_ibs->enable_mask);
-+
-+	wrmsrl(hwc->config_base, tmp | perf_ibs->enable_mask);
- }
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 	idx = le32_to_cpu(ring_control->host_idx[1]);
+ 	i = idx % ARRAY_SIZE(ring_control->tx_data);
++	device_addr = ((struct p54_hdr *)skb->data)->req_id;
  
- /*
-@@ -743,6 +749,13 @@ static __init void perf_event_ibs_init(v
- {
- 	struct attribute **attr = ibs_op_format_attrs;
+ 	mapping = pci_map_single(priv->pdev, skb->data, skb->len,
+ 				 PCI_DMA_TODEVICE);
+@@ -349,7 +351,7 @@ static void p54p_tx(struct ieee80211_hw
  
-+	/*
-+	 * Some chips fail to reset the fetch count when it is written; instead
-+	 * they need a 0-1 transition of IbsFetchEn.
-+	 */
-+	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
-+		perf_ibs_fetch.fetch_count_reset_broken = 1;
-+
- 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+ 	desc = &ring_control->tx_data[i];
+ 	desc->host_addr = cpu_to_le32(mapping);
+-	desc->device_addr = ((struct p54_hdr *)skb->data)->req_id;
++	desc->device_addr = device_addr;
+ 	desc->len = cpu_to_le16(skb->len);
+ 	desc->flags = 0;
  
- 	if (ibs_caps & IBS_CAPS_OPCNT) {
 
 
