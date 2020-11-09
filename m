@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1042ABB25
-	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760682AB9B2
+	for <lists+stable@lfdr.de>; Mon,  9 Nov 2020 14:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731940AbgKINYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 08:24:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46032 "EHLO mail.kernel.org"
+        id S1732424AbgKINLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 08:11:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731863AbgKINSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 08:18:41 -0500
+        id S1732417AbgKINLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 08:11:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDC042076E;
-        Mon,  9 Nov 2020 13:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FE2220789;
+        Mon,  9 Nov 2020 13:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604927920;
-        bh=khB+fXKKincLA3kRo0EB7b7vJ0Ib+IRQFqAu/sTvaOw=;
+        s=default; t=1604927498;
+        bh=uaMl49KxItVzlBLKA6rem6duJFOk6Uw50orp1/GLPzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2+nnS5QlPd5cV7uQPWC5ThWLYc2N/hYGGRgsYXHW5x7ivw15MyxA9eDHof+xN21l
-         dmQ78OVc47WEd7kUNU10ayXeKSSoaCNCpc2ojxeUpggHV5UbaD5NwsoG9rUD8FzM4q
-         CV0u90DIcBefSXYKmeRukA+tanHsk1F1CQNMtvWQ=
+        b=uPyylqTvKJsvGba0MxFJOnYKvIAvWR9zBPmjSRkWRylu3X5K4vJh0+BrKfoZIy6zN
+         kU+wpJCEt3QJdCXV9r7cfwq/XA5Jrqljc6AltBnwSaYleRV4hg70bYJpIXIMXqde03
+         iluxhK6i3xp1YQEHSO2E3JbgaHVWTD60RZkfCPEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 036/133] sfp: Fix error handing in sfp_probe()
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.4 01/85] drm/i915: Break up error capture compression loops with cond_resched()
 Date:   Mon,  9 Nov 2020 13:54:58 +0100
-Message-Id: <20201109125032.446747892@linuxfoundation.org>
+Message-Id: <20201109125022.683904187@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201109125030.706496283@linuxfoundation.org>
-References: <20201109125030.706496283@linuxfoundation.org>
+In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
+References: <20201109125022.614792961@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,34 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 9621618130bf7e83635367c13b9a6ee53935bb37 ]
+commit 7d5553147613b50149238ac1385c60e5c7cacb34 upstream.
 
-gpiod_to_irq() never return 0, but returns negative in
-case of error, check it and set gpio_irq to 0.
+As the error capture will compress user buffers as directed to by the
+user, it can take an arbitrary amount of time and space. Break up the
+compression loops with a call to cond_resched(), that will allow other
+processes to schedule (avoiding the soft lockups) and also serve as a
+warning should we try to make this loop atomic in the future.
 
-Fixes: 73970055450e ("sfp: add SFP module support")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20201031031053.25264-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Testcase: igt/gem_exec_capture/many-*
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200916090059.3189-2-chris@chris-wilson.co.uk
+(cherry picked from commit 293f43c80c0027ff9299036c24218ac705ce584e)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/sfp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -2389,7 +2389,8 @@ static int sfp_probe(struct platform_dev
- 			continue;
+---
+ drivers/gpu/drm/i915/i915_gpu_error.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/gpu/drm/i915/i915_gpu_error.c
++++ b/drivers/gpu/drm/i915/i915_gpu_error.c
+@@ -307,6 +307,8 @@ static int compress_page(struct compress
  
- 		sfp->gpio_irq[i] = gpiod_to_irq(sfp->gpio[i]);
--		if (!sfp->gpio_irq[i]) {
-+		if (sfp->gpio_irq[i] < 0) {
-+			sfp->gpio_irq[i] = 0;
- 			sfp->need_poll = true;
- 			continue;
- 		}
+ 		if (zlib_deflate(zstream, Z_NO_FLUSH) != Z_OK)
+ 			return -EIO;
++
++		cond_resched();
+ 	} while (zstream->avail_in);
+ 
+ 	/* Fallback to uncompressed if we increase size? */
+@@ -392,6 +394,7 @@ static int compress_page(struct compress
+ 	if (!i915_memcpy_from_wc(ptr, src, PAGE_SIZE))
+ 		memcpy(ptr, src, PAGE_SIZE);
+ 	dst->pages[dst->page_count++] = ptr;
++	cond_resched();
+ 
+ 	return 0;
+ }
 
 
