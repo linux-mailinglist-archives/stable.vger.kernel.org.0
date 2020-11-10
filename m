@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D24D2ACD3B
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14C52ACD37
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731402AbgKJEAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57500 "EHLO mail.kernel.org"
+        id S2387415AbgKJEAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:00:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733310AbgKJDzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:54 -0500
+        id S2387406AbgKJDzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A616D20731;
-        Tue, 10 Nov 2020 03:55:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0915320870;
+        Tue, 10 Nov 2020 03:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980553;
-        bh=WvWDUe7Efs3/UaLV6ZcsfA0N93uLYypki29yXvVf2ec=;
+        s=default; t=1604980554;
+        bh=QDl6ZGTPmYEEeILA0AcjUgmPYYSeYYTVzSyeHeQ9+lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZKrKZtkC/0aGGVKSfuDwogPaELCVrj4vvXi6cunBjmNguJY7oxpArbGxc386qZug
-         c+a48qyFlkSSKpHGq0tmibs7T+UlghVTht2FG1a01LRfDGvls/kWqr1Zh0j+pHvh7Z
-         bhR7NIdGuL0wTfiAkigPPoRH0F0Je7/d0556Zvyg=
+        b=nnyZEY+bmZijQJet0rLJHcBMj1Nb1S34QcjPeQpbzeq0XeOTzT6ld+2mvIHdd2S6Q
+         FLbS8WlxLXWl8cDGTg4K6UXJ0Ijo19TGPKm/V0VCkP3yBHSiu10tB0O+BPlgOgk6Ea
+         lvh9eRRbvtFf81wYWvs5zAXWjJ4+GlDdqjDY3ico=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>,
-        Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 09/21] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
-Date:   Mon,  9 Nov 2020 22:55:29 -0500
-Message-Id: <20201110035541.424648-9-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/21] mac80211: fix use of skb payload instead of header
+Date:   Mon,  9 Nov 2020 22:55:30 -0500
+Message-Id: <20201110035541.424648-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
 References: <20201110035541.424648-1-sashal@kernel.org>
@@ -44,42 +43,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
+[ Upstream commit 14f46c1e5108696ec1e5a129e838ecedf108c7bf ]
 
-This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
-Fix bug where DPM is not enabled after hibernate and resume").
-It was intended to fix Hawaii S4(hibernation) issue but break S3. As
-ixFEATURE_STATUS is filled with garbage data on resume which can be
-only cleared by reloading smc firmware(but that will involve many
-changes). So, we will revert this S4 fix and seek a new way.
+When ieee80211_skb_resize() is called from ieee80211_build_hdr()
+the skb has no 802.11 header yet, in fact it consist only of the
+payload as the ethernet frame is removed. As such, we're using
+the payload data for ieee80211_is_mgmt(), which is of course
+completely wrong. This didn't really hurt us because these are
+always data frames, so we could only have added more tailroom
+than we needed if we determined it was a management frame and
+sdata->crypto_tx_tailroom_needed_cnt was false.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+However, syzbot found that of course there need not be any payload,
+so we're using at best uninitialized memory for the check.
+
+Fix this to pass explicitly the kind of frame that we have instead
+of checking there, by replacing the "bool may_encrypt" argument
+with an argument that can carry the three possible states - it's
+not going to be encrypted, it's a management frame, or it's a data
+frame (and then we check sdata->crypto_tx_tailroom_needed_cnt).
+
+Reported-by: syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20201009132538.e1fd7f802947.I799b288466ea2815f9d4c84349fae697dca2f189@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/mac80211/tx.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-index 0d4dd607e85c8..c05bec5effb2e 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -2723,10 +2723,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 3160ffd93a153..98d048630ad2f 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -1908,19 +1908,24 @@ static bool ieee80211_tx(struct ieee80211_sub_if_data *sdata,
  
- static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
+ /* device xmit handlers */
+ 
++enum ieee80211_encrypt {
++	ENCRYPT_NO,
++	ENCRYPT_MGMT,
++	ENCRYPT_DATA,
++};
++
+ static int ieee80211_skb_resize(struct ieee80211_sub_if_data *sdata,
+ 				struct sk_buff *skb,
+-				int head_need, bool may_encrypt)
++				int head_need,
++				enum ieee80211_encrypt encrypt)
  {
--	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
--					     CGS_IND_REG__SMC, FEATURE_STATUS,
--					     VOLTAGE_CONTROLLER_ON))
--		? true : false;
-+	return ci_is_smc_ram_running(hwmgr);
- }
+ 	struct ieee80211_local *local = sdata->local;
+-	struct ieee80211_hdr *hdr;
+ 	bool enc_tailroom;
+ 	int tail_need = 0;
  
- static int ci_smu_init(struct pp_hwmgr *hwmgr)
+-	hdr = (struct ieee80211_hdr *) skb->data;
+-	enc_tailroom = may_encrypt &&
+-		       (sdata->crypto_tx_tailroom_needed_cnt ||
+-			ieee80211_is_mgmt(hdr->frame_control));
++	enc_tailroom = encrypt == ENCRYPT_MGMT ||
++		       (encrypt == ENCRYPT_DATA &&
++			sdata->crypto_tx_tailroom_needed_cnt);
+ 
+ 	if (enc_tailroom) {
+ 		tail_need = IEEE80211_ENCRYPT_TAILROOM;
+@@ -1952,23 +1957,29 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
+ {
+ 	struct ieee80211_local *local = sdata->local;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+-	struct ieee80211_hdr *hdr;
++	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	int headroom;
+-	bool may_encrypt;
++	enum ieee80211_encrypt encrypt;
+ 
+-	may_encrypt = !(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT);
++	if (info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)
++		encrypt = ENCRYPT_NO;
++	else if (ieee80211_is_mgmt(hdr->frame_control))
++		encrypt = ENCRYPT_MGMT;
++	else
++		encrypt = ENCRYPT_DATA;
+ 
+ 	headroom = local->tx_headroom;
+-	if (may_encrypt)
++	if (encrypt != ENCRYPT_NO)
+ 		headroom += sdata->encrypt_headroom;
+ 	headroom -= skb_headroom(skb);
+ 	headroom = max_t(int, 0, headroom);
+ 
+-	if (ieee80211_skb_resize(sdata, skb, headroom, may_encrypt)) {
++	if (ieee80211_skb_resize(sdata, skb, headroom, encrypt)) {
+ 		ieee80211_free_txskb(&local->hw, skb);
+ 		return;
+ 	}
+ 
++	/* reload after potential resize */
+ 	hdr = (struct ieee80211_hdr *) skb->data;
+ 	info->control.vif = &sdata->vif;
+ 
+@@ -2751,7 +2762,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
+ 		head_need += sdata->encrypt_headroom;
+ 		head_need += local->tx_headroom;
+ 		head_need = max_t(int, 0, head_need);
+-		if (ieee80211_skb_resize(sdata, skb, head_need, true)) {
++		if (ieee80211_skb_resize(sdata, skb, head_need, ENCRYPT_DATA)) {
+ 			ieee80211_free_txskb(&local->hw, skb);
+ 			skb = NULL;
+ 			return ERR_PTR(-ENOMEM);
+@@ -3414,7 +3425,7 @@ static bool ieee80211_xmit_fast(struct ieee80211_sub_if_data *sdata,
+ 	if (unlikely(ieee80211_skb_resize(sdata, skb,
+ 					  max_t(int, extra_head + hw_headroom -
+ 						     skb_headroom(skb), 0),
+-					  false))) {
++					  ENCRYPT_NO))) {
+ 		kfree_skb(skb);
+ 		return true;
+ 	}
 -- 
 2.27.0
 
