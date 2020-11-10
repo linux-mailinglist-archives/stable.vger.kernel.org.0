@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB8B2ACE2C
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9852ACE2A
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732092AbgKJEHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:07:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
+        id S1732110AbgKJEHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:07:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732067AbgKJDxq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:53:46 -0500
+        id S1732092AbgKJDxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:53:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C206C20829;
-        Tue, 10 Nov 2020 03:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ACE320781;
+        Tue, 10 Nov 2020 03:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980425;
-        bh=6XlyFZ9oASdXq6WPisknSIGYAu6qFcFe0nHE8uxr0dI=;
+        s=default; t=1604980427;
+        bh=hGKZTD5lCSdew9ASQ+UFlYeos/nqhAcPPN4x2s2bu2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ujoAF98i8+lb7/XdnhYzTzuVtAkqyRZx3gzhspnb4LFOYEYM0cgWsg9FVgJJH4bB/
-         TbzoGDQgynXLh+mem+AhNL+m9XXrXFXK5WwQZECNhtmyFbz3qebwavXU/in6Ec9MOT
-         eCfKl40t1K3qEOleS2O1agUpywfsq7XDAviX1/J0=
+        b=qac8BbvgIRTugCjDO8fYFTdMqtllvgzJYb5k5JMHk4dztyUmJaTsqi+mf4zKztiC4
+         Sfwl98Q2QZ3cWBamwdkazxOFJwOziLkAuxeoWTWacUNLkXRZSiueCESWftpKzc01XN
+         UQQ/q4LUUM6xG9BMRIDzc4i4lZXH4h3USfPllV+E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Evan Quan <evan.quan@amd.com>,
@@ -30,9 +30,9 @@ Cc:     Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.9 19/55] drm/amd/pm: correct the baco reset sequence for CI ASICs
-Date:   Mon,  9 Nov 2020 22:52:42 -0500
-Message-Id: <20201110035318.423757-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 20/55] drm/amd/pm: perform SMC reset on suspend/hibernation
+Date:   Mon,  9 Nov 2020 22:52:43 -0500
+Message-Id: <20201110035318.423757-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
 References: <20201110035318.423757-1-sashal@kernel.org>
@@ -46,10 +46,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit c108725ef589af462be6b957f63c7925e38213eb ]
+[ Upstream commit 277b080f98803cb73a83fb234f0be83a10e63958 ]
 
-Correct some registers bitmasks and add mmBIOS_SCRATCH_7
-reset.
+So that the succeeding resume can be performed based on
+a clean state.
 
 Signed-off-by: Evan Quan <evan.quan@amd.com>
 Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
@@ -57,37 +57,107 @@ Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c  |  4 ++++
+ drivers/gpu/drm/amd/powerplay/inc/hwmgr.h     |  1 +
+ drivers/gpu/drm/amd/powerplay/inc/smumgr.h    |  2 ++
+ .../gpu/drm/amd/powerplay/smumgr/ci_smumgr.c  | 24 +++++++++++++++++++
+ drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c |  8 +++++++
+ 5 files changed, 39 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c b/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
-index 3be40114e63d2..45f608838f6eb 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
-@@ -142,12 +142,12 @@ static const struct baco_cmd_entry exit_baco_tbl[] =
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_BCLK_OFF_MASK,           BACO_CNTL__BACO_BCLK_OFF__SHIFT, 0, 0x00 },
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_POWER_OFF_MASK,          BACO_CNTL__BACO_POWER_OFF__SHIFT, 0, 0x00 },
- 	{ CMD_DELAY_MS, 0, 0, 0, 20, 0 },
--	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_BF_MASK, 0, 0xffffffff, 0x20 },
-+	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_BF_MASK, 0, 0xffffffff, 0x200 },
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_ISO_DIS_MASK, BACO_CNTL__BACO_ISO_DIS__SHIFT, 0, 0x01 },
--	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_MASK, 0, 5, 0x1c },
-+	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_MASK, 0, 5, 0x1c00 },
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_ANA_ISO_DIS_MASK, BACO_CNTL__BACO_ANA_ISO_DIS__SHIFT, 0, 0x01 },
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_RESET_EN_MASK, BACO_CNTL__BACO_RESET_EN__SHIFT, 0, 0x00 },
--	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__RCU_BIF_CONFIG_DONE_MASK, 0, 5, 0x10 },
-+	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__RCU_BIF_CONFIG_DONE_MASK, 0, 5, 0x100 },
- 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_EN_MASK, BACO_CNTL__BACO_EN__SHIFT, 0, 0x00 },
- 	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__BACO_MODE_MASK, 0, 0xffffffff, 0x00 }
- };
-@@ -155,6 +155,7 @@ static const struct baco_cmd_entry exit_baco_tbl[] =
- static const struct baco_cmd_entry clean_baco_tbl[] =
- {
- 	{ CMD_WRITE, mmBIOS_SCRATCH_6, 0, 0, 0, 0 },
-+	{ CMD_WRITE, mmBIOS_SCRATCH_7, 0, 0, 0, 0 },
- 	{ CMD_WRITE, mmCP_PFP_UCODE_ADDR, 0, 0, 0, 0 }
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+index fc63d9e32e1f8..c8ee931075e52 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+@@ -1541,6 +1541,10 @@ static int smu7_disable_dpm_tasks(struct pp_hwmgr *hwmgr)
+ 	PP_ASSERT_WITH_CODE((tmp_result == 0),
+ 			"Failed to reset to default!", result = tmp_result);
+ 
++	tmp_result = smum_stop_smc(hwmgr);
++	PP_ASSERT_WITH_CODE((tmp_result == 0),
++			"Failed to stop smc!", result = tmp_result);
++
+ 	tmp_result = smu7_force_switch_to_arbf0(hwmgr);
+ 	PP_ASSERT_WITH_CODE((tmp_result == 0),
+ 			"Failed to force to switch arbf0!", result = tmp_result);
+diff --git a/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h b/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
+index 15ed6cbdf3660..91cdc53472f01 100644
+--- a/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
++++ b/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
+@@ -229,6 +229,7 @@ struct pp_smumgr_func {
+ 	bool (*is_hw_avfs_present)(struct pp_hwmgr  *hwmgr);
+ 	int (*update_dpm_settings)(struct pp_hwmgr *hwmgr, void *profile_setting);
+ 	int (*smc_table_manager)(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t table_id, bool rw); /*rw: true for read, false for write */
++	int (*stop_smc)(struct pp_hwmgr *hwmgr);
  };
  
+ struct pp_hwmgr_func {
+diff --git a/drivers/gpu/drm/amd/powerplay/inc/smumgr.h b/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
+index ad100b533d049..5f46f1a4f38ef 100644
+--- a/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
++++ b/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
+@@ -113,4 +113,6 @@ extern int smum_update_dpm_settings(struct pp_hwmgr *hwmgr, void *profile_settin
+ 
+ extern int smum_smc_table_manager(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t table_id, bool rw);
+ 
++extern int smum_stop_smc(struct pp_hwmgr *hwmgr);
++
+ #endif
+diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+index e4d1f3d66ef48..09128122b4932 100644
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -2939,6 +2939,29 @@ static int ci_update_smc_table(struct pp_hwmgr *hwmgr, uint32_t type)
+ 	return 0;
+ }
+ 
++static void ci_reset_smc(struct pp_hwmgr *hwmgr)
++{
++	PHM_WRITE_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
++				  SMC_SYSCON_RESET_CNTL,
++				  rst_reg, 1);
++}
++
++
++static void ci_stop_smc_clock(struct pp_hwmgr *hwmgr)
++{
++	PHM_WRITE_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
++				  SMC_SYSCON_CLOCK_CNTL_0,
++				  ck_disable, 1);
++}
++
++static int ci_stop_smc(struct pp_hwmgr *hwmgr)
++{
++	ci_reset_smc(hwmgr);
++	ci_stop_smc_clock(hwmgr);
++
++	return 0;
++}
++
+ const struct pp_smumgr_func ci_smu_funcs = {
+ 	.name = "ci_smu",
+ 	.smu_init = ci_smu_init,
+@@ -2964,4 +2987,5 @@ const struct pp_smumgr_func ci_smu_funcs = {
+ 	.is_dpm_running = ci_is_dpm_running,
+ 	.update_dpm_settings = ci_update_dpm_settings,
+ 	.update_smc_table = ci_update_smc_table,
++	.stop_smc = ci_stop_smc,
+ };
+diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
+index b6fb480668416..b6921db3c1305 100644
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
+@@ -245,3 +245,11 @@ int smum_smc_table_manager(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t tabl
+ 
+ 	return -EINVAL;
+ }
++
++int smum_stop_smc(struct pp_hwmgr *hwmgr)
++{
++	if (hwmgr->smumgr_funcs->stop_smc)
++		return hwmgr->smumgr_funcs->stop_smc(hwmgr);
++
++	return 0;
++}
 -- 
 2.27.0
 
