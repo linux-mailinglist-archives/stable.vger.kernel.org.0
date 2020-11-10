@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632D62ACD48
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CE12ACD45
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732609AbgKJEBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:01:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
+        id S1732653AbgKJEA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:00:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733266AbgKJDzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:45 -0500
+        id S1731634AbgKJDzq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBD9421534;
-        Tue, 10 Nov 2020 03:55:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05EDD221E9;
+        Tue, 10 Nov 2020 03:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980544;
-        bh=2ttryGY3eT5+z8ilDfIM5PMl2ptH1k50VUbYb4lTFH8=;
+        s=default; t=1604980545;
+        bh=VA+y975yS8kWIx+XMVvfAypuGIsmBZ4s9vz4ij4d3dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kEFxJsk4tX4ozZqhE2HXrjteL506OUmSIiAOTY+AIj8CeszeEXJrhxcK/gpkGShj
-         8b/ierL9bvD/PM+KJbvDiygL7POxDp/glv7NRDMyxamDbUkyki8k2kLvzwez0VmPZk
-         YZmNLnot/VxP2tTYiOzunmk7jxd/5kg0q5G+0ygQ=
+        b=LShcutavnN9fz6my4oYV39lUcdiP8rJpoGT8kLjAb1kYX4OiIDmCkv475oUXyMh+K
+         asv1uBvAXw8YlhOAWl7Dd2ISB1dcXG4RhQ1jOEZBL4XYiQZKFz4M3uN8t1Uw0ziNXD
+         uOvi1KxWOxQSp2Vf+j7BZSo6TKXSKSGaXKtSX614=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 02/21] ALSA: hda: Reinstate runtime_allow() for all hda controllers
-Date:   Mon,  9 Nov 2020 22:55:22 -0500
-Message-Id: <20201110035541.424648-2-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.19 03/21] gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
+Date:   Mon,  9 Nov 2020 22:55:23 -0500
+Message-Id: <20201110035541.424648-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
 References: <20201110035541.424648-1-sashal@kernel.org>
@@ -42,34 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 9fc149c3bce7bdbb94948a8e6bd025e3b3538603 ]
+[ Upstream commit d0f17d3883f1e3f085d38572c2ea8edbd5150172 ]
 
-The broken jack detection should be fixed by commit a6e7d0a4bdb0 ("ALSA:
-hda: fix jack detection with Realtek codecs when in D3"), let's try
-enabling runtime PM by default again.
+Function gfs2_clear_rgrpd calls kfree(rgd->rd_bits) before calling
+return_all_reservations, but return_all_reservations still dereferences
+rgd->rd_bits in __rs_deltree.  Fix that by moving the call to kfree below the
+call to return_all_reservations.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20201027130038.16463-4-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/rgrp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index d43245937db7e..8e1eb5f243a27 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2478,6 +2478,7 @@ static int azx_probe_continue(struct azx *chip)
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index c94c4ac1ae78b..1686a40099f21 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -739,9 +739,9 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
+ 		}
  
- 	if (azx_has_pm_runtime(chip)) {
- 		pm_runtime_use_autosuspend(&pci->dev);
-+		pm_runtime_allow(&pci->dev);
- 		pm_runtime_put_autosuspend(&pci->dev);
+ 		gfs2_free_clones(rgd);
++		return_all_reservations(rgd);
+ 		kfree(rgd->rd_bits);
+ 		rgd->rd_bits = NULL;
+-		return_all_reservations(rgd);
+ 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
  	}
- 
+ }
 -- 
 2.27.0
 
