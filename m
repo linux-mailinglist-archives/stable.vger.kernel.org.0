@@ -2,88 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 177BD2ADD29
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 18:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9912ADD56
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 18:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726557AbgKJRlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 12:41:31 -0500
-Received: from first.geanix.com ([116.203.34.67]:56216 "EHLO first.geanix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726690AbgKJRla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 12:41:30 -0500
-Received: from zen.localdomain (unknown [185.17.218.86])
-        by first.geanix.com (Postfix) with ESMTPSA id 4C3F6EC6410;
-        Tue, 10 Nov 2020 17:41:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1605030088; bh=cWDNNUBZUEEgc3PICpvO+QPTV4CcmewbWmJBbcmXrhg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=YNyuthLBC21U1OOM0a+UPMAWHaLkOIY0pbQkEFPNvXIFnavOSt2HJTbgaU9V44UM0
-         lwskaU4KPoRHKJMQsFya//iNRke7B+D8g2GS75nLMK/CZrQlndXf+fuFT2ArOzqMrF
-         lQDH1Fj1nfhQorDRjH/OGVTE9K8TB2k2kNHpgI/LC/I84xBm1zRmy43PiQ8wFA48Gi
-         fcggL4iNiHWL80bBLdXIV4qjcg0zi/VJi1oPBNc/f7YDIbXUebUSAk4RVsLUzeV2i5
-         Db+t2vBrk1uo04oTufv1st81mewImS5oGfa8MoupoCPO9s0OR0hvOtQ7zwLnSg5yh+
-         t1oY/vweygmOg==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     yibin.gong@nxp.com, linux-kernel@vger.kernel.org,
-        broonie@kernel.org
-Cc:     Sean Nyekjaer <sean@geanix.com>, stable@vger.kernel.org
-Subject: [PATCH v2] regulator: pfuze100: limit pfuze-support-disable-sw to pfuze{100,200}
-Date:   Tue, 10 Nov 2020 18:41:13 +0100
-Message-Id: <20201110174113.2066534-1-sean@geanix.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201110172721.GA49286@sirena.org.uk>
-References: 
+        id S1726400AbgKJRs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 12:48:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35412 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726179AbgKJRs4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 12:48:56 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4D5C0613CF
+        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 09:48:56 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id d3so394115plo.4
+        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 09:48:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vhGLRoMZ4JBdM0Nc2FZD3n1cPPOFzxgaU6pM5Recb0c=;
+        b=YUJe3KqIVXqkjFlzUo7X3LJqSm/UFnXEG6THPEpCMt3FysPJx4R77T+jyachUdAsek
+         maTELv58ex16cedbsRVqkBIXBIwvbCBkJ7rDDuMXor/ktbnyhzrOoLMgwjrKnl5KiU5G
+         h9MjiCwFYS56+tBYKlCVcJRuv/Ln4WGfhWpeVqDVzo5tBr5/3FwPTUVgt8DgmZu8RaVY
+         qUktnLnkil5439ng7zzyroQ+kazSzbZIACx7+iuXfXLsgr4VwbPOBYTpG3lIwq8O4RjU
+         pfK31/QkwrM3B6ykEMTxA9QlhQowO8WkcNdc2TN0fJSb8yqAAqWO5m5IJ2uqtp55GXi9
+         GuWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vhGLRoMZ4JBdM0Nc2FZD3n1cPPOFzxgaU6pM5Recb0c=;
+        b=mDYh4aML4l72FOThw8ctBMpmynSDVJsChZJVE87iJfMdWLM0KffX0sEWEUEE+y+w5b
+         ih7CqV3ktEHsfSrc3sQQx64DhtZuqCvBvnfgS4DYsmQOBGGkeay66h7LMKLzav5oSIhU
+         gz5ut0ZxWTsA+N5gvuQFQx1alTGXT4IdqwExEEwgSQpInGIB4KGqvbvVE9DtIhGumT3V
+         B4QeMXFiaQLmUd9aSuwlUCUH8k7VJFOqFj+TpnWOf8HqysRZiriJ144iorCfnt67lzUl
+         IMMmdFpXMvMIiafGSixX/pWDyMMV0cYANgDIbWNwjF1AIgax/Ealw2OUxKaY7AOsf0UZ
+         bYfA==
+X-Gm-Message-State: AOAM532g9QjFk8Sce2zl75J2Lo0RhUfNaltcwfWPX/IDAUmzFu7wutdv
+        CLS0Cf6BlGJ83n1C6q/5bTTTEQyIN+gnMg==
+X-Google-Smtp-Source: ABdhPJyEo5RVkWhCdn+TQ2jOfQLWbeynFo9UwKGpFozMkau+O49rQpHe4Pf/fJXfZdAux3MkSZreYA==
+X-Received: by 2002:a17:902:b283:b029:d6:b2a7:3913 with SMTP id u3-20020a170902b283b02900d6b2a73913mr17993696plr.54.1605030535340;
+        Tue, 10 Nov 2020 09:48:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g85sm14944957pfb.4.2020.11.10.09.48.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Nov 2020 09:48:54 -0800 (PST)
+Message-ID: <5faad286.1c69fb81.a1ef4.0e29@mx.google.com>
+Date:   Tue, 10 Nov 2020 09:48:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on ff3d05386fc5
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.76
+Subject: stable/linux-5.4.y baseline: 208 runs, 1 regressions (v5.4.76)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Limit the fsl,pfuze-support-disable-sw to the pfuze100 and pfuze200
-variants.
-When enabling fsl,pfuze-support-disable-sw and using a pfuze3000 or
-pfuze3001, the driver would choose pfuze100_sw_disable_regulator_ops
-instead of the newly introduced and correct pfuze3000_sw_regulator_ops.
+stable/linux-5.4.y baseline: 208 runs, 1 regressions (v5.4.76)
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Fixes: 6f1cf5257acc ("regualtor: pfuze100: correct sw1a/sw2 on pfuze3000")
-Cc: stable@vger.kernel.org
----
-Changes since v1:
- - Added signoff
- - fixed typo in commit msg
+Regressions Summary
+-------------------
 
- drivers/regulator/pfuze100-regulator.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+platform             | arch | lab        | compiler | defconfig          | =
+regressions
+---------------------+------+------------+----------+--------------------+-=
+-----------
+sun8i-h3-orangepi-pc | arm  | lab-clabbe | gcc-8    | multi_v7_defconfig | =
+1          =
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 7e8ba9246167..01a12cfcea7c 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -836,11 +836,14 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
- 		 * the switched regulator till yet.
- 		 */
- 		if (pfuze_chip->flags & PFUZE_FLAG_DISABLE_SW) {
--			if (pfuze_chip->regulator_descs[i].sw_reg) {
--				desc->ops = &pfuze100_sw_disable_regulator_ops;
--				desc->enable_val = 0x8;
--				desc->disable_val = 0x0;
--				desc->enable_time = 500;
-+			if (pfuze_chip->chip_id == PFUZE100 ||
-+				pfuze_chip->chip_id == PFUZE200) {
-+				if (pfuze_chip->regulator_descs[i].sw_reg) {
-+					desc->ops = &pfuze100_sw_disable_regulator_ops;
-+					desc->enable_val = 0x8;
-+					desc->disable_val = 0x0;
-+					desc->enable_time = 500;
-+				}
- 			}
- 		}
- 
--- 
-2.28.0
 
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.76/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.4.y
+  Describe: v5.4.76
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      ec9c6b417e271ee76d1430d2b197794858238d3b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab        | compiler | defconfig          | =
+regressions
+---------------------+------+------------+----------+--------------------+-=
+-----------
+sun8i-h3-orangepi-pc | arm  | lab-clabbe | gcc-8    | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faa9fd27484d49a88db8887
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.76/arm=
+/multi_v7_defconfig/gcc-8/lab-clabbe/baseline-sun8i-h3-orangepi-pc.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.76/arm=
+/multi_v7_defconfig/gcc-8/lab-clabbe/baseline-sun8i-h3-orangepi-pc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faa9fd27484d49a88db8=
+888
+        new failure (last pass: v5.4.75) =
+
+ =20
