@@ -2,77 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4875F2ACD43
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6992ACE0F
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732815AbgKJEAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:00:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57390 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733277AbgKJDzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:47 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C94B21D46;
-        Tue, 10 Nov 2020 03:55:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980547;
-        bh=mhtLeYN93gKiBrBEK/SdvkZoPgQPNoEIDppQK0Q4GF4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njyer+opbOg4w62ggYzryJOWfKVxFzg0vo8EjAKuxnZyr92gSnMrcUWnOKxS1u2uo
-         FXuhE9shqUvHvCoQOG3L7P7H2SXD76Noh513MDMWOA0bj7hONRZv/8lDPdGF+OfZPd
-         mm3kC8GuHIEn/tZNiXIDGf4Wk9qUDbKVNWHEMMFA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 04/21] gfs2: Add missing truncate_inode_pages_final for sd_aspace
-Date:   Mon,  9 Nov 2020 22:55:24 -0500
-Message-Id: <20201110035541.424648-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
-References: <20201110035541.424648-1-sashal@kernel.org>
+        id S2387490AbgKJEGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:06:25 -0500
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:50000 "EHLO
+        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387433AbgKJEGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 23:06:23 -0500
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.2995258|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00377925-0.00159346-0.994627;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047188;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=29;RT=29;SR=0;TI=SMTPD_---.IulFdj5_1604981159;
+Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.IulFdj5_1604981159)
+          by smtp.aliyun-inc.com(10.147.42.135);
+          Tue, 10 Nov 2020 12:06:15 +0800
+From:   Frank Lee <frank@allwinnertech.com>
+To:     vkoul@kernel.org, robh+dt@kernel.org, mripard@kernel.org,
+        wens@csie.org, ulf.hansson@linaro.org, kishon@ti.com,
+        wim@linux-watchdog.org, linux@roeck-us.net,
+        dan.j.williams@intel.com, linus.walleij@linaro.org,
+        wsa+renesas@sang-engineering.com, dianders@chromium.org,
+        marex@denx.de, colin.king@canonical.com, rdunlap@infradead.org,
+        krzk@kernel.org, gregkh@linuxfoundation.org, megous@megous.com,
+        rikard.falkeborn@gmail.com, dmaengine@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
+        tiny.windzz@gmail.com
+Cc:     Yangtao Li <frank@allwinnertech.com>, stable@vger.kernel.org
+Subject: [PATCH 03/19] pinctrl: sunxi: Always call chained_irq_{enter, exit} in sunxi_pinctrl_irq_handler
+Date:   Tue, 10 Nov 2020 12:05:37 +0800
+Message-Id: <20201110040553.1381-4-frank@allwinnertech.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201110040553.1381-1-frank@allwinnertech.com>
+References: <20201110040553.1381-1-frank@allwinnertech.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Yangtao Li <frank@allwinnertech.com>
 
-[ Upstream commit a9dd945ccef07a904e412f208f8de708a3d7159e ]
+It is found on many allwinner soc that there is a low probability that
+the interrupt status cannot be read in sunxi_pinctrl_irq_handler. This
+will cause the interrupt status of a gpio bank to always be active on
+gic, preventing gic from responding to other spi interrupts correctly.
 
-Gfs2 creates an address space for its rgrps called sd_aspace, but it never
-called truncate_inode_pages_final on it. This confused vfs greatly which
-tried to reference the address space after gfs2 had freed the superblock
-that contained it.
+So we should call the chained_irq_* each time enter sunxi_pinctrl_irq_handler().
 
-This patch adds a call to truncate_inode_pages_final for sd_aspace, thus
-avoiding the use-after-free.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Yangtao Li <frank@allwinnertech.com>
 ---
- fs/gfs2/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index a971862b186e3..22cd68bd8c9b0 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -934,6 +934,7 @@ static void gfs2_put_super(struct super_block *sb)
- 	gfs2_jindex_free(sdp);
- 	/*  Take apart glock structures and buffer lists  */
- 	gfs2_gl_hash_clear(sdp);
-+	truncate_inode_pages_final(&sdp->sd_aspace);
- 	gfs2_delete_debugfs_file(sdp);
- 	/*  Unmount the locking protocol  */
- 	gfs2_lm_unmount(sdp);
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sunxi.c b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+index 9d8b59dafa4b..dc8d39ae045b 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -1141,20 +1141,22 @@ static void sunxi_pinctrl_irq_handler(struct irq_desc *desc)
+ 
+ 	WARN_ON(bank == pctl->desc->irq_banks);
+ 
++	chained_irq_enter(chip, desc);
++
+ 	reg = sunxi_irq_status_reg_from_bank(pctl->desc, bank);
+ 	val = readl(pctl->membase + reg);
+ 
+ 	if (val) {
+ 		int irqoffset;
+ 
+-		chained_irq_enter(chip, desc);
+ 		for_each_set_bit(irqoffset, &val, IRQ_PER_BANK) {
+ 			int pin_irq = irq_find_mapping(pctl->domain,
+ 						       bank * IRQ_PER_BANK + irqoffset);
+ 			generic_handle_irq(pin_irq);
+ 		}
+-		chained_irq_exit(chip, desc);
+ 	}
++
++	chained_irq_exit(chip, desc);
+ }
+ 
+ static int sunxi_pinctrl_add_function(struct sunxi_pinctrl *pctl,
 -- 
-2.27.0
+2.28.0
 
