@@ -2,172 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7675B2AD3BB
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 11:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1802AD3CF
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 11:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgKJK1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 05:27:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727651AbgKJK1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 05:27:50 -0500
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606D1C0613D1
-        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 02:27:50 -0800 (PST)
-Received: by mail-ed1-x544.google.com with SMTP id a15so12125291edy.1
-        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 02:27:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=JBsUXq+aOpg3CDCyNVK2yMK4/COQDEd01UsYZ8vI250=;
-        b=t7Y6a7CDXPYB6n7yM3M+TFh6SIhtVKkcmzH6Kss/QQrVQav6yac7ibHOB8SnlbrRTH
-         2VfPY41mKd9b58QxWeDkZXlMo8K+67610LZZEK4/TcSAqMze4xjD8SP9IElhc3W/Cp3q
-         nNMTjWZb+80H88YrYqTGfkyu5W+fSsOMQ1F4Jvq7Xadkmb5XSdjHIFvJouY3DET8ptBA
-         LaffICEgfjL7PDkcRJBPBNiBvwBOeZvQ+TCBdzWWxOBmPoBlfQOd8OhFOIghtxH5ov9H
-         Jzts62LRfA8OkBsFBzIDv0Z6rM8sFoI7IZrEgNkHPUo1G7dGyMXJYEebzHyse4QOyNP2
-         tSbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=JBsUXq+aOpg3CDCyNVK2yMK4/COQDEd01UsYZ8vI250=;
-        b=N+C03rlE7Mheg4fiLZGuNkQWZ0AIFYuhRSqpJBtKJjzC8cbFKy6bUWmK5SNp2anLQN
-         49IFLD1lx4IM5LpemSnLxHZ5OkTGoLpjZiBXeLhTY9I615gGr+Oa46msE7Vyzy7pyCUp
-         1QDUskGi+ov3RMrMBxrP8/vVj6CjmzFZ27HjYGUeGAwZpGevVzHUzrBIuEIV9Pybs4Ro
-         eEMLGDJVItuXKwYQgmayMP3lGItE0KuerTMTzXVRRmL6gPNhX6u6RE32Rqon5WlmKGuf
-         2SDdCq41zeIliI+cye8agddpotj7cJ9Y9eGdqpfzeWzhvyzcBWwp5MtDRKODV2NYZ2mf
-         e10w==
-X-Gm-Message-State: AOAM532OchxVH6INWHQhFNk6EKoO0zkchYInOQ3pn9EpWXn05Do/3+K2
-        q8aVjY9VewabTGRPlXQnK0u/X9CreqVHL6f7E4pJ3g==
-X-Google-Smtp-Source: ABdhPJxuqK0WV8ZzW2llCSqO8MgbvNVxmgLcMcdoE1pXemGfzVwLeIKk/u64ev1OCbNE4gDvRoNLp37lPsw9YQk9Cuo=
-X-Received: by 2002:aa7:d54f:: with SMTP id u15mr20235652edr.239.1605004068939;
- Tue, 10 Nov 2020 02:27:48 -0800 (PST)
+        id S1726779AbgKJKax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 05:30:53 -0500
+Received: from mail-eopbgr10139.outbound.protection.outlook.com ([40.107.1.139]:40385
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726690AbgKJKax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 05:30:53 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=B16f5G//vKC7hhc9ZOQk+obRlsO7QfzZPmVX5yFAQJjJ8JNy5l2WefhG4gB54GT9Bs/soAQGVqx0SvERJrBJS2OMhdYF0Wd3BqkAOp1trkRGMMuIzk6UIrWUgTQ7DOnKHMyuGuosBTqxR+NWIFFCl7zBtrqJcuLFfcGb6KIES3rBzKwsK7dLE+w4bhd3KKU7qiFCc5q+3+5b8VOeb0jhyR7+NAEEv3ctyoQ/vdzxRXPu3ifYBxwD8y+jCIq/HEEhcI8ufOZDWFwCEUoRZhBsW4QRAPJHAYdW20DuxZV0f/elh1b0JhfmMDrm1xuLBRCJtDt5lhkOqUJ946XwkLme9A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TV4R7XflGxnu7hzXQe9xiwN6gBdgYgA8u4CDLHGNy0U=;
+ b=GRyQvLfuVx5vB9KPSL+0Y1THmrPheHt/hz+nrz4h3jwOaklWYkrN7wURilPUhQ4cGDTJTb0Z3k8F+NaPRuIHy6dq4wpZ29sNz3szyBv1ySAey+AR0OvKOuPtudL0IietYHr2WhKV4GVoxymeBnPXbpT5M8zgJc4nLymWEPZZ0b+EumgoFW7WN3jEb2A+v4S79w6pWugWHpoMcH0E3Q8OVtLjd28k5ZAnsfcMhZfgnHqr6RIa13Dp+jsre5UsfsA4fq6yDqC19z4xD4sr3LIw511+aHeRuZOVsjx3wmTqWkKPTmB461kx13r+M7+FKpSRdv/i3SQipj0klCy/2suhzQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TV4R7XflGxnu7hzXQe9xiwN6gBdgYgA8u4CDLHGNy0U=;
+ b=PufXMx+5GRnq18Kn/0ZYK4F/q8mqbLwNB/o+TPscUl/MqQ0DbwoFbiLYTIPHpIivijJBSJcDt1WovtQTsO99qfajJxEcOot1Es3tbA9kwVSIg2hrJVVKrEj7GYS+Q+gfB1KFbF6pY55ENLs9nVKwxB02s7WFl5i3XfpLnEfSd/Q=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=nokia.com;
+Received: from AM0PR07MB4531.eurprd07.prod.outlook.com (2603:10a6:208:6e::15)
+ by AM9PR07MB7331.eurprd07.prod.outlook.com (2603:10a6:20b:2c1::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3564.14; Tue, 10 Nov
+ 2020 10:30:46 +0000
+Received: from AM0PR07MB4531.eurprd07.prod.outlook.com
+ ([fe80::d527:e75b:546c:a85b]) by AM0PR07MB4531.eurprd07.prod.outlook.com
+ ([fe80::d527:e75b:546c:a85b%6]) with mapi id 15.20.3564.021; Tue, 10 Nov 2020
+ 10:30:46 +0000
+Subject: Re: [PATCH] MIPS: reserve the memblock right after the kernel
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org,
+        Paul Burton <paulburton@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20201106141001.57637-1-alexander.sverdlin@nokia.com>
+ <20201107094028.GA4918@alpha.franken.de>
+ <1d6a424e-944e-7f21-1f30-989fb61018a8@nokia.com>
+ <20201110095503.GA10357@alpha.franken.de>
+From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Message-ID: <c435b3df-4e82-7c10-366a-5a3d1543c73f@nokia.com>
+Date:   Tue, 10 Nov 2020 11:29:50 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
+In-Reply-To: <20201110095503.GA10357@alpha.franken.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [131.228.32.167]
+X-ClientProxiedBy: AM8P192CA0006.EURP192.PROD.OUTLOOK.COM
+ (2603:10a6:20b:21b::11) To AM0PR07MB4531.eurprd07.prod.outlook.com
+ (2603:10a6:208:6e::15)
 MIME-Version: 1.0
-References: <20201109125025.630721781@linuxfoundation.org>
-In-Reply-To: <20201109125025.630721781@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 10 Nov 2020 15:57:37 +0530
-Message-ID: <CA+G9fYuha4Kv-FB7K6Ge16Ub0y5LnRzuOP326M9VoMK1zKg=Mg@mail.gmail.com>
-Subject: Re: [PATCH 4.9 000/117] 4.9.242-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from ulegcpsvhp1.emea.nsn-net.net (131.228.32.167) by AM8P192CA0006.EURP192.PROD.OUTLOOK.COM (2603:10a6:20b:21b::11) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3541.21 via Frontend Transport; Tue, 10 Nov 2020 10:29:51 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: c0a1726e-66db-450f-023d-08d885638f2c
+X-MS-TrafficTypeDiagnostic: AM9PR07MB7331:
+X-Microsoft-Antispam-PRVS: <AM9PR07MB7331B460D94A5E86C5BECAA888E90@AM9PR07MB7331.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: tfIhtpiiDRC/d72PK/Z9CTF8Zajp6Y3ukHYjFAZf6ESsA9XACR0cvL6UCkjI/o4O4uR8/brhKHrJ2rwPBfgYPGXz8URt1K1VjlSg9eK26iAp13973kMsBpua7ZNDjJqUD6T67k+8DJRTwfpsdO5Jl07t9gaK25lJzZJVWDfuCW3ucUKsoS75SJmcgrcrx7SLI/FvaKZpBr4PfxurDgpUk6T/dvscKnxp9bcRDqXRcjqLb+w7UshzJurfUh9xbvtzCN4fpF9OFkJ3LlEmc3ewCdJ6LctKnwPIPmG0cAnPYx5HRzy0YHXgUAc0/5fHC8T2OUnqoZ1BazWTVoYI6iomOT516KRmTKtysjSFhxCQ78r6cwn9Yp0BCORvJfBQsa8Q
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB4531.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(366004)(39860400002)(346002)(136003)(376002)(4326008)(2906002)(86362001)(2616005)(6486002)(31696002)(956004)(66946007)(66476007)(31686004)(44832011)(83380400001)(6512007)(52116002)(6916009)(54906003)(16526019)(478600001)(8676002)(36756003)(66556008)(316002)(186003)(6506007)(53546011)(26005)(5660300002)(8936002)(43740500002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: K1zsaJemikhFuklT3C48ZVmW8NqolWPmjzFWrkdv0dg1+J51UXX7eMYLixDlkIr8F7elMqwT7+D0WrTfOtKlkpdj2u99sTq93o495y0+tlHYskHs3mqO18dZjl7CqsmHMzdaNoVOodZAYKYdtKX3hb5sN0DUXhhXvdajCTejbAoq2zs/s5th57WBxpLl/WXwPUJVqb/WgOZATjKLqPxYkKrnJ5c84OwsFF864pUwxZrWNDNLfAcKlfn3Dcnt1oLf7C8wkvpOVSnHrrBtutnfWUJdgqAIf30vRbzzsLKslZPFB8ib0qlzIoOIRSSaE/GXGiqCOMZttuYHccvM7HKufYDJVS4u3wHosDxsHenlALJ28qLsNnEX6gOtrUh4+9kaRIz2MYnTM1ZxoQ3SpH027JRDlxeGgNulHCh+/0qZSjBPNX2HOGOXsemRS9mfEGHbo+UKHM4r8G9WUCKoTzinBdWUdEtUe5NNLIo4Q+LPlkBSNc10B4s9RFWEKPn9bPYW4d/ZaFn6+1ML13BE70TdTG2rJ6ZKCH52hTHXc0c6fSm4Vt7QejuorGo9RxaovoqbVCXfOr6G7EJ0Uii77gjb2V/YcW3TtKgHIvv8f/Qg+GSFgOvoYJpmcKXo9cesg01xu4Qj7fX/38Iw8NM8ra2hz4VAoUZY7HmIEp3nql0h5Ixh9b31bmAq0gjjmixopyWeJcd/4kLs8jmSOXObVIsxFIXgNI8kQ7f3f1KWCEIF2Y3GXNYZBrvc/aTnhZbUqP+474Lj2Pxe4q0lO0LMwNXDZee2LraX66SaTVIIS60OQls2gGwveiSulNPgaMWWg724ew9fNZcT1CUB2V81U7tDEw1usMdfG2BQzppIUeBKM5yKJFU6OnuP9C5lQDT756ofuh2k1ba7twMBIldbqV9RVA==
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c0a1726e-66db-450f-023d-08d885638f2c
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR07MB4531.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2020 10:29:52.4515
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mxb2rDnRshTe/RoMX1u1H9Exdh9b8rVbvkWbHJJIaMKZHGd60dQ7kZ669/sWmvElD2Euj3V20MUVAo4wrv1fjyDegT9cbwEyDcgRMreAnXM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR07MB7331
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 9 Nov 2020 at 18:30, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.242 release.
-> There are 117 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 11 Nov 2020 12:50:04 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.242-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+Hello Thomas,
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On 10/11/2020 10:55, Thomas Bogendoerfer wrote:
+>>>> Linux doesn't own the memory immediately after the kernel image. On Octeon
+>>>> bootloader places a shared structure right close after the kernel _end,
+>>>> refer to "struct cvmx_bootinfo *octeon_bootinfo" in cavium-octeon/setup.c.
+>>>>
+>>>> If check_kernel_sections_mem() rounds the PFNs up, first memblock_alloc()
+>>>> inside early_init_dt_alloc_memory_arch() <= device_tree_init() returns
+>>>> memory block overlapping with the above octeon_bootinfo structure, which
+>>>> is being overwritten afterwards.
+>>> as this special for Octeon how about added the memblock_reserve
+>>> in octen specific code ?
+>> while the shared structure which is being corrupted is indeed Octeon-specific,
+>> the wrong assumption that the memory right after the kernel can be allocated by memblock
+>> allocator and re-used somewhere in Linux is in MIPS-generic check_kernel_sections_mem().
+> ok, I see your point. IMHO this whole check_kernel_sections_mem() should
+> be removed. IMHO memory adding should only be done my memory detection code.
+> 
+> Could you send a patch, which removes check_kernel_section_mem completly ?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+this will expose one issue:
+platforms usually do it in a sane way, like it was done last 15 years, namely
+add kernel image without non-complete pages on the boundaries.
+This will lead to the situation, that request_resource() will fail at least
+for .bss section of the kernel and it will not be properly displayed under
+/proc/iomem (and probably same problem will appear, which initially motivated
+the creation of check_kernel_section_mem()).
 
-Summary
-------------------------------------------------------------------------
+As I understood, the issue is that memblock API operates internally on the
+page granularity (at least there are many ROUND_DOWN() inside for the size
+or upper boundary), so for request_resource() to success one has to claim
+the rest of the .bss last page. And with current memblock API
+memblock_reserve() must appear somewhere, being this ARCH or platform code.
 
-kernel: 4.9.242-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 8c35ccda0e15d9e502046f5a33f6a1e0fdea56d5
-git describe: v4.9.241-118-g8c35ccda0e15
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.=
-y/build/v4.9.241-118-g8c35ccda0e15
-
-No regressions (compared to build v4.9.241)
-
-No fixes (compared to build v4.9.241)
-
-Ran 29032 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* ltp-cve-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* kvm-unit-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Best regards,
+Alexander Sverdlin.
