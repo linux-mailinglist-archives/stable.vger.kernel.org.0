@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB232ACC2A
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF512ACC3A
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731960AbgKJDxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:53:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54134 "EHLO mail.kernel.org"
+        id S1732036AbgKJDxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:53:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731487AbgKJDxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:53:40 -0500
+        id S1732102AbgKJDxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:53:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85D9320731;
-        Tue, 10 Nov 2020 03:53:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E717320829;
+        Tue, 10 Nov 2020 03:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980420;
-        bh=dl/APlT0EB9fzDUvz9Tkt75t8Hm7vIxMc/C7KCgXr7I=;
+        s=default; t=1604980428;
+        bh=dFjJZM8SnqGXo0mF5mJIV6e/Qj27oqzMleHCFTdxsl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiGzUTq/76hevqK9mNJ443u1V36rdyGI0hCz7uApgqXDDTs98YJWAcMAZ2yJ3MmP9
-         zGrS4gY6vXIoZQ9talulcg7Z3kJXQc1kDQi7dlrqALFFJ6FtTuAhH1EWcD/O2MPPhd
-         zf6zlQ6ithKHwVHqsxIV0aLeNaOiCSkUts3rcn0s=
+        b=qdT6zxk1juIynsS+GBCBmpFZmtyJBEQNi2vY18YfZB7MLLtA/nKNFmLB9FOh13qIa
+         AwHBdssfueEhKWaVZVEU5+PGL6h2dSjxTO8XjM8RRKXDTOW2/JI3NU1ZdystMp/zw+
+         EsE3bu4UGvGcz6PfDLdklCzDSTSiydnAShtx2T4c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.9 15/55] gfs2: Add missing truncate_inode_pages_final for sd_aspace
-Date:   Mon,  9 Nov 2020 22:52:38 -0500
-Message-Id: <20201110035318.423757-15-sashal@kernel.org>
+Cc:     Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.9 21/55] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
+Date:   Mon,  9 Nov 2020 22:52:44 -0500
+Message-Id: <20201110035318.423757-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
 References: <20201110035318.423757-1-sashal@kernel.org>
@@ -42,37 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit a9dd945ccef07a904e412f208f8de708a3d7159e ]
+[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
 
-Gfs2 creates an address space for its rgrps called sd_aspace, but it never
-called truncate_inode_pages_final on it. This confused vfs greatly which
-tried to reference the address space after gfs2 had freed the superblock
-that contained it.
+This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
+Fix bug where DPM is not enabled after hibernate and resume").
+It was intended to fix Hawaii S4(hibernation) issue but break S3. As
+ixFEATURE_STATUS is filled with garbage data on resume which can be
+only cleared by reloading smc firmware(but that will involve many
+changes). So, we will revert this S4 fix and seek a new way.
 
-This patch adds a call to truncate_inode_pages_final for sd_aspace, thus
-avoiding the use-after-free.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 32ae1a7cdaed8..831f6e31d6821 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -732,6 +732,7 @@ static void gfs2_put_super(struct super_block *sb)
- 	gfs2_jindex_free(sdp);
- 	/*  Take apart glock structures and buffer lists  */
- 	gfs2_gl_hash_clear(sdp);
-+	truncate_inode_pages_final(&sdp->sd_aspace);
- 	gfs2_delete_debugfs_file(sdp);
- 	/*  Unmount the locking protocol  */
- 	gfs2_lm_unmount(sdp);
+diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+index 09128122b4932..329bf4d44bbce 100644
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -2726,10 +2726,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
+ 
+ static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
+ {
+-	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
+-					     CGS_IND_REG__SMC, FEATURE_STATUS,
+-					     VOLTAGE_CONTROLLER_ON))
+-		? true : false;
++	return ci_is_smc_ram_running(hwmgr);
+ }
+ 
+ static int ci_smu_init(struct pp_hwmgr *hwmgr)
 -- 
 2.27.0
 
