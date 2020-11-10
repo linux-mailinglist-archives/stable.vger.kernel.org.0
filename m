@@ -2,102 +2,692 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E49B2AD76A
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF24F2AD787
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729898AbgKJNXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 08:23:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728478AbgKJNXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 08:23:47 -0500
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96354C0613CF
-        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 05:23:46 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id r9so3760486lfn.11
-        for <stable@vger.kernel.org>; Tue, 10 Nov 2020 05:23:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=anY0fDmqZf06M51XMjl+y1hfzhD8VdxufKL6ec1avkQ=;
-        b=uRDAAQZ2yXEIso6pDZnJjZa23Cttl92TlkscjI2ix8+hgHrYZat15DgQpmmpTVUsBr
-         SFmLlTr/CtssX+80JnqUfLqR+sdk+wENKWUyexD+s0Nz56QFXg7JejhEMZGpQo+a68iw
-         RdQy/4lENdser8H3Hq/aJobT2wZ1Z9e8RrvQ9+uOhUPDsDQ0v0GqzzzNBiFYmS7mOX0J
-         RGKYsw0+lnwai0vohBsBDy1h9mpYcXfYwYtAzkyYxXwvZle4GadAE6T/A9YDbjRmWE8e
-         3KwX91ri0vN0bALT+3+jkG2vlVk4g2Yg2YYcoVK9o+cpS5VjDhagbzIMc1DqojWm/DHn
-         HI4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=anY0fDmqZf06M51XMjl+y1hfzhD8VdxufKL6ec1avkQ=;
-        b=LV7OioCYg7RQ+AUVcHRm0rtjXOtP279o9aBUTlHjrEZuXjmfcO4dEVTGLAfYz6AXAf
-         nui+5O8q6khAJnb23rmR/jhgMil3di1uQdrZzkK1pYlrm6CyHaoIWRoEHK97pntjPJqc
-         1u6IR+JciloBXCJzrugY8sT6BTz/U6iBonnsc4EYWsALpPXEZ/HFVuLeb99u/3LGsGpA
-         MCd9B4Sj4oeVtOipAgg5z9nriHxrfDnEiCh9MF9/MujBf94SlikQf7quxnoPrUg8uBlo
-         wbdOefCMdDOr5wvEi7VDH7i0u3hUIgRzMf4ZA0rJE2I5KCh2zqRrgagQUx6Pt8cfh6hM
-         2qLw==
-X-Gm-Message-State: AOAM533WKuZQkpJ6zg4Hr4AzxmfcDzpjZhdB4VDRGhpRkr5PTNb0A5hs
-        2OoRW5qTqNmPiAJOnsrP+Al7rfJkVuTp+D7aC0DlkQ==
-X-Google-Smtp-Source: ABdhPJxjroiQ9eW/8CTijDlNPTQGqbxPragcT+vzN69RiXln2dVGzasUsN/OXpEtnpfBivHVFhkzHt/1o9oRa2P6G20=
-X-Received: by 2002:a19:7b06:: with SMTP id w6mr8180050lfc.260.1605014625078;
- Tue, 10 Nov 2020 05:23:45 -0800 (PST)
-MIME-Version: 1.0
-References: <20201105231912.69527-1-coiby.xu@gmail.com> <20201105231912.69527-5-coiby.xu@gmail.com>
-In-Reply-To: <20201105231912.69527-5-coiby.xu@gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 10 Nov 2020 14:23:34 +0100
-Message-ID: <CACRpkdbNDQrZYx=B7fuc34j-5Mb0=h8VnFROQYHD5DzX9Orb=A@mail.gmail.com>
-Subject: Re: [PATCH v3 4/4] pinctrl: amd: remove debounce filter setting in
- IRQ type setting
-To:     Coiby Xu <coiby.xu@gmail.com>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1729908AbgKJNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 08:33:06 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47302 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726721AbgKJNdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 08:33:06 -0500
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWYpE002217;
+        Tue, 10 Nov 2020 14:32:34 +0100
+From:   Willy Tarreau <w@1wt.eu>
+To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
+        Florian Westphal <fw@strlen.de>,
+        Marc Plumb <lkml.mplumb@gmail.com>
+Subject: [PATCH 5.8] random32: make prandom_u32() output unpredictable
+Date:   Tue, 10 Nov 2020 14:32:25 +0100
+Message-Id: <20201110133225.2177-1-w@1wt.eu>
+X-Mailer: git-send-email 2.9.0
+In-Reply-To: <20201110133120.GA1926@1wt.eu>
+References: <20201110133120.GA1926@1wt.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 6, 2020 at 12:19 AM Coiby Xu <coiby.xu@gmail.com> wrote:
+From: George Spelvin <lkml@sdf.org>
 
-> Debounce filter setting should be independent from IRQ type setting
-> because according to the ACPI specs, there are separate arguments for
-> specifying debounce timeout and IRQ type in GpioIo() and GpioInt().
->
-> This will fix broken touchpads for laptops whose BIOS set the debounce
-> timeout to a relatively large value. For example, the BIOS of Lenovo
-> Legion-5 AMD gaming laptops including 15ARH05 (R7000) and R7000P set
-> the debounce timeout to 124.8ms. This led to the kernel receiving only
-> ~7 HID reports per second from the Synaptics touchpad
-> (MSFT0001:00 06CB:7F28). Existing touchpads like [1][2] are not troubled
-> by this bug because the debounce timeout has been set to 0 by the BIOS
-> before enabling the debounce filter in setting IRQ type.
->
-> [1] https://github.com/Syniurge/i2c-amd-mp2/issues/11#issuecomment-721331582
-> [2] https://forum.manjaro.org/t/random-short-touchpad-freezes/30832/28
->
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
-> Link: https://lore.kernel.org/linux-gpio/CAHp75VcwiGREBUJ0A06EEw-SyabqYsp%2Bdqs2DpSrhaY-2GVdAA%40mail.gmail.com/
-> Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+commit c51f8f88d705e06bd696d7510aff22b33eb8e638 upstream.
 
-As I have applied patches 1-3 we only have this one to land.
+Non-cryptographic PRNGs may have great statistical properties, but
+are usually trivially predictable to someone who knows the algorithm,
+given a small sample of their output.  An LFSR like prandom_u32() is
+particularly simple, even if the sample is widely scattered bits.
 
-If Andy or someone else needs to take it through the ACPI
-tree you can add my:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+It turns out the network stack uses prandom_u32() for some things like
+random port numbers which it would prefer are *not* trivially predictable.
+Predictability led to a practical DNS spoofing attack.  Oops.
 
-If I should apply it or if Andy sends me a pull request, just
-ping me and tell me what to do :)
+This patch replaces the LFSR with a homebrew cryptographic PRNG based
+on the SipHash round function, which is in turn seeded with 128 bits
+of strong random key.  (The authors of SipHash have *not* been consulted
+about this abuse of their algorithm.)  Speed is prioritized over security;
+attacks are rare, while performance is always wanted.
 
-Yours,
-Linus Walleij
+Replacing all callers of prandom_u32() is the quick fix.
+Whether to reinstate a weaker PRNG for uses which can tolerate it
+is an open question.
+
+Commit f227e3ec3b5c ("random32: update the net random state on interrupt
+and activity") was an earlier attempt at a solution.  This patch replaces
+it.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: tytso@mit.edu
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Marc Plumb <lkml.mplumb@gmail.com>
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
+[ willy: partial reversal of f227e3ec3b5c; moved SIPROUND definitions
+  to prandom.h for later use; merged George's prandom_seed() proposal;
+  inlined siprand_u32(); replaced the net_rand_state[] array with 4
+  members to fix a build issue; cosmetic cleanups to make checkpatch
+  happy; fixed RANDOM32_SELFTEST build ]
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+[wt: backported to 5.8 -- no tracepoint there]
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ drivers/char/random.c   |   1 -
+ include/linux/prandom.h |  36 +++-
+ kernel/time/timer.c     |   7 -
+ lib/random32.c          | 462 +++++++++++++++++++++++++++++-------------------
+ 4 files changed, 317 insertions(+), 189 deletions(-)
+
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index d20ba1b..2a41b21 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1277,7 +1277,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
+ 
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
+-	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+index aa16e64..cc1e713 100644
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -16,12 +16,44 @@ void prandom_bytes(void *buf, size_t nbytes);
+ void prandom_seed(u32 seed);
+ void prandom_reseed_late(void);
+ 
++#if BITS_PER_LONG == 64
++/*
++ * The core SipHash round function.  Each line can be executed in
++ * parallel given enough CPU resources.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
++	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
++)
++
++#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
++#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
++
++#elif BITS_PER_LONG == 32
++/*
++ * On 32-bit machines, we use HSipHash, a reduced-width version of SipHash.
++ * This is weaker, but 32-bit machines are not used for high-traffic
++ * applications, so there is less output for an attacker to analyze.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
++	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
++)
++#define PRND_K0 0x6c796765
++#define PRND_K1 0x74656462
++
++#else
++#error Unsupported BITS_PER_LONG
++#endif
++
+ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
+ 
+-DECLARE_PER_CPU(struct rnd_state, net_rand_state);
+-
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
+diff --git a/kernel/time/timer.c b/kernel/time/timer.c
+index 026ac01..c9d839c 100644
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1743,13 +1743,6 @@ void update_process_times(int user_tick)
+ 	scheduler_tick();
+ 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
+ 		run_posix_cpu_timers();
+-
+-	/* The current CPU might make use of net randoms without receiving IRQs
+-	 * to renew them often enough. Let's update the net_rand_state from a
+-	 * non-constant value that's not affine to the number of calls to make
+-	 * sure it's updated when there's some activity (we don't care in idle).
+-	 */
+-	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
+ }
+ 
+ /**
+diff --git a/lib/random32.c b/lib/random32.c
+index 1786f78..9085b11 100644
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -40,16 +40,6 @@
+ #include <linux/sched.h>
+ #include <asm/unaligned.h>
+ 
+-#ifdef CONFIG_RANDOM32_SELFTEST
+-static void __init prandom_state_selftest(void);
+-#else
+-static inline void prandom_state_selftest(void)
+-{
+-}
+-#endif
+-
+-DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
+-
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
+  *	@state: pointer to state structure holding seeded state.
+@@ -70,25 +60,6 @@ u32 prandom_u32_state(struct rnd_state *state)
+ EXPORT_SYMBOL(prandom_u32_state);
+ 
+ /**
+- *	prandom_u32 - pseudo random number generator
+- *
+- *	A 32 bit pseudo-random number is generated using a fast
+- *	algorithm suitable for simulation. This algorithm is NOT
+- *	considered safe for cryptographic use.
+- */
+-u32 prandom_u32(void)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-	u32 res;
+-
+-	res = prandom_u32_state(state);
+-	put_cpu_var(net_rand_state);
+-
+-	return res;
+-}
+-EXPORT_SYMBOL(prandom_u32);
+-
+-/**
+  *	prandom_bytes_state - get the requested number of pseudo-random bytes
+  *
+  *	@state: pointer to state structure holding seeded state.
+@@ -119,20 +90,6 @@ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t bytes)
+ }
+ EXPORT_SYMBOL(prandom_bytes_state);
+ 
+-/**
+- *	prandom_bytes - get the requested number of pseudo-random bytes
+- *	@buf: where to copy the pseudo-random bytes to
+- *	@bytes: the requested number of bytes
+- */
+-void prandom_bytes(void *buf, size_t bytes)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-
+-	prandom_bytes_state(state, buf, bytes);
+-	put_cpu_var(net_rand_state);
+-}
+-EXPORT_SYMBOL(prandom_bytes);
+-
+ static void prandom_warmup(struct rnd_state *state)
+ {
+ 	/* Calling RNG ten times to satisfy recurrence condition */
+@@ -148,96 +105,6 @@ static void prandom_warmup(struct rnd_state *state)
+ 	prandom_u32_state(state);
+ }
+ 
+-static u32 __extract_hwseed(void)
+-{
+-	unsigned int val = 0;
+-
+-	(void)(arch_get_random_seed_int(&val) ||
+-	       arch_get_random_int(&val));
+-
+-	return val;
+-}
+-
+-static void prandom_seed_early(struct rnd_state *state, u32 seed,
+-			       bool mix_with_hwseed)
+-{
+-#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
+-#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
+-	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
+-	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
+-	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
+-	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
+-}
+-
+-/**
+- *	prandom_seed - add entropy to pseudo random number generator
+- *	@entropy: entropy value
+- *
+- *	Add some additional entropy to the prandom pool.
+- */
+-void prandom_seed(u32 entropy)
+-{
+-	int i;
+-	/*
+-	 * No locking on the CPUs, but then somewhat random results are, well,
+-	 * expected.
+-	 */
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-
+-		state->s1 = __seed(state->s1 ^ entropy, 2U);
+-		prandom_warmup(state);
+-	}
+-}
+-EXPORT_SYMBOL(prandom_seed);
+-
+-/*
+- *	Generate some initially weak seeding values to allow
+- *	to start the prandom_u32() engine.
+- */
+-static int __init prandom_init(void)
+-{
+-	int i;
+-
+-	prandom_state_selftest();
+-
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-		u32 weak_seed = (i + jiffies) ^ random_get_entropy();
+-
+-		prandom_seed_early(state, weak_seed, true);
+-		prandom_warmup(state);
+-	}
+-
+-	return 0;
+-}
+-core_initcall(prandom_init);
+-
+-static void __prandom_timer(struct timer_list *unused);
+-
+-static DEFINE_TIMER(seed_timer, __prandom_timer);
+-
+-static void __prandom_timer(struct timer_list *unused)
+-{
+-	u32 entropy;
+-	unsigned long expires;
+-
+-	get_random_bytes(&entropy, sizeof(entropy));
+-	prandom_seed(entropy);
+-
+-	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
+-	expires = 40 + prandom_u32_max(40);
+-	seed_timer.expires = jiffies + msecs_to_jiffies(expires * MSEC_PER_SEC);
+-
+-	add_timer(&seed_timer);
+-}
+-
+-static void __init __prandom_start_seed_timer(void)
+-{
+-	seed_timer.expires = jiffies + msecs_to_jiffies(40 * MSEC_PER_SEC);
+-	add_timer(&seed_timer);
+-}
+-
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+ {
+ 	int i;
+@@ -257,51 +124,6 @@ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+ }
+ EXPORT_SYMBOL(prandom_seed_full_state);
+ 
+-/*
+- *	Generate better values after random number generator
+- *	is fully initialized.
+- */
+-static void __prandom_reseed(bool late)
+-{
+-	unsigned long flags;
+-	static bool latch = false;
+-	static DEFINE_SPINLOCK(lock);
+-
+-	/* Asking for random bytes might result in bytes getting
+-	 * moved into the nonblocking pool and thus marking it
+-	 * as initialized. In this case we would double back into
+-	 * this function and attempt to do a late reseed.
+-	 * Ignore the pointless attempt to reseed again if we're
+-	 * already waiting for bytes when the nonblocking pool
+-	 * got initialized.
+-	 */
+-
+-	/* only allow initial seeding (late == false) once */
+-	if (!spin_trylock_irqsave(&lock, flags))
+-		return;
+-
+-	if (latch && !late)
+-		goto out;
+-
+-	latch = true;
+-	prandom_seed_full_state(&net_rand_state);
+-out:
+-	spin_unlock_irqrestore(&lock, flags);
+-}
+-
+-void prandom_reseed_late(void)
+-{
+-	__prandom_reseed(true);
+-}
+-
+-static int __init prandom_reseed(void)
+-{
+-	__prandom_reseed(false);
+-	__prandom_start_seed_timer();
+-	return 0;
+-}
+-late_initcall(prandom_reseed);
+-
+ #ifdef CONFIG_RANDOM32_SELFTEST
+ static struct prandom_test1 {
+ 	u32 seed;
+@@ -421,7 +243,28 @@ static struct prandom_test2 {
+ 	{  407983964U, 921U,  728767059U },
+ };
+ 
+-static void __init prandom_state_selftest(void)
++static u32 __extract_hwseed(void)
++{
++	unsigned int val = 0;
++
++	(void)(arch_get_random_seed_int(&val) ||
++	       arch_get_random_int(&val));
++
++	return val;
++}
++
++static void prandom_seed_early(struct rnd_state *state, u32 seed,
++			       bool mix_with_hwseed)
++{
++#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
++#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
++	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
++	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
++	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
++	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
++}
++
++static int __init prandom_state_selftest(void)
+ {
+ 	int i, j, errors = 0, runs = 0;
+ 	bool error = false;
+@@ -461,5 +304,266 @@ static void __init prandom_state_selftest(void)
+ 		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
+ 	else
+ 		pr_info("prandom: %d self tests passed\n", runs);
++	return 0;
++}
++core_initcall(prandom_state_selftest);
++#endif
++
++/*
++ * The prandom_u32() implementation is now completely separate from the
++ * prandom_state() functions, which are retained (for now) for compatibility.
++ *
++ * Because of (ab)use in the networking code for choosing random TCP/UDP port
++ * numbers, which open DoS possibilities if guessable, we want something
++ * stronger than a standard PRNG.  But the performance requirements of
++ * the network code do not allow robust crypto for this application.
++ *
++ * So this is a homebrew Junior Spaceman implementation, based on the
++ * lowest-latency trustworthy crypto primitive available, SipHash.
++ * (The authors of SipHash have not been consulted about this abuse of
++ * their work.)
++ *
++ * Standard SipHash-2-4 uses 2n+4 rounds to hash n words of input to
++ * one word of output.  This abbreviated version uses 2 rounds per word
++ * of output.
++ */
++
++struct siprand_state {
++	unsigned long v0;
++	unsigned long v1;
++	unsigned long v2;
++	unsigned long v3;
++};
++
++static DEFINE_PER_CPU(struct siprand_state, net_rand_state) __latent_entropy;
++
++/*
++ * This is the core CPRNG function.  As "pseudorandom", this is not used
++ * for truly valuable things, just intended to be a PITA to guess.
++ * For maximum speed, we do just two SipHash rounds per word.  This is
++ * the same rate as 4 rounds per 64 bits that SipHash normally uses,
++ * so hopefully it's reasonably secure.
++ *
++ * There are two changes from the official SipHash finalization:
++ * - We omit some constants XORed with v2 in the SipHash spec as irrelevant;
++ *   they are there only to make the output rounds distinct from the input
++ *   rounds, and this application has no input rounds.
++ * - Rather than returning v0^v1^v2^v3, return v1+v3.
++ *   If you look at the SipHash round, the last operation on v3 is
++ *   "v3 ^= v0", so "v0 ^ v3" just undoes that, a waste of time.
++ *   Likewise "v1 ^= v2".  (The rotate of v2 makes a difference, but
++ *   it still cancels out half of the bits in v2 for no benefit.)
++ *   Second, since the last combining operation was xor, continue the
++ *   pattern of alternating xor/add for a tiny bit of extra non-linearity.
++ */
++static inline u32 siprand_u32(struct siprand_state *s)
++{
++	unsigned long v0 = s->v0, v1 = s->v1, v2 = s->v2, v3 = s->v3;
++
++	PRND_SIPROUND(v0, v1, v2, v3);
++	PRND_SIPROUND(v0, v1, v2, v3);
++	s->v0 = v0;  s->v1 = v1;  s->v2 = v2;  s->v3 = v3;
++	return v1 + v3;
++}
++
++
++/**
++ *	prandom_u32 - pseudo random number generator
++ *
++ *	A 32 bit pseudo-random number is generated using a fast
++ *	algorithm suitable for simulation. This algorithm is NOT
++ *	considered safe for cryptographic use.
++ */
++u32 prandom_u32(void)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u32 res = siprand_u32(state);
++
++	put_cpu_ptr(&net_rand_state);
++	return res;
++}
++EXPORT_SYMBOL(prandom_u32);
++
++/**
++ *	prandom_bytes - get the requested number of pseudo-random bytes
++ *	@buf: where to copy the pseudo-random bytes to
++ *	@bytes: the requested number of bytes
++ */
++void prandom_bytes(void *buf, size_t bytes)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u8 *ptr = buf;
++
++	while (bytes >= sizeof(u32)) {
++		put_unaligned(siprand_u32(state), (u32 *)ptr);
++		ptr += sizeof(u32);
++		bytes -= sizeof(u32);
++	}
++
++	if (bytes > 0) {
++		u32 rem = siprand_u32(state);
++
++		do {
++			*ptr++ = (u8)rem;
++			rem >>= BITS_PER_BYTE;
++		} while (--bytes > 0);
++	}
++	put_cpu_ptr(&net_rand_state);
++}
++EXPORT_SYMBOL(prandom_bytes);
++
++/**
++ *	prandom_seed - add entropy to pseudo random number generator
++ *	@entropy: entropy value
++ *
++ *	Add some additional seed material to the prandom pool.
++ *	The "entropy" is actually our IP address (the only caller is
++ *	the network code), not for unpredictability, but to ensure that
++ *	different machines are initialized differently.
++ */
++void prandom_seed(u32 entropy)
++{
++	int i;
++
++	add_device_randomness(&entropy, sizeof(entropy));
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state = per_cpu_ptr(&net_rand_state, i);
++		unsigned long v0 = state->v0, v1 = state->v1;
++		unsigned long v2 = state->v2, v3 = state->v3;
++
++		do {
++			v3 ^= entropy;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= entropy;
++		} while (unlikely(!v0 || !v1 || !v2 || !v3));
++
++		WRITE_ONCE(state->v0, v0);
++		WRITE_ONCE(state->v1, v1);
++		WRITE_ONCE(state->v2, v2);
++		WRITE_ONCE(state->v3, v3);
++	}
++}
++EXPORT_SYMBOL(prandom_seed);
++
++/*
++ *	Generate some initially weak seeding values to allow
++ *	the prandom_u32() engine to be started.
++ */
++static int __init prandom_init_early(void)
++{
++	int i;
++	unsigned long v0, v1, v2, v3;
++
++	if (!arch_get_random_long(&v0))
++		v0 = jiffies;
++	if (!arch_get_random_long(&v1))
++		v1 = random_get_entropy();
++	v2 = v0 ^ PRND_K0;
++	v3 = v1 ^ PRND_K1;
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++
++		v3 ^= i;
++		PRND_SIPROUND(v0, v1, v2, v3);
++		PRND_SIPROUND(v0, v1, v2, v3);
++		v0 ^= i;
++
++		state = per_cpu_ptr(&net_rand_state, i);
++		state->v0 = v0;  state->v1 = v1;
++		state->v2 = v2;  state->v3 = v3;
++	}
++
++	return 0;
+ }
++core_initcall(prandom_init_early);
++
++
++/* Stronger reseeding when available, and periodically thereafter. */
++static void prandom_reseed(struct timer_list *unused);
++
++static DEFINE_TIMER(seed_timer, prandom_reseed);
++
++static void prandom_reseed(struct timer_list *unused)
++{
++	unsigned long expires;
++	int i;
++
++	/*
++	 * Reinitialize each CPU's PRNG with 128 bits of key.
++	 * No locking on the CPUs, but then somewhat random results are,
++	 * well, expected.
++	 */
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++		unsigned long v0 = get_random_long(), v2 = v0 ^ PRND_K0;
++		unsigned long v1 = get_random_long(), v3 = v1 ^ PRND_K1;
++#if BITS_PER_LONG == 32
++		int j;
++
++		/*
++		 * On 32-bit machines, hash in two extra words to
++		 * approximate 128-bit key length.  Not that the hash
++		 * has that much security, but this prevents a trivial
++		 * 64-bit brute force.
++		 */
++		for (j = 0; j < 2; j++) {
++			unsigned long m = get_random_long();
++
++			v3 ^= m;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= m;
++		}
+ #endif
++		/*
++		 * Probably impossible in practice, but there is a
++		 * theoretical risk that a race between this reseeding
++		 * and the target CPU writing its state back could
++		 * create the all-zero SipHash fixed point.
++		 *
++		 * To ensure that never happens, ensure the state
++		 * we write contains no zero words.
++		 */
++		state = per_cpu_ptr(&net_rand_state, i);
++		WRITE_ONCE(state->v0, v0 ? v0 : -1ul);
++		WRITE_ONCE(state->v1, v1 ? v1 : -1ul);
++		WRITE_ONCE(state->v2, v2 ? v2 : -1ul);
++		WRITE_ONCE(state->v3, v3 ? v3 : -1ul);
++	}
++
++	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
++	expires = round_jiffies(jiffies + 40 * HZ + prandom_u32_max(40 * HZ));
++	mod_timer(&seed_timer, expires);
++}
++
++/*
++ * The random ready callback can be called from almost any interrupt.
++ * To avoid worrying about whether it's safe to delay that interrupt
++ * long enough to seed all CPUs, just schedule an immediate timer event.
++ */
++static void prandom_timer_start(struct random_ready_callback *unused)
++{
++	mod_timer(&seed_timer, jiffies);
++}
++
++/*
++ * Start periodic full reseeding as soon as strong
++ * random numbers are available.
++ */
++static int __init prandom_init_late(void)
++{
++	static struct random_ready_callback random_ready = {
++		.func = prandom_timer_start
++	};
++	int ret = add_random_ready_callback(&random_ready);
++
++	if (ret == -EALREADY) {
++		prandom_timer_start(&random_ready);
++		ret = 0;
++	}
++	return ret;
++}
++late_initcall(prandom_init_late);
+-- 
+2.9.0
+
