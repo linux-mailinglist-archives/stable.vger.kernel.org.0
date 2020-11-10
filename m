@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0C92ACD40
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 632D62ACD48
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733269AbgKJDzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:55:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57306 "EHLO mail.kernel.org"
+        id S1732609AbgKJEBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:01:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733260AbgKJDzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:44 -0500
+        id S1733266AbgKJDzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BC5D20731;
-        Tue, 10 Nov 2020 03:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBD9421534;
+        Tue, 10 Nov 2020 03:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980543;
-        bh=nu/fqrzXW8Y6fnHt6NEplWxuDJnS8wfMgJbxvGOqIlo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=i27K9AUn1kOxNgt18KVvFg4BCEBtGSsBvmZChVxCSEJCklA4pQA4+FZ2TPdbhfup6
-         FmW2cZVelBKrloQKa4z6fRt1z3sNd9fMlR5/lWalCKtveI77qF05I5Habl03pbQFbw
-         s4epzPd0lVRUM/u5V+kGByWvm3/AEXQ1uh/v1uUQ=
+        s=default; t=1604980544;
+        bh=2ttryGY3eT5+z8ilDfIM5PMl2ptH1k50VUbYb4lTFH8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=2kEFxJsk4tX4ozZqhE2HXrjteL506OUmSIiAOTY+AIj8CeszeEXJrhxcK/gpkGShj
+         8b/ierL9bvD/PM+KJbvDiygL7POxDp/glv7NRDMyxamDbUkyki8k2kLvzwez0VmPZk
+         YZmNLnot/VxP2tTYiOzunmk7jxd/5kg0q5G+0ygQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Pavel Andrianov <andrianov@ispras.ru>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/21] usb: gadget: goku_udc: fix potential crashes in probe
-Date:   Mon,  9 Nov 2020 22:55:21 -0500
-Message-Id: <20201110035541.424648-1-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 02/21] ALSA: hda: Reinstate runtime_allow() for all hda controllers
+Date:   Mon,  9 Nov 2020 22:55:22 -0500
+Message-Id: <20201110035541.424648-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
+References: <20201110035541.424648-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,49 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 0d66e04875c5aae876cf3d4f4be7978fa2b00523 ]
+[ Upstream commit 9fc149c3bce7bdbb94948a8e6bd025e3b3538603 ]
 
-goku_probe() goes to error label "err" and invokes goku_remove()
-in case of failures of pci_enable_device(), pci_resource_start()
-and ioremap(). goku_remove() gets a device from
-pci_get_drvdata(pdev) and works with it without any checks, in
-particular it dereferences a corresponding pointer. But
-goku_probe() did not set this device yet. So, one can expect
-various crashes. The patch moves setting the device just after
-allocation of memory for it.
+The broken jack detection should be fixed by commit a6e7d0a4bdb0 ("ALSA:
+hda: fix jack detection with Realtek codecs when in D3"), let's try
+enabling runtime PM by default again.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Reported-by: Pavel Andrianov <andrianov@ispras.ru>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20201027130038.16463-4-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/goku_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/udc/goku_udc.c b/drivers/usb/gadget/udc/goku_udc.c
-index c3721225b61ed..b706ad3034bc1 100644
---- a/drivers/usb/gadget/udc/goku_udc.c
-+++ b/drivers/usb/gadget/udc/goku_udc.c
-@@ -1757,6 +1757,7 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index d43245937db7e..8e1eb5f243a27 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2478,6 +2478,7 @@ static int azx_probe_continue(struct azx *chip)
+ 
+ 	if (azx_has_pm_runtime(chip)) {
+ 		pm_runtime_use_autosuspend(&pci->dev);
++		pm_runtime_allow(&pci->dev);
+ 		pm_runtime_put_autosuspend(&pci->dev);
  	}
  
-+	pci_set_drvdata(pdev, dev);
- 	spin_lock_init(&dev->lock);
- 	dev->pdev = pdev;
- 	dev->gadget.ops = &goku_ops;
-@@ -1790,7 +1791,6 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	}
- 	dev->regs = (struct goku_udc_regs __iomem *) base;
- 
--	pci_set_drvdata(pdev, dev);
- 	INFO(dev, "%s\n", driver_desc);
- 	INFO(dev, "version: " DRIVER_VERSION " %s\n", dmastr());
- 	INFO(dev, "irq %d, pci mem %p\n", pdev->irq, base);
 -- 
 2.27.0
 
