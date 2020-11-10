@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 354A62AD790
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 647592AD78E
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731076AbgKJNdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 08:33:23 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47315 "EHLO 1wt.eu"
+        id S1730750AbgKJNdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 08:33:16 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47318 "EHLO 1wt.eu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730617AbgKJNdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 08:33:12 -0500
+        id S1730710AbgKJNdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 08:33:14 -0500
 Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWgvD002343;
-        Tue, 10 Nov 2020 14:32:42 +0100
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWh3B002385;
+        Tue, 10 Nov 2020 14:32:43 +0100
 From:   Willy Tarreau <w@1wt.eu>
 To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
@@ -26,9 +26,9 @@ Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
         Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
         Florian Westphal <fw@strlen.de>,
         Marc Plumb <lkml.mplumb@gmail.com>
-Subject: [PATCH 4.14] random32: make prandom_u32() output unpredictable
-Date:   Tue, 10 Nov 2020 14:32:39 +0100
-Message-Id: <20201110133239.2303-1-w@1wt.eu>
+Subject: [PATCH 4.9] random32: make prandom_u32() output unpredictable
+Date:   Tue, 10 Nov 2020 14:32:42 +0100
+Message-Id: <20201110133242.2345-1-w@1wt.eu>
 X-Mailer: git-send-email 2.9.0
 In-Reply-To: <20201110133120.GA1926@1wt.eu>
 References: <20201110133120.GA1926@1wt.eu>
@@ -84,7 +84,7 @@ Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
   members to fix a build issue; cosmetic cleanups to make checkpatch
   happy; fixed RANDOM32_SELFTEST build ]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
-[wt: backported to 4.14 -- various context adjustments; timer API change]
+[wt: backported to 4.9 -- various context adjustments; timer API change]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 ---
  drivers/char/random.c   |   1 -
@@ -94,10 +94,10 @@ Signed-off-by: Willy Tarreau <w@1wt.eu>
  4 files changed, 317 insertions(+), 189 deletions(-)
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index b202f66..868d262 100644
+index c417aa1..4cbc731 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1246,7 +1246,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
+@@ -1211,7 +1211,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
  
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
@@ -157,13 +157,13 @@ index aa16e64..cc1e713 100644
  void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index d4bc272..99f885d 100644
+index d2e4698..c9325a1 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1596,13 +1596,6 @@ void update_process_times(int user_tick)
+@@ -1636,13 +1636,6 @@ void update_process_times(int user_tick)
+ #endif
  	scheduler_tick();
- 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
- 		run_posix_cpu_timers(p);
+ 	run_posix_cpu_timers(p);
 -
 -	/* The current CPU might make use of net randoms without receiving IRQs
 -	 * to renew them often enough. Let's update the net_rand_state from a
@@ -175,10 +175,10 @@ index d4bc272..99f885d 100644
  
  /**
 diff --git a/lib/random32.c b/lib/random32.c
-index eb54663..f5e967f 100644
+index d5c3137..3c5b67b 100644
 --- a/lib/random32.c
 +++ b/lib/random32.c
-@@ -40,16 +40,6 @@
+@@ -39,16 +39,6 @@
  #include <linux/sched.h>
  #include <asm/unaligned.h>
  
@@ -195,7 +195,7 @@ index eb54663..f5e967f 100644
  /**
   *	prandom_u32_state - seeded pseudo-random number generator.
   *	@state: pointer to state structure holding seeded state.
-@@ -70,25 +60,6 @@ u32 prandom_u32_state(struct rnd_state *state)
+@@ -69,25 +59,6 @@ u32 prandom_u32_state(struct rnd_state *state)
  EXPORT_SYMBOL(prandom_u32_state);
  
  /**
@@ -221,7 +221,7 @@ index eb54663..f5e967f 100644
   *	prandom_bytes_state - get the requested number of pseudo-random bytes
   *
   *	@state: pointer to state structure holding seeded state.
-@@ -119,20 +90,6 @@ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t bytes)
+@@ -118,20 +89,6 @@ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t bytes)
  }
  EXPORT_SYMBOL(prandom_bytes_state);
  
@@ -242,7 +242,7 @@ index eb54663..f5e967f 100644
  static void prandom_warmup(struct rnd_state *state)
  {
  	/* Calling RNG ten times to satisfy recurrence condition */
-@@ -148,96 +105,6 @@ static void prandom_warmup(struct rnd_state *state)
+@@ -147,96 +104,6 @@ static void prandom_warmup(struct rnd_state *state)
  	prandom_u32_state(state);
  }
  
@@ -339,7 +339,7 @@ index eb54663..f5e967f 100644
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
  {
  	int i;
-@@ -257,51 +124,6 @@ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+@@ -256,51 +123,6 @@ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
  }
  EXPORT_SYMBOL(prandom_seed_full_state);
  
@@ -391,7 +391,7 @@ index eb54663..f5e967f 100644
  #ifdef CONFIG_RANDOM32_SELFTEST
  static struct prandom_test1 {
  	u32 seed;
-@@ -421,7 +243,28 @@ static struct prandom_test2 {
+@@ -420,7 +242,28 @@ static struct prandom_test2 {
  	{  407983964U, 921U,  728767059U },
  };
  
@@ -421,7 +421,7 @@ index eb54663..f5e967f 100644
  {
  	int i, j, errors = 0, runs = 0;
  	bool error = false;
-@@ -461,5 +304,266 @@ static void __init prandom_state_selftest(void)
+@@ -460,5 +303,266 @@ static void __init prandom_state_selftest(void)
  		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
  	else
  		pr_info("prandom: %d self tests passed\n", runs);
