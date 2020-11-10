@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EDF92ACCCB
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E49F82ACCCA
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731829AbgKJD5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59218 "EHLO mail.kernel.org"
+        id S2387726AbgKJD5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:57:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387811AbgKJD5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:57:01 -0500
+        id S2387830AbgKJD5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:57:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F4EB207BC;
-        Tue, 10 Nov 2020 03:57:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF0D52063A;
+        Tue, 10 Nov 2020 03:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980621;
-        bh=8XF7R//Yl6NH0VxVXke17EfNRQeotPb3MfGtIMyT23U=;
+        s=default; t=1604980622;
+        bh=PtWS5JQdcHf7A2O5Y6BAIDZZNeS1HsuG+qSUFLdveZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6S0Dms0ZvF84s1Ds9SKMFfCGMzO/Fsy1ixlXLGExb/3QRv37C60o26pRNJqRNKxR
-         NvkZXHpOPnYVSZx6SQDmozkWQqZlwFRKBIuVHvEy+LrQOEavf5cJ7YkpQRoxWmNqAD
-         uk7ojGDVxx6eaoZQEsZHmkuU+Ig17Avo+rgup9ns=
+        b=l0yzWOzo9d85oWGeFBsJFB0WcW9beQKDtFxbmiEODnS7RBpHUw9tb8nJ+oM7gQ0SQ
+         7iqebpVZjTkqe9PHyKcsm2ib9Vnqd7lRqKq9eEH1FknAWexZ/fEyRfXHdy7wIDXCzG
+         irAxj9QQAVqxEoiVzy09ItvOqn3BfXh/l9t2JEUA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 07/10] cfg80211: regulatory: Fix inconsistent format argument
-Date:   Mon,  9 Nov 2020 22:56:48 -0500
-Message-Id: <20201110035651.425177-7-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.4 08/10] iommu/amd: Increase interrupt remapping table limit to 512 entries
+Date:   Mon,  9 Nov 2020 22:56:49 -0500
+Message-Id: <20201110035651.425177-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035651.425177-1-sashal@kernel.org>
 References: <20201110035651.425177-1-sashal@kernel.org>
@@ -43,36 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit db18d20d1cb0fde16d518fb5ccd38679f174bc04 ]
+[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
 
-Fix follow warning:
-[net/wireless/reg.c:3619]: (warning) %d in format string (no. 2)
-requires 'int' but the argument type is 'unsigned int'.
+Certain device drivers allocate IO queues on a per-cpu basis.
+On AMD EPYC platform, which can support up-to 256 cpu threads,
+this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
+and result in the error message:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20201009070215.63695-1-yebin10@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+    AMD-Vi: Failed to allocate IRTE
+
+This has been observed with certain NVME devices.
+
+AMD IOMMU hardware can actually support upto 512 interrupt
+remapping table entries. Therefore, update the driver to
+match the hardware limit.
+
+Please note that this also increases the size of interrupt remapping
+table to 8KB per device when using the 128-bit IRTE format.
+
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_types.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 474923175b108..dcbf5cd44bb37 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2775,7 +2775,7 @@ static void print_rd_rules(const struct ieee80211_regdomain *rd)
- 		power_rule = &reg_rule->power_rule;
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index 695d4e235438c..90832bf00538e 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -351,7 +351,11 @@ extern bool amd_iommu_np_cache;
+ /* Only true if all IOMMUs support device IOTLBs */
+ extern bool amd_iommu_iotlb_sup;
  
- 		if (reg_rule->flags & NL80211_RRF_AUTO_BW)
--			snprintf(bw, sizeof(bw), "%d KHz, %d KHz AUTO",
-+			snprintf(bw, sizeof(bw), "%d KHz, %u KHz AUTO",
- 				 freq_range->max_bandwidth_khz,
- 				 reg_get_max_bandwidth(rd, reg_rule));
- 		else
+-#define MAX_IRQS_PER_TABLE	256
++/*
++ * AMD IOMMU hardware only support 512 IRTEs despite
++ * the architectural limitation of 2048 entries.
++ */
++#define MAX_IRQS_PER_TABLE	512
+ #define IRQ_TABLE_ALIGNMENT	128
+ 
+ struct irq_remap_table {
 -- 
 2.27.0
 
