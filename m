@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D35DD2ACE36
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A506E2ACE31
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731865AbgKJDxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:53:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54096 "EHLO mail.kernel.org"
+        id S1732067AbgKJEHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:07:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731931AbgKJDxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:53:39 -0500
+        id S1731931AbgKJDxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:53:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2243D207BC;
-        Tue, 10 Nov 2020 03:53:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BABE52080A;
+        Tue, 10 Nov 2020 03:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980418;
-        bh=y1jNnd4y2BoBV+1ED0HnegIhy5hWo8FQyQlmoYPZ+Cw=;
+        s=default; t=1604980421;
+        bh=sW56ZONulphTJNrzR+SU5Sy5PAkV0u1J025vu7So/C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdqzM1NqKeKV9uzkSMJdce4GNMTuFZuzR+4nHjzFIldeJc23+43yuBRYAHwmKO3rj
-         8uSaDLVOLepEYsETnC2RN0lKzniZjdDWQF+S3vjlcpRz76X7R96x68OHNIAuStEJ3z
-         /Wlc+ooS1oz+hipbgXG7GP+frS1kxyDGEHPJpcg8=
+        b=MRFqeOa5u0iQBgPPivV8UlJs1SAG9NAyclTPdb1pkxvRnz9faFGJcy4RrTIMawz7z
+         ZNdhb+jpnDpjfukxEutbaYY8TDX6SRDTDOoHxzbSGM9qp7d9bWDWtZ5SMgsWZajnOr
+         KZ1WTSqfaU07qcCJYI79tOc2+vpx1t7mgK4rAU7k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bob Peterson <rpeterso@redhat.com>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.9 14/55] gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
-Date:   Mon,  9 Nov 2020 22:52:37 -0500
-Message-Id: <20201110035318.423757-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 16/55] gfs2: check for live vs. read-only file system in gfs2_fitrim
+Date:   Mon,  9 Nov 2020 22:52:39 -0500
+Message-Id: <20201110035318.423757-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
 References: <20201110035318.423757-1-sashal@kernel.org>
@@ -44,35 +44,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit d0f17d3883f1e3f085d38572c2ea8edbd5150172 ]
+[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
 
-Function gfs2_clear_rgrpd calls kfree(rgd->rd_bits) before calling
-return_all_reservations, but return_all_reservations still dereferences
-rgd->rd_bits in __rs_deltree.  Fix that by moving the call to kfree below the
-call to return_all_reservations.
+Before this patch, gfs2_fitrim was not properly checking for a "live" file
+system. If the file system had something to trim and the file system
+was read-only (or spectator) it would start the trim, but when it starts
+the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
+and it errors out. However, if the file system was already trimmed so
+there's no work to do, it never called gfs2_trans_begin. That code is
+bypassed so it never returns the error. Instead, it returns a good
+return code with 0 work. All this makes for inconsistent behavior:
+The same fstrim command can return -EROFS in one case and 0 in another.
+This tripped up xfstests generic/537 which reports the error as:
+
+    +fstrim with unrecovered metadata just ate your filesystem
+
+This patch adds a check for a "live" (iow, active journal, iow, RW)
+file system, and if not, returns the error properly.
 
 Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/rgrp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 1bba5a9d45fa3..1d65db1b3914a 100644
+index 1d65db1b3914a..ac306895bbbcc 100644
 --- a/fs/gfs2/rgrp.c
 +++ b/fs/gfs2/rgrp.c
-@@ -719,9 +719,9 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
- 		}
+@@ -1374,6 +1374,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
- 		gfs2_free_clones(rgd);
-+		return_all_reservations(rgd);
- 		kfree(rgd->rd_bits);
- 		rgd->rd_bits = NULL;
--		return_all_reservations(rgd);
- 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
- 	}
- }
++	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
++		return -EROFS;
++
+ 	if (!blk_queue_discard(q))
+ 		return -EOPNOTSUPP;
+ 
 -- 
 2.27.0
 
