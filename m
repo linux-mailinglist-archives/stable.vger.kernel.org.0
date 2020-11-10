@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A81B62ACDE2
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:06:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C98922ACDDC
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732009AbgKJEGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:06:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54486 "EHLO mail.kernel.org"
+        id S1732299AbgKJDx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:53:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732198AbgKJDxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:53:55 -0500
+        id S1732269AbgKJDx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:53:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6DD220781;
-        Tue, 10 Nov 2020 03:53:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D82320731;
+        Tue, 10 Nov 2020 03:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980434;
-        bh=1jTr55gaoyGw5R902U7nFxaSS5hrWwmAkLllFm2nUrg=;
+        s=default; t=1604980436;
+        bh=vggjhxlZ0nTVehZ6/y+P9Re4mUYV/sXpTjZQ/ky4jjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k06e5In+H65GYzBB/Ab82m7sxTlGGH1M2dVyz66xqfKi9eg6rq4Ij4bNzUCWJacd9
-         TPIEptrnjTSZf22HkDDryM25Zfmx09xoxU86O5u6ExtxolDEIYb+qYjMWtakH9HKH5
-         /o2uDOx6PmAWvIjhWbGJ5JgcjbbVe2N0OD3iXY4Y=
+        b=hcSBE3aUyFVlBkLXt6UBZ5YLM9oimBvcHUC9txUZ4o3rLwTHYVQK39R/wjcwmhJiH
+         4z1Q5E1H6+igdU/zRzXhIhssM1/Zi68n+zl/gM+5UXKqXW+HzgbdFigbJb982ATy5J
+         DgUO0/5KS12wJKNsfuLZtVQd7WnyYNCGvM+QOETs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 25/55] cfg80211: regulatory: Fix inconsistent format argument
-Date:   Mon,  9 Nov 2020 22:52:48 -0500
-Message-Id: <20201110035318.423757-25-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Chen Minqiang <ptpt52@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>, wireguard@lists.zx2c4.com,
+        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 26/55] wireguard: selftests: check that route_me_harder packets use the right sk
+Date:   Mon,  9 Nov 2020 22:52:49 -0500
+Message-Id: <20201110035318.423757-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
 References: <20201110035318.423757-1-sashal@kernel.org>
@@ -43,36 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit db18d20d1cb0fde16d518fb5ccd38679f174bc04 ]
+[ Upstream commit af8afcf1fdd5f365f70e2386c2d8c7a1abd853d7 ]
 
-Fix follow warning:
-[net/wireless/reg.c:3619]: (warning) %d in format string (no. 2)
-requires 'int' but the argument type is 'unsigned int'.
+If netfilter changes the packet mark, the packet is rerouted. The
+ip_route_me_harder family of functions fails to use the right sk, opting
+to instead use skb->sk, resulting in a routing loop when used with
+tunnels. With the next change fixing this issue in netfilter, test for
+the relevant condition inside our test suite, since wireguard was where
+the bug was discovered.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20201009070215.63695-1-yebin10@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Chen Minqiang <ptpt52@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/wireguard/netns.sh           | 8 ++++++++
+ tools/testing/selftests/wireguard/qemu/kernel.config | 2 ++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index d8a90d3974235..763a45655ac21 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3411,7 +3411,7 @@ static void print_rd_rules(const struct ieee80211_regdomain *rd)
- 		power_rule = &reg_rule->power_rule;
+diff --git a/tools/testing/selftests/wireguard/netns.sh b/tools/testing/selftests/wireguard/netns.sh
+index d77f4829f1e07..74c69b75f6f5a 100755
+--- a/tools/testing/selftests/wireguard/netns.sh
++++ b/tools/testing/selftests/wireguard/netns.sh
+@@ -316,6 +316,14 @@ pp sleep 3
+ n2 ping -W 1 -c 1 192.168.241.1
+ n1 wg set wg0 peer "$pub2" persistent-keepalive 0
  
- 		if (reg_rule->flags & NL80211_RRF_AUTO_BW)
--			snprintf(bw, sizeof(bw), "%d KHz, %d KHz AUTO",
-+			snprintf(bw, sizeof(bw), "%d KHz, %u KHz AUTO",
- 				 freq_range->max_bandwidth_khz,
- 				 reg_get_max_bandwidth(rd, reg_rule));
- 		else
++# Test that sk_bound_dev_if works
++n1 ping -I wg0 -c 1 -W 1 192.168.241.2
++# What about when the mark changes and the packet must be rerouted?
++n1 iptables -t mangle -I OUTPUT -j MARK --set-xmark 1
++n1 ping -c 1 -W 1 192.168.241.2 # First the boring case
++n1 ping -I wg0 -c 1 -W 1 192.168.241.2 # Then the sk_bound_dev_if case
++n1 iptables -t mangle -D OUTPUT -j MARK --set-xmark 1
++
+ # Test that onion routing works, even when it loops
+ n1 wg set wg0 peer "$pub3" allowed-ips 192.168.242.2/32 endpoint 192.168.241.2:5
+ ip1 addr add 192.168.242.1/24 dev wg0
+diff --git a/tools/testing/selftests/wireguard/qemu/kernel.config b/tools/testing/selftests/wireguard/qemu/kernel.config
+index d531de13c95b0..4eecb432a66c1 100644
+--- a/tools/testing/selftests/wireguard/qemu/kernel.config
++++ b/tools/testing/selftests/wireguard/qemu/kernel.config
+@@ -18,10 +18,12 @@ CONFIG_NF_NAT=y
+ CONFIG_NETFILTER_XTABLES=y
+ CONFIG_NETFILTER_XT_NAT=y
+ CONFIG_NETFILTER_XT_MATCH_LENGTH=y
++CONFIG_NETFILTER_XT_MARK=y
+ CONFIG_NF_CONNTRACK_IPV4=y
+ CONFIG_NF_NAT_IPV4=y
+ CONFIG_IP_NF_IPTABLES=y
+ CONFIG_IP_NF_FILTER=y
++CONFIG_IP_NF_MANGLE=y
+ CONFIG_IP_NF_NAT=y
+ CONFIG_IP_ADVANCED_ROUTER=y
+ CONFIG_IP_MULTIPLE_TABLES=y
 -- 
 2.27.0
 
