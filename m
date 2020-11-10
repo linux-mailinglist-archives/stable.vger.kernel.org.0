@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5852ACC64
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69EE82ACC6C
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732944AbgKJDzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:55:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
+        id S1732976AbgKJDzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:55:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732941AbgKJDzE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:04 -0500
+        id S1733039AbgKJDzL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F11420897;
-        Tue, 10 Nov 2020 03:55:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 299B6208FE;
+        Tue, 10 Nov 2020 03:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980503;
-        bh=S/qVpmdo/I/WpqoRgF5iVIPW7eamJQGlkGVglSqUJfI=;
+        s=default; t=1604980510;
+        bh=iHiH8YlWWY2/Y3wk98ZXK2c658guRT96KOGjGgLzr0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lKr7w/aKFy4/lSYQ71YM71mSEHwdUNeIrU9gHp1Bjk4JANOlYKQzeUrBMjdKtsER
-         ZzGNvt8vttuxx7UM/zbDciDyRAg7+dhsApxn10qcMOKt0WTnat0Ldqk5rQUZQ/kL4w
-         +XFwcPW9VVTyMrmQ9+/B3wIglk2HFNMi2RKc7wDA=
+        b=TuZT7TkkB0ak1HLhnpkQFKKqfVhvedNSNd/f9q7uSxqWMCamphjdW0qVLVK4O1sH1
+         VWlTydgDh4rRjraAn5J9vuQktn+i8jY9tpn1EpFkm+n6R8V61HDmG3ZsDe9sJBqo1z
+         a0A/ZKIo29cbrI6bdz6YLQ1gKoU6v7QS/QqYccbQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>,
-        Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 16/42] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
-Date:   Mon,  9 Nov 2020 22:54:14 -0500
-Message-Id: <20201110035440.424258-16-sashal@kernel.org>
+Cc:     Qiujun Huang <hqjagain@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 21/42] tracing: Fix the checking of stackidx in __ftrace_trace_stack
+Date:   Mon,  9 Nov 2020 22:54:19 -0500
+Message-Id: <20201110035440.424258-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -44,42 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
+[ Upstream commit 906695e59324635c62b5ae59df111151a546ca66 ]
 
-This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
-Fix bug where DPM is not enabled after hibernate and resume").
-It was intended to fix Hawaii S4(hibernation) issue but break S3. As
-ixFEATURE_STATUS is filled with garbage data on resume which can be
-only cleared by reloading smc firmware(but that will involve many
-changes). So, we will revert this S4 fix and seek a new way.
+The array size is FTRACE_KSTACK_NESTING, so the index FTRACE_KSTACK_NESTING
+is illegal too. And fix two typos by the way.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lkml.kernel.org/r/20201031085714.2147-1-hqjagain@gmail.com
+
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ kernel/trace/trace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-index 0f4f27a89020d..42c8f8731a504 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -2725,10 +2725,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 5b2a664812b10..5530dd2f06dba 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2510,7 +2510,7 @@ trace_event_buffer_lock_reserve(struct ring_buffer **current_rb,
+ 	/*
+ 	 * If tracing is off, but we have triggers enabled
+ 	 * we still need to look at the event data. Use the temp_buffer
+-	 * to store the trace event for the tigger to use. It's recusive
++	 * to store the trace event for the trigger to use. It's recursive
+ 	 * safe and will not be recorded anywhere.
+ 	 */
+ 	if (!entry && trace_file->flags & EVENT_FILE_FL_TRIGGER_COND) {
+@@ -2832,7 +2832,7 @@ static void __ftrace_trace_stack(struct ring_buffer *buffer,
+ 	stackidx = __this_cpu_inc_return(ftrace_stack_reserve) - 1;
  
- static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
- {
--	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
--					     CGS_IND_REG__SMC, FEATURE_STATUS,
--					     VOLTAGE_CONTROLLER_ON))
--		? true : false;
-+	return ci_is_smc_ram_running(hwmgr);
- }
+ 	/* This should never happen. If it does, yell once and skip */
+-	if (WARN_ON_ONCE(stackidx > FTRACE_KSTACK_NESTING))
++	if (WARN_ON_ONCE(stackidx >= FTRACE_KSTACK_NESTING))
+ 		goto out;
  
- static int ci_smu_init(struct pp_hwmgr *hwmgr)
+ 	/*
 -- 
 2.27.0
 
