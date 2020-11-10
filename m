@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEEC2ACD70
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B95E72ACD72
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733089AbgKJDzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:55:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56504 "EHLO mail.kernel.org"
+        id S1731087AbgKJECS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:02:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733039AbgKJDzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:15 -0500
+        id S1733086AbgKJDzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28FDB20E65;
-        Tue, 10 Nov 2020 03:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE28120897;
+        Tue, 10 Nov 2020 03:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980515;
-        bh=6v7vjvx3pumIafrE0S/YCmKzzDJSNkFrZ2yWisEe3jo=;
+        s=default; t=1604980517;
+        bh=qlQn243o2M9uZpg/lnQZKqkekziTsamLkitwKpunRJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeHVmAihcuAFS2cFTk6hMBaiaVJhoq+MJ6Tr/0dHfifJ2CC3q9z2MQZ+QsRt4sB8t
-         Z/d01DgLUNJjC4QP1Qp/InWTZAAWdtBKyWXyO6YscZSlfoAYCZv8Ma8L8FVF/+mze6
-         Yl+tQVj3eork75V2onxaOf+beVWXQrGtpWIAuaAk=
+        b=0K7++x4al7M3UcTX6bAGURnnWtUI8R5Lee5cedTlBwh2M59+/JDvi++1jv3a6rZ9u
+         ZQqAasbb17ORDRZqN2IKK/nm9GOvseuoFLggpKclwP/xk+gR3OPhD9hBarKDrzwkFx
+         3PtG8q6Gezhho1qI2TGFldxoBDKv+CjVTpNyp8Qg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Leng <lengchao@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 24/42] nvme: introduce nvme_sync_io_queues
-Date:   Mon,  9 Nov 2020 22:54:22 -0500
-Message-Id: <20201110035440.424258-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 26/42] nvme-tcp: avoid race between time out and tear down
+Date:   Mon,  9 Nov 2020 22:54:24 -0500
+Message-Id: <20201110035440.424258-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -44,59 +44,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Leng <lengchao@huawei.com>
 
-[ Upstream commit 04800fbff4764ab7b32c49d19628605a5d4cb85c ]
+[ Upstream commit d6f66210f4b1aa2f5944f0e34e0f8db44f499f92 ]
 
-Introduce sync io queues for some scenarios which just only need sync
-io queues not sync all queues.
+Now use teardown_lock to serialize for time out and tear down. This may
+cause abnormal: first cancel all request in tear down, then time out may
+complete the request again, but the request may already be freed or
+restarted.
+
+To avoid race between time out and tear down, in tear down process,
+first we quiesce the queue, and then delete the timer and cancel
+the time out work for the queue. At the same time we need to delete
+teardown_lock.
 
 Signed-off-by: Chao Leng <lengchao@huawei.com>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 8 ++++++--
- drivers/nvme/host/nvme.h | 1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ce69aaea581a5..7a964271959d8 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4226,8 +4226,7 @@ void nvme_start_queues(struct nvme_ctrl *ctrl)
- }
- EXPORT_SYMBOL_GPL(nvme_start_queues);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index e159b78b5f3b4..76440f26c1453 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -110,7 +110,6 @@ struct nvme_tcp_ctrl {
+ 	struct sockaddr_storage src_addr;
+ 	struct nvme_ctrl	ctrl;
  
--
--void nvme_sync_queues(struct nvme_ctrl *ctrl)
-+void nvme_sync_io_queues(struct nvme_ctrl *ctrl)
+-	struct mutex		teardown_lock;
+ 	struct work_struct	err_work;
+ 	struct delayed_work	connect_work;
+ 	struct nvme_tcp_request async_req;
+@@ -1797,8 +1796,8 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
+ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 		bool remove)
  {
- 	struct nvme_ns *ns;
- 
-@@ -4235,7 +4234,12 @@ void nvme_sync_queues(struct nvme_ctrl *ctrl)
- 	list_for_each_entry(ns, &ctrl->namespaces, list)
- 		blk_sync_queue(ns->queue);
- 	up_read(&ctrl->namespaces_rwsem);
-+}
-+EXPORT_SYMBOL_GPL(nvme_sync_io_queues);
- 
-+void nvme_sync_queues(struct nvme_ctrl *ctrl)
-+{
-+	nvme_sync_io_queues(ctrl);
- 	if (ctrl->admin_q)
- 		blk_sync_queue(ctrl->admin_q);
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
++	blk_sync_queue(ctrl->admin_q);
+ 	nvme_tcp_stop_queue(ctrl, 0);
+ 	if (ctrl->admin_tagset) {
+ 		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
+@@ -1808,18 +1807,17 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		blk_mq_unquiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_destroy_admin_queue(ctrl, remove);
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
  }
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index d7132d8cb7c5d..e392d6cd92ced 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -494,6 +494,7 @@ void nvme_stop_queues(struct nvme_ctrl *ctrl);
- void nvme_start_queues(struct nvme_ctrl *ctrl);
- void nvme_kill_queues(struct nvme_ctrl *ctrl);
- void nvme_sync_queues(struct nvme_ctrl *ctrl);
-+void nvme_sync_io_queues(struct nvme_ctrl *ctrl);
- void nvme_unfreeze(struct nvme_ctrl *ctrl);
- void nvme_wait_freeze(struct nvme_ctrl *ctrl);
- int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
+ 
+ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 		bool remove)
+ {
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	if (ctrl->queue_count <= 1)
+-		goto out;
++		return;
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
++	nvme_sync_io_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+ 	if (ctrl->tagset) {
+ 		blk_mq_tagset_busy_iter(ctrl->tagset,
+@@ -1829,8 +1827,6 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		nvme_start_queues(ctrl);
+ 	nvme_tcp_destroy_io_queues(ctrl, remove);
+-out:
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ }
+ 
+ static void nvme_tcp_reconnect_or_remove(struct nvme_ctrl *ctrl)
+@@ -2074,14 +2070,11 @@ static void nvme_tcp_complete_timed_out(struct request *rq)
+ 	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
+ 	struct nvme_ctrl *ctrl = &req->queue->ctrl->ctrl;
+ 
+-	/* fence other contexts that may complete the command */
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	nvme_tcp_stop_queue(ctrl, nvme_tcp_queue_id(req->queue));
+ 	if (!blk_mq_request_completed(rq)) {
+ 		nvme_req(rq)->status = NVME_SC_HOST_ABORTED_CMD;
+ 		blk_mq_complete_request(rq);
+ 	}
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ }
+ 
+ static enum blk_eh_timer_return
+@@ -2344,7 +2337,6 @@ static struct nvme_ctrl *nvme_tcp_create_ctrl(struct device *dev,
+ 			nvme_tcp_reconnect_ctrl_work);
+ 	INIT_WORK(&ctrl->err_work, nvme_tcp_error_recovery_work);
+ 	INIT_WORK(&ctrl->ctrl.reset_work, nvme_reset_ctrl_work);
+-	mutex_init(&ctrl->teardown_lock);
+ 
+ 	if (!(opts->mask & NVMF_OPT_TRSVCID)) {
+ 		opts->trsvcid =
 -- 
 2.27.0
 
