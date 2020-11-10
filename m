@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA4C2ACC59
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5852ACC64
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:55:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732849AbgKJDys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:54:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55798 "EHLO mail.kernel.org"
+        id S1732944AbgKJDzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:55:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732823AbgKJDyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:54:47 -0500
+        id S1732941AbgKJDzE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0588F208FE;
-        Tue, 10 Nov 2020 03:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F11420897;
+        Tue, 10 Nov 2020 03:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980486;
-        bh=YfigFUwLDE86NFgJVQhKTDRJqq/XbrY0D+5UH8FsDhE=;
+        s=default; t=1604980503;
+        bh=S/qVpmdo/I/WpqoRgF5iVIPW7eamJQGlkGVglSqUJfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQoQGfX5fO4v65EF8MfqNiZ0WaZucGQ+U1Un1b0AN4+SpRqu8rH03Ukqf7HtobShk
-         umhq1VVXY4VOPBDc1y5dFORuGA5eVx7KEi8gpA+AV/SWgME16OfIPYhMPCdYViExzv
-         h1a9odRsnlR4uVDTUIjyZ30THNc4Z5fiNX92e158=
+        b=0lKr7w/aKFy4/lSYQ71YM71mSEHwdUNeIrU9gHp1Bjk4JANOlYKQzeUrBMjdKtsER
+         ZzGNvt8vttuxx7UM/zbDciDyRAg7+dhsApxn10qcMOKt0WTnat0Ldqk5rQUZQ/kL4w
+         +XFwcPW9VVTyMrmQ9+/B3wIglk2HFNMi2RKc7wDA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/42] opp: Reduce the size of critical section in _opp_table_kref_release()
-Date:   Mon,  9 Nov 2020 22:54:02 -0500
-Message-Id: <20201110035440.424258-4-sashal@kernel.org>
+Cc:     Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 16/42] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
+Date:   Mon,  9 Nov 2020 22:54:14 -0500
+Message-Id: <20201110035440.424258-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -43,48 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit e0df59de670b48a923246fae1f972317b84b2764 ]
+[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
 
-There is a lot of stuff here which can be done outside of the big
-opp_table_lock, do that. This helps avoiding few circular dependency
-lockdeps around debugfs and interconnects.
+This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
+Fix bug where DPM is not enabled after hibernate and resume").
+It was intended to fix Hawaii S4(hibernation) issue but break S3. As
+ixFEATURE_STATUS is filled with garbage data on resume which can be
+only cleared by reloading smc firmware(but that will involve many
+changes). So, we will revert this S4 fix and seek a new way.
 
-Reported-by: Rob Clark <robdclark@gmail.com>
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index 8867bab72e171..088c93dc0085c 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -1046,6 +1046,10 @@ static void _opp_table_kref_release(struct kref *kref)
- 	struct opp_table *opp_table = container_of(kref, struct opp_table, kref);
- 	struct opp_device *opp_dev, *temp;
+diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+index 0f4f27a89020d..42c8f8731a504 100644
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -2725,10 +2725,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
  
-+	/* Drop the lock as soon as we can */
-+	list_del(&opp_table->node);
-+	mutex_unlock(&opp_table_lock);
-+
- 	_of_clear_opp_table(opp_table);
- 
- 	/* Release clk */
-@@ -1067,10 +1071,7 @@ static void _opp_table_kref_release(struct kref *kref)
- 
- 	mutex_destroy(&opp_table->genpd_virt_dev_lock);
- 	mutex_destroy(&opp_table->lock);
--	list_del(&opp_table->node);
- 	kfree(opp_table);
--
--	mutex_unlock(&opp_table_lock);
+ static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
+ {
+-	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
+-					     CGS_IND_REG__SMC, FEATURE_STATUS,
+-					     VOLTAGE_CONTROLLER_ON))
+-		? true : false;
++	return ci_is_smc_ram_running(hwmgr);
  }
  
- void dev_pm_opp_put_opp_table(struct opp_table *opp_table)
+ static int ci_smu_init(struct pp_hwmgr *hwmgr)
 -- 
 2.27.0
 
