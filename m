@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 254EC2ACD5B
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D542ACD5A
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733188AbgKJDza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:55:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
+        id S1732764AbgKJEBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:01:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733170AbgKJDza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:30 -0500
+        id S1733066AbgKJDzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D49BB20731;
-        Tue, 10 Nov 2020 03:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4263221D91;
+        Tue, 10 Nov 2020 03:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980529;
-        bh=CL50JTFToMBcWaIah6Cys4v0LlMFDyVrk5riRWy67pc=;
+        s=default; t=1604980531;
+        bh=ccViNF9rlUQkeH+89rx7H+w/4vI3jc3FmSmcT5V74EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XlBrc0Wv86JW9/bplPq09MRqJpzGRIDQZCS9e1FtX2r1uiiaNOhHeWy8rS80SKz/v
-         C56bczAMCWY65Ng+cVyPTUmzUkyRXtnjDfF9qaowVJPe6mZ04h5JFR3WmYdtX/ZCMW
-         p/Bb9CYR1Oabpvbz5Vx0vr15ZHuMI0PZo/Qo78eg=
+        b=PDiOn1pXpCAs1zKd4BuHC0jYzwj6SgAMvRI7KRLQUASn41hqKhpyKmkhsrkz2YJQz
+         5WuzJbIwgssiYVkjWWukSFb08XprPN154voYToLriMA+Sx3JOW2nF1wdDTWdqfhKsP
+         az6jwWVHfJy1VnhXFhz6d4ja/M187FDu0Wfnk5Bo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 35/42] amd/amdgpu: Disable VCN DPG mode for Picasso
-Date:   Mon,  9 Nov 2020 22:54:33 -0500
-Message-Id: <20201110035440.424258-35-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 36/42] kprobes: Tell lockdep about kprobe nesting
+Date:   Mon,  9 Nov 2020 22:54:34 -0500
+Message-Id: <20201110035440.424258-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -44,35 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit c6d2b0fbb893d5c7dda405aa0e7bcbecf1c75f98 ]
+[ Upstream commit 645f224e7ba2f4200bf163153d384ceb0de5462e ]
 
-Concurrent operation of VCN and JPEG decoder in DPG mode is
-causing ring timeout due to power state.
+Since the kprobe handlers have protection that prohibits other handlers from
+executing in other contexts (like if an NMI comes in while processing a
+kprobe, and executes the same kprobe, it will get fail with a "busy"
+return). Lockdep is unaware of this protection. Use lockdep's nesting api to
+differentiate between locks taken in INT3 context and other context to
+suppress the false warnings.
 
-Signed-off-by: Veerabadhran Gopalakrishnan <veerabadhran.gopalakrishnan@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20201102160234.fa0ae70915ad9e2b21c08b85@kernel.org
+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/soc15.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/kprobes.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index c086262cc181d..317aa257c06bb 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -1144,8 +1144,7 @@ static int soc15_common_early_init(void *handle)
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 283c8b01ce789..2a38e3553c80b 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1215,7 +1215,13 @@ __acquires(hlist_lock)
  
- 			adev->pg_flags = AMD_PG_SUPPORT_SDMA |
- 				AMD_PG_SUPPORT_MMHUB |
--				AMD_PG_SUPPORT_VCN |
--				AMD_PG_SUPPORT_VCN_DPG;
-+				AMD_PG_SUPPORT_VCN;
- 		} else {
- 			adev->cg_flags = AMD_CG_SUPPORT_GFX_MGCG |
- 				AMD_CG_SUPPORT_GFX_MGLS |
+ 	*head = &kretprobe_inst_table[hash];
+ 	hlist_lock = kretprobe_table_lock_ptr(hash);
+-	raw_spin_lock_irqsave(hlist_lock, *flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 * Differentiate when it is taken in NMI context.
++	 */
++	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
+ }
+ NOKPROBE_SYMBOL(kretprobe_hash_lock);
+ 
+@@ -1224,7 +1230,13 @@ static void kretprobe_table_lock(unsigned long hash,
+ __acquires(hlist_lock)
+ {
+ 	raw_spinlock_t *hlist_lock = kretprobe_table_lock_ptr(hash);
+-	raw_spin_lock_irqsave(hlist_lock, *flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 * Differentiate when it is taken in NMI context.
++	 */
++	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
+ }
+ NOKPROBE_SYMBOL(kretprobe_table_lock);
+ 
+@@ -1911,7 +1923,12 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
+ 
+ 	/* TODO: consider to only swap the RA after the last pre_handler fired */
+ 	hash = hash_ptr(current, KPROBE_HASH_BITS);
+-	raw_spin_lock_irqsave(&rp->lock, flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 */
++	raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
+ 	if (!hlist_empty(&rp->free_instances)) {
+ 		ri = hlist_entry(rp->free_instances.first,
+ 				struct kretprobe_instance, hlist);
+@@ -1922,7 +1939,7 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
+ 		ri->task = current;
+ 
+ 		if (rp->entry_handler && rp->entry_handler(ri, regs)) {
+-			raw_spin_lock_irqsave(&rp->lock, flags);
++			raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
+ 			hlist_add_head(&ri->hlist, &rp->free_instances);
+ 			raw_spin_unlock_irqrestore(&rp->lock, flags);
+ 			return 0;
 -- 
 2.27.0
 
