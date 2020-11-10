@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF24F2AD787
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C70A82AD789
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729908AbgKJNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 08:33:06 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47302 "EHLO 1wt.eu"
+        id S1730590AbgKJNdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 08:33:10 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47307 "EHLO 1wt.eu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726721AbgKJNdG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 08:33:06 -0500
+        id S1730044AbgKJNdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 08:33:08 -0500
 Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWYpE002217;
-        Tue, 10 Nov 2020 14:32:34 +0100
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWakd002259;
+        Tue, 10 Nov 2020 14:32:36 +0100
 From:   Willy Tarreau <w@1wt.eu>
 To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
@@ -26,9 +26,9 @@ Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
         Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
         Florian Westphal <fw@strlen.de>,
         Marc Plumb <lkml.mplumb@gmail.com>
-Subject: [PATCH 5.8] random32: make prandom_u32() output unpredictable
-Date:   Tue, 10 Nov 2020 14:32:25 +0100
-Message-Id: <20201110133225.2177-1-w@1wt.eu>
+Subject: [PATCH 5.4] random32: make prandom_u32() output unpredictable
+Date:   Tue, 10 Nov 2020 14:32:34 +0100
+Message-Id: <20201110133234.2219-1-w@1wt.eu>
 X-Mailer: git-send-email 2.9.0
 In-Reply-To: <20201110133120.GA1926@1wt.eu>
 References: <20201110133120.GA1926@1wt.eu>
@@ -84,7 +84,7 @@ Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
   members to fix a build issue; cosmetic cleanups to make checkpatch
   happy; fixed RANDOM32_SELFTEST build ]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
-[wt: backported to 5.8 -- no tracepoint there]
+[wt: backported to 5.4 -- no tracepoint there]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 ---
  drivers/char/random.c   |   1 -
@@ -94,10 +94,10 @@ Signed-off-by: Willy Tarreau <w@1wt.eu>
  4 files changed, 317 insertions(+), 189 deletions(-)
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index d20ba1b..2a41b21 100644
+index 75a8f7f..2c29f83 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1277,7 +1277,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
+@@ -1330,7 +1330,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
  
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
@@ -157,7 +157,7 @@ index aa16e64..cc1e713 100644
  void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index 026ac01..c9d839c 100644
+index a3ae244..87fa73c 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
 @@ -1743,13 +1743,6 @@ void update_process_times(int user_tick)
