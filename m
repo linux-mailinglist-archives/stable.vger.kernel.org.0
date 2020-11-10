@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFBE2AE151
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 22:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 911C92AE155
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 22:04:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726467AbgKJVDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 16:03:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:59209 "EHLO
+        id S1731813AbgKJVEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 16:04:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34259 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731788AbgKJVDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 16:03:49 -0500
+        by vger.kernel.org with ESMTP id S1731740AbgKJVEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 16:04:13 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605042227;
+        s=mimecast20190719; t=1605042252;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=GCXyT4rrZonJYVhGP72/OZmW099Kx3vNTtgLrQV7u74=;
-        b=GePWnBZznlV0absWFSCmL9g2iPYSOrlkrFmHK5w9ghWpJgRtfgzCM97NIyD7lcqud/5WsD
-        +gbk5BHFnFrYwiQtaDJ4+Apwvjg+Q2r8Cy5k9XYJ7oqpqW7/WbtzI030+m52jn58Baw4b1
-        XYa6+0w0q+sL9/Na850fKYiBpc1WiZE=
+         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
+        bh=nN7K9eYovR5ebtstOMyH2NZBS19myu7p1oiAq7B3xQY=;
+        b=EoKFN2l1T+8czxmqtJsWBD8a1ZVBpTdKnAhFqxl4Gek/zn3uC9LtepS+SuQ54oCXpdbofG
+        /D4iw9lPCGwqLUtjENaiPDvfBqWsWCJ5SP12fC+nwFM2ZwwXdgWeNZ0+s2nDuoFrvX/hbz
+        WE+iuSpwS72x+/TZobDVABO7vdaNJ/w=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-530-Mjw7kU8JPEatcmWzDz011w-1; Tue, 10 Nov 2020 16:03:43 -0500
-X-MC-Unique: Mjw7kU8JPEatcmWzDz011w-1
+ us-mta-506-h3paRzQ8NjqG-E6WSXrKGA-1; Tue, 10 Nov 2020 16:04:10 -0500
+X-MC-Unique: h3paRzQ8NjqG-E6WSXrKGA-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B90396D248;
-        Tue, 10 Nov 2020 21:03:42 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 75D3710866B3;
+        Tue, 10 Nov 2020 21:04:09 +0000 (UTC)
 Received: from dqiao.bos.com (ovpn-118-191.rdu2.redhat.com [10.10.118.191])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 417A85C1C4;
-        Tue, 10 Nov 2020 21:03:39 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F20975C1D0;
+        Tue, 10 Nov 2020 21:04:08 +0000 (UTC)
 From:   Donghai Qiao <dqiao@redhat.com>
 To:     rhkernel-list@redhat.com
 Cc:     Donghai Qiao <dqiao@redhat.com>, Len Brown <len.brown@intel.com>,
         stable@vger.kernel.org
-Subject: [RHEL8.4 BZ1844297 CVE-2020-8694 v5] powercap: restrict energy meter to root access
-Date:   Tue, 10 Nov 2020 16:03:36 -0500
-Message-Id: <20201110210336.14326-1-dqiao@redhat.com>
+Subject: [RHEL7.9 BZ1844300 CVE-2020-8694 v5 2/2] powercap: restrict energy meter to root access
+Date:   Tue, 10 Nov 2020 16:03:57 -0500
+Message-Id: <20201110210357.14388-2-dqiao@redhat.com>
+In-Reply-To: <20201110210357.14388-1-dqiao@redhat.com>
+References: <20201110210357.14388-1-dqiao@redhat.com>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1844297
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1844300
 Upstream status: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=949dd0104c496fa7c14991a23c03c62e44637e71
 Build info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=32573686
 CVE: CVE-2020-8694
@@ -78,7 +81,7 @@ Signed-off-by: Donghai Qiao <dqiao@redhat.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/powercap/powercap_sys.c b/drivers/powercap/powercap_sys.c
-index e85639f004cc..e2150c00b842 100644
+index 05ddf8be64a..db69be2892a 100644
 --- a/drivers/powercap/powercap_sys.c
 +++ b/drivers/powercap/powercap_sys.c
 @@ -379,9 +379,9 @@ static void create_power_zone_common_attributes(
