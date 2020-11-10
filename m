@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 647592AD78E
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F40F2AD792
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730750AbgKJNdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 08:33:16 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47318 "EHLO 1wt.eu"
+        id S1731886AbgKJNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 08:33:27 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47325 "EHLO 1wt.eu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730710AbgKJNdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 08:33:14 -0500
+        id S1730710AbgKJNdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 08:33:22 -0500
 Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWh3B002385;
-        Tue, 10 Nov 2020 14:32:43 +0100
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWie9002427;
+        Tue, 10 Nov 2020 14:32:44 +0100
 From:   Willy Tarreau <w@1wt.eu>
 To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
@@ -26,9 +26,9 @@ Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
         Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
         Florian Westphal <fw@strlen.de>,
         Marc Plumb <lkml.mplumb@gmail.com>
-Subject: [PATCH 4.9] random32: make prandom_u32() output unpredictable
-Date:   Tue, 10 Nov 2020 14:32:42 +0100
-Message-Id: <20201110133242.2345-1-w@1wt.eu>
+Subject: [PATCH 4.4] random32: make prandom_u32() output unpredictable
+Date:   Tue, 10 Nov 2020 14:32:43 +0100
+Message-Id: <20201110133243.2387-1-w@1wt.eu>
 X-Mailer: git-send-email 2.9.0
 In-Reply-To: <20201110133120.GA1926@1wt.eu>
 References: <20201110133120.GA1926@1wt.eu>
@@ -84,27 +84,35 @@ Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
   members to fix a build issue; cosmetic cleanups to make checkpatch
   happy; fixed RANDOM32_SELFTEST build ]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
-[wt: backported to 4.9 -- various context adjustments; timer API change]
+[wt: backported to 4.4 -- no latent_entropy, drop prandom_reseed_late]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 ---
- drivers/char/random.c   |   1 -
+ drivers/char/random.c   |   2 -
  include/linux/prandom.h |  36 +++-
  kernel/time/timer.c     |   7 -
- lib/random32.c          | 462 +++++++++++++++++++++++++++++-------------------
- 4 files changed, 317 insertions(+), 189 deletions(-)
+ lib/random32.c          | 463 +++++++++++++++++++++++++++++-------------------
+ 4 files changed, 317 insertions(+), 191 deletions(-)
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index c417aa1..4cbc731 100644
+index 7bb1e42..08d96d5 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1211,7 +1211,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
+@@ -678,7 +678,6 @@ static void credit_entropy_bits(struct entropy_store *r, int nbits)
+ 		r->initialized = 1;
+ 		r->entropy_total = 0;
+ 		if (r == &nonblocking_pool) {
+-			prandom_reseed_late();
+ 			process_random_ready_list();
+ 			wake_up_all(&urandom_init_wait);
+ 			pr_notice("random: %s pool is initialized\n", r->name);
+@@ -923,7 +922,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
  
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
 -	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
  
- 	if (unlikely(crng_init == 0)) {
- 		if ((fast_pool->count >= 64) &&
+ 	if ((fast_pool->count < 64) &&
+ 	    !time_after(now, fast_pool->last + HZ))
 diff --git a/include/linux/prandom.h b/include/linux/prandom.h
 index aa16e64..cc1e713 100644
 --- a/include/linux/prandom.h
@@ -157,10 +165,10 @@ index aa16e64..cc1e713 100644
  void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index d2e4698..c9325a1 100644
+index 43bee49..6ca409a 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1636,13 +1636,6 @@ void update_process_times(int user_tick)
+@@ -1432,13 +1432,6 @@ void update_process_times(int user_tick)
  #endif
  	scheduler_tick();
  	run_posix_cpu_timers(p);
@@ -173,9 +181,9 @@ index d2e4698..c9325a1 100644
 -	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
  }
  
- /**
+ /*
 diff --git a/lib/random32.c b/lib/random32.c
-index d5c3137..3c5b67b 100644
+index 8072ccd..17e5780 100644
 --- a/lib/random32.c
 +++ b/lib/random32.c
 @@ -39,16 +39,6 @@
@@ -190,7 +198,7 @@ index d5c3137..3c5b67b 100644
 -}
 -#endif
 -
--DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
+-DEFINE_PER_CPU(struct rnd_state, net_rand_state);
 -
  /**
   *	prandom_u32_state - seeded pseudo-random number generator.
@@ -211,7 +219,7 @@ index d5c3137..3c5b67b 100644
 -	u32 res;
 -
 -	res = prandom_u32_state(state);
--	put_cpu_var(net_rand_state);
+-	put_cpu_var(state);
 -
 -	return res;
 -}
@@ -235,14 +243,14 @@ index d5c3137..3c5b67b 100644
 -	struct rnd_state *state = &get_cpu_var(net_rand_state);
 -
 -	prandom_bytes_state(state, buf, bytes);
--	put_cpu_var(net_rand_state);
+-	put_cpu_var(state);
 -}
 -EXPORT_SYMBOL(prandom_bytes);
 -
  static void prandom_warmup(struct rnd_state *state)
  {
  	/* Calling RNG ten times to satisfy recurrence condition */
-@@ -147,96 +104,6 @@ static void prandom_warmup(struct rnd_state *state)
+@@ -147,97 +104,6 @@ static void prandom_warmup(struct rnd_state *state)
  	prandom_u32_state(state);
  }
  
@@ -332,6 +340,7 @@ index d5c3137..3c5b67b 100644
 -
 -static void __init __prandom_start_seed_timer(void)
 -{
+-	set_timer_slack(&seed_timer, HZ);
 -	seed_timer.expires = jiffies + msecs_to_jiffies(40 * MSEC_PER_SEC);
 -	add_timer(&seed_timer);
 -}
@@ -339,9 +348,9 @@ index d5c3137..3c5b67b 100644
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
  {
  	int i;
-@@ -256,51 +123,6 @@ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+@@ -256,51 +122,6 @@ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+ 	}
  }
- EXPORT_SYMBOL(prandom_seed_full_state);
  
 -/*
 - *	Generate better values after random number generator
@@ -391,7 +400,7 @@ index d5c3137..3c5b67b 100644
  #ifdef CONFIG_RANDOM32_SELFTEST
  static struct prandom_test1 {
  	u32 seed;
-@@ -420,7 +242,28 @@ static struct prandom_test2 {
+@@ -420,7 +241,28 @@ static struct prandom_test2 {
  	{  407983964U, 921U,  728767059U },
  };
  
@@ -421,7 +430,7 @@ index d5c3137..3c5b67b 100644
  {
  	int i, j, errors = 0, runs = 0;
  	bool error = false;
-@@ -460,5 +303,266 @@ static void __init prandom_state_selftest(void)
+@@ -460,5 +302,266 @@ static void __init prandom_state_selftest(void)
  		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
  	else
  		pr_info("prandom: %d self tests passed\n", runs);
@@ -456,7 +465,7 @@ index d5c3137..3c5b67b 100644
 +	unsigned long v3;
 +};
 +
-+static DEFINE_PER_CPU(struct siprand_state, net_rand_state) __latent_entropy;
++static DEFINE_PER_CPU(struct siprand_state, net_rand_state);
 +
 +/*
 + * This is the core CPRNG function.  As "pseudorandom", this is not used
