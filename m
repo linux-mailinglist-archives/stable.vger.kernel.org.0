@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E44B2ACC49
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 283042ACC4D
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 04:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732526AbgKJDyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:54:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55054 "EHLO mail.kernel.org"
+        id S1732546AbgKJDyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:54:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732492AbgKJDyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:54:16 -0500
+        id S1732531AbgKJDyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:54:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89B9D2080A;
-        Tue, 10 Nov 2020 03:54:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4742120731;
+        Tue, 10 Nov 2020 03:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980455;
-        bh=ppERrehELOu1hQh6t1jCbm+AqyYz5ABoxm7pF4UNWcY=;
+        s=default; t=1604980457;
+        bh=JhdKaFlJpO4qT7Ve/Q6EhS4GgEaPVaOrcbkOBP1wpXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRbjc1mKLtsa01FuIBKtnIigjN9N8o2+ofm+/dsb/9hYReGYYJZYCb7Zr1+2iuWfE
-         zfJLP4gDSVbwOIuIUYvCoGHMFVrT6aK1Cxme33eXCW9J6hO39ADYMBYhk5QCUextYk
-         jP3MFkjwr+ebrHhO8jyHJ5Erbg3qlZ/7TW9p8rPI=
+        b=NxxTwDZRc92/4Yead9RK3zL0vzFeBDm2ISHVr/fq0v3g9C8Zliy7KTUEUTayIY0gj
+         B5oUEpo180Bm/S4BQYVz6lgdPCht1peyPNV5o7KuWZlRCmIjdurCgR1Zm01YSaByb7
+         9NKtjgWggBpxfGtKoIyjEb/kO76aXieZRHM5WFzo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fred Gao <fred.gao@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Xiong Zhang <xiong.y.zhang@intel.com>,
-        Hang Yuan <hang.yuan@linux.intel.com>,
-        Stuart Summers <stuart.summers@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 40/55] vfio/pci: Bypass IGD init in case of -ENODEV
-Date:   Mon,  9 Nov 2020 22:53:03 -0500
-Message-Id: <20201110035318.423757-40-sashal@kernel.org>
+Cc:     Qii Wang <qii.wang@mediatek.com>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 41/55] i2c: mediatek: move dma reset before i2c reset
+Date:   Mon,  9 Nov 2020 22:53:04 -0500
+Message-Id: <20201110035318.423757-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
 References: <20201110035318.423757-1-sashal@kernel.org>
@@ -46,43 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fred Gao <fred.gao@intel.com>
+From: Qii Wang <qii.wang@mediatek.com>
 
-[ Upstream commit e4eccb853664de7bcf9518fb658f35e748bf1f68 ]
+[ Upstream commit aafced673c06b7c77040c1df42e2e965be5d0376 ]
 
-Bypass the IGD initialization when -ENODEV returns,
-that should be the case if opregion is not available for IGD
-or within discrete graphics device's option ROM,
-or host/lpc bridge is not found.
+The i2c driver default do dma reset after i2c reset, but sometimes
+i2c reset will trigger dma tx2rx, then apdma write data to dram
+which has been i2c_put_dma_safe_msg_buf(kfree). Move dma reset
+before i2c reset in mtk_i2c_init_hw to fix it.
 
-Then use of -ENODEV here means no special device resources found
-which needs special care for VFIO, but we still allow other normal
-device resource access.
-
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Cc: Xiong Zhang <xiong.y.zhang@intel.com>
-Cc: Hang Yuan <hang.yuan@linux.intel.com>
-Cc: Stuart Summers <stuart.summers@intel.com>
-Signed-off-by: Fred Gao <fred.gao@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 1ab1f5cda4ac2..bfdc010a6b043 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -385,7 +385,7 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
- 	    pdev->vendor == PCI_VENDOR_ID_INTEL &&
- 	    IS_ENABLED(CONFIG_VFIO_PCI_IGD)) {
- 		ret = vfio_pci_igd_init(vdev);
--		if (ret) {
-+		if (ret && ret != -ENODEV) {
- 			pci_warn(pdev, "Failed to setup Intel IGD regions\n");
- 			goto disable_exit;
- 		}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 0cbdfbe605b55..33de99b7bc20c 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -475,6 +475,10 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+ {
+ 	u16 control_reg;
+ 
++	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
++	udelay(50);
++	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
++
+ 	mtk_i2c_writew(i2c, I2C_SOFT_RST, OFFSET_SOFTRESET);
+ 
+ 	/* Set ioconfig */
+@@ -529,10 +533,6 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+ 
+ 	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
+ 	mtk_i2c_writew(i2c, I2C_DELAY_LEN, OFFSET_DELAY_LEN);
+-
+-	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
+-	udelay(50);
+-	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
+ }
+ 
+ static const struct i2c_spec_values *mtk_i2c_get_spec(unsigned int speed)
 -- 
 2.27.0
 
