@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2882ACDC5
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:05:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A092ACD82
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732752AbgKJDyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 22:54:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55600 "EHLO mail.kernel.org"
+        id S1732759AbgKJDyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:54:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732790AbgKJDyj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:54:39 -0500
+        id S1732823AbgKJDyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:54:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E4482080A;
-        Tue, 10 Nov 2020 03:54:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CA8E20870;
+        Tue, 10 Nov 2020 03:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980478;
-        bh=MuUFQjytzdImRGQQgf24CJp/Rkji6rxTwI5chX3Bluo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3Z2hhcJY2CAIAI+BEtDVCZTtKxeBwmpdBl71fj/skXpkKr+E/Mqfaa0yepv5BatQ
-         bGbwkS+TeOQbGw5qrLywtmqvrAD5pbaAvv7rlWE2i8pKfyKGtbgBfGHCFNX3D97jDk
-         KLZQVK7CJrAk0kXZI/6K0te4uyoncq9UdLkhVObo=
+        s=default; t=1604980482;
+        bh=FMWQJ4lahrISE8QnBwTCGxGSH1tt32tcmINfITuIt2U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tLjVUw2O+c1BI1bVuCukj8TwdYg6rS5w1EEQs8e2FXveb/gLjTHHazvrywdyTi33d
+         eAqTQRHMHm1XypJF+g+vFZQWcTzjxCGD6moPMoIGwjnYsl+ylBhoXhDFOp5O7CdFip
+         /8ohMMaN+hZXCKbFVrII1eW9OmKpYA4O5O171aNM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eddy Wu <itseddy0402@gmail.com>, Eddy Wu <eddy_wu@trendmicro.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 55/55] fork: fix copy_process(CLONE_PARENT) race with the exiting ->real_parent
-Date:   Mon,  9 Nov 2020 22:53:18 -0500
-Message-Id: <20201110035318.423757-55-sashal@kernel.org>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 01/42] ASoC: qcom: sdm845: set driver name correctly
+Date:   Mon,  9 Nov 2020 22:53:59 -0500
+Message-Id: <20201110035440.424258-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
-References: <20201110035318.423757-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,57 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddy Wu <itseddy0402@gmail.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit b4e00444cab4c3f3fec876dc0cccc8cbb0d1a948 ]
+[ Upstream commit 3f48b6eba15ea342ef4cb420b580f5ed6605669f ]
 
-current->group_leader->exit_signal may change during copy_process() if
-current->real_parent exits.
+With the current state of code, we would endup with something like
+below in /proc/asound/cards for 2 machines based on this driver.
 
-Move the assignment inside tasklist_lock to avoid the race.
+Machine 1:
+ 0 [DB845c            ]: DB845c - DB845c
+                       DB845c
+Machine 2:
+ 0 [LenovoYOGAC6301]: Lenovo-YOGA-C63 - Lenovo-YOGA-C630-13Q50
+                     LENOVO-81JL-LenovoYOGAC630_13Q50-LNVNB161216
 
-Signed-off-by: Eddy Wu <eddy_wu@trendmicro.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This is not very UCM friendly both w.r.t to common up configs and
+card identification, and UCM2 became totally not usefull with just
+one ucm sdm845.conf for two machines which have different setups
+w.r.t HDMI and other dais.
+
+Reasons for such thing is partly because Qualcomm machine drivers never
+cared to set driver_name.
+
+This patch sets up driver name for the this driver to sort out the
+UCM integration issues!
+
+after this patch contents of /proc/asound/cards:
+
+Machine 1:
+ 0 [DB845c         ]: sdm845 - DB845c
+                      DB845c
+Machine 2:
+ 0 [LenovoYOGAC6301]: sdm845 - Lenovo-YOGA-C630-13Q50
+                     LENOVO-81JL-LenovoYOGAC630_13Q50-LNVNB161216
+
+with this its possible to align with what UCM2 expects and we can have
+sdm845/DB845.conf
+sdm845/LENOVO-81JL-LenovoYOGAC630_13Q50-LNVNB161216.conf
+... for board variants. This should scale much better!
+
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20201023095849.22894-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fork.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/qcom/sdm845.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 8934886d16549..5fe09d4e6d6a0 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2167,14 +2167,9 @@ static __latent_entropy struct task_struct *copy_process(
- 	/* ok, now we should be set up.. */
- 	p->pid = pid_nr(pid);
- 	if (clone_flags & CLONE_THREAD) {
--		p->exit_signal = -1;
- 		p->group_leader = current->group_leader;
- 		p->tgid = current->tgid;
- 	} else {
--		if (clone_flags & CLONE_PARENT)
--			p->exit_signal = current->group_leader->exit_signal;
--		else
--			p->exit_signal = args->exit_signal;
- 		p->group_leader = p;
- 		p->tgid = p->pid;
- 	}
-@@ -2218,9 +2213,14 @@ static __latent_entropy struct task_struct *copy_process(
- 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
- 		p->real_parent = current->real_parent;
- 		p->parent_exec_id = current->parent_exec_id;
-+		if (clone_flags & CLONE_THREAD)
-+			p->exit_signal = -1;
-+		else
-+			p->exit_signal = current->group_leader->exit_signal;
- 	} else {
- 		p->real_parent = current;
- 		p->parent_exec_id = current->self_exec_id;
-+		p->exit_signal = args->exit_signal;
+diff --git a/sound/soc/qcom/sdm845.c b/sound/soc/qcom/sdm845.c
+index 7e6c41e63d8e1..23e1de61e92e4 100644
+--- a/sound/soc/qcom/sdm845.c
++++ b/sound/soc/qcom/sdm845.c
+@@ -16,6 +16,7 @@
+ #include "qdsp6/q6afe.h"
+ #include "../codecs/rt5663.h"
+ 
++#define DRIVER_NAME	"sdm845"
+ #define DEFAULT_SAMPLE_RATE_48K		48000
+ #define DEFAULT_MCLK_RATE		24576000
+ #define TDM_BCLK_RATE		6144000
+@@ -407,6 +408,7 @@ static int sdm845_snd_platform_probe(struct platform_device *pdev)
+ 		goto data_alloc_fail;
  	}
  
- 	klp_copy_process(p);
++	card->driver_name = DRIVER_NAME;
+ 	card->dapm_widgets = sdm845_snd_widgets;
+ 	card->num_dapm_widgets = ARRAY_SIZE(sdm845_snd_widgets);
+ 	card->dev = dev;
 -- 
 2.27.0
 
