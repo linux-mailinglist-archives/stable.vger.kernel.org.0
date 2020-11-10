@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 536D82AD78C
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 354A62AD790
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 14:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730044AbgKJNdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 08:33:12 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47311 "EHLO 1wt.eu"
+        id S1731076AbgKJNdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 08:33:23 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:47315 "EHLO 1wt.eu"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726721AbgKJNdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 08:33:11 -0500
+        id S1730617AbgKJNdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Nov 2020 08:33:12 -0500
 Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWcmx002301;
-        Tue, 10 Nov 2020 14:32:38 +0100
+        by pcw.home.local (8.15.2/8.15.2/Submit) id 0AADWgvD002343;
+        Tue, 10 Nov 2020 14:32:42 +0100
 From:   Willy Tarreau <w@1wt.eu>
 To:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
@@ -26,9 +26,9 @@ Cc:     linux-kernel@vger.kernel.org, George Spelvin <lkml@sdf.org>,
         Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
         Florian Westphal <fw@strlen.de>,
         Marc Plumb <lkml.mplumb@gmail.com>
-Subject: [PATCH 4.19] random32: make prandom_u32() output unpredictable
-Date:   Tue, 10 Nov 2020 14:32:36 +0100
-Message-Id: <20201110133236.2261-1-w@1wt.eu>
+Subject: [PATCH 4.14] random32: make prandom_u32() output unpredictable
+Date:   Tue, 10 Nov 2020 14:32:39 +0100
+Message-Id: <20201110133239.2303-1-w@1wt.eu>
 X-Mailer: git-send-email 2.9.0
 In-Reply-To: <20201110133120.GA1926@1wt.eu>
 References: <20201110133120.GA1926@1wt.eu>
@@ -84,7 +84,7 @@ Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
   members to fix a build issue; cosmetic cleanups to make checkpatch
   happy; fixed RANDOM32_SELFTEST build ]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
-[wt: backported to 4.19 -- various context adjustments]
+[wt: backported to 4.14 -- various context adjustments; timer API change]
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 ---
  drivers/char/random.c   |   1 -
@@ -94,10 +94,10 @@ Signed-off-by: Willy Tarreau <w@1wt.eu>
  4 files changed, 317 insertions(+), 189 deletions(-)
 
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 80dedec..98925d4 100644
+index b202f66..868d262 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1257,7 +1257,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
+@@ -1246,7 +1246,6 @@ void add_interrupt_randomness(int irq, int irq_flags)
  
  	fast_mix(fast_pool);
  	add_interrupt_bench(cycles);
@@ -157,10 +157,10 @@ index aa16e64..cc1e713 100644
  void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
  void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
 diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index 61e41ea..a6e88d9 100644
+index d4bc272..99f885d 100644
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1655,13 +1655,6 @@ void update_process_times(int user_tick)
+@@ -1596,13 +1596,6 @@ void update_process_times(int user_tick)
  	scheduler_tick();
  	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
  		run_posix_cpu_timers(p);
@@ -175,7 +175,7 @@ index 61e41ea..a6e88d9 100644
  
  /**
 diff --git a/lib/random32.c b/lib/random32.c
-index b6f3325e..9085b11 100644
+index eb54663..f5e967f 100644
 --- a/lib/random32.c
 +++ b/lib/random32.c
 @@ -40,16 +40,6 @@
@@ -311,11 +311,11 @@ index b6f3325e..9085b11 100644
 -}
 -core_initcall(prandom_init);
 -
--static void __prandom_timer(struct timer_list *unused);
+-static void __prandom_timer(unsigned long dontcare);
 -
--static DEFINE_TIMER(seed_timer, __prandom_timer);
+-static DEFINE_TIMER(seed_timer, __prandom_timer, 0, 0);
 -
--static void __prandom_timer(struct timer_list *unused)
+-static void __prandom_timer(unsigned long dontcare)
 -{
 -	u32 entropy;
 -	unsigned long expires;
@@ -603,11 +603,11 @@ index b6f3325e..9085b11 100644
 +
 +
 +/* Stronger reseeding when available, and periodically thereafter. */
-+static void prandom_reseed(struct timer_list *unused);
++static void prandom_reseed(unsigned long dontcare);
 +
-+static DEFINE_TIMER(seed_timer, prandom_reseed);
++static DEFINE_TIMER(seed_timer, prandom_reseed, 0, 0);
 +
-+static void prandom_reseed(struct timer_list *unused)
++static void prandom_reseed(unsigned long dontcare)
 +{
 +	unsigned long expires;
 +	int i;
