@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9942ACD6B
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24542ACD60
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733121AbgKJEB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
+        id S1733146AbgKJDz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:55:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733125AbgKJDzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:24 -0500
+        id S1731402AbgKJDz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AAEF21D46;
-        Tue, 10 Nov 2020 03:55:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90A1C21534;
+        Tue, 10 Nov 2020 03:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980524;
-        bh=90Lt++MTWcmujkHS6Z8l5G2xPp+su18ZTRR4Sfd1m8A=;
+        s=default; t=1604980525;
+        bh=imKwv/Fb3tX8Sf2PNoVY7wcaiXIi4oQ+RdrROR2vnxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZB76BYNHzadUf7gIcjY7CF/miHy4nALQf/MTr0g3liSlZ9SSFLI2Is9NlnG2SFFtB
-         2kGhISzrow5Oq9h8rV31WZw+KowLr/5AvGwnosfEllHAyZHVhk2kx1AqXD3ZyQSOgs
-         n6x1c8tmu2u1UQSRlcsOV1CJreCWB6pWlYQHYIQ8=
+        b=aBHjt5PlamRb8rPRQ9/KPWGfBK76H/luNgBDTBk+vEw3DSZRgvlAN1rL0SkhTIRUw
+         6hIEMsEY9oESsyM4BPwRAbkAbcg5qk/CAFPn3DiB5j+2fZaHbmLViLg1STujofD0Lw
+         t86RkI8XEj2uE/IuY7FxFahyT6P4H/z4M3wUWOWU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Eric Auger <eric.auger@redhat.com>,
+Cc:     Fred Gao <fred.gao@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Xiong Zhang <xiong.y.zhang@intel.com>,
+        Hang Yuan <hang.yuan@linux.intel.com>,
+        Stuart Summers <stuart.summers@intel.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 31/42] vfio: platform: fix reference leak in vfio_platform_open
-Date:   Mon,  9 Nov 2020 22:54:29 -0500
-Message-Id: <20201110035440.424258-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 32/42] vfio/pci: Bypass IGD init in case of -ENODEV
+Date:   Mon,  9 Nov 2020 22:54:30 -0500
+Message-Id: <20201110035440.424258-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -43,43 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Fred Gao <fred.gao@intel.com>
 
-[ Upstream commit bb742ad01961a3b9d1f9d19375487b879668b6b2 ]
+[ Upstream commit e4eccb853664de7bcf9518fb658f35e748bf1f68 ]
 
-pm_runtime_get_sync() will increment pm usage counter even it
-failed. Forgetting to call pm_runtime_put will result in
-reference leak in vfio_platform_open, so we should fix it.
+Bypass the IGD initialization when -ENODEV returns,
+that should be the case if opregion is not available for IGD
+or within discrete graphics device's option ROM,
+or host/lpc bridge is not found.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Eric Auger <eric.auger@redhat.com>
+Then use of -ENODEV here means no special device resources found
+which needs special care for VFIO, but we still allow other normal
+device resource access.
+
+Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+Cc: Xiong Zhang <xiong.y.zhang@intel.com>
+Cc: Hang Yuan <hang.yuan@linux.intel.com>
+Cc: Stuart Summers <stuart.summers@intel.com>
+Signed-off-by: Fred Gao <fred.gao@intel.com>
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/platform/vfio_platform_common.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index e8f2bdbe05428..152e5188183ce 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -267,7 +267,7 @@ static int vfio_platform_open(void *device_data)
- 
- 		ret = pm_runtime_get_sync(vdev->device);
- 		if (ret < 0)
--			goto err_pm;
-+			goto err_rst;
- 
- 		ret = vfio_platform_call_reset(vdev, &extra_dbg);
- 		if (ret && vdev->reset_required) {
-@@ -284,7 +284,6 @@ static int vfio_platform_open(void *device_data)
- 
- err_rst:
- 	pm_runtime_put(vdev->device);
--err_pm:
- 	vfio_platform_irq_cleanup(vdev);
- err_irq:
- 	vfio_platform_regions_cleanup(vdev);
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index a72fd5309b09f..443a35dde7f52 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -334,7 +334,7 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
+ 	    pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    IS_ENABLED(CONFIG_VFIO_PCI_IGD)) {
+ 		ret = vfio_pci_igd_init(vdev);
+-		if (ret) {
++		if (ret && ret != -ENODEV) {
+ 			pci_warn(pdev, "Failed to setup Intel IGD regions\n");
+ 			goto disable_exit;
+ 		}
 -- 
 2.27.0
 
