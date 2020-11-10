@@ -2,89 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C58C2AE159
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 22:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2252AE168
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 22:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726706AbgKJVEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 16:04:51 -0500
-Received: from mga11.intel.com ([192.55.52.93]:4063 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726462AbgKJVEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Nov 2020 16:04:51 -0500
-IronPort-SDR: K9M1n061tWpfoDpcm4F5IErARtoFCKCFahGjROIpbzY69f4GsWX0ZuIeTYflvo3Lp6JM+2z8yV
- tBz/EZ1+NA3g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9801"; a="166541028"
-X-IronPort-AV: E=Sophos;i="5.77,467,1596524400"; 
-   d="scan'208";a="166541028"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2020 13:04:50 -0800
-IronPort-SDR: O9CkldqJ2EaOgcj7/Dx90dcTA5MiSWx4prfzQPMS12XtA/pd/dbIwSoVPBvOVctWoIjsjzf0Q6
- LoXQxpNV/gSw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,467,1596524400"; 
-   d="scan'208";a="428523406"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga001.fm.intel.com with SMTP; 10 Nov 2020 13:04:48 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 10 Nov 2020 23:04:47 +0200
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Handle max_bpc==16
-Date:   Tue, 10 Nov 2020 23:04:47 +0200
-Message-Id: <20201110210447.27454-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726861AbgKJVOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 16:14:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42721 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726179AbgKJVOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 16:14:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605042870;
+        h=from:from:reply-to:subject:subject:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  in-reply-to:in-reply-to;
+        bh=XWXltqCr1OJXlR89/ZQNHxoSeS2Md4RbWJZv6yQuONk=;
+        b=Xwbut3o7lkrGC3NcBWzIhfpr4CpHCw3ANJTuooYfTQhzPTfwxj92YWUfZil5LsSRDkcguq
+        DoZy7gpHFQWRlT6zeF+RhI+/0MDKHbl5RvO7SL8IW8uJUZ15puSxQD3nM1CEI11/rl9pZh
+        4h3Qj3sU7iu/KlehYGssw7amgQuyLCA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-182-qa494-qIP3O3Zu0qUdoX1Q-1; Tue, 10 Nov 2020 16:14:28 -0500
+X-MC-Unique: qa494-qIP3O3Zu0qUdoX1Q-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6A52A804762;
+        Tue, 10 Nov 2020 21:14:27 +0000 (UTC)
+Received: from [172.20.12.81] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3D16D7513B;
+        Tue, 10 Nov 2020 21:14:24 +0000 (UTC)
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Subject: Re: [RHEL8.4 BZ1844297 CVE-2020-8694 v5] powercap: restrict energy meter
+        to root access
+To:     Donghai Qiao <dqiao@redhat.com>
+From:   kernel-ci-list@redhat.com
+Message-id: <160504286354.62.679368032199803070@runner-oxiy8b6--project-2-concurrent-1klphj>
+Cc:     rhkernel-list@redhat.com, Len Brown <len.brown@intel.com>,
+        Donghai Qiao <dqiao@redhat.com>, stable@vger.kernel.org
+In-Reply-To: <20201110210336.14326-1-dqiao@redhat.com>
+X-GitLab-Pipeline-ID: 617486
+X-Gitlab-Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/-/pipelines/617486
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Date:   Tue, 10 Nov 2020 16:14:31 -0500
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Hi,
 
-EDID can declare the maximum supported bpc up to 16,
-and apparently there are displays that do so. Currently
-we assume 12 bpc is tha max. Fix the assumption and
-toss in a MISSING_CASE() for any other value we don't
-expect to see.
+This is a friendly email about rhcheckpatch.  Please consult the data below for
+more info.
 
-This fixes modesets with a display with EDID max bpc > 12.
-Previously any modeset would just silently fail on platforms
-that didn't otherwise limit this via the max_bpc property.
-In particular we don't add the max_bpc property to HDMI
-ports on gmch platforms, and thus we would see the raw
-max_bpc coming from the EDID.
+SUMMARY: This patch series has 1 ERRORS and 0 WARNINGS.
+Subject: [RHEL8.4 BZ1844297 CVE-2020-8694 v5] powercap: restrict energy meter to root access
+ E Commit: no valid id found! (if not upstream, add RHEL-only and explain why)
 
-I suppose we could already adjust this to also allow 16bpc,
-but seeing as no current platform supports that there is
-little point.
+1 patch(es) checked, ERRORS: 1, WARNINGS: 0
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2632
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/intel_display.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 2729c852c668..2a6eb1ca9c8e 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -13060,10 +13060,11 @@ compute_sink_pipe_bpp(const struct drm_connector_state *conn_state,
- 	case 10 ... 11:
- 		bpp = 10 * 3;
- 		break;
--	case 12:
-+	case 12 ... 16:
- 		bpp = 12 * 3;
- 		break;
- 	default:
-+		MISSING_CASE(conn_state->max_bpc);
- 		return -EINVAL;
- 	}
- 
--- 
-2.26.2
+--
+# Generated by 'rhcheckpatch.py'
+# For source: https://gitlab.cee.redhat.com/cki-project/rhel-tools
+# For documentation read
+# https://gitlab.cee.redhat.com/cki-project/rhel-tools/blob/main/README.md
 
