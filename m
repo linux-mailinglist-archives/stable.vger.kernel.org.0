@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3392ACD2C
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8532ACD27
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731545AbgKJEAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:00:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57696 "EHLO mail.kernel.org"
+        id S2387479AbgKJEAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 23:00:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387432AbgKJDz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:59 -0500
+        id S2387449AbgKJD4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:56:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0C42221E9;
-        Tue, 10 Nov 2020 03:55:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5873C20870;
+        Tue, 10 Nov 2020 03:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980558;
-        bh=RBJ9y4/oa7/bY94unf5ZZ/waRSM/GIKyKc+JiZfknWc=;
+        s=default; t=1604980560;
+        bh=Ejy93RLnNmUphyjzU+ljQMEPhyJJaHefgobGx91pGyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbAuN7jqe4Sle0ZjZ4bpObSEI3ztBvSLcICeU9kchuV1CReyoTS+/kydL0m8p3nVQ
-         XQijRIBNb9mOOPk6SaZX6Ls0Fooyu+EwMatLHiA9doJ4o+sax6LKk9yaPAUB8gEVU0
-         VMUEwXbiYkr8tOyWk70ZM/dEVeidcUjedkcUnGT0=
+        b=eIAHnd0vGSGz8ofGMHKn2GG76ckWRPKtKXBvfrcKsSqgcJpfJqhHjHSKpbgY0UL7P
+         yz2A2PknyiawMweADy3yX+WIoQ+HhnWKkl1n2kCWNLEq5dgaZnfd0hpMqfAJ9yZBpf
+         Uw6PYA4fn4agnVzT6RT5IVijtn1aR/uIIQ/+gpYQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>,
-        Brian Bunker <brian@purestorage.com>,
-        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/21] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
-Date:   Mon,  9 Nov 2020 22:55:33 -0500
-Message-Id: <20201110035541.424648-13-sashal@kernel.org>
+Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 14/21] iommu/amd: Increase interrupt remapping table limit to 512 entries
+Date:   Mon,  9 Nov 2020 22:55:34 -0500
+Message-Id: <20201110035541.424648-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
 References: <20201110035541.424648-1-sashal@kernel.org>
@@ -44,71 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
+[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
 
-alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
-we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
-handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
-rcu_synchronize() before the final delete to ensure that all concurrent
-threads have left the critical section.  Then we can get rid of the
-BUG_ON() and replace it with a simple if condition.
+Certain device drivers allocate IO queues on a per-cpu basis.
+On AMD EPYC platform, which can support up-to 256 cpu threads,
+this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
+and result in the error message:
 
-Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
-Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
-Cc: Brian Bunker <brian@purestorage.com>
-Acked-by: Brian Bunker <brian@purestorage.com>
-Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+    AMD-Vi: Failed to allocate IRTE
+
+This has been observed with certain NVME devices.
+
+AMD IOMMU hardware can actually support upto 512 interrupt
+remapping table entries. Therefore, update the driver to
+match the hardware limit.
+
+Please note that this also increases the size of interrupt remapping
+table to 8KB per device when using the 128-bit IRTE format.
+
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/iommu/amd_iommu_types.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index c95c782b93a53..60c48dc5d9453 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -672,8 +672,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 					rcu_read_lock();
- 					list_for_each_entry_rcu(h,
- 						&tmp_pg->dh_list, node) {
--						/* h->sdev should always be valid */
--						BUG_ON(!h->sdev);
-+						if (!h->sdev)
-+							continue;
- 						h->sdev->access_state = desc[0];
- 					}
- 					rcu_read_unlock();
-@@ -719,7 +719,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 			pg->expiry = 0;
- 			rcu_read_lock();
- 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
--				BUG_ON(!h->sdev);
-+				if (!h->sdev)
-+					continue;
- 				h->sdev->access_state =
- 					(pg->state & SCSI_ACCESS_STATE_MASK);
- 				if (pg->pref)
-@@ -1160,7 +1161,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 	spin_lock(&h->pg_lock);
- 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
- 	rcu_assign_pointer(h->pg, NULL);
--	h->sdev = NULL;
- 	spin_unlock(&h->pg_lock);
- 	if (pg) {
- 		spin_lock_irq(&pg->lock);
-@@ -1169,6 +1169,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 		kref_put(&pg->kref, release_port_group);
- 	}
- 	sdev->handler_data = NULL;
-+	synchronize_rcu();
- 	kfree(h);
- }
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index 859b06424e5c4..df6f3cc958e5e 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -410,7 +410,11 @@ extern bool amd_iommu_np_cache;
+ /* Only true if all IOMMUs support device IOTLBs */
+ extern bool amd_iommu_iotlb_sup;
  
+-#define MAX_IRQS_PER_TABLE	256
++/*
++ * AMD IOMMU hardware only support 512 IRTEs despite
++ * the architectural limitation of 2048 entries.
++ */
++#define MAX_IRQS_PER_TABLE	512
+ #define IRQ_TABLE_ALIGNMENT	128
+ 
+ struct irq_remap_table {
 -- 
 2.27.0
 
