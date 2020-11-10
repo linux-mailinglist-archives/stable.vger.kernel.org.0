@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A89B62ACD74
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 409F42ACD6F
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733049AbgKJECZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:02:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S1733064AbgKJDzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:55:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733022AbgKJDzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:55:10 -0500
+        id S1733044AbgKJDzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:55:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7CA620870;
-        Tue, 10 Nov 2020 03:55:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58691207BC;
+        Tue, 10 Nov 2020 03:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980509;
-        bh=MLrSMe0LNFlLFy9vkLziluBQnqB5lpVCd2LuDcTLal4=;
+        s=default; t=1604980512;
+        bh=7lcMbKOxhN/Le0MESmUbQj5z7nRfEq6LZOAd40/ORv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtT9vyMnIZIU5k0wKpFOM4IJd2fwGGLHRsi9hi/N8HknXTY8u3AEFOL3RvJxiGU55
-         OUuzQOFwKRpjrVWqNNYb6Icg3M9Twk61zknyGgH2xSc0Okeq1ZRNfdk1kBNgX3TGN7
-         rCUlbe0gJfMxmR3AExcJeq6hpUSi77o2QzWZTb64=
+        b=crctbawAQy4Y5qs2hCPdtuAWg9BmLiI0f3ReViLIw1+MojlpgRvvhISvXZl7sccxF
+         08+jpWiYN5fH7MQw4IL+jRHCjSaRRORPUQME3rzXOxDz2dvu/THT16zMPp8TL0osc9
+         67gIGRsub2QRJAkIcovNf9Bm2KT+4TU0BNG8Uftg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/42] cfg80211: regulatory: Fix inconsistent format argument
-Date:   Mon,  9 Nov 2020 22:54:18 -0500
-Message-Id: <20201110035440.424258-20-sashal@kernel.org>
+Cc:     Hannes Reinecke <hare@suse.de>,
+        Brian Bunker <brian@purestorage.com>,
+        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 22/42] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
+Date:   Mon,  9 Nov 2020 22:54:20 -0500
+Message-Id: <20201110035440.424258-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
 References: <20201110035440.424258-1-sashal@kernel.org>
@@ -43,36 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit db18d20d1cb0fde16d518fb5ccd38679f174bc04 ]
+[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
 
-Fix follow warning:
-[net/wireless/reg.c:3619]: (warning) %d in format string (no. 2)
-requires 'int' but the argument type is 'unsigned int'.
+alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
+we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
+handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
+rcu_synchronize() before the final delete to ensure that all concurrent
+threads have left the critical section.  Then we can get rid of the
+BUG_ON() and replace it with a simple if condition.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20201009070215.63695-1-yebin10@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
+Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
+Cc: Brian Bunker <brian@purestorage.com>
+Acked-by: Brian Bunker <brian@purestorage.com>
+Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 20a8e6af88c45..0f3b57a73670b 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3405,7 +3405,7 @@ static void print_rd_rules(const struct ieee80211_regdomain *rd)
- 		power_rule = &reg_rule->power_rule;
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index f32da0ca529e0..308bda2e9c000 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -658,8 +658,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 					rcu_read_lock();
+ 					list_for_each_entry_rcu(h,
+ 						&tmp_pg->dh_list, node) {
+-						/* h->sdev should always be valid */
+-						BUG_ON(!h->sdev);
++						if (!h->sdev)
++							continue;
+ 						h->sdev->access_state = desc[0];
+ 					}
+ 					rcu_read_unlock();
+@@ -705,7 +705,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			pg->expiry = 0;
+ 			rcu_read_lock();
+ 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
+-				BUG_ON(!h->sdev);
++				if (!h->sdev)
++					continue;
+ 				h->sdev->access_state =
+ 					(pg->state & SCSI_ACCESS_STATE_MASK);
+ 				if (pg->pref)
+@@ -1147,7 +1148,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 	spin_lock(&h->pg_lock);
+ 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
+ 	rcu_assign_pointer(h->pg, NULL);
+-	h->sdev = NULL;
+ 	spin_unlock(&h->pg_lock);
+ 	if (pg) {
+ 		spin_lock_irq(&pg->lock);
+@@ -1156,6 +1156,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 		kref_put(&pg->kref, release_port_group);
+ 	}
+ 	sdev->handler_data = NULL;
++	synchronize_rcu();
+ 	kfree(h);
+ }
  
- 		if (reg_rule->flags & NL80211_RRF_AUTO_BW)
--			snprintf(bw, sizeof(bw), "%d KHz, %d KHz AUTO",
-+			snprintf(bw, sizeof(bw), "%d KHz, %u KHz AUTO",
- 				 freq_range->max_bandwidth_khz,
- 				 reg_get_max_bandwidth(rd, reg_rule));
- 		else
 -- 
 2.27.0
 
