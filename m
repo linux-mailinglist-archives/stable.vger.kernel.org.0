@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8532ACD27
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6540E2ACD1C
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387479AbgKJEAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:00:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57760 "EHLO mail.kernel.org"
+        id S2387490AbgKJD4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Nov 2020 22:56:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387449AbgKJD4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:56:01 -0500
+        id S2387464AbgKJD4C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Nov 2020 22:56:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5873C20870;
-        Tue, 10 Nov 2020 03:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E24B216C4;
+        Tue, 10 Nov 2020 03:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604980560;
-        bh=Ejy93RLnNmUphyjzU+ljQMEPhyJJaHefgobGx91pGyQ=;
+        s=default; t=1604980561;
+        bh=6Yev0pjRKHStnjnyUM7qIny4PcOwexPPhGLSFztfQ90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIAHnd0vGSGz8ofGMHKn2GG76ckWRPKtKXBvfrcKsSqgcJpfJqhHjHSKpbgY0UL7P
-         yz2A2PknyiawMweADy3yX+WIoQ+HhnWKkl1n2kCWNLEq5dgaZnfd0hpMqfAJ9yZBpf
-         Uw6PYA4fn4agnVzT6RT5IVijtn1aR/uIIQ/+gpYQ=
+        b=tMoEoeLYvhTL0/GWBrFW6bTfQA+JrslxPRRoE+mqfbAwICqkqw3k/yjavUjdfV7ly
+         X/43m0Iq7iw+X/84aUkB2djcQuQcrZISz4drl+OYW+hDnsZfr43OeqBMX+Rc2DdVuv
+         j9Y2x4lzyfq0yT/PfSrkaWE3krDf3Y/csKhnE6Tc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 14/21] iommu/amd: Increase interrupt remapping table limit to 512 entries
-Date:   Mon,  9 Nov 2020 22:55:34 -0500
-Message-Id: <20201110035541.424648-14-sashal@kernel.org>
+Cc:     Qian Cai <cai@redhat.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/21] s390/smp: move rcu_cpu_starting() earlier
+Date:   Mon,  9 Nov 2020 22:55:35 -0500
+Message-Id: <20201110035541.424648-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
 References: <20201110035541.424648-1-sashal@kernel.org>
@@ -43,51 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Qian Cai <cai@redhat.com>
 
-[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
+[ Upstream commit de5d9dae150ca1c1b5c7676711a9ca139d1a8dec ]
 
-Certain device drivers allocate IO queues on a per-cpu basis.
-On AMD EPYC platform, which can support up-to 256 cpu threads,
-this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
-and result in the error message:
+The call to rcu_cpu_starting() in smp_init_secondary() is not early
+enough in the CPU-hotplug onlining process, which results in lockdep
+splats as follows:
 
-    AMD-Vi: Failed to allocate IRTE
+ WARNING: suspicious RCU usage
+ -----------------------------
+ kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
 
-This has been observed with certain NVME devices.
+ other info that might help us debug this:
 
-AMD IOMMU hardware can actually support upto 512 interrupt
-remapping table entries. Therefore, update the driver to
-match the hardware limit.
+ RCU used illegally from offline CPU!
+ rcu_scheduler_active = 1, debug_locks = 1
+ no locks held by swapper/1/0.
 
-Please note that this also increases the size of interrupt remapping
-table to 8KB per device when using the 128-bit IRTE format.
+ Call Trace:
+ show_stack+0x158/0x1f0
+ dump_stack+0x1f2/0x238
+ __lock_acquire+0x2640/0x4dd0
+ lock_acquire+0x3a8/0xd08
+ _raw_spin_lock_irqsave+0xc0/0xf0
+ clockevents_register_device+0xa8/0x528
+ init_cpu_timer+0x33e/0x468
+ smp_init_secondary+0x11a/0x328
+ smp_start_secondary+0x82/0x88
 
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This is avoided by moving the call to rcu_cpu_starting up near the
+beginning of the smp_init_secondary() function. Note that the
+raw_smp_processor_id() is required in order to avoid calling into
+lockdep before RCU has declared the CPU to be watched for readers.
+
+Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
+Signed-off-by: Qian Cai <cai@redhat.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_types.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/kernel/smp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index 859b06424e5c4..df6f3cc958e5e 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -410,7 +410,11 @@ extern bool amd_iommu_np_cache;
- /* Only true if all IOMMUs support device IOTLBs */
- extern bool amd_iommu_iotlb_sup;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 8e31dfd85de32..888f247c9261a 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -831,7 +831,7 @@ void __init smp_detect_cpus(void)
+  */
+ static void smp_start_secondary(void *cpuvoid)
+ {
+-	int cpu = smp_processor_id();
++	int cpu = raw_smp_processor_id();
  
--#define MAX_IRQS_PER_TABLE	256
-+/*
-+ * AMD IOMMU hardware only support 512 IRTEs despite
-+ * the architectural limitation of 2048 entries.
-+ */
-+#define MAX_IRQS_PER_TABLE	512
- #define IRQ_TABLE_ALIGNMENT	128
- 
- struct irq_remap_table {
+ 	S390_lowcore.last_update_clock = get_tod_clock();
+ 	S390_lowcore.restart_stack = (unsigned long) restart_stack;
+@@ -844,6 +844,7 @@ static void smp_start_secondary(void *cpuvoid)
+ 	set_cpu_flag(CIF_ASCE_PRIMARY);
+ 	set_cpu_flag(CIF_ASCE_SECONDARY);
+ 	cpu_init();
++	rcu_cpu_starting(cpu);
+ 	preempt_disable();
+ 	init_cpu_timer();
+ 	vtime_init();
 -- 
 2.27.0
 
