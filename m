@@ -2,156 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F122AD093
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 08:41:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9741D2AD098
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 08:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727711AbgKJHla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Nov 2020 02:41:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53600 "EHLO
+        id S1728234AbgKJHpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 02:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726467AbgKJHl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 02:41:29 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA0F0C0613D3
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 23:41:27 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id oq3so16059783ejb.7
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 23:41:27 -0800 (PST)
+        with ESMTP id S1726467AbgKJHpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 02:45:11 -0500
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04E7C0613D1
+        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 23:45:10 -0800 (PST)
+Received: by mail-ej1-x644.google.com with SMTP id o21so16080214ejb.3
+        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 23:45:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=+A/E+HuPe8v8u2I+5nMtlhsi5h/+K+qNfUiEOaq1bTk=;
-        b=lDUDdRM2q5FQtDdjFccn5estlbFnIjXGztAxp+jUmqZa2wyTCM+MxKYmy83RbFkNSI
-         l4jLQOBUtEmB9/vxYHCCw6AtfbBtdxCsCLLqTOAJQwK3Flh98dbXcEKr31AY7MnB3ucB
-         PQhB1cx9fOCKIwh+dAczhL0neA/e+5Jvy9AoZs4fu/W6smABo6ikUT1ARllmOAIAT7BL
-         rhZ2UnAW+072TKVdoUaQGDRSVzFf3DzA1mRkcZifvaIPcvaCEG0W45flQ5SlizD3RcdE
-         k3lTIjLNSCYlA90teJA0xkLL+LIcs2Y1N2vWFN5STW5/rgAN6eQkogiupdBxeKmLZoh5
-         2MHw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=tIEVx9J7sAxB8dgvOxJcRL3Qv91aaLpMtBBcDV4ez+8=;
+        b=za6F23BUcGLLOH3GAeEH1mbCMozYPWuAnDLfD0kDTuMY+AQinK9Qie2q4b80AbTKFR
+         0sEvKat52o8U9SfSblgGXnis9jOOrMRfF4Z96Mr0wKcBBHYq/phbUmq1PNAlIQCF23/h
+         iLkdEqspnIMXjNgn9oj1ezoq8uhyUh2qNv+uKEBdNjb4nH32F/9/AMZPo2HbfnrWt/0i
+         F/z/KAlxecE6ItPdmj1KrVLXA0NHXkyLuD1maAiMZxBzpcSAQsWA/qrp59/miVtDNRqC
+         o4MI1u9OPaS9SCL6r3yDnhU1PUUCOtsDQVShMdWbYFx3ISsLELc5So2FA1aj6FmQ3MG6
+         JptQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=+A/E+HuPe8v8u2I+5nMtlhsi5h/+K+qNfUiEOaq1bTk=;
-        b=Tb5kE5g80Jk6D4x8ICsjHu3czQeTObjBjAEC0DRzbyXWwsvhHvjspLo3msKmMgOTws
-         hpOJgaHqSVEpLdfr8KQ12sSTwe34IKhy1YeElfLWoV0tHHSpH95eflH+dLLtlQIq48Om
-         QpJcN9LDJ3750JT9saY8Fo87NKu5sAMEVgkexPlvQ59xYBOI5eHjvafDhdLsD6sOc/+h
-         MJHmACEOnnA0twnt08yDWrz9z4oslgkG4teN4Q6OiL462zMKYkba8VmfDp58srIr8fCw
-         WmdPFiYthlJlXMiG/kSnbHZsuo+l3gZcNOdI9GjapooQITIJy8d3pBMB95qa+NI5T0ex
-         cLXw==
-X-Gm-Message-State: AOAM5310bmBuZt4xHdikdJG+4GDzdfeVJTCu+OH1Y2hIl9mdk2ZA3sq7
-        JgOeA81oj8gEwOanjlHsUNtsm4aYhbQz0HZ7b3AXtg==
-X-Google-Smtp-Source: ABdhPJxDLllAmYwP42N/vmNhFsCbl5VuuE4DFUVNZoDQxhQLzlWKKq7QZr79p5EoITlaqKYN144sMUbYsl13mDoI+rk=
-X-Received: by 2002:a17:906:4742:: with SMTP id j2mr18476362ejs.247.1604994086125;
- Mon, 09 Nov 2020 23:41:26 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tIEVx9J7sAxB8dgvOxJcRL3Qv91aaLpMtBBcDV4ez+8=;
+        b=d39n5NeoIRgTGm6aZErAaI0/lwaXn6JClB5fVheCJGZgWpQSVHAvEKy3K6BFxti6qU
+         jH+6+EHZljeaO/bL7/ruz5+SKYBEJavO8mJfCVhCOJd/oQRaIUQRAF68CZGG/98pKKwv
+         99boGSnIc7+T6WQbtl7h2/vHfMaVkejqwkOcb6MSSflmJhhsYFtkVav5SPiekxH6iJbK
+         XR2OuFbg8wEyiqAdZPJNIxAjZfWarFKPbayi/COWCWqyJh126IpkEJ4thPbfxiJ7AFNa
+         mUjb/lUJRLCDIbbEG5Gj6zp33meBNYnKu4b4x1f5rVpIn7mKU1TCvej2sWhGcJVJY6eM
+         IVEQ==
+X-Gm-Message-State: AOAM533YX1Tqik7g9KJTdkdrAJUrlLTmZ+EEWNeLuDpNrYUH1UdEWd8M
+        vRy9FwNixtkNkheKlF+zbC5e5N1xMvgCIfiblcma7g==
+X-Google-Smtp-Source: ABdhPJxNKUXfulaBmk+1lqdoXRnK6dmMlRKFKjRAA93HN9RXzvGcL/DZJs/waAaJ08HGJadhPwAnfZoKba2ak0UZMv4=
+X-Received: by 2002:a17:906:4742:: with SMTP id j2mr18486129ejs.247.1604994308945;
+ Mon, 09 Nov 2020 23:45:08 -0800 (PST)
 MIME-Version: 1.0
+References: <20201109125019.906191744@linuxfoundation.org>
+In-Reply-To: <20201109125019.906191744@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 10 Nov 2020 13:11:14 +0530
-Message-ID: <CA+G9fYu+KK=hm1AmQ78GCCgQTwsRCzyA6WHYR68ozZBzp7USiA@mail.gmail.com>
-Subject: WARNING: CPU: 2 at kernel/workqueue.c:4762 workqueue_online_cpu
-To:     open list <linux-kernel@vger.kernel.org>,
+Date:   Tue, 10 Nov 2020 13:14:57 +0530
+Message-ID: <CA+G9fYsQjHSukBtPbJJu8VyQEWJBHFTfox83-eu8AoRdENfKCw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/71] 4.19.156-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
         lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>,
-        jiangshanlai@gmail.com, Viresh Kumar <viresh.kumar@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>
+        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While running CPU hotplug testing on arm64 db410c device the following
-kernel warning
-noticed on linux stable-rc 4.19 branch. I did not bisect this problem yet.
+On Mon, 9 Nov 2020 at 18:40, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.156 release.
+> There are 71 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 11 Nov 2020 12:50:04 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.156-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Kernel Warning log:
-------------------------------
-[  290.463053] CPU1: shutdown
-[  290.463107] psci: CPU1 killed (polled 0 ms)
-[  290.527026] CPU2: shutdown
-[  290.527072] psci: CPU2 killed (polled 0 ms)
-[  290.579064] CPU3: shutdown
-[  290.579098] psci: CPU3 killed (polled 0 ms)
-[  290.612295] Detected VIPT I-cache on CPU1
-[  290.612361] CPU1: Booted secondary processor 0x0000000001 [0x410fd030]
-[  290.684091] Detected VIPT I-cache on CPU2
-[  290.684158] CPU2: Booted secondary processor 0x0000000002 [0x410fd030]
-[  290.684464] WARNING: CPU: 2 PID: 20 at
-/usr/src/kernel/kernel/workqueue.c:4762
-workqueue_online_cpu+0x18c/0x428
-[  290.697731] Modules linked in: sch_ingress algif_hash test_bpf
-snd_soc_hdmi_codec crc32_ce adv7511 cec rfkill msm
-snd_soc_msm8916_analog snd_soc_lpass_apq8016 mdt_loader
-snd_soc_lpass_cpu snd_soc_msm8916_digital snd_soc_apq8016_sbc
-drm_kms_helper snd_soc_lpass_platform drm drm_panel_orientation_quirks
-fuse [last unloaded: test_bpf]
-[  290.714992] CPU: 2 PID: 20 Comm: cpuhp/2 Tainted: G      D
- 4.19.156-rc1 #1
-[  290.737221] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[  290.745033] pstate: 40000005 (nZcv daif -PAN -UAO)
-[  290.751718] pc : workqueue_online_cpu+0x18c/0x428
-[  290.756316] lr : workqueue_online_cpu+0x140/0x428
-[  290.761086] sp : ffff00000a90bc90
-[  290.765774] x29: ffff00000a90bc90 x28: ffff00000989bfc8
-[  290.769074] x27: ffff80003ac81a00 x26: ffff000009914a00
-[  290.774456] x25: ffff00000989c068 x24: ffff00000a90bd24
-[  290.779752] x23: 0000000000000002 x22: ffff80003fe7a4d0
-[  290.785047] x21: ffff000009914000 x20: ffff00000989bf68
-[  290.790341] x19: ffff80003fe7a1c0 x18: ffffffffffffffff
-[  290.795636] x17: 0000000000000000 x16: 0000000000000000
-[  290.800932] x15: ffff00000987fa48 x14: ffff00000a69c530
-[  290.806227] x13: 0000000000000040 x12: 0000000000000228
-[  290.811522] x11: 0000000000000000 x10: ffff00000987fa48
-[  290.816816] x9 : ffff000009914000 x8 : ffff00000987fa48
-[  290.822112] x7 : ffff00000812d338 x6 : 0000000000000000
-[  290.827407] x5 : 0000000000000000 x4 : ffff80003c59ad00
-[  290.832702] x3 : ffff000009880000 x2 : 8b427f82388e4a00
-[  290.837997] x1 : 0000000000000000 x0 : 00000000ffffffea
-[  290.843293] Call trace:
-[  290.848588]  workqueue_online_cpu+0x18c/0x428
-[  290.850762]  cpuhp_invoke_callback+0xe8/0xd18
-[  290.855274]  cpuhp_thread_fun+0x1a8/0x250
-[  290.859613]  smpboot_thread_fn+0x1c4/0x2d0
-[  290.863606]  kthread+0x150/0x168
-[  290.867600]  ret_from_fork+0x10/0x1c
-[  290.870983] irq event stamp: 158
-[  290.874546] hardirqs last  enabled at (157): [<ffff000009001784>]
-_raw_spin_unlock_irqrestore+0x74/0xb0
-[  290.877765] hardirqs last disabled at (158): [<ffff000008ffa1e0>]
-__schedule+0xc0/0xbc0
-[  290.886878] softirqs last  enabled at (0): [<ffff0000080efac8>]
-copy_process.isra.5.part.6+0x490/0x1b20
-[  290.894861] softirqs last disabled at (0): [<0000000000000000>]
-      (null)
-[  290.904233] ---[ end trace 7a9cb6558129244f ]---
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-steps to reproduce:
-----------------------------------
-Total number of CPU[0-3]
-offline each CPU 1, 2 and 3
-online each CPU 1, 2 and 3
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-          echo 0 > /sys/devices/system/cpu/cpu1/online
-          echo 0 > /sys/devices/system/cpu/cpu2/online
-          echo 0 > /sys/devices/system/cpu/cpu3/online
-          echo 1 > /sys/devices/system/cpu/cpu1/online
-          echo 1 > /sys/devices/system/cpu/cpu2/online
-          echo 1 > /sys/devices/system/cpu/cpu3/online
+NOTE:
+The following kernel warning noticed while cpu hotplug on arm64 db410c devi=
+ce.
+I did not bisect this problem yet.
+WARNING: CPU: 2 at kernel/workqueue.c:4762 workqueue_online_cpu
+https://lore.kernel.org/linux-pm/CA+G9fYu+KK=3Dhm1AmQ78GCCgQTwsRCzyA6WHYR68=
+ozZBzp7USiA@mail.gmail.com/T/#u
 
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Summary
+------------------------------------------------------------------------
 
-metadata:
-  git branch: linux-4.19.y
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  git describe: v4.19.155-72-g4d10cdd4ac50
-  kernel-config:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/dragonboard-410c/lkft/linux-stable-rc-4.19/666/config
+kernel: 4.19.156-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 4d10cdd4ac507ec787b8f4a1770b0c44350ff5cf
+git describe: v4.19.155-72-g4d10cdd4ac50
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.155-72-g4d10cdd4ac50
 
-ref:
-https://lkft.validation.linaro.org/scheduler/job/1927553#L3876
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.155-72-g4d10cdd4ac50/testrun/3416766/suite/linux-log-parser/test/check-kernel-warning-1925672/log
+No regressions (compared to build v4.19.155)
 
--- 
+No fixes (compared to build v4.19.155)
+
+Ran 35947 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu-arm64-kasan
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* linux-log-parser
+* ltp-containers-tests
+* ltp-ipc-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-tracing-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+
+--
 Linaro LKFT
 https://lkft.linaro.org
