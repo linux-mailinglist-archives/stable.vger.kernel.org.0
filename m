@@ -2,176 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 162D32ACE73
-	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 05:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2B52ACF5A
+	for <lists+stable@lfdr.de>; Tue, 10 Nov 2020 07:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729454AbgKJEOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Nov 2020 23:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50154 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729243AbgKJEOd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Nov 2020 23:14:33 -0500
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6E8C0613CF
-        for <stable@vger.kernel.org>; Mon,  9 Nov 2020 20:14:32 -0800 (PST)
-Received: by mail-ej1-x642.google.com with SMTP id s25so15505310ejy.6
-        for <stable@vger.kernel.org>; Mon, 09 Nov 2020 20:14:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=lKAKUxf31iKD63H2Y0R9CiFoIGve/JWjHjtQtrBS0Ms=;
-        b=qpjKOHz7zZkBpN3dcVFDE6jOGnqlRZeD0AQbAUu7wUCDsdxIKomXnAc0JLeLs1BZwD
-         tJeAGb1RjAqUfA6Yl5Vz71rGCrJT/iBvHKyXSsC3AYpXKNtaskM+an+ZyFq36CWOQxOw
-         Fw3qSpi2Y2hLl9w0sjkgNDz07joHaz1Cl/jZMKn0e7p3ODuhHXqA9xb11RI4+Tl14Elw
-         Pj1DV7+wLXKcGt/gFsFRhIpOSN6rFGCMNuC+L1LbjWhTBA5txNSdILFFuehqG1AAFi6O
-         9FFXQtE3wEyWAx/KTW4DvbnWU0555LQufuq58mG2YXVyMAm7zmWbj2Do5bGgW7FU0QLg
-         rU7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lKAKUxf31iKD63H2Y0R9CiFoIGve/JWjHjtQtrBS0Ms=;
-        b=fSs1x9bd/Tms8M5ozL2eB5Kf59UB8muAS9OTNQszDRbbSGiRcSl76PNKwrJB/+hKrJ
-         r/XOI8CwYIL0z7qfKYAuQk7TKWOU9t+iQfaxwq3CgBfFTUgexfdfYQOluVppHVN3d0ei
-         QCXiC7eflrrEjOgLs54FKWkNCcx+av6Vkb1itisxeTJ/M9F/51QGgY1jETFwIC/Jh7DU
-         1uGyQALtoWEVDMdxeOKUgPNXvG3xgCGG4ChmV47FfGucCrcUa2r3yri96FPcj7XevN6m
-         pQPqmVVZJoGQ8P8JJGYoVrEoijz5ybvsGXP3uab3KxI7yU/EGnq6AWfQHRFUdJGcCkT6
-         cnVQ==
-X-Gm-Message-State: AOAM531w4jtxTIgYe+l0Cbg6f4nu9u7R0euyq5QDf8BC/BmANgI81UZh
-        7f5xKERybNfAousrI81Xy2XXDBloGvVfyh9TV3duKA==
-X-Google-Smtp-Source: ABdhPJy+FZgfBxwY1B1vWiFkN+0yNyJwK9IFit8KDwpqVReFYXiMGHAwd/jE6zHcj3ul75tt87NPL7Zhuye5jc1lsnU=
-X-Received: by 2002:a17:906:6987:: with SMTP id i7mr18844230ejr.18.1604981671363;
- Mon, 09 Nov 2020 20:14:31 -0800 (PST)
+        id S1730050AbgKJGCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Nov 2020 01:02:40 -0500
+Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:37509 "EHLO
+        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728085AbgKJGCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Nov 2020 01:02:39 -0500
+X-Greylist: delayed 900 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Nov 2020 01:02:39 EST
+Received: from sc9-mailhost2.vmware.com (10.113.161.72) by
+ EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
+ 15.0.1156.6; Mon, 9 Nov 2020 21:47:35 -0800
+Received: from localhost.localdomain (unknown [10.197.103.179])
+        by sc9-mailhost2.vmware.com (Postfix) with ESMTP id DEAF2207FC;
+        Mon,  9 Nov 2020 21:47:37 -0800 (PST)
+From:   Tapas Kundu <tkundu@vmware.com>
+To:     <acme@redhat.com>
+CC:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <anishs@vmware.com>, <vsirnapalli@vmware.com>, <akaher@vmware.com>,
+        <tkundu@vmware.com>, <peterz@infradead.org>, <mingo@redhat.com>,
+        <mark.rutland@arm.com>, <alexander.shishkin@linux.intel.com>,
+        <jolsa@redhat.com>, <namhyung@kernel.org>,
+        <linux-kernel@vger.kernel.org>, <adrian.hunter@intel.com>,
+        <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>
+Subject: [PATCH v5.9-v4.19] perf scripting python: Avoid declaring function pointers with a visibility attribute
+Date:   Tue, 10 Nov 2020 11:16:12 +0530
+Message-ID: <20201110054612.13170-1-tkundu@vmware.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-References: <20201109125022.614792961@linuxfoundation.org>
-In-Reply-To: <20201109125022.614792961@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 10 Nov 2020 09:44:20 +0530
-Message-ID: <CA+G9fYtTw1u_Lyg95fxv1w=z=hsRpDYVod0xGHbH0idj=uf-gg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/85] 5.4.76-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+Received-SPF: None (EX13-EDG-OU-001.vmware.com: tkundu@vmware.com does not
+ designate permitted sender hosts)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 9 Nov 2020 at 18:42, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.76 release.
-> There are 85 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 11 Nov 2020 12:50:04 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.76-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+commit d0e7b0c71fbb653de90a7163ef46912a96f0bdaf upstream.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+To avoid this:
 
-Summary
-------------------------------------------------------------------------
+  util/scripting-engines/trace-event-python.c: In function 'python_start_script':
+  util/scripting-engines/trace-event-python.c:1595:2: error: 'visibility' attribute ignored [-Werror=attributes]
+   1595 |  PyMODINIT_FUNC (*initfunc)(void);
+        |  ^~~~~~~~~~~~~~
 
-kernel: 5.4.76-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 0972a1f5fd7d894036d1060885a60a3c7f702de3
-git describe: v5.4.75-86-g0972a1f5fd7d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
-y/build/v5.4.75-86-g0972a1f5fd7d
+That started breaking when building with PYTHON=python3 and these gcc
+versions (I haven't checked with the clang ones, maybe it breaks there
+as well):
 
-No regressions (compared to build v5.4.75)
+  # export PERF_TARBALL=http://192.168.86.5/perf/perf-5.9.0.tar.xz
+  # dm  fedora:33 fedora:rawhide
+     1   107.80 fedora:33         : Ok   gcc (GCC) 10.2.1 20201005 (Red Hat 10.2.1-5), clang version 11.0.0 (Fedora 11.0.0-1.fc33)
+     2    92.47 fedora:rawhide    : Ok   gcc (GCC) 10.2.1 20201016 (Red Hat 10.2.1-6), clang version 11.0.0 (Fedora 11.0.0-1.fc34)
+  #
 
-No fixes (compared to build v5.4.75)
+Avoid that by ditching that 'initfunc' function pointer with its:
 
+    #define Py_EXPORTED_SYMBOL _attribute_ ((visibility ("default")))
+    #define PyMODINIT_FUNC Py_EXPORTED_SYMBOL PyObject*
 
-Ran 37138 total tests in the following environments and test suites.
+And just call PyImport_AppendInittab() at the end of the ifdef python3
+block with the functions that were being attributed to that initfunc.
 
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- x15
-- x86
-- x86-kasan
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tapas Kundu <tkundu@vmware.com>
+---
+ tools/perf/util/scripting-engines/trace-event-python.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* linux-log-parser
-* perf
-* network-basic-tests
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-tracing-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+diff --git a/tools/perf/util/scripting-engines/trace-event-python.c b/tools/perf/util/scripting-engines/trace-event-python.c
+index 93c03b39c..3b02c3f1b 100644
+--- a/tools/perf/util/scripting-engines/trace-event-python.c
++++ b/tools/perf/util/scripting-engines/trace-event-python.c
+@@ -1587,7 +1587,6 @@ static void _free_command_line(wchar_t **command_line, int num)
+ static int python_start_script(const char *script, int argc, const char **argv)
+ {
+ 	struct tables *tables = &tables_global;
+-	PyMODINIT_FUNC (*initfunc)(void);
+ #if PY_MAJOR_VERSION < 3
+ 	const char **command_line;
+ #else
+@@ -1602,20 +1601,18 @@ static int python_start_script(const char *script, int argc, const char **argv)
+ 	FILE *fp;
+ 
+ #if PY_MAJOR_VERSION < 3
+-	initfunc = initperf_trace_context;
+ 	command_line = malloc((argc + 1) * sizeof(const char *));
+ 	command_line[0] = script;
+ 	for (i = 1; i < argc + 1; i++)
+ 		command_line[i] = argv[i - 1];
++	PyImport_AppendInittab(name, initperf_trace_context);
+ #else
+-	initfunc = PyInit_perf_trace_context;
+ 	command_line = malloc((argc + 1) * sizeof(wchar_t *));
+ 	command_line[0] = Py_DecodeLocale(script, NULL);
+ 	for (i = 1; i < argc + 1; i++)
+ 		command_line[i] = Py_DecodeLocale(argv[i - 1], NULL);
++	PyImport_AppendInittab(name, PyInit_perf_trace_context);
+ #endif
+-
+-	PyImport_AppendInittab(name, initfunc);
+ 	Py_Initialize();
+ 
+ #if PY_MAJOR_VERSION < 3
+-- 
+2.23.0
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
