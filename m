@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECEFC2AF5D4
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3F62AF5D3
 	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 17:09:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726337AbgKKQJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726740AbgKKQJw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Nov 2020 11:09:52 -0500
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:33724 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726900AbgKKQJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 11:09:49 -0500
-Received: by mail-qk1-f196.google.com with SMTP id l2so2166807qkf.0;
-        Wed, 11 Nov 2020 08:09:48 -0800 (PST)
+Received: from mail-qv1-f67.google.com ([209.85.219.67]:33036 "EHLO
+        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726973AbgKKQJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 11:09:50 -0500
+Received: by mail-qv1-f67.google.com with SMTP id ec16so1144745qvb.0;
+        Wed, 11 Nov 2020 08:09:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=rhNBtKMLkmOYknLswvSNLsfkudWIW4FsRnAgJTp7U74=;
-        b=poT5Jn4Z0hBZuSqufkTl2E9ZxpGdb3aUdpI8dcFJY3PbdAmeSwCjg0Ec3Rjrud/znT
-         YfKPNZAI4OZkzM15eG5C9KUk9SwcMXqPpCX3lMg3O9Z31lpzUbIdXQAWuHEQMYkjuV/W
-         MTDx4UppXgyceFgvqQiUJDcXc+7cgZPsaoaWtz5GbC381qvw3oh0+iYp4A18/7NfJonb
-         Y2+TczkVcXnseh3OeNf+x/sIqwf1VBMMwQ2p70l61MphO/blBPdmGgALjGri7DPU7TcC
-         UAeXrfx+QvjR8Lem92SIX3Wa5VoMa45obyE/5ZWpb88S3ONpEN7LCl/s/ytet4QkWScD
-         n3AA==
-X-Gm-Message-State: AOAM531xWcZ9YXHBhNYpms+Qc5BXaLH0muYASPMZw9aBGjWyOom35ZGM
-        7Yig+pDQHfYFofUouC/tYf0=
-X-Google-Smtp-Source: ABdhPJwr5mXYJK+f5TRoYXyj5Heq2ajny374eU6X7pxmw3MmsGsLx//k42HI1QaDIaCxeUWR4VEk+A==
-X-Received: by 2002:a05:620a:80d:: with SMTP id s13mr2278856qks.133.1605110987976;
-        Wed, 11 Nov 2020 08:09:47 -0800 (PST)
+        bh=YEt4hO6ja7OgZNFgw4N5lZTUfdc+bwEp6rbyTVEdUZw=;
+        b=Im3GgbfWgXQ0+dAodGYY8JHAdgrROhBXOee4FPw9rInQB18wV2N1MzFOjz22POZTWx
+         QP7ItLbvTDYSmeh+FA0KcaY52dc376aQzgxO9SgL0lqfdIbv69nOCa48AZvgXPL5zmSO
+         mheLTwAGpVad8NtfF+pH4YcMXlmH0/4O9Ci6xSISzbDjNWO+OTpjNsWGcrZcHbdte6nq
+         czzsanqKxh4Zz1aEu6BlssZpt4kc3cPhJ45iis4bXN4isKfiQbF/j4ZmYAJhdIVDkHFI
+         af3cIpRCDMP23rXomy3Oog31ey0ab7E7+wmhQ2PYszK0ZnKn5MCk6ky18VyMjPfsB+xK
+         v3Uw==
+X-Gm-Message-State: AOAM530rggfYmbgZwYTK5/QRBozD1l+m4CzUgeOnrONmtkGNh/HoqN/r
+        jg7uBYd0BcpyzsyCAxJz0VQ=
+X-Google-Smtp-Source: ABdhPJynYiXd9K1JbtY/Kyb7JCB+at0iNsCRqhrm+BWcxCW7MosehRp2DccHFlVjCCFDxvJdfskseQ==
+X-Received: by 2002:a0c:9e6b:: with SMTP id z43mr25223536qve.51.1605110989321;
+        Wed, 11 Nov 2020 08:09:49 -0800 (PST)
 Received: from rani.riverdale.lan ([2001:470:1f07:5f3::b55f])
-        by smtp.gmail.com with ESMTPSA id d82sm2459710qkc.14.2020.11.11.08.09.46
+        by smtp.gmail.com with ESMTPSA id d82sm2459710qkc.14.2020.11.11.08.09.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 08:09:47 -0800 (PST)
+        Wed, 11 Nov 2020 08:09:48 -0800 (PST)
 From:   Arvind Sankar <nivedita@alum.mit.edu>
 To:     Tom Lendacky <thomas.lendacky@amd.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
@@ -40,62 +40,41 @@ To:     Tom Lendacky <thomas.lendacky@amd.com>,
         Peter Zijlstra <peterz@infradead.org>
 Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] x86/mm/sme: Fix definition of PMD_FLAGS_DEC_WP
-Date:   Wed, 11 Nov 2020 11:09:45 -0500
-Message-Id: <20201111160946.147341-1-nivedita@alum.mit.edu>
+Subject: [PATCH 2/2] x86/mm: Remove duplicate definition of _PAGE_PAT_LARGE
+Date:   Wed, 11 Nov 2020 11:09:46 -0500
+Message-Id: <20201111160946.147341-2-nivedita@alum.mit.edu>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <13073a85-24c1-6efa-578b-54218d21f49d@amd.com>
+In-Reply-To: <20201111160946.147341-1-nivedita@alum.mit.edu>
 References: <13073a85-24c1-6efa-578b-54218d21f49d@amd.com>
+ <20201111160946.147341-1-nivedita@alum.mit.edu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PAT bit is in different locations for 4k and 2M/1G page table
-entries.
-
-Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
-caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
-and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
-index for write-protected pages.
+_PAGE_PAT_LARGE is already defined next to _PAGE_PAT. Remove the
+duplicate.
 
 Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 4efb56649132 ("x86/mm: Tabulate the page table encoding definitions")
 ---
- arch/x86/include/asm/pgtable_types.h | 1 +
- arch/x86/mm/mem_encrypt_identity.c   | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/pgtable_types.h | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-index 816b31c68550..394757ee030a 100644
+index 394757ee030a..f24d7ef8fffa 100644
 --- a/arch/x86/include/asm/pgtable_types.h
 +++ b/arch/x86/include/asm/pgtable_types.h
-@@ -155,6 +155,7 @@ enum page_cache_mode {
- #define _PAGE_ENC		(_AT(pteval_t, sme_me_mask))
+@@ -177,8 +177,6 @@ enum page_cache_mode {
+ #define __pgprot(x)		((pgprot_t) { (x) } )
+ #define __pg(x)			__pgprot(x)
  
- #define _PAGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)
-+#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
- 
- #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
- #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index 733b983f3a89..6c5eb6f3f14f 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -45,8 +45,8 @@
- #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
- 
- #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
--#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
--				 (_PAGE_PAT | _PAGE_PWT))
-+#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
-+				 (_PAGE_PAT_LARGE | _PAGE_PWT))
- 
- #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
- 
+-#define _PAGE_PAT_LARGE		(_AT(pteval_t, 1) << _PAGE_BIT_PAT_LARGE)
+-
+ #define PAGE_NONE	     __pg(   0|   0|   0|___A|   0|   0|   0|___G)
+ #define PAGE_SHARED	     __pg(__PP|__RW|_USR|___A|__NX|   0|   0|   0)
+ #define PAGE_SHARED_EXEC     __pg(__PP|__RW|_USR|___A|   0|   0|   0|   0)
 -- 
 2.26.2
 
