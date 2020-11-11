@@ -2,127 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D5E2AF6E3
-	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 17:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FFF92AF9CD
+	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 21:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbgKKQtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Nov 2020 11:49:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56240 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726220AbgKKQtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 11:49:07 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA40C0613D1
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 08:49:07 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id f21so1263554plr.5
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 08:49:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/SaXOC7DK61IGgNBsantAZt343HGPDH15vNI/YpMeGM=;
-        b=eA3XQIIibtKOFkAuc0dio6TT2mkk6WWqLbNUc/nrelDD6OOEALwUgmqm0buKXH176F
-         D4t9/w28GacUBDDzOLKQro0I/RNym8R5qSmUbH+h/QyoROvpkiFWvQtWRt+QvdmaPRc/
-         w8n1xQQUK5l2Tt4McZrVTQyFAT3M5blobda223cVk70ck257TEDdhY+wVvstMPWlmCWq
-         8SdZfipnZtEvSf86PqsqBHnzy8d/J2H2LLytqWjlRhgfRxJHo4JRfaK9wsMXvksOU8VA
-         kAKA1KWKX2CvcL1AwCliOpAEzsu/y6F7bkpCv9xT+Vi8WMINEioxDbmjFtDUcKXSRr0+
-         38DA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/SaXOC7DK61IGgNBsantAZt343HGPDH15vNI/YpMeGM=;
-        b=Yu24T3i998vAKE1QqtJnYCV63aYOWpKXjhsoeblYXecJxwgVg0obwc8BGdT8D/cdbz
-         3ZoAVeNela9IDzXJ9cNdLQU4UAZiX91IZT72z41+BGENKKizdTGhUgmQFfTQF8iwI2lj
-         eSsZlMxrGsXHCZRMmUnVY/U+INlJgPWhxp1kwuMp+OOXvO27OKf7gRXXegZ3QOexZJxr
-         RoglBc24oFux2VjxfnEHiIafEZ1me9IaZgEvRtdHEQKO2jIr7w9Sc1bpylBVilEyCsz+
-         IzP5wZx2XSYENu1URz/WrXvaCLGQEQZaKmFLD3ObtJbDatRxT2Qh9Gmz0IcmJGlsH1Wa
-         mJ1w==
-X-Gm-Message-State: AOAM530qll/J8YupUXadpFxdQ25bNjIl+b88Hjbn75X8PqpwZXwfs3M1
-        uv0U2qFswgPFEUTC0FFfKSiMOod9si9EKw==
-X-Google-Smtp-Source: ABdhPJzR1raiQeafefb/QzqE11uBeLcNYuFZDRBhRozKM3r1PZ0e1v51rHaPeaTNVI6OkfyVUY5MGA==
-X-Received: by 2002:a17:90a:5d17:: with SMTP id s23mr4694308pji.103.1605113346809;
-        Wed, 11 Nov 2020 08:49:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h5sm3498463pfk.126.2020.11.11.08.49.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 08:49:05 -0800 (PST)
-Message-ID: <5fac1601.1c69fb81.b81f3.758b@mx.google.com>
-Date:   Wed, 11 Nov 2020 08:49:05 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726359AbgKKUcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Nov 2020 15:32:00 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:12148 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725860AbgKKUb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 15:31:59 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5fac4a390000>; Wed, 11 Nov 2020 12:31:54 -0800
+Received: from [10.26.72.124] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Nov
+ 2020 20:31:56 +0000
+Subject: Re: [PATCH] ARM: tegra: Populate OPP table for Tegra20 Ventana
+To:     Dmitry Osipenko <digetx@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20201111103847.152721-1-jonathanh@nvidia.com>
+ <7e40cd3e-7c34-c9a9-bf00-ba7d507a2d6b@gmail.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5409bbb4-d3f9-ccc9-ac3e-6344975bd58e@nvidia.com>
+Date:   Wed, 11 Nov 2020 20:31:54 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <7e40cd3e-7c34-c9a9-bf00-ba7d507a2d6b@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.206-20-g98b642d9cf4e
-Subject: stable-rc/queue/4.14 baseline: 157 runs,
- 1 regressions (v4.14.206-20-g98b642d9cf4e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1605126714; bh=9ANYYF/RxveGkqEmqPgH2v4yk5gp3dxoJ5KwqVgeNXk=;
+        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
+         MIME-Version:In-Reply-To:Content-Type:Content-Language:
+         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+        b=QRdEF8pyuNFSyj2A/dP5cEdifzrb47G+YbmVyV9ebe3BPshIkrNQ8q/QMbJk/Bjs/
+         7ye0VNn8nwekRC6yCNvm/Ts7VlJSfHQ/prp/CVZzgiAvDfnw/qonBCe652kVFw5xuD
+         xFMXCBmtAApNt+RDL45VBoEiOk/sW0gD9sSsRou1B3I3/c4jOJQo1uyvcIgiHzTYr6
+         5nOE6PjtSSKYECrL1a0GfVqwx8Rymfi/AsB2g0JaPcIVuu8fBs4F7aWvG5eAAZwFmk
+         xbGXV4+YkDh9o2XlzF7tOQIxPZ1U8ogcURs4NdwOarQjLi0UenVuRnCmmNmbZaZKQs
+         2ILS1OgganO5g==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 157 runs, 1 regressions (v4.14.206-20-g98b64=
-2d9cf4e)
 
-Regressions Summary
--------------------
+On 11/11/2020 13:47, Dmitry Osipenko wrote:
+> 11.11.2020 13:38, Jon Hunter =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>> Commit 9ce274630495 ("cpufreq: tegra20: Use generic cpufreq-dt driver
+>> (Tegra30 supported now)") update the Tegra20 CPUFREQ driver to use the
+>> generic CPUFREQ device-tree driver. Since this change CPUFREQ support
+>> on the Tegra20 Ventana platform has been broken because the necessary
+>> device-tree nodes with the operating point information are not populated
+>> for this platform. Fix this by updating device-tree for Venata to
+>> include the operating point informration for Tegra20.
+>>
+>> Fixes: 9ce274630495 ("cpufreq: tegra20: Use generic cpufreq-dt driver (T=
+egra30 supported now)")
+>> Cc: stable@vger.kernel.org
+>>
+>> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+>> ---
+>>  arch/arm/boot/dts/tegra20-ventana.dts | 11 +++++++++++
+>>  1 file changed, 11 insertions(+)
+>>
+>> diff --git a/arch/arm/boot/dts/tegra20-ventana.dts b/arch/arm/boot/dts/t=
+egra20-ventana.dts
+>> index b158771ac0b7..055334ae3d28 100644
+>> --- a/arch/arm/boot/dts/tegra20-ventana.dts
+>> +++ b/arch/arm/boot/dts/tegra20-ventana.dts
+>> @@ -3,6 +3,7 @@
+>> =20
+>>  #include <dt-bindings/input/input.h>
+>>  #include "tegra20.dtsi"
+>> +#include "tegra20-cpu-opp.dtsi"
+>> =20
+>>  / {
+>>  	model =3D "NVIDIA Tegra20 Ventana evaluation board";
+>> @@ -592,6 +593,16 @@ clk32k_in: clock@0 {
+>>  		#clock-cells =3D <0>;
+>>  	};
+>> =20
+>> +	cpus {
+>> +		cpu0: cpu@0 {
+>> +			operating-points-v2 =3D <&cpu0_opp_table>;
+>> +		};
+>> +
+>> +		cpu@1 {
+>> +			operating-points-v2 =3D <&cpu0_opp_table>;
+>> +		};
+>> +	};
+>> +
+>>  	gpio-keys {
+>>  		compatible =3D "gpio-keys";
+>> =20
+>>
+>=20
+> This could be wrong to do because CPU voltage is fixed to 1000mV in
+> Ventana's DT, are you sure that higher clock rates don't require higher
+> voltages? What is the CPU process ID and SoC speedo ID on Ventana?
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
+I see this in the bootlog ...
 
+[    2.797684] tegra20-cpufreq tegra20-cpufreq: hardware version 0x2 0x2
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.206-20-g98b642d9cf4e/plan/baseline/
+> You could easily hook up CPU voltage scaling, please see acer-500 DT and
+> patch [1] for examples of how to set up regulators in DT. But then it
+> shouldn't be a stable patch.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.206-20-g98b642d9cf4e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      98b642d9cf4e13c13379dab63140236a663c3807 =
+According to the Ventana design guide the CPU voltage range is 0.8-1.0V
+and so it appears to be set to the max. The CPUFREQ test is reporting
+the following ...
 
+cpu: cpufreq: - CPU#0:
+cpu: cpufreq:   - supported governors:
+cpu: cpufreq:     - ondemand *
+cpu: cpufreq:     - performance
+cpu: cpufreq:     - schedutil
+cpu: cpufreq:   - supported rates:
+cpu: cpufreq:     -  216000
+cpu: cpufreq:     -  312000
+cpu: cpufreq:     -  456000
+cpu: cpufreq:     -  608000
+cpu: cpufreq:     -  760000
+cpu: cpufreq:     -  816000
+cpu: cpufreq:     -  912000
+cpu: cpufreq:     - 1000000 *
+cpu: cpufreq: - CPU#1:
+cpu: cpufreq:   - supported governors:
+cpu: cpufreq:     - ondemand *
+cpu: cpufreq:     - performance
+cpu: cpufreq:     - schedutil
+cpu: cpufreq:   - supported rates:
+cpu: cpufreq:     -  216000
+cpu: cpufreq:     -  312000
+cpu: cpufreq:     -  456000
+cpu: cpufreq:     -  608000
+cpu: cpufreq:     -  760000
+cpu: cpufreq:     -  816000
+cpu: cpufreq:     -  912000
+cpu: cpufreq:     - 1000000 *
 
+Cheers
+Jon
 
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fabe3ebde4fbc715edb885e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.206=
--20-g98b642d9cf4e/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.206=
--20-g98b642d9cf4e/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fabe3ebde4fbc715edb8=
-85f
-        new failure (last pass: v4.14.206-20-gbe781f4237897) =
-
- =20
+--=20
+nvpublic
