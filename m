@@ -2,356 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D652AEF23
-	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 12:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1712AF04B
+	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 13:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726041AbgKKLHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Nov 2020 06:07:04 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:25979 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725895AbgKKLHD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 06:07:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605092821;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iVnXw9NKMlrCMiMTBx8PJ3UXJxo+Sq58EPykDltfrgU=;
-        b=SEtpHnXA+vHnl8opNoqZafV8ZoXGBnfeGJb84FddZELlHS6Z3zWMdTUGMZnQMLZuxS98wb
-        UWYneBjnzueW6itkcDLTmX3FVNTHh6nLo5rmxBrL5YdNGLj8Idk/CdRcA1Nndp5NBX22/i
-        rRV0wvMHPMkR6CpWjDlPaQHTZkYpu0Q=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-574-5d2I7321NDepcv1A9X_1Lg-1; Wed, 11 Nov 2020 06:06:59 -0500
-X-MC-Unique: 5d2I7321NDepcv1A9X_1Lg-1
-Received: by mail-ej1-f72.google.com with SMTP id f21so573872ejf.11
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 03:06:59 -0800 (PST)
+        id S1726465AbgKKMLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Nov 2020 07:11:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726438AbgKKMJc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 07:09:32 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD088C0613D4
+        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 04:09:26 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id b6so2310955wrt.4
+        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 04:09:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=S+gK0Xl/kaPUtLz/mf9vHaRiwpygR3eSp1X7mGoA3U4=;
+        b=fah+hb1Jbmt3i8zfiI/VxYXoQiA2JL0AYL2WCkZppd/qG/IaTMncc/Wcjvol06naqi
+         dj5HeKMc3/7zxzq1QKrD8b33hUW9hiW9rEhaSSkNienHHpR4G8tUHS3BG5QwTKLJ2GCw
+         FK1PMdAsWE0S4yWZ+Dkc7Wf1P4GBMmV2vzJZE+r0lp76hRDmxiXVTvzExiMifNoJrsbQ
+         OtS8jrfEEYNjFMLn2e9Ktb8srrexP/CeQ76YAPMsKmRJjxd35VWx2DDAiG5VxzAiZQ6f
+         CcENp6CcSRtXRIo1/D33IABWCkCxvC1L5hNtbQuTq6g1GXHoLxqLXECWLsE46vj4+R5a
+         d3pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=iVnXw9NKMlrCMiMTBx8PJ3UXJxo+Sq58EPykDltfrgU=;
-        b=Nr/2kdU49LlQ37Z7OSFKDJG1Jz78zVANyMijQYxY0jnUM9r6NB9PJxI75OdRPzZYSk
-         +nhqUxphdvWWhFKx88s4d/INrqRildO/42xiazjHKwcrhD3fMwVlkaiU7jIW3vxvP+ml
-         7+zWFepJ/8lrfGpdamf2G9UVjQ4tG8vmI+Rc0ZJLRskJ4oYWumJ16VHu4CHSGx1auMKN
-         8Qp/OaLp/J1VNPTZIU35aB9LotuL/+iPAmmT4iuNkn2tQSnSpVKB5cPePdCXZkzKCnwp
-         pHD7SJy+vtaTaqy5J+KV3yo69G+Ag/nLwAKNdrGSOaG4DbYa0vcH/QRL/kSAnbOVoR9v
-         cK4w==
-X-Gm-Message-State: AOAM532/AdsRrAxr+Z3bBSErADxsc/L6kNIs5A7R+KP++bn4tr/Clafe
-        ZScALkJWJxOe8rs2I4Wn4BQTUYmEWUx0eeV35TQoWy1KIrPhUjXLzsB+JzzJlJyGjvcl1Nc6AmY
-        vCnby7zjIEu40o1qTF7JK5waRXXt8KowOmZ28r2ojPXRFYgjcqPLCsg52lQZQU/2ZP4AO
-X-Received: by 2002:a17:906:1643:: with SMTP id n3mr24314344ejd.459.1605092817596;
-        Wed, 11 Nov 2020 03:06:57 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwttXjLEOldKQg8BwCTEy1TDXLehOP5hiBwWzEw90TT2jWoJe70rSF76DIVTLs487h4oMJPcA==
-X-Received: by 2002:a17:906:1643:: with SMTP id n3mr24314306ejd.459.1605092817180;
-        Wed, 11 Nov 2020 03:06:57 -0800 (PST)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-6c10-fbf3-14c4-884c.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:6c10:fbf3:14c4:884c])
-        by smtp.gmail.com with ESMTPSA id p7sm725595ejy.17.2020.11.11.03.06.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2020 03:06:56 -0800 (PST)
-Subject: Re: [PATCH 1/3] HID: logitech-dj: Handle quad/bluetooth keyboards
- with a builtin trackpad
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>
-References: <20201102133658.4410-1-hdegoede@redhat.com>
- <e3817ab8-906e-cb98-91db-ffb4cc821788@redhat.com>
- <ab1788a1-1f23-45bd-72e8-fadcea82514f@redhat.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <07280208-7a52-954e-4795-9022fe498294@redhat.com>
-Date:   Wed, 11 Nov 2020 12:06:55 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=S+gK0Xl/kaPUtLz/mf9vHaRiwpygR3eSp1X7mGoA3U4=;
+        b=EZcAFYb+9BjK22sXL/S7R7XIo3eDUY/fC/Ff9Z2rKjRjnHqlXAiu5wJGVy1IkNkefz
+         pcG+n7WK9sEKiAl8b0xlPxX55YOZOg2UOwDZDy7fVyp9Z8dTD9vk7/b8I8kAcoc1sWq1
+         CYE4I/s5LIy8Y7acu7lKPqbFDy/Cz2+RnvJEQ5E2JgL9aaD3HJ7LX3gXyWu/6D0EPHO0
+         fDUfPHjtfzS1j2Jgrjcy0rCOyffjl37jhezDtHxjuUAY20KB5wVtuocqKo41PsyZsjtQ
+         3ljIJxM3R0Cg5td4FMK6deaRA2Ld/VReN/5L96CLm7qHLWd38spgSTkF/ktDIL8dRPEJ
+         URKg==
+X-Gm-Message-State: AOAM5325+2LQtsY5J7XKNMbe14QpmsO6zSrZQRc4HxGF34/ynPuofjqq
+        Bh+MFJgBPKtHV1etrQIPA0slPLDeSgFeAVsccISxToA/JwRTGQ==
+X-Google-Smtp-Source: ABdhPJxyHrfCCTSCLD/6swjKdsyJ6PaUcQqRBw6uXBsCEVU4FzdHtyIZJENh3T3tzf2LOgVHUB0o2DRKV/3K56G6+wA=
+X-Received: by 2002:adf:f6cd:: with SMTP id y13mr9747436wrp.363.1605096564732;
+ Wed, 11 Nov 2020 04:09:24 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <ab1788a1-1f23-45bd-72e8-fadcea82514f@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+From:   "Anand K. Mistry" <amistry@google.com>
+Date:   Wed, 11 Nov 2020 23:09:13 +1100
+Message-ID: <CAATStaPeE+SEXGNU0kcrsNgqRZgg6+9j1fw5KqLPUoCGjUP=qQ@mail.gmail.com>
+Subject: Requesting stable merge for commit 1978b3a53a74e3230cd46932b149c6e62e832e9a
+To:     stable@vger.kernel.org
+Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@alien8.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-On 11/10/20 7:29 PM, Benjamin Tissoires wrote:
-> Hi Hans,
-> 
-> On Tue, Nov 10, 2020 at 2:17 PM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Hi All,
->>
->> On 11/2/20 2:36 PM, Hans de Goede wrote:
->> > Some quad/bluetooth keyboards, such as the Dinovo Edge (Y-RAY81) have a
->> > builtin touchpad. In this case when asking the receiver for paired devices,
->> > we get only 1 paired device with a device_type of REPORT_TYPE_KEYBOARD.
->> >
->> > This means that we do not instantiate a second dj_hiddev for the mouse
->> > (as we normally would) and thus there is no place for us to forward the
->> > mouse input reports to, causing the touchpad part of the keyboard to not
->> > work.
->> >
->> > There is no way for us to detect these keyboards, so this commit adds
->> > an array with device-ids for such keyboards and when a keyboard is on
->> > this list it adds STD_MOUSE to the reports_supported bitmap for the
->> > dj_hiddev created for the keyboard fixing the touchpad not working.
->> >
->> > Using a list of device-ids for this is not ideal, but there are only
->> > very few such keyboards so this should be fine. Besides the Dinovo Edge,
->> > other known wireless Logitech keyboards with a builtin touchpad are:
->> >
->> > * Dinovo Mini (TODO add its device-id to the list)
->> > * K400 (uses a unifying receiver so is not affected)
->> > * K600 (uses a unifying receiver so is not affected)
->> >
->> > Cc: stable@vger.kernel.org
->> > BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1811424
->> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>
->> ping? This is a bug fix for a regression caused by:
-> 
-> Series looks good. I tried to enable the Dinovo Mini this afternoon (see
-> patch below), but it's not that clean and easy...
-> 
->>
->> Commit f2113c3020ef ("HID: logitech-dj: add support for Logitech Bluetooth Mini-Receiver")
->>
->> Specifically that commit caused the builtin touchpad to stop working on Logitech Dinovo
->> Edge keyboards and this fixes this.
->>
->> I realize now that I forgot to add a:
->>
->> Fixes: f2113c3020ef ("HID: logitech-dj: add support for Logitech Bluetooth Mini-Receiver")
->>
->> Tag, let me know if you want a v2 for that.
-> 
-> I guess you want the tag on all 3 patches, not just the first.
+I'm requesting a stable merge for commit
+1978b3a53a74e3230cd46932b149c6e62e832e9a
+("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with
+always-on STIBP")
+into the stable branch for 5.4. Note, the commit is already queued for
+inclusion into the next 5.9 stable release
+(https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.9/x86-speculation-allow-ibpb-to-be-conditionally-enabl.patch).
 
-Patch 2 and 3 do not fix a regression:
-
-Patch 2 enables extra functionality (non working A-D and phone keys)
-Patch 3 fixes there being 2 batteries under /sys/class/power when the kbd
-is in bluetooth mode, this problem is introduced by patch 2.
-
-I think that taking patch 2/3 for 5.10-rc# is fine, but they don't really
-fix anything related to commit f2113c3020ef. If anything patch 3 should have
-a fixes tag for the final commit hash of patch 2 (or maybe just squash them?)
-
-Note not taking patch 2/3 for 5.10-rc# is fine too.
-
-> If so, I can try to push it later today or tomorrow.
-
-Sounds good, thank you.
-
->> Regardless since this is a bug fix, it would be good if we can get this
->> merged into one of the upcoming 5.10-rc#s. Even without the Dinovo Mini
->> id added this is still worthwhile to get the reported regression fixed
->> and we can add the Dinovo Mini id later.
-> 
-> Yeah, the Dinovo Mini will come later.
-> 
-> My current WIP is the following:
-
-Oh interesting, and good timing, let me explain:
-
-I bought a 2nd hand Dinovo Edge to debug the reported regression (*), but
-that came without a receiver. So I paired it with the MX5000 receiver which
-I already had (and which has the same USB-ids as the reporters receiver)
-and that works fine with this patch.
-
-But I did want to have a complete set, so I found some US store on amazon
-selling spare Dinovo Edge dongles and shipping them to Europe in a letter
-(so no crazy shipping costs). That dongle arrived yesterday and I did a
-quick test run. It has usb-ids of c713 for the keyboard usb-device and
-c714 for the mouse usb-device (the dongle has a builtin hub and presents
-2 separate usb devices, like the MX5000 / MX5500 dongles).
-
-So I added these ids to hid-logitech-dj.c (and dropped one of them from hid-lg.c)
-after that the mousepad on the Dinovo Edge however stopped working again
-when paired with this dongle. So I already guessed that the mouse descriptor
-would be different, but I did not get around to actually checking this.
-
-Note this has an important implication for your patch, you assume the mouse-report
-changes based on the paired device. But that is not the case it is simple that
-some (newer? at least a somewhat higher usb-dev-id) quad/bt2.0 combo dongles
-have a different mouse report.
-
-At least with the Dinovo Edge the mouse report changes when it is paired with
-a different dongle, so it is the dongle which determines the mouse report, not
-the paired device.
-
-So we need a "recvr_type_bluetooth_v2" and then this new report can just be added
-to the big:
-
-                if (djdev->dj_receiver_dev->type == recvr_type_gaming_hidpp ||
-                    djdev->dj_receiver_dev->type == recvr_type_mouse_only)
-                        rdcat(rdesc, &rsize, mse_high_res_descriptor,
-                              sizeof(mse_high_res_descriptor));
-                else if (djdev->dj_receiver_dev->type == recvr_type_27mhz)
-                        rdcat(rdesc, &rsize, mse_27mhz_descriptor,
-                              sizeof(mse_27mhz_descriptor));
-                else if (djdev->dj_receiver_dev->type == recvr_type_bluetooth)
-                        rdcat(rdesc, &rsize, mse_bluetooth_descriptor,
-                              sizeof(mse_bluetooth_descriptor));
-                else
-                        rdcat(rdesc, &rsize, mse_descriptor,
-                              sizeof(mse_descriptor));
-
-block.
-
-Hmm, I also see that the new descriptor has a report-id of 5, so it looks like
-we do need the BT_MOUSE thing, but then set it based on the receiver usb-id instead?
-
-Do the original HID descriptors of the receiver perhaps have both a report 2 and
-a report 5 and we should add both ?
-
-Note I also see that you add a separate id-array for the dinovo-mini because
-of this given my experience that the behavior changes based on the used
-receiver, I don't think that is necessary. Instead we need to add or not
-add the BT_MOUSE bit to the keyboards reports_supported based on the
-receiver-type (I think).
-
-Anyways this definitely needs some more work, so as you said lets move
-forward with the fix for the MX5000 receiver usb-ids as is.
-
-Although adding the dinovo-mini device-id to the kbd_builtin_touchpad_ids[]
-in case it gets paired with sat the MX5000 receiver probably cannot hurt.
-
-Regards,
-
-Hans
+The patch fixes an issue where a Spectre-v2-user mitigation could not
+be enabled via prctl() on certain AMD CPUs. The issue was introduced
+in commit 21998a351512eba4ed5969006f0c55882d995ada
+("x86/speculation: Avoid force-disabling IBPB based on STIBP and
+enhanced IBRS.")
+which was merged into the 5.4 stable branch as commit
+6d60d5462a91eb46fb88b016508edfa8ee0bc7c8. This commit also exists in
+4.19, 4.14, 4.9, and 4.4, so those kernels are also likely affected by
+this bug.
 
 
-
-
-*) and I'm glad I did I don't think I would have enjoyed debugging this remotely
-
-
-
-
-> ---
-> 
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 1cafb65428b0..1c7857bf3290 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -84,6 +84,7 @@
->  #define STD_MOUSE                BIT(2)
->  #define MULTIMEDIA                BIT(3)
->  #define POWER_KEYS                BIT(4)
-> +#define BT_MOUSE                BIT(5)
->  #define MEDIA_CENTER                BIT(8)
->  #define KBD_LEDS                BIT(14)
->  /* Fake (bitnr > NUMBER_OF_HID_REPORTS) bit to track HID++ capability */
-> @@ -333,6 +334,47 @@ static const char mse_bluetooth_descriptor[] = {
->      0xC0,            /*  END_COLLECTION                      */
->  };
->  
-> +/* Mouse descriptor (5) for Bluetooth receiver, low-res hwheel, 8 buttons */
-> +static const char mse5_bluetooth_descriptor[] = {
-> +    0x05, 0x01,        /*  USAGE_PAGE (Generic Desktop)        */
-> +    0x09, 0x02,        /*  Usage (Mouse)                       */
-> +    0xa1, 0x01,        /*  Collection (Application)            */
-> +    0x85, 0x05,        /*   Report ID (5)                      */
-> +    0x09, 0x01,        /*   Usage (Pointer)                    */
-> +    0xa1, 0x00,        /*   Collection (Physical)              */
-> +    0x05, 0x09,        /*    Usage Page (Button)               */
-> +    0x19, 0x01,        /*    Usage Minimum (1)                 */
-> +    0x29, 0x08,        /*    Usage Maximum (8)                 */
-> +    0x15, 0x00,        /*    Logical Minimum (0)               */
-> +    0x25, 0x01,        /*    Logical Maximum (1)               */
-> +    0x95, 0x08,        /*    Report Count (8)                  */
-> +    0x75, 0x01,        /*    Report Size (1)                   */
-> +    0x81, 0x02,        /*    Input (Data,Var,Abs)              */
-> +    0x05, 0x01,        /*    Usage Page (Generic Desktop)      */
-> +    0x16, 0x01, 0xf8,    /*    Logical Minimum (-2047)           */
-> +    0x26, 0xff, 0x07,    /*    Logical Maximum (2047)            */
-> +    0x75, 0x0c,        /*    Report Size (12)                  */
-> +    0x95, 0x02,        /*    Report Count (2)                  */
-> +    0x09, 0x30,        /*    Usage (X)                         */
-> +    0x09, 0x31,        /*    Usage (Y)                         */
-> +    0x81, 0x06,        /*    Input (Data,Var,Rel)              */
-> +    0x15, 0x81,        /*    Logical Minimum (-127)            */
-> +    0x25, 0x7f,        /*    Logical Maximum (127)             */
-> +    0x75, 0x08,        /*    Report Size (8)                   */
-> +    0x95, 0x01,        /*    Report Count (1)                  */
-> +    0x09, 0x38,        /*    Usage (Wheel)                     */
-> +    0x81, 0x06,        /*    Input (Data,Var,Rel)              */
-> +    0x05, 0x0c,        /*    Usage Page (Consumer Devices)     */
-> +    0x0a, 0x38, 0x02,    /*    Usage (AC Pan)                    */
-> +    0x15, 0x81,        /*    Logical Minimum (-127)            */
-> +    0x25, 0x7f,        /*    Logical Maximum (127)             */
-> +    0x75, 0x08,        /*    Report Size (8)                   */
-> +    0x95, 0x01,        /*    Report Count (1)                  */
-> +    0x81, 0x06,        /*    Input (Data,Var,Rel)              */
-> +    0xc0,            /*   End Collection                     */
-> +    0xc0,            /*  End Collection                      */
-> +};
-> +
->  /* Gaming Mouse descriptor (2) */
->  static const char mse_high_res_descriptor[] = {
->      0x05, 0x01,        /*  USAGE_PAGE (Generic Desktop)        */
-> @@ -877,6 +919,10 @@ static const u16 kbd_builtin_touchpad_ids[] = {
->      0xb309, /* Dinovo Edge */
->  };
->  
-> +static const u16 kbd_builtin_touchpad5_ids[] = {
-> +    0xb30c, /* Dinovo Mini */
-> +};
-> +
->  static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
->                          struct hidpp_event *hidpp_report,
->                          struct dj_workitem *workitem)
-> @@ -901,6 +947,12 @@ static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
->                  break;
->              }
->          }
-> +        for (i = 0; i < ARRAY_SIZE(kbd_builtin_touchpad5_ids); i++) {
-> +            if (id == kbd_builtin_touchpad5_ids[i]) {
-> +                workitem->reports_supported |= BT_MOUSE;
-> +                break;
-> +            }
-> +        }
->          break;
->      case REPORT_TYPE_MOUSE:
->          workitem->reports_supported |= STD_MOUSE | HIDPP;
-> @@ -1368,6 +1420,13 @@ static int logi_dj_ll_parse(struct hid_device *hid)
->                    sizeof(mse_descriptor));
->      }
->  
-> +    if (djdev->reports_supported & BT_MOUSE) {
-> +        dbg_hid("%s: sending a mouse descriptor, reports_supported: %llx\n",
-> +            __func__, djdev->reports_supported);
-> +        rdcat(rdesc, &rsize, mse5_bluetooth_descriptor,
-> +              sizeof(mse5_bluetooth_descriptor));
-> +    }
-> +
->      if (djdev->reports_supported & MULTIMEDIA) {
->          dbg_hid("%s: sending a multimedia report descriptor: %llx\n",
->              __func__, djdev->reports_supported);
-> @@ -1907,6 +1966,14 @@ static const struct hid_device_id logi_dj_receivers[] = {
->        HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->          0xc71c),
->       .driver_data = recvr_type_bluetooth},
-> +    { /* Logitech DiNovo Mini HID++ / bluetooth receiver mouse intf. */
-> +      HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> +        0xc71e),
-> +     .driver_data = recvr_type_bluetooth},
-> +    { /* Logitech DiNovo Mini HID++ / bluetooth receiver keyboard intf. */
-> +      HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> +        0xc71f),
-> +     .driver_data = recvr_type_bluetooth},
->      {}
->  };
->  
-> ---
-> 
-> And the keyboard is not sending the proper KEY_MEDIA like with the
-> hid-logitech.ko driver. So this WIP can not go into a stable tree.
-> 
-> Cheers,
-> Benjamin
-> 
-
+-- 
+Anand K. Mistry
+Software Engineer
+Google Australia
