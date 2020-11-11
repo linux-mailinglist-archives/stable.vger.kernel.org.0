@@ -2,128 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8989C2AF280
-	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 14:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F962AF28A
+	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 14:51:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727156AbgKKNsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Nov 2020 08:48:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726854AbgKKNrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 08:47:33 -0500
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D071C0613D1;
-        Wed, 11 Nov 2020 05:47:31 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id v144so3157593lfa.13;
-        Wed, 11 Nov 2020 05:47:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YBHMNmAOhYdHvBHjnStemujfpU3IXRUzuSHXrC3Zax0=;
-        b=ZZQkLQM8NNjkbIRP3s5mXJa/90H1xB+lYkX/FspeQruHDmbVRV32zpRoG5PJB4T5Ji
-         Mb9l+3zYUIWpTm4DQfWkVsVvA8qHcYG3L8t0x88ydanm8ljeX+69uR4szGvVc+fLJBuu
-         dZ0yDkM4q3jgjaStXdPuQIq5unESa/+e8OevoKIA4MCsc4MpPFaxDg94R5y2lABk/dFe
-         pw3JWoTP9f9xXO8JW3le5NeP6K5dvvmdPh6x77yoTaqVxQ053ldLOoQlvlH/PGi16xgn
-         RGlEtHpgKrbgCjfvzmc/cQDOXsoEHTAlSCU9rF2ubcvUKJZgZYcL06GDY3yG0qC+KQyY
-         BqAQ==
+        id S1726854AbgKKNva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Nov 2020 08:51:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:37112 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726977AbgKKNvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 08:51:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605102678;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YJxupq7pI+urri4ZzMajTis99KW81YuqHS8unqtfooI=;
+        b=W7K7Xi6B/kFjdPpzaMVtsiOXcBIEYqyUQE7gXw1O4d4AOIeY+itWhW1oNRrXJuC5zJbM/w
+        2E7CaOIbsFZZftLwSna9hu4h4ztVOcWj/fg+iVWuXv8p0sge9XL8wiPxCzJIpobEk6XLKR
+        G0rsbbYBTm3Kuc5TBq4Y/hCNCwItcfY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-66-rAX7aAfiNd--fnpAHvwWOg-1; Wed, 11 Nov 2020 08:51:15 -0500
+X-MC-Unique: rAX7aAfiNd--fnpAHvwWOg-1
+Received: by mail-wr1-f69.google.com with SMTP id x16so610012wrg.7
+        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 05:51:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=YBHMNmAOhYdHvBHjnStemujfpU3IXRUzuSHXrC3Zax0=;
-        b=MKSUhNBpCUDgOFYRFN3S5dG7LyXZznQZ29tlha3/iSC5TyFPHyvTE1unCxRA575KZ/
-         o4rWDzeEi2FLDQHJtry7tLyJL95pFAlEy/0/IKpNM81Ucj7Z0fDfIcqhIRdrWsEgwFRn
-         SGcYKPT/EAmUBucZpTHPqqlCIIAQL7KKTlGJn2IIfVdxbb6FV/wTwP+99snLLccNKmBV
-         EHm2745m7txfNOc0dzmt9m2dbQqD+QdtDsqU0leQoBrCpharC224Rpc2XRqTajvUVCBH
-         RuSjnW8w1a9lYXflQ/KamHN7Z8C9jBl5b10ObfQA/KbM0Iixl9xHBqpG7uuVb9BzjjmV
-         LAqw==
-X-Gm-Message-State: AOAM531NLWLUpKrzAioB6ulEbtXHLATMFF30Q08Hd4C/IYBrGwG1uS5H
-        Y4+Hs/doHyxGsx4lkQNHVlEioZcBtis=
-X-Google-Smtp-Source: ABdhPJz1/b/zPAQ3KPPZ/x+HTmaWiJjAvrsEWiPZes7SQg69AfTivBIpYr5HUtTo/l2OpD232Rt3gg==
-X-Received: by 2002:ac2:57c7:: with SMTP id k7mr10005249lfo.20.1605102449554;
-        Wed, 11 Nov 2020 05:47:29 -0800 (PST)
-Received: from [192.168.2.145] (109-252-193-159.dynamic.spd-mgts.ru. [109.252.193.159])
-        by smtp.googlemail.com with ESMTPSA id 16sm223765lfk.186.2020.11.11.05.47.28
+        bh=YJxupq7pI+urri4ZzMajTis99KW81YuqHS8unqtfooI=;
+        b=PjhyyogYKzXwwec0L2NvWBPAFYjYvE2FRxUQZ9WY6vHG2PuROEWLInqF+MEs3iwrRm
+         moOOBbjtplCvIG1gqUwGEO2OhNQ2a03TT8Bz7Xcgun3DHZOlB9QMUCk3akcvnrFNwV/Y
+         yl3LpsVwg4bAP5gOe/PZ7k6dYvg5uicfrYGBJktYvStScXlRcBBQaIxSImsmMOp2flRI
+         UQSNw8NPU9suJk4NF6Ky/waKpQ/px/k0xxMHbXAse8CJYapAeBqubmbe7kl91C0D8UNO
+         VQVgqQfzegj0pdmm9cHJrDfGw/BuJulYBgyPlOkMhnmu+28LXTAtCUxpr54wrObMEIsk
+         T66A==
+X-Gm-Message-State: AOAM53203QAed4o93R2W2tXvjdyStHFyxc2vjc3+MC9BI5XUAERe0y1o
+        8zhsxMYX6oBoNIuB04UmkBIcgGpqZ9j3GVwZ5JHhtP34/45DEDrMtG1+0W8+pgiav0BF6kGJF1Q
+        cEn+hof2NJ97aTooG
+X-Received: by 2002:a1c:b18a:: with SMTP id a132mr4262747wmf.95.1605102673966;
+        Wed, 11 Nov 2020 05:51:13 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzoKSU0jh+cvL08VUGwRz2I6w7/9JOjvq8Lxt748+5n9ZDqYRx9g1BiDWS053ccuC3wsJDHpQ==
+X-Received: by 2002:a1c:b18a:: with SMTP id a132mr4262729wmf.95.1605102673764;
+        Wed, 11 Nov 2020 05:51:13 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id t4sm2820719wmb.20.2020.11.11.05.51.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2020 05:47:28 -0800 (PST)
-Subject: Re: [PATCH] ARM: tegra: Populate OPP table for Tegra20 Ventana
-To:     Jon Hunter <jonathanh@nvidia.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>
-Cc:     devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20201111103847.152721-1-jonathanh@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <7e40cd3e-7c34-c9a9-bf00-ba7d507a2d6b@gmail.com>
-Date:   Wed, 11 Nov 2020 16:47:27 +0300
+        Wed, 11 Nov 2020 05:51:13 -0800 (PST)
+Subject: Re: [PATCH stable-5.4] KVM: x86: don't expose MSR_IA32_UMWAIT_CONTROL
+ unconditionally
+To:     Jack Wang <jinpu.wang@cloud.ionos.com>, gregkh@linuxfoundation.org,
+        sashal@kernel.org, stable@vger.kernel.org
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>
+References: <20201111132047.64845-1-jinpu.wang@cloud.ionos.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <9cdcac85-3f02-190f-cf4c-296a8eb415de@redhat.com>
+Date:   Wed, 11 Nov 2020 14:51:12 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.2
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <20201111103847.152721-1-jonathanh@nvidia.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20201111132047.64845-1-jinpu.wang@cloud.ionos.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-11.11.2020 13:38, Jon Hunter пишет:
-> Commit 9ce274630495 ("cpufreq: tegra20: Use generic cpufreq-dt driver
-> (Tegra30 supported now)") update the Tegra20 CPUFREQ driver to use the
-> generic CPUFREQ device-tree driver. Since this change CPUFREQ support
-> on the Tegra20 Ventana platform has been broken because the necessary
-> device-tree nodes with the operating point information are not populated
-> for this platform. Fix this by updating device-tree for Venata to
-> include the operating point informration for Tegra20.
+On 11/11/20 14:20, Jack Wang wrote:
+> From: Maxim Levitsky <mlevitsk@redhat.com>
 > 
-> Fixes: 9ce274630495 ("cpufreq: tegra20: Use generic cpufreq-dt driver (Tegra30 supported now)")
+> This msr is only available when the host supports WAITPKG feature.
+> 
+> This breaks a nested guest, if the L1 hypervisor is set to ignore
+> unknown msrs, because the only other safety check that the
+> kernel does is that it attempts to read the msr and
+> rejects it if it gets an exception.
+> 
 > Cc: stable@vger.kernel.org
-> 
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> Fixes: 6e3ba4abce ("KVM: vmx: Emulate MSR IA32_UMWAIT_CONTROL")
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> Message-Id: <20200523161455.3940-3-mlevitsk@redhat.com>
+> Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> (cherry picked from commit f4cfcd2d5aea4e96c5d483c476f3057b6b7baf6a
+> use boot_cpu_has for checking the feature)
+> Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 > ---
->  arch/arm/boot/dts/tegra20-ventana.dts | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+>   arch/x86/kvm/x86.c | 4 ++++
+>   1 file changed, 4 insertions(+)
 > 
-> diff --git a/arch/arm/boot/dts/tegra20-ventana.dts b/arch/arm/boot/dts/tegra20-ventana.dts
-> index b158771ac0b7..055334ae3d28 100644
-> --- a/arch/arm/boot/dts/tegra20-ventana.dts
-> +++ b/arch/arm/boot/dts/tegra20-ventana.dts
-> @@ -3,6 +3,7 @@
->  
->  #include <dt-bindings/input/input.h>
->  #include "tegra20.dtsi"
-> +#include "tegra20-cpu-opp.dtsi"
->  
->  / {
->  	model = "NVIDIA Tegra20 Ventana evaluation board";
-> @@ -592,6 +593,16 @@ clk32k_in: clock@0 {
->  		#clock-cells = <0>;
->  	};
->  
-> +	cpus {
-> +		cpu0: cpu@0 {
-> +			operating-points-v2 = <&cpu0_opp_table>;
-> +		};
-> +
-> +		cpu@1 {
-> +			operating-points-v2 = <&cpu0_opp_table>;
-> +		};
-> +	};
-> +
->  	gpio-keys {
->  		compatible = "gpio-keys";
->  
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 708b37274cb5..4cacf4669235 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -5226,6 +5226,10 @@ static void kvm_init_msr_list(void)
+>   			if (!kvm_x86_ops->rdtscp_supported())
+>   				continue;
+>   			break;
+> +		case MSR_IA32_UMWAIT_CONTROL:
+> +			if (!boot_cpu_has(X86_FEATURE_WAITPKG))
+> +				continue;
+> +			break;
+>   		case MSR_IA32_RTIT_CTL:
+>   		case MSR_IA32_RTIT_STATUS:
+>   			if (!kvm_x86_ops->pt_supported())
 > 
 
-This could be wrong to do because CPU voltage is fixed to 1000mV in
-Ventana's DT, are you sure that higher clock rates don't require higher
-voltages? What is the CPU process ID and SoC speedo ID on Ventana?
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
-You could easily hook up CPU voltage scaling, please see acer-500 DT and
-patch [1] for examples of how to set up regulators in DT. But then it
-shouldn't be a stable patch.
+Thanks,
 
-[1]
-https://patchwork.ozlabs.org/project/linux-tegra/patch/20201104234427.26477-27-digetx@gmail.com/
+Paolo
+
