@@ -2,72 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5432AF073
-	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 13:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B382AF116
+	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 13:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725882AbgKKMXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Nov 2020 07:23:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725859AbgKKMXO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Nov 2020 07:23:14 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68A29206FB;
-        Wed, 11 Nov 2020 12:23:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605097393;
-        bh=dB3C+pbAxC26oa1kJHnTBGqDGVVqzPNJ2KfvsNJXl8k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R3gcWOTz1EV4hgfGeO3obh5JVS4ir0xZfUeSEzfXZCKbc37h0+6h7G8gOJ0gf4oJT
-         uYIhry8ov4mZO4siOiFZmUj0UyzeF+b6DztqqZU3yifUPig5HQ59tZ6DVVluYmt+GL
-         1EUEDfJrbU0c6FYNl8WdBS+lZQM2ZC0xIBoCOjW0=
-Date:   Wed, 11 Nov 2020 13:24:14 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Anand K. Mistry" <amistry@google.com>
-Cc:     stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@alien8.de>
-Subject: Re: Requesting stable merge for commit
- 1978b3a53a74e3230cd46932b149c6e62e832e9a
-Message-ID: <X6vX7rJmlgjQqvlA@kroah.com>
-References: <CAATStaPeE+SEXGNU0kcrsNgqRZgg6+9j1fw5KqLPUoCGjUP=qQ@mail.gmail.com>
+        id S1725859AbgKKMox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Nov 2020 07:44:53 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45496 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726226AbgKKMow (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 07:44:52 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 6B73B1C0B88; Wed, 11 Nov 2020 13:44:50 +0100 (CET)
+Date:   Wed, 11 Nov 2020 13:44:49 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: Re: [PATCH 4.19 19/71] btrfs: extent_io: add proper error handling
+ to lock_extent_buffer_for_io()
+Message-ID: <20201111124448.GA26508@amd>
+References: <20201109125019.906191744@linuxfoundation.org>
+ <20201109125020.811120362@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
 Content-Disposition: inline
-In-Reply-To: <CAATStaPeE+SEXGNU0kcrsNgqRZgg6+9j1fw5KqLPUoCGjUP=qQ@mail.gmail.com>
+In-Reply-To: <20201109125020.811120362@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 11, 2020 at 11:09:13PM +1100, Anand K. Mistry wrote:
-> Hi,
-> 
-> I'm requesting a stable merge for commit
-> 1978b3a53a74e3230cd46932b149c6e62e832e9a
-> ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with
-> always-on STIBP")
-> into the stable branch for 5.4. Note, the commit is already queued for
-> inclusion into the next 5.9 stable release
-> (https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.9/x86-speculation-allow-ibpb-to-be-conditionally-enabl.patch).
-> 
-> The patch fixes an issue where a Spectre-v2-user mitigation could not
-> be enabled via prctl() on certain AMD CPUs. The issue was introduced
-> in commit 21998a351512eba4ed5969006f0c55882d995ada
-> ("x86/speculation: Avoid force-disabling IBPB based on STIBP and
-> enhanced IBRS.")
-> which was merged into the 5.4 stable branch as commit
-> 6d60d5462a91eb46fb88b016508edfa8ee0bc7c8. This commit also exists in
-> 4.19, 4.14, 4.9, and 4.4, so those kernels are also likely affected by
-> this bug.
 
-As I asked when I sent out a "FAILED:" message for this patch, if
-someone wants it backported to older kernels, they will need to provide
-the backported versions of it, as the patch does not apply cleanly
-as-is.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can you please do that?
+Hi!
 
-thanks,
+> Thankfully it's handled by the only caller, btree_write_cache_pages(),
+> as later write_one_eb() call will trigger submit_one_bio().  So there
+> shouldn't be any problem.
 
-greg k-h
+This explains there should not be any problem in _the
+mainline_. AFAICT this talks about this code. Mainline version is:
+
+ prev_eb =3D eb;
+ ret =3D lock_extent_buffer_for_io(eb, &epd);
+ if (!ret) {
+ 	free_extent_buffer(eb);
+ 	continue;
+ } else if (ret < 0) {
+ 	done =3D 1;
+ 	free_extent_buffer(eb);
+ 	break;
+ }
+
+But 4.19 has:
+
+ ret =3D lock_extent_buffer_for_io(eb, fs_info, &epd);
+ if (!ret) {
+  	free_extent_buffer(eb);
+ 	continue;
+ }
+
+IOW missing the code mentioned in the changelog. Is 0607eb1d452d4
+prerequisite for this patch?
+
+Best regards,
+								Pavel
+
+> +/*
+> + * Lock eb pages and flush the bio if we can't the locks
+> + *
+> + * Return  0 if nothing went wrong
+> + * Return >0 is same as 0, except bio is not submitted
+> + * Return <0 if something went wrong, no page is locked
+> + */
+
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl+r3MAACgkQMOfwapXb+vIomgCgiSNvx3YV/LxEpSOq9MFYm+YI
+dyQAniLtaZliGW/D+WeWdLm4saWyLlPR
+=o2X7
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
