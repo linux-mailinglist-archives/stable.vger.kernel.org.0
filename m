@@ -2,95 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C142AF147
-	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 13:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EF62AF1C7
+	for <lists+stable@lfdr.de>; Wed, 11 Nov 2020 14:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726441AbgKKMyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Nov 2020 07:54:02 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:46514 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726392AbgKKMyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 07:54:02 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 901E41C0B7C; Wed, 11 Nov 2020 13:54:00 +0100 (CET)
-Date:   Wed, 11 Nov 2020 13:53:59 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 48/71] of: Fix reserved-memory overlap detection
-Message-ID: <20201111125359.GB26508@amd>
-References: <20201109125019.906191744@linuxfoundation.org>
- <20201109125022.156835188@linuxfoundation.org>
+        id S1726770AbgKKNNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Nov 2020 08:13:02 -0500
+Received: from pbmsgap02.intersil.com ([192.157.179.202]:39352 "EHLO
+        pbmsgap02.intersil.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726039AbgKKNNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Nov 2020 08:13:01 -0500
+Received: from pps.filterd (pbmsgap02.intersil.com [127.0.0.1])
+        by pbmsgap02.intersil.com (8.16.0.42/8.16.0.42) with SMTP id 0ABDCs5q026026;
+        Wed, 11 Nov 2020 08:12:54 -0500
+Received: from pbmxdp01.intersil.corp (pbmxdp01.pb.intersil.com [132.158.200.222])
+        by pbmsgap02.intersil.com with ESMTP id 34npmk9w5p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Wed, 11 Nov 2020 08:12:54 -0500
+Received: from pbmxdp02.intersil.corp (132.158.200.223) by
+ pbmxdp01.intersil.corp (132.158.200.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.1979.3; Wed, 11 Nov 2020 08:12:52 -0500
+Received: from localhost.localdomain (132.158.202.109) by
+ pbmxdp02.intersil.corp (132.158.200.223) with Microsoft SMTP Server id
+ 15.1.1979.3 via Frontend Transport; Wed, 11 Nov 2020 08:12:52 -0500
+From:   Chris Brandt <chris.brandt@renesas.com>
+To:     Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-usb@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
+        "Jesse Pfeister" <jpfeister@fender.com>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH] usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
+Date:   Wed, 11 Nov 2020 08:12:09 -0500
+Message-ID: <20201111131209.3977903-1-chris.brandt@renesas.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
-Content-Disposition: inline
-In-Reply-To: <20201109125022.156835188@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-11_06:2020-11-10,2020-11-11 signatures=0
+X-Proofpoint-Spam-Details: rule=junk_notspam policy=junk score=0 spamscore=0 mlxlogscore=983
+ malwarescore=0 phishscore=0 adultscore=0 suspectscore=2 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011110075
+X-Proofpoint-Spam-Reason: mlx
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Renesas R-Car and RZ/G SoCs have a firmware download mode over USB.
+However, on reset a banner string is transmitted out which is not expected
+to be echoed back and will corrupt the protocol.
 
---+g7M9IMkV8truYOl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Cc: stable <stable@vger.kernel.org>
+---
+ drivers/usb/class/cdc-acm.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Hi!
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 1e7568867910..f52f1bc0559f 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1693,6 +1693,15 @@ static const struct usb_device_id acm_ids[] = {
+ 	{ USB_DEVICE(0x0870, 0x0001), /* Metricom GS Modem */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
++	{ USB_DEVICE(0x045b, 0x023c),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x0248),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x024D),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
+ 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
+-- 
+2.28.0
 
-> For example, there are two overlaps in this case but they are not
-> currently reported:
-
-=2E..
-
-> but they are after this patch:
->=20
->  OF: reserved mem: OVERLAP DETECTED!
->  bar@0 (0x00000000--0x00001000) overlaps with foo@0 (0x00000000--0x000020=
-00)
->  OF: reserved mem: OVERLAP DETECTED!
->  foo@0 (0x00000000--0x00002000) overlaps with baz@1000 (0x00001000--0x000=
-02000)
-
-Is it good idea to push this into 4.19 so early? It does not fix
-anything, it just causes warnings.
-
-Such overlap currently exists in 4.19:
-
-arch/arm/boot/dts/s5pv210.dtsi and can not be fixed easily, see:
-
-> > > > >               clocks: clock-controller@e0100000 {
-> > > > > +                     compatible =3D "samsung,s5pv210-clock";
-> > > > >                       reg =3D <0xe0100000 0x10000>;
-> > > > ...
-> > > > > +             pmu_syscon: syscon@e0108000 {
-> > > > > +                     reg =3D <0xe0108000 0x8000>;
-> > > > >               };
-
-Date: Fri, 6 Nov 2020 22:10:38 +0100
-=46rom: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of c=
-lock controller
-			=09
-Best regards,
-									Pavel
-
---=20
-http://www.livejournal.com/~pavelmachek
-
---+g7M9IMkV8truYOl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl+r3ucACgkQMOfwapXb+vJ0vwCfeaa/88Rjgb0zfZ2yCcnzKtfQ
-iGUAoLQdkTEn3s1bUri8kT40lvlvzVpY
-=cvp3
------END PGP SIGNATURE-----
-
---+g7M9IMkV8truYOl--
