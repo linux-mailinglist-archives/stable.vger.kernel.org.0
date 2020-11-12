@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36FC02B0679
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 14:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5C22B068D
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 14:35:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728134AbgKLNbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 08:31:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
+        id S1728321AbgKLNe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 08:34:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727646AbgKLNbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 08:31:17 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BD03C0613D1
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 05:31:16 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id b6so6016336wrt.4
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 05:31:16 -0800 (PST)
+        with ESMTP id S1728372AbgKLNez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 08:34:55 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DCAC0613D4
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 05:34:54 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id p1so5989091wrf.12
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 05:34:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:mime-version:content-disposition
          :content-transfer-encoding:user-agent;
-        bh=LolWEBB6rGeok5ETEgk/jBAYe+RAVyrEm7kN9JXcCbc=;
-        b=XwXSWBN5FBcb9lxAcdfDjazvZ92SLUb8kEVuVQ3TIZrBNvBHl5vu9cLXaHA145S6eT
-         ugsp9ig2yFcx4KB/ldyI40GBfS+7oRMZZ9IpsnjTsKivNcMzdPclYZDLpVZ3cN7yk908
-         2sHJnoClB015/FuSnwRz/X5a4/DfkVtDxKOjOg9HuVh1vQOpsIH9Ip76kNG1hvTz2LJL
-         KozzG6grJsZ9+D8Qsdb0+9YUY/kuHQbHXwBPxJA9abpD0wDj7BS02qrVp8BdsdsWwMqa
-         rFa3aufHcrabpwQE/p9I+aDB5ZKPV/jqaT/r2x4cyHf0moOHre/BicS+0NMbW5f6EZOs
-         tNQQ==
+        bh=IFVvAeiLC/81wFjMzsYjDhk+mg5pgojMxomQ2AzNCcc=;
+        b=kR3IA8XEdAXuNFLQuHnTst2h0KN/ZXeaUo2lBJqOLRE4fQOHgC2DolHUVrM9SFLSdf
+         jt6WAff2XCfQvUl3U/Try+49bKcEyz1l2P/SM4glasEIOrtKA8AsJx2nd05S1iAbbFOS
+         De3Q47cRaI2FrNYH+SwUoZbMkIWXx9Wd3OlPWF94d9Ig+WDOWclYwEV6nKARFvz9PwwZ
+         if8RkOHUivoxiC83Ndb0r7bOp7TfoADDfiadGGCTMszkJ2fwGlnQabgiKJM/M9uXleGM
+         FziWvLjDpEXxJJgbc2akd8IvET64b7QAjXaJLSsfbYst340X1tg3+dCDxVApFDWpHlYA
+         Bwug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
          :content-disposition:content-transfer-encoding:user-agent;
-        bh=LolWEBB6rGeok5ETEgk/jBAYe+RAVyrEm7kN9JXcCbc=;
-        b=eevj05xUKVEnfFB277+66xr+fi8V2nLRyK9a3BIvVrTSTtUPsI55TgesHhheIP7AYT
-         UmWT3aR2pVKOLZJtqlCtjGihVEmVH+HiZtxasaXRKi4mOlApV7qPGK7KZmBPIk4jPtFZ
-         EiNOct9DWrq65qfs7HqQPsJSV4Dc3sBrwczE60MOLqPtlc5iqcYPLmnluW2rUmwCfaFv
-         2JbvCffy3PgaRsuc90SF1SCVSFVML97TNqql+K0SglHqddBbTZ2QbRHAZdY/PenrdLvL
-         kg74Zsx9z+h6gPcDGTmmd/Q2jHIxpgcMK6ARd3T1RRqhsZtg2TmZJQyMP5hjQn3IaOdH
-         9kOw==
-X-Gm-Message-State: AOAM532C2qCXU7jmzjGORRLdOssTKVSZgA1wM7Ga/BSvV/ioP8ZClEgU
-        LtG/ZRoFplrY9X4VAMD7gd4=
-X-Google-Smtp-Source: ABdhPJyK0ta+NYJEgUSgrToEygZjr2ngZQyfsEgj92S9SX3j4ke223Raoryf/cgqPOnid9qxuB3MWA==
-X-Received: by 2002:adf:e88b:: with SMTP id d11mr25863819wrm.4.1605187875437;
-        Thu, 12 Nov 2020 05:31:15 -0800 (PST)
+        bh=IFVvAeiLC/81wFjMzsYjDhk+mg5pgojMxomQ2AzNCcc=;
+        b=DW/Waffd9CNkE4hos1aj7VgE+KIkoXk/YkPR05KpBFinGNSwyZCMVIwG50SQCahUwe
+         gIVJReCym76LuFeSzYASY4HtSqRYFnsuyGK1OG3sJPzvHkfP/vIpn9UKWrluWyAAqh2p
+         lQA7w1nJNLC3zq77GGmkg7Xl7d97Dw36fg6SD8lYJxclJCAAZWxjU3lfQwo9MvkFTfoK
+         647uA58/xBuVmdOestn7j8YuMugjEt3sz6Czw2J4YNYp53Z3siu+kMNKZbORMLF8UlJ8
+         8H3zeh7oZkSP5quXEoxCcck6L4v9iGujATNFeWBUp3DnpW9xJIzLHnY9dGMcSiKax6Qs
+         1WzA==
+X-Gm-Message-State: AOAM5311aKd4HFxyqCXUecHOHT3TK3f7k0joVfisxSW4F6JRsEfpW8o0
+        87nzi0hzibasR8lmHDdFUX98btnaZFeJJg==
+X-Google-Smtp-Source: ABdhPJwJU2OuWDcL4esqtm+wmdwMlVzY5KGwb+Gi58JZDnNjJPCWbmSbq3AaNoSgrxpfIArrB/mDWA==
+X-Received: by 2002:a5d:4991:: with SMTP id r17mr35429132wrq.70.1605188093678;
+        Thu, 12 Nov 2020 05:34:53 -0800 (PST)
 Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id v19sm7055906wrf.40.2020.11.12.05.31.14
+        by smtp.gmail.com with ESMTPSA id w10sm7110974wra.34.2020.11.12.05.34.52
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 12 Nov 2020 05:31:14 -0800 (PST)
-Date:   Thu, 12 Nov 2020 13:31:12 +0000
+        Thu, 12 Nov 2020 05:34:52 -0800 (PST)
+Date:   Thu, 12 Nov 2020 13:34:51 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org,
         Sasha Levin <Alexander.Levin@microsoft.com>
 Cc:     stable <stable@vger.kernel.org>, Song Liu <songliubraving@fb.com>,
         peterz@infradead.org, mingo@kernel.org, mathieu.poirier@linaro.org,
         kiyin@tencent.com, dan.carpenter@oracle.com
-Subject: [v4.9.y] backport of few missed perf fixes
-Message-ID: <20201112133112.w3z6vyq5m5p7aowx@debian>
+Subject: [v4.14.y] backport of few missed perf fixes
+Message-ID: <20201112133451.s2pnt4qts7vzrk5u@debian>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="rdyahs6zxpuqqj64"
+Content-Type: multipart/mixed; boundary="td6fbbckk2qvlmgu"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 User-Agent: NeoMutt/20170113 (1.7.2)
@@ -66,23 +66,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---rdyahs6zxpuqqj64
+--td6fbbckk2qvlmgu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg, Sasha,
 
-These are few missing commits for stable v4.9.y branch.
+These are few missing commits for stable v4.14.y branch.
 
 --
 Regards
 Sudip
 
---rdyahs6zxpuqqj64
+--td6fbbckk2qvlmgu
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-perf-core-Fix-bad-use-of-igrab.patch"
 
-From f3960563deb8482c45c7e842167d3ba4a6295b4f Mon Sep 17 00:00:00 2001
+From 9f0e03f1892dc91658dda131691495d1cd72dd47 Mon Sep 17 00:00:00 2001
 From: Song Liu <songliubraving@fb.com>
 Date: Tue, 17 Apr 2018 23:29:07 -0700
 Subject: [PATCH 1/3] perf/core: Fix bad use of igrab()
@@ -129,7 +129,6 @@ Cc: Vince Weaver <vincent.weaver@maine.edu>
 Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
 Link: http://lkml.kernel.org/r/20180418062907.3210386-2-songliubraving@fb.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[sudip: Backported to 4.9: use file_inode()]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
  arch/x86/events/intel/pt.c |  4 ++--
@@ -138,10 +137,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  3 files changed, 12 insertions(+), 15 deletions(-)
 
 diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index df60b58691e7..1808c57ce161 100644
+index 81fd41d5a0d9..0661227d935c 100644
 --- a/arch/x86/events/intel/pt.c
 +++ b/arch/x86/events/intel/pt.c
-@@ -1117,7 +1117,7 @@ static int pt_event_addr_filters_validate(struct list_head *filters)
+@@ -1190,7 +1190,7 @@ static int pt_event_addr_filters_validate(struct list_head *filters)
  		if (!filter->range || !filter->size)
  			return -EOPNOTSUPP;
  
@@ -150,7 +149,7 @@ index df60b58691e7..1808c57ce161 100644
  			if (!valid_kernel_ip(filter->offset))
  				return -EINVAL;
  
-@@ -1144,7 +1144,7 @@ static void pt_event_addr_filters_sync(struct perf_event *event)
+@@ -1217,7 +1217,7 @@ static void pt_event_addr_filters_sync(struct perf_event *event)
  		return;
  
  	list_for_each_entry(filter, &head->list, entry) {
@@ -160,10 +159,10 @@ index df60b58691e7..1808c57ce161 100644
  		} else {
  			/* apply the offset */
 diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index ae8ecf821019..a7057b772612 100644
+index 956d76744c91..41a3307a971c 100644
 --- a/include/linux/perf_event.h
 +++ b/include/linux/perf_event.h
-@@ -475,7 +475,7 @@ struct pmu {
+@@ -466,7 +466,7 @@ struct pmu {
   */
  struct perf_addr_filter {
  	struct list_head	entry;
@@ -173,10 +172,10 @@ index ae8ecf821019..a7057b772612 100644
  	unsigned long		size;
  	unsigned int		range	: 1,
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 7aad4d22b422..78e4062b8e1b 100644
+index 5807fad2c405..213d5807124c 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -6271,7 +6271,7 @@ static void perf_event_addr_filters_exec(struct perf_event *event, void *data)
+@@ -6450,7 +6450,7 @@ static void perf_event_addr_filters_exec(struct perf_event *event, void *data)
  
  	raw_spin_lock_irqsave(&ifh->lock, flags);
  	list_for_each_entry(filter, &ifh->list, entry) {
@@ -185,16 +184,16 @@ index 7aad4d22b422..78e4062b8e1b 100644
  			event->addr_filters_offs[count] = 0;
  			restart++;
  		}
-@@ -6814,7 +6814,7 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
+@@ -7124,7 +7124,7 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
  				     struct file *file, unsigned long offset,
  				     unsigned long size)
  {
--	if (filter->inode != file->f_inode)
+-	if (filter->inode != file_inode(file))
 +	if (d_inode(filter->path.dentry) != file_inode(file))
  		return false;
  
  	if (filter->offset > offset + size)
-@@ -8028,8 +8028,7 @@ static void free_filters_list(struct list_head *filters)
+@@ -8345,8 +8345,7 @@ static void free_filters_list(struct list_head *filters)
  	struct perf_addr_filter *filter, *iter;
  
  	list_for_each_entry_safe(filter, iter, filters, entry) {
@@ -204,7 +203,7 @@ index 7aad4d22b422..78e4062b8e1b 100644
  		list_del(&filter->entry);
  		kfree(filter);
  	}
-@@ -8123,7 +8122,7 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
+@@ -8443,7 +8442,7 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
  		 * Adjust base offset if the filter is associated to a binary
  		 * that needs to be mapped:
  		 */
@@ -213,7 +212,7 @@ index 7aad4d22b422..78e4062b8e1b 100644
  			event->addr_filters_offs[count] =
  				perf_addr_filter_apply(filter, mm);
  
-@@ -8196,7 +8195,6 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+@@ -8516,7 +8515,6 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
  {
  	struct perf_addr_filter *filter = NULL;
  	char *start, *orig, *filename = NULL;
@@ -221,8 +220,8 @@ index 7aad4d22b422..78e4062b8e1b 100644
  	substring_t args[MAX_OPT_ARGS];
  	int state = IF_STATE_ACTION, token;
  	unsigned int kernel = 0;
-@@ -8287,19 +8285,18 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
- 					goto fail;
+@@ -8620,19 +8618,18 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+ 					goto fail_free_name;
  
  				/* look up the path and grab its inode */
 -				ret = kern_path(filename, LOOKUP_FOLLOW, &path);
@@ -244,17 +243,17 @@ index 7aad4d22b422..78e4062b8e1b 100644
 +				    !S_ISREG(d_inode(filter->path.dentry)
 +					     ->i_mode))
  					goto fail;
- 			}
  
+ 				event->addr_filters.nr_file_filters++;
 -- 
 2.11.0
 
 
---rdyahs6zxpuqqj64
+--td6fbbckk2qvlmgu
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0002-perf-core-Fix-crash-when-using-HW-tracing-kernel-fil.patch"
 
-From d3b5d68691f2a0d270440400c2d0af2d816e9c4f Mon Sep 17 00:00:00 2001
+From 149a3ef7a4d4bfdb7854740986b04690c5ab3409 Mon Sep 17 00:00:00 2001
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
 Date: Mon, 16 Jul 2018 17:13:51 -0600
 Subject: [PATCH 2/3] perf/core: Fix crash when using HW tracing kernel filters
@@ -310,10 +309,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 78e4062b8e1b..556bad252cdf 100644
+index 213d5807124c..332ab6459b9e 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -6814,6 +6814,10 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
+@@ -7124,6 +7124,10 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
  				     struct file *file, unsigned long offset,
  				     unsigned long size)
  {
@@ -328,12 +327,12 @@ index 78e4062b8e1b..556bad252cdf 100644
 2.11.0
 
 
---rdyahs6zxpuqqj64
+--td6fbbckk2qvlmgu
 Content-Type: text/x-diff; charset=utf-8
 Content-Disposition: attachment; filename="0003-perf-core-Fix-a-memory-leak-in-perf_event_parse_addr.patch"
 Content-Transfer-Encoding: 8bit
 
-From 3aa3dd10ee4ba3c1b323bb3b160166c797551d20 Mon Sep 17 00:00:00 2001
+From c78e295869eed826a5df47168bb316675f30dcaf Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?kiyin=28=E5=B0=B9=E4=BA=AE=29?= <kiyin@tencent.com>
 Date: Wed, 4 Nov 2020 08:23:22 +0300
 Subject: [PATCH 3/3] perf/core: Fix a memory leak in
@@ -374,17 +373,16 @@ Cc: Anthony Liguori <aliguori@amazon.com>
  kernel/events/core.c | 12 +++++-------
  1 file changed, 5 insertions(+), 7 deletions(-)
 
-[sudip: Backported to 4.9: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
- kernel/events/core.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ kernel/events/core.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 556bad252cdf..53f350144446 100644
+index 332ab6459b9e..43d7e0a6ad6f 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -8261,6 +8261,7 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+@@ -8581,6 +8581,7 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
  			if (token == IF_SRC_FILE || token == IF_SRC_FILEADDR) {
  				int fpos = filter->range ? 2 : 1;
  
@@ -392,7 +390,14 @@ index 556bad252cdf..53f350144446 100644
  				filename = match_strdup(&args[fpos]);
  				if (!filename) {
  					ret = -ENOMEM;
-@@ -8292,10 +8293,7 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+@@ -8619,16 +8620,13 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+ 				 */
+ 				ret = -EOPNOTSUPP;
+ 				if (!event->ctx->task)
+-					goto fail_free_name;
++					goto fail;
+ 
+ 				/* look up the path and grab its inode */
  				ret = kern_path(filename, LOOKUP_FOLLOW,
  						&filter->path);
  				if (ret)
@@ -404,7 +409,7 @@ index 556bad252cdf..53f350144446 100644
  
  				ret = -EINVAL;
  				if (!filter->path.dentry ||
-@@ -8313,13 +8311,13 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
+@@ -8648,13 +8646,13 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
  	if (state != IF_STATE_ACTION)
  		goto fail;
  
@@ -424,4 +429,4 @@ index 556bad252cdf..53f350144446 100644
 2.11.0
 
 
---rdyahs6zxpuqqj64--
+--td6fbbckk2qvlmgu--
