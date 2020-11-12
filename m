@@ -2,200 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 225832B11FF
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 23:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1AD2B1207
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 23:49:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726221AbgKLWpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 17:45:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726175AbgKLWpp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 17:45:45 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08F1C0613D1
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 14:45:45 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id 34so2191618pgp.10
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 14:45:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=d/7bjObckZm3rhiVQJ9hjwsHsympQyjMcD41fZdyPUU=;
-        b=AQNsCxWQKNePI0GvgUxVa9zTQx9Ddur/hyteA6+CmkBPQjmypeY0IgtgX9WIt+Gq+U
-         O50fJxAOW6vEqEXi8iBejes3eA3r26IehnPQU/9wXtCYMKlly/FqAB7Sd/TQTc+EbWUi
-         C44N3+916rpXzM4acxsRBrUwx3R9471c/P0tZ0MzGQAIi4D9oA/dRGrbkCwtIPIeZRDp
-         licxl5sNC5gf43ceW1XCq1LfBhHFGIaFotOP2V1S4QuwQhoc7SWqU88YZdWrBcaHQKcU
-         LvttOZCMEbZWkdPsItVhBv0UTLJt9TtZdwBNUL+5E5sqkXsSsupgIa+6OJ3s3wWV/f8P
-         YUbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=d/7bjObckZm3rhiVQJ9hjwsHsympQyjMcD41fZdyPUU=;
-        b=tv5PRq30Pm5EX/7y/W/8WZ3SKOafftL1wDOAQ7j2aK9hcBbcyT0jZtBF3uRg7HuIJz
-         soX6T5sUuMbnYcxNx4+Wmf/WbGn03oWPJRRzYSgHk29eZpJs9NlIxaQGI1Bldorw3rGd
-         gijLZSwW9PcYcg5iaWfz9AJrbBj8/nZRAEKMo8bF/0MEXnPiWoT0Wz2XSF9L8hOcQuvR
-         YrBrfUm6AbH21UYc4708AmWOuqr7Z1UNtP64BDjK7DVwve20YoS4fCOcy535XR1DNWP3
-         C7QtEntPT7SW9r7VEUAvALA65503tVKP8cY96nNge9uRP0kdZ93JVEMPCeihixnvHvpp
-         KQ4A==
-X-Gm-Message-State: AOAM533a6ADAblkyh0nAtQPX1zP+Hfd+dm529x5EjaIPNJ7h7sF1OI8L
-        zEdbnlXfpgLfDKPv/MxBOp7+b1zKRZhXzw==
-X-Google-Smtp-Source: ABdhPJwghCSe/zmiXecs0nq0oVMBXG+0UblTi5UkanCxHOkrKeyiGqzbEKxWm6VpFRG3l6pxUoTdXA==
-X-Received: by 2002:aa7:8105:0:b029:18e:c8d9:2c24 with SMTP id b5-20020aa781050000b029018ec8d92c24mr1573038pfi.49.1605221145048;
-        Thu, 12 Nov 2020 14:45:45 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id js7sm7906285pjb.46.2020.11.12.14.45.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 14:45:44 -0800 (PST)
-Message-ID: <5fadbb18.1c69fb81.4c9ab.044e@mx.google.com>
-Date:   Thu, 12 Nov 2020 14:45:44 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Kernel: v4.4.243-18-gfc7e8c68369a
-Subject: stable-rc/queue/4.4 baseline: 123 runs,
- 3 regressions (v4.4.243-18-gfc7e8c68369a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726384AbgKLWte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 17:49:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725903AbgKLWte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Nov 2020 17:49:34 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61FCA2085B;
+        Thu, 12 Nov 2020 22:49:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605221360;
+        bh=N2fT6BovsDy9Ao7zSSbwkfqL4sixyk1hOcDkGMQ4iuY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=gBGKEhePfVob0pPdepdYdfcFpZ71O1UuGLdwuEphsS6uLXqnub4VW9HGPgeaMVrcJ
+         RB5hum3NYpfQaSCzYWbkC2uEBCwjZnX/0BpWFtRDOsSQg8scFebwFeRTiPkCyKBxjy
+         wcYYCNbTUAR6xawMwyumo4CLQ9h6ZiI3/mcwSdGo=
+Date:   Thu, 12 Nov 2020 14:49:19 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Minchan Kim <minchan@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Harish Sriram <harish@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert
+ "mm/vunmap: add cond_resched() in vunmap_pmd_range"
+Message-Id: <20201112144919.5f6b36876f4e59ebb4a99d6d@linux-foundation.org>
+In-Reply-To: <20201112200101.GC123036@google.com>
+References: <20201105170249.387069-1-minchan@kernel.org>
+        <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
+        <20201107083939.GA1633068@google.com>
+        <20201112200101.GC123036@google.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 123 runs, 3 regressions (v4.4.243-18-gfc7e8c6=
-8369a)
+On Thu, 12 Nov 2020 12:01:01 -0800 Minchan Kim <minchan@kernel.org> wrote:
 
-Regressions Summary
--------------------
+> 
+> On Sat, Nov 07, 2020 at 12:39:39AM -0800, Minchan Kim wrote:
+> > Hi Andrew,
+> > 
+> > On Fri, Nov 06, 2020 at 05:59:33PM -0800, Andrew Morton wrote:
+> > > On Thu,  5 Nov 2020 09:02:49 -0800 Minchan Kim <minchan@kernel.org> wrote:
+> > > 
+> > > > This reverts commit e47110e90584a22e9980510b00d0dfad3a83354e.
+> > > > 
+> > > > While I was doing zram testing, I found sometimes decompression failed
+> > > > since the compression buffer was corrupted. With investigation,
+> > > > I found below commit calls cond_resched unconditionally so it could
+> > > > make a problem in atomic context if the task is reschedule.
+> > > > 
+> > > > Revert the original commit for now.
+>
+> How should we proceed this problem?
+>
 
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-panda            | arm    | lab-collabora | gcc-8    | omap2plus_defconfig =
-| 1          =
+(top-posting repaired - please don't).
 
-qemu_i386        | i386   | lab-baylibre  | gcc-8    | i386_defconfig      =
-| 1          =
+Well, we don't want to reintroduce the softlockup reports which
+e47110e90584a2 fixed, and we certainly don't want to do that on behalf
+of code which is using the unmap_kernel_range() interface incorrectly.
 
-qemu_x86_64-uefi | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    =
-| 1          =
+So I suggest either
 
+a) make zs_unmap_object() stop doing the unmapping from atomic context or
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.243-18-gfc7e8c68369a/plan/baseline/
+b) figure out whether the vmalloc unmap code is *truly* unsafe from
+   atomic context - perhaps it is only unsafe from interrupt context,
+   in which case we can rework the vmalloc.c checks to reflect this, or
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.243-18-gfc7e8c68369a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fc7e8c68369a4ef7f0a5a2e21f161ae2b46b8218 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-panda            | arm    | lab-collabora | gcc-8    | omap2plus_defconfig =
-| 1          =
+c) make the vfree code callable from all contexts.  Which is by far
+   the preferred solution, but may be tough.
 
 
-  Details:     https://kernelci.org/test/plan/id/5fad87a59c40409f5adb8864
+Or maybe not so tough - if the only problem in the vmalloc code is the
+use of mutex_trylock() from irqs then it may be as simple as switching
+to old-style semaphores and using down_trylock(), which I think is
+irq-safe.
 
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+However old-style semaphores are deprecated.  A hackyish approach might
+be to use an rwsem always in down_write mode and use
+down_write_trylock(), which I think is also callable from interrrupt
+context.
 
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fad87a59c40409=
-f5adb8869
-        failing since 3 days (last pass: v4.4.241-86-g2fa33648e935, first f=
-ail: v4.4.241-86-gdeb6172daf90)
-        2 lines =
-
- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-qemu_i386        | i386   | lab-baylibre  | gcc-8    | i386_defconfig      =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fad8ad0d0bb70aae5db88e0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/i386/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fad8ad0d0bb70aae5db8=
-8e1
-        failing since 1 day (last pass: v4.4.243-13-g3ae0f9dc7816, first fa=
-il: v4.4.243-13-g0e9f589aa60c) =
-
- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-| regressions
------------------+--------+---------------+----------+---------------------=
-+------------
-qemu_x86_64-uefi | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fad87c59aa71b8215db887e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.243-1=
-8-gfc7e8c68369a/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x8=
-6_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fad87c59aa71b8215db8=
-87f
-        new failure (last pass: v4.4.243-13-g0e9f589aa60c) =
-
- =20
+But I have a feeling that there are other reasons why vfree shouldn't
+be called from atomic context, apart from the mutex_trylock-in-irq
+issue.
