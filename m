@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13AEC2B014B
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 09:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E3252B014E
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 09:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725986AbgKLIjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 03:39:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
+        id S1726158AbgKLIkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 03:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725947AbgKLIji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Nov 2020 03:39:38 -0500
+        id S1725947AbgKLIkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Nov 2020 03:40:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26ECD221FF;
-        Thu, 12 Nov 2020 08:39:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF486221FF;
+        Thu, 12 Nov 2020 08:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605170377;
-        bh=8taqSHxWFbByQnJia3D5L0Jw6PY/pFgoThAEcX64R7g=;
+        s=default; t=1605170420;
+        bh=OMb2plE7JijolIxd8WH3ofSstZrqeW3kqBhjE/3H8b4=;
         h=Subject:To:From:Date:From;
-        b=c6Izn5B2WeprUvRimR/SXGZu0tZdebvQ4AL7UI+7ukt+WBLRDwpItcWb/4yOj3vbn
-         8sPUZ/qFsmDn4Otj6jVPwY31wSDkuKzKyiUi1OhIpvrzcO+pMOAPbXxHpe+PzaZKi7
-         ql2BwMbs4M+6mdlA5i4aoF8EA7K1FuK4eOkOwK54=
-Subject: patch "tty: serial: imx: keep console clocks always on" added to tty-linus
-To:     fugang.duan@nxp.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, u.kleine-koenig@pengutronix.de
+        b=yw8K3cV/n1eN1V6fOmmCRvvOmhDEz/Btx8eORB2FyyAJpabX3eqrExtfenfYuuN0u
+         2fv/BKBusgz5/uYaIROOCkX8fl43bDZOxMX9Zi1+kFlNP5ViZ71FSS4vpWZoMyp5lW
+         tReZsbxRqWzfvu+nn5CM5mTXDmLqMCe8l/jlZOz8=
+Subject: patch "serial: ar933x_uart: disable clk on error handling path in probe" added to tty-linus
+To:     zhengzengkai@huawei.com, gregkh@linuxfoundation.org,
+        hulkci@huawei.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 12 Nov 2020 09:40:29 +0100
-Message-ID: <160517042921119@kroah.com>
+Date:   Thu, 12 Nov 2020 09:41:19 +0100
+Message-ID: <160517047919684@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    tty: serial: imx: keep console clocks always on
+    serial: ar933x_uart: disable clk on error handling path in probe
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -54,94 +54,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e67c139c488e84e7eae6c333231e791f0e89b3fb Mon Sep 17 00:00:00 2001
-From: Fugang Duan <fugang.duan@nxp.com>
-Date: Wed, 11 Nov 2020 10:51:36 +0800
-Subject: tty: serial: imx: keep console clocks always on
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 425af483523b76bc78e14674a430579d38b2a593 Mon Sep 17 00:00:00 2001
+From: Zheng Zengkai <zhengzengkai@huawei.com>
+Date: Wed, 11 Nov 2020 20:44:26 +0800
+Subject: serial: ar933x_uart: disable clk on error handling path in probe
 
-For below code, there has chance to cause deadlock in SMP system:
-Thread 1:
-clk_enable_lock();
-pr_info("debug message");
-clk_enable_unlock();
+ar933x_uart_probe() does not invoke clk_disable_unprepare()
+on one error handling path. This patch fixes that.
 
-Thread 2:
-imx_uart_console_write()
-	clk_enable()
-		clk_enable_lock();
-
-Thread 1:
-Acuired clk enable_lock -> printk -> console_trylock_spinning
-Thread 2:
-console_unlock() -> imx_uart_console_write -> clk_disable -> Acquite clk enable_lock
-
-So the patch is to keep console port clocks always on like
-other console drivers.
-
-Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20201111025136.29818-1-fugang.duan@nxp.com
+Fixes: 9be1064fe524 ("serial: ar933x_uart: add RS485 support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
+Link: https://lore.kernel.org/r/20201111124426.42638-1-zhengzengkai@huawei.com
 Cc: stable <stable@vger.kernel.org>
-[fix up build warning - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/imx.c | 20 +++-----------------
- 1 file changed, 3 insertions(+), 17 deletions(-)
+ drivers/tty/serial/ar933x_uart.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 3c53a3c89959..cacf7266a262 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2008,16 +2008,6 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
- 	unsigned int ucr1;
- 	unsigned long flags = 0;
- 	int locked = 1;
--	int retval;
--
--	retval = clk_enable(sport->clk_per);
--	if (retval)
--		return;
--	retval = clk_enable(sport->clk_ipg);
--	if (retval) {
--		clk_disable(sport->clk_per);
--		return;
--	}
+diff --git a/drivers/tty/serial/ar933x_uart.c b/drivers/tty/serial/ar933x_uart.c
+index 0c80a79d7442..c2be7cf91399 100644
+--- a/drivers/tty/serial/ar933x_uart.c
++++ b/drivers/tty/serial/ar933x_uart.c
+@@ -789,8 +789,10 @@ static int ar933x_uart_probe(struct platform_device *pdev)
+ 		goto err_disable_clk;
  
- 	if (sport->port.sysrq)
- 		locked = 0;
-@@ -2053,9 +2043,6 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
+ 	up->gpios = mctrl_gpio_init(port, 0);
+-	if (IS_ERR(up->gpios) && PTR_ERR(up->gpios) != -ENOSYS)
+-		return PTR_ERR(up->gpios);
++	if (IS_ERR(up->gpios) && PTR_ERR(up->gpios) != -ENOSYS) {
++		ret = PTR_ERR(up->gpios);
++		goto err_disable_clk;
++	}
  
- 	if (locked)
- 		spin_unlock_irqrestore(&sport->port.lock, flags);
--
--	clk_disable(sport->clk_ipg);
--	clk_disable(sport->clk_per);
- }
+ 	up->rts_gpiod = mctrl_gpio_to_gpiod(up->gpios, UART_GPIO_RTS);
  
- /*
-@@ -2156,15 +2143,14 @@ imx_uart_console_setup(struct console *co, char *options)
- 
- 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
- 
--	clk_disable(sport->clk_ipg);
- 	if (retval) {
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 		goto error_console;
- 	}
- 
--	retval = clk_prepare(sport->clk_per);
-+	retval = clk_prepare_enable(sport->clk_per);
- 	if (retval)
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 
- error_console:
- 	return retval;
 -- 
 2.29.2
 
