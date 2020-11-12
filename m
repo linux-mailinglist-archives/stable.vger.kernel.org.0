@@ -2,57 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7298D2B01C8
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 10:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACAF92B02A4
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 11:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727489AbgKLJLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 04:11:08 -0500
-Received: from mga06.intel.com ([134.134.136.31]:36665 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725995AbgKLJLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Nov 2020 04:11:07 -0500
-IronPort-SDR: SydBFi2Yn+4QWf9K2eifNSsvl9k+192XT/cTT0p7jP9nyVtw/NG/1Q8ohrR+fOOnqlJQYZCFKh
- 3xVU/N//dDOQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9802"; a="231900731"
-X-IronPort-AV: E=Sophos;i="5.77,471,1596524400"; 
-   d="scan'208";a="231900731"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2020 01:11:05 -0800
-IronPort-SDR: XbZOsfG3/k/idtcNTrwCREXO3/DZNHsva/VDOwO8FZwAjBMha6GtRQKHIG/SO4UU8+Jz2svoza
- 09kwZ8JJUfeA==
-X-IronPort-AV: E=Sophos;i="5.77,471,1596524400"; 
-   d="scan'208";a="542187125"
-Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2020 01:11:03 -0800
-Received: by lahna (sSMTP sendmail emulation); Thu, 12 Nov 2020 11:11:00 +0200
-Date:   Thu, 12 Nov 2020 11:11:00 +0200
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Evan Green <evgreen@chromium.org>
-Cc:     Andy Shevchenko <andy@kernel.org>, stable@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: intel: Fix Jasperlake HOSTSW_OWN offset
-Message-ID: <20201112091100.GZ2495@lahna.fi.intel.com>
-References: <20201111151650.v2.1.I54a30ec0a7eb1f1b791dc9d08d5e8416a1e8e1ef@changeid>
+        id S1726061AbgKLKWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 05:22:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725902AbgKLKWU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 05:22:20 -0500
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BACC0613D1;
+        Thu, 12 Nov 2020 02:22:20 -0800 (PST)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1kd9k8-006G8G-HC; Thu, 12 Nov 2020 11:22:16 +0100
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     linux-wireless@vger.kernel.org
+Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org,
+        syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com,
+        syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com,
+        syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com,
+        syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com,
+        syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com,
+        syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com
+Subject: [PATCH] mac80211: free sta in sta_info_insert_finish() on errors
+Date:   Thu, 12 Nov 2020 11:22:04 +0100
+Message-Id: <20201112112201.ee6b397b9453.I9c31d667a0ea2151441cc64ed6613d36c18a48e0@changeid>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201111151650.v2.1.I54a30ec0a7eb1f1b791dc9d08d5e8416a1e8e1ef@changeid>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 11, 2020 at 03:17:28PM -0800, Evan Green wrote:
-> GPIOs that attempt to use interrupts get thwarted with a message like:
-> "pin 161 cannot be used as IRQ" (for instance with SD_CD). This is because
-> the HOSTSW_OWN offset is incorrect, so every GPIO looks like it's
-> owned by ACPI.
-> 
-> Fixes: e278dcb7048b1 ("pinctrl: intel: Add Intel Jasper Lake pin controller support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Evan Green <evgreen@chromium.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+If sta_info_insert_finish() fails, we currently keep the station
+around and free it only in the caller, but there's only one such
+caller and it always frees it immediately.
+
+As syzbot found, another consequence of this split is that we can
+put things that sleep only into __cleanup_single_sta() and not in
+sta_info_free(), but this is the only place that requires such of
+sta_info_free() now.
+
+Change this to free the station in sta_info_insert_finish(), in
+which case we can still sleep. This will also let us unify the
+cleanup code later.
+
+Cc: stable@vger.kernel.org
+Fixes: dcd479e10a05 ("mac80211: always wind down STA state")
+Reported-by: syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com
+Reported-by: syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com
+Reported-by: syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com
+Reported-by: syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com
+Reported-by: syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com
+Reported-by: syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ net/mac80211/sta_info.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 4fe284ff1ea3..ec6973ee88ef 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -705,7 +705,7 @@ static int sta_info_insert_finish(struct sta_info *sta) __acquires(RCU)
+  out_drop_sta:
+ 	local->num_sta--;
+ 	synchronize_net();
+-	__cleanup_single_sta(sta);
++	cleanup_single_sta(sta);
+  out_err:
+ 	mutex_unlock(&local->sta_mtx);
+ 	kfree(sinfo);
+@@ -724,19 +724,13 @@ int sta_info_insert_rcu(struct sta_info *sta) __acquires(RCU)
+ 
+ 	err = sta_info_insert_check(sta);
+ 	if (err) {
++		sta_info_free(local, sta);
+ 		mutex_unlock(&local->sta_mtx);
+ 		rcu_read_lock();
+-		goto out_free;
++		return err;
+ 	}
+ 
+-	err = sta_info_insert_finish(sta);
+-	if (err)
+-		goto out_free;
+-
+-	return 0;
+- out_free:
+-	sta_info_free(local, sta);
+-	return err;
++	return sta_info_insert_finish(sta);
+ }
+ 
+ int sta_info_insert(struct sta_info *sta)
+-- 
+2.26.2
+
