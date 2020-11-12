@@ -2,102 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9522AFF9F
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 07:26:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EF72AFFB2
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 07:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbgKLG0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 01:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40748 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725966AbgKLG0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 01:26:30 -0500
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B48C0613D1
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 22:26:30 -0800 (PST)
-Received: by mail-il1-x142.google.com with SMTP id y17so4268800ilg.4
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 22:26:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pRY9F5vEmgqsG/ZUuRVxpXlRdo2gLYCpYhWbBWkHGKA=;
-        b=MgEF7dtWhIcFevgovQJqiuD67iwloFemy56RA9XlzZYa12qwbiJfS3BPbkfkA+CKa7
-         oKJsnb4bH9FdvZ+3eoDrBy93lu8Vq9ToDle/UzG58GlNx7Vy2hMLj0kIKFc1FzMwpath
-         9JW2H/XNCl43+qrXxSmBBhD9ehE3YKC2zfC56zQXS2rzBZ87SmIiufR5hWMjTBZjo+Ef
-         vTovVBLxWGig52BRr6TYz8icqEj0NEw1rCUKpsoJG9XbZVWIGPt3hf4qAxfS8ezypgaM
-         bFP9kFIXrxwxEdANGDSDCEk9wU0JbGmABRPHb0eSR4v9XlpTaSbcTu4+9rcMy7R7Fn/h
-         jyqw==
+        id S1726291AbgKLGbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 01:31:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37941 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726287AbgKLGbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 01:31:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605162681;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc; bh=RhtA6QSp1QbBfU96em4sj0ByA3Z5T9kaKGCTzLh5k6A=;
+        b=D4os0q/CP2wos0lqcfds3/+eVZ05+UDzEJCWcUCrR8I9tJsP5lJs0fkdn0kZ0W90fPvzkE
+        u6Qn/n6aYt+XbRpc6JDC1fvukF1FhuujlsDjWxqPC9vD+ZSnuJN2jLE7iS/W7EhsWFu3th
+        tIkWG4NwFoMDPfASEG37PKVp835tddU=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-167-gaVImnazNiSN9T7pu-UAKw-1; Thu, 12 Nov 2020 01:31:19 -0500
+X-MC-Unique: gaVImnazNiSN9T7pu-UAKw-1
+Received: by mail-pf1-f197.google.com with SMTP id b139so3181250pfb.2
+        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 22:31:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pRY9F5vEmgqsG/ZUuRVxpXlRdo2gLYCpYhWbBWkHGKA=;
-        b=J7OArDiLkKctew9HCL/fPTF35H2DYhxGhZnXiR9PBWh2QdAme232yd9iMGzTEgf6YQ
-         kaxL2l5aTUHzGI2m+lX80gFb4JZ//iWSOnNUHxjoKip5jvSZYOhMXjMUigiQ5FY2DTPJ
-         cvHS0Yvck86LjivIF+dPDIvuhvC+8e7NUS3RJpwf4hukXRARLsU34aQ4ANIzUt3QNcLO
-         M2DYkTrBu3ENxlTKn+2Rb1W0sjCDndnKqNfg/ny92x8hMfV1KeVmqDPwiRAZ+jpS+PlU
-         tArxZXlY86X3wMyQ7/xiIXVIWfmbwT02Hi6llBdNAYaVRLcB9qSwLoEwQNhTPPzCOBJa
-         qTQQ==
-X-Gm-Message-State: AOAM5308tcKuSNJ3+A00xxA1jB6cUy8KaBX3ao9K4zRa4kmblfjq/q7a
-        P+knxNQ0resBNC/9kwDT5jiedBA75HHgLEtEKz1vMw==
-X-Google-Smtp-Source: ABdhPJxOOzi2/J0zYAnrIRfGEnAuRMSqjcq//8DoIIQGnBJW9edIxcpE6lL+BTKztz8P0tC25wtW6Ull4vksQEZWai4=
-X-Received: by 2002:a92:940c:: with SMTP id c12mr19513638ili.167.1605162389851;
- Wed, 11 Nov 2020 22:26:29 -0800 (PST)
-MIME-Version: 1.0
-References: <CAATStaPeE+SEXGNU0kcrsNgqRZgg6+9j1fw5KqLPUoCGjUP=qQ@mail.gmail.com>
- <X6vX7rJmlgjQqvlA@kroah.com> <CAATStaMd772bg8vBBNhb-zTyx-OmvPuNoVfDLtqj6QGcL_RfxA@mail.gmail.com>
- <X6zTDralvod85Z9t@kroah.com>
-In-Reply-To: <X6zTDralvod85Z9t@kroah.com>
-From:   "Anand K. Mistry" <amistry@google.com>
-Date:   Thu, 12 Nov 2020 17:26:18 +1100
-Message-ID: <CAATStaPT8wnQXZ2zJdr=z-_2SDD+EU0wM0yVmk0cFjsZr8zrvQ@mail.gmail.com>
-Subject: Re: Requesting stable merge for commit 1978b3a53a74e3230cd46932b149c6e62e832e9a
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@alien8.de>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=RhtA6QSp1QbBfU96em4sj0ByA3Z5T9kaKGCTzLh5k6A=;
+        b=W+2KfWYFmWwiIBt3Z7nu6aLwMVD3O2XZR3tCuhbc1fHxq9CM5BcbUH+oZSa4FVwSJD
+         vGYU+UYkf1/1UeLSkZAExrKoS3nmskkJFyCXNEPTK6GmfdkeysRLFX+4lY6I750aWLf5
+         kgLxQ+Vprz1FO3rQ49vrxA9EW6GbQYbHpMJvrrO9/VkA9yo1rD1KuPW762FTwMcWzsEs
+         NWm/rR2J5T7qdyhFDSEi1MFS1DPYDExhMlBrGLRNvy4/NCKwckkm8D9gcbEsK3jdQA0E
+         N72EPgXyNjyRChnElya0OvfenUej1c1nBONbwDwdvuvzsmdg1U0sGtj4rTf0A7YEDoio
+         bolg==
+X-Gm-Message-State: AOAM530B1mq95DN7mmB+eofh0+HRWT1yNgTzm6J0Ou+/tko2SD0Qs459
+        ihLOzlWA4wuQyStDtzuw6snLx7FpeOChEXcD8FDQUnxv1zUAnzfTiIMQcoHriUV14PqDDCfTnxI
+        Nvt5enxeG1RE5ChgC
+X-Received: by 2002:a17:90b:f10:: with SMTP id br16mr7618500pjb.60.1605162678220;
+        Wed, 11 Nov 2020 22:31:18 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxkpudI07BN4usbj64YYaOQxy5Cz9zNtPxALGTMfevPPYhdXWMdSav0XlUgYldyBfOdUQZtIQ==
+X-Received: by 2002:a17:90b:f10:: with SMTP id br16mr7618477pjb.60.1605162677976;
+        Wed, 11 Nov 2020 22:31:17 -0800 (PST)
+Received: from xiangao.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id k25sm4942345pfi.42.2020.11.11.22.31.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2020 22:31:17 -0800 (PST)
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     linux-xfs@vger.kernel.org
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@redhat.com>,
+        Gao Xiang <hsiangkao@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] xfs: fix signed calculation related to XFS_LITINO(mp)
+Date:   Thu, 12 Nov 2020 14:30:05 +0800
+Message-Id: <20201112063005.692054-1-hsiangkao@redhat.com>
+X-Mailer: git-send-email 2.18.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Nov 2020 at 17:15, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Thu, Nov 12, 2020 at 10:12:01AM +1100, Anand K. Mistry wrote:
-> > On Wed, 11 Nov 2020 at 23:23, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Wed, Nov 11, 2020 at 11:09:13PM +1100, Anand K. Mistry wrote:
-> > > > Hi,
-> > > >
-> > > > I'm requesting a stable merge for commit
-> > > > 1978b3a53a74e3230cd46932b149c6e62e832e9a
-> > > > ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with
-> > > > always-on STIBP")
-> > > > into the stable branch for 5.4. Note, the commit is already queued for
-> > > > inclusion into the next 5.9 stable release
-> > > > (https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.9/x86-speculation-allow-ibpb-to-be-conditionally-enabl.patch).
-> > > >
-> > > > The patch fixes an issue where a Spectre-v2-user mitigation could not
-> > > > be enabled via prctl() on certain AMD CPUs. The issue was introduced
-> > > > in commit 21998a351512eba4ed5969006f0c55882d995ada
-> > > > ("x86/speculation: Avoid force-disabling IBPB based on STIBP and
-> > > > enhanced IBRS.")
-> > > > which was merged into the 5.4 stable branch as commit
-> > > > 6d60d5462a91eb46fb88b016508edfa8ee0bc7c8. This commit also exists in
-> > > > 4.19, 4.14, 4.9, and 4.4, so those kernels are also likely affected by
-> > > > this bug.
-> > >
-> > > As I asked when I sent out a "FAILED:" message for this patch, if
-> > > someone wants it backported to older kernels, they will need to provide
-> > > the backported versions of it, as the patch does not apply cleanly
-> > > as-is.
-> > >
-> > > Can you please do that?
-> >
-> > Oh, I didn't get that message. I'll prepare a backport.
->
-> You didn't have to get the email, but I would assume that you at least
-> tested the backport if you asked for it to happen, right?  :)
+Currently, commit e9e2eae89ddb dropped a (int) decoration from
+XFS_LITINO(mp), and since sizeof() expression is also involved,
+the result of XFS_LITINO(mp) is simply as the size_t type
+(commonly unsigned long).
 
-The conflict was so trivial (a single newline in a comment) I didn't
-really think about it. And yes, the patch is well tested against 5.4
-(which is my target kernel), and 4.14.
+Considering the expression in xfs_attr_shortform_bytesfit():
+  offset = (XFS_LITINO(mp) - bytes) >> 3;
+let "bytes" be (int)340, and
+    "XFS_LITINO(mp)" be (unsigned long)336.
+
+on 64-bit platform, the expression is
+  offset = ((unsigned long)336 - (int)340) >> 8 =
+           (int)(0xfffffffffffffffcUL >> 3) = -1
+
+but on 32-bit platform, the expression is
+  offset = ((unsigned long)336 - (int)340) >> 8 =
+           (int)(0xfffffffcUL >> 3) = 0x1fffffff
+instead.
+
+so offset becomes a large number on 32-bit platform, and cause
+xfs_attr_shortform_bytesfit() returns maxforkoff rather than 0
+
+Therefore, one result is
+  "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
+  assertion failure in xfs_idata_realloc().
+
+, which can be triggered with the following commands:
+ touch a;
+ setfattr -n user.0 -v "`seq 0 80`" a;
+ setfattr -n user.1 -v "`seq 0 80`" a
+on 32-bit platform.
+
+Fix it by restoring (int) decorator to XFS_LITINO(mp) since
+int type for XFS_LITINO(mp) is safe and all pre-exist signed
+calculations are correct.
+
+Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
+Cc: <stable@vger.kernel.org> # 5.7+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+I'm not sure this is the preferred way or just simply fix
+xfs_attr_shortform_bytesfit() since I don't look into the
+rest of XFS_LITINO(mp) users. Add (int) to XFS_LITINO(mp)
+will avoid all potential regression at least.
+
+ fs/xfs/libxfs/xfs_format.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/xfs/libxfs/xfs_format.h b/fs/xfs/libxfs/xfs_format.h
+index dd764da08f6f..f58f0a44c024 100644
+--- a/fs/xfs/libxfs/xfs_format.h
++++ b/fs/xfs/libxfs/xfs_format.h
+@@ -1061,7 +1061,7 @@ enum xfs_dinode_fmt {
+ 		sizeof(struct xfs_dinode) : \
+ 		offsetof(struct xfs_dinode, di_crc))
+ #define XFS_LITINO(mp) \
+-	((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb))
++	((int)((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb)))
+ 
+ /*
+  * Inode data & attribute fork sizes, per inode.
+-- 
+2.18.4
+
