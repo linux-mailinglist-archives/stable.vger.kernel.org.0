@@ -2,145 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E7F2B0B38
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 18:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589022B0B4B
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 18:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726064AbgKLRYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 12:24:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57942 "EHLO
+        id S1725999AbgKLRbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 12:31:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725987AbgKLRYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 12:24:24 -0500
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0760C0613D1;
-        Thu, 12 Nov 2020 09:24:24 -0800 (PST)
-Received: by mail-ot1-x342.google.com with SMTP id z16so6316771otq.6;
-        Thu, 12 Nov 2020 09:24:24 -0800 (PST)
+        with ESMTP id S1725987AbgKLRbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 12:31:04 -0500
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13BD0C0613D1
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 09:31:04 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id r17so6908913wrw.1
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 09:31:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/21vHgU5XWNq5hksKFVzPNSsGzq/Xdnt8IrbZeHaljY=;
-        b=Fjl2nwgx+63dibiPb4HNRZVWlipW1Q9yuemM+7qos3TvPCUuKTN1jPX9Nc9sGgml1X
-         TJMqXztO3t6imvlx12bViW/4ysYpoZpwcV8qq/hYXa8dTqGGL+byXfcwGUFI5a8cMpHr
-         amRk/nxepw5wRv1N99LBiKEu/K+CW8rlhM84w6xm/+m1km25J0JqYm9/caPWFwx621aN
-         FcM9mF3whqilcQhK1rsBYKuCcg4gvRUncrDtrK62kZU9fpDIBbXdB8mxmZibQ9APJTWP
-         w9Nb7f1ykQhRKX7rq7kKeya42uPvUaqgKmvF6vkms+o8PToXHsaQQv22tPdScmNmFPVk
-         0LTQ==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :content-transfer-encoding:user-agent;
+        bh=raaKEFv9hSNpaMciIIHYuZtWNQXHTpjXgjTyMn1nIKE=;
+        b=o6uyMPstj8xB511TQcgMpEAkqfYI9QZuvE7BlfFhEmZ4g4TgFSCuQbAHcx/cvslUSB
+         UXEg+F8H+o8ozN4eHidO0fgjhc0VNOqqvH7rSkyC9vXnWndysOdrkE6bAncFGiOScgBQ
+         kdoZQ/66d3rynM6Jl1jaOVLmBNYX6TdNl2Qf/eW+YyZIEzo+UwOo9xXr7IJE0fovysUh
+         QEUqtwpRlpclayZoN+I7SPG6M/xupIiOyWKeOEZOQRwLS9MkviL4aBR1A8Yb1FJqV8UN
+         XluvMTnzEaPtNYk6+lBikViz4wDiLjCm7EMqdwMRuhHOvbQMNRdapVgyYK/H/oezoCGm
+         Y2AA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=/21vHgU5XWNq5hksKFVzPNSsGzq/Xdnt8IrbZeHaljY=;
-        b=sFchJPyfxXip+RlrvbNxtuUN192hCxGiodTaBxGLxDngDxLCYnpds2DMrJARBz86l2
-         v9WNitT2dj9e1+yTSrELYsb8m3pwzeFhUM+dHMgX7+9fyamu48X7M2d95p2yyJwxQ5Iy
-         wDHB5Y0NNscJEYXj8Jkdcfodkv8ygq+m815JzmnZvkAdFAwnXeeofgL7EYAwkqSzQA7w
-         f2QoT7mPWyAVQUVmcciRGf6vZBw/F5UpZ4rUOVsThgxawx4xrN366ySguKb+P83Rms2v
-         TqNPGIJSkT4xaTjDbRI5/ChRmCAbD/G6mSXds4aVHl/IRq6DIWYUmcgElahxlbdQsrlV
-         nP9g==
-X-Gm-Message-State: AOAM532x2KY6+NZ0WmOh1hj3V5a6buR7zil5hV3pM363c4VQ8QO/GQIK
-        tQ4PuW0bCybYmvDUYcOy3o6PzofpIq8=
-X-Google-Smtp-Source: ABdhPJz57A9TILAVcxO2AaSK5+8PH9WJfUXZffEtbwoRTUxPdqkmBQQcxY5cvSSqGH/M0BhA+r28OA==
-X-Received: by 2002:a9d:2023:: with SMTP id n32mr175229ota.306.1605201864055;
-        Thu, 12 Nov 2020 09:24:24 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i18sm1267888oik.7.2020.11.12.09.24.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Nov 2020 09:24:23 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH] hwmon: amd_energy: modify the visibility of the counters
-To:     Naveen Krishna Chatradhi <nchatrad@amd.com>,
-        linux-hwmon@vger.kernel.org
-Cc:     naveenkrishna.ch@gmail.com, stable@vger.kernel.org
-References: <20201112172159.8781-1-nchatrad@amd.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <238e3cf7-582f-a265-5300-9b44948107b0@roeck-us.net>
-Date:   Thu, 12 Nov 2020 09:24:22 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding:user-agent;
+        bh=raaKEFv9hSNpaMciIIHYuZtWNQXHTpjXgjTyMn1nIKE=;
+        b=DJYZNGQZ80ucypiS8ARTyOZqlorMOrepXw2RD6yM67HIzRI4RdZl6evcQ6QNVUAjiZ
+         rLrlwXtPgdBQIlbAlZ9q6peKVXoQeSx1a5keVQ6OHG+WxfoZuoVnEA2aa26kH0CxlPbo
+         ifgNNuyxk+u54cBiN4s+ZTWXSpWjk8I58RvKfu42vLGS3a2gDuUq73OYJR4DiFcFsPG6
+         rCs7y+cJ+V0bGQ1dr8rzd2hIP179ofwsGxrY1VBw13pv8klk2lbkxBzwj78YRCKKmqHT
+         H4OnM74t6P6QToI1f+jkgfBHmKJyYMrDJgm85Ot+rGjxBNCF9hHE2ALI3KL3jNERxGnY
+         p+1g==
+X-Gm-Message-State: AOAM533BJ2tjfoQ6d40huu6CvLWwUQGgHuoQSKVcMly+FpEtydY8H3kp
+        skRk3pZR0jWC5b5i2eRcAdWrqOMFIMYksg==
+X-Google-Smtp-Source: ABdhPJzq8ZbYRKMhmOsXWYzq2zEAKMSnMC3np5beLyr30+g+5hF/zBbfQrJlJ1TVxGi28+y7MHC99g==
+X-Received: by 2002:adf:f24b:: with SMTP id b11mr724382wrp.342.1605202262746;
+        Thu, 12 Nov 2020 09:31:02 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id f16sm7865476wrp.66.2020.11.12.09.31.01
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 12 Nov 2020 09:31:02 -0800 (PST)
+Date:   Thu, 12 Nov 2020 17:31:00 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
+Cc:     stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Wei Liu <wl@xen.org>
+Subject: backport of 073d0552ead5 ("xen/events: avoid removing an event
+Message-ID: <20201112173100.6rbaklb74ofkltl5@debian>
 MIME-Version: 1.0
-In-Reply-To: <20201112172159.8781-1-nchatrad@amd.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="rmznzdybnrm3fww3"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/12/20 9:21 AM, Naveen Krishna Chatradhi wrote:
-> This patch limits the visibility to owner and groups only for the
-> energy counters exposed through the hwmon based amd_energy driver.
-> 
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Naveen Krishna Chatradhi <nchatrad@amd.com>
 
-This is very unusual, and may mess up the "sensors" command.
-What problem is this trying to solve ?
+--rmznzdybnrm3fww3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Guenter
+Hi Greg, Sasha,
 
-> ---
->  drivers/hwmon/amd_energy.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hwmon/amd_energy.c b/drivers/hwmon/amd_energy.c
-> index d06597303d5a..3197cda7bcd9 100644
-> --- a/drivers/hwmon/amd_energy.c
-> +++ b/drivers/hwmon/amd_energy.c
-> @@ -171,7 +171,7 @@ static umode_t amd_energy_is_visible(const void *_data,
->  				     enum hwmon_sensor_types type,
->  				     u32 attr, int channel)
->  {
-> -	return 0444;
-> +	return 0440;
->  }
->  
->  static int energy_accumulator(void *p)
-> 
+This was missing from v4.4.y, v4.9.y and v4.14.y. Please consider
+the attached backported patch.
+Missed adding stable in the previous mail.
 
+--
+Regards
+Sudip
+
+--rmznzdybnrm3fww3
+Content-Type: text/x-diff; charset=iso-8859-1
+Content-Disposition: attachment; filename="0001-xen-events-avoid-removing-an-event-channel-while-han.patch"
+Content-Transfer-Encoding: 8bit
+
+From 94ca21c0ecd8352c6f15ef17c81e7ac7ccfb0d93 Mon Sep 17 00:00:00 2001
+From: Juergen Gross <jgross@suse.com>
+Date: Mon, 7 Sep 2020 15:47:27 +0200
+Subject: [PATCH] xen/events: avoid removing an event channel while handling it
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2 upstream
+
+Today it can happen that an event channel is being removed from the
+system while the event handling loop is active. This can lead to a
+race resulting in crashes or WARN() splats when trying to access the
+irq_info structure related to the event channel.
+
+Fix this problem by using a rwlock taken as reader in the event
+handling loop and as writer when deallocating the irq_info structure.
+
+As the observed problem was a NULL dereference in evtchn_from_irq()
+make this function more robust against races by testing the irq_info
+pointer to be not NULL before dereferencing it.
+
+And finally make all accesses to evtchn_to_irq[row][col] atomic ones
+in order to avoid seeing partial updates of an array element in irq
+handling. Note that irq handling can be entered only for event channels
+which have been valid before, so any not populated row isn't a problem
+in this regard, as rows are only ever added and never removed.
+
+This is XSA-331.
+
+Cc: stable@vger.kernel.org
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reported-by: Jinoh Kang <luke1337@theori.io>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Wei Liu <wl@xen.org>
+[sudip: Backported by adjusting context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/xen/events/events_base.c | 41 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index fdeeef2b9947..6ef1b491e6d6 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
++#include <linux/spinlock.h>
+ 
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -69,6 +70,23 @@ const struct evtchn_ops *evtchn_ops;
+  */
+ static DEFINE_MUTEX(irq_mapping_update_lock);
+ 
++/*
++ * Lock protecting event handling loop against removing event channels.
++ * Adding of event channels is no issue as the associated IRQ becomes active
++ * only after everything is setup (before request_[threaded_]irq() the handler
++ * can't be entered for an event, as the event channel will be unmasked only
++ * then).
++ */
++static DEFINE_RWLOCK(evtchn_rwlock);
++
++/*
++ * Lock hierarchy:
++ *
++ * irq_mapping_update_lock
++ *   evtchn_rwlock
++ *     IRQ-desc lock
++ */
++
+ static LIST_HEAD(xen_irq_list_head);
+ 
+ /* IRQ <-> VIRQ mapping. */
+@@ -103,7 +121,7 @@ static void clear_evtchn_to_irq_row(unsigned row)
+ 	unsigned col;
+ 
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		evtchn_to_irq[row][col] = -1;
++		WRITE_ONCE(evtchn_to_irq[row][col], -1);
+ }
+ 
+ static void clear_evtchn_to_irq_all(void)
+@@ -140,7 +158,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ 		clear_evtchn_to_irq_row(row);
+ 	}
+ 
+-	evtchn_to_irq[row][col] = irq;
++	WRITE_ONCE(evtchn_to_irq[row][col], irq);
+ 	return 0;
+ }
+ 
+@@ -150,7 +168,7 @@ int get_evtchn_to_irq(unsigned evtchn)
+ 		return -1;
+ 	if (evtchn_to_irq[EVTCHN_ROW(evtchn)] == NULL)
+ 		return -1;
+-	return evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)];
++	return READ_ONCE(evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)]);
+ }
+ 
+ /* Get info for IRQ */
+@@ -259,10 +277,14 @@ static void xen_irq_info_cleanup(struct irq_info *info)
+  */
+ unsigned int evtchn_from_irq(unsigned irq)
+ {
+-	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
++	const struct irq_info *info = NULL;
++
++	if (likely(irq < nr_irqs))
++		info = info_for_irq(irq);
++	if (!info)
+ 		return 0;
+ 
+-	return info_for_irq(irq)->evtchn;
++	return info->evtchn;
+ }
+ 
+ unsigned irq_from_evtchn(unsigned int evtchn)
+@@ -438,16 +460,21 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
+ static void xen_free_irq(unsigned irq)
+ {
+ 	struct irq_info *info = info_for_irq(irq);
++	unsigned long flags;
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+ 
++	write_lock_irqsave(&evtchn_rwlock, flags);
++
+ 	list_del(&info->list);
+ 
+ 	set_info_for_irq(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
++	write_unlock_irqrestore(&evtchn_rwlock, flags);
++
+ 	kfree(info);
+ 
+ 	/* Legacy IRQ descriptors are managed by the arch. */
+@@ -1233,6 +1260,8 @@ static void __xen_evtchn_do_upcall(void)
+ 	int cpu = get_cpu();
+ 	unsigned count;
+ 
++	read_lock(&evtchn_rwlock);
++
+ 	do {
+ 		vcpu_info->evtchn_upcall_pending = 0;
+ 
+@@ -1248,7 +1277,7 @@ static void __xen_evtchn_do_upcall(void)
+ 	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
+ 
+ out:
+-
++	read_unlock(&evtchn_rwlock);
+ 	put_cpu();
+ }
+ 
+-- 
+2.11.0
+
+
+--rmznzdybnrm3fww3--
