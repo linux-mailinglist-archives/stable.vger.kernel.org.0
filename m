@@ -2,125 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EF72AFFB2
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 07:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F18912AFFD7
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 07:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726291AbgKLGbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 01:31:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37941 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726287AbgKLGbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 01:31:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605162681;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=RhtA6QSp1QbBfU96em4sj0ByA3Z5T9kaKGCTzLh5k6A=;
-        b=D4os0q/CP2wos0lqcfds3/+eVZ05+UDzEJCWcUCrR8I9tJsP5lJs0fkdn0kZ0W90fPvzkE
-        u6Qn/n6aYt+XbRpc6JDC1fvukF1FhuujlsDjWxqPC9vD+ZSnuJN2jLE7iS/W7EhsWFu3th
-        tIkWG4NwFoMDPfASEG37PKVp835tddU=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-167-gaVImnazNiSN9T7pu-UAKw-1; Thu, 12 Nov 2020 01:31:19 -0500
-X-MC-Unique: gaVImnazNiSN9T7pu-UAKw-1
-Received: by mail-pf1-f197.google.com with SMTP id b139so3181250pfb.2
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 22:31:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=RhtA6QSp1QbBfU96em4sj0ByA3Z5T9kaKGCTzLh5k6A=;
-        b=W+2KfWYFmWwiIBt3Z7nu6aLwMVD3O2XZR3tCuhbc1fHxq9CM5BcbUH+oZSa4FVwSJD
-         vGYU+UYkf1/1UeLSkZAExrKoS3nmskkJFyCXNEPTK6GmfdkeysRLFX+4lY6I750aWLf5
-         kgLxQ+Vprz1FO3rQ49vrxA9EW6GbQYbHpMJvrrO9/VkA9yo1rD1KuPW762FTwMcWzsEs
-         NWm/rR2J5T7qdyhFDSEi1MFS1DPYDExhMlBrGLRNvy4/NCKwckkm8D9gcbEsK3jdQA0E
-         N72EPgXyNjyRChnElya0OvfenUej1c1nBONbwDwdvuvzsmdg1U0sGtj4rTf0A7YEDoio
-         bolg==
-X-Gm-Message-State: AOAM530B1mq95DN7mmB+eofh0+HRWT1yNgTzm6J0Ou+/tko2SD0Qs459
-        ihLOzlWA4wuQyStDtzuw6snLx7FpeOChEXcD8FDQUnxv1zUAnzfTiIMQcoHriUV14PqDDCfTnxI
-        Nvt5enxeG1RE5ChgC
-X-Received: by 2002:a17:90b:f10:: with SMTP id br16mr7618500pjb.60.1605162678220;
-        Wed, 11 Nov 2020 22:31:18 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxkpudI07BN4usbj64YYaOQxy5Cz9zNtPxALGTMfevPPYhdXWMdSav0XlUgYldyBfOdUQZtIQ==
-X-Received: by 2002:a17:90b:f10:: with SMTP id br16mr7618477pjb.60.1605162677976;
-        Wed, 11 Nov 2020 22:31:17 -0800 (PST)
-Received: from xiangao.com ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id k25sm4942345pfi.42.2020.11.11.22.31.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 22:31:17 -0800 (PST)
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     linux-xfs@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        Gao Xiang <hsiangkao@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] xfs: fix signed calculation related to XFS_LITINO(mp)
-Date:   Thu, 12 Nov 2020 14:30:05 +0800
-Message-Id: <20201112063005.692054-1-hsiangkao@redhat.com>
-X-Mailer: git-send-email 2.18.4
+        id S1725920AbgKLGrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 01:47:11 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:45769 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725898AbgKLGrK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 01:47:10 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 35D285C01E2;
+        Thu, 12 Nov 2020 01:47:09 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 12 Nov 2020 01:47:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=L/VcdorDp9JE+pqeZaPOyqZZAuh
+        HDIcmdpu8X5mEc6E=; b=Gq7Yv3apjBkIvWYD337ESJfweP8TCtTP2ZHRA10KeDY
+        ci//M1M7OMmph4UPK5m8n0lwAers67+njrEc5SICe7iJgPdMxd3/0Q0FhP0gODiu
+        mLr1eq+6GH2hf9Hw92zxWiYXPe+Q7ydgOZTo5OMe/pU5LVqRbSqN6qi9lAw8y0Ao
+        fLxg0WVQAAoLa1sLvdI6QwzHg9uVci6OwbnnYqmTUaJx4Glo80lz6z+vaYawVstV
+        +2ilncktdbs1tLPgw1LlF94cn4MT6ktun44FbsoiVGkUnzNIjXufaU0e83kQX8JJ
+        So4OOw0f6V/xUudcnID2t+WuTO8E87PgMLk+yK+hoSQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=L/Vcdo
+        rDp9JE+pqeZaPOyqZZAuhHDIcmdpu8X5mEc6E=; b=N5FaYZBV4VkvImvDh0hxVN
+        +cuHemH0y25tCytoIO6aHblUT94MoX1u8KWJbn3Q1eFm3gl376XMBFQaLjGcpdV5
+        UECnDP/QmYfgA/vg9wHbp97tApLUXPhmLRBSMvpWohzgqWsCFc/Uu0h6jjMVCJcV
+        YAvVvRgWHvRdymrZjCXrsm6KCucsZVhWbKahs6SvXzanUcSEgkySnYokkvrrXyTi
+        f41iYoLT47+yW/KD5d1XoAAPYHlsMLmIs6qkEAscEasErHME+N1SRj7/UqOYOSLr
+        drduQz9Pdvg86LS1EVjKTb0w+9Ven10SgwHa4v1KgCug11CZsEnC7WTxzkHXteVg
+        ==
+X-ME-Sender: <xms:bNqsX5oCdjmqpLZOJs9d4v0UlQSOwvgs2-wOe2iL-fFjJxsU_dy44Q>
+    <xme:bNqsX7qTg7fR1e0Vmh0qUXT2thN_rQHjJ_7_R9g3fj6hQjsLuL6a0a7tuqfsngkU-
+    -CkLtcdKrQFQQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddvuddguddtudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelle
+    dtheekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhush
+    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
+    hhdrtghomh
+X-ME-Proxy: <xmx:bNqsX2Nal8xqcdNVUQvAVvseB3pNvr12R0Fr9Xb2akk_yK32bXX-EQ>
+    <xmx:bNqsX07azYnxuaD9DCoQwUskE_DoXemXaGTqGJqas1hhpII6QrFHsA>
+    <xmx:bNqsX47L877nFlSN9qUx4Cni_qDF9nFCUuqopyYhb1u2WRnOFTrkRg>
+    <xmx:bdqsX4F8K2MmazA-U20q8yDwbni4jhbjWlgto-e6Qo4nrkpv7N7lSQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 686E03065269;
+        Thu, 12 Nov 2020 01:47:08 -0500 (EST)
+Date:   Thu, 12 Nov 2020 07:48:07 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Anand K Mistry <amistry@google.com>
+Cc:     stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH] x86/speculation: Allow IBPB to be conditionally enabled
+ on CPUs with always-on STIBP
+Message-ID: <X6zap9Qlz5Po/MOK@kroah.com>
+References: <20201112001535.2960453-1-amistry@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201112001535.2960453-1-amistry@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, commit e9e2eae89ddb dropped a (int) decoration from
-XFS_LITINO(mp), and since sizeof() expression is also involved,
-the result of XFS_LITINO(mp) is simply as the size_t type
-(commonly unsigned long).
+On Thu, Nov 12, 2020 at 11:15:34AM +1100, Anand K Mistry wrote:
+> commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
+> 
+> On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
+> STIBP is set to on and
+> 
+>   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
+> 
+> At the same time, IBPB can be set to conditional.
+> 
+> However, this leads to the case where it's impossible to turn on IBPB
+> for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
+> 
+>   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
+> 
+> condition leads to a return before the task flag is set. Similarly,
+> ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
+> conditional.
+> 
+> More generally, the following cases are possible:
+> 
+> 1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
+> 2. STIBP = on && IBPB = conditional for AMD CPUs with
+>    X86_FEATURE_AMD_STIBP_ALWAYS_ON
+> 
+> The first case functions correctly today, but only because
+> spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
+> 
+> At a high level, this change does one thing. If either STIBP or IBPB
+> is set to conditional, allow the prctl to change the task flag.
+> Also, reflect that capability when querying the state. This isn't
+> perfect since it doesn't take into account if only STIBP or IBPB is
+> unconditionally on. But it allows the conditional feature to work as
+> expected, without affecting the unconditional one.
+> 
+>  [ bp: Massage commit message and comment; space out statements for
+>    better readability. ]
+> 
+> Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+> Signed-off-by: Anand K Mistry <amistry@google.com>
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+> Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
+> 
+> Conflicts:
+> 	arch/x86/kernel/cpu/bugs.c
+> 
+> Superfluous newline which was removed in upstream commit a5ce9f2bb665
 
-Considering the expression in xfs_attr_shortform_bytesfit():
-  offset = (XFS_LITINO(mp) - bytes) >> 3;
-let "bytes" be (int)340, and
-    "XFS_LITINO(mp)" be (unsigned long)336.
+In the future, No need for the conflicts or this line in the changelog
+text, that just requires me to edit it out :(
 
-on 64-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 8 =
-           (int)(0xfffffffffffffffcUL >> 3) = -1
+thanks,
 
-but on 32-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 8 =
-           (int)(0xfffffffcUL >> 3) = 0x1fffffff
-instead.
-
-so offset becomes a large number on 32-bit platform, and cause
-xfs_attr_shortform_bytesfit() returns maxforkoff rather than 0
-
-Therefore, one result is
-  "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
-  assertion failure in xfs_idata_realloc().
-
-, which can be triggered with the following commands:
- touch a;
- setfattr -n user.0 -v "`seq 0 80`" a;
- setfattr -n user.1 -v "`seq 0 80`" a
-on 32-bit platform.
-
-Fix it by restoring (int) decorator to XFS_LITINO(mp) since
-int type for XFS_LITINO(mp) is safe and all pre-exist signed
-calculations are correct.
-
-Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
-Cc: <stable@vger.kernel.org> # 5.7+
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
----
-I'm not sure this is the preferred way or just simply fix
-xfs_attr_shortform_bytesfit() since I don't look into the
-rest of XFS_LITINO(mp) users. Add (int) to XFS_LITINO(mp)
-will avoid all potential regression at least.
-
- fs/xfs/libxfs/xfs_format.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/xfs/libxfs/xfs_format.h b/fs/xfs/libxfs/xfs_format.h
-index dd764da08f6f..f58f0a44c024 100644
---- a/fs/xfs/libxfs/xfs_format.h
-+++ b/fs/xfs/libxfs/xfs_format.h
-@@ -1061,7 +1061,7 @@ enum xfs_dinode_fmt {
- 		sizeof(struct xfs_dinode) : \
- 		offsetof(struct xfs_dinode, di_crc))
- #define XFS_LITINO(mp) \
--	((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb))
-+	((int)((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb)))
- 
- /*
-  * Inode data & attribute fork sizes, per inode.
--- 
-2.18.4
-
+greg k-h
