@@ -2,83 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 835BC2B006D
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 08:40:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9372B013B
+	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 09:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725898AbgKLHkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 02:40:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52038 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725884AbgKLHkk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 02:40:40 -0500
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41E5C0613D1
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 23:40:39 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id s30so6915929lfc.4
-        for <stable@vger.kernel.org>; Wed, 11 Nov 2020 23:40:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=G49uyF04SzydB1vzAY+E31hczTm54zcW/R1I5M04ZyU=;
-        b=a95q59R9uplhrlTzL+HMsVI3P/TqmvoCI9o3BR/cp8TW1A7axWXgTV9xIBzrpSZkxo
-         IwtluRQv1KMKkDIjrg8vDb/5Cu+q4l6wCvUWZbFExRk7Sa1KB9aEQwb/Yb9eYSBlSkfI
-         kkC1vG2q2GehBxQilnM5zln8SIbG0XMa53qEsz5xKRbVMNJsE2OrgPtxNNgfibaPJiw8
-         2bEw7BSkYvSexVXF92tpH/LD/DCcZ2j0yHg3CbsZXNsqD4ppU1d3QlPCPgq8efw6nbI9
-         JXqf6FPkIapR5LG4tYSUV18WkxJ63DvZyv7IvtD1SMj/bzUD9IeULMKcwpecEyHPjeO4
-         f9fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=G49uyF04SzydB1vzAY+E31hczTm54zcW/R1I5M04ZyU=;
-        b=Yb+D6gQaqPvoFls4VB8l7dh7gF/b216DPRiQwrcbB/YMhg48dS8XaIcb3djRYlnCHB
-         IxS807Tnjlq4ROAHjm8HhKTaM9NRHd5F9SC1pJfMIXApbMxzhA/BbGMARtloNJIPvGmA
-         Cbq4a9W3xJaI1/mSS0eGEnOzbwrZpiIEuWSnWay9VNBulqxxS9IXbslQxUGjh6YYlwbt
-         e9A455S/DwLYXcy/55Z+FkPtTqJgCG9wEQ/RgM+QzlLCqViN1SPbexL4K1uSPegQnP62
-         cKMs7CnUENyTtKgCfdZ2bAMppnjtIA1qC3E3wuMtZXRibHC2ICQGoQwZiRrWmsSeNcAT
-         cRJA==
-X-Gm-Message-State: AOAM531ZlxmWIBothRz9Ws/9LD/lpgZ64429MaAfe0jWneWOqjM7rHAi
-        wiKfjOB0Us3pNe7SLwjlgJNHiyv788LgKxKbvvA=
-X-Google-Smtp-Source: ABdhPJy0fJrKVCS7tYKWAK0H5cvY9H6oyLIclw2rWCO1yDzGWCVEOP3+VDUp54G4WYvLadmn5aBn7RIGq2todjMwiFI=
-X-Received: by 2002:a19:4a55:: with SMTP id x82mr12166145lfa.241.1605166838449;
- Wed, 11 Nov 2020 23:40:38 -0800 (PST)
+        id S1725928AbgKLIc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 03:32:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725898AbgKLIc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Nov 2020 03:32:29 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D51E52100A;
+        Thu, 12 Nov 2020 08:32:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605169947;
+        bh=PGcwZi5pJfL3iqKH7au9+Ilu3JqjdxaLjxs8Rk63fxg=;
+        h=Subject:To:From:Date:From;
+        b=NBQZsI3DZMpz/gFZTamtyfDlfovWgvbTB7m08ZJtUku8llmg5su8ETVPfqrSbM2DR
+         lFxWbaTVioPOt6NLjIRq4pMwQMa/yiRpYnVzKmUKP0iZOCvt0ffmVx7ZMNNWWbVVnc
+         GJ5w9dDqBpyplS1Av+LXFWPDf8LbqVOdC7mlS0DM=
+Subject: patch "tty: serial: imx: fix potential deadlock" added to tty-linus
+To:     samuel.nobs@taitradio.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, u.kleine-koenig@pengutronix.de
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 12 Nov 2020 09:33:26 +0100
+Message-ID: <16051700065460@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a19:b96:0:0:0:0:0 with HTTP; Wed, 11 Nov 2020 23:40:37 -0800 (PST)
-Reply-To: mrs.mcompola333@gmail.com
-From:   mcompla <mrs.samira7@gmail.com>
-Date:   Thu, 12 Nov 2020 08:40:37 +0100
-Message-ID: <CANv7eTt+wnstiFHi=3LfjJvKWXdXZ0K_qQrs+jeY2s1aXkXKsg@mail.gmail.com>
-Subject: Dear Friend, My present internet connection is very slow in case you
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend, My present internet connection is very slow in case you
-received my email in your spam
 
-How are you today?.With due respect to your person and much sincerity
-of purpose,Well it is a pleasure to contact you on this regard and i
-pray that this will turn out to be everlasting relationship for both
-of us. However it's just my urgent need for a Foreign partner that
-made me to contact you for this Transaction,I got your contact from
-internet, while searching for a reliable someone that I can go into
-partnership with. I am Mrs.mcompola, from  BURKINA FASO, West
-Africa .Presently i work in the Bank as bill and exchange manager.
+This is a note to let you know that I've just added the patch titled
 
-I have the opportunity of transferring the left over fund $5.4 Million
-us dollars of one of my Bank clients who died in the collapsing of the
-world trade center on september 11th 2001.I have placed this fund to
-and escrow account without name of beneficiary.i will use my position
-here in the bank to effect a hitch free transfer of the fund to your
-bank account and there will be no trace.
+    tty: serial: imx: fix potential deadlock
 
-I agree that 40% of this money will be for you as my foriegn
-partner,50% for me while 10% will be for the expenses that will occur
-in this transaction .If you are really interested in my proposal
-further details of the Transfer will be forwarded unto you as soon as
-I receive your willingness mail for successful transfer.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-Yours Faithfully,
-mrs.mcompola333@gmail.com
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 33f16855dcb973f745c51882d0e286601ff3be2b Mon Sep 17 00:00:00 2001
+From: Sam Nobs <samuel.nobs@taitradio.com>
+Date: Tue, 10 Nov 2020 09:50:06 +1300
+Subject: tty: serial: imx: fix potential deadlock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Enabling the lock dependency validator has revealed
+that the way spinlocks are used in the IMX serial
+port could result in a deadlock.
+
+Specifically, imx_uart_int() acquires a spinlock
+without disabling the interrupts, meaning that another
+interrupt could come along and try to acquire the same
+spinlock, potentially causing the two to wait for each
+other indefinitely.
+
+Use spin_lock_irqsave() instead to disable interrupts
+upon acquisition of the spinlock.
+
+Fixes: c974991d2620 ("tty:serial:imx: use spin_lock instead of spin_lock_irqsave in isr")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Sam Nobs <samuel.nobs@taitradio.com>
+Link: https://lore.kernel.org/r/1604955006-9363-1-git-send-email-samuel.nobs@taitradio.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/imx.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 1731d9728865..3c53a3c89959 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -942,8 +942,14 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+ 	struct imx_port *sport = dev_id;
+ 	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
+ 	irqreturn_t ret = IRQ_NONE;
++	unsigned long flags = 0;
+ 
+-	spin_lock(&sport->port.lock);
++	/*
++	 * IRQs might not be disabled upon entering this interrupt handler,
++	 * e.g. when interrupt handlers are forced to be threaded. To support
++	 * this scenario as well, disable IRQs when acquiring the spinlock.
++	 */
++	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+ 	usr1 = imx_uart_readl(sport, USR1);
+ 	usr2 = imx_uart_readl(sport, USR2);
+@@ -1013,7 +1019,7 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
+ 		ret = IRQ_HANDLED;
+ 	}
+ 
+-	spin_unlock(&sport->port.lock);
++	spin_unlock_irqrestore(&sport->port.lock, flags);
+ 
+ 	return ret;
+ }
+-- 
+2.29.2
+
+
