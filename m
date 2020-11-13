@@ -2,86 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E66882B2305
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 18:52:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D135F2B23BE
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 19:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbgKMRwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Nov 2020 12:52:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44179 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726070AbgKMRwU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 12:52:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605289939;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=mG78bfKvhfyIekZqtPMjXVvxvjsa6qnyXxPRZ2PYppc=;
-        b=PpX4iNio7Ww82sbxnLQSIEDr4pmb4LWxg3sC7FQSN8IcjsXXgbJxiJH46QpUN+oE/ApSSO
-        jwbbldBQSH9UyIb1LuH0h0EvIsomsc2stGzNaAFFog1glzxUItOzudcRS4JUV03xgPSlrN
-        cfI2JmWu9QWTCVWrXL+EkPr4aUgD7Gc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-63-Dp0zvZ4EOLq57lLx7IZELg-1; Fri, 13 Nov 2020 12:52:17 -0500
-X-MC-Unique: Dp0zvZ4EOLq57lLx7IZELg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 45490805EFC;
-        Fri, 13 Nov 2020 17:52:16 +0000 (UTC)
-Received: from laptop.redhat.com (ovpn-114-125.ams2.redhat.com [10.36.114.125])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 21F925B4C6;
-        Fri, 13 Nov 2020 17:52:07 +0000 (UTC)
-From:   Eric Auger <eric.auger@redhat.com>
-To:     eric.auger.pro@gmail.com, eric.auger@redhat.com,
-        linux-kernel@vger.kernel.org, alex.williamson@redhat.com
-Cc:     stable@vger.kernel.org, cohuck@redhat.com,
-        xyjxie@linux.vnet.ibm.com
-Subject: [PATCH] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
-Date:   Fri, 13 Nov 2020 18:52:02 +0100
-Message-Id: <20201113175202.4500-1-eric.auger@redhat.com>
+        id S1726619AbgKMS00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Nov 2020 13:26:26 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51998 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbgKMS0Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 13:26:25 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E8FEA1C0B7D; Fri, 13 Nov 2020 19:26:21 +0100 (CET)
+Date:   Fri, 13 Nov 2020 19:26:21 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Sasha Levin <sashal@kernel.org>,
+        =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        linux-samsung-soc@vger.kernel.org
+Subject: Re: [PATCH 4.19 107/191] ARM: dts: s5pv210: move PMU node out of
+ clock controller
+Message-ID: <20201113182621.GA7102@duo.ucw.cz>
+References: <20201103203232.656475008@linuxfoundation.org>
+ <20201103203243.594174920@linuxfoundation.org>
+ <20201105114648.GB9009@duo.ucw.cz>
+ <CAJKOXPeexYuH1_9HZUGn4Q80QBtKmqCKiEd=hNd46VKTM4kGgA@mail.gmail.com>
+ <20201105195508.GB19957@duo.ucw.cz>
+ <20201106201245.GA332560@kozik-lap>
+ <20201106211038.GA400980@kozik-lap>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <20201106211038.GA400980@kozik-lap>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case an error occurs in vfio_pci_enable() before the call to
-vfio_pci_probe_mmaps(), vfio_pci_disable() will  try to iterate
-on an uninitialized list and cause a kernel panic.
 
-Lets move to the initialization to vfio_pci_probe() to fix the
-issue.
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Fixes: 05f0c03fbac1 ("vfio-pci: Allow to mmap sub-page MMIO BARs if the mmio page is exclusive")
-CC: Stable <stable@vger.kernel.org> # v4.7+
----
- drivers/vfio/pci/vfio_pci.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Hi!
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index e6190173482c..47ebc5c49ca4 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -161,8 +161,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
- 	int i;
- 	struct vfio_pci_dummy_resource *dummy_res;
- 
--	INIT_LIST_HEAD(&vdev->dummy_resources_list);
--
- 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		int bar = i + PCI_STD_RESOURCES;
- 
-@@ -1966,6 +1964,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	mutex_init(&vdev->igate);
- 	spin_lock_init(&vdev->irqlock);
- 	mutex_init(&vdev->ioeventfds_lock);
-+	INIT_LIST_HEAD(&vdev->dummy_resources_list);
- 	INIT_LIST_HEAD(&vdev->ioeventfds_list);
- 	mutex_init(&vdev->vma_lock);
- 	INIT_LIST_HEAD(&vdev->vma_list);
--- 
-2.21.3
+> > > > I don't think this commit should be backported to stable. It is sim=
+ple
+> > > > dtbs_check - checking whether Devicetree source matches device tree
+> > > > schema. Neither the schema nor the warning existed in v4.19. I think
+> > > > dtbs_check fixes should not be backported, unless a real issue is
+> > > > pointed out.
+> > >=20
+> > > I agree with you about the backporting. Hopefully Greg drops the
+> > > commit.
+> > >=20
+> > > But the other issue is: should mainline be fixed so that ranges do no=
+t overlap?
+> >=20
+> > Yes, it should be. This should fail on mapping resources...
+> >=20
+> > I'll take a look, thanks for the report.
+>=20
+> +Cc Pawe=C5=82 and Marek,
+>=20
+> The IO memory mappings overlap unfortunately on purpose. Most of the
+> clock driver registers are in the first range of 0x3000 but it also uses
+> two registers at offset 0xe000.
+>=20
+> The samsung-s5pv210-pmu is used only as a syscon by phy-s5pv210-usb2.c
+> which wants to play with 0x680c.
+>=20
+> The solution could be to split the mapping into two parts but I don't
+> want to do this. I don't have the hardware so there is a chance I will
+> break things.
+>=20
+> However if Pawe=C5=82, Jonathan or Marek want to improve it - patches are
+> welcomed. :)
 
+Okay, it would be nice to at least have a comment there.
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX67PzQAKCRAw5/Bqldv6
+8hHkAJ0ZbOImgXDcxxJOlzR/bIB/mVCXIACff68HKiF8eXGf8iWV+1ymXlDQRrc=
+=ThZD
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--
