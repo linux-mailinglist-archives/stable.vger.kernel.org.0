@@ -2,91 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 274C22B1CC5
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 14:58:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C842B1D4D
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 15:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726507AbgKMN6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Nov 2020 08:58:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53882 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726437AbgKMN6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 08:58:38 -0500
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19BC8C0613D1;
-        Fri, 13 Nov 2020 05:58:38 -0800 (PST)
-Received: by mail-wr1-x442.google.com with SMTP id p8so10030552wrx.5;
-        Fri, 13 Nov 2020 05:58:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=J+gg0ovYS/kFMCNVWDxGmEGkGeubrfUhWWcdTIUU8sY=;
-        b=DhsqlDFXZ1TYOzf4ZIO3E590yY3ARpU/TE8FPKtgs8Mz1rvy2h9oPNO9OhaAU2xw4A
-         +toxG30ZvdecWjuwi2O56LavK7dH9A8Gv93ZzPaFxZH9X9glqvQ9fmlqEJ2jvnE3RFhS
-         HZ0oYgvckZSNyF+2G9vGdoR+Y5z4t232eqZ8pgvOPsr5SG+89kommRgcCZIPGX9T0ff2
-         LbY2B3V2i7D9THBoRlv2MVcQRbf+ZhgN+5PjAr6lRYGX2sIUqYGTmpqLfI4OBVP8l4Xt
-         dPeIQfJzywqnLaXi2P14d63Yq+K7RkY/GCqn6SsZmEraQnk6YwhC4JMqWZvctpPDpk3S
-         LEEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=J+gg0ovYS/kFMCNVWDxGmEGkGeubrfUhWWcdTIUU8sY=;
-        b=pBwbtPURG/8Wo7Fo0nLC1vswm97fK8td9Pk0UeFXKvHHRrowEggbNu9xxwMDXWhqWO
-         sHa3oWsgS9LUP2BzqVid8HMUIv9O2Ikuj9QdHZJaQdtjDRhcVb/GKIf/KvBzM+i/x9gD
-         O7D0eMJIdtzMDsSNd1PjOS9a+8vua8mwApe1jRTZZcNWmMWt2vPuFVSqs9ubSqmf2j9E
-         j8g/Z1Pjy8lWxb+7IVRfeuZUYXGssrrxr8Ww0+H9+UU0OtcIMlrNBrsf5v6D9eEs505b
-         3vXy9UFE1ChMo+W9QI+/Bgg5sYSQ50KuKdqkiIPogA5cqmvVRF6wCEgqZMaElpfcA4uK
-         7ZEA==
-X-Gm-Message-State: AOAM531ydOHPQjtabKrcZhFrRy+stTRtfFRd3fj9jIJzoiz/oOnthhGe
-        BY04GT7m82sUoOBrLtYBK4V6I/Ip38VR8g==
-X-Google-Smtp-Source: ABdhPJzYz22bryFMCzEkAbbqMDPgVzMZrxQoNUuMNSXxtyUxM//V1RgNPbSy+0BuDv/sPTTPoUeAvA==
-X-Received: by 2002:a5d:66c3:: with SMTP id k3mr3576966wrw.123.1605275916614;
-        Fri, 13 Nov 2020 05:58:36 -0800 (PST)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id v67sm10897728wma.17.2020.11.13.05.58.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2020 05:58:35 -0800 (PST)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Fri, 13 Nov 2020 14:58:34 +0100
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Naveen Krishna Chatradhi <nchatrad@amd.com>,
-        linux-hwmon@vger.kernel.org, naveenkrishna.ch@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] hwmon: amd_energy: modify the visibility of the counters
-Message-ID: <20201113135834.GA354992@eldamar.lan>
-References: <20201112172159.8781-1-nchatrad@amd.com>
- <238e3cf7-582f-a265-5300-9b44948107b0@roeck-us.net>
+        id S1726376AbgKMO0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Nov 2020 09:26:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726278AbgKMO0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Nov 2020 09:26:07 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F7B822242;
+        Fri, 13 Nov 2020 14:26:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605277567;
+        bh=sszQCEzWvOA/1E1RBxQRT5gt9ut1mil9btUJlEe75w4=;
+        h=Subject:To:From:Date:From;
+        b=XfPVPcTyWBTgS4Huvhp99EvgmZJHE+igWDWl1oFEgYMaT/59XAfSsO2yH+Td7TpAZ
+         BBNh6JVZZzwg2N7XAdm11U6Fr7q/4J/JaaOfWeFP4N30vw9x2A0O07bl1J+gr0rlL5
+         moV1thQ624OpEplz8Auwp2XtyzariDKzfGj1DTRQ=
+Subject: patch "usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode" added to usb-linus
+To:     chris.brandt@renesas.com, gregkh@linuxfoundation.org,
+        oneukum@suse.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 13 Nov 2020 15:27:03 +0100
+Message-ID: <1605277623101117@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <238e3cf7-582f-a265-5300-9b44948107b0@roeck-us.net>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Thu, Nov 12, 2020 at 09:24:22AM -0800, Guenter Roeck wrote:
-> On 11/12/20 9:21 AM, Naveen Krishna Chatradhi wrote:
-> > This patch limits the visibility to owner and groups only for the
-> > energy counters exposed through the hwmon based amd_energy driver.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Naveen Krishna Chatradhi <nchatrad@amd.com>
-> 
-> This is very unusual, and may mess up the "sensors" command.
-> What problem is this trying to solve ?
+This is a note to let you know that I've just added the patch titled
 
-Is this related to
+    usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
 
-https://bugzilla.redhat.com/show_bug.cgi?id=1897402
-https://support.lenovo.com/lu/uk/product_security/LEN-50481
-https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12912
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-?
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Regards,
-Salvatore
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 6d853c9e4104b4fc8d55dc9cd3b99712aa347174 Mon Sep 17 00:00:00 2001
+From: Chris Brandt <chris.brandt@renesas.com>
+Date: Wed, 11 Nov 2020 08:12:09 -0500
+Subject: usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
+
+Renesas R-Car and RZ/G SoCs have a firmware download mode over USB.
+However, on reset a banner string is transmitted out which is not expected
+to be echoed back and will corrupt the protocol.
+
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Link: https://lore.kernel.org/r/20201111131209.3977903-1-chris.brandt@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/cdc-acm.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 1e7568867910..f52f1bc0559f 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1693,6 +1693,15 @@ static const struct usb_device_id acm_ids[] = {
+ 	{ USB_DEVICE(0x0870, 0x0001), /* Metricom GS Modem */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
++	{ USB_DEVICE(0x045b, 0x023c),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x0248),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x024D),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
+ 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
+-- 
+2.29.2
+
+
