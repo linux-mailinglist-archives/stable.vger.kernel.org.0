@@ -2,98 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1AD2B1207
-	for <lists+stable@lfdr.de>; Thu, 12 Nov 2020 23:49:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F95C2B137B
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 01:49:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbgKLWte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 17:49:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48728 "EHLO mail.kernel.org"
+        id S1725972AbgKMAto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 19:49:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725903AbgKLWte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Nov 2020 17:49:34 -0500
+        id S1725929AbgKMAto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Nov 2020 19:49:44 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61FCA2085B;
-        Thu, 12 Nov 2020 22:49:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E733B20B80;
+        Fri, 13 Nov 2020 00:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605221360;
-        bh=N2fT6BovsDy9Ao7zSSbwkfqL4sixyk1hOcDkGMQ4iuY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=gBGKEhePfVob0pPdepdYdfcFpZ71O1UuGLdwuEphsS6uLXqnub4VW9HGPgeaMVrcJ
-         RB5hum3NYpfQaSCzYWbkC2uEBCwjZnX/0BpWFtRDOsSQg8scFebwFeRTiPkCyKBxjy
-         wcYYCNbTUAR6xawMwyumo4CLQ9h6ZiI3/mcwSdGo=
-Date:   Thu, 12 Nov 2020 14:49:19 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Minchan Kim <minchan@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Harish Sriram <harish@linux.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] Revert
- "mm/vunmap: add cond_resched() in vunmap_pmd_range"
-Message-Id: <20201112144919.5f6b36876f4e59ebb4a99d6d@linux-foundation.org>
-In-Reply-To: <20201112200101.GC123036@google.com>
-References: <20201105170249.387069-1-minchan@kernel.org>
-        <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
-        <20201107083939.GA1633068@google.com>
-        <20201112200101.GC123036@google.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        s=default; t=1605228583;
+        bh=HF+q7eTNTxupgWp5u5yjmUqv/B+YZLXIwaItIeC2wf8=;
+        h=Date:From:To:Subject:From;
+        b=XLNZRyceKpmrFU1JJ86HH9RvwPyN9Aj5LjIJe0NuZjzKwOzNU1jKnvSGqROFDd/UW
+         dVgIyQy/RJ2TLxlsjOVA14Po/0agZgFXxy5MpvCVa5A4gC+2lhmk2QLDDpafc1A3Md
+         PMUnnP2n5tA9O/0ZPu3HCMqKYwVh/fnaMyLFy/FI=
+Date:   Thu, 12 Nov 2020 16:49:42 -0800
+From:   akpm@linux-foundation.org
+To:     ansuelsmth@gmail.com, catalin.marinas@arm.com,
+        mark.rutland@arm.com, mm-commits@vger.kernel.org,
+        pasha.tatashin@soleen.com, stable@vger.kernel.org, will@kernel.org
+Subject:  + arm64-fix-missing-include-in-asm-uaccessh.patch added
+ to -mm tree
+Message-ID: <20201113004942.I-31XCkuk%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Nov 2020 12:01:01 -0800 Minchan Kim <minchan@kernel.org> wrote:
 
-> 
-> On Sat, Nov 07, 2020 at 12:39:39AM -0800, Minchan Kim wrote:
-> > Hi Andrew,
-> > 
-> > On Fri, Nov 06, 2020 at 05:59:33PM -0800, Andrew Morton wrote:
-> > > On Thu,  5 Nov 2020 09:02:49 -0800 Minchan Kim <minchan@kernel.org> wrote:
-> > > 
-> > > > This reverts commit e47110e90584a22e9980510b00d0dfad3a83354e.
-> > > > 
-> > > > While I was doing zram testing, I found sometimes decompression failed
-> > > > since the compression buffer was corrupted. With investigation,
-> > > > I found below commit calls cond_resched unconditionally so it could
-> > > > make a problem in atomic context if the task is reschedule.
-> > > > 
-> > > > Revert the original commit for now.
->
-> How should we proceed this problem?
->
+The patch titled
+     Subject: arm64: fix missing include in asm/uaccess.h
+has been added to the -mm tree.  Its filename is
+     arm64-fix-missing-include-in-asm-uaccessh.patch
 
-(top-posting repaired - please don't).
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/arm64-fix-missing-include-in-asm-uaccessh.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/arm64-fix-missing-include-in-asm-uaccessh.patch
 
-Well, we don't want to reintroduce the softlockup reports which
-e47110e90584a2 fixed, and we certainly don't want to do that on behalf
-of code which is using the unmap_kernel_range() interface incorrectly.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-So I suggest either
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-a) make zs_unmap_object() stop doing the unmapping from atomic context or
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-b) figure out whether the vmalloc unmap code is *truly* unsafe from
-   atomic context - perhaps it is only unsafe from interrupt context,
-   in which case we can rework the vmalloc.c checks to reflect this, or
+------------------------------------------------------
+From: Ansuel Smith <ansuelsmth@gmail.com>
+Subject: arm64: fix missing include in asm/uaccess.h
 
-c) make the vfree code callable from all contexts.  Which is by far
-   the preferred solution, but may be tough.
+Fix a compilation error as PF_KTHREAD is defined in linux/sched.h and this
+is missing.
 
+[viro@zeniv.linux.org.uk: use linux/uaccess.h]
+  Link: https://lkml.kernel.org/r/20201111005826.GY3576660@ZenIV.linux.org.uk
+Link: https://lkml.kernel.org/r/20201111004440.8783-1-ansuelsmth@gmail.com
+Fixes: df325e05a682 ("arm64: Validate tagged addresses in access_ok() called from kernel threads")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Or maybe not so tough - if the only problem in the vmalloc code is the
-use of mutex_trylock() from irqs then it may be as simple as switching
-to old-style semaphores and using down_trylock(), which I think is
-irq-safe.
+ arch/arm64/include/asm/uaccess.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-However old-style semaphores are deprecated.  A hackyish approach might
-be to use an rwsem always in down_write mode and use
-down_write_trylock(), which I think is also callable from interrrupt
-context.
+--- a/arch/arm64/include/asm/uaccess.h~arm64-fix-missing-include-in-asm-uaccessh
++++ a/arch/arm64/include/asm/uaccess.h
+@@ -7,6 +7,8 @@
+ #ifndef __ASM_UACCESS_H
+ #define __ASM_UACCESS_H
+ 
++#include <linux/uaccess.h>
++
+ #include <asm/alternative.h>
+ #include <asm/kernel-pgtable.h>
+ #include <asm/sysreg.h>
+_
 
-But I have a feeling that there are other reasons why vfree shouldn't
-be called from atomic context, apart from the mutex_trylock-in-irq
-issue.
+Patches currently in -mm which might be from ansuelsmth@gmail.com are
+
+arm64-fix-missing-include-in-asm-uaccessh.patch
+
