@@ -2,251 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01402B142F
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 03:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10CFE2B1446
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 03:30:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726071AbgKMCNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 21:13:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39735 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726017AbgKMCNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 21:13:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605233586;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to; bh=6oM1dXJozOSLVQz6gRBJs6vUBSSzAUJlN3r5T2Civp0=;
-        b=Fpq+SGHcxgdx2Gucntr5NmhA/C9GXGJZsJNQEGhxbKrGP6YtBwOMsFR/PiMhFa+j9cxQAw
-        i/zP0dYnvsCBbVQ6HBeIVyGxOj6GtWc2tmUdlq8l3pZP+95aQAiBPqOm3WKzqyXBYjy2gV
-        W//h3PKcUXw/QBSAiDhYs2DrdIt5xpc=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-291-XlLLZn8fNXWVf7vZNHOgow-1; Thu, 12 Nov 2020 21:13:04 -0500
-X-MC-Unique: XlLLZn8fNXWVf7vZNHOgow-1
-Received: by mail-pl1-f198.google.com with SMTP id p3so4875465plq.21
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 18:13:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=6oM1dXJozOSLVQz6gRBJs6vUBSSzAUJlN3r5T2Civp0=;
-        b=UTdQCQmiu5nF33tixXuSPlWtTivAc+VF2q9vNId1jNfahtJAWB/GOLzkVJ6RU2W89x
-         dYSkrgUWgE7gqpKZ6tAiAE9u9KQ7xXImJEGI/v10bmfIsLKS8VEIpXb7Vlj3IKnD1kXk
-         GQbpAzN04cLCl09xb+lhC88hsHjBkDu1X/YeaqxzKU7st/QWhJJCL4n7/WohUL4Muo+3
-         GpUG+LSTbypluRBDebVT3TrC3SALDQyCkDRJaG4TD47t4tH1PsVwpPdZPbVZxn2g8aHk
-         P44ZioU5A2GAAO/Y047xNfqm7D2v0f2uQJz+9zpSKtOKFHxNN5YvVL6dtoKf6AZPoWp4
-         EnDw==
-X-Gm-Message-State: AOAM532ZfBEm+9OXsg7DsxP/NtHnKX3ZJY/6/N1OPZHq4GDKAGLWVIF+
-        66YqqVk+9Wfq6NprTyabk+i+dHWpeP8jn7pPsc+Dr8QX2folrmS2TCZ9bgx7S8qp3WnDyZqgtlX
-        S52Cwl6onRwPWehry
-X-Received: by 2002:a17:902:8490:b029:d6:d165:fde with SMTP id c16-20020a1709028490b02900d6d1650fdemr2195826plo.73.1605233583662;
-        Thu, 12 Nov 2020 18:13:03 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzHEDnci5VkmW35p+GkK2tlw+enhePU4PuyWiPsmXmq5IOOlswViaz7fgp8I0I7jxwD/I/nJQ==
-X-Received: by 2002:a17:902:8490:b029:d6:d165:fde with SMTP id c16-20020a1709028490b02900d6d1650fdemr2195806plo.73.1605233583359;
-        Thu, 12 Nov 2020 18:13:03 -0800 (PST)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id c24sm7011431pgk.34.2020.11.12.18.12.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 18:13:02 -0800 (PST)
-Date:   Fri, 13 Nov 2020 10:12:51 +0800
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@sandeen.net>,
-        Dennis Gilmore <dgilmore@redhat.com>
-Cc:     linux-xfs@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Eric Sandeen <sandeen@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] xfs: fix signed calculation related to XFS_LITINO(mp)
-Message-ID: <20201113021251.GA847175@xiangao.remote.csb>
+        id S1726017AbgKMCab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 21:30:31 -0500
+Received: from relay-us1.mymailcheap.com ([51.81.35.219]:49884 "EHLO
+        relay-us1.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726196AbgKMCab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 21:30:31 -0500
+Received: from relay5.mymailcheap.com (relay5.mymailcheap.com [159.100.241.64])
+        by relay-us1.mymailcheap.com (Postfix) with ESMTPS id 7616720DF3
+        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 02:30:29 +0000 (UTC)
+Received: from relay1.mymailcheap.com (relay1.mymailcheap.com [144.217.248.100])
+        by relay5.mymailcheap.com (Postfix) with ESMTPS id CB2342008F;
+        Fri, 13 Nov 2020 02:30:25 +0000 (UTC)
+Received: from filter1.mymailcheap.com (filter1.mymailcheap.com [149.56.130.247])
+        by relay1.mymailcheap.com (Postfix) with ESMTPS id B41DD3F157;
+        Fri, 13 Nov 2020 02:30:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+        by filter1.mymailcheap.com (Postfix) with ESMTP id 980DE2A34E;
+        Thu, 12 Nov 2020 21:30:23 -0500 (EST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
+        s=default; t=1605234623;
+        bh=jjkA70crZr53oOsQo8H39Ad7cEMWDse6NYHaxO3xobs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Xi/ImM2aNooaZF6y1jphX17jLeaNs7TuKNV9bv3DUULsbA1TzpPPoC9nP/plFGkTF
+         I0imMEDUkSMOtURY/g4oGkrfGMhU+gCxQc2z+KSuLU/ZNmxAVHFKK58YygaNCmcOsY
+         l/xpijMN3C9zndKCVW9lUpZPZl+YQt/RhzEhA5o0=
+X-Virus-Scanned: Debian amavisd-new at filter1.mymailcheap.com
+Received: from filter1.mymailcheap.com ([127.0.0.1])
+        by localhost (filter1.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id wXCsZvpMM80z; Thu, 12 Nov 2020 21:30:20 -0500 (EST)
+Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by filter1.mymailcheap.com (Postfix) with ESMTPS;
+        Thu, 12 Nov 2020 21:30:20 -0500 (EST)
+Received: from [213.133.102.83] (ml.mymailcheap.com [213.133.102.83])
+        by mail20.mymailcheap.com (Postfix) with ESMTP id BAE7D41F47;
+        Fri, 13 Nov 2020 02:30:19 +0000 (UTC)
+Authentication-Results: mail20.mymailcheap.com;
+        dkim=pass (1024-bit key; unprotected) header.d=flygoat.com header.i=@flygoat.com header.b="vQBPOLEv";
+        dkim-atps=neutral
+AI-Spam-Status: Not processed
+Received: from [0.0.0.0] (unknown [113.52.132.214])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by mail20.mymailcheap.com (Postfix) with ESMTPSA id 2E524400D1;
+        Fri, 13 Nov 2020 02:30:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=flygoat.com;
+        s=default; t=1605234615;
+        bh=jjkA70crZr53oOsQo8H39Ad7cEMWDse6NYHaxO3xobs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=vQBPOLEvr3WmDoyP6UholxzEFKc84BEzGx2CUGpTq92okF6g/7ZLobQeajUCxzK7Z
+         g7b7Zrr9KUxy3CuQDlitzlnE2ra/ic+JIcNWPVt1n8Qqyf/twJxs745LL1otexT5jC
+         TJqErW53MSLSnVYS5nmI0iXji1ctF50ArseT5rGg=
+Subject: Re: [PATCH] MIPS: reserve the memblock right after the kernel
+To:     Serge Semin <fancer.lancer@gmail.com>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20201106141001.57637-1-alexander.sverdlin@nokia.com>
+ <20201107094028.GA4918@alpha.franken.de>
+ <1d6a424e-944e-7f21-1f30-989fb61018a8@nokia.com>
+ <20201110095503.GA10357@alpha.franken.de>
+ <c435b3df-4e82-7c10-366a-5a3d1543c73f@nokia.com>
+ <20201111145240.lok3q5g3pgcvknqr@mobilestation>
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-ID: <4625868b-f845-2f03-c3f2-fc3ff1ccf63d@flygoat.com>
+Date:   Fri, 13 Nov 2020 10:30:09 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201113020413.GA844372@xiangao.remote.csb>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20201111145240.lok3q5g3pgcvknqr@mobilestation>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: BAE7D41F47
+X-Spamd-Result: default: False [4.40 / 10.00];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         RECEIVED_SPAMHAUS_XBL(3.00)[113.52.132.214:received];
+         R_DKIM_ALLOW(0.00)[flygoat.com:s=default];
+         MID_RHS_MATCH_FROM(0.00)[];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         FREEMAIL_ENVRCPT(0.00)[gmail.com];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         TAGGED_RCPT(0.00)[];
+         MIME_GOOD(-0.10)[text/plain];
+         ARC_NA(0.00)[];
+         R_SPF_SOFTFAIL(0.00)[~all];
+         ML_SERVERS(-3.10)[213.133.102.83];
+         DKIM_TRACE(0.00)[flygoat.com:+];
+         DMARC_POLICY_ALLOW(0.00)[flygoat.com,none];
+         RCPT_COUNT_SEVEN(0.00)[7];
+         DMARC_POLICY_ALLOW_WITH_FAILURES(0.00)[];
+         FREEMAIL_TO(0.00)[gmail.com,nokia.com];
+         RCVD_NO_TLS_LAST(0.10)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         ASN(0.00)[asn:24940, ipnet:213.133.96.0/19, country:DE];
+         RCVD_COUNT_TWO(0.00)[2];
+         SUSPICIOUS_RECIPS(1.50)[];
+         HFILTER_HELO_BAREIP(3.00)[213.133.102.83,1]
+X-Rspamd-Server: mail20.mymailcheap.com
+X-Spam: Yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ sorry for forgetting to Cc dgilmore on this reply, it would be
-  much better/helpful with a "Tested-by:" for v2... Let me resend,
-  sorry for annoying. ]
+Hi all,
 
-Hi,
+ÔÚ 2020/11/11 22:52, Serge Semin Ð´µÀ:
+> Hello Alexander
+>
+> On Tue, Nov 10, 2020 at 11:29:50AM +0100, Alexander Sverdlin wrote:
+> 2) The check_kernel_sections_mem() method can be removed. But it
+> should be done carefully. We at least need to try to find all the
+> platforms, which rely on its functionality.
+It have been more than 10 years since introducing this this check, but
+I believe there must be a reason at the time.
 
-On Thu, Nov 12, 2020 at 10:30:04AM -0800, Darrick J. Wong wrote:
-> On Thu, Nov 12, 2020 at 09:53:53AM -0600, Eric Sandeen wrote:
-> > On 11/12/20 12:30 AM, Gao Xiang wrote:
-> > > Currently, commit e9e2eae89ddb dropped a (int) decoration from
-> > > XFS_LITINO(mp), and since sizeof() expression is also involved,
-> > > the result of XFS_LITINO(mp) is simply as the size_t type
-> > > (commonly unsigned long).
-> > 
-> > Thanks for finding this!  Let me think through it a little.
-> >  
-> > > Considering the expression in xfs_attr_shortform_bytesfit():
-> > >   offset = (XFS_LITINO(mp) - bytes) >> 3;
-> > > let "bytes" be (int)340, and
-> > >     "XFS_LITINO(mp)" be (unsigned long)336.
-> > > 
-> > > on 64-bit platform, the expression is
-> > >   offset = ((unsigned long)336 - (int)340) >> 8 =
-> > 
-> > This should be >> 3, right.
-> > 
-> > >            (int)(0xfffffffffffffffcUL >> 3) = -1
-> > > 
-> > > but on 32-bit platform, the expression is
-> > >   offset = ((unsigned long)336 - (int)340) >> 8 =
-> > 
-> > and >> 3 here as well.
-> > 
-> > >            (int)(0xfffffffcUL >> 3) = 0x1fffffff
-> > > instead.
-> > 
-> > Ok.  But wow, that magical cast to (int) in XFS_LITINO isn't at
-> > all clear to me.
-> > 
-> > XFS_LITINO() indicates a /size/ - fixing this problem by making it a
-> > signed value feels very strange, but I'm not sure what would be better,
-> > yet.
-> 
-> TBH I think this needs to be cleaned up -- what is "LITINO", anyway?
-> 
-> I'm pretty sure it's the size of the literal area, aka everything after
-> the inode core, where the forks live?
-> 
-> And, uh, can these things get turned into static inline helpers instead
-> of weird macros?  Separate patches, obviously.
+Also currently we have some unmaintained platform and it's impossible
+to test on them for us.
 
-Thanks, I've addressed all comments in these two reviews in v2:
-https://lore.kernel.org/r/20201113015044.844213-1-hsiangkao@redhat.com
+For Cavium's issue, I believe removing the page rounding can help.
+I'd suggest keep this method but remove the rounding part, also
+leave a warning or kernel taint when out of boundary kernel image
+is detected.
 
-As for LITINO itself, btw, what would be the suggested name for this?
-I'm not good at naming, and will seek time working on cleaning up this.
+Thanks.
 
-> 
-> > 
-> > > Therefore, one result is
-> > >   "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
-> > >   assertion failure in xfs_idata_realloc().
-> > > 
-> > > , which can be triggered with the following commands:
-> > >  touch a;
-> > >  setfattr -n user.0 -v "`seq 0 80`" a;
-> > >  setfattr -n user.1 -v "`seq 0 80`" a
-> > > on 32-bit platform.
-> > 
-> > Can you please write an xfstest for this? :)
-> 
-> Seconded.
+- Jiaxun
 
-Will seek time on this later as well.
-
-> 
-> If this is the fix for the corruption report that dgilmore reported on
-> IRC, this should credit him as the reporter and/or tester.  Especially
-> because I thought this was just a "oh I found this via code review"
-> until someone else pointed out that this was actually a fix for
-> something that a user hit in the field.
-> 
-> The difference is that we're headed towards -rc4 and I'm much more
-> willing to hold up posting the xfs-5.11-merge branch to get in fixes for
-> user-reported problems.
-
-Yeah, sorry for ignoring this original bugreport, since I thought
-the original bugzilla couldn't open publicly.
- https://bugzilla.redhat.com/show_bug.cgi?id=1894177
-
-It would be better to get a "Tested-by:" tag to check the original
-case for v2. :)
-
-> 
-> > > Fix it by restoring (int) decorator to XFS_LITINO(mp) since
-> > > int type for XFS_LITINO(mp) is safe and all pre-exist signed
-> > > calculations are correct.
-> > > 
-> > > Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
-> > > Cc: <stable@vger.kernel.org> # 5.7+
-> > > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-> > > ---
-> > > I'm not sure this is the preferred way or just simply fix
-> > > xfs_attr_shortform_bytesfit() since I don't look into the
-> > > rest of XFS_LITINO(mp) users. Add (int) to XFS_LITINO(mp)
-> > > will avoid all potential regression at least.
-> > > 
-> > >  fs/xfs/libxfs/xfs_format.h | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/fs/xfs/libxfs/xfs_format.h b/fs/xfs/libxfs/xfs_format.h
-> > > index dd764da08f6f..f58f0a44c024 100644
-> > > --- a/fs/xfs/libxfs/xfs_format.h
-> > > +++ b/fs/xfs/libxfs/xfs_format.h
-> > > @@ -1061,7 +1061,7 @@ enum xfs_dinode_fmt {
-> > >  		sizeof(struct xfs_dinode) : \
-> > >  		offsetof(struct xfs_dinode, di_crc))>  #define XFS_LITINO(mp) \
-> > > -	((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb))
-> > > +	((int)((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb)))
-> > 
-> > If we do keep the (int) cast here we at least need a comment explaining why
-> > it cannot be removed, unless there is a better way to solve the problem.
-> 
-> It's still weird, because "size of literal inode area" isn't a signed
-> quantity because you can't have a negative size.
-
-I'm fine with either way, since my starting point was to address
-the regression of e9e2eae89ddb as I mentioned on IRC. And it can
-also be simply fixed directly.
-
-Thanks,
-Gao Xiang
-
-> 
-> > I wonder if explicitly making XFS_LITINO() cast to a size_t would be
-> > best, and then in xfs_attr_shortform_bytesfit() we just quickly reject
-> > the query if the bytes are larger than the literal area:
-> > 
-> > diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-> > index bb128db..5588c2e 100644
-> > --- a/fs/xfs/libxfs/xfs_attr_leaf.c
-> > +++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-> > @@ -535,6 +535,10 @@ STATIC void xfs_attr3_leaf_moveents(struct xfs_da_args *args,
-> >         int                     maxforkoff;
-> >         int                     offset;
-> >  
-> > +       /* Is there no chance we can fit? */
-> > +       if (bytes > XFS_LITINO(mp))
-> > +               return 0;
-> > +
-> >         /* rounded down */
-> >         offset = (XFS_LITINO(mp) - bytes) >> 3;
-> 
-> So if LITINO is 336 and the caller asked for 350 bytes, offset will be
-> negative here.  However, offset is the proposed forkoff, right?  It
-> doesn't make any sense to have a negative forkoff, so I think Eric's
-> (bytes > LITINO) suggestion above is correct.
-> 
-> This patch was hard to review because the comment for
-> xfs_attr_shortform_bytesfit mentions "...the requested number of
-> additional bytes", but the bytes parameter represents the total number
-> of attr fork bytes we want, not a delta over what we have right now.
-> Can someone please fix that comment too?
-> 
-> --D
-> 
-> > 
-> > or, maybe simply:
-> > 
-> > -        offset = (XFS_LITINO(mp) - bytes) >> 3;
-> > +        offset = (int)(XFS_LITINO(mp) - bytes) >> 3;
-> > 
-> > to be sure that the arithmetic doesn't get promoted to unsigned before the shift?
-> > 
-> > or maybe others have better ideas.
-> > 
-> > -Eric
-> > 
-> >   
-> > >  /*
-> > >   * Inode data & attribute fork sizes, per inode.
-> > > 
-> 
-
+>
+> -Sergey
+>
+>> -- 
+>> Best regards,
+>> Alexander Sverdlin.
