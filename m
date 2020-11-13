@@ -2,184 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A771F2B1E92
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 16:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7A62B1EA9
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 16:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgKMP0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Nov 2020 10:26:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39704 "EHLO
+        id S1726732AbgKMP3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Nov 2020 10:29:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726432AbgKMP0Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 10:26:25 -0500
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B035C0613D1
-        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:26:25 -0800 (PST)
-Received: by mail-ot1-x342.google.com with SMTP id h16so5122348otq.9
-        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:26:25 -0800 (PST)
+        with ESMTP id S1726278AbgKMP3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 10:29:14 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31D8C0617A6
+        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:29:13 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id d142so8461382wmd.4
+        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:29:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=T/8hKup0PEqekEDnlVknos01eVeSf0vMGU/zIaJqCHk=;
-        b=Yd9R5EBka93rwJzrwnksydn8gLHx2y8OoIXhmAUK9eLDFV59JRNvFvlCDzyZm+t76d
-         Whk0yYaiY7dBvLhOX3H1byoZOsGHJXsBQLD3N23CoRfbI+mgEHfNvbsEMybK3Gme4rR3
-         lRTAyS61/1rEuoUXKQbNtwOsR5U7eDlciay5LpfMAZ5hMf6MUvKeOYG/szMjx/1tOJIM
-         3Gl5n54I7W5rWsjNFfB6uXG/e4uzaoMfZKQ664erakI2MsEfDrGngXW5dUV+M4QptiY8
-         S2gGEPINplvA3E5ac7Nb1t6zkg18W/AphhvICXAC6biAvf1BBWMqFa8u4yDaIxhfdP4C
-         nGhA==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=HFeLGiERWAzsmh9HVZmHL/P+iKBFqwr5cwVXPsDsgrs=;
+        b=bi9f79IZzAsFgacuDuYCciJJ/HtK3SAwuz2gH86bm1gAs8t1e9Cvuhu6oKYkwSz6wR
+         y6BWQ9KJj4X4+DgyAea5oTDAWYPT2TCMoAgeiVj5X5ZGQ8c56DOrc/BuyRD1kDyK8f/4
+         n4AvKfS3npIFgDUdmNwx+rwMFFXij2XSdItQhYHlMqDeUyALwiN/PZM5/1t6EI3KlWdx
+         41dx0fk8EsWAc/K74q2MEriuQFdvGpS60emK6EYjEs+PdrM0XT7krYvCoBCjoi9VdBXA
+         TZh7UuoYhimtx59g2SL+E7ecsI31ZUfMYHs6wJSDFW6BI5qCGMu7RBfYhpK6VinOQAyf
+         UpEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=T/8hKup0PEqekEDnlVknos01eVeSf0vMGU/zIaJqCHk=;
-        b=Bq1dUnn/6AfKlTIwhiLxqjwdtj03cP7yT2gFwjDGJ1ieNinDwHkbl6h6MBKphP6ptZ
-         EwiTg6VejKNQ/vxWUQEM/niuh+BNZ3o7PyeY+QJnAAOMUHK6d76XVblH+Lycx+fcw/zN
-         c8KkJbt+8g8Vdu3RpbEVNg/OT6o8iw55CkFpfo/gmdJpsUTOMyx9pBUYWkwapv4LPsTd
-         9qPZ6KiZEIkw6Hq4XP6gWSmtyRCKv+BBzPqy7r1YcNfd8LF5d2erSv5xgYDxJNUmr1nk
-         liUOT/mfyTHvGTcN+K1Xi/StKidqPFFQspd+vMp0wwiWA+ZEEqUzUwCVXvDhPTSg+3xw
-         okqw==
-X-Gm-Message-State: AOAM530hI3GeyqiReJxDkOsbWZSgKNlZpm8rGllDcnAj8Fln/FKJm6kP
-        Q5P6ynIV46Z3ndxPaxKoHm06li2bfCwHgB2Gaq6Zex0PrAQ=
-X-Google-Smtp-Source: ABdhPJy9PVc0+ZSspoGbwKfp07dpaRuznwzwcJdj3RTuxqTgcaq4vyMZcKdvOyRySpDz4EPITx9Pf0Zu727JvVB7F0E=
-X-Received: by 2002:a9d:22e4:: with SMTP id y91mr1855412ota.72.1605281179814;
- Fri, 13 Nov 2020 07:26:19 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=HFeLGiERWAzsmh9HVZmHL/P+iKBFqwr5cwVXPsDsgrs=;
+        b=d4c7hhv42YyxD8P9FTrB0YXTIGOZP6wPnrdUOdNxKkFl9SASF3EW3MOqMg/2xLiDOA
+         2b9PQ3eN9Tfrj2es3VfCdBXkVKA0sSmjn9NveECD0fxQ6ISfWiBdHe+Ssog5c73IZn+9
+         cq3wcEpv/vib+59oVtxs3sOrazNeCD3dfAo9wGq6LsusLwLMHmoOQWwi2MLxEA2+IdwA
+         1yZlwDlIu66beIwUlVwEXsTYNxeq+z3ciuXHF6FG3y/IBdhS8bhgkLVCPS6Q3JlJS4iF
+         UV/ruxvo6a1LkWa0i3QISbi7GB/Jw3hcF/jtOOQEQ2HlUzK13q0H5FxnueH8/MQ3fEND
+         zbKQ==
+X-Gm-Message-State: AOAM533/MWqktatgz+iPvswc0LGPhBrQKWMoSk4pQp4QNc5M1DuGAqVe
+        VBTGoseLxvSCPlyF8wkUuEw=
+X-Google-Smtp-Source: ABdhPJw3JPQFkbYlFuUJkWGFNoyjvm07O35/Wsx8ZmG6kVc0gh1SMQj8ilQSfA3aziwhxi5k7sFMbg==
+X-Received: by 2002:a1c:2041:: with SMTP id g62mr3186813wmg.118.1605281346034;
+        Fri, 13 Nov 2020 07:29:06 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id o197sm10305420wme.17.2020.11.13.07.29.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 13 Nov 2020 07:29:05 -0800 (PST)
+Date:   Fri, 13 Nov 2020 15:28:57 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
+Cc:     stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Zijlstra <a.p.zijlstra@chello.nl>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wade Mealing <wmealing@redhat.com>
+Subject: backport of f91072ed1b72 for v4.4.y and v4.9.y
+Message-ID: <20201113152857.ude6zsnlhqnr3gqd@debian>
 MIME-Version: 1.0
-References: <20201102202515.19073-1-sergio.paracuellos@gmail.com>
-In-Reply-To: <20201102202515.19073-1-sergio.paracuellos@gmail.com>
-From:   Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Date:   Fri, 13 Nov 2020 16:26:08 +0100
-Message-ID: <CAMhs-H9DRT6G0GQg-gpDT=q_BniDf3EbE3Qq2YbHCXZSK7nPqw@mail.gmail.com>
-Subject: Re: [PATCH] staging: mt7621-pci: avoid to request pci bus resources
-To:     "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, NeilBrown <neil@brown.name>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="tqk3ot7rug5pubvt"
+Content-Disposition: inline
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On Mon, Nov 2, 2020 at 9:25 PM Sergio Paracuellos
-<sergio.paracuellos@gmail.com> wrote:
->
-> After upgrading kernel to version 5.9.x the driver was not
-> working anymore showing the following kernel trace:
->
-> ...
-> mt7621-pci 1e140000.pcie: resource collision:
-> [mem 0x60000000-0x6fffffff] conflicts with pcie@1e140000 [mem 0x60000000-0x6fffffff]
-> ------------[ cut here ]------------
-> WARNING: CPU: 2 PID: 73 at kernel/resource.c:1400
-> devm_request_resource+0xfc/0x10c
-> Modules linked in:
-> CPU: 2 PID: 73 Comm: kworker/2:1 Not tainted 5.9.2 #0
-> Workqueue: events deferred_probe_work_func
-> Stack : 00000000 81590000 807d0a1c 808a0000 8fd49080
->         807d0000 00000009 808ac820
->         00000001 808338d0 7fff0001 800839dc 00000049
->         00000001 8fe51b00 367204ab
->         00000000 00000000 807d0a1c 807c0000 00000001
->         80082358 8fe50000 00559000
->         00000000 8fe519f1 ffffffff 00000005 00000000
->         00000001 00000000 807d0000
->         00000009 808ac820 00000001 808338d0 00000001
->         803bf1b0 00000008 81390008
->
-> Call Trace:
-> [<8000d018>] show_stack+0x30/0x100
-> [<8032e66c>] dump_stack+0xa4/0xd4
-> [<8002db1c>] __warn+0xc0/0x134
-> [<8002dbec>] warn_slowpath_fmt+0x5c/0xac
-> [<80033b34>] devm_request_resource+0xfc/0x10c
-> [<80365ff8>] devm_request_pci_bus_resources+0x58/0xdc
-> [<8048e13c>] mt7621_pci_probe+0x8dc/0xe48
-> [<803d2140>] platform_drv_probe+0x40/0x94
-> [<803cfd94>] really_probe+0x108/0x4ec
-> [<803cd958>] bus_for_each_drv+0x70/0xb0
-> [<803d0388>] __device_attach+0xec/0x164
-> [<803cec8c>] bus_probe_device+0xa4/0xc0
-> [<803cf1c4>] deferred_probe_work_func+0x80/0xc4
-> [<80048444>] process_one_work+0x260/0x510
-> [<80048a4c>] worker_thread+0x358/0x5cc
-> [<8004f7d0>] kthread+0x134/0x13c
-> [<80007478>] ret_from_kernel_thread+0x14/0x1c
-> ---[ end trace a9dd2e37537510d3 ]---
-> mt7621-pci 1e140000.pcie: Error requesting resources
-> mt7621-pci: probe of 1e140000.pcie failed with error -16
-> ...
->
-> With commit 669cbc708122 ("PCI: Move DT resource setup into
-> devm_pci_alloc_host_bridge()"), the DT 'ranges' is parsed and populated
-> into resources when the host bridge is allocated. The resources are
-> requested as well, but that happens a 2nd time for this driver in
-> mt7621_pcie_request_resources(). Hence we should avoid this second
-> request.
->
-> Also, the bus ranges was also populated by default, so we can remove
-> it from mt7621_pcie_request_resources() to avoid the following trace
-> if we don't avoid it:
->
-> pci_bus 0000:00: busn_res: can not insert [bus 00-ff]
-> under domain [bus 00-ff] (conflicts with (null) [bus 00-ff])
->
-> Function 'mt7621_pcie_request_resources' has been renamed into
-> 'mt7621_pcie_add_resources' which now is a more accurate name
-> for this function.
->
-> Cc: stable@vger.kernel.org#5.9.x-
-> Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+--tqk3ot7rug5pubvt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This patch have to be added also for stable 5.9.x because driver is
-broken in all kernel 5.9.x releases. I noticed a new stable release
-comes three days ago (5.9.8) and this was not added. I was wondering
-if the way I marked this patch to be included is wrong.
+Hi Greg, Sasha,
 
-Thanks in advance for your time.
+Please consider the attached backport of
+f91072ed1b72 ("perf/core: Fix race in the perf_mmap_close() function")
+for v4.4.y and v4.9.y.
 
-Best regards,
-    Sergio Paracuellos
+I have sent separate backport for v4.14.y, v4.19.y and v5.4.y.
 
-> ---
->  drivers/staging/mt7621-pci/pci-mt7621.c | 15 +++------------
->  1 file changed, 3 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
-> index f961b353c22e..8831db383fad 100644
-> --- a/drivers/staging/mt7621-pci/pci-mt7621.c
-> +++ b/drivers/staging/mt7621-pci/pci-mt7621.c
-> @@ -653,16 +653,11 @@ static int mt7621_pcie_init_virtual_bridges(struct mt7621_pcie *pcie)
->         return 0;
->  }
->
-> -static int mt7621_pcie_request_resources(struct mt7621_pcie *pcie,
-> -                                        struct list_head *res)
-> +static void mt7621_pcie_add_resources(struct mt7621_pcie *pcie,
-> +                                     struct list_head *res)
->  {
-> -       struct device *dev = pcie->dev;
-> -
->         pci_add_resource_offset(res, &pcie->io, pcie->offset.io);
->         pci_add_resource_offset(res, &pcie->mem, pcie->offset.mem);
-> -       pci_add_resource(res, &pcie->busn);
-> -
-> -       return devm_request_pci_bus_resources(dev, res);
->  }
->
->  static int mt7621_pcie_register_host(struct pci_host_bridge *host,
-> @@ -738,11 +733,7 @@ static int mt7621_pci_probe(struct platform_device *pdev)
->
->         setup_cm_memory_region(pcie);
->
-> -       err = mt7621_pcie_request_resources(pcie, &res);
-> -       if (err) {
-> -               dev_err(dev, "Error requesting resources\n");
-> -               return err;
-> -       }
-> +       mt7621_pcie_add_resources(pcie, &res);
->
->         err = mt7621_pcie_register_host(bridge, &res);
->         if (err) {
-> --
-> 2.25.1
->
+
+--
+Regards
+Sudip
+
+--tqk3ot7rug5pubvt
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-perf-core-Fix-race-in-the-perf_mmap_close-function.patch"
+
+From 24ef0388b57352c2be2e51ea5b92eddd625df77e Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@redhat.com>
+Date: Wed, 16 Sep 2020 13:53:11 +0200
+Subject: [PATCH] perf/core: Fix race in the perf_mmap_close() function
+
+commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream
+
+There's a possible race in perf_mmap_close() when checking ring buffer's
+mmap_count refcount value. The problem is that the mmap_count check is
+not atomic because we call atomic_dec() and atomic_read() separately.
+
+  perf_mmap_close:
+  ...
+   atomic_dec(&rb->mmap_count);
+   ...
+   if (atomic_read(&rb->mmap_count))
+      goto out_put;
+
+   <ring buffer detach>
+   free_uid
+
+out_put:
+  ring_buffer_put(rb); /* could be last */
+
+The race can happen when we have two (or more) events sharing same ring
+buffer and they go through atomic_dec() and then they both see 0 as refcount
+value later in atomic_read(). Then both will go on and execute code which
+is meant to be run just once.
+
+The code that detaches ring buffer is probably fine to be executed more
+than once, but the problem is in calling free_uid(), which will later on
+demonstrate in related crashes and refcount warnings, like:
+
+  refcount_t: addition on 0; use-after-free.
+  ...
+  RIP: 0010:refcount_warn_saturate+0x6d/0xf
+  ...
+  Call Trace:
+  prepare_creds+0x190/0x1e0
+  copy_creds+0x35/0x172
+  copy_process+0x471/0x1a80
+  _do_fork+0x83/0x3a0
+  __do_sys_wait4+0x83/0x90
+  __do_sys_clone+0x85/0xa0
+  do_syscall_64+0x5b/0x1e0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Using atomic decrease and check instead of separated calls.
+
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Wade Mealing <wmealing@redhat.com>
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
+Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+[sudip: backport to v4.9.y by using ring_buffer]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ kernel/events/core.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 7aad4d22b422..38bbec00de2d 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5069,11 +5069,11 @@ static void perf_pmu_output_stop(struct perf_event *event);
+ static void perf_mmap_close(struct vm_area_struct *vma)
+ {
+ 	struct perf_event *event = vma->vm_file->private_data;
+-
+ 	struct ring_buffer *rb = ring_buffer_get(event);
+ 	struct user_struct *mmap_user = rb->mmap_user;
+ 	int mmap_locked = rb->mmap_locked;
+ 	unsigned long size = perf_data_size(rb);
++	bool detach_rest = false;
+ 
+ 	if (event->pmu->event_unmapped)
+ 		event->pmu->event_unmapped(event);
+@@ -5104,7 +5104,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 		mutex_unlock(&event->mmap_mutex);
+ 	}
+ 
+-	atomic_dec(&rb->mmap_count);
++	if (atomic_dec_and_test(&rb->mmap_count))
++		detach_rest = true;
+ 
+ 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
+ 		goto out_put;
+@@ -5113,7 +5114,7 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 	mutex_unlock(&event->mmap_mutex);
+ 
+ 	/* If there's still other mmap()s of this buffer, we're done. */
+-	if (atomic_read(&rb->mmap_count))
++	if (!detach_rest)
+ 		goto out_put;
+ 
+ 	/*
+-- 
+2.11.0
+
+
+--tqk3ot7rug5pubvt--
