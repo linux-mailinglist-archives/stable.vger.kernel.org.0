@@ -2,164 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0C22B140F
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 02:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6D242B1421
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 03:04:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725972AbgKMB5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 20:57:41 -0500
-Received: from mga05.intel.com ([192.55.52.43]:63123 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726196AbgKMB5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Nov 2020 20:57:41 -0500
-IronPort-SDR: gycJapKiqvVQ674HsJe+aUbOYKL/SvBkhkgYvJ9Coxrs0e3cF3yh+gwdF3QF3urZs1FSIZwU/V
- V301vD9Nl3xQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9803"; a="255122665"
-X-IronPort-AV: E=Sophos;i="5.77,473,1596524400"; 
-   d="scan'208";a="255122665"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2020 17:57:40 -0800
-IronPort-SDR: nE/rl1EmvXlpolV38Y1vDuFYYfFY9/DEDOeBjSm4ozFSqymabLM0P66AGgEy5YKFTwmSUDqzVp
- lyXU/fWwQHWQ==
-X-IronPort-AV: E=Sophos;i="5.77,473,1596524400"; 
-   d="scan'208";a="474499145"
-Received: from chenyu-office.sh.intel.com ([10.239.158.173])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2020 17:57:37 -0800
-From:   Chen Yu <yu.c.chen@intel.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Ashok Raj <ashok.raj@intel.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Len Brown <len.brown@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Tony Luck <tony.luck@intel.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH][v2] x86/microcode/intel: check cpu stepping and processor flag before saving microcode
-Date:   Fri, 13 Nov 2020 09:59:23 +0800
-Message-Id: <20201113015923.13960-1-yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1726017AbgKMCEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 21:04:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45525 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726005AbgKMCEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 21:04:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605233068;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9771iwkWuAD46+N/fVj/BNlrfVl88rQehbR1PBtLIQg=;
+        b=SxAbeqoawshvEu72/g0EBaWTNx0nMG09miiY2vYj5Ut7LbkziG2Y9a2mQhWj+AqwZMDD+a
+        Yg7Kk5INS1caOQDwkB63xjECBgl0o2zjUORMQMtB1hMfqR0FEu+T7dd7nMXA0xc1lAgyOZ
+        SlPb8YdtWJPeIn9W2Hjv69Gi4VVaep8=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-219-g1G1HEN8Nnmt31xKUYhaQQ-1; Thu, 12 Nov 2020 21:04:26 -0500
+X-MC-Unique: g1G1HEN8Nnmt31xKUYhaQQ-1
+Received: by mail-pf1-f199.google.com with SMTP id r6so5404185pfg.4
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 18:04:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=9771iwkWuAD46+N/fVj/BNlrfVl88rQehbR1PBtLIQg=;
+        b=WSCXFdAlQ3/sEj1P5AlPeFvxdg5mP55Jcw4WvWNNB4Wxh1wbhwBUMqyg7FgVwhWRnF
+         cxEJ1XeYIGRa0EzzAR7W2dnLy8LnpsgqceZuwCkSlLXjoWrmqmk5fp+eLKbGjXbIWkx+
+         DtrVJtTK4PdRZsq9bpGJuTVCNOSvP5CwOIhNldJdLJEhlm/VyRQ7NOiFRrTOeu7RURmG
+         Ys4iceTnVv6/MbjMCiu508Iz9FwBxiqhJj5+DI2yx3MQFgUjLjGlHQQmzsLNrtm3Pmvo
+         ihd9t+evJ2hSC3Kb6dak3gt5r0dif4WQK3debS3anHq4F1RDpjm6Y8JANjtk1QRvN1bf
+         C9jQ==
+X-Gm-Message-State: AOAM5301GZTF5JfHvZzL+PjXE6DaG412rw/QpnKmoCMznh6m29haOjFe
+        OuBvY/Uo0f7oG+FZcivafeNOxGzDn0bdONqvq3tRcm+ifzGb4NM2SBkOALXHw76xOT5DfUBCEaF
+        uWWZQAYMPYLrHw9wN
+X-Received: by 2002:a17:90a:5e4d:: with SMTP id u13mr182682pji.171.1605233065347;
+        Thu, 12 Nov 2020 18:04:25 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxO2KgVhNVmLMLZFykgT1f3wrnn/SbbfD3DYyGsByd2FhMBKRMzXJVS16OYecIgfnZb9r3H1g==
+X-Received: by 2002:a17:90a:5e4d:: with SMTP id u13mr182652pji.171.1605233065064;
+        Thu, 12 Nov 2020 18:04:25 -0800 (PST)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id y18sm8297131pjn.53.2020.11.12.18.04.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2020 18:04:24 -0800 (PST)
+Date:   Fri, 13 Nov 2020 10:04:13 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@sandeen.net>
+Cc:     linux-xfs@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Eric Sandeen <sandeen@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] xfs: fix signed calculation related to XFS_LITINO(mp)
+Message-ID: <20201113020413.GA844372@xiangao.remote.csb>
+References: <20201112063005.692054-1-hsiangkao@redhat.com>
+ <3d04e9b3-f326-cbcd-e268-e4da40f35fa2@sandeen.net>
+ <20201112183004.GU9695@magnolia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201112183004.GU9695@magnolia>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently scan_microcode() leverages microcode_matches() to check if the
-microcode matches the CPU by comparing the family and model. However before
-saving the microcode in scan_microcode(), the processor stepping and flag
-of the microcode signature should also be considered in order to avoid
-incompatible update and caused the failure of microcode update.
+Hi,
 
-For example on one platform the microcode failed to be updated to the
-latest revison on APs during resume from S3 due to incompatible cpu
-stepping and signature->pf. This is because the scan_microcode() has
-saved an incompatible copy of intel_ucode_patch in
-save_microcode_in_initrd_intel() after bootup. And this intel_ucode_patch
-is used by APs during early resume from S3 which results in unchecked MSR
-access error during resume from S3:
+On Thu, Nov 12, 2020 at 10:30:04AM -0800, Darrick J. Wong wrote:
+> On Thu, Nov 12, 2020 at 09:53:53AM -0600, Eric Sandeen wrote:
+> > On 11/12/20 12:30 AM, Gao Xiang wrote:
+> > > Currently, commit e9e2eae89ddb dropped a (int) decoration from
+> > > XFS_LITINO(mp), and since sizeof() expression is also involved,
+> > > the result of XFS_LITINO(mp) is simply as the size_t type
+> > > (commonly unsigned long).
+> > 
+> > Thanks for finding this!  Let me think through it a little.
+> >  
+> > > Considering the expression in xfs_attr_shortform_bytesfit():
+> > >   offset = (XFS_LITINO(mp) - bytes) >> 3;
+> > > let "bytes" be (int)340, and
+> > >     "XFS_LITINO(mp)" be (unsigned long)336.
+> > > 
+> > > on 64-bit platform, the expression is
+> > >   offset = ((unsigned long)336 - (int)340) >> 8 =
+> > 
+> > This should be >> 3, right.
+> > 
+> > >            (int)(0xfffffffffffffffcUL >> 3) = -1
+> > > 
+> > > but on 32-bit platform, the expression is
+> > >   offset = ((unsigned long)336 - (int)340) >> 8 =
+> > 
+> > and >> 3 here as well.
+> > 
+> > >            (int)(0xfffffffcUL >> 3) = 0x1fffffff
+> > > instead.
+> > 
+> > Ok.  But wow, that magical cast to (int) in XFS_LITINO isn't at
+> > all clear to me.
+> > 
+> > XFS_LITINO() indicates a /size/ - fixing this problem by making it a
+> > signed value feels very strange, but I'm not sure what would be better,
+> > yet.
+> 
+> TBH I think this needs to be cleaned up -- what is "LITINO", anyway?
+> 
+> I'm pretty sure it's the size of the literal area, aka everything after
+> the inode core, where the forks live?
+> 
+> And, uh, can these things get turned into static inline helpers instead
+> of weird macros?  Separate patches, obviously.
 
-[   95.519390] unchecked MSR access error: RDMSR from 0x123 at
-	rIP: 0xffffffffb7676208 (native_read_msr+0x8/0x40)
-[   95.519391] Call Trace:
-[   95.519395]  update_srbds_msr+0x38/0x80
-[   95.519396]  identify_secondary_cpu+0x7a/0x90
-[   95.519397]  smp_store_cpu_info+0x4e/0x60
-[   95.519398]  start_secondary+0x49/0x150
-[   95.519399]  secondary_startup_64_no_verify+0xa6/0xab
+Thanks, I've addressed all comments in these two reviews in v2:
+https://lore.kernel.org/r/20201113015044.844213-1-hsiangkao@redhat.com
 
-The system keeps running on old microcode during resume:
-[  210.366757] microcode: load_ucode_intel_ap: CPU1, enter, intel_ucode_patch: 0xffff9bf2816e0000
-[  210.366757] microcode: load_ucode_intel_ap: CPU1, p: 0xffff9bf2816e0000, rev: 0xd6
-[  210.366759] microcode: apply_microcode_early: rev: 0x84
-[  210.367826] microcode: apply_microcode_early: rev after upgrade: 0x84
+As for LITINO itself, btw, what would be the suggested name for this?
+I'm not good at naming, and will seek time working on cleaning up this.
 
-until mc_cpu_starting() is invoked on each AP during resume and the
-correct microcode is updated via apply_microcode_intel().
+> 
+> > 
+> > > Therefore, one result is
+> > >   "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
+> > >   assertion failure in xfs_idata_realloc().
+> > > 
+> > > , which can be triggered with the following commands:
+> > >  touch a;
+> > >  setfattr -n user.0 -v "`seq 0 80`" a;
+> > >  setfattr -n user.1 -v "`seq 0 80`" a
+> > > on 32-bit platform.
+> > 
+> > Can you please write an xfstest for this? :)
+> 
+> Seconded.
 
-To fix this issue, the scan_microcode() uses find_matching_signature()
-instead of microcode_matches() to compare the (family, model, stepping,
-processor flag), and only save the microcode that matches. As there is
-no other place invoking microcode_matches(), remove it accordingly.
+Will seek time on this later as well.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208535
-Fixes: 06b8534cb728 ("x86/microcode: Rework microcode loading")
-Cc: stable@vger.kernel.org#v4.10+
-Reviewed-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
-v2: Remove RFC tag and Cc the stable mailing list.
----
- arch/x86/kernel/cpu/microcode/intel.c | 50 ++-------------------------
- 1 file changed, 2 insertions(+), 48 deletions(-)
+> 
+> If this is the fix for the corruption report that dgilmore reported on
+> IRC, this should credit him as the reporter and/or tester.  Especially
+> because I thought this was just a "oh I found this via code review"
+> until someone else pointed out that this was actually a fix for
+> something that a user hit in the field.
+> 
+> The difference is that we're headed towards -rc4 and I'm much more
+> willing to hold up posting the xfs-5.11-merge branch to get in fixes for
+> user-reported problems.
 
-diff --git a/arch/x86/kernel/cpu/microcode/intel.c b/arch/x86/kernel/cpu/microcode/intel.c
-index 6a99535d7f37..923853f79099 100644
---- a/arch/x86/kernel/cpu/microcode/intel.c
-+++ b/arch/x86/kernel/cpu/microcode/intel.c
-@@ -100,53 +100,6 @@ static int has_newer_microcode(void *mc, unsigned int csig, int cpf, int new_rev
- 	return find_matching_signature(mc, csig, cpf);
- }
- 
--/*
-- * Given CPU signature and a microcode patch, this function finds if the
-- * microcode patch has matching family and model with the CPU.
-- *
-- * %true - if there's a match
-- * %false - otherwise
-- */
--static bool microcode_matches(struct microcode_header_intel *mc_header,
--			      unsigned long sig)
--{
--	unsigned long total_size = get_totalsize(mc_header);
--	unsigned long data_size = get_datasize(mc_header);
--	struct extended_sigtable *ext_header;
--	unsigned int fam_ucode, model_ucode;
--	struct extended_signature *ext_sig;
--	unsigned int fam, model;
--	int ext_sigcount, i;
--
--	fam   = x86_family(sig);
--	model = x86_model(sig);
--
--	fam_ucode   = x86_family(mc_header->sig);
--	model_ucode = x86_model(mc_header->sig);
--
--	if (fam == fam_ucode && model == model_ucode)
--		return true;
--
--	/* Look for ext. headers: */
--	if (total_size <= data_size + MC_HEADER_SIZE)
--		return false;
--
--	ext_header   = (void *) mc_header + data_size + MC_HEADER_SIZE;
--	ext_sig      = (void *)ext_header + EXT_HEADER_SIZE;
--	ext_sigcount = ext_header->count;
--
--	for (i = 0; i < ext_sigcount; i++) {
--		fam_ucode   = x86_family(ext_sig->sig);
--		model_ucode = x86_model(ext_sig->sig);
--
--		if (fam == fam_ucode && model == model_ucode)
--			return true;
--
--		ext_sig++;
--	}
--	return false;
--}
--
- static struct ucode_patch *memdup_patch(void *data, unsigned int size)
- {
- 	struct ucode_patch *p;
-@@ -344,7 +297,8 @@ scan_microcode(void *data, size_t size, struct ucode_cpu_info *uci, bool save)
- 
- 		size -= mc_size;
- 
--		if (!microcode_matches(mc_header, uci->cpu_sig.sig)) {
-+		if (!find_matching_signature(data, uci->cpu_sig.sig,
-+					     uci->cpu_sig.pf)) {
- 			data += mc_size;
- 			continue;
- 		}
--- 
-2.17.1
+Yeah, sorry for ignoring this original bugreport, since I thought
+the original bugzilla couldn't open publicly.
+ https://bugzilla.redhat.com/show_bug.cgi?id=1894177
+
+It would be better to get a "Tested-by:" tag to check the original
+case for v2. :)
+
+> 
+> > > Fix it by restoring (int) decorator to XFS_LITINO(mp) since
+> > > int type for XFS_LITINO(mp) is safe and all pre-exist signed
+> > > calculations are correct.
+> > > 
+> > > Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
+> > > Cc: <stable@vger.kernel.org> # 5.7+
+> > > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+> > > ---
+> > > I'm not sure this is the preferred way or just simply fix
+> > > xfs_attr_shortform_bytesfit() since I don't look into the
+> > > rest of XFS_LITINO(mp) users. Add (int) to XFS_LITINO(mp)
+> > > will avoid all potential regression at least.
+> > > 
+> > >  fs/xfs/libxfs/xfs_format.h | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/fs/xfs/libxfs/xfs_format.h b/fs/xfs/libxfs/xfs_format.h
+> > > index dd764da08f6f..f58f0a44c024 100644
+> > > --- a/fs/xfs/libxfs/xfs_format.h
+> > > +++ b/fs/xfs/libxfs/xfs_format.h
+> > > @@ -1061,7 +1061,7 @@ enum xfs_dinode_fmt {
+> > >  		sizeof(struct xfs_dinode) : \
+> > >  		offsetof(struct xfs_dinode, di_crc))>  #define XFS_LITINO(mp) \
+> > > -	((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb))
+> > > +	((int)((mp)->m_sb.sb_inodesize - XFS_DINODE_SIZE(&(mp)->m_sb)))
+> > 
+> > If we do keep the (int) cast here we at least need a comment explaining why
+> > it cannot be removed, unless there is a better way to solve the problem.
+> 
+> It's still weird, because "size of literal inode area" isn't a signed
+> quantity because you can't have a negative size.
+
+I'm fine with either way, since my starting point was to address
+the regression of e9e2eae89ddb as I mentioned on IRC. And it can
+also be simply fixed directly.
+
+Thanks,
+Gao Xiang
+
+> 
+> > I wonder if explicitly making XFS_LITINO() cast to a size_t would be
+> > best, and then in xfs_attr_shortform_bytesfit() we just quickly reject
+> > the query if the bytes are larger than the literal area:
+> > 
+> > diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+> > index bb128db..5588c2e 100644
+> > --- a/fs/xfs/libxfs/xfs_attr_leaf.c
+> > +++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+> > @@ -535,6 +535,10 @@ STATIC void xfs_attr3_leaf_moveents(struct xfs_da_args *args,
+> >         int                     maxforkoff;
+> >         int                     offset;
+> >  
+> > +       /* Is there no chance we can fit? */
+> > +       if (bytes > XFS_LITINO(mp))
+> > +               return 0;
+> > +
+> >         /* rounded down */
+> >         offset = (XFS_LITINO(mp) - bytes) >> 3;
+> 
+> So if LITINO is 336 and the caller asked for 350 bytes, offset will be
+> negative here.  However, offset is the proposed forkoff, right?  It
+> doesn't make any sense to have a negative forkoff, so I think Eric's
+> (bytes > LITINO) suggestion above is correct.
+> 
+> This patch was hard to review because the comment for
+> xfs_attr_shortform_bytesfit mentions "...the requested number of
+> additional bytes", but the bytes parameter represents the total number
+> of attr fork bytes we want, not a delta over what we have right now.
+> Can someone please fix that comment too?
+> 
+> --D
+> 
+> > 
+> > or, maybe simply:
+> > 
+> > -        offset = (XFS_LITINO(mp) - bytes) >> 3;
+> > +        offset = (int)(XFS_LITINO(mp) - bytes) >> 3;
+> > 
+> > to be sure that the arithmetic doesn't get promoted to unsigned before the shift?
+> > 
+> > or maybe others have better ideas.
+> > 
+> > -Eric
+> > 
+> >   
+> > >  /*
+> > >   * Inode data & attribute fork sizes, per inode.
+> > > 
+> 
 
