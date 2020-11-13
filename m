@@ -2,146 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D93BF2B1DAE
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 15:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAEC22B1E8C
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 16:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726439AbgKMOrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Nov 2020 09:47:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
+        id S1726691AbgKMPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Nov 2020 10:25:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbgKMOrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 09:47:21 -0500
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFCC2C0613D1;
-        Fri, 13 Nov 2020 06:47:21 -0800 (PST)
-Received: by mail-ot1-x342.google.com with SMTP id n15so9110243otl.8;
-        Fri, 13 Nov 2020 06:47:21 -0800 (PST)
+        with ESMTP id S1726748AbgKMPZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Nov 2020 10:25:51 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691D0C0613D1
+        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:25:51 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id p22so8451858wmg.3
+        for <stable@vger.kernel.org>; Fri, 13 Nov 2020 07:25:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=grU8H/KguaHoMwmJMkHUlAaKVmi6QrCxjzxZ5xt2rd8=;
-        b=bI6ho+WI7Hj3viwbxlnmbzDL+h6+2x71spKWS4S5KGYMUJhyGdMFcjCqzGbtRaSB3o
-         up4gZClozIpQ33AmAC2bU0nq7IC8jDFwB99+VSpwZt65+7y+3LTvzSMW7Rj2+4Sxnj2v
-         yHeweGa0qdHoLROQ7bFTVpjr2i/EEUElWfXf/rZeca4FrV1/4FtUQD9gw1xcemiU16R1
-         6PK85YrTH2dHOm8GGy+Ru3KbfxqQrxEhPU2P1zBulyS4MEJLRjo9iLqm+50wC/bjvG64
-         7xs0Hrn8RyjhQLa6KYoJeA8cPyXzv28iPtGPfXHEpXFbJbJ+P/g0ntTEBVOykdABjWAL
-         4s5w==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=wc6bnvr4en/PAxdX5bpIqzaTsn35DLfdfuDkeT8tHGI=;
+        b=LdIBcZ7TqB7UFQaEzLyDt0C4vEUQcq6NCDaG+vmAKceamm7CiiVhta3y1Fw9IL9B5y
+         dbP+zak4mlBnT3A02Gj6nFvqBnURNHwXhKRjXFZcEre45BmMeacKhdd9QAGdvVoTx+Ew
+         tvyPZBBmCdj7hOt3RXpnTTDEw+8WARVm60hZes7jpyLg+Gf4jmOaMFrO5cCeM4CsPchF
+         5CZVddFyvfos2Cd4sG8XH7KCYUaq65pxKi6axbFr3Qy0JvkbM7mi8ATKXKf0jx8gH+wu
+         +jqCPhWy98cY/v2Mq+7FPt59UDoRnGUFTycjbcvWU5jMfXcgcUVPu9DDW8eugC78JXML
+         +Z5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=grU8H/KguaHoMwmJMkHUlAaKVmi6QrCxjzxZ5xt2rd8=;
-        b=DYw3MCcQREdAeHBkQDWs4cqQlPXD+K9CN+4pnLnOzYHrSk5t9MtwAFL3spEQ027NRF
-         Sj4pR781itPFO9l0A9ZCfSXnH6B5rFMCBVD/DCbMNAh+wSNEVhE/3402SaKoxIqk/W+X
-         EckFXE9bAowDNrqSyphQm0Nf+PQdW4Rg9YoX69NJRfxq+NfXgiJbu0xSk8BKHgndJipp
-         ouqr1mZf0Adb5KZhWOF7LihfgZ91CsW3kwN/2e4rZaKn05yx/IWQ4O/TFTfFt9dUwoe3
-         hWtNeFsSLxfoMZg0HsxolFSWkwaAiY7EWufkcbGUL6IV87oJMFBhVZIP8KSDD53+tB98
-         ro/g==
-X-Gm-Message-State: AOAM532w1YAUzSfDRzVVpv1QJdETpUh5MivtE9KG1gmh1a3rCC2yc/DW
-        jB/+sNPqXf//i7IK9nALLn0cU1/zvLQ=
-X-Google-Smtp-Source: ABdhPJyQTCE57lH/5q17EUm/6E7EBkys8R6EN/TPdpYeSBkogeaIT4/u0YphgGS4zph62nTBML+0rA==
-X-Received: by 2002:a9d:7e84:: with SMTP id m4mr1763623otp.199.1605278840978;
-        Fri, 13 Nov 2020 06:47:20 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x63sm1908844oif.37.2020.11.13.06.47.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Nov 2020 06:47:20 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH] hwmon: amd_energy: modify the visibility of the counters
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Naveen Krishna Chatradhi <nchatrad@amd.com>,
-        linux-hwmon@vger.kernel.org, naveenkrishna.ch@gmail.com,
-        stable@vger.kernel.org
-References: <20201112172159.8781-1-nchatrad@amd.com>
- <238e3cf7-582f-a265-5300-9b44948107b0@roeck-us.net>
- <20201113135834.GA354992@eldamar.lan>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <e15bce7b-2aa7-1bd6-8419-b35233b9cca8@roeck-us.net>
-Date:   Fri, 13 Nov 2020 06:47:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=wc6bnvr4en/PAxdX5bpIqzaTsn35DLfdfuDkeT8tHGI=;
+        b=Y5ps8vvWwaNcsA3gy56FMaF74RbomLvIaUGgZhoqLpHKJV5TYW5wx0PKQnVeFaPZZB
+         ZXjgATk7JuvdoUHNV+gLyOKDFYvPZZmnQv3399HpTBv6AIpYpkFphhtoNMED8093Kr6G
+         5ajr98HGtMHwS6RRxoH8iSCck08GKSlGFso14RnCAQgJN96el7xXekQJ5cYuHkvOFbCJ
+         +ae0dUPDdlf2mDCXAtIrRyR14vY13MD7hbE4qw7ybpcI8Ekt8baY6PknIigAmTSWcCaK
+         wge3EKSuDzLBw7m+S+0PaBRLw//EttPHSAmjGh1whpm6WygR4piZevPIHRhZwe5KL1/w
+         JQhQ==
+X-Gm-Message-State: AOAM530dQduK6K4d51DhBwskIkHP72FoADbWW6UHZtdMn4V/W7Cz8PV0
+        a8/Lh5mnDThVtelvNWUG+Q4=
+X-Google-Smtp-Source: ABdhPJxSsr7grgPJSTVIDvTTCwRpqf6/TDZKCiiWuHlMkyJiw3336/3NOiPfTyCWfoajhWI/e6DCuQ==
+X-Received: by 2002:a1c:61c2:: with SMTP id v185mr3027580wmb.152.1605281145231;
+        Fri, 13 Nov 2020 07:25:45 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id o17sm10623374wmd.34.2020.11.13.07.25.44
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 13 Nov 2020 07:25:44 -0800 (PST)
+Date:   Fri, 13 Nov 2020 15:25:42 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
+Cc:     stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Zijlstra <a.p.zijlstra@chello.nl>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wade Mealing <wmealing@redhat.com>
+Subject: backport of f91072ed1b72 for v4.14.y+
+Message-ID: <20201113152542.o6ai3npqaucp425a@debian>
 MIME-Version: 1.0
-In-Reply-To: <20201113135834.GA354992@eldamar.lan>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="idmp36us5cc2k6u5"
+Content-Disposition: inline
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/13/20 5:58 AM, Salvatore Bonaccorso wrote:
-> Hi,
-> 
-> On Thu, Nov 12, 2020 at 09:24:22AM -0800, Guenter Roeck wrote:
->> On 11/12/20 9:21 AM, Naveen Krishna Chatradhi wrote:
->>> This patch limits the visibility to owner and groups only for the
->>> energy counters exposed through the hwmon based amd_energy driver.
->>>
->>> Cc: stable@vger.kernel.org
->>> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> Signed-off-by: Naveen Krishna Chatradhi <nchatrad@amd.com>
->>
->> This is very unusual, and may mess up the "sensors" command.
->> What problem is this trying to solve ?
-> 
-> Is this related to
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1897402
-> https://support.lenovo.com/lu/uk/product_security/LEN-50481
-> https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12912
-> 
 
-I guess so. The real fix would presumably be to read the power
-in the background. Of course, that won't work because reading
-it continuously or frequently causes power fluctuations. I'll
-apply the patch, but if there are complaints from users
-afterwards that "sensors" is broken I'll simply revert the
-entire driver.
+--idmp36us5cc2k6u5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Guenter
+Hi Greg, Sasha,
+
+Please consider the attached backport of
+f91072ed1b72 ("perf/core: Fix race in the perf_mmap_close() function")
+for v4.14.y, v4.19.y and v5.4.y
+This will not apply in v4.9.y and v4.4.y and I am sending separate backport
+for that.
+
+
+--
+Regards
+Sudip
+
+--idmp36us5cc2k6u5
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-perf-core-Fix-race-in-the-perf_mmap_close-function.patch"
+
+From 748956f561af23b019f329f3a8af158960820bc4 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@redhat.com>
+Date: Wed, 16 Sep 2020 13:53:11 +0200
+Subject: [PATCH] perf/core: Fix race in the perf_mmap_close() function
+
+commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream
+
+There's a possible race in perf_mmap_close() when checking ring buffer's
+mmap_count refcount value. The problem is that the mmap_count check is
+not atomic because we call atomic_dec() and atomic_read() separately.
+
+  perf_mmap_close:
+  ...
+   atomic_dec(&rb->mmap_count);
+   ...
+   if (atomic_read(&rb->mmap_count))
+      goto out_put;
+
+   <ring buffer detach>
+   free_uid
+
+out_put:
+  ring_buffer_put(rb); /* could be last */
+
+The race can happen when we have two (or more) events sharing same ring
+buffer and they go through atomic_dec() and then they both see 0 as refcount
+value later in atomic_read(). Then both will go on and execute code which
+is meant to be run just once.
+
+The code that detaches ring buffer is probably fine to be executed more
+than once, but the problem is in calling free_uid(), which will later on
+demonstrate in related crashes and refcount warnings, like:
+
+  refcount_t: addition on 0; use-after-free.
+  ...
+  RIP: 0010:refcount_warn_saturate+0x6d/0xf
+  ...
+  Call Trace:
+  prepare_creds+0x190/0x1e0
+  copy_creds+0x35/0x172
+  copy_process+0x471/0x1a80
+  _do_fork+0x83/0x3a0
+  __do_sys_wait4+0x83/0x90
+  __do_sys_clone+0x85/0xa0
+  do_syscall_64+0x5b/0x1e0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Using atomic decrease and check instead of separated calls.
+
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Wade Mealing <wmealing@redhat.com>
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
+Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+[sudip: used ring_buffer]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ kernel/events/core.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 1b60f9c508c9..9f7c2da99299 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5596,11 +5596,11 @@ static void perf_pmu_output_stop(struct perf_event *event);
+ static void perf_mmap_close(struct vm_area_struct *vma)
+ {
+ 	struct perf_event *event = vma->vm_file->private_data;
+-
+ 	struct ring_buffer *rb = ring_buffer_get(event);
+ 	struct user_struct *mmap_user = rb->mmap_user;
+ 	int mmap_locked = rb->mmap_locked;
+ 	unsigned long size = perf_data_size(rb);
++	bool detach_rest = false;
+ 
+ 	if (event->pmu->event_unmapped)
+ 		event->pmu->event_unmapped(event, vma->vm_mm);
+@@ -5631,7 +5631,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 		mutex_unlock(&event->mmap_mutex);
+ 	}
+ 
+-	atomic_dec(&rb->mmap_count);
++	if (atomic_dec_and_test(&rb->mmap_count))
++		detach_rest = true;
+ 
+ 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
+ 		goto out_put;
+@@ -5640,7 +5641,7 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 	mutex_unlock(&event->mmap_mutex);
+ 
+ 	/* If there's still other mmap()s of this buffer, we're done. */
+-	if (atomic_read(&rb->mmap_count))
++	if (!detach_rest)
+ 		goto out_put;
+ 
+ 	/*
+-- 
+2.11.0
+
+
+--idmp36us5cc2k6u5--
