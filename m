@@ -2,72 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D242B1421
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 03:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F01402B142F
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 03:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbgKMCEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Nov 2020 21:04:30 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45525 "EHLO
+        id S1726071AbgKMCNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Nov 2020 21:13:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39735 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726005AbgKMCEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 21:04:30 -0500
+        by vger.kernel.org with ESMTP id S1726017AbgKMCNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Nov 2020 21:13:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605233068;
+        s=mimecast20190719; t=1605233586;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=9771iwkWuAD46+N/fVj/BNlrfVl88rQehbR1PBtLIQg=;
-        b=SxAbeqoawshvEu72/g0EBaWTNx0nMG09miiY2vYj5Ut7LbkziG2Y9a2mQhWj+AqwZMDD+a
-        Yg7Kk5INS1caOQDwkB63xjECBgl0o2zjUORMQMtB1hMfqR0FEu+T7dd7nMXA0xc1lAgyOZ
-        SlPb8YdtWJPeIn9W2Hjv69Gi4VVaep8=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-219-g1G1HEN8Nnmt31xKUYhaQQ-1; Thu, 12 Nov 2020 21:04:26 -0500
-X-MC-Unique: g1G1HEN8Nnmt31xKUYhaQQ-1
-Received: by mail-pf1-f199.google.com with SMTP id r6so5404185pfg.4
-        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 18:04:26 -0800 (PST)
+         in-reply-to:in-reply-to; bh=6oM1dXJozOSLVQz6gRBJs6vUBSSzAUJlN3r5T2Civp0=;
+        b=Fpq+SGHcxgdx2Gucntr5NmhA/C9GXGJZsJNQEGhxbKrGP6YtBwOMsFR/PiMhFa+j9cxQAw
+        i/zP0dYnvsCBbVQ6HBeIVyGxOj6GtWc2tmUdlq8l3pZP+95aQAiBPqOm3WKzqyXBYjy2gV
+        W//h3PKcUXw/QBSAiDhYs2DrdIt5xpc=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-291-XlLLZn8fNXWVf7vZNHOgow-1; Thu, 12 Nov 2020 21:13:04 -0500
+X-MC-Unique: XlLLZn8fNXWVf7vZNHOgow-1
+Received: by mail-pl1-f198.google.com with SMTP id p3so4875465plq.21
+        for <stable@vger.kernel.org>; Thu, 12 Nov 2020 18:13:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9771iwkWuAD46+N/fVj/BNlrfVl88rQehbR1PBtLIQg=;
-        b=WSCXFdAlQ3/sEj1P5AlPeFvxdg5mP55Jcw4WvWNNB4Wxh1wbhwBUMqyg7FgVwhWRnF
-         cxEJ1XeYIGRa0EzzAR7W2dnLy8LnpsgqceZuwCkSlLXjoWrmqmk5fp+eLKbGjXbIWkx+
-         DtrVJtTK4PdRZsq9bpGJuTVCNOSvP5CwOIhNldJdLJEhlm/VyRQ7NOiFRrTOeu7RURmG
-         Ys4iceTnVv6/MbjMCiu508Iz9FwBxiqhJj5+DI2yx3MQFgUjLjGlHQQmzsLNrtm3Pmvo
-         ihd9t+evJ2hSC3Kb6dak3gt5r0dif4WQK3debS3anHq4F1RDpjm6Y8JANjtk1QRvN1bf
-         C9jQ==
-X-Gm-Message-State: AOAM5301GZTF5JfHvZzL+PjXE6DaG412rw/QpnKmoCMznh6m29haOjFe
-        OuBvY/Uo0f7oG+FZcivafeNOxGzDn0bdONqvq3tRcm+ifzGb4NM2SBkOALXHw76xOT5DfUBCEaF
-        uWWZQAYMPYLrHw9wN
-X-Received: by 2002:a17:90a:5e4d:: with SMTP id u13mr182682pji.171.1605233065347;
-        Thu, 12 Nov 2020 18:04:25 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxO2KgVhNVmLMLZFykgT1f3wrnn/SbbfD3DYyGsByd2FhMBKRMzXJVS16OYecIgfnZb9r3H1g==
-X-Received: by 2002:a17:90a:5e4d:: with SMTP id u13mr182652pji.171.1605233065064;
-        Thu, 12 Nov 2020 18:04:25 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=6oM1dXJozOSLVQz6gRBJs6vUBSSzAUJlN3r5T2Civp0=;
+        b=UTdQCQmiu5nF33tixXuSPlWtTivAc+VF2q9vNId1jNfahtJAWB/GOLzkVJ6RU2W89x
+         dYSkrgUWgE7gqpKZ6tAiAE9u9KQ7xXImJEGI/v10bmfIsLKS8VEIpXb7Vlj3IKnD1kXk
+         GQbpAzN04cLCl09xb+lhC88hsHjBkDu1X/YeaqxzKU7st/QWhJJCL4n7/WohUL4Muo+3
+         GpUG+LSTbypluRBDebVT3TrC3SALDQyCkDRJaG4TD47t4tH1PsVwpPdZPbVZxn2g8aHk
+         P44ZioU5A2GAAO/Y047xNfqm7D2v0f2uQJz+9zpSKtOKFHxNN5YvVL6dtoKf6AZPoWp4
+         EnDw==
+X-Gm-Message-State: AOAM532ZfBEm+9OXsg7DsxP/NtHnKX3ZJY/6/N1OPZHq4GDKAGLWVIF+
+        66YqqVk+9Wfq6NprTyabk+i+dHWpeP8jn7pPsc+Dr8QX2folrmS2TCZ9bgx7S8qp3WnDyZqgtlX
+        S52Cwl6onRwPWehry
+X-Received: by 2002:a17:902:8490:b029:d6:d165:fde with SMTP id c16-20020a1709028490b02900d6d1650fdemr2195826plo.73.1605233583662;
+        Thu, 12 Nov 2020 18:13:03 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzHEDnci5VkmW35p+GkK2tlw+enhePU4PuyWiPsmXmq5IOOlswViaz7fgp8I0I7jxwD/I/nJQ==
+X-Received: by 2002:a17:902:8490:b029:d6:d165:fde with SMTP id c16-20020a1709028490b02900d6d1650fdemr2195806plo.73.1605233583359;
+        Thu, 12 Nov 2020 18:13:03 -0800 (PST)
 Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id y18sm8297131pjn.53.2020.11.12.18.04.21
+        by smtp.gmail.com with ESMTPSA id c24sm7011431pgk.34.2020.11.12.18.12.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 18:04:24 -0800 (PST)
-Date:   Fri, 13 Nov 2020 10:04:13 +0800
+        Thu, 12 Nov 2020 18:13:02 -0800 (PST)
+Date:   Fri, 13 Nov 2020 10:12:51 +0800
 From:   Gao Xiang <hsiangkao@redhat.com>
 To:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@sandeen.net>
+        Eric Sandeen <sandeen@sandeen.net>,
+        Dennis Gilmore <dgilmore@redhat.com>
 Cc:     linux-xfs@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         Eric Sandeen <sandeen@redhat.com>, stable@vger.kernel.org
 Subject: Re: [PATCH] xfs: fix signed calculation related to XFS_LITINO(mp)
-Message-ID: <20201113020413.GA844372@xiangao.remote.csb>
-References: <20201112063005.692054-1-hsiangkao@redhat.com>
- <3d04e9b3-f326-cbcd-e268-e4da40f35fa2@sandeen.net>
- <20201112183004.GU9695@magnolia>
+Message-ID: <20201113021251.GA847175@xiangao.remote.csb>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201112183004.GU9695@magnolia>
+In-Reply-To: <20201113020413.GA844372@xiangao.remote.csb>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+[ sorry for forgetting to Cc dgilmore on this reply, it would be
+  much better/helpful with a "Tested-by:" for v2... Let me resend,
+  sorry for annoying. ]
 
 Hi,
 
