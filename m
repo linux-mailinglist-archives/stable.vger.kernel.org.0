@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD232B1B7A
-	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 13:56:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE2F2B1B9A
+	for <lists+stable@lfdr.de>; Fri, 13 Nov 2020 14:09:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbgKMM4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Nov 2020 07:56:50 -0500
-Received: from mail-vi1eur05on2137.outbound.protection.outlook.com ([40.107.21.137]:56992
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
+        id S1726336AbgKMNJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Nov 2020 08:09:19 -0500
+Received: from mail-eopbgr50128.outbound.protection.outlook.com ([40.107.5.128]:3813
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726160AbgKMM4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Nov 2020 07:56:49 -0500
+        id S1726267AbgKMNJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Nov 2020 08:09:16 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=btMovLxS/siZ6jhnEqRHoAwYQI8uGKAseKOfuOtOcOW5d3vIG+xWcm18DHmSh0kfhqWvYqTfDqwj06acmg9/jhLvgbtWGPQrirQwsQBXZh/MCc2Ls8rokTLoRJ+gywCtwL67nmQx6v8onTaGfAVzuZDDYypMlVffnF2VJzDQPPgbrsdPbPgb+XVmnNZ5IFuFkzT0AFKiUzimAwKEdsOXPsYR3IyhjAwVHarSFjJzVkdsFId1ybVpxfMD1gNUOo/dMjNjTPc+FtEmy1HwTX2Gy17U0XW8YmQwuszFQovpnouscgClI+o+Am9raE9MmJERfWWeLkR4ljzl680+8p7DBw==
+ b=oAlDV59dmYIikt1bHlixf3nyVAmBldV2tUZSUymJcREhTwmpDCBdjMTBpgOuhiLaaPJHC47E+4S6QTuMQ/jltlWptGrZ1fE0mcGveaoCFaxosDHctzj/5na9jGrc69R/2Mm9nT0MDVmhM093k6LJ2Te5D+FU9j5zfAcNKbjeEiRl9/L1qsHfPnWcGrrrGkrSUreTtJsJCVCyrr4lcI7jWWO2UMvuKAMvAKt7o0vMM0FjzpJVVzq3aFC/7nfLID7/xxlGLx7HgYrIPFCyNfjZ6lItTSIx0UeIEAeuN+G5ZVTTb+h3oYIRK16aYDgTk0IaLcSGcNcu7g8K0akH5OYPtQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=P3WaX0FHF5NWqCvTa8sgq21fGljUJOm+jaF57Gk6UK8=;
- b=TJwAvfDx4krmU9PXjN8LOrQqSWItc3Qu5benPttLy3GLY1DegBWdTouRzv7pUNgwWGUDLfSwzJhdT5/sSz8CmLVzsFdGh5xlQeusx6HITHXf3xtALPXW40tPp9TJSUPlMOetL2KLqXu8DB5dBYYOIaqz1lGvdLQF6Uwh1GQWPJsQtQIS0TJGoWa9Tk4t2Mhi7Tg2sCwVPyF/yqeqkVqT0w9mFRFRJ72TQSG1J1XPc6wiD5/qtJMt/HpqNa104qELdDHadvEvhyY1xnpsPpwm6HzD42cf8REHGMcUrZMNxKqsFYFRKPxn0JgFIV5qnrkHDfz5suHpcm89YKsFoCfhtA==
+ bh=pOJlMXaOdlJ2JzZtUH/4rHWWJ9uNJV4xSIBToTRaxAo=;
+ b=igLRjRdxXYlx7Che2LclGMFc4LueD3EDqUMSHCJzeWGu4rwkVNjD18uRRYZO8TIthDZx13KzuKPWPIuavCQJwE6Y2ATtO1DNz46/l46uc0bDEqQmT0eZzqguGcehnqp11Os4EFO7uwu0eRLlnslg/jyNKDx8gxwhOaHCuCesQ337XOpG2id1gPAa5EYi0mdv2VbBKHtR7jbbYknFAXePZJOs4em84kgq7oxvj4sAbSnBS+D7cNtAkK5w5ONCCoxsopsDaj1O83h5tKG3qg7qcOfJUT100NH/wH6prUOajqi/VmD8VKlKj7DkJWL2t2xNYNlIkJRZ+bXu8QSia1yNLA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
  dkim=pass header.d=nokia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
  s=selector1-nokia-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=P3WaX0FHF5NWqCvTa8sgq21fGljUJOm+jaF57Gk6UK8=;
- b=ev41EF1kqc+WZ5A8xp8nNBkKJXOwGXRwcfS06Z0trm/X/kfW4+WdePPGJ/V1KTQ15ee8CNhVBIIET0WDJ5BTu2ciBVQ1STq1+0XoX9SwYO5mH7s6QP9tTrR40o9899DvwtMM93vQwYyhaAAzyE925y3LqPf1cEtCztc6S1NjPeI=
+ bh=pOJlMXaOdlJ2JzZtUH/4rHWWJ9uNJV4xSIBToTRaxAo=;
+ b=bQ6v9fPMZIPnUzYqXSZIEmpVWHsLtO6y50RcjCq65hVUKQyxKV7j6I7dS4ZBaIuBKS8KNjQi1ocfI9kd1wYZFtvzPZVkD9/kiiMr12yE/mgCyHT+8icsRcQPo7UTkWiWwLgLf61cFEPmDCMbi7FqP+d273NfBoUx4j43XHoMqPA=
 Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none header.from=nokia.com;
 Received: from AM0PR07MB4531.eurprd07.prod.outlook.com (2603:10a6:208:6e::15)
- by AM0PR07MB6148.eurprd07.prod.outlook.com (2603:10a6:208:11d::18) with
+ by AM9PR07MB7188.eurprd07.prod.outlook.com (2603:10a6:20b:2d0::7) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3564.21; Fri, 13 Nov
- 2020 12:56:45 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3564.13; Fri, 13 Nov
+ 2020 13:09:12 +0000
 Received: from AM0PR07MB4531.eurprd07.prod.outlook.com
  ([fe80::d527:e75b:546c:a85b]) by AM0PR07MB4531.eurprd07.prod.outlook.com
  ([fe80::d527:e75b:546c:a85b%6]) with mapi id 15.20.3564.021; Fri, 13 Nov 2020
- 12:56:45 +0000
+ 13:09:12 +0000
 Subject: Re: [PATCH] MIPS: reserve the memblock right after the kernel
-To:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Serge Semin <fancer.lancer@gmail.com>
+From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
+To:     Serge Semin <fancer.lancer@gmail.com>
 Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
         linux-mips@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
 References: <20201106141001.57637-1-alexander.sverdlin@nokia.com>
@@ -50,64 +51,73 @@ References: <20201106141001.57637-1-alexander.sverdlin@nokia.com>
  <20201110095503.GA10357@alpha.franken.de>
  <c435b3df-4e82-7c10-366a-5a3d1543c73f@nokia.com>
  <20201111145240.lok3q5g3pgcvknqr@mobilestation>
- <4625868b-f845-2f03-c3f2-fc3ff1ccf63d@flygoat.com>
-From:   Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Message-ID: <1973ec3a-82a8-2c4a-20d6-45bc7465120b@nokia.com>
-Date:   Fri, 13 Nov 2020 13:56:42 +0100
+ <4c58b551-b07f-d217-c683-615f7b54ea30@nokia.com>
+Message-ID: <13fff200-660a-27b8-6507-82124eee51c5@nokia.com>
+Date:   Fri, 13 Nov 2020 14:09:09 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.12.0
-In-Reply-To: <4625868b-f845-2f03-c3f2-fc3ff1ccf63d@flygoat.com>
+In-Reply-To: <4c58b551-b07f-d217-c683-615f7b54ea30@nokia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Originating-IP: [131.228.32.167]
-X-ClientProxiedBy: AM3PR05CA0115.eurprd05.prod.outlook.com
- (2603:10a6:207:2::17) To AM0PR07MB4531.eurprd07.prod.outlook.com
+X-ClientProxiedBy: AM0PR02CA0009.eurprd02.prod.outlook.com
+ (2603:10a6:208:3e::22) To AM0PR07MB4531.eurprd07.prod.outlook.com
  (2603:10a6:208:6e::15)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ulegcpsvhp1.emea.nsn-net.net (131.228.32.167) by AM3PR05CA0115.eurprd05.prod.outlook.com (2603:10a6:207:2::17) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3541.21 via Frontend Transport; Fri, 13 Nov 2020 12:56:44 +0000
+Received: from ulegcpsvhp1.emea.nsn-net.net (131.228.32.167) by AM0PR02CA0009.eurprd02.prod.outlook.com (2603:10a6:208:3e::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3564.25 via Frontend Transport; Fri, 13 Nov 2020 13:09:11 +0000
 X-MS-PublicTrafficType: Email
 X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 20ece6cd-03aa-4594-6f15-08d887d3936f
-X-MS-TrafficTypeDiagnostic: AM0PR07MB6148:
-X-Microsoft-Antispam-PRVS: <AM0PR07MB61482DC362524FF48981AF0D88E60@AM0PR07MB6148.eurprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Office365-Filtering-Correlation-Id: 3a97cd96-f382-4931-fe0d-08d887d55097
+X-MS-TrafficTypeDiagnostic: AM9PR07MB7188:
+X-Microsoft-Antispam-PRVS: <AM9PR07MB7188868D9F543281A9AF1CA188E60@AM9PR07MB7188.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6lLgCzmUZe0JXz0qs90axKxipjsrqACkGwQF5nWW3hIj/bLko4JyFvVPmsgLOOKh4AXnLoEMFCuW0x2v80R90H+yyEGh238yxuXfJiC97sfKuQB8nHHNc7axq/L9OwGKeoMbS9KKFHh4LMPHRrKtFK0ot8lDzGsw9qmazrn3uFo/wVXfS32ytCyTCRAIsGDFGEzW03SwC3GRRMVWQUOYONBIbSKNWTBHwc9hCh+jNUs7J8f4HdKtF1HTDahxlNRNeClCNCT6qvrUzNB6VcU1ssMPiuk0bKzK2oguj5sckPtbDOLok+/1uiLd3Ac6qS2mbn5+mMtQMTUX231mtltjjUW63C6jCaljBxSECswvu3cSBLk6eu5uNwaO04eHATp9
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB4531.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(346002)(39860400002)(136003)(376002)(366004)(186003)(36756003)(4744005)(44832011)(8676002)(478600001)(26005)(2616005)(31696002)(52116002)(53546011)(66946007)(66556008)(86362001)(956004)(54906003)(5660300002)(316002)(16526019)(2906002)(6512007)(6506007)(6486002)(31686004)(110136005)(8936002)(4326008)(66476007)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: KEp3G4o/BHt2GyBXKSeDQd96K9wSpZjVXizxV6eNVbbLowmhizfgYfiAL2Q8jTyK41YHtXv7vZkDw3b/zlXYNOASiIjO27Ay1zWPFF1Lrdrwzq+QcGbyxpkuXItbWSCDV8hSb/uHtRoTv2UceC82qR10qv7AaG//gGHxzp0a42ul3dfS+Y/vNFLRz7eEkFVT9oa5kox+84gZAlViesVb2HY3THU9So4CCA+9Lsk+gaIneHYyq3Wr7oRoUK7tc5JbSPZwW2qSnqIVf+ufdHXKFzkrSQShWVm2VCTdq+uMi5zWiLVngR4iLnj2A1AeTwXqxiwaJRXZ7H+v8R2jkO85fNTI8JDbnT6lNVvZ5vJ48NIq+rqTx4zUhrbyoGTDsv5GzaY8MEBauUwwoL+CIXGaZt8xupSU5o8DaI6ZRluDtGlGT9IFkJcejFmKYbPfK5cbg9BBRFgseGZ7sUrs1+hk2sSn9BfUnYw0Ka8PqE92DFsTcl6ERCiyRjEvQczbg6m3vkIvHRJVYpfNtZCLh6FBiVShpUhgjhPWIBPXraxOnEQnsoT/O4VwbJbwt+B2wTn3oZjH9gki3rBtL+D4PaZUF+pOACqubiLB+fF0i7URezCY6M8F78KTJsGv3+7SasRQEFts1agUrFPPfBgzzaxk6qSPulNo6s2FpL+T6apZWemvcC0j8+/vW8o0CX0iryx6b6LevyF3iPKCAOL/UIWkJ3OXfp08QFmgBKBKOvDRv9KQrZyvgGn2MdD01B+T2YqKAme0IPbhRBIVingkecjMexEGA5Wo1c8H51IYs28L18heiuJR+AcUdq3xZb5ta/rF4QMlrclzXODF3C+k9PA7Yg8EPZfn1+8upoMa+necBPhAwTygNvaCLraVNZQInBBxcIqtuf1b4LK8Kt6sVkbvrg==
+X-Microsoft-Antispam-Message-Info: jNUI4AuRglP5Oi9WC2o5itdtlVP0P2tVTck/O5v+hndia1Rg5h6evxbRkMfSzX4NBiHfun0tAhl1b4FVY6OPpLea9M09fVs6GxiEWvUXdqyFme27B2+kBl2JG+mHJiyBkohsoJtjJxqVG98WfIXylzXfXhkqWp61fgtMMNqa0p79QvIZrE1RXgUFTYo6NaDwKX2z0YRb0PAQnAm8O8oZQ3wCRv/s7vr1TvTX1By6hVwbN2hge9KcWdo6wefs7eXySy7dBC4/hhAfIaHuvwj2dWvLVyoPER0PSkvpEe283XlzGOjFHfCdhbhT1o2VmnwfeoBkjWocGn9gCFJ4OPuXWS8OKgvjBCG/I0x6jlxtKHqDkO2lSHaZUZq9e5c8uMMy
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB4531.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(396003)(39860400002)(376002)(136003)(346002)(956004)(66476007)(66556008)(186003)(31686004)(31696002)(36756003)(478600001)(16526019)(66946007)(8936002)(54906003)(8676002)(2616005)(6486002)(6512007)(83380400001)(26005)(5660300002)(2906002)(4326008)(6916009)(86362001)(316002)(6506007)(44832011)(53546011)(52116002)(43740500002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: eTHhsHSW5ig9uuH+ayR6rmKsDF7Ezc7WmgqH3tx6SzwKpb+DLJZ256RU3CVZuCzE+sSFfW02J1tCcxDnrG7e52tkPc/qD4nGWl1i3JtWr2F5v1DsgNHAMSXmhc9M7LoZ5z85wUJAAbqDRGH3qkSmciIqt5xrX/rvjIFi+/z1ph93FoHTunugxFsXwbDtbW2Rl57PYrgY7/otG0YB/3xmA/EwuTkdiuAGAPawAS67R4cSuySCFbRJFYwJF9fKWGY1TQiXUrHtQowjEuXnNyNemM6aGNT0/rb9qJO/6fHh2V5IKDOPRXRn2bXhuqZCKLq4Rr1vFC8H0WS57z2X29mQG15wXM8RWaG0Q4ZLtbJzSTIbEQ4p7gm78eRIdy6lckOD+3Jx3TaM+3djxjK2K0K5AJIuUzORt61FRLMk/dULtiKq7rVHb9BRvsdFYoSQD+NSst7tGkUeRCMgFh7hhGThcOiFLqUNXUewxg9Thzlt0X6ZUVggChoqkHhYE5WfbrYHPCytC3nu//X39/HVw6GN1yx1CSLFXBJ3ySyUlgKcYyPJ7DjL7bvBLTN8wvj40W6/7NFxFty7dd38hHSceOJ6tGY9rDwdbUGAx119Id/Tx8jUOUTUwN0pbCtSyePsT2aXz4YjqvFRxh0RI5W5QxMDh84i/EDklQmNiiA07g8O63//Cog9spSCOpXRjerXW4c3Si0zbxNAXYvz+EvufxE+SMu26iaslfumyc6TmlMjGV98BeXD9pPtUqIlh4lEAgLX1fU+/Lh2LkGMUU7JkqbP+vbaqk5lMN+0dEep1RLvwMMd/+HQvaCpY9qOOXhBWsOVpU0OfEjkr5FMo9LpTz/OhXXEvlhz1MTwuwCh6BTV9QLiRbOXrEWv0erGCBSA9MmjOP7Qin5p7xl671gi5tyjUg==
 X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 20ece6cd-03aa-4594-6f15-08d887d3936f
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3a97cd96-f382-4931-fe0d-08d887d55097
 X-MS-Exchange-CrossTenant-AuthSource: AM0PR07MB4531.eurprd07.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Nov 2020 12:56:45.5585
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Nov 2020 13:09:12.4239
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: RaWXzYDfRp8v8C7YWV91tMMUpZvn45oCavUoQLIBy+hTKTnoGzY4nio3Xwkw//gIK+QiqQ/XaDwFxQJYiECmwuM7sPqwYP79I+0lrnvYB8A=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR07MB6148
+X-MS-Exchange-CrossTenant-UserPrincipalName: rk+yEjmhqi2cMUxoQGTkj3HB5DCAFFfjLUE/DWcWBEggewBQT9O1wcMzvoJkgleUSHwLVQ0faeiteOhiY/C3e5YRLylCSmaC4DPrm6ThqzQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR07MB7188
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jiaxun,
+Hello Serge, Thomas,
 
-On 13/11/2020 03:30, Jiaxun Yang wrote:
->> 2) The check_kernel_sections_mem() method can be removed. But it
->> should be done carefully. We at least need to try to find all the
->> platforms, which rely on its functionality.
-> It have been more than 10 years since introducing this this check, but
-> I believe there must be a reason at the time.
+On 13/11/2020 10:17, Alexander Sverdlin wrote:
+>> So IMHO what could be the best conclusion in the framework of this patch:
+>> 1) As Thomas said any platform-specific reservation should be done in the
+>> platform-specific code. That means if octeon needs some memory behind
+>> the kernel being reserved, then it should be done for example in
+>> prom_init().
+>> 2) The check_kernel_sections_mem() method can be removed. But it
+>> should be done carefully. We at least need to try to find all the
+>> platforms, which rely on its functionality.
+> Thanks for looking into this! I agree with your analysis, I'll try to rework,
+> removing check_kernel_sections_mem().
 
-could you maybe share the reason you've submitted it with us?
+but now, after grepping inside arch/mips, I found that only Octeon does memblock_add()
+of the area between _text and _and explicitly.
 
-> Also currently we have some unmaintained platform and it's impossible
-> to test on them for us.
+Therefore, maybe many other platforms indeed rely on check_kernel_sections_mem()?
+Maybe the proper way would be really to remote the PFN_UP()/PFN_DOWN() from
+check_kernel_sections_mem(), which is not necessary after commit b10d6bca8720
+("arch, drivers: replace for_each_membock() with for_each_mem_range()")
+which fixed the resource_init()?
 
-Do you at least know the list of platforms this patch is required for?
+As completely unrelated optimization I can remove the same memblock_add() of the
+kernel sections from the Octeon platform code. 
 
 -- 
 Best regards,
