@@ -2,161 +2,309 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C019E2B2FF9
-	for <lists+stable@lfdr.de>; Sat, 14 Nov 2020 20:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5EE2B3046
+	for <lists+stable@lfdr.de>; Sat, 14 Nov 2020 20:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgKNTIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Nov 2020 14:08:53 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:34922 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726121AbgKNTIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Nov 2020 14:08:53 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AEJ5El7027376;
-        Sat, 14 Nov 2020 19:08:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=7MJmZXu2LZdRPERbG+JEb89HvsP+6UG4t0ZCdNvZWZ8=;
- b=j366OgC5hH+xmNCwLoZPOYTY9xtmWKhtJ1IZITPwX85z4QZ/rxg+jh8QNInnl0CF3yA8
- jJLup9wS483NpXYG3+XY1LWQ7/gpY3WkH5kcYdMAUojdKARO0FgpZYwuFcw0aS4E1sq/
- mlVG59MaE7rxCWCIcIPPcMe5WW6Hu3HTPBR/sjRZpBlvuEZd0XQxzGOSxtJs+bNlpoB6
- TOiVyvbBIq+6zG8L/ov7eHCSfe2LPys1/883pEAm8ReKl8GAugaxKKnVKaKlqcHBZeny
- pIcRG4syy7DsoJk91VsZ+auaOLTz8PKE9EwkPXh65kOsxMM2M9aVkBL2aAA2V8NaDFYH /w== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2130.oracle.com with ESMTP id 34t4rahapu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 14 Nov 2020 19:08:46 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AEJ6Mv2117115;
-        Sat, 14 Nov 2020 19:06:45 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 34t4bt2sd6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 14 Nov 2020 19:06:45 +0000
-Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0AEJ6hrx005294;
-        Sat, 14 Nov 2020 19:06:43 GMT
-Received: from localhost (/67.169.218.210)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Sat, 14 Nov 2020 11:06:43 -0800
-Date:   Sat, 14 Nov 2020 11:06:42 -0800
-From:   "Darrick J. Wong" <darrick.wong@oracle.com>
-To:     Gao Xiang <hsiangkao@redhat.com>
-Cc:     linux-xfs@vger.kernel.org, Dennis Gilmore <dgilmore@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Eric Sandeen <sandeen@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3] xfs: fix forkoff miscalculation related to
- XFS_LITINO(mp)
-Message-ID: <20201114190642.GQ9695@magnolia>
-References: <20201113015044.844213-1-hsiangkao@redhat.com>
- <20201114140234.1154690-1-hsiangkao@redhat.com>
+        id S1726121AbgKNTsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Nov 2020 14:48:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48336 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbgKNTsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Nov 2020 14:48:47 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81EB7C0613D1
+        for <stable@vger.kernel.org>; Sat, 14 Nov 2020 11:48:47 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id s2so6131340plr.9
+        for <stable@vger.kernel.org>; Sat, 14 Nov 2020 11:48:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GCnqACUwNYmXgNBcykUrm7leRkcLmeCSFhIqJdlf+YE=;
+        b=sDTi0lDYKhiEBDyeYLU1u7JqhsUIVHug+D3a7TIFIOVvYwVDUxqXdLy+Kxw0A0dzk7
+         p9VWg6oS+UchHYnOP8e+kdMdzmE6LUuOljXzeN2+Q1OcX5KCHKxk/gp94DnqysEAgZiI
+         AMEfKJln/W7xx8Fy/IN6qdLeDYUkvAtexsFLIHcSqw5nLRCu6dhUg/RaDgBHqn9h2KvW
+         l1+2l9Xze7jPm5iKoYfzVO8qUFpUD2jfQA+IDfSJCtNuJPdlsK+fyqOvkxq9/ZZgtCrE
+         TFFS1aZARHBFnHG5qMGMXcAM1Q+jH5l19pqJv2UzMO1JYBc4uR3EtJGQ8bV7r/xjC2Xs
+         eInA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GCnqACUwNYmXgNBcykUrm7leRkcLmeCSFhIqJdlf+YE=;
+        b=io3Ev/upKtM38dUceMBTVHOqoQouUG+le7w6jyu9wTF7l9HlbZVzYi1DhM2nQsPhDY
+         3eYDZQvsrF8PBT7gQ7uLc+kXO3eXX5BmmIA+USMuXuzw7+9dtlzqX2IZ8AlKNIjVwhg9
+         T2BnRqOxuJikUil2GbYIwe8ukoMtG23KKYeUqDp2DmYaRmug0D0UOP1En6EjwDfX8ttR
+         s1LxB34iESs2IqTRuAhj68jNdzLjZW5Is+wfMjVeHqfDua0MVNa0gMIYS8vc5xpQMWiw
+         zg4T3yvCqhKUfuME+7ctygwJ6PkuJjiqdOWo3emggD2a2fOL7ylo7P8i4AFOxVa2TRUR
+         EavA==
+X-Gm-Message-State: AOAM533lN4tN+LDaqkZNYrFm27BCRsKZam4emvl8C6A9ZVVZJKXX9Kvz
+        GY+zHSt0pQFcB7s/nzvgxkL1PhEGCYr3bQ==
+X-Google-Smtp-Source: ABdhPJz4c0nTJnrn7wONvR+im3MjGIDxoLhoZgoM3Pak913j6TZRwiexf7QDwYRZsiYvwKKPoSXe0g==
+X-Received: by 2002:a17:90a:e2c5:: with SMTP id fr5mr8204228pjb.86.1605383326665;
+        Sat, 14 Nov 2020 11:48:46 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m66sm14397895pfm.54.2020.11.14.11.48.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Nov 2020 11:48:45 -0800 (PST)
+Message-ID: <5fb0349d.1c69fb81.bd357.e52e@mx.google.com>
+Date:   Sat, 14 Nov 2020 11:48:45 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201114140234.1154690-1-hsiangkao@redhat.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9805 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
- mlxlogscore=999 spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011140127
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9805 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 clxscore=1011
- malwarescore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011140127
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.243-26-g7b603f689c1c
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.9.y baseline: 70 runs,
+ 6 regressions (v4.9.243-26-g7b603f689c1c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 14, 2020 at 10:02:34PM +0800, Gao Xiang wrote:
-> Currently, commit e9e2eae89ddb dropped a (int) decoration from
-> XFS_LITINO(mp), and since sizeof() expression is also involved,
-> the result of XFS_LITINO(mp) is simply as the size_t type
-> (commonly unsigned long).
-> 
-> Considering the expression in xfs_attr_shortform_bytesfit():
->   offset = (XFS_LITINO(mp) - bytes) >> 3;
-> let "bytes" be (int)340, and
->     "XFS_LITINO(mp)" be (unsigned long)336.
-> 
-> on 64-bit platform, the expression is
->   offset = ((unsigned long)336 - (int)340) >> 3 =
->            (int)(0xfffffffffffffffcUL >> 3) = -1
-> 
-> but on 32-bit platform, the expression is
->   offset = ((unsigned long)336 - (int)340) >> 3 =
->            (int)(0xfffffffcUL >> 3) = 0x1fffffff
-> instead.
-> 
-> so offset becomes a large positive number on 32-bit platform, and
-> cause xfs_attr_shortform_bytesfit() returns maxforkoff rather than 0.
-> 
-> Therefore, one result is
->   "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
-> 
-> assertion failure in xfs_idata_realloc(), which was also the root
-> cause of the original bugreport from Dennis, see:
->    https://bugzilla.redhat.com/show_bug.cgi?id=1894177
-> 
-> And it can also be manually triggered with the following commands:
->   $ touch a;
->   $ setfattr -n user.0 -v "`seq 0 80`" a;
->   $ setfattr -n user.1 -v "`seq 0 80`" a
-> 
-> on 32-bit platform.
-> 
-> Fix the case in xfs_attr_shortform_bytesfit() by bailing out
-> "XFS_LITINO(mp) < bytes" in advance suggested by Eric and a misleading
-> comment together with this bugfix suggested by Darrick. It seems the
-> other users of XFS_LITINO(mp) are not impacted.
-> 
-> Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
-> Cc: <stable@vger.kernel.org> # 5.7+
-> Reported-and-tested-by: Dennis Gilmore <dgilmore@redhat.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+stable-rc/linux-4.9.y baseline: 70 runs, 6 regressions (v4.9.243-26-g7b603f=
+689c1c)
 
-Looks good to me,
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Regressions Summary
+-------------------
 
---D
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-> ---
-> changes since v2:
->  - collect more tags from the replies of v2;
->  - refine a comment suggested by Christoph.
-> 
->  fs/xfs/libxfs/xfs_attr_leaf.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-> index bb128db220ac..d6ef69ab1c67 100644
-> --- a/fs/xfs/libxfs/xfs_attr_leaf.c
-> +++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-> @@ -515,7 +515,7 @@ xfs_attr_copy_value(
->   *========================================================================*/
->  
->  /*
-> - * Query whether the requested number of additional bytes of extended
-> + * Query whether the total requested number of attr fork bytes of extended
->   * attribute space will be able to fit inline.
->   *
->   * Returns zero if not, else the di_forkoff fork offset to be used in the
-> @@ -535,6 +535,12 @@ xfs_attr_shortform_bytesfit(
->  	int			maxforkoff;
->  	int			offset;
->  
-> +	/*
-> +	 * Check if the new size could fit at all first:
-> +	 */
-> +	if (bytes > XFS_LITINO(mp))
-> +		return 0;
-> +
->  	/* rounded down */
->  	offset = (XFS_LITINO(mp) - bytes) >> 3;
->  
-> -- 
-> 2.18.4
-> 
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.243-26-g7b603f689c1c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.243-26-g7b603f689c1c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7b603f689c1ca091cb68f85afed913ada6c098a1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faff956225e79f48979b8ac
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5faff956225e79f=
+48979b8b3
+        failing since 2 days (last pass: v4.9.243, first fail: v4.9.243-17-=
+g9c24315b745a0)
+        2 lines
+
+    2020-11-14 15:35:46.340000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/127
+    2020-11-14 15:35:46.349000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faff49bfcc80976e779b897
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faff49bfcc80976e779b=
+898
+        new failure (last pass: v4.9.243-17-g9c24315b745a0) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faff49934e88a998479b8a3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faff49934e88a998479b=
+8a4
+        new failure (last pass: v4.9.243-17-g9c24315b745a0) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faff49634e88a998479b89e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faff49634e88a998479b=
+89f
+        new failure (last pass: v4.9.243-17-g9c24315b745a0) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faff45ac92bcb595579b89e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faff45ac92bcb595579b=
+89f
+        new failure (last pass: v4.9.243-17-g9c24315b745a0) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5faffe7234792e18c679b8a1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.243=
+-26-g7b603f689c1c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5faffe7234792e18c679b=
+8a2
+        new failure (last pass: v4.9.243-17-g9c24315b745a0) =
+
+ =20
