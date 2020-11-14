@@ -2,159 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A262B2BCE
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD5E2B2BCF
 	for <lists+stable@lfdr.de>; Sat, 14 Nov 2020 07:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726506AbgKNGvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Nov 2020 01:51:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33280 "EHLO mail.kernel.org"
+        id S1726512AbgKNGv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Nov 2020 01:51:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726133AbgKNGvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 14 Nov 2020 01:51:54 -0500
+        id S1726133AbgKNGv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 14 Nov 2020 01:51:57 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 882A12227F;
-        Sat, 14 Nov 2020 06:51:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3B9522275;
+        Sat, 14 Nov 2020 06:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605336714;
-        bh=YpzKgm1VcCZoAteOUhdWFi7t4spzQobDiwsjJmPHE98=;
+        s=default; t=1605336717;
+        bh=IKGkE35C8diQpCAa1C0h/UjOKNZzft/KbGWnVTvBcq0=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=M1wvMXFyTEeRAm36ktqV3+zK//Rfzh+DCzhWtvSGT042gdrFv881AF1dzQVF6b7FH
-         Go0tuF8pFWUIP4554TAPJeSWw0ZeQOhA4BhW0tQIgvRjmkjerIbOoUJhYsOZp25+LT
-         EUkegzxbSy+9FMOE/L+/CAGB0L4upxs+Hiqd445U=
-Date:   Fri, 13 Nov 2020 22:51:53 -0800
+        b=xkYOb8eF3q2KZnhzrDiAq8jmM4Ei6UJ/YaOK0w+9vVYK7F/p54c9kU2IsPDxIM294
+         +b8PYmtxZQbIm7k3nL3FdPJtr4CbG9StsW5FcSF82DQIBaqedydTCfXmkXYscu/uZ/
+         lu6cz3gDGxjdob+4FmqPCBaF4PROuSGtG2O7lZz0=
+Date:   Fri, 13 Nov 2020 22:51:56 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, cheloha@linux.ibm.com, cl@linux.com,
-        iamjoonsoo.kim@lge.com, ldufour@linux.ibm.com, linux-mm@kvack.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, nathanl@linux.ibm.com,
-        penberg@kernel.org, richard.weiyang@gmail.com, rientjes@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject:  [patch 05/14] mm/slub: fix panic in slab_alloc_node()
-Message-ID: <20201114065153.cIAiARKKm%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
+        dan.j.williams@intel.com, ira.weiny@intel.com, jgg@nvidia.com,
+        jhubbard@nvidia.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 06/14] mm/gup: use unpin_user_pages() in
+ __gup_longterm_locked()
+Message-ID: <20201114065156.AkB0cZWK4%akpm@linux-foundation.org>
 In-Reply-To: <20201113225115.b24faebc85f710d5aff55aa7@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
-Subject: mm/slub: fix panic in slab_alloc_node()
+From: Jason Gunthorpe <jgg@nvidia.com>
+Subject: mm/gup: use unpin_user_pages() in __gup_longterm_locked()
 
-While doing memory hot-unplug operation on a PowerPC VM running 1024 CPUs
-with 11TB of ram, I hit the following panic:
+When FOLL_PIN is passed to __get_user_pages() the page list must be put
+back using unpin_user_pages() otherwise the page pin reference persists in
+a corrupted state.
 
-BUG: Kernel NULL pointer dereference on read at 0x00000007
-Faulting instruction address: 0xc000000000456048
-Oops: Kernel access of bad area, sig: 11 [#2]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS= 2048 NUMA pSeries
-Modules linked in: rpadlpar_io rpaphp
-CPU: 160 PID: 1 Comm: systemd Tainted: G      D           5.9.0 #1
-NIP:  c000000000456048 LR: c000000000455fd4 CTR: c00000000047b350
-REGS: c00006028d1b77a0 TRAP: 0300   Tainted: G      D            (5.9.0)
-MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004228  XER: 00000000
-CFAR: c00000000000f1b0 DAR: 0000000000000007 DSISR: 40000000 IRQMASK: 0
-GPR00: c000000000455fd4 c00006028d1b7a30 c000000001bec800 0000000000000000
-GPR04: 0000000000000dc0 0000000000000000 00000000000374ef c00007c53df99320
-GPR08: 000007c53c980000 0000000000000000 000007c53c980000 0000000000000000
-GPR12: 0000000000004400 c00000001e8e4400 0000000000000000 0000000000000f6a
-GPR16: 0000000000000000 c000000001c25930 c000000001d62528 00000000000000c1
-GPR20: c000000001d62538 c00006be469e9000 0000000fffffffe0 c0000000003c0ff8
-GPR24: 0000000000000018 0000000000000000 0000000000000dc0 0000000000000000
-GPR28: c00007c513755700 c000000001c236a4 c00007bc4001f800 0000000000000001
-NIP [c000000000456048] __kmalloc_node+0x108/0x790
-LR [c000000000455fd4] __kmalloc_node+0x94/0x790
-Call Trace:
-[c00006028d1b7a30] [c00007c51af92000] 0xc00007c51af92000 (unreliable)
-[c00006028d1b7aa0] [c0000000003c0ff8] kvmalloc_node+0x58/0x110
-[c00006028d1b7ae0] [c00000000047b45c] mem_cgroup_css_online+0x10c/0x270
-[c00006028d1b7b30] [c000000000241fd8] online_css+0x48/0xd0
-[c00006028d1b7b60] [c00000000024af14] cgroup_apply_control_enable+0x2c4/0x470
-[c00006028d1b7c40] [c00000000024e838] cgroup_mkdir+0x408/0x5f0
-[c00006028d1b7cb0] [c0000000005a4ef0] kernfs_iop_mkdir+0x90/0x100
-[c00006028d1b7cf0] [c0000000004b8168] vfs_mkdir+0x138/0x250
-[c00006028d1b7d40] [c0000000004baf04] do_mkdirat+0x154/0x1c0
-[c00006028d1b7dc0] [c000000000032b38] system_call_exception+0xf8/0x200
-[c00006028d1b7e20] [c00000000000c740] system_call_common+0xf0/0x27c
-Instruction dump:
-e93e0000 e90d0030 39290008 7cc9402a e94d0030 e93e0000 7ce95214 7f89502a
-2fbc0000 419e0018 41920230 e9270010 <89290007> 7f994800 419e0220 7ee6bb78
+There are two places in the unwind of __gup_longterm_locked() that put the
+pages back without checking.  Normally on error this function would return
+the partial page list making this the caller's responsibility, but in
+these two cases the caller is not allowed to see these pages at all.
 
-This pointing to the following code:
-
-mm/slub.c:2851
-        if (unlikely(!object || !node_match(page, node))) {
-c000000000456038:       00 00 bc 2f     cmpdi   cr7,r28,0
-c00000000045603c:       18 00 9e 41     beq     cr7,c000000000456054 <__kmalloc_node+0x114>
-node_match():
-mm/slub.c:2491
-        if (node != NUMA_NO_NODE && page_to_nid(page) != node)
-c000000000456040:       30 02 92 41     beq     cr4,c000000000456270 <__kmalloc_node+0x330>
-page_to_nid():
-include/linux/mm.h:1294
-c000000000456044:       10 00 27 e9     ld      r9,16(r7)
-c000000000456048:       07 00 29 89     lbz     r9,7(r9)	<<<< r9 = NULL
-node_match():
-mm/slub.c:2491
-c00000000045604c:       00 48 99 7f     cmpw    cr7,r25,r9
-c000000000456050:       20 02 9e 41     beq     cr7,c000000000456270 <__kmalloc_node+0x330>
-
-The panic occurred in slab_alloc_node() when checking for the page's node:
-	object = c->freelist;
-	page = c->page;
-	if (unlikely(!object || !node_match(page, node))) {
-		object = __slab_alloc(s, gfpflags, node, addr, c);
-		stat(s, ALLOC_SLOWPATH);
-
-The issue is that object is not NULL while page is NULL which is odd but
-may happen if the cache flush happened after loading object but before
-loading page.  Thus checking for the page pointer is required too.
-
-The cache flush is done through an inter processor interrupt when a piece
-of memory is off-lined.  That interrupt is triggered when a memory
-hot-unplug operation is initiated and offline_pages() is calling the
-slub's MEM_GOING_OFFLINE callback slab_mem_going_offline_callback() which
-is calling flush_cpu_slab().  If that interrupt is caught between the
-reading of c->freelist and the reading of c->page, this could lead to such
-a situation.  That situation is expected and the later call to
-this_cpu_cmpxchg_double() will detect the change to c->freelist and redo
-the whole operation.
-
-In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
-node_match()") check on the page pointer has been removed assuming that
-page is always valid when it is called.  It happens that this is not true
-in that particular case, so check for page before calling node_match()
-here.
-
-Link: https://lkml.kernel.org/r/20201027190406.33283-1-ldufour@linux.ibm.com
-Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Christoph Lameter <cl@linux.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>
+Link: https://lkml.kernel.org/r/0-v2-3ae7d9d162e2+2a7-gup_cma_fix_jgg@nvidia.com
+Fixes: 3faa52c03f44 ("mm/gup: track FOLL_PIN pages")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/gup.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/mm/slub.c~mm-slub-fix-panic-in-slab_alloc_node
-+++ a/mm/slub.c
-@@ -2852,7 +2852,7 @@ redo:
+--- a/mm/gup.c~mm-gup-use-unpin_user_pages-in-__gup_longterm_locked
++++ a/mm/gup.c
+@@ -1647,8 +1647,11 @@ check_again:
+ 		/*
+ 		 * drop the above get_user_pages reference.
+ 		 */
+-		for (i = 0; i < nr_pages; i++)
+-			put_page(pages[i]);
++		if (gup_flags & FOLL_PIN)
++			unpin_user_pages(pages, nr_pages);
++		else
++			for (i = 0; i < nr_pages; i++)
++				put_page(pages[i]);
  
- 	object = c->freelist;
- 	page = c->page;
--	if (unlikely(!object || !node_match(page, node))) {
-+	if (unlikely(!object || !page || !node_match(page, node))) {
- 		object = __slab_alloc(s, gfpflags, node, addr, c);
- 	} else {
- 		void *next_object = get_freepointer_safe(s, object);
+ 		if (migrate_pages(&cma_page_list, alloc_migration_target, NULL,
+ 			(unsigned long)&mtc, MIGRATE_SYNC, MR_CONTIG_RANGE)) {
+@@ -1728,8 +1731,11 @@ static long __gup_longterm_locked(struct
+ 			goto out;
+ 
+ 		if (check_dax_vmas(vmas_tmp, rc)) {
+-			for (i = 0; i < rc; i++)
+-				put_page(pages[i]);
++			if (gup_flags & FOLL_PIN)
++				unpin_user_pages(pages, rc);
++			else
++				for (i = 0; i < rc; i++)
++					put_page(pages[i]);
+ 			rc = -EOPNOTSUPP;
+ 			goto out;
+ 		}
 _
