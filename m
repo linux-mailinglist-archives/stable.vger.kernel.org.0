@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6F72B3A91
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 00:23:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C1E2B3A9E
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 00:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728082AbgKOXWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Nov 2020 18:22:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
+        id S1727988AbgKOXox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Nov 2020 18:44:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728078AbgKOXWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 18:22:09 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B75E1C0613CF
-        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 15:22:09 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id j19so4337678pgg.5
-        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 15:22:09 -0800 (PST)
+        with ESMTP id S1727018AbgKOXox (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 18:44:53 -0500
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12D7C0613CF
+        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 15:44:51 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id y22so7307218plr.6
+        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 15:44:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=4NzvGyZm3YXIOdp7fpMohXTGUGtBQQKFFaYcCQAJ6Uo=;
-        b=oyjOcq9PE8o0Z8EwdKFrnELd2b34VjaY2au8rWG0cfSnujOKOJySzkWVJxNKcZTu/l
-         azV148UUgeKAUK2SJdx9HQDA6KsW1xgDEBh1EFMs1Bzl7Miacpxd76TQKpuf9gf1FGQv
-         A2ovSXkLzuhLE/d3DTXuvWeOSelePAtP/DVK7nz2xEkaT0ZRHLb8RbiKQMFSwa89EOB1
-         c3Tp+3HTY4qnLCMeT9sxCprSYwyI9UbjzGgJqTIRwC1gKDtr/eYsQxNmNX2iSekIkXtX
-         VWsLo1KCTViKNQ3KRUdquC8IoJTaNDjLha3XyAAxh62GT07KEYyakaCe3zGhDVMxvbe2
-         23MQ==
+        bh=l/Z+h+6T5u1XEeY+UDL68vE3FYcATqr+Ngt2xjuWygY=;
+        b=vZR4gAdesQimkcsl+p7zYmx9BynLx8JmRlSExI4WwNwDqOZt0rlf8kh6RxLC4+8IVh
+         kP+L8/JhMK4nKf9VLEV8WQ30FIuOOwET0NZQ13HdsmBRaSHiiHU+Mmfp28+CILzA24X6
+         O8KLs+83iKMaOK/96YzyAutO0peU42nnz5tb2pimRWYwnB4fF+eW8q1Yu7wTkD8G/QzB
+         dFSFtEFszpOKnLxl65kP8eH3aMw2YaLVKSjrXyAb+5TbGteWNlTJjYcF7ZoaXzMauLhz
+         IQXbyyI5HA7ag++gRpaXLYMO1ZpL5wp5KiTRE7TTg4kFW89kU7RJynbYZ0Jt271hWU8e
+         FGDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=4NzvGyZm3YXIOdp7fpMohXTGUGtBQQKFFaYcCQAJ6Uo=;
-        b=VSEWcu02myNM8Cog/6Ei8zs25ogxrKGsd3fjaxS196arfTIy/WMH8/c/yfBlu1r7YI
-         FwjocQiRrTl3iU8OsmAL1fQR7aD/9wXtJ3El8iqHC0s0wf0NPb3DdHCKE6zUhSKhY/iG
-         ChF0r2UoYnOzqlrEoa6UTzD0x2OpnAGHFufa5VcNFrEXAt6a0dX4n6kOUwva4tVlmbUa
-         afhwodoWV+6XCsT5K6/ySMBOBY8xOT8GZeLWG8IiIO5C0c+ZJPiiSm20QkjOEuQgyA8+
-         F3g5kAr5w3ayBg0Y3DrAjlcBxLQ4VGY83r06np8TfAn3WYLfq0OxMaNPjzmBiwNymHPS
-         8d3g==
-X-Gm-Message-State: AOAM532CgsP+Msbw94NZ9Ks72zNNJ25fTMCC0uXN8ctCIyHi4lmw+bC3
-        Egaey7O3AXKOE0MhwKGIUl2dqirbCaMTTA==
-X-Google-Smtp-Source: ABdhPJyaVQUq4Jy6TXaZf4rKYWtU6AhqvgJ2S4OXgQgJy5iQPO5Yso7F9AXrEgwopAVW4wvsJeoOGg==
-X-Received: by 2002:a17:90a:a08f:: with SMTP id r15mr12926178pjp.118.1605482528704;
-        Sun, 15 Nov 2020 15:22:08 -0800 (PST)
+        bh=l/Z+h+6T5u1XEeY+UDL68vE3FYcATqr+Ngt2xjuWygY=;
+        b=ny2U52pCqKPHUj++XhvskbxcK4MKjSt4nM4wtkhzK3qHEl3lfrqNFFwigDXWdLdwYE
+         bIiR5XFV0pSjFOvXvKgdYrAiLrwcdsAFpyvFmCmTozi2huZoOpsZ2sLdD5MegGK9jvL5
+         0EzPyMz1HibOfzy/x60hcbF4o2z3DV5i6f1H2R518fpPyNdQsaiLXgq+nJimdMMNQ/eC
+         mMwBZuG4MkAiTHgkpY3NSFoSdBXbrYRX3LS/TsYvyJtZ/Isx2AiPOU0SZYxX07ckborD
+         tBmUUjYcHQ+hIROhdqQmpjv0IJSCyZC6UhYUbaqZ65vQBu6fFaaSVCLA3saPMlOrEHX7
+         OQKA==
+X-Gm-Message-State: AOAM533bQMHEDFSpadruXzJ9thrCYoLsCx0e6+xY1HuIA0mP8fwz3Hkd
+        JTzqM2MJsNF1Fscsk9tMAQoOJmoBgYZwKQ==
+X-Google-Smtp-Source: ABdhPJxD+g5WYQHOJtaVxtc5HAJwcs/Py0wblW8cK311pQwF37CkbejG7ihdhiHE3bZArl2PFK/9Xg==
+X-Received: by 2002:a17:902:d901:b029:d6:9796:514e with SMTP id c1-20020a170902d901b02900d69796514emr10456353plz.84.1605483890856;
+        Sun, 15 Nov 2020 15:44:50 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q11sm14563282pgm.79.2020.11.15.15.22.07
+        by smtp.gmail.com with ESMTPSA id n18sm15706725pff.129.2020.11.15.15.44.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2020 15:22:08 -0800 (PST)
-Message-ID: <5fb1b820.1c69fb81.99155.f6e0@mx.google.com>
-Date:   Sun, 15 Nov 2020 15:22:08 -0800 (PST)
+        Sun, 15 Nov 2020 15:44:50 -0800 (PST)
+Message-ID: <5fb1bd72.1c69fb81.6be02.316f@mx.google.com>
+Date:   Sun, 15 Nov 2020 15:44:50 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
+X-Kernelci-Branch: queue/4.19
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.77-83-g92cb0dcc36862
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 28 builds: 0 failed, 28 passed,
- 11 warnings (v5.4.77-83-g92cb0dcc36862)
+X-Kernelci-Kernel: v4.19.157-47-g478dfec05dc4
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 7 runs,
+ 1 regressions (v4.19.157-47-g478dfec05dc4)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,221 +65,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 28 builds: 0 failed, 28 passed, 11 warnings (v5.=
-4.77-83-g92cb0dcc36862)
+stable-rc/queue/4.19 baseline: 7 runs, 1 regressions (v4.19.157-47-g478dfec=
+05dc4)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.77-83-g92cb0dcc36862/
+Regressions Summary
+-------------------
 
-Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.77-83-g92cb0dcc36862
-Git Commit: 92cb0dcc36862d36c3190840bfa0c9ce06cf7e30
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 4 unique architectures
-
-Warnings Detected:
-
-arc:
-    haps_hs_defconfig (gcc-8): 2 warnings
-    nsimosci_hs_smp_defconfig (gcc-8): 2 warnings
-
-arm:
-    cns3420vb_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    mmp2_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-
-
-Warnings summary:
-
-    7    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-    4    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings=
-, 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
-For more info write to <info@kernelci.org>
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.157-47-g478dfec05dc4/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.157-47-g478dfec05dc4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      478dfec05dc404b4f804aeff40166af01b660b5d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb17bb54a5e50e65579b897
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.157=
+-47-g478dfec05dc4/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.157=
+-47-g478dfec05dc4/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fb17bb54a5e50e=
+65579b89e
+        failing since 1 day (last pass: v4.19.157-26-gd59f3161b3a0, first f=
+ail: v4.19.157-27-g5543cc2c41d55)
+        2 lines =
+
+ =20
