@@ -2,146 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B64762B32CA
-	for <lists+stable@lfdr.de>; Sun, 15 Nov 2020 07:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6322B34D6
+	for <lists+stable@lfdr.de>; Sun, 15 Nov 2020 13:19:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726230AbgKOGzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Nov 2020 01:55:11 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:51698 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726301AbgKOGzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 01:55:11 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AF6pKSm140967;
-        Sun, 15 Nov 2020 06:54:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id; s=corp-2020-01-29;
- bh=hWnBy2vgLUkwNArKVKvQODEJQxEy1UWGY6YOMYFxffE=;
- b=wu3EW8MsMvIWzhADqplS8JMmx2Cn40DQ8YQZwCY745tD8juJ3bE15oBtCjvz7HFbBsOw
- FFNio1oKtYp/SvBuggPG6zdEI+yOO29KpsCvlwifGQNeMgpPuSO1KMS6rCSTpxw1NBsr
- QlyFrtAeNhE+6gE4uzJgJRzQJ7nenzbNNFdPn4GNxvhVZEdI0sO+cB1J4hMvH5+Fu5Cq
- BIspG4KfO8rxMBeVk8nQDFGLSY4Aot7nLGifm4rCA2ikmys/3/U/yIXCpq22hez6/lST
- 1SxwGQK6SqlvoHNt2/snbL67ygT6SDfF5r1wSDiC5tBCxtdjzuDNixN6UXPyhjsOu65+ PA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 34t4rahx74-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sun, 15 Nov 2020 06:54:57 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AF6jQB7112100;
-        Sun, 15 Nov 2020 06:54:57 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 34trtjfcgc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 15 Nov 2020 06:54:57 +0000
-Received: from abhmp0012.oracle.com (abhmp0012.oracle.com [141.146.116.18])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0AF6suHh023012;
-        Sun, 15 Nov 2020 06:54:56 GMT
-Received: from localhost.localdomain (/10.211.9.80)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Sat, 14 Nov 2020 22:54:55 -0800
-From:   Dongli Zhang <dongli.zhang@oracle.com>
-To:     linux-mm@kvack.org, netdev@vger.kernel.org
-Cc:     willy@infradead.org, aruna.ramakrishna@oracle.com,
-        bert.barbe@oracle.com, rama.nichanamatlu@oracle.com,
-        venkat.x.venkatsubra@oracle.com, manjunath.b.patil@oracle.com,
-        joe.jin@oracle.com, srinivas.eeda@oracle.com,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, davem@davemloft.net,
-        edumazet@google.com, vbabka@suse.cz, dongli.zhang@oracle.com
-Subject: [PATCH v2 1/1] page_frag: Recover from memory pressure
-Date:   Sat, 14 Nov 2020 22:51:06 -0800
-Message-Id: <20201115065106.10244-1-dongli.zhang@oracle.com>
-X-Mailer: git-send-email 2.17.1
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9805 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0 mlxscore=0
- bulkscore=0 malwarescore=0 spamscore=0 mlxlogscore=999 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011150042
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9805 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 clxscore=1011
- malwarescore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011150042
+        id S1726770AbgKOMSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Nov 2020 07:18:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726727AbgKOMSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 07:18:52 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683E5C0613D1;
+        Sun, 15 Nov 2020 04:18:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=SqBkoMisN8DRT7Ugl7/Kskn70ZM+RV1ZXq04Kt9+Zxk=; b=Fc13oNdA5LMGuxAfQ+cshr3PRq
+        uKzkSPTQ1CFEqEsskFx41rAFTodBdHAnA2A7YA3Nps1cnwwZkgYsB2pw3M1Dp5GQFRMKytpA+Fu1S
+        0cPoQUJ2wU9gQCnPjrU35rXPhLGuRr3KBtiWl2S+CO8anENkcFKfXvF1cbXVwzl75fUMdCSOZ112F
+        qFXivRmLn+hKZqwfukred3rOLgyM9222Voh5Wmpr9eR8HIivgDrvCTXS+juikfiNiI3adujhz3l3O
+        d+5/XNH06bFAWtzJ8sL22st8+nRyCoHLTHysKdAYiHd0Mr+5gR4dGRz5NYTfVRX5EtwXjv+qQkbS7
+        N/Kjjm5w==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1keGzE-00041W-Am; Sun, 15 Nov 2020 12:18:28 +0000
+Date:   Sun, 15 Nov 2020 12:18:28 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Dongli Zhang <dongli.zhang@oracle.com>
+Cc:     linux-mm@kvack.org, netdev@vger.kernel.org,
+        aruna.ramakrishna@oracle.com, bert.barbe@oracle.com,
+        rama.nichanamatlu@oracle.com, venkat.x.venkatsubra@oracle.com,
+        manjunath.b.patil@oracle.com, joe.jin@oracle.com,
+        srinivas.eeda@oracle.com, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        davem@davemloft.net, edumazet@google.com, vbabka@suse.cz
+Subject: Re: [PATCH v2 1/1] page_frag: Recover from memory pressure
+Message-ID: <20201115121828.GQ17076@casper.infradead.org>
+References: <20201115065106.10244-1-dongli.zhang@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201115065106.10244-1-dongli.zhang@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ethernet driver may allocate skb (and skb->data) via napi_alloc_skb().
-This ends up to page_frag_alloc() to allocate skb->data from
-page_frag_cache->va.
+On Sat, Nov 14, 2020 at 10:51:06PM -0800, Dongli Zhang wrote:
+> +		if (nc->pfmemalloc) {
 
-During the memory pressure, page_frag_cache->va may be allocated as
-pfmemalloc page. As a result, the skb->pfmemalloc is always true as
-skb->data is from page_frag_cache->va. The skb will be dropped if the
-sock (receiver) does not have SOCK_MEMALLOC. This is expected behaviour
-under memory pressure.
-
-However, once kernel is not under memory pressure any longer (suppose large
-amount of memory pages are just reclaimed), the page_frag_alloc() may still
-re-use the prior pfmemalloc page_frag_cache->va to allocate skb->data. As a
-result, the skb->pfmemalloc is always true unless page_frag_cache->va is
-re-allocated, even if the kernel is not under memory pressure any longer.
-
-Here is how kernel runs into issue.
-
-1. The kernel is under memory pressure and allocation of
-PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. Instead,
-the pfmemalloc page is allocated for page_frag_cache->va.
-
-2: All skb->data from page_frag_cache->va (pfmemalloc) will have
-skb->pfmemalloc=true. The skb will always be dropped by sock without
-SOCK_MEMALLOC. This is an expected behaviour.
-
-3. Suppose a large amount of pages are reclaimed and kernel is not under
-memory pressure any longer. We expect skb->pfmemalloc drop will not happen.
-
-4. Unfortunately, page_frag_alloc() does not proactively re-allocate
-page_frag_alloc->va and will always re-use the prior pfmemalloc page. The
-skb->pfmemalloc is always true even kernel is not under memory pressure any
-longer.
-
-Fix this by freeing and re-allocating the page instead of recycling it.
-
-References: https://lore.kernel.org/lkml/20201103193239.1807-1-dongli.zhang@oracle.com/
-References: https://lore.kernel.org/linux-mm/20201105042140.5253-1-willy@infradead.org/
-Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-Cc: Bert Barbe <bert.barbe@oracle.com>
-Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
-Cc: Joe Jin <joe.jin@oracle.com>
-Cc: SRINIVAS <srinivas.eeda@oracle.com>
-Cc: stable@vger.kernel.org
-Fixes: 79930f5892e ("net: do not deplete pfmemalloc reserve")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
----
-Changed since v1:
-  - change author from Matthew to Dongli
-  - Add references to all prior discussions
-  - Add more details to commit message
-
- mm/page_alloc.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..91129ce75ed4 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5103,6 +5103,11 @@ void *page_frag_alloc(struct page_frag_cache *nc,
- 		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
- 			goto refill;
- 
-+		if (nc->pfmemalloc) {
-+			free_the_page(page, compound_order(page));
-+			goto refill;
-+		}
-+
- #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
- 		/* if size can vary use size else just use PAGE_SIZE */
- 		size = nc->size;
--- 
-2.17.1
-
+You missed the unlikely() change that Eric recommended.
