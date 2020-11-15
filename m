@@ -2,148 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DB82B38FE
-	for <lists+stable@lfdr.de>; Sun, 15 Nov 2020 21:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5342B38FB
+	for <lists+stable@lfdr.de>; Sun, 15 Nov 2020 21:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727375AbgKOUQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Nov 2020 15:16:35 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:35384 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727311AbgKOUQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 15:16:35 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AFKFgcE070900;
-        Sun, 15 Nov 2020 20:16:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id; s=corp-2020-01-29;
- bh=aAP7NEpPhJaLfVSkAw1EFepSSFXX6aFlTtVNOEDZoYM=;
- b=FFBX/ieyMiBRg6X3MSa/FhJ0gMN00AodZoSmj5NAGxeMbjNubqu7Bug/MZDLVCOJc+t1
- Bj3zgJu6yw6bY8mMXTjuhBcDRBfIu9XRDeOozsL8QlQ9ya/qZRZ/gPYN3AZuCnrniapL
- fTbQCba1N6QiQRKhZ001rm08bG1k8Cb95TV8z6UP+oDn5Ua7K1Ni3ZgNrgm75dSC0HnW
- LRdCZAIu53QqKisN5CMgmclAUd0vuYaEdFo5Hbsv2Q9eZmXf/jZ/bSds03K3gl23NoJ/
- vyDvwlMkCFX0C9h+8TckQD9xMDcVfyYGPHGKPKsRWCNvJDD5OakTXfwTL/st69pvpvDL cg== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2120.oracle.com with ESMTP id 34t76kjr11-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sun, 15 Nov 2020 20:16:25 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AFKB9iT027537;
-        Sun, 15 Nov 2020 20:14:25 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 34ts4vnn6u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 15 Nov 2020 20:14:25 +0000
-Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0AFKEM4S015914;
-        Sun, 15 Nov 2020 20:14:22 GMT
-Received: from localhost.localdomain (/10.211.9.80)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Sun, 15 Nov 2020 12:14:22 -0800
-From:   Dongli Zhang <dongli.zhang@oracle.com>
-To:     linux-mm@kvack.org, netdev@vger.kernel.org
-Cc:     willy@infradead.org, aruna.ramakrishna@oracle.com,
-        bert.barbe@oracle.com, rama.nichanamatlu@oracle.com,
-        venkat.x.venkatsubra@oracle.com, manjunath.b.patil@oracle.com,
-        joe.jin@oracle.com, srinivas.eeda@oracle.com,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, davem@davemloft.net,
-        edumazet@google.com, vbabka@suse.cz, dongli.zhang@oracle.com
-Subject: [PATCH v3 1/1] page_frag: Recover from memory pressure
-Date:   Sun, 15 Nov 2020 12:10:29 -0800
-Message-Id: <20201115201029.11903-1-dongli.zhang@oracle.com>
-X-Mailer: git-send-email 2.17.1
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9806 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 bulkscore=0
- adultscore=0 malwarescore=0 mlxlogscore=999 spamscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011150130
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9806 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0
- adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015 mlxlogscore=999
- malwarescore=0 mlxscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011150130
+        id S1727496AbgKOUPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Nov 2020 15:15:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727317AbgKOUPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 15:15:12 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23079C0613CF
+        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 12:15:12 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id w6so11428675pfu.1
+        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 12:15:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=a6YuGarYogV6KKuSQS/VrGTibS4FBz2EQsUKs28QjIo=;
+        b=FtKHWyvSsYjymqF0mDvwOelyDuhQpKqEfe6Qav6bZTUhGyApa96/DyUyRRmFcImS2j
+         3UkXcoEdeka1RfMBDADBKpLdydJTidd6Af4VNivxesZFokV1cI+fbgWwBEUa5ZU2C2Fn
+         r5/O4JvsDOC27ZOdD4SRnO9en4EE1OEDey3Up4Bp1XPi8IIQhcWpIn/0VlYp5+SuMfar
+         8EVW1gvFLrlXlvMf8uefMqEkNMQiNnV6zACarxyWXSDBozML+x23X+a/7oHsKJSyXYrf
+         xEC5pKRJR5cuEpmi2oiZPC4G4bId+uuxT12PdbmBPxGqnE2UdlguJlOfrjhq1iN1KKZF
+         5GaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=a6YuGarYogV6KKuSQS/VrGTibS4FBz2EQsUKs28QjIo=;
+        b=S9+q8hccGr46msvkLAh29murtOGJ/ndB+f9w8lyhy0DLunFY8DNYgDzfO/lCLA+sJh
+         BeduF6M3Ce7jJoO4CWwfOLlici8pl/JAfuSKYxjkMGzskM2n3dFOsgEZ3qXmoXrpgUnk
+         DbHgMGbZYeLU6ikITk8DZR3yR0f5+0fNmqZjTEblXm9hqBK3hi4p5W7gFxJ4nIAJ3UEj
+         3kFOi0CHndpoSs6xGcocZme51m3F1BWtaRmtXbw7ePB30439C80H62heYfs5e46K8ysr
+         2F2ltUtLN37p7lYpS03kp0ALJka0tSw9Zu+I4FMYKWeWzE3CdUKmJy7/f2t9f6WVv744
+         E19A==
+X-Gm-Message-State: AOAM5323Y8lL4SX9wq3ujGdKII1NJJ0TTr5wNDrs3+hmBT5/c00Tk9EX
+        rr3jgXLI/qpkK2B/sWXEp6OZ0xykNj8KQA==
+X-Google-Smtp-Source: ABdhPJxT71nZUCJpMAxF7miHHYObA6MsBYv+TzZZguKmCU3M8c/q89QLcezrX+/aLEQBLETJy81dng==
+X-Received: by 2002:aa7:9595:0:b029:18e:ecd5:bcdc with SMTP id z21-20020aa795950000b029018eecd5bcdcmr11091864pfj.47.1605471310986;
+        Sun, 15 Nov 2020 12:15:10 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l14sm16483359pfd.113.2020.11.15.12.15.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Nov 2020 12:15:10 -0800 (PST)
+Message-ID: <5fb18c4e.1c69fb81.6e113.3c11@mx.google.com>
+Date:   Sun, 15 Nov 2020 12:15:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.157-47-g478dfec05dc4
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/4.19 build: 20 builds: 0 failed, 20 passed,
+ 6 warnings (v4.19.157-47-g478dfec05dc4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ethernet driver may allocate skb (and skb->data) via napi_alloc_skb().
-This ends up to page_frag_alloc() to allocate skb->data from
-page_frag_cache->va.
+stable-rc/queue/4.19 build: 20 builds: 0 failed, 20 passed, 6 warnings (v4.=
+19.157-47-g478dfec05dc4)
 
-During the memory pressure, page_frag_cache->va may be allocated as
-pfmemalloc page. As a result, the skb->pfmemalloc is always true as
-skb->data is from page_frag_cache->va. The skb will be dropped if the
-sock (receiver) does not have SOCK_MEMALLOC. This is expected behaviour
-under memory pressure.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+9/kernel/v4.19.157-47-g478dfec05dc4/
 
-However, once kernel is not under memory pressure any longer (suppose large
-amount of memory pages are just reclaimed), the page_frag_alloc() may still
-re-use the prior pfmemalloc page_frag_cache->va to allocate skb->data. As a
-result, the skb->pfmemalloc is always true unless page_frag_cache->va is
-re-allocated, even if the kernel is not under memory pressure any longer.
+Tree: stable-rc
+Branch: queue/4.19
+Git Describe: v4.19.157-47-g478dfec05dc4
+Git Commit: 478dfec05dc404b4f804aeff40166af01b660b5d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 4 unique architectures
 
-Here is how kernel runs into issue.
+Warnings Detected:
 
-1. The kernel is under memory pressure and allocation of
-PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. Instead,
-the pfmemalloc page is allocated for page_frag_cache->va.
+arc:
+    haps_hs_defconfig (gcc-8): 1 warning
+    haps_hs_smp_defconfig (gcc-8): 1 warning
 
-2: All skb->data from page_frag_cache->va (pfmemalloc) will have
-skb->pfmemalloc=true. The skb will always be dropped by sock without
-SOCK_MEMALLOC. This is an expected behaviour.
+arm:
+    eseries_pxa_defconfig (gcc-8): 1 warning
 
-3. Suppose a large amount of pages are reclaimed and kernel is not under
-memory pressure any longer. We expect skb->pfmemalloc drop will not happen.
+mips:
+    allnoconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
 
-4. Unfortunately, page_frag_alloc() does not proactively re-allocate
-page_frag_alloc->va and will always re-use the prior pfmemalloc page. The
-skb->pfmemalloc is always true even kernel is not under memory pressure any
-longer.
+riscv:
+    tinyconfig (gcc-8): 1 warning
 
-Fix this by freeing and re-allocating the page instead of recycling it.
 
-References: https://lore.kernel.org/lkml/20201103193239.1807-1-dongli.zhang@oracle.com/
-References: https://lore.kernel.org/linux-mm/20201105042140.5253-1-willy@infradead.org/
-Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-Cc: Bert Barbe <bert.barbe@oracle.com>
-Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
-Cc: Joe Jin <joe.jin@oracle.com>
-Cc: SRINIVAS <srinivas.eeda@oracle.com>
-Cc: stable@vger.kernel.org
-Fixes: 79930f5892e ("net: do not deplete pfmemalloc reserve")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Warnings summary:
+
+    6    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_l=
+ist=E2=80=99 defined but not used [-Wunused-variable]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
 ---
-Changed since v1:
-  - change author from Matthew to Dongli
-  - Add references to all prior discussions
-  - Add more details to commit message
-Changed since v2:
-  - add unlikely (suggested by Eric Dumazet)
-
- mm/page_alloc.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..91129ce75ed4 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5103,6 +5103,11 @@ void *page_frag_alloc(struct page_frag_cache *nc,
- 		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
- 			goto refill;
- 
-+		if (unlikely(nc->pfmemalloc)) {
-+			free_the_page(page, compound_order(page));
-+			goto refill;
-+		}
-+
- #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
- 		/* if size can vary use size else just use PAGE_SIZE */
- 		size = nc->size;
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
