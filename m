@@ -2,185 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E3D2B500B
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 19:42:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 604612B501E
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 19:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbgKPSmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 13:42:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726519AbgKPSmP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 13:42:15 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EBB1C0613CF
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 10:42:15 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id s13so251073wmh.4
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 10:42:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=9L65A0dxDhXukycconay8uPiRfEP5x6cWJgWRs9sTYg=;
-        b=fP0Tzwfcj1OpaVH3FbwEVOeprTu0GEq1MoG8XlgqCa5v5umOjx1WOOirXuPb0lmjAH
-         SqD0GdnfH1HMtXCmmqur5HnnW5j6CASp7GTVHLHATeKSMj7w8xVGpIFqcJSAoBuuGKYS
-         +4e4C6LengfLEMb+mLIFfV40ql9BZjtBiwNalh1c/Lo1e9X8U6IAFVlel9+/hXqHul4T
-         oNH4j5o5f3Tx3bmXwIZOXEA1/B5Kx+x8Ou0x3BJMufAA6esoBoA2P4pWiPrSPZSeTKmJ
-         f8+xLR1LvtKkeFCtIvYeROXeuVqfsmF3DhVZWt+LZTehhFAiKFvonxb/36AWITZy5hcm
-         AKPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9L65A0dxDhXukycconay8uPiRfEP5x6cWJgWRs9sTYg=;
-        b=fP7AdfjBRLvTfEQt8P1XzP8BM5CPrz8916bbGTMAvFveiJMEYufGc75/U72V4vAdM3
-         vsfc5l70QJF3EVjCxkmkIZCz+2Ilw4ohYueEDZiyn7Y9KbJECBhWbJJCkKib5GeJ+DHA
-         HHVVn5UlQTWL2ud2uIfEcEntLDOBf4z+5nJtM4oA7aOurSx5eLmeNoRL5kWJJebhNimC
-         IUKI7PqJ0AsGdwxrVVzDI14+maBWk3mWR7OXUOR+Rn7PJ6zE02I9yRONE0swR3r3m5D6
-         HF21/OS2I+jfx7tz4/K9MfrwNhXWlW5AyTZz5g9hOO46H5PvL7WwEhfnnuhQVJgfh9AC
-         euDQ==
-X-Gm-Message-State: AOAM532aKEESPWnXpIOs58t2e6O2qoU6VUlt1Oo8ugwT6Nr0sCEGuPT3
-        X6CrUGmAH9ZIYPxw9JfAE24=
-X-Google-Smtp-Source: ABdhPJyT5U+rENp2faDZIAalx3qP8Bv9IT9dXmZK5W1VJUUgP7xIpOGsx/OMEjvds3Q3CYm4oYN77w==
-X-Received: by 2002:a7b:cbc8:: with SMTP id n8mr274236wmi.124.1605552134200;
-        Mon, 16 Nov 2020 10:42:14 -0800 (PST)
-Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id x12sm17571987wrt.18.2020.11.16.10.42.13
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 16 Nov 2020 10:42:13 -0800 (PST)
-Date:   Mon, 16 Nov 2020 18:42:11 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     mcroce@microsoft.com, akpm@linux-foundation.org, arnd@arndb.de,
-        fabf@skynet.be, keescook@chromium.org, linux@roeck-us.net,
-        pasha.tatashin@soleen.com, pmladek@suse.com, robinmholt@gmail.com,
-        rppt@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject: Re: FAILED: patch "[PATCH] Revert "kernel/reboot.c: convert
- simple_strtoul to kstrtoint"" failed to apply to 4.19-stable tree
-Message-ID: <20201116184211.lq6lxexxsai5jz6q@debian>
-References: <160554320237238@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="o4oqbbcfyjckw77p"
-Content-Disposition: inline
-In-Reply-To: <160554320237238@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+        id S1728290AbgKPStM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 13:49:12 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23494 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726204AbgKPStM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 13:49:12 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AGIXWA2001681;
+        Mon, 16 Nov 2020 13:49:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=08+LUJn+1NqpvGMznVW9wbSkVMuYy1K575hvfKSkChg=;
+ b=VpsyuqgWW8gD/mVv9JaSiWSU7W4w+gN8tbS9YzMM2e7GzC/JWmdQah6uVvGcjCeezlF0
+ /FIZEaTxTgc9HlbtlDtETzx1JpXxAJr2KYZWm06EEg6KwnTyCwJGTZ926zjrajAp7r1n
+ In2IvOtscJ1WcWSM6RthmSwEKEjMRL81B5/EBkp9S9jk2LIqlmdiPl1w8MwCD2mXuyp0
+ IMbCBP3K8YzGxOojUAiPWWehT4mjWci5Gg3EvKqhSgECnUWWCgoRPEmVUWab6q1FYgNN
+ otgZZXyopj496oSpXZ5GUC766w5YcgtW+BsRQ9jsWMJckfMIwzhSq9L6ftGxkkITjsFy IQ== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34ux64hag2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 13:49:10 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0AGIgoLD019199;
+        Mon, 16 Nov 2020 18:49:09 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 34t6v8acc2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 18:49:09 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0AGIn7rE2556434
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 16 Nov 2020 18:49:07 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7D035204F;
+        Mon, 16 Nov 2020 18:49:06 +0000 (GMT)
+Received: from sig-9-65-243-37.ibm.com (unknown [9.65.243.37])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 85CBD5204E;
+        Mon, 16 Nov 2020 18:49:04 +0000 (GMT)
+Message-ID: <7fa1b79e42832bd033fdf18cde8293078637262f.camel@linux.ibm.com>
+Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
+ ima_calc_file_hash()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Date:   Mon, 16 Nov 2020 13:49:03 -0500
+In-Reply-To: <20201116180855.GX3576660@ZenIV.linux.org.uk>
+References: <20201113080132.16591-1-roberto.sassu@huawei.com>
+         <20201114111057.GA16415@infradead.org>
+         <0fd0fb3360194d909ba48f13220f9302@huawei.com>
+         <20201116162202.GA15010@infradead.org>
+         <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
+         <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
+         <20201116180855.GX3576660@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-16_09:2020-11-13,2020-11-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=3 mlxscore=0 priorityscore=1501 phishscore=0 spamscore=0
+ malwarescore=0 mlxlogscore=999 impostorscore=0 clxscore=1015 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011160109
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---o4oqbbcfyjckw77p
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Greg,
-
-On Mon, Nov 16, 2020 at 05:13:22PM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, 2020-11-16 at 18:08 +0000, Al Viro wrote:
+> On Mon, Nov 16, 2020 at 09:37:32AM -0800, Linus Torvalds wrote:
+> > On Mon, Nov 16, 2020 at 8:47 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> > >
+> > > This discussion seems to be going down the path of requiring an IMA
+> > > filesystem hook for reading the file, again.  That solution was
+> > > rejected, not by me.  What is new this time?
+> > 
+> > You can't read a non-read-opened file. Not even IMA can.
+> > 
+> > So don't do that then.
+> > 
+> > IMA is doing something wrong. Why would you ever read a file that can't be read?
+> >
+> > Fix whatever "open" function instead of trying to work around the fact
+> > that you opened it wrong.
 > 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> IMA pulls that crap on _every_ open(2), including O_WRONLY.  As far as I'm
+> concerned, the only sane answer is not enabling that thing on your builds;
+> they are deeply special and I hadn't been able to reason with them no
+> matter how much I tried ;-/
 
-Here is the backport. This will apply to v4.19.y, v4.14.y, v4.9.y and
-also v4.4.y.
+The builtin IMA policies are only meant to be used until a custom can
+be loaded.  The decision as to what should be measured or verified is
+left up to the system owner.
 
---
-Regards
-Sudip
+In terms of the architecture specific policy rules, there are rules to:
+- measure the kexec kernel image and kernel modules
+- verify the kexec kernel image and kernel modules appended signatures
 
---o4oqbbcfyjckw77p
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-Revert-kernel-reboot.c-convert-simple_strtoul-to-kst.patch"
+These rules should be pretty straight forward to verify.
 
-From 1a6b4cbf9d73b7af385ea40b70f65a16876bf4fe Mon Sep 17 00:00:00 2001
-From: Matteo Croce <mcroce@microsoft.com>
-Date: Fri, 13 Nov 2020 22:52:02 -0800
-Subject: [PATCH] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+Mimi
 
-commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream
-
-Patch series "fix parsing of reboot= cmdline", v3.
-
-The parsing of the reboot= cmdline has two major errors:
-
- - a missing bound check can crash the system on reboot
-
- - parsing of the cpu number only works if specified last
-
-Fix both.
-
-This patch (of 2):
-
-This reverts commit 616feab753972b97.
-
-kstrtoint() and simple_strtoul() have a subtle difference which makes
-them non interchangeable: if a non digit character is found amid the
-parsing, the former will return an error, while the latter will just
-stop parsing, e.g.  simple_strtoul("123xyx") = 123.
-
-The kernel cmdline reboot= argument allows to specify the CPU used for
-rebooting, with the syntax `s####` among the other flags, e.g.
-"reboot=warm,s31,force", so if this flag is not the last given, it's
-silently ignored as well as the subsequent ones.
-
-Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Robin Holt <robinmholt@gmail.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[sudip: use reboot_mode instead of mode]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- kernel/reboot.c | 21 +++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
-
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index 8fb44dec9ad7..db0eed5916d5 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -539,22 +539,15 @@ static int __init reboot_setup(char *str)
- 			break;
- 
- 		case 's':
--		{
--			int rc;
--
--			if (isdigit(*(str+1))) {
--				rc = kstrtoint(str+1, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else if (str[1] == 'm' && str[2] == 'p' &&
--				   isdigit(*(str+3))) {
--				rc = kstrtoint(str+3, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else
-+			if (isdigit(*(str+1)))
-+				reboot_cpu = simple_strtoul(str+1, NULL, 0);
-+			else if (str[1] == 'm' && str[2] == 'p' &&
-+							isdigit(*(str+3)))
-+				reboot_cpu = simple_strtoul(str+3, NULL, 0);
-+			else
- 				reboot_mode = REBOOT_SOFT;
- 			break;
--		}
-+
- 		case 'g':
- 			reboot_mode = REBOOT_GPIO;
- 			break;
--- 
-2.11.0
-
-
---o4oqbbcfyjckw77p--
