@@ -2,173 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07512B43A6
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 13:26:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC682B43D3
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 13:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgKPMZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 07:25:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59742 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728269AbgKPMZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 07:25:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605529542;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=twYAjgtjeEtP7dme/B3MtQN8LFC4b+SiLV0pksaCw+Q=;
-        b=beiNO0zmf1qEofoM6i6EUb8FXyRKDHCv7whNvQKSQhkrAYGpW54JifkHafQdEAICko/pXf
-        4WvB6vWtD8nIvhuymQ2Y5gRLq+QjQNWgJmYgZ+hIEFg46/Rnau/imd2Ao66txutxC1NsBe
-        hPIizj0dXXZl6onCyHNQWjMCxL1wa88=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-375-kpc-s-6BPgGqcYgIIRr0gg-1; Mon, 16 Nov 2020 07:25:40 -0500
-X-MC-Unique: kpc-s-6BPgGqcYgIIRr0gg-1
-Received: by mail-wm1-f69.google.com with SMTP id h9so8918535wmf.8
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 04:25:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=twYAjgtjeEtP7dme/B3MtQN8LFC4b+SiLV0pksaCw+Q=;
-        b=rOVkIFvHH9HvnZJztfdz2ul3xIqEB0XPCaOtPFrz4RlpPf+WlltVJkeoTnxGltndbd
-         chSJAnEeZa3cflzY870QuWWL6ZwKJIDp4DFsrcaN0XAGjgRBCbJ10u/9iUpVoJNKr52+
-         PhWA9D0kbUt7UvBtMPYDPi82EwFhg1TiFbUQRoutdvan1A8zjonjx9UYQVgF/98l3z9m
-         olxHXQMO1mXSHPkSHk92nW5aZYog68UUz6oW+5AO2p+AII98VasqERSCsV4tvZw1YR6U
-         LY9gYijSuX5bUnBvpS5BWz7ENVCsO1rwmV6MH/J2sRzLBXKL002c3lLyuSK/06CatmRi
-         z9qQ==
-X-Gm-Message-State: AOAM533KLipdYr3mRnehycFoI6Ohrd+3hcsk2VkuOYqxdRAGYnrUyOLM
-        uC+eTpkm//SU02jW0ym+Z7O+I+dHOWkP7vISMdH/5hFTLl5L6VVkzqX2CmRXBvaL0jBg5xm6lGD
-        XTSpcSO57SRFXSvoL
-X-Received: by 2002:adf:a551:: with SMTP id j17mr20868539wrb.217.1605529539627;
-        Mon, 16 Nov 2020 04:25:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzTpJY9zGC+xn6xq+CTHXLTZWqhazVhhm46QQKKwl8uV2NZSejldsTJ5sdUDy6obYAtroP4Vw==
-X-Received: by 2002:adf:a551:: with SMTP id j17mr20868522wrb.217.1605529539401;
-        Mon, 16 Nov 2020 04:25:39 -0800 (PST)
-Received: from redhat.com ([147.161.8.56])
-        by smtp.gmail.com with ESMTPSA id i10sm22686923wrs.22.2020.11.16.04.25.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 04:25:38 -0800 (PST)
-Date:   Mon, 16 Nov 2020 07:25:31 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Alexander Lobakin <alobakin@pm.me>, Amit Shah <amit@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
-        Suman Anna <s-anna@ti.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
- for rproc serial
-Message-ID: <20201116071910-mutt-send-email-mst@kernel.org>
-References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
- <20201116091950.GA30524@infradead.org>
+        id S1728546AbgKPMfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 07:35:48 -0500
+Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:16638 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728329AbgKPMfs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 07:35:48 -0500
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AGCUkUA019905;
+        Mon, 16 Nov 2020 04:35:35 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=pfpt0220; bh=ngni3SWmVIoitinPiqX1KU7bliY6xD7wcZKtSL8tWDc=;
+ b=UqmaZpe/iZap6WSGo5v94itcvAUP9tVbvcDgRAPscanqfOTryQwONnjwptERIPHu2oRL
+ +59e57VdoB27cB4PYblGrD5xNX9yT53T6H8M1dIV6LCPsUpc/9wKeCO0i9b/jP9elUVs
+ fDCpqlSfAjUo3RKEnPoQ6Qj7HO+jPTH96S72CVjgK5Ik07yANR4p3hotDA/X0FzYDcRT
+ hnVMkcWzTXxqXGgZV2EgvOw+yKGxW7lMnH5KF78CGtEspvLlBO7JGWVWYX56tYDiDeaa
+ dBWf1mAVVe6ehg5VJJYjgUSnZWErrzEWUrlowu6rzYkYJmoXl35A9gmiQaNEY5SCzCN8 Aw== 
+Received: from sc-exch01.marvell.com ([199.233.58.181])
+        by mx0a-0016f401.pphosted.com with ESMTP id 34tdftw95d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 04:35:35 -0800
+Received: from DC5-EXCH01.marvell.com (10.69.176.38) by SC-EXCH01.marvell.com
+ (10.93.176.81) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 16 Nov
+ 2020 04:35:35 -0800
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 16 Nov
+ 2020 04:35:34 -0800
+Received: from virtx40.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 16 Nov 2020 04:35:31 -0800
+From:   Linu Cherian <lcherian@marvell.com>
+To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
+CC:     <mathieu.poirier@linaro.org>, <suzuki.poulose@arm.com>,
+        <mike.leach@linaro.org>, <linux-arm-kernel@lists.infradead.org>,
+        <coresight@lists.linaro.org>, <linuc.decode@gmail.com>,
+        Linu Cherian <lcherian@marvell.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH stable-5.9 1/2] coresight: etm: perf: Sink selection using sysfs is deprecated
+Date:   Mon, 16 Nov 2020 18:05:09 +0530
+Message-ID: <20201116123510.28980-1-lcherian@marvell.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201116091950.GA30524@infradead.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-16_05:2020-11-13,2020-11-16 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 16, 2020 at 09:19:50AM +0000, Christoph Hellwig wrote:
-> I just noticed this showing up in Linus' tree and I'm not happy.
+commit bb1860efc817c18fce4112f25f51043e44346d1b upstream.
 
-Are you sure? I think it's in next.
+When commit 6d578258b955 ("coresight: Make sysfs functional on
+topologies with per core sink") 
+was merged to stable, this patch was a pre-requisite and got
+missed out leading to build breakages.
 
-> This whole model of the DMA subdevices in remoteproc is simply broken.
-> 
-> We really need to change the virtio code pass an expicit DMA device (
-> similar to what e.g. the USB and RDMA code does), instead of faking up
-> devices with broken adhoc inheritance of DMA properties and magic poking
-> into device parent relationships.
+When using the perf interface, sink selection using sysfs is
+deprecated.
 
-OK but we do have a regression since 5.7 and this looks like
-a fix appropriate for e.g. stable, right?
+Signed-off-by: Linu Cherian <lcherian@marvell.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200916191737.4001561-14-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+---
+ drivers/hwtracing/coresight/coresight-etm-perf.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-> Bjorn, I thought you were going to look into this a while ago?
-> 
-> 
-> On Wed, Nov 04, 2020 at 03:31:36PM +0000, Alexander Lobakin wrote:
-> > Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
-> > specific dma memory pool"), every remoteproc has a DMA subdevice
-> > ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
-> > DMA capabilities from the corresponding platform device. This allowed
-> > to associate different DMA pools with each vdev, and required from
-> > virtio drivers to perform DMA operations with the parent device
-> > (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
-> > 
-> > virtio_rpmsg_bus was already changed in the same merge cycle with
-> > commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
-> > but virtio_console did not. In fact, operations using the grandparent
-> > worked fine while the grandparent was the platform device, but since
-> > commit c774ad010873 ("remoteproc: Fix and restore the parenting
-> > hierarchy for vdev") this was changed, and now the grandparent device
-> > is the remoteproc device without any DMA capabilities.
-> > So, starting v5.8-rc1 the following warning is observed:
-> > 
-> > [    2.483925] ------------[ cut here ]------------
-> > [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
-> > [    2.489152] Modules linked in: virtio_console(+)
-> > [    2.503737]  virtio_rpmsg_bus rpmsg_core
-> > [    2.508903]
-> > [    2.528898] <Other modules, stack and call trace here>
-> > [    2.913043]
-> > [    2.914907] ---[ end trace 93ac8746beab612c ]---
-> > [    2.920102] virtio-ports vport1p0: Error allocating inbufs
-> > 
-> > kernel/dma/mapping.c:427 is:
-> > 
-> > WARN_ON_ONCE(!dev->coherent_dma_mask);
-> > 
-> > obviously because the grandparent now is remoteproc dev without any
-> > DMA caps:
-> > 
-> > [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
-> > 
-> > Fix this the same way as it was for virtio_rpmsg_bus, using just the
-> > parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
-> > operations.
-> > This also allows now to reserve DMA pools/buffers for rproc serial
-> > via Device Tree.
-> > 
-> > Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
-> > Cc: stable@vger.kernel.org # 5.1+
-> > Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-> > ---
-> >  drivers/char/virtio_console.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > index a2da8f768b94..1836cc56e357 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
-> >  		/*
-> >  		 * Allocate DMA memory from ancestor. When a virtio
-> >  		 * device is created by remoteproc, the DMA memory is
-> > -		 * associated with the grandparent device:
-> > -		 * vdev => rproc => platform-dev.
-> > +		 * associated with the parent device:
-> > +		 * virtioY => remoteprocX#vdevYbuffer.
-> >  		 */
-> > -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
-> > +		buf->dev = vdev->dev.parent;
-> > +		if (!buf->dev)
-> >  			goto free_buf;
-> > -		buf->dev = vdev->dev.parent->parent;
-> >  
-> >  		/* Increase device refcnt to avoid freeing it */
-> >  		get_device(buf->dev);
-> > -- 
-> > 2.29.2
-> > 
-> > 
-> ---end quoted text---
+diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+index be591b557df9..75379184f391 100644
+--- a/drivers/hwtracing/coresight/coresight-etm-perf.c
++++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+@@ -222,8 +222,6 @@ static void *etm_setup_aux(struct perf_event *event, void **pages,
+ 	if (event->attr.config2) {
+ 		id = (u32)event->attr.config2;
+ 		sink = coresight_get_sink_by_id(id);
+-	} else {
+-		sink = coresight_get_enabled_sink(true);
+ 	}
+ 
+ 	mask = &event_data->mask;
+-- 
+2.25.1
 
