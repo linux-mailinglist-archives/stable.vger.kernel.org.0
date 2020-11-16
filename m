@@ -2,105 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 903002B4B9E
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:47:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4413A2B4BA3
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730328AbgKPQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 11:47:20 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60188 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731072AbgKPQrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:47:20 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AGGYHtu064243;
-        Mon, 16 Nov 2020 11:47:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=jqO+d259ulDvFX9AEnkvWujX/8WL9q6Z0z8HEpJp2a0=;
- b=gqVsnk72MirMEiBd4+tq6Ai0AXWrprdi8wN0UpZVrwChGv6t2yWv5A7Na8koUi6IpgbT
- 8cv0KVCI3TvkVStfCyorqi3SBm/fC0FaHRvvAbZEuBklSC+Y7+eFkWzFrLL/b9RlI+Mi
- sePtdrNq6mYD6ff64TUCxZR3LAhRvXIfHRqgY58IwFgsdYHIJ4rbNUlGYwrbHUbk2fBk
- LMD2y+OMMVtgpu4hIYDMY6UENn2jld8IAj47UNs/560H+uFa+L6E5zNS65xxermQHijA
- WFMMkQI5u5DrGJoSDYgKaaCvRjpwvTUmWMfwJej1FkaD2HVKwcUqtkriy205RT/h6rcW Lg== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 34uvuwgppb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 Nov 2020 11:46:59 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0AGGQpGJ003279;
-        Mon, 16 Nov 2020 16:46:58 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 34t6v8a9xm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 Nov 2020 16:46:58 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0AGGktip57540890
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 Nov 2020 16:46:56 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA0A4A4057;
-        Mon, 16 Nov 2020 16:46:55 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C613CA4053;
-        Mon, 16 Nov 2020 16:46:53 +0000 (GMT)
-Received: from sig-9-65-237-154.ibm.com (unknown [9.65.237.154])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 Nov 2020 16:46:53 +0000 (GMT)
-Message-ID: <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
-Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
- ima_calc_file_hash()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Christoph Hellwig <hch@infradead.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Date:   Mon, 16 Nov 2020 11:46:52 -0500
-In-Reply-To: <20201116162202.GA15010@infradead.org>
-References: <20201113080132.16591-1-roberto.sassu@huawei.com>
-         <20201114111057.GA16415@infradead.org>
-         <0fd0fb3360194d909ba48f13220f9302@huawei.com>
-         <20201116162202.GA15010@infradead.org>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-16_08:2020-11-13,2020-11-16 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 suspectscore=3 malwarescore=0 mlxlogscore=885
- priorityscore=1501 adultscore=0 mlxscore=0 phishscore=0 bulkscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011160099
+        id S1731084AbgKPQsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 11:48:05 -0500
+Received: from sonic302-21.consmr.mail.gq1.yahoo.com ([98.137.68.147]:34944
+        "EHLO sonic302-21.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731072AbgKPQsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:48:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1605545284; bh=im9O2EujS8yRd+BPSL8jAkxeyxnuDCxaoKWiPUvS8rk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=tyA3MH/wl6rI+ZE9Pf0SfiBEro2ocoJJfdSA+OOjXHUrmK8qsF8MJZtTnyyxBsIWOqz49FfJgkEtNg5rrOPI3gFMwn9WOBFApsbyS/JXUKidThqhzJCZFL+UegaVDugA4WeCNFtJ2sc948OlYifXKh6APIVDQXetAMFEtRehFqgiJYdpYXtvcBiVuJ23Cga4XxiQMGpRnZpcKgwXH/sKHfm6dIoyR06sOP1G16k5350O2zMw9tMRm5HSiFIyukcP9pQryE7Ewj7U3W6cmHOOfMSP8K+Su3xeiGyfcUQujvdrakSCUlo3XysFfuS+/qFoU6sPRjQVLIL708uaePvXsA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605545284; bh=xJM/zw/JEhq7mfLl9iPbzlVDOgc2sGeZhJPEWvQj19P=; h=From:To:Subject:Date:From:Subject; b=o5hXhLKDKeSu0XtGuoK2fDmRvDvgmrCCUCP3kcmkOaz/kIt0FwLn8kllLN9Uk33htLEGpRcFU3Yte+/IBoCZPnoq1CKXjs2vPpHr8GQHsszN4yNbNCNslGv4U0GHtsOs1xXJd3+z8xz0O1cscNJbV8RulUYJeBVKvR+dbLXiRg8njnIJnjZWYVzesudyk8m/Ns6Dn4AxQszS1MA62/Ssy8lumMijB+lYvYvmiIG+o3A9rVbLIjdPtvpzjS0SiXp4PlVmbpliFp9Uk5A0FBlyxyUFfn2RB/Pvmh3RhiV2iDdWd5TlfugxL6lnCof3rsrmgZ5/o9Mz3Sgd76riJDuynQ==
+X-YMail-OSG: NAD2ZbEVM1nVA2zOVPXNoSK4SwzejfDTFH68VQ5rog6rUoBOaC48L4RsLsNP22x
+ G9j.XdVo8_Wekf5Gv5afiRIW1cFjHLlA7M9PE8aOkvhlQSkoECtr4cdIcoXMrqxHw0TPhL5aFKIq
+ BbtGPmxAOQ6iwuJ739Bh0fCS5qPB9XalC5x3G.55cauyI1cmiRHXxGM9UDBsA_p3vY7OE8A_OMqN
+ 5RU.eNsv3DiSOinckfJg1zvx0DGr9l448t8ocMegGwChifYL81gUgBsyre_QQDVholqV7oCgadnv
+ bULsiz33Yph1OcsNFUw2PyBuiBGdoCEEbBF86qWoZNK_RFzJcJ5WCTTmals_DMg71Nagirvm5qgV
+ FaYZHCISladkwb2caNZc20JURCx.27_Mt2EbE5mW1sXM8aumgYjpGOhEe7fjqw3xwR_PAaxUBt4q
+ qhXG0yFZBU61T5S4qHR29DHsf.SBarlzbZ3hqJkwMmZoZR11qhHJM7pe4LoOviERBpWcbE.ZNtx4
+ ItlNb9eR6XHt3_JLusLCXzTMvXhmx6b5RYKIu6miX6obgu_vYLOsDTMnAhY3.DstrgAYlVltRx5W
+ Xb4FvudPgkwD4N.g7.wdfxjGEagdfN5Ke.oEAVN7SK7903VYQ_l7uNiSqNoBzcl48_zr66Qa4O5b
+ .34Yy_q178zvQBMILEdfZFxlcLdZMxNGI2fhlm.zj3Fi2GPYKAQ8Q1shsnvx0Q.0rn4q_37nD.ZU
+ N8sFwrafal4sp.bpDmZjvmlPu8B1kk0J3LnEHZBz_dl9d2GDTrkUPtiT6BMC2p.5rHF1.hWe4A0E
+ T91KMCkb2wlVgszkOus6iCbDIduCGRvKTsPfc6ofcbzZn7w9uoH9Z7G1_ukRSPU8WXhGydXj2hmE
+ oHcetjotUGuQ7aFWq0YDt9zuY2c1JqbTNFTrrfaAvABGURMogRW9XEJG5N2X_5aFrXWcOmIlDeXZ
+ EicG7ZMWYBVNBEBOkDuUa9fUfxRshuCz1KO7y93VyEhtR3lG5X3q.6MQwFNX9VuUj_IZgmuBZyE4
+ CzA15FPrT1wtuTqw0o8qSfzrNzboi069xo8nvHNrelv7uMNIlJ4pdyAv.lHKOq4WJZtQR1tGOhqr
+ bKDlUtWvqhf99s8hPC.8XGWzbiS5d_ajVrtRbnzzvyOLXy9jSgRSwnGZRyDiUlpaOxUwlgYSMnqP
+ _gC6NVxLoZ0QxyPbjCcbOjidV1DY3qeeBtqhYjpduizG1G9buAT_rzjenw0flYH9InA.LWF_sMLF
+ cm7mBz2ma1JO21SDKa22BOaU9qym0PyjFfPjIz89yqiMWXHLrwJArN2uDkasijjwlfpwwRwRQgRd
+ 364o9XOxX77OzagziUo9nRPIXZUfwD8NhZ0gTvjRQMCWCqhfLwWXYC03HYrcDXUueFSwbefI8JVt
+ gzYjI2ytYGoI6NfabPMnxj99nG6MfRTZHftKok2KrtGBS7wimIvnKRnC4I3TXqMDqlFPss1Uz64o
+ ZLig_G3owgz.ZAHOXhjJF7cwAWfcQpEOypPOpt8_gWUPeUA8nnkle.NEdPhpkpoe1pwSRDfdnyoy
+ qXXGprNUZ8PRi86QdogXuVaWVc1pT7sUlgzs9gyi9PpmW9qqVrz69ngy0rvfcVhlhB7XGgjjMtiM
+ H9A2Xf6krkxmOvRXTuXr.jFahmlR0JY13sYC79Nm9yThXAUWoVt5wsMhURamCawcxGfjCzxRyGAL
+ LPSuQXn3NSGfLraMmi59s09o_oYo9qKc15509zZAKdicE4mAjyZklmBJyO2WgP9Bifb0Em5Q72Dr
+ uX2QzbULIgVE5Ue7XfJNDiZeL1lrqIZY.cqnjZoKCs4dNbRZTY81E1cH9et_nhsBkl07wNGlD4nO
+ yzNCaWJocu5b0jcKf9uQvXjlfgmRawQluJd1RrDhCJX5vT.QhwdWUUUNZXhEJR67N56ngERkTAwe
+ HPNAoMvlknlOTZA7PEQXl645jfniOe_jPLCcrEU1h4ZuE5It5tvpZ4lILzsajCl8GwfibBT1QLgH
+ 79x83DvLpE5HvRPrTzxOOSe8gQoUG8UcVrMaPjAV5bLBYlI.QP_pRNZALO2V5zWJ4jRuNQ03CSIi
+ rE0CGDyhLoCWEsO3wldvgxGuevR82Z5_0CdWEYxLURO6NL010NNXXpWULZ8okIH9qBmpFWQ6Wi0J
+ 5F0uoAnB9vPoocpTDQn1.m.kUQmdCtUTTP8b2kXCpYYmcGXA4E2XbgJSfwVxlBZk682Mog98zq1l
+ _enM1Kdtf2UEO8hxtzpWJpBkkLdsR2B_5rLiAEBiqtthuvWUgXXFQTTuhCNpQukCuCuYGk7I6E2I
+ iwcUG67X4qMuMCdCta4zFgOKFo3okkUJjgGD1XX0E1krvHIyuQ99Vc3xTqkCIdLNDsxW3163tS35
+ IMPT_9CfNTunjMcWugTRyDNEJjO29sS5aodfloa89SjBG7FlM8WuGBH.YedBRnGtub2rGXQ1DYFu
+ WEMVU_3y_IFLEpARm2f5aUCkQQGmw_0N6.0VopjqMb_fyfPXT0WLUm1e1gAHjJPLmE8XbAjrDEXL
+ XohOLKRo83WlHQOdMjinbsR4aSaNj_soTKAiu9FIbC3DujzOCvXNBSB0xOOjeIlNsX50eAxbX4zM
+ qp_n5llK0UCZvRrBZ_0nC3iTJ8XseC0qbVtz33KVqjWZhXdnrzi.HkFGjFt035UIF6NEzCcPu_LM
+ UgpE6q4qQstM6jDtPgEpQ5zo4MyzyYKFA8HFIyUAe_zk3a8CafaWHIjLqHF1Z7api3whfZXHwScJ
+ VUxU_BIdNfSEa.B_prZb.sZ6zQbA7REMN2LztgCNOpGeIb.vggCaqpGdcITfpn0psJ3VjuCpsEzI
+ Fvg274ICMmD..khmuHJo1qCVcanJ90slf3M_f0dxNQ6mKaJuWHQaYBSfu32MGhCY9MDdK.H4kyPG
+ bDPSV
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Mon, 16 Nov 2020 16:48:04 +0000
+Received: by smtp411.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID f765e9696e0a00a38a33ee4c6ca64884;
+          Mon, 16 Nov 2020 16:47:57 +0000 (UTC)
+From:   Gao Xiang <hsiangkao@aol.com>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
+Cc:     linux-erofs@lists.ozlabs.org, Gao Xiang <hsiangkao@redhat.com>,
+        nl6720 <nl6720@gmail.com>, Chao Yu <yuchao0@huawei.com>
+Subject: [PATCH 4.19.y] erofs: derive atime instead of leaving it empty
+Date:   Tue, 17 Nov 2020 00:47:37 +0800
+Message-Id: <20201116164737.4184-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <160554164363107@kroah.com>
+References: <160554164363107@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-11-16 at 16:22 +0000, Christoph Hellwig wrote:
-> On Mon, Nov 16, 2020 at 08:52:19AM +0000, Roberto Sassu wrote:
-> > FMODE_CAN_READ was not set because f_mode does not have
-> > FMODE_READ. In the patch, I check if the former can be set
-> > similarly to the way it is done in file_table.c and open.c.
-> > 
-> > Is there a better way to read a file when the file was not opened
-> > for reading and a new file descriptor cannot be created?
-> 
-> You can't open a file not open for reading.  The file system or device
-> driver might have to prepare read-specific resources in ->open to
-> support reads.  So what you'll have to do is to open a new instance
-> of the file that is open for reading.
+From: Gao Xiang <hsiangkao@redhat.com>
 
-This discussion seems to be going down the path of requiring an IMA
-filesystem hook for reading the file, again.  That solution was
-rejected, not by me.  What is new this time?
+commit d3938ee23e97bfcac2e0eb6b356875da73d700df upstream.
 
-Mimi
+EROFS has _only one_ ondisk timestamp (ctime is currently
+documented and recorded, we might also record mtime instead
+with a new compat feature if needed) for each extended inode
+since EROFS isn't mainly for archival purposes so no need to
+keep all timestamps on disk especially for Android scenarios
+due to security concerns. Also, romfs/cramfs don't have their
+own on-disk timestamp, and squashfs only records mtime instead.
+
+Let's also derive access time from ondisk timestamp rather than
+leaving it empty, and if mtime/atime for each file are really
+needed for specific scenarios as well, we can also use xattrs
+to record them then.
+
+Link: https://lore.kernel.org/r/20201031195102.21221-1-hsiangkao@aol.com
+[ Gao Xiang: It'd be better to backport for user-friendly concern. ]
+Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+Cc: stable <stable@vger.kernel.org> # 4.19+
+Reported-by: nl6720 <nl6720@gmail.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+[ Gao Xiang: Manually backport to 4.19.y due to trivial conflicts. ]
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+---
+ drivers/staging/erofs/inode.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
+index 7448744cc515..12a5be95457f 100644
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -53,11 +53,9 @@ static int read_inode(struct inode *inode, void *data)
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+ 		set_nlink(inode, le32_to_cpu(v2->i_nlink));
+ 
+-		/* ns timestamp */
+-		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
+-			le64_to_cpu(v2->i_ctime);
+-		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
+-			le32_to_cpu(v2->i_ctime_nsec);
++		/* extended inode has its own timestamp */
++		inode->i_ctime.tv_sec = le64_to_cpu(v2->i_ctime);
++		inode->i_ctime.tv_nsec = le32_to_cpu(v2->i_ctime_nsec);
+ 
+ 		inode->i_size = le64_to_cpu(v2->i_size);
+ 	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
+@@ -83,11 +81,9 @@ static int read_inode(struct inode *inode, void *data)
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
+ 		set_nlink(inode, le16_to_cpu(v1->i_nlink));
+ 
+-		/* use build time to derive all file time */
+-		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
+-			sbi->build_time;
+-		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
+-			sbi->build_time_nsec;
++		/* use build time for compact inodes */
++		inode->i_ctime.tv_sec = sbi->build_time;
++		inode->i_ctime.tv_nsec = sbi->build_time_nsec;
+ 
+ 		inode->i_size = le32_to_cpu(v1->i_size);
+ 	} else {
+@@ -97,6 +93,11 @@ static int read_inode(struct inode *inode, void *data)
+ 		return -EIO;
+ 	}
+ 
++	inode->i_mtime.tv_sec = inode->i_ctime.tv_sec;
++	inode->i_atime.tv_sec = inode->i_ctime.tv_sec;
++	inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec;
++	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec;
++
+ 	/* measure inode.i_blocks as the generic filesystem */
+ 	inode->i_blocks = ((inode->i_size - 1) >> 9) + 1;
+ 	return 0;
+-- 
+2.24.0
 
