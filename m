@@ -2,120 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3054C2B546A
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 23:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A8D2B54AD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 00:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730341AbgKPWbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 17:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730313AbgKPWbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 17:31:51 -0500
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDA2C0613CF;
-        Mon, 16 Nov 2020 14:31:51 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id l11so15307407lfg.0;
-        Mon, 16 Nov 2020 14:31:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=iSYKumRzw7eYrCW4RMOKX9kdE0Zs7ymFb38Zx2Z3008=;
-        b=uV91XdhqSZGDi6joKFKhCRH4M1G928Du1MQaGuPaFF0mk4tv+t9PDhs4Hc6WME/Wvs
-         Iyj8pFN95Ew2qCO5AgKZvcn1iHTtbTSWCJPqIvVf5SkKTj6m20lWM4OAZttUo8fuey0z
-         +ScktwRElsc/yRnblEvUmmJVctjYY5L7EbQKeS6mTmWzmoDCav+AjqcP5T6LmcFBLgzI
-         d7f5E2Ut7KDiJYYUVtZgXFb17xIq2fibojG/LMBjE3SSyKB7WXBPZeCqLG6/I8gDS/Fv
-         0hVzQyQe0LNwEeLMqedSE7QOVf7y4YEzeW8sIR0EToYS19S/XAQYQ5e7A0P+6NfgnrtX
-         7VKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=iSYKumRzw7eYrCW4RMOKX9kdE0Zs7ymFb38Zx2Z3008=;
-        b=GB/0FWpNeqnwwzdOPITmEUQSmaSPasve1khe/OvQ6zSUds1wAfDWI/iEtxtS2ABolg
-         U8Ss8WXG9MF4lhW5c0LU1gc6mdZnkY+CTzJsurHNbEoNMCnUYEpftjHtJtp0AutifaLu
-         /v0gwaD+pvQm1Vop+QpaXvimrQNsHqAw1KWOh2paNef2DP+LAsTccWjqwwMWl7/eUUTK
-         eAN8O48KWXiOAyGSTVyK9PxUlUq9pW3qeWUMnyZuitNCR1dOqEq6+Kq6WCVBiTngFHnT
-         nXEZ6tWBueoxulHNzZGECsEIR1lZyUxm0wNYlxoVNY7IsR41+YMNKKcnP6+CzxvB+9uN
-         ZGNw==
-X-Gm-Message-State: AOAM531KukqRXqO51Ar+lXeUAqPy8y778CBeQeZUVmocAl/JKCrWkKx3
-        ylrKf7zd+3JLsNntdDIspLQ=
-X-Google-Smtp-Source: ABdhPJwr+w/3bZyj+XwkV9anNeh/Humh8Tbve+lpyWy+/p3m4xfKycR26U+SDJUW9ifhqxtuIG/RuQ==
-X-Received: by 2002:ac2:58e6:: with SMTP id v6mr525554lfo.137.1605565909601;
-        Mon, 16 Nov 2020 14:31:49 -0800 (PST)
-Received: from mobilestation ([95.79.141.114])
-        by smtp.gmail.com with ESMTPSA id 23sm2946213lft.140.2020.11.16.14.31.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 14:31:48 -0800 (PST)
-Date:   Tue, 17 Nov 2020 01:31:46 +0300
-From:   Serge Semin <fancer.lancer@gmail.com>
-To:     Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: reserve the memblock right after the kernel
-Message-ID: <20201116223146.cmb6myelohnlbw7y@mobilestation>
-References: <20201106141001.57637-1-alexander.sverdlin@nokia.com>
- <20201107094028.GA4918@alpha.franken.de>
- <1d6a424e-944e-7f21-1f30-989fb61018a8@nokia.com>
- <20201110095503.GA10357@alpha.franken.de>
- <c435b3df-4e82-7c10-366a-5a3d1543c73f@nokia.com>
- <20201111145240.lok3q5g3pgcvknqr@mobilestation>
- <4c58b551-b07f-d217-c683-615f7b54ea30@nokia.com>
- <13fff200-660a-27b8-6507-82124eee51c5@nokia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13fff200-660a-27b8-6507-82124eee51c5@nokia.com>
+        id S1726287AbgKPW7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 17:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725379AbgKPW7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Nov 2020 17:59:47 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E89FA22453;
+        Mon, 16 Nov 2020 22:59:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605567586;
+        bh=ESAEEXir2XEKWdthDUOJ4zzzojBGvBb9FflN6dpLUm8=;
+        h=Date:From:To:Subject:From;
+        b=k7m7PA5Yp1koFy9gXF22xFkBitkcEqIyF9dtr5YtllDcCx6rh3Zi9LtDckTSo8/E+
+         m6uLQ3znWjIDFsK1uRzW1Tc7etuTBB8CLx54Mhla365y3KcofwAfm2uVd5JG1r+TSa
+         v/zV3b6QSjT8KlFsWsYo8ZLWyh/g3667UATlfMPA=
+Date:   Mon, 16 Nov 2020 14:59:45 -0800
+From:   akpm@linux-foundation.org
+To:     aruna.ramakrishna@oracle.com, bert.barbe@oracle.com,
+        davem@davemloft.net, dongli.zhang@oracle.com, edumazet@google.com,
+        joe.jin@oracle.com, manjunath.b.patil@oracle.com,
+        mm-commits@vger.kernel.org, rama.nichanamatlu@oracle.com,
+        srinivas.eeda@oracle.com, stable@vger.kernel.org, vbabka@suse.cz,
+        venkat.x.venkatsubra@oracle.com, willy@infradead.org
+Subject:  + page_frag-recover-from-memory-pressure.patch added to
+ -mm tree
+Message-ID: <20201116225945.HWjwagBNS%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 13, 2020 at 02:09:09PM +0100, Alexander Sverdlin wrote:
-> Hello Serge, Thomas,
-> 
-> On 13/11/2020 10:17, Alexander Sverdlin wrote:
-> >> So IMHO what could be the best conclusion in the framework of this patch:
-> >> 1) As Thomas said any platform-specific reservation should be done in the
-> >> platform-specific code. That means if octeon needs some memory behind
-> >> the kernel being reserved, then it should be done for example in
-> >> prom_init().
-> >> 2) The check_kernel_sections_mem() method can be removed. But it
-> >> should be done carefully. We at least need to try to find all the
-> >> platforms, which rely on its functionality.
-> > Thanks for looking into this! I agree with your analysis, I'll try to rework,
-> > removing check_kernel_sections_mem().
-> 
 
-> but now, after grepping inside arch/mips, I found that only Octeon does memblock_add()
-> of the area between _text and _and explicitly.
-> 
-> Therefore, maybe many other platforms indeed rely on check_kernel_sections_mem()?
+The patch titled
+     Subject: mm, page_frag: recover from memory pressure
+has been added to the -mm tree.  Its filename is
+     page_frag-recover-from-memory-pressure.patch
 
-Taking into account what Maciej said, now I am not sure it was a good
-idea to discard the check_kernel_sections_mem() method. Indeed it is
-useful for a custom memory layout passed via the kernel parameters.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/page_frag-recover-from-memory-pressure.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/page_frag-recover-from-memory-pressure.patch
 
-> Maybe the proper way would be really to remote the PFN_UP()/PFN_DOWN() from
-> check_kernel_sections_mem(), which is not necessary after commit b10d6bca8720
-> ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-> which fixed the resource_init()?
-> 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-If you think they are redundant, why not?
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-> As completely unrelated optimization I can remove the same memblock_add() of the
-> kernel sections from the Octeon platform code. 
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Why not as long as it will work. AFAICS the octeon platform code does
-some kernel start address adjustment while the generic MIPS code
-doesn't. Are you sure using the generic version for octeon won't cause
-any problem?
+------------------------------------------------------
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: mm, page_frag: recover from memory pressure
 
--Sergey
+The ethernet driver may allocate skb (and skb->data) via napi_alloc_skb().
+This ends up to page_frag_alloc() to allocate skb->data from
+page_frag_cache->va.
 
-> 
-> -- 
-> Best regards,
-> Alexander Sverdlin.
+During the memory pressure, page_frag_cache->va may be allocated as
+pfmemalloc page.  As a result, the skb->pfmemalloc is always true as
+skb->data is from page_frag_cache->va.  The skb will be dropped if the
+sock (receiver) does not have SOCK_MEMALLOC.  This is expected behaviour
+under memory pressure.
+
+However, once kernel is not under memory pressure any longer (suppose
+large amount of memory pages are just reclaimed), the page_frag_alloc()
+may still re-use the prior pfmemalloc page_frag_cache->va to allocate
+skb->data.  As a result, the skb->pfmemalloc is always true unless
+page_frag_cache->va is re-allocated, even if the kernel is not under
+memory pressure any longer.
+
+Here is how kernel runs into issue.
+
+1. The kernel is under memory pressure and allocation of
+   PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. 
+   Instead, the pfmemalloc page is allocated for page_frag_cache->va.
+
+2. All skb->data from page_frag_cache->va (pfmemalloc) will have
+   skb->pfmemalloc=true.  The skb will always be dropped by sock without
+   SOCK_MEMALLOC.  This is an expected behaviour.
+
+3. Suppose a large amount of pages are reclaimed and kernel is not
+   under memory pressure any longer.  We expect skb->pfmemalloc drop will
+   not happen.
+
+4. Unfortunately, page_frag_alloc() does not proactively re-allocate
+   page_frag_alloc->va and will always re-use the prior pfmemalloc page. 
+   The skb->pfmemalloc is always true even kernel is not under memory
+   pressure any longer.
+
+Fix this by freeing and re-allocating the page instead of recycling it.
+
+Link: https://lore.kernel.org/lkml/20201103193239.1807-1-dongli.zhang@oracle.com/
+Link: https://lore.kernel.org/linux-mm/20201105042140.5253-1-willy@infradead.org/
+Link: https://lkml.kernel.org/r/20201115201029.11903-1-dongli.zhang@oracle.com
+Fixes: 79930f5892e ("net: do not deplete pfmemalloc reserve")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
+Cc: Bert Barbe <bert.barbe@oracle.com>
+Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
+Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
+Cc: Joe Jin <joe.jin@oracle.com>
+Cc: SRINIVAS <srinivas.eeda@oracle.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_alloc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/mm/page_alloc.c~page_frag-recover-from-memory-pressure
++++ a/mm/page_alloc.c
+@@ -5103,6 +5103,11 @@ refill:
+ 		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
+ 			goto refill;
+ 
++		if (unlikely(nc->pfmemalloc)) {
++			free_the_page(page, compound_order(page));
++			goto refill;
++		}
++
+ #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+ 		/* if size can vary use size else just use PAGE_SIZE */
+ 		size = nc->size;
+_
+
+Patches currently in -mm which might be from dongli.zhang@oracle.com are
+
+page_frag-recover-from-memory-pressure.patch
+
