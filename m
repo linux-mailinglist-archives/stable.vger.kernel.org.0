@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC44B2B4B1E
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7232B4B20
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730958AbgKPQ32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 11:29:28 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:54625 "EHLO
+        id S1731011AbgKPQ3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 11:29:38 -0500
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50463 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730795AbgKPQ32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:29:28 -0500
+        by vger.kernel.org with ESMTP id S1730795AbgKPQ3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:29:38 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 074BF1943518;
-        Mon, 16 Nov 2020 11:29:27 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6187119402E9;
+        Mon, 16 Nov 2020 11:29:37 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:29:27 -0500
+  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:29:37 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fFE5Ri
-        R3r/m0yWesuShoH2Dljon7haHwHxRY6PS48Bs=; b=lxTH0MtmEGvheV2a/+UpBb
-        x1PHpvsE7Zm/w/OJy6mlvjhXhka1eT80LIJ2OkQJVEUS2osnL5xZnd02GBAXwwNJ
-        3klHV/BditHZbZd5oJwFGb0dd8G2dEs9s4PSEBy78VSWKNa+3XAbvM0NKQaAuR6J
-        /c5K+wIUwP4fmkp2F1s+8Qmz01h7cPpfLvkrArblBJtQZLdpetiVmM08sNguFf5b
-        r0CEDMxyn43XKm31f/j2+ggYsWIIvKNvlzeiVF4AAqM+2/XQfckbcn8krGfPq5ik
-        69eawm/ctVD0UJ6n3gnMsUuL/pD/WmwE/tXLbh+6eqVkLawLrSQ8LyTvXLF4gzRw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=VvBlhv
+        uWhVPvcaWMAt/XPTyxUkSfeaJljIACngC9cWM=; b=SrkSqVgQzYgAn2+LMbAeyV
+        W0O3o5hHDZexhvwjxU1+SQP6PWoa2kA9M++wd4j7jpcBKmP8VcCn+CBt+K8sKZpw
+        st7SFqJvRDctNaET73NKy5V0zNFc2oHzHc742ceBfzGVwdZtwmZV81ft/dY47345
+        /sEdw6KU0jJx3wErLZhLjwtMVs+rnX8YlHnFi831Pr0hgy5dLrC8Ggo5jEVb4kc1
+        y4/QygFYiA4zb7MgHWMZu2QYEYf0efRzg3D7eErucM/Pu858oAX+BPUdyiKB8o94
+        h3ZNh9KCzmv9SrnY2bPELytwNkYgY0FegYyJfzzZTvNhPhQoHHkdOLQ22l3jfHUA
         ==
-X-ME-Sender: <xms:5qiyX0rGxxbLBZnp7eKBYCsSrz_5jWAH3kX85l3Hs_wiTupF-uRjkw>
-    <xme:5qiyX6oFZG_vSMAtdDT64aR-wzTFhCswyCSNDHJObv8CNKNt09fzvHNZTkUxnMoFX
-    onKvF8mbhagiw>
+X-ME-Sender: <xms:8aiyX-ypOPxYy003VyOUr43CFeQPvMmanlTtbvwUSVNpAmzWjxLqPw>
+    <xme:8aiyX6R9UOLRbtAqm1322E404jc4L_fKUrwOloHyOL6lKkNis7WkRXHgnf6zBbNFd
+    VEw9yxCBDlTSA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepkeejgffftefgveeggeehudfgleehkedthedtiefhie
     elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:5qiyX5N9xea9lHMfLdlvM6MUxhRjX5RORWsvPT0j2GWB0r7i8HTz6g>
-    <xmx:5qiyX771TzMk5FNlph-oTXVPnndcMd2uynqLzf05g0J85X7IOW6xFA>
-    <xmx:5qiyXz4aQDsrQ2Su2LlsnNPGudH-IQ8rrlJ7WPe0y_eBcjEcjK4LgQ>
-    <xmx:56iyXzHxUH0R9QWTjHESBIZ4_B2lQh7hxBNuej22Z3vbKgE6cMfs7g>
+X-ME-Proxy: <xmx:8aiyXwUvt69syG2UoiY5dgOj1JPHu4G84vc8sFi-NRC2r_tvuIky6A>
+    <xmx:8aiyX0jvvFjlS5RScjJu-xscv3Ud3xd07ATMV8AKKjcpZ0MrRgxp3A>
+    <xmx:8aiyXwBWEMrSrLqFh7sjm54KSYRG9Eks6MHyMnl6ipbruMrTs65b8g>
+    <xmx:8aiyXzMjUFw0S9aPcs-lpd504M9dQ0ozc2BUpdGSva90Per_IDBq1g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 06AE13280059;
-        Mon, 16 Nov 2020 11:29:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mmc: renesas_sdhi_core: Add missing tmio_mmc_host_free() at" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EF9423280060;
+        Mon, 16 Nov 2020 11:29:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mmc: renesas_sdhi_core: Add missing tmio_mmc_host_free() at" failed to apply to 4.9-stable tree
 To:     yoshihiro.shimoda.uh@renesas.com,
         niklas.soderlund+renesas@ragnatech.se, ulf.hansson@linaro.org,
         wsa+renesas@sang-engineering.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 17:30:14 +0100
-Message-ID: <1605544214124163@kroah.com>
+Date:   Mon, 16 Nov 2020 17:30:15 +0100
+Message-ID: <160554421517246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
