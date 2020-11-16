@@ -2,171 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517C42B5517
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 00:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2342B554F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 00:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730552AbgKPXeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 18:34:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45208 "EHLO
+        id S1730963AbgKPXlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 18:41:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730459AbgKPXeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 18:34:18 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150B9C0613CF
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:34:17 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id a18so15672919pfl.3
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:34:17 -0800 (PST)
+        with ESMTP id S1730945AbgKPXly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 18:41:54 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FEC8C0613D3
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:41:54 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id i8so1961505pfk.10
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:41:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=z6Jofs59n2zYJpbcFvzrHnbWmF+ASJP9uTQBLPNWhFk=;
-        b=EnjOOnP+6lFF1X4nnF7e+WM9ckWXjQUCi2QQby+Vujw+Br7V+KGFBToAp611du7H6u
-         2QQpzC8yQOtdOcZsfOuaTZkNwxDbigEegi2EJ2eARf1Xgfmlupbxve/Ip+5k2VLB+MPc
-         QqsRPhoccpp2hfXpWePa/eGJUwFO8PA1glLp58EGJXT0DSl0f/iSFDYhulqfxdBdd3oO
-         J6+Wrl9ecDAvsNT+mLLp2JW1vsTQ1FXsBeeoKmFsosnjPt3CvHY5Y6ife23c9eTLwXvF
-         RDHqGW9/OruyBpCec294ex/eyhgSOgAKR+7jZxWdy03w9kHoxiIGxkqldU107iMzI4zc
-         HrxA==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=q6oT/iaJpuUzbJsO3ZOoSLXJmJdPmOezInw0gF4IJ28=;
+        b=DaGY52y2S53RfC36H5AiJH5A419IlvPKioPWUhj1fz1ee9KTimKZDJrmWgb9v776ET
+         /gwm9XOeX0BJZikJIRY2/UxXgYgquVvhQpNrFV9XiB3qeL7RefN2AprNWMpLRtxOxzh/
+         cEls2g7rxSNDVIvusRCwaQNeTXxi720q64jwxbjjYoBdqrs14vxzI0lX+DaArhZWJvkT
+         WUQOjJO9Sx2tTPiyKzbVFjdPpaXTpnQN+CsR7FFBk1TEPMkBAqU6nHxQ/P0Zl6adCwuQ
+         iWqm5vwTuaud25e3h4ZXeTqdYz5ypSBmKJ2FlwNnr1RTathlitsBCuYUyGKuRDxrr+HC
+         AKwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=z6Jofs59n2zYJpbcFvzrHnbWmF+ASJP9uTQBLPNWhFk=;
-        b=W/JgSJaUchO4ziUkMOZRsrAwq/GLoioZARsLNXy50+c05xg0mKU+iXc0RvGG4wij+S
-         U2SBzcmVX+tUKQ4+6Iu5VRY/3ZCRWxdCDV5B3uAhJ80y3G/TAljerfIEYbsNPCCiWyQu
-         tmJvRx2KHwXvD1Um5QU91kZ87N1uu0Ds5saTHXVEP8QdsXJyWdftvOoDZItJlNLA2dNa
-         wn7YLzO1BOnfKoTmOkbqpcmhoh89T8DMqkpTMJ99SwY6acQ1ia6dFevmAIiNCE84fT1Y
-         AgK22oSycdQSzRKiwIv3OX8wmGJmyuCJXahvjIv0icmLIRe0fVb5dLuGYHCZbp584K+y
-         U6kw==
-X-Gm-Message-State: AOAM531lddC7KxZB/nDOfbq1wGsEsGnGxDcHKYnii5cisnARfpoWGbm7
-        0HZzNOsRWBOGdbPnQYHWSvxJmnIPTvNFGQ==
-X-Google-Smtp-Source: ABdhPJwXsOgVnLBJ59dofLe/0lLVyFfzL7rhg+5WRU7HqnR7Ev5/1lFum8YM5EDOtPnL5ZwRbpnkdA==
-X-Received: by 2002:a17:90b:94f:: with SMTP id dw15mr1393233pjb.125.1605569656243;
-        Mon, 16 Nov 2020 15:34:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t9sm558464pjo.4.2020.11.16.15.34.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 15:34:15 -0800 (PST)
-Message-ID: <5fb30c77.1c69fb81.11aaa.1c1c@mx.google.com>
-Date:   Mon, 16 Nov 2020 15:34:15 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=q6oT/iaJpuUzbJsO3ZOoSLXJmJdPmOezInw0gF4IJ28=;
+        b=PioRt/aLHHTL32AP/fr0LrfUxwah9fC9b0Qn6sGBHxtdnQ8IuOf6C7IxzfQ0W/9shV
+         YD0faCzRRcxUq46Fa6JR8y3Yy93EDMV7hiK1F9D/Wn1P21uG9cOpgme0If6hT85VgFtM
+         HOaOap7Wv51SmOHhYVM1G9sAbEMvLhh5Dr6Op7ItBFN1x60kj2LpUkQtpP/bv8b+GPPv
+         CApd1dQqHz0JQE43B+dYZPQOwYizK+JaWMWoZgr0q72jBUlsTw2Pj278uG7SNbozgUKP
+         kNK4UDZw3lcQMUMX8acpqjbe7wUzMRypCtQxG95c39wb9rgTpH3wJQOCvqde7a6YIO83
+         eHXw==
+X-Gm-Message-State: AOAM533KtfhYgbGjHhILGn7APyVhk3M8h8I1AEoNGnuuUhm6nw+4DsgU
+        e3oxVBmt5psFdKpMFwvOXj7cJTz/vYI4LrECRdeO8w==
+X-Google-Smtp-Source: ABdhPJwVHouTg7EVX4W0i+4378wI412Q2tEtRHUYdk7lrZpa4Bigm1LcPNbScK1zq4PEp4tG+BUF6n3Mdrpfjn0WHQs=
+X-Received: by 2002:a17:90b:d91:: with SMTP id bg17mr1379665pjb.25.1605570113934;
+ Mon, 16 Nov 2020 15:41:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.19.157-62-gdee36feaf4bf
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 build: 10 builds: 0 failed, 10 passed,
- 4 warnings (v4.19.157-62-gdee36feaf4bf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <CAKwvOd=9iqLgdtAWe2h-9n=KUWm_rjCCJJYeop8PS6F+AA0VtA@mail.gmail.com>
+ <20201109183528.1391885-1-ndesaulniers@google.com>
+In-Reply-To: <20201109183528.1391885-1-ndesaulniers@google.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 16 Nov 2020 15:41:42 -0800
+Message-ID: <CAKwvOdnxAr7UdjUiuttj=bz1_voK1qUvpOvSY35qOZ60+E8LBA@mail.gmail.com>
+Subject: Re: [PATCH v3] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-toolchains@vger.kernel.org,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Fangrui Song <maskray@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Dmitry Golovin <dima@golovin.in>,
+        Alistair Delva <adelva@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 10 builds: 0 failed, 10 passed, 4 warnings (v4.=
-19.157-62-gdee36feaf4bf)
+Hi Masahiro, have you had time to review v3 of this patch?
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.157-62-gdee36feaf4bf/
+On Mon, Nov 9, 2020 at 10:35 AM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
+>
+> Clang's integrated assembler produces the warning for assembly files:
+>
+> warning: DWARF2 only supports one section per compilation unit
+>
+> If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
+> assembly sources (it is still emitted for C sources).  This will be
+> re-enabled for newer DWARF versions in a follow up patch.
+>
+> Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
+> LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
+>
+> Cc: <stable@vger.kernel.org>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/716
+> Reported-by: Dmitry Golovin <dima@golovin.in>
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Suggested-by: Dmitry Golovin <dima@golovin.in>
+> Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> Reviewed-by: Fangrui Song <maskray@google.com>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> ---
+>  Makefile | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/Makefile b/Makefile
+> index f353886dbf44..7e899d356902 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -826,7 +826,9 @@ else
+>  DEBUG_CFLAGS   += -g
+>  endif
+>
+> +ifneq ($(LLVM_IAS),1)
+>  KBUILD_AFLAGS  += -Wa,-gdwarf-2
+> +endif
+>
+>  ifdef CONFIG_DEBUG_INFO_DWARF4
+>  DEBUG_CFLAGS   += -gdwarf-4
+> --
+> 2.29.2.222.g5d2a92d10f8-goog
+>
 
-Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.157-62-gdee36feaf4bf
-Git Commit: dee36feaf4bf77a52f6cb2cda611492f7b5049b3
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 2 unique architectures
 
-Warnings Detected:
-
-arm:
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    tct_hammer_defconfig (gcc-8): 1 warning
-
-mips:
-    gcw0_defconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    4    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_l=
-ist=E2=80=99 defined but not used [-Wunused-variable]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+~Nick Desaulniers
