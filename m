@@ -2,95 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E142B528A
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 21:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7167D2B538D
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 22:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732562AbgKPU2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 15:28:38 -0500
-Received: from mga02.intel.com ([134.134.136.20]:59554 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730230AbgKPU2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Nov 2020 15:28:37 -0500
-IronPort-SDR: KeGx5/3GVGUOMVa7TQR14Cm/4OiJFYsLBAz207u+OVhlImc+1oDRu/o49+NB7NjbrbTHjGcySl
- yYyqRXnQLicw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9807"; a="157840112"
-X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
-   d="scan'208";a="157840112"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2020 12:23:38 -0800
-IronPort-SDR: uNCznWnLmToRLsd8IbYKG5/gO5I9V9ctr5oDRPxvmmIo/k2CJUO4MuNZIJ99gTEKGFEOfPiHsS
- RYLoc2I+cFTA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
-   d="scan'208";a="329817286"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
-  by orsmga006.jf.intel.com with ESMTP; 16 Nov 2020 12:23:35 -0800
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Mon, 16 Nov 2020 12:23:35 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Mon, 16 Nov 2020 12:23:34 -0800
-Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
- ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.1713.004;
- Mon, 16 Nov 2020 12:23:34 -0800
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Handle max_bpc==16
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915: Handle max_bpc==16
-Thread-Index: AQHWt6UxeEDfxyRmNEu8Xu3PZL7n4qnLw40A
-Date:   Mon, 16 Nov 2020 20:23:34 +0000
-Message-ID: <d901ed54d86ffd673dc392d5f6613655b6257278.camel@intel.com>
-References: <20201110210447.27454-1-ville.syrjala@linux.intel.com>
-In-Reply-To: <20201110210447.27454-1-ville.syrjala@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.1.200.100]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <50DAB6FDC2F7D040B66377261AF25086@intel.com>
-Content-Transfer-Encoding: base64
+        id S1733179AbgKPVMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 16:12:00 -0500
+Received: from lilium.sigma-star.at ([109.75.188.150]:54542 "EHLO
+        lilium.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732587AbgKPVMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 16:12:00 -0500
+X-Greylist: delayed 369 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Nov 2020 16:11:58 EST
+Received: from localhost (localhost [127.0.0.1])
+        by lilium.sigma-star.at (Postfix) with ESMTP id 3BEF61816C728;
+        Mon, 16 Nov 2020 22:05:47 +0100 (CET)
+Received: from lilium.sigma-star.at ([127.0.0.1])
+        by localhost (lilium.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id pj4MsuSeTHU4; Mon, 16 Nov 2020 22:05:46 +0100 (CET)
+Received: from lilium.sigma-star.at ([127.0.0.1])
+        by localhost (lilium.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id MinQ-477CHIm; Mon, 16 Nov 2020 22:05:46 +0100 (CET)
+From:   Richard Weinberger <richard@nod.at>
+To:     linux-mtd@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org
+Subject: [PATCH] ubifs: wbuf: Don't leak kernel memory to flash
+Date:   Mon, 16 Nov 2020 22:05:30 +0100
+Message-Id: <20201116210530.26230-1-richard@nod.at>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTExLTEwIGF0IDIzOjA0ICswMjAwLCBWaWxsZSBTeXJqYWxhIHdyb3RlOg0K
-PiBGcm9tOiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPg0K
-PiANCj4gRURJRCBjYW4gZGVjbGFyZSB0aGUgbWF4aW11bSBzdXBwb3J0ZWQgYnBjIHVwIHRvIDE2
-LA0KPiBhbmQgYXBwYXJlbnRseSB0aGVyZSBhcmUgZGlzcGxheXMgdGhhdCBkbyBzby4gQ3VycmVu
-dGx5DQo+IHdlIGFzc3VtZSAxMiBicGMgaXMgdGhhIG1heC4gRml4IHRoZSBhc3N1bXB0aW9uIGFu
-ZA0KPiB0b3NzIGluIGEgTUlTU0lOR19DQVNFKCkgZm9yIGFueSBvdGhlciB2YWx1ZSB3ZSBkb24n
-dA0KPiBleHBlY3QgdG8gc2VlLg0KPiANCj4gVGhpcyBmaXhlcyBtb2Rlc2V0cyB3aXRoIGEgZGlz
-cGxheSB3aXRoIEVESUQgbWF4IGJwYyA+IDEyLg0KPiBQcmV2aW91c2x5IGFueSBtb2Rlc2V0IHdv
-dWxkIGp1c3Qgc2lsZW50bHkgZmFpbCBvbiBwbGF0Zm9ybXMNCj4gdGhhdCBkaWRuJ3Qgb3RoZXJ3
-aXNlIGxpbWl0IHRoaXMgdmlhIHRoZSBtYXhfYnBjIHByb3BlcnR5Lg0KPiBJbiBwYXJ0aWN1bGFy
-IHdlIGRvbid0IGFkZCB0aGUgbWF4X2JwYyBwcm9wZXJ0eSB0byBIRE1JDQo+IHBvcnRzIG9uIGdt
-Y2ggcGxhdGZvcm1zLCBhbmQgdGh1cyB3ZSB3b3VsZCBzZWUgdGhlIHJhdw0KPiBtYXhfYnBjIGNv
-bWluZyBmcm9tIHRoZSBFRElELg0KPiANCj4gSSBzdXBwb3NlIHdlIGNvdWxkIGFscmVhZHkgYWRq
-dXN0IHRoaXMgdG8gYWxzbyBhbGxvdyAxNmJwYywNCj4gYnV0IHNlZWluZyBhcyBubyBjdXJyZW50
-IHBsYXRmb3JtIHN1cHBvcnRzIHRoYXQgdGhlcmUgaXMNCj4gbGl0dGxlIHBvaW50Lg0KDQpSZXZp
-ZXdlZC1ieTogSm9zw6kgUm9iZXJ0byBkZSBTb3V6YSA8am9zZS5zb3V6YUBpbnRlbC5jb20+DQoN
-Cg0KPiANCj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2xvc2VzOiBodHRwczovL2dp
-dGxhYi5mcmVlZGVza3RvcC5vcmcvZHJtL2ludGVsLy0vaXNzdWVzLzI2MzINCj4gU2lnbmVkLW9m
-Zi1ieTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4NCj4g
-LS0tDQo+IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMgfCAz
-ICsrLQ0KPiDCoDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkN
-Cj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rp
-c3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+
-IGluZGV4IDI3MjljODUyYzY2OC4uMmE2ZWIxY2E5YzhlIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJz
-L2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rpc3BsYXkuYw0KPiArKysgYi9kcml2ZXJzL2dw
-dS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rpc3BsYXkuYw0KPiBAQCAtMTMwNjAsMTAgKzEzMDYw
-LDExIEBAIGNvbXB1dGVfc2lua19waXBlX2JwcChjb25zdCBzdHJ1Y3QgZHJtX2Nvbm5lY3Rvcl9z
-dGF0ZSAqY29ubl9zdGF0ZSwNCj4gwqAJY2FzZSAxMCAuLi4gMTE6DQo+IMKgCQlicHAgPSAxMCAq
-IDM7DQo+IMKgCQlicmVhazsNCj4gLQljYXNlIDEyOg0KPiArCWNhc2UgMTIgLi4uIDE2Og0KPiDC
-oAkJYnBwID0gMTIgKiAzOw0KPiDCoAkJYnJlYWs7DQo+IMKgCWRlZmF1bHQ6DQo+ICsJCU1JU1NJ
-TkdfQ0FTRShjb25uX3N0YXRlLT5tYXhfYnBjKTsNCj4gwqAJCXJldHVybiAtRUlOVkFMOw0KPiDC
-oAl9DQo+IMKgDQo+IA0KPiANCj4gDQoNCg==
+Write buffers use a kmalloc()'ed buffer, they can leak
+up to seven bytes of kernel memory to flash if writes are not
+aligned.
+So use ubifs_pad() to fill these gaps with padding bytes.
+This was never a problem while scanning because the scanner logic
+manually aligns node lengths and skips over these gaps.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ fs/ubifs/io.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
+index 7e4bfaf2871f..eae9cf5a57b0 100644
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -319,7 +319,7 @@ void ubifs_pad(const struct ubifs_info *c, void *buf,=
+ int pad)
+ {
+ 	uint32_t crc;
+=20
+-	ubifs_assert(c, pad >=3D 0 && !(pad & 7));
++	ubifs_assert(c, pad >=3D 0);
+=20
+ 	if (pad >=3D UBIFS_PAD_NODE_SZ) {
+ 		struct ubifs_ch *ch =3D buf;
+@@ -764,6 +764,10 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf,=
+ void *buf, int len)
+ 		 * write-buffer.
+ 		 */
+ 		memcpy(wbuf->buf + wbuf->used, buf, len);
++		if (aligned_len > len) {
++			ubifs_assert(c, aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
++		}
+=20
+ 		if (aligned_len =3D=3D wbuf->avail) {
+ 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
+@@ -856,13 +860,18 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf=
+, void *buf, int len)
+ 	}
+=20
+ 	spin_lock(&wbuf->lock);
+-	if (aligned_len)
++	if (aligned_len) {
+ 		/*
+ 		 * And now we have what's left and what does not take whole
+ 		 * max. write unit, so write it to the write-buffer and we are
+ 		 * done.
+ 		 */
+ 		memcpy(wbuf->buf, buf + written, len);
++		if (aligned_len > len) {
++			ubifs_assert(c, aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
++		}
++	}
+=20
+ 	if (c->leb_size - wbuf->offs >=3D c->max_write_size)
+ 		wbuf->size =3D c->max_write_size;
+--=20
+2.26.2
+
