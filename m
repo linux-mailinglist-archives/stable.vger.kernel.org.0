@@ -2,202 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 016092B4486
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 14:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF80A2B4537
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 14:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728473AbgKPNMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 08:12:46 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42877 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726615AbgKPNMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 08:12:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605532363;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1MsyfwNa8Jx32AXWJVdoiRXVhLmfFI1tNXSgaZ45fq4=;
-        b=FS2B2tSPC2hTRK/gO5gjkOp9ujZUzL9/ZfaqzkrnCn26eBjRtahhdzfFewgcFBLjoYZt8W
-        CuHp97zP/31WI3xo0pdUpVwRB4b4/vU8G2G3ST9avt0TDqmeyNy/04zT3VBO9Hw/awa/Ae
-        scYKdBzFYLw8vKjLELp2cWFCL1l75dI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-312-qmaM6hVFN-yOVIpcpNE6YA-1; Mon, 16 Nov 2020 08:12:42 -0500
-X-MC-Unique: qmaM6hVFN-yOVIpcpNE6YA-1
-Received: by mail-wr1-f72.google.com with SMTP id h11so10986835wrq.20
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 05:12:42 -0800 (PST)
+        id S1729750AbgKPNy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 08:54:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729745AbgKPNy0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 08:54:26 -0500
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1795DC0613D2
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 05:54:25 -0800 (PST)
+Received: by mail-pg1-x542.google.com with SMTP id h16so9219798pgb.7
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 05:54:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=+A359lF42tZa73dPiOWZxYbdDHUjaoA4SP1/TVC6kqw=;
+        b=uhrUcNEKOBNJHazYbkL0/WF/jWRl6a4lPtR5yUmS/9ZGu9nIeJeSBAYW7AixeYsajJ
+         MdTINMXr78JkR3QHYkXVFW6bU/3iPm5GOEoxaIBRV34IVfhMC3DOPR2d5Ij1wyOFHxw7
+         SSIcAwr0NphdpCzUpdzlLNuimTIpEcRFEmh/FA5qPhCTPu4xUNW7VYhvfJykv/9jV4Pa
+         +y2GKPkUqDCS/I2AYrEUDrv6LpFFe/iBpLAPRTF2wTaUP0kYvhfFKCrAoMR3WucUC5UJ
+         unoa8iDF+ShqImnC7uASDcgwnvpRL3fhpyjSjNysN6bM6c12EhXhdAGpHyPP5wWYRlFT
+         OoAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=1MsyfwNa8Jx32AXWJVdoiRXVhLmfFI1tNXSgaZ45fq4=;
-        b=UUhgTad8eXpGoRwIjmuwgNFVu6fB7eDrIdg+q+gukDJhTgoyMNtoCBPHK43QhFyfO+
-         EF1Rk5roLLBCheO/K+yq+EuG7rMXKbogo8d0dFqz68ZseK9ve1F0dhZLEWzEveOiU//f
-         Nup3Rlu5ZUMP4ofpsRLt4s6lw9kJXPeqq3gqBN5bmvwubjb3AUh55i+BZm+aF014r0cO
-         KMhjnn2cwV61U7IO+A9VmI7rxQ1xCaS7OqWTUkJFOvCyH7CjxbCEuAuu7jaQFIoRcD9C
-         kQ40edH64a0G0tkEMUbNq2cZQt5Ri0A3hqRrZclMnLl1qTrKCXt00j7qVSFk1XYQzkfe
-         2Ejg==
-X-Gm-Message-State: AOAM531x87hePasabvkvQpHkaoKjUp+mLzKXIdEFISHpYDJGYT/Z20qw
-        yoGUQoVu5rGjzWsD9pnOhvKOtCgVGuJ4UjcH6T1UUYGttKrdpQIEQ59jJgT/Kv9o+vNq7WGxf0A
-        O/beR3hzJAAVcWv7k
-X-Received: by 2002:a1c:3d54:: with SMTP id k81mr16012171wma.144.1605532360930;
-        Mon, 16 Nov 2020 05:12:40 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxWEajR0OWDyqeKkIjBoeFIm1XjBpo/ZNOIzpQvPnoEBfltGFQv72xS2lc0N8QZKFC3zlWOfQ==
-X-Received: by 2002:a1c:3d54:: with SMTP id k81mr16012142wma.144.1605532360706;
-        Mon, 16 Nov 2020 05:12:40 -0800 (PST)
-Received: from redhat.com ([147.161.8.56])
-        by smtp.gmail.com with ESMTPSA id f19sm19145825wml.21.2020.11.16.05.12.33
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=+A359lF42tZa73dPiOWZxYbdDHUjaoA4SP1/TVC6kqw=;
+        b=ObAF7lSQ2GTd1ZOdvES/JlWiQesvVkh2tS9KNIUI+okpK5MC7g3EhsAmVavnXn1Xwc
+         LWF5+rzeEJ+zySCP2fOYA2uZzvHwYHlA6TOtxHv+CX3+UIma3f+SoENBSb2HpEFy9e/Y
+         PcDaRFzCaMIe8CBcXZmUE3dHEoGKOPYSbVSotDHGQT6EFn4G1/vgSSBtn3HDo0K6r9wf
+         YkVKO1naWlsiJqARFuHOktDHOqz3VgQoKvnvPcDYkQ3vA14pZeqLliav5edJJPMEChEU
+         nrP3H2ffoZgR11RZtDzaMWehw5f9bZx0n7wYQobY/j3iLE2qllrOlszuddWRn5L2D5yL
+         psug==
+X-Gm-Message-State: AOAM531O2tgJPLSfe7OXj0oiED3Tc8F4xeC7OGltz6WjlrlnG1m7V72j
+        HD3Vn9humlySG54mv+d1TV6TpA==
+X-Google-Smtp-Source: ABdhPJx7zPBrpHujwVU2oFB8zrUqJuJFYi0hZX7sx2UK8bvDlOvTG38tK788gR3212Yjzqoa2hpXLg==
+X-Received: by 2002:a63:4759:: with SMTP id w25mr12628446pgk.414.1605534864664;
+        Mon, 16 Nov 2020 05:54:24 -0800 (PST)
+Received: from localhost.localdomain ([163.172.76.58])
+        by smtp.googlemail.com with ESMTPSA id u22sm15864031pgf.24.2020.11.16.05.54.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 05:12:39 -0800 (PST)
-Date:   Mon, 16 Nov 2020 08:12:31 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Alexander Lobakin <alobakin@pm.me>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        linux-remoteproc@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
- for rproc serial
-Message-ID: <20201116080943-mutt-send-email-mst@kernel.org>
-References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
- <20201116091950.GA30524@infradead.org>
- <20201116071910-mutt-send-email-mst@kernel.org>
- <u9RJBckNwnezQttAPrOyEqDYKu0rnhedUZYGpaS83qg@cp3-web-024.plabs.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <u9RJBckNwnezQttAPrOyEqDYKu0rnhedUZYGpaS83qg@cp3-web-024.plabs.ch>
+        Mon, 16 Nov 2020 05:54:24 -0800 (PST)
+From:   Corentin Labbe <clabbe@baylibre.com>
+To:     arnd@arndb.de, davem@davemloft.net, herbert@gondor.apana.org.au,
+        jernej.skrabec@siol.net, mripard@kernel.org, wens@csie.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        Corentin Labbe <clabbe@baylibre.com>, stable@vger.kernel.org
+Subject: [PATCH v3 2/7] crypto: sun4i-ss: checking sg length is not sufficient
+Date:   Mon, 16 Nov 2020 13:53:40 +0000
+Message-Id: <20201116135345.11834-3-clabbe@baylibre.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201116135345.11834-1-clabbe@baylibre.com>
+References: <20201116135345.11834-1-clabbe@baylibre.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 16, 2020 at 01:07:28PM +0000, Alexander Lobakin wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Mon, 16 Nov 2020 07:25:31 -0500
-> 
-> > On Mon, Nov 16, 2020 at 09:19:50AM +0000, Christoph Hellwig wrote:
-> >> I just noticed this showing up in Linus' tree and I'm not happy.
-> >
-> > Are you sure? I think it's in next.
-> 
-> Nope, it goes to fixes since it just fixes the regression introduced
-> in 5.7.
+The optimized cipher function need length multiple of 4 bytes.
+But it get sometimes odd length.
+This is due to SG data could be stored with an offset.
 
-Oh you are right, Greg merged it and I didn't notice because I didn't
-rebase my tree.
+So the fix is to check also if the offset is aligned with 4 bytes.
+Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+---
+ drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> That's why it's not about any refactoring or rethinking the whole
-> model.
-> 
-> >> This whole model of the DMA subdevices in remoteproc is simply broken.
-> >>
-> >> We really need to change the virtio code pass an expicit DMA device (
-> >> similar to what e.g. the USB and RDMA code does), instead of faking up
-> >> devices with broken adhoc inheritance of DMA properties and magic poking
-> >> into device parent relationships.
-> 
-> But lots of subsystems like netdev for example uses dev->parent for
-> DMA operations. I know that their pointers go directly to the
-> platform/PCI/etc. device, but still.
-> 
-> The only reason behind "fake" DMA devices for rproc is to be able to
-> reserve DMA memory through the Device Tree exclusively for only one
-> virtio dev like virtio_console or virtio_rpmsg_bus. That's why
-> they are present, are coercing DMA caps from physical dev
-> representor, and why questinable dma_declare_coherent_memory()
-> is still here and doesn't allow to build rproc core as a module.
-> I agree that this is not the best model obviously, and we should take
-> a look at it.
-> 
-> > OK but we do have a regression since 5.7 and this looks like
-> > a fix appropriate for e.g. stable, right?
-> >
-> >> Bjorn, I thought you were going to look into this a while ago?
-> >>
-> >>
-> >> On Wed, Nov 04, 2020 at 03:31:36PM +0000, Alexander Lobakin wrote:
-> >>> Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
-> >>> specific dma memory pool"), every remoteproc has a DMA subdevice
-> >>> ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
-> >>> DMA capabilities from the corresponding platform device. This allowed
-> >>> to associate different DMA pools with each vdev, and required from
-> >>> virtio drivers to perform DMA operations with the parent device
-> >>> (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
-> >>>
-> >>> virtio_rpmsg_bus was already changed in the same merge cycle with
-> >>> commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
-> >>> but virtio_console did not. In fact, operations using the grandparent
-> >>> worked fine while the grandparent was the platform device, but since
-> >>> commit c774ad010873 ("remoteproc: Fix and restore the parenting
-> >>> hierarchy for vdev") this was changed, and now the grandparent device
-> >>> is the remoteproc device without any DMA capabilities.
-> >>> So, starting v5.8-rc1 the following warning is observed:
-> >>>
-> >>> [    2.483925] ------------[ cut here ]------------
-> >>> [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
-> >>> [    2.489152] Modules linked in: virtio_console(+)
-> >>> [    2.503737]  virtio_rpmsg_bus rpmsg_core
-> >>> [    2.508903]
-> >>> [    2.528898] <Other modules, stack and call trace here>
-> >>> [    2.913043]
-> >>> [    2.914907] ---[ end trace 93ac8746beab612c ]---
-> >>> [    2.920102] virtio-ports vport1p0: Error allocating inbufs
-> >>>
-> >>> kernel/dma/mapping.c:427 is:
-> >>>
-> >>> WARN_ON_ONCE(!dev->coherent_dma_mask);
-> >>>
-> >>> obviously because the grandparent now is remoteproc dev without any
-> >>> DMA caps:
-> >>>
-> >>> [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
-> >>>
-> >>> Fix this the same way as it was for virtio_rpmsg_bus, using just the
-> >>> parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
-> >>> operations.
-> >>> This also allows now to reserve DMA pools/buffers for rproc serial
-> >>> via Device Tree.
-> >>>
-> >>> Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
-> >>> Cc: stable@vger.kernel.org # 5.1+
-> >>> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-> >>> ---
-> >>>  drivers/char/virtio_console.c | 8 ++++----
-> >>>  1 file changed, 4 insertions(+), 4 deletions(-)
-> >>>
-> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> >>> index a2da8f768b94..1836cc56e357 100644
-> >>> --- a/drivers/char/virtio_console.c
-> >>> +++ b/drivers/char/virtio_console.c
-> >>> @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
-> >>>  		/*
-> >>>  		 * Allocate DMA memory from ancestor. When a virtio
-> >>>  		 * device is created by remoteproc, the DMA memory is
-> >>> -		 * associated with the grandparent device:
-> >>> -		 * vdev => rproc => platform-dev.
-> >>> +		 * associated with the parent device:
-> >>> +		 * virtioY => remoteprocX#vdevYbuffer.
-> >>>  		 */
-> >>> -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
-> >>> +		buf->dev = vdev->dev.parent;
-> >>> +		if (!buf->dev)
-> >>>  			goto free_buf;
-> >>> -		buf->dev = vdev->dev.parent->parent;
-> >>>
-> >>>  		/* Increase device refcnt to avoid freeing it */
-> >>>  		get_device(buf->dev);
-> >>> --
-> >>> 2.29.2
-> >>>
-> >>>
-> >> ---end quoted text---
-> 
-> Thanks,
-> Al
+diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+index 19f1aa577ed4..4dd736ee5a4d 100644
+--- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
++++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+@@ -186,12 +186,12 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 	 * we can use the SS optimized function
+ 	 */
+ 	while (in_sg && no_chunk == 1) {
+-		if (in_sg->length % 4)
++		if (in_sg->length % 4 || !IS_ALIGNED(in_sg->offset, sizeof(u32)))
+ 			no_chunk = 0;
+ 		in_sg = sg_next(in_sg);
+ 	}
+ 	while (out_sg && no_chunk == 1) {
+-		if (out_sg->length % 4)
++		if (out_sg->length % 4 || !IS_ALIGNED(out_sg->offset, sizeof(u32)))
+ 			no_chunk = 0;
+ 		out_sg = sg_next(out_sg);
+ 	}
+-- 
+2.26.2
 
