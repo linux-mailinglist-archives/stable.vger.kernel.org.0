@@ -2,212 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E5C2B4CC4
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F072B4D82
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:39:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731200AbgKPR2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 12:28:08 -0500
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:50441 "EHLO
-        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730576AbgKPR2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:28:08 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 7E6A839C;
-        Mon, 16 Nov 2020 12:28:07 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 12:28:07 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N9gvIg
-        vty+AQe1tFH714IxksLTnoz39Ndw2xheIvfGw=; b=mqyKma3C8c7YoDeAXB63gZ
-        THiUc4iVgQoXjEG0yWfNz/Q7lCj95de+49trpDoeQMfNmDvxz3czWmTKD0BSFycf
-        eFwumHz65Ipq2emvOkVP8CnK43j2Qym2AvLwQ5C4nlzW6WbpCj+jNBWyZDTB35r4
-        JOjpzgh/tvxTOV5zwch+lrqiCz9Ae7WPfWLib3LpDJN8MIxbh0Mki9mMh2Z0FHSz
-        OSnPbBnl/4WdqTpHlf6qNpzTGH6FXtFuEV7zybswEvlzMIs4EUV99IWfSt8Gwjfb
-        M3YAaGnb2blV1qviBt0NcMme7SlDb2c/zHEjeF45aD1ZowicCYtfg+8V+sMqbNww
-        ==
-X-ME-Sender: <xms:prayX_2S2OKb_yH1Y-hM6NvTEbjtb5qpQgzx9NW65boWL9actRydiw>
-    <xme:prayX-H_d1mGMyDkdyyfXtbNpUkBYWtAalfvgr4r7o9VIn1ocQU5aRTjbbDQBcH8Y
-    TJbDdUVP1wvaw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddguddtvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
-    eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:prayX_5wyOAKFhh8phyMUAPFwAGnwq-gkrBgJ3DqnhPj9Y7J9mTYJg>
-    <xmx:prayX0285319GmUDUZahYPAGCLYhd4PmCkw5sNr5FQSBTwykrllnfw>
-    <xmx:prayXyEfGGgQRGYTL7QQJJ4XzKgBwae0UOPd2hcdq1DT1BnRqcPGmQ>
-    <xmx:p7ayX0MkS04xnMzr9WiYkIEab7Vk1V0z0ZTrn5nbeTNIYK2N2Il2dTmXcZ8>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6E97C3064AB0;
-        Mon, 16 Nov 2020 12:28:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Pull phys pread/pwrite implementations to the" failed to apply to 5.9-stable tree
-To:     chris@chris-wilson.co.uk, matthew.auld@intel.com,
-        rodrigo.vivi@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 18:28:57 +0100
-Message-ID: <160554773738191@kroah.com>
+        id S2387505AbgKPRh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 12:37:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387497AbgKPRhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:37:55 -0500
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2CBC0617A7
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:54 -0800 (PST)
+Received: by mail-lj1-x242.google.com with SMTP id i17so19986010ljd.3
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0hFcYQjYTxN6TPp3Kdg1NeqlnTpUC7G+cLOAuMz+zHE=;
+        b=HKbDpA8RbHc7R9WeYnYhMYC3gxw9weFs3lMu3SDaX0XkAID5B1sf9E42rWBynbT+Sx
+         yT3uEIqvHZJzSY1G2ko5rQ9hLa877Siaz6/opPHEMxfi0DtcEJEuWQQNCPcD356BV5kx
+         d7ODwPPcAS09cbveKqn/VdCocdxDt/vjlquyU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0hFcYQjYTxN6TPp3Kdg1NeqlnTpUC7G+cLOAuMz+zHE=;
+        b=CtIq7kX3wR8hED+8fdIHENjXBiFBlIejzRWOxe/OLVnQMLBUF/GKGmebQiarVEUM9N
+         Ze1ZdGYMytnG2aY/XdYxtdG0v76KW8VtLDLdsYifF8C442f0MZgzhmZrpLiQh3+2teqj
+         EodC+s573osvqYYOSGroFczkT8ajiq+fvOxmwIyI7SKOkU/sOvc1fs+i82HAnOjaTLMK
+         c0Yu/UTDwWUgRRbv4K/D24AVaUZMSdAl0xLQZm2gjJIy2WvvtCQdOQHO1H19PPFTA7an
+         1X/sMXwEdNh7ksU5gsXeVObHbQfiYQkbLfI4zgmFi1NIaP/ug32fNsVp+FtxmNaynjXt
+         lx3w==
+X-Gm-Message-State: AOAM533cruEHjMzMTgXcpt8T4aNyempBKGOmmLe3him6Pt3FrQTtzHx7
+        dHVgn9KXzkxL/5XXRMELL6JJAa0ZVlIZZA==
+X-Google-Smtp-Source: ABdhPJx4+FcZgM9YtyDBqoHu3zyfYzhvys2a3ASsAONqNlx3XFYSFXwfBTYz0wGQnVX5jXDdQFRH2Q==
+X-Received: by 2002:a2e:8883:: with SMTP id k3mr210819lji.80.1605548272853;
+        Mon, 16 Nov 2020 09:37:52 -0800 (PST)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id 13sm2871430lfy.90.2020.11.16.09.37.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 Nov 2020 09:37:49 -0800 (PST)
+Received: by mail-lj1-f179.google.com with SMTP id 11so21113175ljf.2
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:48 -0800 (PST)
+X-Received: by 2002:a05:651c:2cb:: with SMTP id f11mr153620ljo.371.1605548268341;
+ Mon, 16 Nov 2020 09:37:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20201113080132.16591-1-roberto.sassu@huawei.com>
+ <20201114111057.GA16415@infradead.org> <0fd0fb3360194d909ba48f13220f9302@huawei.com>
+ <20201116162202.GA15010@infradead.org> <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
+In-Reply-To: <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 16 Nov 2020 09:37:32 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
+Message-ID: <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
+Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in ima_calc_file_hash()
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 16, 2020 at 8:47 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
+>
+> This discussion seems to be going down the path of requiring an IMA
+> filesystem hook for reading the file, again.  That solution was
+> rejected, not by me.  What is new this time?
 
-The patch below does not apply to the 5.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+You can't read a non-read-opened file. Not even IMA can.
 
-thanks,
+So don't do that then.
 
-greg k-h
+IMA is doing something wrong. Why would you ever read a file that can't be read?
 
------------------- original commit in Linus's tree ------------------
+Fix whatever "open" function instead of trying to work around the fact
+that you opened it wrong.
 
-From 0eb0feb9aeac392edf01b525a54acde9b002312e Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 5 Nov 2020 15:49:34 +0000
-Subject: [PATCH] drm/i915/gem: Pull phys pread/pwrite implementations to the
- backend
-
-Move the specialised interactions with the physical GEM object from the
-pread/pwrite ioctl handler into the phys backend.
-
-Currently, if one is able to exhaust the entire aperture and then try to
-pwrite into an object not backed by struct page, we accidentally invoked
-the phys pwrite handler on a non-phys object; calamitous.
-
-Fixes: c6790dc22312 ("drm/i915: Wean off drm_pci_alloc/drm_pci_free")
-Testcase: igt/gem_pwrite/exhaustion
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20201105154934.16022-2-chris@chris-wilson.co.uk
-(cherry picked from commit 852e1b3644817f071427b83859b889c788a0cf69)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_phys.c b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-index 28147aab47b9..3a4dfe2ef1da 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_phys.c
-@@ -134,6 +134,58 @@ i915_gem_object_put_pages_phys(struct drm_i915_gem_object *obj,
- 			  vaddr, dma);
- }
- 
-+static int
-+phys_pwrite(struct drm_i915_gem_object *obj,
-+	    const struct drm_i915_gem_pwrite *args)
-+{
-+	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
-+	char __user *user_data = u64_to_user_ptr(args->data_ptr);
-+	int err;
-+
-+	err = i915_gem_object_wait(obj,
-+				   I915_WAIT_INTERRUPTIBLE |
-+				   I915_WAIT_ALL,
-+				   MAX_SCHEDULE_TIMEOUT);
-+	if (err)
-+		return err;
-+
-+	/*
-+	 * We manually control the domain here and pretend that it
-+	 * remains coherent i.e. in the GTT domain, like shmem_pwrite.
-+	 */
-+	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
-+
-+	if (copy_from_user(vaddr, user_data, args->size))
-+		return -EFAULT;
-+
-+	drm_clflush_virt_range(vaddr, args->size);
-+	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
-+
-+	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
-+	return 0;
-+}
-+
-+static int
-+phys_pread(struct drm_i915_gem_object *obj,
-+	   const struct drm_i915_gem_pread *args)
-+{
-+	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
-+	char __user *user_data = u64_to_user_ptr(args->data_ptr);
-+	int err;
-+
-+	err = i915_gem_object_wait(obj,
-+				   I915_WAIT_INTERRUPTIBLE,
-+				   MAX_SCHEDULE_TIMEOUT);
-+	if (err)
-+		return err;
-+
-+	drm_clflush_virt_range(vaddr, args->size);
-+	if (copy_to_user(user_data, vaddr, args->size))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
- static void phys_release(struct drm_i915_gem_object *obj)
- {
- 	fput(obj->base.filp);
-@@ -144,6 +196,9 @@ static const struct drm_i915_gem_object_ops i915_gem_phys_ops = {
- 	.get_pages = i915_gem_object_get_pages_phys,
- 	.put_pages = i915_gem_object_put_pages_phys,
- 
-+	.pread  = phys_pread,
-+	.pwrite = phys_pwrite,
-+
- 	.release = phys_release,
- };
- 
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index d58fe1ddc3e1..58276694c848 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -179,30 +179,6 @@ int i915_gem_object_unbind(struct drm_i915_gem_object *obj,
- 	return ret;
- }
- 
--static int
--i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
--		     struct drm_i915_gem_pwrite *args,
--		     struct drm_file *file)
--{
--	void *vaddr = sg_page(obj->mm.pages->sgl) + args->offset;
--	char __user *user_data = u64_to_user_ptr(args->data_ptr);
--
--	/*
--	 * We manually control the domain here and pretend that it
--	 * remains coherent i.e. in the GTT domain, like shmem_pwrite.
--	 */
--	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
--
--	if (copy_from_user(vaddr, user_data, args->size))
--		return -EFAULT;
--
--	drm_clflush_virt_range(vaddr, args->size);
--	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
--
--	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
--	return 0;
--}
--
- static int
- i915_gem_create(struct drm_file *file,
- 		struct intel_memory_region *mr,
-@@ -872,8 +848,6 @@ i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
- 	if (ret == -EFAULT || ret == -ENOSPC) {
- 		if (i915_gem_object_has_struct_page(obj))
- 			ret = i915_gem_shmem_pwrite(obj, args);
--		else
--			ret = i915_gem_phys_pwrite(obj, args, file);
- 	}
- 
- 	i915_gem_object_unpin_pages(obj);
-
+             Linus
