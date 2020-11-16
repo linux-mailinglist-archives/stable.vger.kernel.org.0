@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C22E2B4A62
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 049342B4A63
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731216AbgKPQMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 11:12:37 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52523 "EHLO
+        id S1730922AbgKPQMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 11:12:39 -0500
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:56879 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729729AbgKPQMh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:12:37 -0500
+        by vger.kernel.org with ESMTP id S1729729AbgKPQMi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:12:38 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E433419432CC;
-        Mon, 16 Nov 2020 11:12:35 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:12:35 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id C32FA19432D4;
+        Mon, 16 Nov 2020 11:12:37 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:12:37 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=0ehYZl
-        l1sGRBYxdfYtEZDzqPDOtoZAHkZU6/f9tJygs=; b=rJNwss1jkx1uctkjd9H1Kc
-        aXrvhuV+0mnxoxtZAeLIs7lAMz6JKBoo+xuI7oUVYFyxVHdof3ieWe6QweTkeqYC
-        IbnG2Dq+Rr+ihTL6GFpV6HDcTFROlsKTojiw4j9s1iSlFVaeTK1gWzCzsL10Z/r6
-        IrinALh/tENV0EeUvb5BUAr0tGJbibzC0Nq+fnRukpC8y3N/udEwKe624LskEkgr
-        G40gyhawabxQPzABsxamWMZ9yLBKNyzoBpyuJGPr6RIS+66ByfnoZ63RtrNY6t2Z
-        vHzBkLPQ2soeSk7NrG1T77R5wYI9vyWhCejUz5Yvmb0GRBWJDvu2w5q/u9zH+m2A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6y7kV4
+        KOVkpXbBFXEPCiZaghfKVnkf+JrpsQKxd4X9w=; b=Ge8hgUmIa4NLXouonv3zen
+        3YVfePrvgW8wEFGiBm4BK25j+mtYj2MwXnryWCna1/45ec7mqS3R3Ic4ns66uCOF
+        3wMmY6yUl5Y8NLCaEzw5GJKUA0n00sSRRxKKPz5+5AxPIlJQEC0TCkqi7HG6PMX6
+        +zVhm1I1bRHumDEKf3iGWV8FpXAwL75w32Kq9VzFOjmNTKEAXk5nTJU31x93WBR6
+        yFX/NeEEjttfR0yacx0YwM/ehmemMnnXRU6CZoLVssEoJyGi5532guG9ZWnB+qpU
+        68PVzleXktpvxvlEi0gpR6yK+xdlLlN+Fuzs+11KAa9Y0k7nSyXkmdycIZvZ2KTw
         ==
-X-ME-Sender: <xms:86SyX2mPysUT0hAd3CFv_UAwQNUNAePn_kwXSvTw5ViTV6kYJe2ieQ>
-    <xme:86SyX92B2b6zGaR8xxv2Ii81Ys23gXQZaeZJttlTjhuBwuwc3Pp9OHr4VWO4T31Lz
-    4P7Ef7LzDO5Gw>
+X-ME-Sender: <xms:9aSyXy7IpEYfL-vd-r5G1FD2PQhQfo8hmFBwzp6fteYZa_sMuymZ1Q>
+    <xme:9aSyX76rYNb8l3v_IGxeeYV30XvImfok9wwa2MnCLVdW4kiIneTUV3euxspkX7JUj
+    2sXwjvIXujWVQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:86SyX0oxZQISopswYcMpurUyc6h0aNMCOGAOau6sxQX44B6haqs5tQ>
-    <xmx:86SyX6nkedAFF2wYX9c-L6fwTJcspXwq3yBh9-RrSKa9kHyPMhU84g>
-    <xmx:86SyX032Zd36AAIC8ayXZIqZ1fRqlS2ko0_UmcSFByxkF9DcOMmTCw>
-    <xmx:86SyX9u1Gg6caSYvcQOxxkWGrbgTWNy35YYYnJkVuKsWDqGFTlruNoDj9vk>
+X-ME-Proxy: <xmx:9aSyXxcs_i_W7cxWpmjZZ2SKZj-6zNntZ5kzJ4khFo7Ddmx_NNFENg>
+    <xmx:9aSyX_Lb7KZRDbOpXdFsQLfAt3WrhBjEiC9LQlEnbGvPHlrKS-VV9w>
+    <xmx:9aSyX2LW0LvQrHrF97CoTtWrOXgijMDRQWx_IsWobgS1HnEfzNT2Hw>
+    <xmx:9aSyXzDFgcZhkMinS-pkbuX8I-IkjdGeeQwXmfD320GWnLnmWyxa26ZAh2c>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5143A3064AB5;
-        Mon, 16 Nov 2020 11:12:35 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 450123280065;
+        Mon, 16 Nov 2020 11:12:37 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"" failed to apply to 4.9-stable tree
 To:     mcroce@microsoft.com, akpm@linux-foundation.org, arnd@arndb.de,
         fabf@skynet.be, gregkh@linuxfoundation.org, keescook@chromium.org,
         linux@roeck-us.net, pasha.tatashin@soleen.com, pmladek@suse.com,
@@ -53,8 +53,8 @@ To:     mcroce@microsoft.com, akpm@linux-foundation.org, arnd@arndb.de,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 17:13:24 +0100
-Message-ID: <160554320422973@kroah.com>
+Date:   Mon, 16 Nov 2020 17:13:25 +0100
+Message-ID: <160554320515885@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
