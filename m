@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E702B4A66
+	by mail.lfdr.de (Postfix) with ESMTP id F2A8A2B4A67
 	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730806AbgKPQM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 11:12:58 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:41021 "EHLO
+        id S1731393AbgKPQNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 11:13:01 -0500
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:47565 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729729AbgKPQM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:12:57 -0500
+        by vger.kernel.org with ESMTP id S1731351AbgKPQNA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:13:00 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9E53E19432F6;
-        Mon, 16 Nov 2020 11:12:56 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:12:56 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id C1B661942EC3;
+        Mon, 16 Nov 2020 11:12:59 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 16 Nov 2020 11:12:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Yqt0Yq
-        dlVkCLpwFZGbHyDl31k/j4jbEXpCighv1um+I=; b=DsVUWJJ0TzwNEaRCjD2n3b
-        hqX/Cis7Luxw1Ak1wSULyEDxg+P4aA49mn0LPBPGNLLoYKfRj3GuufLqNlyp2Ie+
-        RRyZWLfAcgFxjgvEt9k6jZnDtponWrjoCiptHTSOU9VltL8Lw0TI4qi4XqjHpMbF
-        ixRRvDGR8huhyniI2RLQImiTxdaKrq4foi3SizOpEBfCfd0wYqeBo3f2nGl7+reU
-        c0O1tzRn14DVrZRr0ugGPyq6f6X3eTd3nJgdoiocBq+Q3V3P3wYxBqzrKD6E+bDg
-        VWcOnhuAFWGgj4hfqWnhvgfyfDa5R2JlF+u1Ph3dVMHC8aJN9L0wv1K3Y81+Toqw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ewSmX4
+        yeYn3NhNsNjZuVEN3aPvPOivcNOvpOf/yCciE=; b=W3ypNcCWEB4ZKB5zL0nGns
+        gX7blSsXsHVUwRi+vvJml3mGBk3NXHQ0MWIKPI3eWzqFrmeEayz8yewBWQk6rJ1S
+        cw3p/iu9pmJLbgwKaTUbAnrib3iHyt0PzNh2qrmvZIO4RLdjwnikg3YfI+ccOHoJ
+        PQYHRRTV/oDaZDU4vSyXFixsDwynQ3nJCLcGVrC06UpE0xyjHFOzBjw4Zkq6nx+B
+        +fzFgwbJmx1wZZUgJcZuSoxDF7CRo5yBz4po+LEpOBMEV+79sMnEJeYkKRuK0iVw
+        JhbHgufe66y7VRvNpu5wSM60XjKAwZU05kFr6k5M/TxyOvCnYYO8KGx/XTy3BHoA
         ==
-X-ME-Sender: <xms:CKWyX0UjeTEdknJES7gB10QglU_NqzS-zzsNjQLHxOec9sEJuYnlDQ>
-    <xme:CKWyX4ke1oe0Lk1KdKorqpV0R5abjKClP2vhnu8xdHxQVALzRw8XH8u2am3d3a0g-
-    _hdo9mZkqUTpw>
+X-ME-Sender: <xms:C6WyX0Sn0zJ_9BjL2_Kd6_9aHA1z504w7Y4bfR-KleptfUxSoBVyaw>
+    <xme:C6WyXxxsCz_i47Xz5tE5LU3za3QYbNTp5uKIT98owrpff5FUo6TVdszs4u0yRkgsq
+    ZBg9wYHDyitLQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,14 +38,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddgkeejucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:CKWyX4ZuRiEYAURWQxBn36OJHhtHDwy3wbGj9e8Vi3FIscMwPZvKEw>
-    <xmx:CKWyXzXftM61dBl8uz8cPqjrGk8jSzYOkKf3jrA0mp-zURJP3TFtqw>
-    <xmx:CKWyX-lrrHpoPBxu1A8_RdBEHZYzb_xLM7CZBBujg9FTP7hHe-bhPA>
-    <xmx:CKWyX3fKmVQre3kIdoE79fD_b62J_AEWTS_9xTUVZJrKF2wObSWRl5W0S_w>
+X-ME-Proxy: <xmx:C6WyXx2ILgQ6uZEyeMevsG4g_xsZLjfZw-yu3EoztmoWhR1wuDV7Hg>
+    <xmx:C6WyX4BuuXs76z2EAYSbeOLgrE0clziqoKCRXdD7Dke_tu2XarHH9w>
+    <xmx:C6WyX9jQfmHfVLzb9qgWcdgBBG4JP9NHOpVGE_50IXwyLUr1Xkn_ww>
+    <xmx:C6WyXyZJG_GAecyoRrsc6fH498oLJs32CVjON10BmTfbjVxBCxts-qVmr14>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 208773280059;
-        Mon, 16 Nov 2020 11:12:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] reboot: fix overflow parsing reboot cpu number" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 501DD3064AB3;
+        Mon, 16 Nov 2020 11:12:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] reboot: fix overflow parsing reboot cpu number" failed to apply to 4.14-stable tree
 To:     mcroce@microsoft.com, akpm@linux-foundation.org, arnd@arndb.de,
         fabf@skynet.be, gregkh@linuxfoundation.org, keescook@chromium.org,
         linux@roeck-us.net, pasha.tatashin@soleen.com, pmladek@suse.com,
@@ -53,8 +53,8 @@ To:     mcroce@microsoft.com, akpm@linux-foundation.org, arnd@arndb.de,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 17:13:47 +0100
-Message-ID: <1605543227116199@kroah.com>
+Date:   Mon, 16 Nov 2020 17:13:49 +0100
+Message-ID: <160554322921665@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
