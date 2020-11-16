@@ -2,65 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F072B4D82
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9A02B4E03
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387505AbgKPRh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 12:37:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
+        id S2387441AbgKPRlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 12:41:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387497AbgKPRhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:37:55 -0500
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2CBC0617A7
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:54 -0800 (PST)
-Received: by mail-lj1-x242.google.com with SMTP id i17so19986010ljd.3
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0hFcYQjYTxN6TPp3Kdg1NeqlnTpUC7G+cLOAuMz+zHE=;
-        b=HKbDpA8RbHc7R9WeYnYhMYC3gxw9weFs3lMu3SDaX0XkAID5B1sf9E42rWBynbT+Sx
-         yT3uEIqvHZJzSY1G2ko5rQ9hLa877Siaz6/opPHEMxfi0DtcEJEuWQQNCPcD356BV5kx
-         d7ODwPPcAS09cbveKqn/VdCocdxDt/vjlquyU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0hFcYQjYTxN6TPp3Kdg1NeqlnTpUC7G+cLOAuMz+zHE=;
-        b=CtIq7kX3wR8hED+8fdIHENjXBiFBlIejzRWOxe/OLVnQMLBUF/GKGmebQiarVEUM9N
-         Ze1ZdGYMytnG2aY/XdYxtdG0v76KW8VtLDLdsYifF8C442f0MZgzhmZrpLiQh3+2teqj
-         EodC+s573osvqYYOSGroFczkT8ajiq+fvOxmwIyI7SKOkU/sOvc1fs+i82HAnOjaTLMK
-         c0Yu/UTDwWUgRRbv4K/D24AVaUZMSdAl0xLQZm2gjJIy2WvvtCQdOQHO1H19PPFTA7an
-         1X/sMXwEdNh7ksU5gsXeVObHbQfiYQkbLfI4zgmFi1NIaP/ug32fNsVp+FtxmNaynjXt
-         lx3w==
-X-Gm-Message-State: AOAM533cruEHjMzMTgXcpt8T4aNyempBKGOmmLe3him6Pt3FrQTtzHx7
-        dHVgn9KXzkxL/5XXRMELL6JJAa0ZVlIZZA==
-X-Google-Smtp-Source: ABdhPJx4+FcZgM9YtyDBqoHu3zyfYzhvys2a3ASsAONqNlx3XFYSFXwfBTYz0wGQnVX5jXDdQFRH2Q==
-X-Received: by 2002:a2e:8883:: with SMTP id k3mr210819lji.80.1605548272853;
-        Mon, 16 Nov 2020 09:37:52 -0800 (PST)
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
-        by smtp.gmail.com with ESMTPSA id 13sm2871430lfy.90.2020.11.16.09.37.48
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 16 Nov 2020 09:37:49 -0800 (PST)
-Received: by mail-lj1-f179.google.com with SMTP id 11so21113175ljf.2
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 09:37:48 -0800 (PST)
-X-Received: by 2002:a05:651c:2cb:: with SMTP id f11mr153620ljo.371.1605548268341;
- Mon, 16 Nov 2020 09:37:48 -0800 (PST)
-MIME-Version: 1.0
-References: <20201113080132.16591-1-roberto.sassu@huawei.com>
- <20201114111057.GA16415@infradead.org> <0fd0fb3360194d909ba48f13220f9302@huawei.com>
- <20201116162202.GA15010@infradead.org> <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
-In-Reply-To: <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 16 Nov 2020 09:37:32 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
-Message-ID: <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
-Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in ima_calc_file_hash()
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
+        with ESMTP id S2387673AbgKPRle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:41:34 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE7FFC0613CF;
+        Mon, 16 Nov 2020 09:41:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=jXhYiraeCvEjgtp4Al1Jja9wRZjk54jdQVNIIz1mtNI=; b=DJ4JRqLbCnxL7oV46eew1i513o
+        cuizmUxtJNSsbEo/J7T6unlPPjbVcPfPHf7PEy6C4HL42PdN2meHxNJqdVEh9o6Qd5c3kGMsCRZPY
+        7DgN1CTRMw9CX90r4EprheOKWoTjCkfD8FGZ/NxD+4ghMRRkbOJM/AFS6IKNsybRVRGEGzy7aA+a5
+        IKdlZCwL79FzxVE6bFdihZ05OG5Ph3WDVHIV0JmRn6s2T95xG3usEQE8da8xbEyzqPe0E4Se596fY
+        hPSJ/dXtrulN/kouNf7LnzZHhkhqTVzBc7IEPlnbRKoVclBnuq1pjPMlp68L1LoJhR5F9AzO93B/o
+        cZTocpbg==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1keiVL-0001Fe-6A; Mon, 16 Nov 2020 17:41:27 +0000
+Date:   Mon, 16 Nov 2020 17:41:27 +0000
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Christoph Hellwig <hch@infradead.org>,
         Roberto Sassu <roberto.sassu@huawei.com>,
         "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
         "linux-security-module@vger.kernel.org" 
@@ -70,24 +40,39 @@ Cc:     Christoph Hellwig <hch@infradead.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
+ ima_calc_file_hash()
+Message-ID: <20201116174127.GA4578@infradead.org>
+References: <20201113080132.16591-1-roberto.sassu@huawei.com>
+ <20201114111057.GA16415@infradead.org>
+ <0fd0fb3360194d909ba48f13220f9302@huawei.com>
+ <20201116162202.GA15010@infradead.org>
+ <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
+ <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 16, 2020 at 8:47 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
->
-> This discussion seems to be going down the path of requiring an IMA
-> filesystem hook for reading the file, again.  That solution was
-> rejected, not by me.  What is new this time?
+On Mon, Nov 16, 2020 at 09:37:32AM -0800, Linus Torvalds wrote:
+> > This discussion seems to be going down the path of requiring an IMA
+> > filesystem hook for reading the file, again.  That solution was
+> > rejected, not by me.  What is new this time?
+> 
+> You can't read a non-read-opened file. Not even IMA can.
+> 
+> So don't do that then.
+> 
+> IMA is doing something wrong. Why would you ever read a file that can't be read?
+> 
+> Fix whatever "open" function instead of trying to work around the fact
+> that you opened it wrong.
 
-You can't read a non-read-opened file. Not even IMA can.
-
-So don't do that then.
-
-IMA is doing something wrong. Why would you ever read a file that can't be read?
-
-Fix whatever "open" function instead of trying to work around the fact
-that you opened it wrong.
-
-             Linus
+The "issue" with IMA is that it uses security hooks to hook into the
+VFS and then wants to read every file that gets opened on a real file
+system to "measure" the contents vs a hash stashed away somewhere.
+Which has always been rather sketchy.
