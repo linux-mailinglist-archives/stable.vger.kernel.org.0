@@ -2,89 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECE32B4541
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 14:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28CBB2B4674
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 15:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbgKPNys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 08:54:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729827AbgKPNys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 08:54:48 -0500
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2217C0613D2
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 05:54:47 -0800 (PST)
-Received: by mail-pf1-x442.google.com with SMTP id c66so14206468pfa.4
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 05:54:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=LA6HiyjtrQWg93rXzUxCKFCbWr20SEsMu/GK7GDnTM4=;
-        b=iblwlVcd2lUD/gwKL5jWgNtBU8xtXkfkke8Of+1dHqmGyy37nax0rkrq4lAXptvJVb
-         AXqrTry0jNdofQ+ymr26F5xvtaGj2ALrfbMCnUWvEynp27GBSifY99vEi2dweI6enESU
-         vy36OwiE+cI6m+WwQAamyl1AOUTuLz4liMHynQe16YSSqU+JdC4W2cKigHXBhsY+lJfD
-         df9hu4J1U6K00TDaQluTa930RJUmRhNzpxugl2rmno4CG3ZBTDMbYQWTfAJdDl9Vm86E
-         zQDaMD03Wj8qHlYlgW3jmyS7s2L/bHD9blRaKnd4GVwAh71hLJPRRdAdhXjqbvQRg633
-         0j2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=LA6HiyjtrQWg93rXzUxCKFCbWr20SEsMu/GK7GDnTM4=;
-        b=C0xE59d0DHDxWW/IPPSYVs0mMgb8E4rXbWpwW3JcRQph+1DGl2bXYEDbLg/bigAcAg
-         f7X392WyAQ+LMcPRJqCxRcTFl1IXABsBof4INEWgwXk+a0ShSq8cEk0I1qOJUMVfPmHY
-         gdfMhVBCLGVMgvQ4UKwzaZRx5bwmSjHYMT/pfHWFnr27oYsjo9px3My8R4zUGhpAmHxW
-         7BpAVE2S9iwpxblARIvjSdhEFEdRg+U31/YG5EyGAIQRl1c8sJT0GJg919VqeSlafA80
-         IhX6gSXT7BH4TPsytgOH55CDBeKmXrtvhlkWwU6GpKDJP6bOjQRHZko2FqlLHkIEAJKd
-         aEeQ==
-X-Gm-Message-State: AOAM5307TG8NJrXFW5n7gsVf6nwpgVt4L73AYLLooTut8foZ59QAC/mD
-        cw/cdLnJbhpuRVS7DUNyIiCfww==
-X-Google-Smtp-Source: ABdhPJxtV8S3t14TtRMP1LjRfXosxCQyIdl5lzyfHOzvv6zyR1P0pO6Y21nlXDj/H4LetTS7oza29Q==
-X-Received: by 2002:a17:90b:4c0b:: with SMTP id na11mr3329213pjb.0.1605534887618;
-        Mon, 16 Nov 2020 05:54:47 -0800 (PST)
-Received: from localhost.localdomain ([163.172.76.58])
-        by smtp.googlemail.com with ESMTPSA id u22sm15864031pgf.24.2020.11.16.05.54.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 05:54:47 -0800 (PST)
-From:   Corentin Labbe <clabbe@baylibre.com>
-To:     arnd@arndb.de, davem@davemloft.net, herbert@gondor.apana.org.au,
-        jernej.skrabec@siol.net, mripard@kernel.org, wens@csie.org
-Cc:     linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        Corentin Labbe <clabbe@baylibre.com>, stable@vger.kernel.org
-Subject: [PATCH v3 5/7] crypto: sun4i-ss: initialize need_fallback
-Date:   Mon, 16 Nov 2020 13:53:43 +0000
-Message-Id: <20201116135345.11834-6-clabbe@baylibre.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201116135345.11834-1-clabbe@baylibre.com>
+        id S1730441AbgKPOzO convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 16 Nov 2020 09:55:14 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:20121 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730402AbgKPOzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 09:55:14 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-98-JkwNPBRkP3WlYXkMFARcSg-1; Mon, 16 Nov 2020 14:54:59 +0000
+X-MC-Unique: JkwNPBRkP3WlYXkMFARcSg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 16 Nov 2020 14:54:58 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 16 Nov 2020 14:54:58 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Corentin Labbe' <clabbe@baylibre.com>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
+        "jernej.skrabec@siol.net" <jernej.skrabec@siol.net>,
+        "mripard@kernel.org" <mripard@kernel.org>,
+        "wens@csie.org" <wens@csie.org>
+CC:     "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-sunxi@googlegroups.com" <linux-sunxi@googlegroups.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v3 2/7] crypto: sun4i-ss: checking sg length is not
+ sufficient
+Thread-Topic: [PATCH v3 2/7] crypto: sun4i-ss: checking sg length is not
+ sufficient
+Thread-Index: AQHWvCBry++55PgsQECGWrYMz9WH2qnK16lg
+Date:   Mon, 16 Nov 2020 14:54:58 +0000
+Message-ID: <0a9e713557104048b535958b5fe6cb10@AcuMS.aculab.com>
 References: <20201116135345.11834-1-clabbe@baylibre.com>
+ <20201116135345.11834-3-clabbe@baylibre.com>
+In-Reply-To: <20201116135345.11834-3-clabbe@baylibre.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The need_fallback is never initialized and seem to be always true at runtime.
-So all hardware operations are always bypassed.
+From: Corentin Labbe
+> Sent: 16 November 2020 13:54
+> 
+> The optimized cipher function need length multiple of 4 bytes.
+> But it get sometimes odd length.
+> This is due to SG data could be stored with an offset.
+> 
+> So the fix is to check also if the offset is aligned with 4 bytes.
+> Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+> ---
+>  drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-
+> ss/sun4i-ss-cipher.c
+> index 19f1aa577ed4..4dd736ee5a4d 100644
+> --- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> +++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> @@ -186,12 +186,12 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+>  	 * we can use the SS optimized function
+>  	 */
+>  	while (in_sg && no_chunk == 1) {
+> -		if (in_sg->length % 4)
+> +		if (in_sg->length % 4 || !IS_ALIGNED(in_sg->offset, sizeof(u32)))
 
-Fixes: 0ae1f46c55f87 ("crypto: sun4i-ss - fallback when length is not multiple of blocksize")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
----
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+You probably ought to do the test in a consistent manner.
+Probably something that reduces to:
+	((unsigned long)in_sg->offset | in_sg->length) & 3u
 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-index 8f4621826330..7f4c97cc9627 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -179,7 +179,7 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	unsigned int obo = 0;	/* offset in bufo*/
- 	unsigned int obl = 0;	/* length of data in bufo */
- 	unsigned long flags;
--	bool need_fallback;
-+	bool need_fallback = false;
- 
- 	if (!areq->cryptlen)
- 		return 0;
--- 
-2.26.2
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
