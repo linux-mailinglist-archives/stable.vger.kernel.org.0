@@ -2,134 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B40172B513E
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 20:34:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 440E92B51D5
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 21:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbgKPTea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 14:34:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36008 "EHLO
+        id S1727864AbgKPUDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 15:03:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726849AbgKPTea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 14:34:30 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845DFC0613CF
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 11:34:29 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id r17so20079910wrw.1
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 11:34:29 -0800 (PST)
+        with ESMTP id S1726487AbgKPUDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 15:03:47 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 016DAC0613CF
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 12:03:47 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id t21so7859667pgl.3
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 12:03:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=8Twv8sQxesA6eUUbQLLoY6w7/6fvL5FmwFAqfIvL57Q=;
-        b=X8akAms2lbUZYsndmxwI66B76QKQhT9YvKEB62tgbF7GSUOUBs8N4h0JLqOzgsoSU8
-         zSW/qgx5+OMbrLN2pRAiGXnzhC8o65j7HQIXCF9QWvOicz8kl6+6u4wX0nHXKUb15QLO
-         YL2DSb7KH70PeEb/wVVBhwVWHBA9DuIpJfSc6RnZud+8GUDIr4ownAuhDN4nsJd5iISS
-         xRDIPCmZonj+TLlARUmMOSB7oN4R2XDe/F1D/1q3jNNr0XT8HdyVZfyq/e0GKMeuKD5L
-         BKC0Z5jW4ptxA+ru/7Grjxx3131xqHG017bcchoe65/MG/xEPoesGwfq7UgOiHvdff6f
-         8V+A==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=UkMALfqYaGaAmjWCs7LpE9RuvGipVz25f2B81lc007Q=;
+        b=Aagc3dK3nKim6SG7aZvKBmNwkt6SCgBAXS7x4caeUl+z2oTrGJPUMAe7bkP1Bmgo1m
+         cPt+mfRJnQ8ab4aq8KZmaK/afQB7EQjTapKbXPbmPtCa1r0zV0QMuQhhlbM3cJC9+T9o
+         XB+AnnQnagxMJJpdKf605OkvFl3aGnuaPkwGOQcPt02NCvk7pJCabqrMy3OfAijo9ckj
+         6XusYk5CKAe26qDZ6XvRgk8EFro/SIkX7Nn6ddX6VrSDHt9V7FThwTaO6emAyqsr4M5m
+         mjireHhzjhnw5W4LnKX2r/YsVyNmgz8Mo+jpRHTp2FwrCko325tcIGIZP+gHcsBGkXpK
+         sZ8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=8Twv8sQxesA6eUUbQLLoY6w7/6fvL5FmwFAqfIvL57Q=;
-        b=naaDFgshNSaRX4tETA3Ik5VV8B99Ml0fj6SYB4hZBeXaIYpxFTS9rX/G9BzjDXhDaY
-         rnLY+mEkSa3LDa3Zj3O7R3JjEEvd2g9MGqZ9mSlLR91vq+CyAaYXWBQAEj2NyHDE+4Uh
-         mFKp2eJaKJ5uoWM6fEWVEgVgZ+FOyTQp1DSHJLLHf5phCvfO56xX223engxOMgsxvkFY
-         8q/NQOKnAdiLcJe1Po5Az44tduO6xuY4PoSkR9KRx/eS12Hev3+u5tbtrrmPXZmE0XkY
-         s555pZQMrOLU9vGya8+K2DjCqu2uxEtVJzrM8VrP63Oe37BICfoUziqy7408aGYVGhbd
-         BM2A==
-X-Gm-Message-State: AOAM532P3VpdS7ZMEP71PoDU2ZN/+DwTz5Ln+EOZP6i5x2WLvnV9jfXY
-        b0ghIP55QcqxjlFs4q1lazA=
-X-Google-Smtp-Source: ABdhPJw0OcpFeBiP3buM2PJQeD/KA61tFcr7PydXsnGpd/ZOWXyEOCUf2b4NHFBYFFU5Woq7WK/9VA==
-X-Received: by 2002:adf:e950:: with SMTP id m16mr22586994wrn.0.1605555268290;
-        Mon, 16 Nov 2020 11:34:28 -0800 (PST)
-Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id p4sm24390303wrm.51.2020.11.16.11.34.27
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 16 Nov 2020 11:34:27 -0800 (PST)
-Date:   Mon, 16 Nov 2020 19:34:25 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     ebiggers@google.com, jack@suse.cz, tytso@mit.edu,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ext4: fix leaking sysfs kobject after
- failed mount" failed to apply to 4.9-stable tree
-Message-ID: <20201116193425.nf77zcflt2zzzb62@debian>
-References: <160441916384118@kroah.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=UkMALfqYaGaAmjWCs7LpE9RuvGipVz25f2B81lc007Q=;
+        b=FM35FK4kcYrHbmURB4RkuvvWHTv2fjlLRuACP/zn3maUgEneMaP6u3R2XM36+qje7f
+         HzOE2vWmtIIGgPX5a/MP+oHYeu1yFRLyKtQOAXFpPltuxvBMCf6rIohe8vSC1Xbci1JA
+         1UlbIJIxwB1xrvWPdKaIWdm74zF/xvLOl7oNkbOHBR13ghnaHqcUtLYVrbykGCWllMTu
+         j1rXs7pnK50zqE10/Jfm1oHWlAJida5njr7dApxXYog6oDiANt1bvy+An2CKOU6tbYGL
+         lonFldWMVgsKgUQZzwdxMcwzmYnpmKYXh8z3gWckdDt2GSNW6nLJX+yLHh7q6t6l21p+
+         +amA==
+X-Gm-Message-State: AOAM530XSqHQQt9tJd9CvOuEbyjj1Qqom0yU5mp9SG7KHg+YYulP3vCi
+        k93HjtVjL7eIpHay79BiRXOoQns+qqfz+DbZs7o=
+X-Google-Smtp-Source: ABdhPJwWP+pUXiRhGljqWwKVGiQabfSG/x0coQEro0rdCp8xhIyq0no3FdhxtSUYm1mcWz/oTLWnLUHFNHBcIj/mD3A=
+X-Received: by 2002:a65:4241:: with SMTP id d1mr710851pgq.18.1605557026429;
+ Mon, 16 Nov 2020 12:03:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="d4w3sw45pwathi3h"
-Content-Disposition: inline
-In-Reply-To: <160441916384118@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Received: by 2002:a05:6a10:6157:0:0:0:0 with HTTP; Mon, 16 Nov 2020 12:03:45
+ -0800 (PST)
+Reply-To: piercekaren605@outlook.com
+From:   "Ms. Karen Pierce" <ovlivialogan100@gmail.com>
+Date:   Mon, 16 Nov 2020 12:03:45 -0800
+Message-ID: <CAMEGOewxT-yC04uXvmtT3Q_ZjM13KvXhLQxRAEKT7yiYDuJ=MQ@mail.gmail.com>
+Subject: Re. please get back to me immediately
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello dear,
 
---d4w3sw45pwathi3h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+My name is Ms. Karen Pierce. I worked with Vedanta Resources Ltd, the
+United Kingdom for 25 years, but I retired in the year 2013. I didn't
+marry and I have no child of my own due to my health issues.
 
-Hi Greg,
+Presently, I am 68 years old and suffering from chronic tract cancer.
+From doctor's  indications, my condition is really deteriorating and
+is quite obvious that my death is very  close to me as  I can see my
+life quickly ebbing away. I am bedridden and in constant pain. The
+stage is worst for more than two months now and I have been
+hospitalized which affected my ability to talk.
 
-On Tue, Nov 03, 2020 at 04:59:23PM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+I am an orphan, no Parents, no brother, no sister but my country home
+origin is Cote d'Ivoire.  I was working with Vedanta Resources Ltd in
+United Kingdom, company's headquarters here in the United Kingdom; I
+am working with this particular company for 25 years before i was
+promoted as deputy accountant general.
 
-Here is the backport. This will apply to both v4.9.y and v4.4.y.
+When I was working with Vedanta Resources Ltd, the United Kingdom, I
+deposited the sum of USD$910,000.00 in a United Bank for Africa Cote
+d'Ivoire. This money is still with the bank, but due to my poor health
+condition and based on doctor's indications, I am scared that my life
+is almost at the end, so I have decided to donate this USD$910,000.00
+to the Charity.
 
---
-Regards
-Sudip
+I took this decision because I don't have any child that will inherit
+this money. Please, I
+want the united Bank for Africa to transfer this USD$910,000.00 to you
+so that you  can help me to donate 70% of the money to any Charity
+Organization in Cote d'Ivoire, while you  take the remaining 30%
 
---d4w3sw45pwathi3h
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-ext4-fix-leaking-sysfs-kobject-after-failed-mount.patch"
+of the money as your reward for your assistance in fulfilling my heart
+ desire.I know that I have never met you before, I got your email
+address from Google and my confidence reposed on you.
 
-From 4be70a405c3a30c8602ea7a6c58b31f905e34106 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 22 Sep 2020 09:24:56 -0700
-Subject: [PATCH] ext4: fix leaking sysfs kobject after failed mount
+If I receive your reply, I will write to the United Bank for Africa to
+transfer the money to
+you. Send your response to my private email at:  piercekaren605@outlook.com
 
-commit cb8d53d2c97369029cc638c9274ac7be0a316c75 upstream
+I expect your prompt reply and wish you will put me in your prayers henceforth.
 
-ext4_unregister_sysfs() only deletes the kobject.  The reference to it
-needs to be put separately, like ext4_put_super() does.
-
-This addresses the syzbot report
-"memory leak in kobject_set_name_vargs (3)"
-(https://syzkaller.appspot.com/bug?extid=9f864abad79fae7c17e1).
-
-Reported-by: syzbot+9f864abad79fae7c17e1@syzkaller.appspotmail.com
-Fixes: 72ba74508b28 ("ext4: release sysfs kobject when failing to enable quotas on mount")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200922162456.93657-1-ebiggers@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- fs/ext4/super.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 00391db0064b..84d28d3efc60 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4336,6 +4336,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- #ifdef CONFIG_QUOTA
- failed_mount8:
- 	ext4_unregister_sysfs(sb);
-+	kobject_put(&sbi->s_kobj);
- #endif
- failed_mount7:
- 	ext4_unregister_li_request(sb);
--- 
-2.11.0
-
-
---d4w3sw45pwathi3h--
+Thanks and God bless you.
+Ms. Karen Pierce.
