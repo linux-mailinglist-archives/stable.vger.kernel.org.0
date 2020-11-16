@@ -2,240 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7432B3B86
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 03:51:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 047E82B3B9B
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 04:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgKPCvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Nov 2020 21:51:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726140AbgKPCvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 21:51:06 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B020C0613CF
-        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 18:51:05 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id c20so12583034pfr.8
-        for <stable@vger.kernel.org>; Sun, 15 Nov 2020 18:51:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WbqJddiO1O/k7CIdCn1XflOqPiG00o92Fd8QgMz5Nmc=;
-        b=xj8hIIa9BSkWJc8B2Zr4UQt3EJHGpnRzSNpfrWlu/mwUPmf/oh/g+yD55a93GGcmz6
-         DeqBJqqtTFax4RtYvNNoTudAlGzFs327RMiiXXNLoJ4C6ewRgWDBZmaCZSnCdZbsqohS
-         35mFYX9E8i/zZEb53huuYmra1Ihi0W3nCMIVZ2Gf6m2UJAZ+dzzMkhdtM6SWYVp8Csv2
-         mcZOFHzZV7BdkiJRj4gZ/dTc/m8B7xIB/+sZl64SvLNASn4vpfajMP/9m0qALbewCYo3
-         N2FIK2rH3cX0w84B3HSHspX8fjYKki/esplxoxBAlARgWvCX7aWPYM6Y0jjpJkixHGUU
-         V0tQ==
+        id S1726722AbgKPDFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Nov 2020 22:05:10 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:33742 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726692AbgKPDFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Nov 2020 22:05:10 -0500
+Received: by mail-pl1-f194.google.com with SMTP id t18so7684102plo.0;
+        Sun, 15 Nov 2020 19:05:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WbqJddiO1O/k7CIdCn1XflOqPiG00o92Fd8QgMz5Nmc=;
-        b=VYypUlQCONTvCKOB7EaT+F4mFuGcR8l+oyONcMYZZQhNfKDq6CAr4uLA8EQhz7HPlD
-         qVMAuPVb3GZ1bUqG4+kbpCw79zaX/Hi6FsurWavqIThwv2ZKYtRN7OxezCESOh3+1QlL
-         k99IbWD0oqh014BRdJMleu8R5kcWeDycqEY+bo3ZgLj17hcX8u6H1T0BK8sf8fJ1xToz
-         dVvK1W7dgEUWMdjUj09HY9a/KwminUFc3HdZv/AEizI002rReDqXIIgNeVoTOuwcXr8p
-         g8C06UZD/LDqltwAmUAmoKtqBa/5lhOmczMnRFNF3t1emkjEUNYvWM5y69VfS+nuDwBV
-         nzaw==
-X-Gm-Message-State: AOAM53141sFAP5ZcRMhYW18WMVzoW/X69I+/FCBFajrWNZGeQhKm/YJi
-        dpLCglabY+286OMttRGbIvEag5nwQTEr1w==
-X-Google-Smtp-Source: ABdhPJztZdwMmijdyyzm0Y59KZLTDTNiCg0QJDeCWMtJUu10Z+d0JaK9nHUttqrfaZl7jvAIX1Oehw==
-X-Received: by 2002:a17:90a:2ec3:: with SMTP id h3mr13957143pjs.54.1605495064013;
-        Sun, 15 Nov 2020 18:51:04 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y5sm15729166pjr.50.2020.11.15.18.51.02
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=VHGPS1eQkp3Nq4k5T2mBcncvv3X8+Xgal2LBLA7ET2I=;
+        b=OUFutdUdjWWUHfaRNTIOyUZOoPPYaETJL/2K8IOEGEsHPvT5xyDz4dWfO5I3BCGQYl
+         ViQCtzOwH0oCYMT1jueNrehAcdMvgZeN/sjyw8XmndDFoNVfkt5uYxCwtNB8yC/Q93kX
+         +QW9Myg2hFuLzfSPWR5mQkseZVTQM+hPIM3Dt7M/d66tuwxWBE79TKuBYWOfd+s0be5e
+         6XcmwlTnkYrR5o1lEidUa1YkuLxrtd7CFQdXbB6BX2NZgmvuo0MCm1AAj2zWiwRDDFCY
+         a8qWBrlNiVfZkNkRH7wdWxBReKNmZ8R59+CWC5gDj85o25wWJkdZpVWvgAsGqxdC0l1+
+         7Yng==
+X-Gm-Message-State: AOAM5339UPbw6J96uAKfPN4VwGuYP6N+nsTUasmsqKsSMcqC4pd77P1I
+        OAARBBNn00tZ95rYQCY0NM8=
+X-Google-Smtp-Source: ABdhPJzOLCDKJ+CbpDL0fJAYBoftHzHtLBAAUaaX/Jmgav1hUF3aUDU8xcVFsumB8VI0k4A8t1H2UA==
+X-Received: by 2002:a17:902:bb94:b029:d6:edb2:4f41 with SMTP id m20-20020a170902bb94b02900d6edb24f41mr11173761pls.3.1605495909614;
+        Sun, 15 Nov 2020 19:05:09 -0800 (PST)
+Received: from asus.hsd1.ca.comcast.net (c-73-241-217-19.hsd1.ca.comcast.net. [73.241.217.19])
+        by smtp.gmail.com with ESMTPSA id r3sm17148131pjl.23.2020.11.15.19.05.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Nov 2020 18:51:03 -0800 (PST)
-Message-ID: <5fb1e917.1c69fb81.1f040.158a@mx.google.com>
-Date:   Sun, 15 Nov 2020 18:51:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Sun, 15 Nov 2020 19:05:08 -0800 (PST)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc:     "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>,
+        linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
+Subject: [PATCH v2 1/9] block: Fix a race in the runtime power management code
+Date:   Sun, 15 Nov 2020 19:04:51 -0800
+Message-Id: <20201116030459.13963-2-bvanassche@acm.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201116030459.13963-1-bvanassche@acm.org>
+References: <20201116030459.13963-1-bvanassche@acm.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.206-33-g99cf73992291
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.14 build: 19 builds: 0 failed, 19 passed,
- 7 warnings (v4.14.206-33-g99cf73992291)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 19 builds: 0 failed, 19 passed, 7 warnings (v4.=
-14.206-33-g99cf73992291)
+With the current implementation the following race can happen:
+* blk_pre_runtime_suspend() calls blk_freeze_queue_start() and
+  blk_mq_unfreeze_queue().
+* blk_queue_enter() calls blk_queue_pm_only() and that function returns
+  true.
+* blk_queue_enter() calls blk_pm_request_resume() and that function does
+  not call pm_request_resume() because the queue runtime status is
+  RPM_ACTIVE.
+* blk_pre_runtime_suspend() changes the queue status into RPM_SUSPENDING.
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.206-33-g99cf73992291/
+Fix this race by changing the queue runtime status into RPM_SUSPENDING
+before switching q_usage_counter to atomic mode.
 
-Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.206-33-g99cf73992291
-Git Commit: 99cf73992291b24d13a83fb360b7f940d411f73e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 3 unique architectures
-
-Warnings Detected:
-
-arm64:
-    allnoconfig (gcc-8): 1 warning
-
-arm:
-    pxa168_defconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    xcep_defconfig (gcc-8): 1 warning
-
-mips:
-    jmr3927_defconfig (gcc-8): 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    7    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_l=
-ist=E2=80=99 defined but not used [-Wunused-variable]
-
-Section mismatches summary:
-
-    1    WARNING: modpost: Found 1 section mismatch(es).
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 986d413b7c15 ("blk-mq: Enable support for runtime power management")
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
-For more info write to <info@kernelci.org>
+ block/blk-pm.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index b85234d758f7..17bd020268d4 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -67,6 +67,10 @@ int blk_pre_runtime_suspend(struct request_queue *q)
+ 
+ 	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
+ 
++	spin_lock_irq(&q->queue_lock);
++	q->rpm_status = RPM_SUSPENDING;
++	spin_unlock_irq(&q->queue_lock);
++
+ 	/*
+ 	 * Increase the pm_only counter before checking whether any
+ 	 * non-PM blk_queue_enter() calls are in progress to avoid that any
+@@ -89,15 +93,14 @@ int blk_pre_runtime_suspend(struct request_queue *q)
+ 	/* Switch q_usage_counter back to per-cpu mode. */
+ 	blk_mq_unfreeze_queue(q);
+ 
+-	spin_lock_irq(&q->queue_lock);
+-	if (ret < 0)
++	if (ret < 0) {
++		spin_lock_irq(&q->queue_lock);
++		q->rpm_status = RPM_ACTIVE;
+ 		pm_runtime_mark_last_busy(q->dev);
+-	else
+-		q->rpm_status = RPM_SUSPENDING;
+-	spin_unlock_irq(&q->queue_lock);
++		spin_unlock_irq(&q->queue_lock);
+ 
+-	if (ret)
+ 		blk_clear_pm_only(q);
++	}
+ 
+ 	return ret;
+ }
