@@ -2,117 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE832B49BD
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 16:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A88FF2B49D1
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 16:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730547AbgKPPpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 10:45:17 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53355 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730024AbgKPPpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 10:45:17 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 4A0C2B77;
-        Mon, 16 Nov 2020 10:45:16 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 10:45:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mXUVFV
-        gWFErSCJkFeA8dsZyIUhgLC6oedBhfDz1E+Wo=; b=KabGdxVVSNLh/N++XhJJ6m
-        RoWilij0dFyIJpzZMjDAknhxyPUjKi/qnuKhrR+VuulyJ2sLT4IIOUkR9tGWk0CU
-        kxoVhkxAVvMl7Salq9I1cyoS0AJTvmEIvForNKbvNtr9cIne+OBLryX9LQt+S6l9
-        7zj/vny0G36WeIdGEHneZmYKUF5529HOnVyJNlDYcCX7OGSfHsnCmR9nSk9kIebp
-        GGyTIIT7MeipLEAwaPrP4Hl5WuAJMQPnIQjRfVHoJjHOX+YQa9jeqU5ksQXHxhwI
-        OVoRwPjzVaWvHOxT69FQN/UKmFcFNzOCiOB6SbA5S4ZoMBUMHhXt/GHBhh7WwLLQ
-        ==
-X-ME-Sender: <xms:i56yX2W6a66Lm9GQQRy7brFzSsbu8BWac0GPSNTiMUvfNUTiN5Wlwg>
-    <xme:i56yXyk3Z8BUdljAXBQWa4uBGxZczwTkelwbSuCMG7QN9c8ec1yqaCpiZ0TbYpGqu
-    Ub2mobPdOuUew>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:i56yX6aqrQbz-9apJ1nJBR3Gw9zspfZ0LOPlF5VohcB9ONrcxXOdew>
-    <xmx:i56yX9U4Lmkk4mG-fHbraYx5fWltSSiITzAd4F5AbHHmhv5L-_bjUA>
-    <xmx:i56yXwlVXaYk8nFoScsTRdcuGVoB8Jq438Nk8IKTBpW42lY3LByBVg>
-    <xmx:i56yX3s2q6VpHAEVf3_zvk2xIrXQmN3Hg4AWPImZsUKiUyn4tqm5_PNmFgQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C5A773064AAE;
-        Mon, 16 Nov 2020 10:45:14 -0500 (EST)
-Subject: FAILED: patch "[PATCH] firmware: xilinx: fix out-of-bounds access" failed to apply to 5.4-stable tree
-To:     arnd@arndb.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 16:46:06 +0100
-Message-ID: <160554156698234@kroah.com>
+        id S1730451AbgKPPra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 10:47:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34206 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730348AbgKPPr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Nov 2020 10:47:29 -0500
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F03F20888;
+        Mon, 16 Nov 2020 15:47:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605541649;
+        bh=sMTgzNRsrEqsRuLvdBLUUHqrR3j8TcZ0NCD0/HoI52c=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bBUZ5kG07Yl8a9tQMs/QdhJgpIaoPTud6FawcN9OIs3t8G9s3zzlLhWIGXOmKQw0Q
+         lw+SUJxC+qG2I6dS8v3Kuh7w4YrO6RAfSxFxi4uKSIlOIxHuC/NFn7LSoCOjVf7zfV
+         qErWtbDy3ggUbV0M4v4TRxc4qy6jk0RXtcQL8k3s=
+Received: by mail-oi1-f179.google.com with SMTP id w145so19245537oie.9;
+        Mon, 16 Nov 2020 07:47:29 -0800 (PST)
+X-Gm-Message-State: AOAM531v8sfnX2QL40VFNd5FxrSeooIxUji+9SsMOhhg1LtTFVf7IwNl
+        +ZgLE/D64xcPs9KqZUVRajF41nHp5IXmxil1IVA=
+X-Google-Smtp-Source: ABdhPJwtEdUsppLCAadjjssiA4VW6Mu0wAQgb+s+CdH11TnsM2ahFBi35u8Nh6V2aCMqX1p/8Wi7ZuPnGhFDWKPXXTw=
+X-Received: by 2002:aca:3c54:: with SMTP id j81mr51617oia.11.1605541647968;
+ Mon, 16 Nov 2020 07:47:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20201116135345.11834-1-clabbe@baylibre.com> <20201116135345.11834-5-clabbe@baylibre.com>
+In-Reply-To: <20201116135345.11834-5-clabbe@baylibre.com>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Mon, 16 Nov 2020 16:47:11 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a0UZHmM2xfKegZ4mo_7N15614YPhx_FoY_h6WWF9M58Uw@mail.gmail.com>
+Message-ID: <CAK8P3a0UZHmM2xfKegZ4mo_7N15614YPhx_FoY_h6WWF9M58Uw@mail.gmail.com>
+Subject: Re: [PATCH v3 4/7] crypto: sun4i-ss: handle BigEndian for cipher
+To:     Corentin Labbe <clabbe@baylibre.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>, David Miller <davem@davemloft.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 16, 2020 at 2:53 PM Corentin Labbe <clabbe@baylibre.com> wrote:
+>
+> Ciphers produce invalid results on BE.
+> Key and IV need to be written in LE.
+>
+> Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+> ---
+>  drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> index 53478c3feca6..8f4621826330 100644
+> --- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> +++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> @@ -52,13 +52,13 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
+>
+>         spin_lock_irqsave(&ss->slock, flags);
+>
+> -       for (i = 0; i < op->keylen; i += 4)
+> -               writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
+> +       for (i = 0; i < op->keylen / 4; i++)
+> +               writesl(ss->base + SS_KEY0 + i * 4, &op->key[i], 1);
+>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This looks correct, but I wonder if we should just introduce
+memcpy_toio32() and memcpy_fromio32() as a generic interface,
+as this seems to come up occasionally, and the method here
+(a loop around an inline function with another loop) is a bit clumsy.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From f3217d6f2f7a76b36a3326ad58c8897f4d5fbe31 Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 26 Oct 2020 16:54:36 +0100
-Subject: [PATCH] firmware: xilinx: fix out-of-bounds access
-
-The zynqmp_pm_set_suspend_mode() and zynqmp_pm_get_trustzone_version()
-functions pass values as api_id into zynqmp_pm_invoke_fn
-that are beyond PM_API_MAX, resulting in an out-of-bounds access:
-
-drivers/firmware/xilinx/zynqmp.c: In function 'zynqmp_pm_set_suspend_mode':
-drivers/firmware/xilinx/zynqmp.c:150:24: warning: array subscript 2562 is above array bounds of 'u32[64]' {aka 'unsigned int[64]'} [-Warray-bounds]
-  150 |  if (zynqmp_pm_features[api_id] != PM_FEATURE_UNCHECKED)
-      |      ~~~~~~~~~~~~~~~~~~^~~~~~~~
-drivers/firmware/xilinx/zynqmp.c:28:12: note: while referencing 'zynqmp_pm_features'
-   28 | static u32 zynqmp_pm_features[PM_API_MAX];
-      |            ^~~~~~~~~~~~~~~~~~
-
-Replace the resulting undefined behavior with an error return.
-This may break some things that happen to work at the moment
-but seems better than randomly overwriting kernel data.
-
-I assume we need additional fixes for the two functions that now
-return an error.
-
-Fixes: 76582671eb5d ("firmware: xilinx: Add Zynqmp firmware driver")
-Fixes: e178df31cf41 ("firmware: xilinx: Implement ZynqMP power management APIs")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20201026155449.3703142-1-arnd@kernel.org
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/firmware/xilinx/zynqmp.c b/drivers/firmware/xilinx/zynqmp.c
-index 8d1ff2454e2e..efb8a66efc68 100644
---- a/drivers/firmware/xilinx/zynqmp.c
-+++ b/drivers/firmware/xilinx/zynqmp.c
-@@ -147,6 +147,9 @@ static int zynqmp_pm_feature(u32 api_id)
- 		return 0;
- 
- 	/* Return value if feature is already checked */
-+	if (api_id > ARRAY_SIZE(zynqmp_pm_features))
-+		return PM_FEATURE_INVALID;
-+
- 	if (zynqmp_pm_features[api_id] != PM_FEATURE_UNCHECKED)
- 		return zynqmp_pm_features[api_id];
- 
-
+      Arnd
