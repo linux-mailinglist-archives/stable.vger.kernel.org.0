@@ -2,150 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8107A2B3F24
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 09:52:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1AF22B3F9D
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 10:21:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728291AbgKPIwW convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 16 Nov 2020 03:52:22 -0500
-Received: from frasgout.his.huawei.com ([185.176.79.56]:2104 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726969AbgKPIwW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 03:52:22 -0500
-Received: from fraeml702-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4CZN7s3tFrz67DF4;
-        Mon, 16 Nov 2020 16:50:33 +0800 (CST)
-Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- fraeml702-chm.china.huawei.com (10.206.15.51) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.1913.5; Mon, 16 Nov 2020 09:52:19 +0100
-Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
- fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1913.007;
- Mon, 16 Nov 2020 09:52:19 +0100
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     Christoph Hellwig <hch@infradead.org>
-CC:     "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: RE: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
- ima_calc_file_hash()
-Thread-Topic: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
- ima_calc_file_hash()
-Thread-Index: AQHWuZM+vbqfejrqe02000rC0h3xoqnHabyAgAMLzKA=
-Date:   Mon, 16 Nov 2020 08:52:19 +0000
-Message-ID: <0fd0fb3360194d909ba48f13220f9302@huawei.com>
-References: <20201113080132.16591-1-roberto.sassu@huawei.com>
- <20201114111057.GA16415@infradead.org>
-In-Reply-To: <20201114111057.GA16415@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.220.96.108]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726236AbgKPJUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 04:20:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52974 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726215AbgKPJUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 04:20:21 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFBA4C0613CF;
+        Mon, 16 Nov 2020 01:20:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=l8lfZbtE/pQjKf8onWmpmDV2l9aNdEWCmZpm7QvhYhY=; b=WkZ4jWMSdM5oVJJ1+WT3a3ZKKw
+        ZZd1qF3sOIRHnvODVySNJ0v9EmHjoNO5yHaKM+wxcmtRkp5tJ6xiiB8Ctp1jjq8rslJxEymNdglBP
+        WaFi7AkglyXM9KtL/4HrR9B5G+5BQ75Ca2H2+eAB0Ix10CEsGgslpuPr0Rg7qjGinrOj5y54IbHAN
+        9FmoqLypVkD5Dhx8lUSPxSBmHILF+SaNpwq/Q65nYk/fgyW3FvfidjnMzoaUIizFMe91Bmcx7vR4Z
+        ike0qgFGPKS9fCN4ccNutbHYobwd2qe4CNXw7EBccw7LtABW6AD+J/p72yv57FL350vVm0OyurNam
+        snYUw6lg==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1keafu-00087a-31; Mon, 16 Nov 2020 09:19:50 +0000
+Date:   Mon, 16 Nov 2020 09:19:50 +0000
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Alexander Lobakin <alobakin@pm.me>
+Cc:     Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
+        Suman Anna <s-anna@ti.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
+ for rproc serial
+Message-ID: <20201116091950.GA30524@infradead.org>
+References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Christoph Hellwig [mailto:hch@infradead.org]
-> Sent: Saturday, November 14, 2020 12:11 PM
-> On Fri, Nov 13, 2020 at 09:01:32AM +0100, Roberto Sassu wrote:
-> > Commit a1f9b1c0439db ("integrity/ima: switch to using __kernel_read")
-> > replaced the __vfs_read() call in integrity_kernel_read() with
-> > __kernel_read(), a new helper introduced by commit 61a707c543e2a ("fs:
-> add
-> > a __kernel_read helper").
-> >
-> > Since the new helper requires that also the FMODE_CAN_READ flag is set
-> in
-> > file->f_mode, this patch saves the original f_mode and sets the flag if the
-> > the file descriptor has the necessary file operation. Lastly, it restores
-> > the original f_mode at the end of ima_calc_file_hash().
+I just noticed this showing up in Linus' tree and I'm not happy.
+
+This whole model of the DMA subdevices in remoteproc is simply broken.
+
+We really need to change the virtio code pass an expicit DMA device (
+similar to what e.g. the USB and RDMA code does), instead of faking up
+devices with broken adhoc inheritance of DMA properties and magic poking
+into device parent relationships.
+
+Bjorn, I thought you were going to look into this a while ago?
+
+
+On Wed, Nov 04, 2020 at 03:31:36PM +0000, Alexander Lobakin wrote:
+> Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
+> specific dma memory pool"), every remoteproc has a DMA subdevice
+> ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
+> DMA capabilities from the corresponding platform device. This allowed
+> to associate different DMA pools with each vdev, and required from
+> virtio drivers to perform DMA operations with the parent device
+> (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
 > 
-> This looks bogus.  FMODE_CAN_READ has a pretty clear definition and
-> you can't just go and read things if it is not set.  Also f_mode
-> manipulations on a life file are racy.
-
-FMODE_CAN_READ was not set because f_mode does not have
-FMODE_READ. In the patch, I check if the former can be set
-similarly to the way it is done in file_table.c and open.c.
-
-Is there a better way to read a file when the file was not opened
-for reading and a new file descriptor cannot be created?
-
-Thanks
-
-Roberto
-
-HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
-Managing Director: Li Peng, Li Jian, Shi Yanli
-
-> > Cc: stable@vger.kernel.org # 5.8.x
-> > Fixes: a1f9b1c0439db ("integrity/ima: switch to using __kernel_read")
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > ---
-> >  security/integrity/ima/ima_crypto.c | 8 ++++++--
-> >  1 file changed, 6 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/security/integrity/ima/ima_crypto.c
-> b/security/integrity/ima/ima_crypto.c
-> > index 21989fa0c107..22ed86a0c964 100644
-> > --- a/security/integrity/ima/ima_crypto.c
-> > +++ b/security/integrity/ima/ima_crypto.c
-> > @@ -537,6 +537,7 @@ int ima_calc_file_hash(struct file *file, struct
-> ima_digest_data *hash)
-> >  	loff_t i_size;
-> >  	int rc;
-> >  	struct file *f = file;
-> > +	fmode_t saved_mode;
-> >  	bool new_file_instance = false, modified_mode = false;
-> >
-> >  	/*
-> > @@ -550,7 +551,7 @@ int ima_calc_file_hash(struct file *file, struct
-> ima_digest_data *hash)
-> >  	}
-> >
-> >  	/* Open a new file instance in O_RDONLY if we cannot read */
-> > -	if (!(file->f_mode & FMODE_READ)) {
-> > +	if (!(file->f_mode & FMODE_READ) || !(file->f_mode &
-> FMODE_CAN_READ)) {
-> >  		int flags = file->f_flags & ~(O_WRONLY | O_APPEND |
-> >  				O_TRUNC | O_CREAT | O_NOCTTY |
-> O_EXCL);
-> >  		flags |= O_RDONLY;
-> > @@ -562,7 +563,10 @@ int ima_calc_file_hash(struct file *file, struct
-> ima_digest_data *hash)
-> >  			 */
-> >  			pr_info_ratelimited("Unable to reopen file for
-> reading.\n");
-> >  			f = file;
-> > +			saved_mode = f->f_mode;
-> >  			f->f_mode |= FMODE_READ;
-> > +			if (likely(file->f_op->read || file->f_op->read_iter))
-> > +				f->f_mode |= FMODE_CAN_READ;
-> >  			modified_mode = true;
-> >  		} else {
-> >  			new_file_instance = true;
-> > @@ -582,7 +586,7 @@ int ima_calc_file_hash(struct file *file, struct
-> ima_digest_data *hash)
-> >  	if (new_file_instance)
-> >  		fput(f);
-> >  	else if (modified_mode)
-> > -		f->f_mode &= ~FMODE_READ;
-> > +		f->f_mode = saved_mode;
-> >  	return rc;
-> >  }
-> >
-> > --
-> > 2.27.GIT
-> >
-> ---end quoted text---
+> virtio_rpmsg_bus was already changed in the same merge cycle with
+> commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
+> but virtio_console did not. In fact, operations using the grandparent
+> worked fine while the grandparent was the platform device, but since
+> commit c774ad010873 ("remoteproc: Fix and restore the parenting
+> hierarchy for vdev") this was changed, and now the grandparent device
+> is the remoteproc device without any DMA capabilities.
+> So, starting v5.8-rc1 the following warning is observed:
+> 
+> [    2.483925] ------------[ cut here ]------------
+> [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
+> [    2.489152] Modules linked in: virtio_console(+)
+> [    2.503737]  virtio_rpmsg_bus rpmsg_core
+> [    2.508903]
+> [    2.528898] <Other modules, stack and call trace here>
+> [    2.913043]
+> [    2.914907] ---[ end trace 93ac8746beab612c ]---
+> [    2.920102] virtio-ports vport1p0: Error allocating inbufs
+> 
+> kernel/dma/mapping.c:427 is:
+> 
+> WARN_ON_ONCE(!dev->coherent_dma_mask);
+> 
+> obviously because the grandparent now is remoteproc dev without any
+> DMA caps:
+> 
+> [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
+> 
+> Fix this the same way as it was for virtio_rpmsg_bus, using just the
+> parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
+> operations.
+> This also allows now to reserve DMA pools/buffers for rproc serial
+> via Device Tree.
+> 
+> Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
+> Cc: stable@vger.kernel.org # 5.1+
+> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+> ---
+>  drivers/char/virtio_console.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index a2da8f768b94..1836cc56e357 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
+>  		/*
+>  		 * Allocate DMA memory from ancestor. When a virtio
+>  		 * device is created by remoteproc, the DMA memory is
+> -		 * associated with the grandparent device:
+> -		 * vdev => rproc => platform-dev.
+> +		 * associated with the parent device:
+> +		 * virtioY => remoteprocX#vdevYbuffer.
+>  		 */
+> -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+> +		buf->dev = vdev->dev.parent;
+> +		if (!buf->dev)
+>  			goto free_buf;
+> -		buf->dev = vdev->dev.parent->parent;
+>  
+>  		/* Increase device refcnt to avoid freeing it */
+>  		get_device(buf->dev);
+> -- 
+> 2.29.2
+> 
+> 
+---end quoted text---
