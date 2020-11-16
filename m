@@ -2,85 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190BC2B4B85
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903002B4B9E
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 17:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732273AbgKPQoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 11:44:00 -0500
-Received: from mail-40134.protonmail.ch ([185.70.40.134]:58082 "EHLO
-        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732244AbgKPQoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:44:00 -0500
-Date:   Mon, 16 Nov 2020 16:43:49 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1605545037; bh=Qd/V7/auXUafl/mmu4wV/5UTH2jsCO9yUBd0yO33sBM=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=VlQUg8MWVCwoGEChmrB66g+17zZvHCemdWx/S3I3dZFwjlupgMZI3jfOCHeBcJ2fl
-         dd4Fh90TmTDAWerIDzrDeHx+Jneyc124zM30lHxeixHJAN4MY35JfQTkX9FXZtm2tI
-         Xgr+aNXYuNKTZ3q1u6PSPne2RTXMGVDtmZzDSN5PLhqFOqB1/xt3jsw0ApiRWTD7We
-         QPMSv8e0GGQ0sApM1RHEblmUgPfOfftZ7RVvtm8y96lM7Pp9v9cbMQz6RVGIm3gu4+
-         3YbIqss9xs/X0l06iiAL9uQKjrO9scMH86+shuElONyRLna8spU4YfHlJQdkdRMNBl
-         Qkaz6MTQWfGcQ==
-To:     Christoph Hellwig <hch@infradead.org>
-From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        linux-remoteproc@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        virtualization@lists.linux-foundation.org
-Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation for rproc serial
-Message-ID: <g6x4jAuAkaB51kwCXU4GlGyCGilkEvRhguvwfPkrA@cp3-web-024.plabs.ch>
-In-Reply-To: <20201116162744.GA16619@infradead.org>
-References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch> <20201116091950.GA30524@infradead.org> <20201116045127-mutt-send-email-mst@kernel.org> <20201116162744.GA16619@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+        id S1730328AbgKPQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 11:47:20 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60188 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731072AbgKPQrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 11:47:20 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AGGYHtu064243;
+        Mon, 16 Nov 2020 11:47:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=jqO+d259ulDvFX9AEnkvWujX/8WL9q6Z0z8HEpJp2a0=;
+ b=gqVsnk72MirMEiBd4+tq6Ai0AXWrprdi8wN0UpZVrwChGv6t2yWv5A7Na8koUi6IpgbT
+ 8cv0KVCI3TvkVStfCyorqi3SBm/fC0FaHRvvAbZEuBklSC+Y7+eFkWzFrLL/b9RlI+Mi
+ sePtdrNq6mYD6ff64TUCxZR3LAhRvXIfHRqgY58IwFgsdYHIJ4rbNUlGYwrbHUbk2fBk
+ LMD2y+OMMVtgpu4hIYDMY6UENn2jld8IAj47UNs/560H+uFa+L6E5zNS65xxermQHijA
+ WFMMkQI5u5DrGJoSDYgKaaCvRjpwvTUmWMfwJej1FkaD2HVKwcUqtkriy205RT/h6rcW Lg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34uvuwgppb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 11:46:59 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0AGGQpGJ003279;
+        Mon, 16 Nov 2020 16:46:58 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 34t6v8a9xm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 16:46:58 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0AGGktip57540890
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 16 Nov 2020 16:46:56 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA0A4A4057;
+        Mon, 16 Nov 2020 16:46:55 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C613CA4053;
+        Mon, 16 Nov 2020 16:46:53 +0000 (GMT)
+Received: from sig-9-65-237-154.ibm.com (unknown [9.65.237.154])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 16 Nov 2020 16:46:53 +0000 (GMT)
+Message-ID: <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
+Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
+ ima_calc_file_hash()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Christoph Hellwig <hch@infradead.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Date:   Mon, 16 Nov 2020 11:46:52 -0500
+In-Reply-To: <20201116162202.GA15010@infradead.org>
+References: <20201113080132.16591-1-roberto.sassu@huawei.com>
+         <20201114111057.GA16415@infradead.org>
+         <0fd0fb3360194d909ba48f13220f9302@huawei.com>
+         <20201116162202.GA15010@infradead.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-16_08:2020-11-13,2020-11-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 suspectscore=3 malwarescore=0 mlxlogscore=885
+ priorityscore=1501 adultscore=0 mlxscore=0 phishscore=0 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011160099
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@infradead.org>
-Date: Mon, 16 Nov 2020 16:27:44 +0000
+On Mon, 2020-11-16 at 16:22 +0000, Christoph Hellwig wrote:
+> On Mon, Nov 16, 2020 at 08:52:19AM +0000, Roberto Sassu wrote:
+> > FMODE_CAN_READ was not set because f_mode does not have
+> > FMODE_READ. In the patch, I check if the former can be set
+> > similarly to the way it is done in file_table.c and open.c.
+> > 
+> > Is there a better way to read a file when the file was not opened
+> > for reading and a new file descriptor cannot be created?
+> 
+> You can't open a file not open for reading.  The file system or device
+> driver might have to prepare read-specific resources in ->open to
+> support reads.  So what you'll have to do is to open a new instance
+> of the file that is open for reading.
 
-> On Mon, Nov 16, 2020 at 04:51:49AM -0500, Michael S. Tsirkin wrote:
->> On Mon, Nov 16, 2020 at 09:19:50AM +0000, Christoph Hellwig wrote:
->>> I just noticed this showing up in Linus' tree and I'm not happy.
->>>
->>> This whole model of the DMA subdevices in remoteproc is simply broken.
->>>
->>> We really need to change the virtio code pass an expicit DMA device (
->>> similar to what e.g. the USB and RDMA code does),
->>
->> Could you point me at an example or two please?
->
-> Take a look at the ib_dma_* helper in include/rdma/ib_verbs.h and
-> dma_device member in struct ib_device for the best example.
+This discussion seems to be going down the path of requiring an IMA
+filesystem hook for reading the file, again.  That solution was
+rejected, not by me.  What is new this time?
 
-Oh, best example indeed. I did really love these helpers and kinda
-wish there were such for Ethernet and wireless networking. They'd
-allow to keep the code more readable and clean and prevent from
-several sorts of silly mistakes.
-
-This could be done in e.g. 4 steps:
- - introduce such helpers for netdev/mac80211;
- - add checkpatch warnings to discourage usage of old methods like
-   SET_NETDEV_DEV() and direct dereferencing of netdev->dev.parent;
- - slowly convert existing drivers to the new model;
- - remove the old way entirely along with checkpatch remnants.
-
-I could take this if there'll be enough votes :)
-
-Al
+Mimi
 
