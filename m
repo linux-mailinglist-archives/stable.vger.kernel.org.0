@@ -2,101 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 440E92B51D5
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 21:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E142B528A
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 21:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727864AbgKPUDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 15:03:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726487AbgKPUDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 15:03:47 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 016DAC0613CF
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 12:03:47 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id t21so7859667pgl.3
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 12:03:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=UkMALfqYaGaAmjWCs7LpE9RuvGipVz25f2B81lc007Q=;
-        b=Aagc3dK3nKim6SG7aZvKBmNwkt6SCgBAXS7x4caeUl+z2oTrGJPUMAe7bkP1Bmgo1m
-         cPt+mfRJnQ8ab4aq8KZmaK/afQB7EQjTapKbXPbmPtCa1r0zV0QMuQhhlbM3cJC9+T9o
-         XB+AnnQnagxMJJpdKf605OkvFl3aGnuaPkwGOQcPt02NCvk7pJCabqrMy3OfAijo9ckj
-         6XusYk5CKAe26qDZ6XvRgk8EFro/SIkX7Nn6ddX6VrSDHt9V7FThwTaO6emAyqsr4M5m
-         mjireHhzjhnw5W4LnKX2r/YsVyNmgz8Mo+jpRHTp2FwrCko325tcIGIZP+gHcsBGkXpK
-         sZ8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=UkMALfqYaGaAmjWCs7LpE9RuvGipVz25f2B81lc007Q=;
-        b=FM35FK4kcYrHbmURB4RkuvvWHTv2fjlLRuACP/zn3maUgEneMaP6u3R2XM36+qje7f
-         HzOE2vWmtIIGgPX5a/MP+oHYeu1yFRLyKtQOAXFpPltuxvBMCf6rIohe8vSC1Xbci1JA
-         1UlbIJIxwB1xrvWPdKaIWdm74zF/xvLOl7oNkbOHBR13ghnaHqcUtLYVrbykGCWllMTu
-         j1rXs7pnK50zqE10/Jfm1oHWlAJida5njr7dApxXYog6oDiANt1bvy+An2CKOU6tbYGL
-         lonFldWMVgsKgUQZzwdxMcwzmYnpmKYXh8z3gWckdDt2GSNW6nLJX+yLHh7q6t6l21p+
-         +amA==
-X-Gm-Message-State: AOAM530XSqHQQt9tJd9CvOuEbyjj1Qqom0yU5mp9SG7KHg+YYulP3vCi
-        k93HjtVjL7eIpHay79BiRXOoQns+qqfz+DbZs7o=
-X-Google-Smtp-Source: ABdhPJwWP+pUXiRhGljqWwKVGiQabfSG/x0coQEro0rdCp8xhIyq0no3FdhxtSUYm1mcWz/oTLWnLUHFNHBcIj/mD3A=
-X-Received: by 2002:a65:4241:: with SMTP id d1mr710851pgq.18.1605557026429;
- Mon, 16 Nov 2020 12:03:46 -0800 (PST)
+        id S1732562AbgKPU2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 15:28:38 -0500
+Received: from mga02.intel.com ([134.134.136.20]:59554 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730230AbgKPU2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Nov 2020 15:28:37 -0500
+IronPort-SDR: KeGx5/3GVGUOMVa7TQR14Cm/4OiJFYsLBAz207u+OVhlImc+1oDRu/o49+NB7NjbrbTHjGcySl
+ yYyqRXnQLicw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9807"; a="157840112"
+X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
+   d="scan'208";a="157840112"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2020 12:23:38 -0800
+IronPort-SDR: uNCznWnLmToRLsd8IbYKG5/gO5I9V9ctr5oDRPxvmmIo/k2CJUO4MuNZIJ99gTEKGFEOfPiHsS
+ RYLoc2I+cFTA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
+   d="scan'208";a="329817286"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by orsmga006.jf.intel.com with ESMTP; 16 Nov 2020 12:23:35 -0800
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 16 Nov 2020 12:23:35 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 16 Nov 2020 12:23:34 -0800
+Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
+ ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.1713.004;
+ Mon, 16 Nov 2020 12:23:34 -0800
+From:   "Souza, Jose" <jose.souza@intel.com>
+To:     "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Handle max_bpc==16
+Thread-Topic: [Intel-gfx] [PATCH] drm/i915: Handle max_bpc==16
+Thread-Index: AQHWt6UxeEDfxyRmNEu8Xu3PZL7n4qnLw40A
+Date:   Mon, 16 Nov 2020 20:23:34 +0000
+Message-ID: <d901ed54d86ffd673dc392d5f6613655b6257278.camel@intel.com>
+References: <20201110210447.27454-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <20201110210447.27454-1-ville.syrjala@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.1.200.100]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <50DAB6FDC2F7D040B66377261AF25086@intel.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:6157:0:0:0:0 with HTTP; Mon, 16 Nov 2020 12:03:45
- -0800 (PST)
-Reply-To: piercekaren605@outlook.com
-From:   "Ms. Karen Pierce" <ovlivialogan100@gmail.com>
-Date:   Mon, 16 Nov 2020 12:03:45 -0800
-Message-ID: <CAMEGOewxT-yC04uXvmtT3Q_ZjM13KvXhLQxRAEKT7yiYDuJ=MQ@mail.gmail.com>
-Subject: Re. please get back to me immediately
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello dear,
-
-My name is Ms. Karen Pierce. I worked with Vedanta Resources Ltd, the
-United Kingdom for 25 years, but I retired in the year 2013. I didn't
-marry and I have no child of my own due to my health issues.
-
-Presently, I am 68 years old and suffering from chronic tract cancer.
-From doctor's  indications, my condition is really deteriorating and
-is quite obvious that my death is very  close to me as  I can see my
-life quickly ebbing away. I am bedridden and in constant pain. The
-stage is worst for more than two months now and I have been
-hospitalized which affected my ability to talk.
-
-I am an orphan, no Parents, no brother, no sister but my country home
-origin is Cote d'Ivoire.  I was working with Vedanta Resources Ltd in
-United Kingdom, company's headquarters here in the United Kingdom; I
-am working with this particular company for 25 years before i was
-promoted as deputy accountant general.
-
-When I was working with Vedanta Resources Ltd, the United Kingdom, I
-deposited the sum of USD$910,000.00 in a United Bank for Africa Cote
-d'Ivoire. This money is still with the bank, but due to my poor health
-condition and based on doctor's indications, I am scared that my life
-is almost at the end, so I have decided to donate this USD$910,000.00
-to the Charity.
-
-I took this decision because I don't have any child that will inherit
-this money. Please, I
-want the united Bank for Africa to transfer this USD$910,000.00 to you
-so that you  can help me to donate 70% of the money to any Charity
-Organization in Cote d'Ivoire, while you  take the remaining 30%
-
-of the money as your reward for your assistance in fulfilling my heart
- desire.I know that I have never met you before, I got your email
-address from Google and my confidence reposed on you.
-
-If I receive your reply, I will write to the United Bank for Africa to
-transfer the money to
-you. Send your response to my private email at:  piercekaren605@outlook.com
-
-I expect your prompt reply and wish you will put me in your prayers henceforth.
-
-Thanks and God bless you.
-Ms. Karen Pierce.
+T24gVHVlLCAyMDIwLTExLTEwIGF0IDIzOjA0ICswMjAwLCBWaWxsZSBTeXJqYWxhIHdyb3RlOg0K
+PiBGcm9tOiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPg0K
+PiANCj4gRURJRCBjYW4gZGVjbGFyZSB0aGUgbWF4aW11bSBzdXBwb3J0ZWQgYnBjIHVwIHRvIDE2
+LA0KPiBhbmQgYXBwYXJlbnRseSB0aGVyZSBhcmUgZGlzcGxheXMgdGhhdCBkbyBzby4gQ3VycmVu
+dGx5DQo+IHdlIGFzc3VtZSAxMiBicGMgaXMgdGhhIG1heC4gRml4IHRoZSBhc3N1bXB0aW9uIGFu
+ZA0KPiB0b3NzIGluIGEgTUlTU0lOR19DQVNFKCkgZm9yIGFueSBvdGhlciB2YWx1ZSB3ZSBkb24n
+dA0KPiBleHBlY3QgdG8gc2VlLg0KPiANCj4gVGhpcyBmaXhlcyBtb2Rlc2V0cyB3aXRoIGEgZGlz
+cGxheSB3aXRoIEVESUQgbWF4IGJwYyA+IDEyLg0KPiBQcmV2aW91c2x5IGFueSBtb2Rlc2V0IHdv
+dWxkIGp1c3Qgc2lsZW50bHkgZmFpbCBvbiBwbGF0Zm9ybXMNCj4gdGhhdCBkaWRuJ3Qgb3RoZXJ3
+aXNlIGxpbWl0IHRoaXMgdmlhIHRoZSBtYXhfYnBjIHByb3BlcnR5Lg0KPiBJbiBwYXJ0aWN1bGFy
+IHdlIGRvbid0IGFkZCB0aGUgbWF4X2JwYyBwcm9wZXJ0eSB0byBIRE1JDQo+IHBvcnRzIG9uIGdt
+Y2ggcGxhdGZvcm1zLCBhbmQgdGh1cyB3ZSB3b3VsZCBzZWUgdGhlIHJhdw0KPiBtYXhfYnBjIGNv
+bWluZyBmcm9tIHRoZSBFRElELg0KPiANCj4gSSBzdXBwb3NlIHdlIGNvdWxkIGFscmVhZHkgYWRq
+dXN0IHRoaXMgdG8gYWxzbyBhbGxvdyAxNmJwYywNCj4gYnV0IHNlZWluZyBhcyBubyBjdXJyZW50
+IHBsYXRmb3JtIHN1cHBvcnRzIHRoYXQgdGhlcmUgaXMNCj4gbGl0dGxlIHBvaW50Lg0KDQpSZXZp
+ZXdlZC1ieTogSm9zw6kgUm9iZXJ0byBkZSBTb3V6YSA8am9zZS5zb3V6YUBpbnRlbC5jb20+DQoN
+Cg0KPiANCj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2xvc2VzOiBodHRwczovL2dp
+dGxhYi5mcmVlZGVza3RvcC5vcmcvZHJtL2ludGVsLy0vaXNzdWVzLzI2MzINCj4gU2lnbmVkLW9m
+Zi1ieTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4NCj4g
+LS0tDQo+IMKgZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNwbGF5LmMgfCAz
+ICsrLQ0KPiDCoDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkN
+Cj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rp
+c3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+
+IGluZGV4IDI3MjljODUyYzY2OC4uMmE2ZWIxY2E5YzhlIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJz
+L2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rpc3BsYXkuYw0KPiArKysgYi9kcml2ZXJzL2dw
+dS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rpc3BsYXkuYw0KPiBAQCAtMTMwNjAsMTAgKzEzMDYw
+LDExIEBAIGNvbXB1dGVfc2lua19waXBlX2JwcChjb25zdCBzdHJ1Y3QgZHJtX2Nvbm5lY3Rvcl9z
+dGF0ZSAqY29ubl9zdGF0ZSwNCj4gwqAJY2FzZSAxMCAuLi4gMTE6DQo+IMKgCQlicHAgPSAxMCAq
+IDM7DQo+IMKgCQlicmVhazsNCj4gLQljYXNlIDEyOg0KPiArCWNhc2UgMTIgLi4uIDE2Og0KPiDC
+oAkJYnBwID0gMTIgKiAzOw0KPiDCoAkJYnJlYWs7DQo+IMKgCWRlZmF1bHQ6DQo+ICsJCU1JU1NJ
+TkdfQ0FTRShjb25uX3N0YXRlLT5tYXhfYnBjKTsNCj4gwqAJCXJldHVybiAtRUlOVkFMOw0KPiDC
+oAl9DQo+IMKgDQo+IA0KPiANCj4gDQoNCg==
