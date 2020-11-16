@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DBD2B4CC7
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:28:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E5C2B4CC4
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 18:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731385AbgKPR2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 12:28:32 -0500
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:58487 "EHLO
+        id S1731200AbgKPR2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 12:28:08 -0500
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:50441 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731210AbgKPR0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:26:32 -0500
+        by vger.kernel.org with ESMTP id S1730576AbgKPR2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 12:28:08 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B1E5F8C2;
-        Mon, 16 Nov 2020 12:26:31 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 16 Nov 2020 12:26:32 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 7E6A839C;
+        Mon, 16 Nov 2020 12:28:07 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 16 Nov 2020 12:28:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=64jjX7
-        +q4W8f9RPCe8pXOMRiApFdtAG5Z+4XYAwEdgE=; b=D2TqIwac5Wn3Y1JmcfENJj
-        M7yvPGC9UzKJbHOHHy2iV7JMtOIcS4BmPdnA0pGSzCwRRjqHJceFcqucA6pM6diL
-        JfpGJmdL0rJQ/m0a84nIcHojBOGHWsgfHQThWyO4meJbT/JnCPioCNk6oikjeuok
-        oe51Xmc+m29IneDdeZS6EcsnwzGaKvT9mECyIjkbYOErVoceYoPcidmLMHbNE6lf
-        kLvq0A57on62i3oJUwQkVZtl8Xdr/qeQ2vojT5TLdAMrtIDt78T/u5J77uizBCsz
-        zlzBZboIEbTmDp7q8bcJJP3zqPypxq5QNF5GVGC6pXidx5ryB2pw11SJPmVxXSew
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N9gvIg
+        vty+AQe1tFH714IxksLTnoz39Ndw2xheIvfGw=; b=mqyKma3C8c7YoDeAXB63gZ
+        THiUc4iVgQoXjEG0yWfNz/Q7lCj95de+49trpDoeQMfNmDvxz3czWmTKD0BSFycf
+        eFwumHz65Ipq2emvOkVP8CnK43j2Qym2AvLwQ5C4nlzW6WbpCj+jNBWyZDTB35r4
+        JOjpzgh/tvxTOV5zwch+lrqiCz9Ae7WPfWLib3LpDJN8MIxbh0Mki9mMh2Z0FHSz
+        OSnPbBnl/4WdqTpHlf6qNpzTGH6FXtFuEV7zybswEvlzMIs4EUV99IWfSt8Gwjfb
+        M3YAaGnb2blV1qviBt0NcMme7SlDb2c/zHEjeF45aD1ZowicCYtfg+8V+sMqbNww
         ==
-X-ME-Sender: <xms:R7ayX4MExdx2qM86E9sANGbgLtFFwufPmScBSikNrnyQ5Jkaj5kAQw>
-    <xme:R7ayX--5qgz3WoupfmFnJd0ME_5ISw8mM1D6n1WQWmPw1hAhWcfZwSfWB1t6C7hJU
-    jEberrCGLHQMQ>
+X-ME-Sender: <xms:prayX_2S2OKb_yH1Y-hM6NvTEbjtb5qpQgzx9NW65boWL9actRydiw>
+    <xme:prayX-H_d1mGMyDkdyyfXtbNpUkBYWtAalfvgr4r7o9VIn1ocQU5aRTjbbDQBcH8Y
+    TJbDdUVP1wvaw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefuddguddtvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
     eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurf
+    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:R7ayX_Q8cmkrzARTZRuyFoQ1Y3P4Bgi9WRNtV8_xi6WVmyhxcNjZeA>
-    <xmx:R7ayXwuYOpYmngmpSCiv9nSNO2VcTypMXyuQW5HCTMzEI-pfoR_sJA>
-    <xmx:R7ayXwdj9IvFEWJjmiduu8xx8dOwoEpHFC11_wA6Wn9yXyIgA_anOw>
-    <xmx:R7ayX8F56qthKOpUGyYGqC927s1PP4GXggS6bRGguI3uymZ2yFirOSgCMbA>
+X-ME-Proxy: <xmx:prayX_5wyOAKFhh8phyMUAPFwAGnwq-gkrBgJ3DqnhPj9Y7J9mTYJg>
+    <xmx:prayX0285319GmUDUZahYPAGCLYhd4PmCkw5sNr5FQSBTwykrllnfw>
+    <xmx:prayXyEfGGgQRGYTL7QQJJ4XzKgBwae0UOPd2hcdq1DT1BnRqcPGmQ>
+    <xmx:p7ayX0MkS04xnMzr9WiYkIEab7Vk1V0z0ZTrn5nbeTNIYK2N2Il2dTmXcZ8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DF54B3280067;
-        Mon, 16 Nov 2020 12:26:30 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Pull phys pread/pwrite implementations to the" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6E97C3064AB0;
+        Mon, 16 Nov 2020 12:28:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/gem: Pull phys pread/pwrite implementations to the" failed to apply to 5.9-stable tree
 To:     chris@chris-wilson.co.uk, matthew.auld@intel.com,
         rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Nov 2020 18:27:19 +0100
-Message-ID: <1605547639223168@kroah.com>
+Date:   Mon, 16 Nov 2020 18:28:57 +0100
+Message-ID: <160554773738191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -170,7 +170,7 @@ diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
 index d58fe1ddc3e1..58276694c848 100644
 --- a/drivers/gpu/drm/i915/i915_gem.c
 +++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -179,30 +179,6 @@ try_again:
+@@ -179,30 +179,6 @@ int i915_gem_object_unbind(struct drm_i915_gem_object *obj,
  	return ret;
  }
  
