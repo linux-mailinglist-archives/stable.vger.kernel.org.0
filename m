@@ -2,168 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D880A2B412C
-	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 11:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5555D2B41B1
+	for <lists+stable@lfdr.de>; Mon, 16 Nov 2020 11:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729064AbgKPKbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 05:31:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727293AbgKPKbK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 05:31:10 -0500
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CE5C0613CF;
-        Mon, 16 Nov 2020 02:31:10 -0800 (PST)
-Received: by mail-lf1-x142.google.com with SMTP id d17so24380340lfq.10;
-        Mon, 16 Nov 2020 02:31:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=M8U2uahDK/HgIULrCVBIlkVKMme83q7hHqIjlyyGKkQ=;
-        b=SQQMa9VSujfRXEUqaNQwQIUQd5QTRuFGIXmJQR/dzuhoJ+t345Fx5p5lCGmy4gkeV8
-         m0ZVLme5Zjb8YgJDqEQo2eDUIP8kSvbQrI+rNwOptqlfcxVQiT+7Y2KFvNHX9u/jAS7H
-         HYg395VMyjDVw4xwXMEkkIgJVifg6iH9b6koMH28T2HoqSH6h0nhTuXqS7ddvrDMaCAz
-         BF1NAA1hrQxeM3rhtQawnpP3v23lt6zCRSP+6Ygu4j5gIOXIiLNGVKIqH+hkk2lpGtIY
-         UGinyjp36GuMeJlFm/lN4wu3rTGdliK6AVi6+huxkCWG/RQQ7LqZ1Y/c5NSRJSYCgHWm
-         HY2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=M8U2uahDK/HgIULrCVBIlkVKMme83q7hHqIjlyyGKkQ=;
-        b=Y+TL6YsglvQzG4RSr1TnY/BxNdvgfpJ3BNgR0rSFgCqyh908dAW1kSmX4w4DzzAgAC
-         JsF4rOcX4SNTUcmJSn98UXa4X6wmOpzxHe0PFyG5SROmi8bjmd2DaTZsX5jXM/5ZP9w3
-         yb3vPWJ5I348u9fEpmkeR9PaWAJP0UyfihtlkxhxaIgSGMsc1jCmndtDPB4Cq2bVySNA
-         xC0WgwF9nqyiw7EhesRXsZbINekWfIFxFoTwJvQT+x5Jj5udzUS05OceVRD7wJ1OutWA
-         Htl4DamlVW2o1OSfJfHKwlP62wiJq0QpqsqXpJg5ullM5V7ScvwWxBB2T4DIMTZrIjhT
-         +bVQ==
-X-Gm-Message-State: AOAM532z9EQo3eUQU5zaQGRMXu77Y0/cZdsfAh4473HQyBgs0yVTTocV
-        6oQM04JDvPnLAqFhLVvYHAvCmwSDcWCEOg==
-X-Google-Smtp-Source: ABdhPJzEbY5eNCmIZ+hSKplu6+gcVA08M9MOCaSOpFAXnhkXI8G5tVR56A+mXwi+qvWtNzSgvI2Myg==
-X-Received: by 2002:a19:cc16:: with SMTP id c22mr4778889lfg.75.1605522668657;
-        Mon, 16 Nov 2020 02:31:08 -0800 (PST)
-Received: from octofox.metropolis ([5.19.183.212])
-        by smtp.gmail.com with ESMTPSA id f1sm2687362lfm.184.2020.11.16.02.31.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2020 02:31:07 -0800 (PST)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH 2/2] xtensa: disable preemption around cache alias management calls
-Date:   Mon, 16 Nov 2020 02:30:58 -0800
-Message-Id: <20201116103058.5461-3-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201116103058.5461-1-jcmvbkbc@gmail.com>
-References: <20201116103058.5461-1-jcmvbkbc@gmail.com>
+        id S1728884AbgKPKre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 05:47:34 -0500
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:8944 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727107AbgKPKre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 05:47:34 -0500
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AGAbJbu017760;
+        Mon, 16 Nov 2020 11:47:04 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=STMicroelectronics;
+ bh=ZnFMeOsKLgn0Gfn0T/aAv7kklPoIvURiSXIZWk2Z01I=;
+ b=uik4X0nCyvzFs6usxbIyAHGmsY18uLomUO3eqmzoq8mPdJFLaCBkMcXCWAI3K6paJQzA
+ bLv7QazcOlv9CGhejn15zM05SJbrsFyaxlg5g/bcDdgU7i0SgZM7MYNav6KQDvR96T21
+ t/u1SqJ0K4/WlJBFMWNcGdtUaEBEmNogUBgDb/BhMsXTC+JN2BoTafVRop8dB/Optur7
+ BGr0ijplwNRfNyZRnbgsUUz3tg1zGGAc+d4fzVuJwFflBbFCq/fpFxHLCbC3t28WzF0B
+ BOmd1PzXmyN0Dv39/rQmC1O1+RAdJU1GNj7dPdX/qG5mApkYLAntx+5R7/JsIjKEqawO Tw== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 34t5k4tbbc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Nov 2020 11:47:04 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id C9FA710002A;
+        Mon, 16 Nov 2020 11:47:01 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag3node1.st.com [10.75.127.7])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 9D869251AEB;
+        Mon, 16 Nov 2020 11:47:01 +0100 (CET)
+Received: from lmecxl0889.lme.st.com (10.75.127.50) by SFHDAG3NODE1.st.com
+ (10.75.127.7) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 16 Nov
+ 2020 11:47:00 +0100
+Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
+ for rproc serial
+To:     Christoph Hellwig <hch@infradead.org>,
+        Alexander Lobakin <alobakin@pm.me>
+CC:     Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Suman Anna <s-anna@ti.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
+ <20201116091950.GA30524@infradead.org>
+From:   Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Message-ID: <ca183081-5a9f-0104-bf79-5fea544c9271@st.com>
+Date:   Mon, 16 Nov 2020 11:46:59 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201116091950.GA30524@infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.75.127.50]
+X-ClientProxiedBy: SFHDAG2NODE1.st.com (10.75.127.4) To SFHDAG3NODE1.st.com
+ (10.75.127.7)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-16_03:2020-11-13,2020-11-16 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Although cache alias management calls set up and tear down TLB entries
-and fast_second_level_miss is able to restore TLB entry should it be
-evicted they absolutely cannot preempt each other because they use the
-same TLBTEMP area for different purposes.
-Disable preemption around all cache alias management calls to enforce
-that.
+Hi all,
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
- arch/xtensa/mm/cache.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+On 11/16/20 10:19 AM, Christoph Hellwig wrote:
+> I just noticed this showing up in Linus' tree and I'm not happy.
+> 
+> This whole model of the DMA subdevices in remoteproc is simply broken.
+> 
+> We really need to change the virtio code pass an expicit DMA device (
+> similar to what e.g. the USB and RDMA code does), instead of faking up
+> devices with broken adhoc inheritance of DMA properties and magic poking
+> into device parent relationships.
 
-diff --git a/arch/xtensa/mm/cache.c b/arch/xtensa/mm/cache.c
-index 5835406b3cec..085b8c77b9d9 100644
---- a/arch/xtensa/mm/cache.c
-+++ b/arch/xtensa/mm/cache.c
-@@ -70,8 +70,10 @@ static inline void kmap_invalidate_coherent(struct page *page,
- 			kvaddr = TLBTEMP_BASE_1 +
- 				(page_to_phys(page) & DCACHE_ALIAS_MASK);
- 
-+			preempt_disable();
- 			__invalidate_dcache_page_alias(kvaddr,
- 						       page_to_phys(page));
-+			preempt_enable();
- 		}
- 	}
- }
-@@ -156,6 +158,7 @@ void flush_dcache_page(struct page *page)
- 		if (!alias && !mapping)
- 			return;
- 
-+		preempt_disable();
- 		virt = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(virt, phys);
- 
-@@ -166,6 +169,7 @@ void flush_dcache_page(struct page *page)
- 
- 		if (mapping)
- 			__invalidate_icache_page_alias(virt, phys);
-+		preempt_enable();
- 	}
- 
- 	/* There shouldn't be an entry in the cache for this page anymore. */
-@@ -199,8 +203,10 @@ void local_flush_cache_page(struct vm_area_struct *vma, unsigned long address,
- 	unsigned long phys = page_to_phys(pfn_to_page(pfn));
- 	unsigned long virt = TLBTEMP_BASE_1 + (address & DCACHE_ALIAS_MASK);
- 
-+	preempt_disable();
- 	__flush_invalidate_dcache_page_alias(virt, phys);
- 	__invalidate_icache_page_alias(virt, phys);
-+	preempt_enable();
- }
- EXPORT_SYMBOL(local_flush_cache_page);
- 
-@@ -227,11 +233,13 @@ update_mmu_cache(struct vm_area_struct * vma, unsigned long addr, pte_t *ptep)
- 		unsigned long phys = page_to_phys(page);
- 		unsigned long tmp;
- 
-+		preempt_disable();
- 		tmp = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(tmp, phys);
- 		tmp = TLBTEMP_BASE_1 + (addr & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(tmp, phys);
- 		__invalidate_icache_page_alias(tmp, phys);
-+		preempt_enable();
- 
- 		clear_bit(PG_arch_1, &page->flags);
- 	}
-@@ -265,7 +273,9 @@ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
- 
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
-+		preempt_disable();
- 		__flush_invalidate_dcache_page_alias(t, phys);
-+		preempt_enable();
- 	}
- 
- 	/* Copy data */
-@@ -280,9 +290,11 @@ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
- 
-+		preempt_disable();
- 		__flush_invalidate_dcache_range((unsigned long) dst, len);
- 		if ((vma->vm_flags & VM_EXEC) != 0)
- 			__invalidate_icache_page_alias(t, phys);
-+		preempt_enable();
- 
- 	} else if ((vma->vm_flags & VM_EXEC) != 0) {
- 		__flush_dcache_range((unsigned long)dst,len);
-@@ -304,7 +316,9 @@ extern void copy_from_user_page(struct vm_area_struct *vma, struct page *page,
- 
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
-+		preempt_disable();
- 		__flush_invalidate_dcache_page_alias(t, phys);
-+		preempt_enable();
- 	}
- 
- 	memcpy(dst, src, len);
--- 
-2.20.1
+For your formation I started some stuff on my side to be able to declare the
+virtio device in DT as a remoteproc child node.
 
+https://lkml.org/lkml/2020/4/16/1817
+
+Quite big refactoring, but could be a way to answer...
+
+Regards,
+Arnaud
+
+> 
+> Bjorn, I thought you were going to look into this a while ago?
+
+
+> 
+> 
+> On Wed, Nov 04, 2020 at 03:31:36PM +0000, Alexander Lobakin wrote:
+>> Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
+>> specific dma memory pool"), every remoteproc has a DMA subdevice
+>> ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
+>> DMA capabilities from the corresponding platform device. This allowed
+>> to associate different DMA pools with each vdev, and required from
+>> virtio drivers to perform DMA operations with the parent device
+>> (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
+>>
+>> virtio_rpmsg_bus was already changed in the same merge cycle with
+>> commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
+>> but virtio_console did not. In fact, operations using the grandparent
+>> worked fine while the grandparent was the platform device, but since
+>> commit c774ad010873 ("remoteproc: Fix and restore the parenting
+>> hierarchy for vdev") this was changed, and now the grandparent device
+>> is the remoteproc device without any DMA capabilities.
+>> So, starting v5.8-rc1 the following warning is observed:
+>>
+>> [    2.483925] ------------[ cut here ]------------
+>> [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
+>> [    2.489152] Modules linked in: virtio_console(+)
+>> [    2.503737]  virtio_rpmsg_bus rpmsg_core
+>> [    2.508903]
+>> [    2.528898] <Other modules, stack and call trace here>
+>> [    2.913043]
+>> [    2.914907] ---[ end trace 93ac8746beab612c ]---
+>> [    2.920102] virtio-ports vport1p0: Error allocating inbufs
+>>
+>> kernel/dma/mapping.c:427 is:
+>>
+>> WARN_ON_ONCE(!dev->coherent_dma_mask);
+>>
+>> obviously because the grandparent now is remoteproc dev without any
+>> DMA caps:
+>>
+>> [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
+>>
+>> Fix this the same way as it was for virtio_rpmsg_bus, using just the
+>> parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
+>> operations.
+>> This also allows now to reserve DMA pools/buffers for rproc serial
+>> via Device Tree.
+>>
+>> Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
+>> Cc: stable@vger.kernel.org # 5.1+
+>> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+>> ---
+>>  drivers/char/virtio_console.c | 8 ++++----
+>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+>> index a2da8f768b94..1836cc56e357 100644
+>> --- a/drivers/char/virtio_console.c
+>> +++ b/drivers/char/virtio_console.c
+>> @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
+>>  		/*
+>>  		 * Allocate DMA memory from ancestor. When a virtio
+>>  		 * device is created by remoteproc, the DMA memory is
+>> -		 * associated with the grandparent device:
+>> -		 * vdev => rproc => platform-dev.
+>> +		 * associated with the parent device:
+>> +		 * virtioY => remoteprocX#vdevYbuffer.
+>>  		 */
+>> -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+>> +		buf->dev = vdev->dev.parent;
+>> +		if (!buf->dev)
+>>  			goto free_buf;
+>> -		buf->dev = vdev->dev.parent->parent;
+>>  
+>>  		/* Increase device refcnt to avoid freeing it */
+>>  		get_device(buf->dev);
+>> -- 
+>> 2.29.2
+>>
+>>
+> ---end quoted text---
+> 
