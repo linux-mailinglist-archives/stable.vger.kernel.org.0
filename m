@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4472B63CC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AAC2B6529
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732681AbgKQNlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:41:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54134 "EHLO mail.kernel.org"
+        id S1727956AbgKQNvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:51:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733210AbgKQNlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:41:42 -0500
+        id S1731590AbgKQN32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9423F20729;
-        Tue, 17 Nov 2020 13:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AC7C20867;
+        Tue, 17 Nov 2020 13:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620501;
-        bh=3s4Wta/dkaG3ZHbuAVV7wYqbnSAqBaQwhuh88JfwO2I=;
+        s=default; t=1605619767;
+        bh=CZUlol3hGzi6v2IfAhVY9tqlwE3X+cRnwC0wg/E1JYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7KVqIVHey5GEdZhGmr1/cYsISZ/GANjDdofe42r1sHBmqPZgeBLVNZBdjSdpbwGG
-         7LGnGx2dOrtRxeZmdoD7BkspTUgiD7hf/3X17KooGjA7LbcK/C/7TmsMqqZQxclPiR
-         A5T1pxxvdaqwq/IFELxa+BYE/Secr8tqOQCfXe1M=
+        b=JHoZE/jihNFC9Z6QKtJupEIvX0VSWrHjfYlFbcSLQ8ChiA3UXGBHvCc+UbDIUB6rW
+         ibmFhIICFAI+rElQhtxtb5Ph0Ha6v3zlTvuL1lL+YUUBKU1JvK6a8lXlwWjWv9cPSL
+         UI3VKL7dGFHWAevqUSXBLqyOkO1f0VJmu76rvHPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Herms <oliver.peter.herms@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 240/255] IPv6: Set SIT tunnel hard_header_len to zero
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Brian Norris <briannorris@chromium.org>
+Subject: [PATCH 5.4 150/151] net: sch_generic: fix the missing new qdisc assignment bug
 Date:   Tue, 17 Nov 2020 14:06:20 +0100
-Message-Id: <20201117122150.616688936@linuxfoundation.org>
+Message-Id: <20201117122128.728544855@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Herms <oliver.peter.herms@gmail.com>
 
-[ Upstream commit 8ef9ba4d666614497a057d09b0a6eafc1e34eadf ]
+When commit 2fb541c862c9 ("net: sch_generic: aviod concurrent reset and
+enqueue op for lockless qdisc") is backported to stable kernel, one
+assignment is missing, which causes two problems reported by Joakim and
+Vishwanath, see [1] and [2].
 
-Due to the legacy usage of hard_header_len for SIT tunnels while
-already using infrastructure from net/ipv4/ip_tunnel.c the
-calculation of the path MTU in tnl_update_pmtu is incorrect.
-This leads to unnecessary creation of MTU exceptions for any
-flow going over a SIT tunnel.
+So add the assignment back to fix it.
 
-As SIT tunnels do not have a header themsevles other than their
-transport (L3, L2) headers we're leaving hard_header_len set to zero
-as tnl_update_pmtu is already taking care of the transport headers
-sizes.
+1. https://www.spinics.net/lists/netdev/msg693916.html
+2. https://www.spinics.net/lists/netdev/msg695131.html
 
-This will also help avoiding unnecessary IPv6 GC runs and spinlock
-contention seen when using SIT tunnels and for more than
-net.ipv6.route.gc_thresh flows.
-
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Oliver Herms <oliver.peter.herms@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20201103104133.GA1573211@tws
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 749cc0b0c7f3 ("net: sch_generic: aviod concurrent reset and enqueue op for lockless qdisc")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/sched/sch_generic.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1128,7 +1128,6 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -1127,10 +1127,13 @@ static void dev_deactivate_queue(struct
+ 				 void *_qdisc_default)
+ {
+ 	struct Qdisc *qdisc = rtnl_dereference(dev_queue->qdisc);
++	struct Qdisc *qdisc_default = _qdisc_default;
  
--		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
- 		dev->mtu = tdev->mtu - t_hlen;
- 		if (dev->mtu < IPV6_MIN_MTU)
- 			dev->mtu = IPV6_MIN_MTU;
-@@ -1426,7 +1425,6 @@ static void ipip6_tunnel_setup(struct ne
- 	dev->priv_destructor	= ipip6_dev_free;
+ 	if (qdisc) {
+ 		if (!(qdisc->flags & TCQ_F_BUILTIN))
+ 			set_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state);
++
++		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
+ 	}
+ }
  
- 	dev->type		= ARPHRD_SIT;
--	dev->hard_header_len	= LL_MAX_HEADER + t_hlen;
- 	dev->mtu		= ETH_DATA_LEN - t_hlen;
- 	dev->min_mtu		= IPV6_MIN_MTU;
- 	dev->max_mtu		= IP6_MAX_MTU - t_hlen;
 
 
