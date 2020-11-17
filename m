@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15A412B61D9
+	by mail.lfdr.de (Postfix) with ESMTP id 82B8B2B61DA
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731226AbgKQNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:22:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57574 "EHLO mail.kernel.org"
+        id S1731231AbgKQNXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:23:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730581AbgKQNW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:22:59 -0500
+        id S1731228AbgKQNXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 337EA2463D;
-        Tue, 17 Nov 2020 13:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 412CE20781;
+        Tue, 17 Nov 2020 13:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619378;
-        bh=Fc/KPhkwj0ycdr2js3u3+sKqZ/nyyzaEMvYk3Zh1RG0=;
+        s=default; t=1605619381;
+        bh=xwxz8r5FtmajNpC87PJfKNuW9ZOvDS/QdVyOUkgyzgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hw+GfQR4MdwM0iQ5ZhWFNFuhRZ673uomWI1VN/9zp2n9veZhFF5/K9ZuAI3lZ2JpF
-         0/MVbrZwPRfzh2upW5sIm1AznsQ3l5MFjgP4u/kfxYH53l9DTGZRyZ++J7myVsmg8i
-         c5CC3bzcYBZR8WGQN+rLJypGniGaYc2SH8nYZeFg=
+        b=DZtx0nOkvb955q7RUiHxxe4pd4S4CkxCWHK6pejFkT06SI13S+1t89NaQz+gMGFk6
+         SUk4poUxIC4a3vDbNt+BOWn7iDeS/GTThwPwhpv18c0sAdkU5xkJrqNcq/eDItqd+D
+         OTRIb+SgnNMNXb9F876UeOoSE/se0AduEnurQtxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mithil Mhatre <mmhatre@redhat.com>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/151] netfilter: ipset: Update byte and packet counters regardless of whether they match
-Date:   Tue, 17 Nov 2020 14:04:09 +0100
-Message-Id: <20201117122122.340863787@linuxfoundation.org>
+Subject: [PATCH 5.4 020/151] powerpc/eeh_cache: Fix a possible debugfs deadlock
+Date:   Tue, 17 Nov 2020 14:04:10 +0100
+Message-Id: <20201117122122.388656201@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -45,68 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Qian Cai <cai@redhat.com>
 
-[ Upstream commit 7d10e62c2ff8e084c136c94d32d9a94de4d31248 ]
+[ Upstream commit fd552e0542b4532483289cce48fdbd27b692984b ]
 
-In ip_set_match_extensions(), for sets with counters, we take care of
-updating counters themselves by calling ip_set_update_counter(), and of
-checking if the given comparison and values match, by calling
-ip_set_match_counter() if needed.
+Lockdep complains that a possible deadlock below in
+eeh_addr_cache_show() because it is acquiring a lock with IRQ enabled,
+but eeh_addr_cache_insert_dev() needs to acquire the same lock with IRQ
+disabled. Let's just make eeh_addr_cache_show() acquire the lock with
+IRQ disabled as well.
 
-However, if a given comparison on counters doesn't match the configured
-values, that doesn't mean the set entry itself isn't matching.
+        CPU0                    CPU1
+        ----                    ----
+   lock(&pci_io_addr_cache_root.piar_lock);
+                                local_irq_disable();
+                                lock(&tp->lock);
+                                lock(&pci_io_addr_cache_root.piar_lock);
+   <Interrupt>
+     lock(&tp->lock);
 
-This fix restores the behaviour we had before commit 4750005a85f7
-("netfilter: ipset: Fix "don't update counters" mode when counters used
-at the matching"), without reintroducing the issue fixed there: back
-then, mtype_data_match() first updated counters in any case, and then
-took care of matching on counters.
+  *** DEADLOCK ***
 
-Now, if the IPSET_FLAG_SKIP_COUNTER_UPDATE flag is set,
-ip_set_update_counter() will anyway skip counter updates if desired.
+  lock_acquire+0x140/0x5f0
+  _raw_spin_lock_irqsave+0x64/0xb0
+  eeh_addr_cache_insert_dev+0x48/0x390
+  eeh_probe_device+0xb8/0x1a0
+  pnv_pcibios_bus_add_device+0x3c/0x80
+  pcibios_bus_add_device+0x118/0x290
+  pci_bus_add_device+0x28/0xe0
+  pci_bus_add_devices+0x54/0xb0
+  pcibios_init+0xc4/0x124
+  do_one_initcall+0xac/0x528
+  kernel_init_freeable+0x35c/0x3fc
+  kernel_init+0x24/0x148
+  ret_from_kernel_thread+0x5c/0x80
 
-The issue observed is illustrated by this reproducer:
+  lock_acquire+0x140/0x5f0
+  _raw_spin_lock+0x4c/0x70
+  eeh_addr_cache_show+0x38/0x110
+  seq_read+0x1a0/0x660
+  vfs_read+0xc8/0x1f0
+  ksys_read+0x74/0x130
+  system_call_exception+0xf8/0x1d0
+  system_call_common+0xe8/0x218
 
-  ipset create c hash:ip counters
-  ipset add c 192.0.2.1
-  iptables -I INPUT -m set --match-set c src --bytes-gt 800 -j DROP
-
-if we now send packets from 192.0.2.1, bytes and packets counters
-for the entry as shown by 'ipset list' are always zero, and, no
-matter how many bytes we send, the rule will never match, because
-counters themselves are not updated.
-
-Reported-by: Mithil Mhatre <mmhatre@redhat.com>
-Fixes: 4750005a85f7 ("netfilter: ipset: Fix "don't update counters" mode when counters used at the matching")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 5ca85ae6318d ("powerpc/eeh_cache: Add a way to dump the EEH address cache")
+Signed-off-by: Qian Cai <cai@redhat.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201028152717.8967-1-cai@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/eeh_cache.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index 133a3f1b6f56c..3cc4daa856d6b 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -485,13 +485,14 @@ ip_set_match_extensions(struct ip_set *set, const struct ip_set_ext *ext,
- 	if (SET_WITH_COUNTER(set)) {
- 		struct ip_set_counter *counter = ext_counter(data, set);
+diff --git a/arch/powerpc/kernel/eeh_cache.c b/arch/powerpc/kernel/eeh_cache.c
+index cf11277ebd020..000ebb5a6fb3c 100644
+--- a/arch/powerpc/kernel/eeh_cache.c
++++ b/arch/powerpc/kernel/eeh_cache.c
+@@ -272,8 +272,9 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
+ {
+ 	struct pci_io_addr_range *piar;
+ 	struct rb_node *n;
++	unsigned long flags;
  
-+		ip_set_update_counter(counter, ext, flags);
-+
- 		if (flags & IPSET_FLAG_MATCH_COUNTERS &&
- 		    !(ip_set_match_counter(ip_set_get_packets(counter),
- 				mext->packets, mext->packets_op) &&
- 		      ip_set_match_counter(ip_set_get_bytes(counter),
- 				mext->bytes, mext->bytes_op)))
- 			return false;
--		ip_set_update_counter(counter, ext, flags);
+-	spin_lock(&pci_io_addr_cache_root.piar_lock);
++	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
+ 	for (n = rb_first(&pci_io_addr_cache_root.rb_root); n; n = rb_next(n)) {
+ 		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
+ 
+@@ -281,7 +282,7 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
+ 		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem",
+ 		       &piar->addr_lo, &piar->addr_hi, pci_name(piar->pcidev));
  	}
- 	if (SET_WITH_SKBINFO(set))
- 		ip_set_get_skbinfo(ext_skbinfo(data, set),
+-	spin_unlock(&pci_io_addr_cache_root.piar_lock);
++	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
+ 
+ 	return 0;
+ }
 -- 
 2.27.0
 
