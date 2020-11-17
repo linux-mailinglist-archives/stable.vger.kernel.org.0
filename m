@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 709E62B65B5
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:58:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 094AE2B648E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730926AbgKQN6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:58:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
+        id S1732171AbgKQNhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730342AbgKQNTG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:06 -0500
+        id S1732634AbgKQNgm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:36:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF703241A5;
-        Tue, 17 Nov 2020 13:19:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59DE920780;
+        Tue, 17 Nov 2020 13:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619146;
-        bh=iVmNXVvgpuvsEhl5cXeuZuMvCztFssgpKilqgSpfTc4=;
+        s=default; t=1605620201;
+        bh=r0Is9J5fXUHHtL1HAs2Y/S4Sh8gvigjEuYeP4gwcvao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f26FVqzpERPL1MKoqNVceaRx9jSgpm8R7sETEEVO2ZqMRG3Y9TVas08i5IEjaWMbK
-         MUNJcEAjaUxZPSIAvI6JWimP3jH6Oylxw/MkOc8CZIgausAGJmNkvpkhM4L/AS/IPD
-         pyRB3KZ+byGggTDSLGiI8aoLrgqoPCXARiGj4aXk=
+        b=Glsm0ZoWAOabNQgzCWPh/YxbFqw/erZqEX8bxjUCiHWOWi6ykA3X6Yx9lbx4Y/ArJ
+         pPiLPyholcyL1EqTH5YgwrxyLXO4cQzwGnLpSoi9/U/AD0IIQRc8fGTnq7y4MxRLPs
+         EJ9fBsOjGu6tSzUzCHzivOqnlWP9DpCTHjJk90ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 013/101] perf tools: Add missing swap for ino_generation
+Subject: [PATCH 5.9 140/255] net/mlx5: E-switch, Avoid extack error log for disabled vport
 Date:   Tue, 17 Nov 2020 14:04:40 +0100
-Message-Id: <20201117122113.750655697@linuxfoundation.org>
+Message-Id: <20201117122145.760139481@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit fe01adb72356a4e2f8735e4128af85921ca98fa1 ]
+[ Upstream commit ae35859445607f7f18dd4f332749219cd636ed59 ]
 
-We are missing swap for ino_generation field.
+When E-switch vport is disabled, querying its hardware address is
+unsupported.
+Avoid setting extack error log message in such case.
 
-Fixes: 5c5e854bc760 ("perf tools: Add attr->mmap2 support")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20201101233103.3537427-2-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: f099fde16db3 ("net/mlx5: E-switch, Support querying port function mac address")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index f016d1b330e54..6a2037b52098b 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -488,6 +488,7 @@ static void perf_event__mmap2_swap(union perf_event *event,
- 	event->mmap2.maj   = bswap_32(event->mmap2.maj);
- 	event->mmap2.min   = bswap_32(event->mmap2.min);
- 	event->mmap2.ino   = bswap_64(event->mmap2.ino);
-+	event->mmap2.ino_generation = bswap_64(event->mmap2.ino_generation);
- 
- 	if (sample_id_all) {
- 		void *data = &event->mmap2.filename;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 6e6a9a5639928..e8e6294c7ccae 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1902,8 +1902,6 @@ int mlx5_devlink_port_function_hw_addr_get(struct devlink *devlink,
+ 		ether_addr_copy(hw_addr, vport->info.mac);
+ 		*hw_addr_len = ETH_ALEN;
+ 		err = 0;
+-	} else {
+-		NL_SET_ERR_MSG_MOD(extack, "Eswitch vport is disabled");
+ 	}
+ 	mutex_unlock(&esw->state_lock);
+ 	return err;
 -- 
 2.27.0
 
