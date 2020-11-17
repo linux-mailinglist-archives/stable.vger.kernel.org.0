@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20622B6322
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD782B6586
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbgKQNfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45906 "EHLO mail.kernel.org"
+        id S1731857AbgKQNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:55:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731994AbgKQNfQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:35:16 -0500
+        id S1730450AbgKQNXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF8C72466D;
-        Tue, 17 Nov 2020 13:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0C0420781;
+        Tue, 17 Nov 2020 13:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620116;
-        bh=mtHbPxmO8/SXbwr3c28X6K9sCjhcZI9tCY8owme2DYY=;
+        s=default; t=1605619387;
+        bh=cHJ4z/gmvS+2umNZwuRNKcx8L1LAJIpjyn8zTy96RKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zBLRCFtoAZO+Yb91sTgHskMNN5g6TaZ5Nsp2uAGJ9JIeDnQC9zS3j/P353aAdlTW0
-         Cv9pPlXwLkGiHH3jpJf2gd0gszQsTA3uOx5aJhRZl+qnxqwWZ5qXAtcxyvdDmaqFeh
-         zLcbLyy7LfXbl4H99sTNUjSxKymjC4zY7MZYj1xA=
+        b=uHz7/J1ww6GuFV21iGSTUJGOX+2zYtAFVKtcD4StI5FAMEOVhyi/InTuMSngFfQHL
+         iQTfUIYUWFq3ABKpSidJPNpccNmfffTT8WmGfEI1Q5Z0eHAqFJqqMV7+OWBSjy4Jyi
+         WIt5iSOYoe5c6GvY8Vbb/Cob89mUCvEfZSjVeaYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 112/255] iommu/amd: Increase interrupt remapping table limit to 512 entries
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 022/151] perf tools: Add missing swap for ino_generation
 Date:   Tue, 17 Nov 2020 14:04:12 +0100
-Message-Id: <20201117122144.405685547@linuxfoundation.org>
+Message-Id: <20201117122122.488199485@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
+[ Upstream commit fe01adb72356a4e2f8735e4128af85921ca98fa1 ]
 
-Certain device drivers allocate IO queues on a per-cpu basis.
-On AMD EPYC platform, which can support up-to 256 cpu threads,
-this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
-and result in the error message:
+We are missing swap for ino_generation field.
 
-    AMD-Vi: Failed to allocate IRTE
-
-This has been observed with certain NVME devices.
-
-AMD IOMMU hardware can actually support upto 512 interrupt
-remapping table entries. Therefore, update the driver to
-match the hardware limit.
-
-Please note that this also increases the size of interrupt remapping
-table to 8KB per device when using the 128-bit IRTE format.
-
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 5c5e854bc760 ("perf tools: Add attr->mmap2 support")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20201101233103.3537427-2-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/amd_iommu_types.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/perf/util/session.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd/amd_iommu_types.h b/drivers/iommu/amd/amd_iommu_types.h
-index 30a5d412255a4..427484c455891 100644
---- a/drivers/iommu/amd/amd_iommu_types.h
-+++ b/drivers/iommu/amd/amd_iommu_types.h
-@@ -406,7 +406,11 @@ extern bool amd_iommu_np_cache;
- /* Only true if all IOMMUs support device IOTLBs */
- extern bool amd_iommu_iotlb_sup;
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 5c172845fa5ac..ff524a3fc5003 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -588,6 +588,7 @@ static void perf_event__mmap2_swap(union perf_event *event,
+ 	event->mmap2.maj   = bswap_32(event->mmap2.maj);
+ 	event->mmap2.min   = bswap_32(event->mmap2.min);
+ 	event->mmap2.ino   = bswap_64(event->mmap2.ino);
++	event->mmap2.ino_generation = bswap_64(event->mmap2.ino_generation);
  
--#define MAX_IRQS_PER_TABLE	256
-+/*
-+ * AMD IOMMU hardware only support 512 IRTEs despite
-+ * the architectural limitation of 2048 entries.
-+ */
-+#define MAX_IRQS_PER_TABLE	512
- #define IRQ_TABLE_ALIGNMENT	128
- 
- struct irq_remap_table {
+ 	if (sample_id_all) {
+ 		void *data = &event->mmap2.filename;
 -- 
 2.27.0
 
