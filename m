@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31E12B608F
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 854172B60ED
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729087AbgKQNKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
+        id S1730013AbgKQNOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:14:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729462AbgKQNKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:21 -0500
+        id S1730004AbgKQNOG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82B612468F;
-        Tue, 17 Nov 2020 13:10:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70344246BB;
+        Tue, 17 Nov 2020 13:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618621;
-        bh=ftB/Lvk/JniQNtrB4zj8xCl/hMjsiHhtAZQ+3ZmknXU=;
+        s=default; t=1605618844;
+        bh=xHtHxHLneM+lzVtuTAj5osNF9mLgijJbvh8/npJ0IIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVmB8b0e+OBqCIEt0RsxIOx0xEwgLK+mNB6o2LA3MphVKGsI8LeLs9Boo5Ey/nf1G
-         /eVwL/0pwX3ugHmuIVZHaNlFQfwdEDX6UOUTFMQcXTDwkK/pCGWj6K2o4ypNqwzCld
-         L+ncGFqxgs+DAdyOhRsQmPs3vGY4agbx4CEpHwos=
+        b=Q4aD5XAqI2yq0zqYPU818RkB6Xz6xbdMtvgyD9CHa2Cze1ER3lw/tg3qhbMZeWXqz
+         iygqLzhVI5AnYaZuG4skP+uZu8uesAeuZJw7dXv8JkR6mxh3NEFNqeLwYGTgTgUBjL
+         L03e/T6FVJLn9Fkg8SSttHOhnxCJgOL2x5Duq1o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Don Brace <don.brace@microchip.com>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/78] scsi: hpsa: Fix memory leak in hpsa_init_one()
+Subject: [PATCH 4.14 26/85] gfs2: check for live vs. read-only file system in gfs2_fitrim
 Date:   Tue, 17 Nov 2020 14:04:55 +0100
-Message-Id: <20201117122110.522025121@linuxfoundation.org>
+Message-Id: <20201117122112.317551089@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit af61bc1e33d2c0ec22612b46050f5b58ac56a962 ]
+[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
 
-When hpsa_scsi_add_host() fails, h->lastlogicals is leaked since it is
-missing a free() in the error handler.
+Before this patch, gfs2_fitrim was not properly checking for a "live" file
+system. If the file system had something to trim and the file system
+was read-only (or spectator) it would start the trim, but when it starts
+the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
+and it errors out. However, if the file system was already trimmed so
+there's no work to do, it never called gfs2_trans_begin. That code is
+bypassed so it never returns the error. Instead, it returns a good
+return code with 0 work. All this makes for inconsistent behavior:
+The same fstrim command can return -EROFS in one case and 0 in another.
+This tripped up xfstests generic/537 which reports the error as:
 
-Fix this by adding free() when hpsa_scsi_add_host() fails.
+    +fstrim with unrecovered metadata just ate your filesystem
 
-Link: https://lore.kernel.org/r/20201027073125.14229-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Tested-by: Don Brace <don.brace@microchip.com>
-Acked-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch adds a check for a "live" (iow, active journal, iow, RW)
+file system, and if not, returns the error properly.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/gfs2/rgrp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index b82df8cdf9626..7f1d6d52d48bd 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -8937,7 +8937,7 @@ reinit_after_soft_reset:
- 	/* hook into SCSI subsystem */
- 	rc = hpsa_scsi_add_host(h);
- 	if (rc)
--		goto clean7; /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
-+		goto clean8; /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 70a344d864447..c4eb6a5fcea99 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1361,6 +1361,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
- 	/* Monitor the controller for firmware lockups */
- 	h->heartbeat_sample_interval = HEARTBEAT_SAMPLE_INTERVAL;
-@@ -8949,6 +8949,8 @@ reinit_after_soft_reset:
- 				h->heartbeat_sample_interval);
- 	return 0;
++	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
++		return -EROFS;
++
+ 	if (!blk_queue_discard(q))
+ 		return -EOPNOTSUPP;
  
-+clean8: /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
-+	kfree(h->lastlogicals);
- clean7: /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
- 	hpsa_free_performant_mode(h);
- 	h->access.set_intr_mask(h, HPSA_INTR_OFF);
 -- 
 2.27.0
 
