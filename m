@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFE12B6571
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEBC2B6512
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbgKQNUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:20:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53482 "EHLO mail.kernel.org"
+        id S1731046AbgKQN3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730485AbgKQNUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:20:11 -0500
+        id S1731482AbgKQN3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DEB52225B;
-        Tue, 17 Nov 2020 13:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED81720781;
+        Tue, 17 Nov 2020 13:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619210;
-        bh=Zml1+0xJweNFSjXiesLawigWZ/ZrC5pMb+efHl+zArI=;
+        s=default; t=1605619744;
+        bh=LeOLpe6JzKGsvUzYKvzdbXPz3fZyecQfFP587CelvAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAVvGPPn4pkXJYyRzIY2R9K8W1ocIzYJHc/+dtT4qQL06DHcM/am47Vp/S24gVOXP
-         PB7CLqh2W26yH8PnDGnoHagbyHZavUDy0kyKuMInAibz1tCZ+RfYldU4oosjc0LKIu
-         xXgnUB7Zup1Jzx2WN5UzjhUFrWDSa494Zs4shqsA=
+        b=CsfvGsF/9pomp4LiR2KlnVLnlYgPgJYqTMHa1g+zLgwVRJ5s61EgVvgEV8xWVSM2Y
+         R9/y2DTDj0a8Qw5b+e9zQ5kdKX/rdOfVY69zc0cAfXprOKhAC/2GH3AActGeU59VAK
+         wxMor1GPY5LsHPp/Atps0pDXZmgUeLw57YcMd04Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tao Ma <boyu.mt@taobao.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.19 064/101] ext4: unlock xattr_sem properly in ext4_inline_data_truncate()
-Date:   Tue, 17 Nov 2020 14:05:31 +0100
-Message-Id: <20201117122116.221184832@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 102/151] of/address: Fix of_node memory leak in of_dma_is_coherent
+Date:   Tue, 17 Nov 2020 14:05:32 +0100
+Message-Id: <20201117122126.375356198@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-commit 7067b2619017d51e71686ca9756b454de0e5826a upstream.
+[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
 
-It takes xattr_sem to check inline data again but without unlock it
-in case not have. So unlock it before return.
+Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
+powerpc") added a check to of_dma_is_coherent which returns early
+if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
+being skipped causing a memory leak. Moved the of_node_get() below this
+check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
+enabled.
 
-Fixes: aef1c8513c1f ("ext4: let ext4_truncate handle inline data correctly")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Tao Ma <boyu.mt@taobao.com>
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/1604370542-124630-1-git-send-email-joseph.qi@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/of/address.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -1921,6 +1921,7 @@ int ext4_inline_data_truncate(struct ino
+diff --git a/drivers/of/address.c b/drivers/of/address.c
+index 8f74c4626e0ef..5abb056b2b515 100644
+--- a/drivers/of/address.c
++++ b/drivers/of/address.c
+@@ -1003,11 +1003,13 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
+  */
+ bool of_dma_is_coherent(struct device_node *np)
+ {
+-	struct device_node *node = of_node_get(np);
++	struct device_node *node;
  
- 	ext4_write_lock_xattr(inode, &no_expand);
- 	if (!ext4_has_inline_data(inode)) {
-+		ext4_write_unlock_xattr(inode, &no_expand);
- 		*has_inline = 0;
- 		ext4_journal_stop(handle);
- 		return 0;
+ 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
+ 		return true;
+ 
++	node = of_node_get(np);
++
+ 	while (node) {
+ 		if (of_property_read_bool(node, "dma-coherent")) {
+ 			of_node_put(node);
+-- 
+2.27.0
+
 
 
