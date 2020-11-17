@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555382B62B0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 160A92B6518
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731914AbgKQNae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:30:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
+        id S1731114AbgKQNak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:30:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731865AbgKQNac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:30:32 -0500
+        id S1730544AbgKQNah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FA6220781;
-        Tue, 17 Nov 2020 13:30:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 713202078E;
+        Tue, 17 Nov 2020 13:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619832;
-        bh=U7GY2mvMYuIm6HVZTt3lHtjgeh9qjqk97RyhMGf8nII=;
+        s=default; t=1605619838;
+        bh=SRWrzidpz1bA2eErxINd4qxHZVMh8LqjQ3WtTqAAJu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHyCddgIWFhmDuJ4vy6gYeCUpBvjZEBdyvKP07QUwhVfc2bxoGlyapSzbPokkxjJG
-         SujB7tMh29cBGyH6rYxFO3qRe880cKCrIka8pR059O02NFw8qtfMhAtwkcLHVnbJIr
-         TAAPR1oJm8HtFStiQVKmwgKufjMT7qyM6uY8NpMY=
+        b=gkZ5O8xZNNfpxBQjX4DPndg2jsZsTaA4BFXOUEVQ8/jIhn7n5+smHnUj+mcdk4JLR
+         AleWWqzIgTkx46uL503ng77ZxT1p5fPdUtZV8kGutH4VRK0iT7MVCrO5GuH9/U3c5J
+         BG5x+o4ijKTXP7nG1cLv8U1S6G5rS8mEEdIltN5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Bert Vermeulen <bert@biot.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Pratyush Yadav <p.yadav@ti.com>, Joel Stanley <joel@jms.id.au>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 019/255] ASoC: codecs: wcd9335: Set digital gain range correctly
-Date:   Tue, 17 Nov 2020 14:02:39 +0100
-Message-Id: <20201117122139.876885902@linuxfoundation.org>
+Subject: [PATCH 5.9 020/255] mtd: spi-nor: Fix address width on flash chips > 16MB
+Date:   Tue, 17 Nov 2020 14:02:40 +0100
+Message-Id: <20201117122139.927316406@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,37 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Bert Vermeulen <bert@biot.com>
 
-[ Upstream commit 6d6bc54ab4f2404d46078abc04bf4dee4db01def ]
+[ Upstream commit 324f78dfb442b82365548b657ec4e6974c677502 ]
 
-digital gain range is -84dB min to 40dB max, however this was not
-correctly specified in the range.
+If a flash chip has more than 16MB capacity but its BFPT reports
+BFPT_DWORD1_ADDRESS_BYTES_3_OR_4, the spi-nor framework defaults to 3.
 
-Fix this by with correct range!
+The check in spi_nor_set_addr_width() doesn't catch it because addr_width
+did get set. This fixes that check.
 
-Fixes: 8c4f021d806a ("ASoC: wcd9335: add basic controls")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20201028154340.17090-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f9acd7fa80be ("mtd: spi-nor: sfdp: default to addr_width of 3 for configurable widths")
+Signed-off-by: Bert Vermeulen <bert@biot.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Tested-by: Joel Stanley <joel@jms.id.au>
+Tested-by: Cédric Le Goater <clg@kaod.org>
+Link: https://lore.kernel.org/r/20201006132346.12652-1-bert@biot.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/core.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index f2d9d52ee171b..4d2b1ec7c03bb 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -618,7 +618,7 @@ static const char * const sb_tx8_mux_text[] = {
- 	"ZERO", "RX_MIX_TX8", "DEC8", "DEC8_192"
- };
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index b37d6c1936de1..f0ae7a01703a1 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -3008,13 +3008,15 @@ static int spi_nor_set_addr_width(struct spi_nor *nor)
+ 		/* already configured from SFDP */
+ 	} else if (nor->info->addr_width) {
+ 		nor->addr_width = nor->info->addr_width;
+-	} else if (nor->mtd.size > 0x1000000) {
+-		/* enable 4-byte addressing if the device exceeds 16MiB */
+-		nor->addr_width = 4;
+ 	} else {
+ 		nor->addr_width = 3;
+ 	}
  
--static const DECLARE_TLV_DB_SCALE(digital_gain, 0, 1, 0);
-+static const DECLARE_TLV_DB_SCALE(digital_gain, -8400, 100, -8400);
- static const DECLARE_TLV_DB_SCALE(line_gain, 0, 7, 1);
- static const DECLARE_TLV_DB_SCALE(analog_gain, 0, 25, 1);
- static const DECLARE_TLV_DB_SCALE(ear_pa_gain, 0, 150, 0);
++	if (nor->addr_width == 3 && nor->mtd.size > 0x1000000) {
++		/* enable 4-byte addressing if the device exceeds 16MiB */
++		nor->addr_width = 4;
++	}
++
+ 	if (nor->addr_width > SPI_NOR_MAX_ADDR_WIDTH) {
+ 		dev_dbg(nor->dev, "address width is too large: %u\n",
+ 			nor->addr_width);
 -- 
 2.27.0
 
