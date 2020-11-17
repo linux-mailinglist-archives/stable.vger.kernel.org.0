@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DFBA2B6658
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B17D02B668C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729691AbgKQOCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:02:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44162 "EHLO mail.kernel.org"
+        id S1729437AbgKQOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:04:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729693AbgKQNNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:13:32 -0500
+        id S1728942AbgKQNJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF087221EB;
-        Tue, 17 Nov 2020 13:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 161EE24698;
+        Tue, 17 Nov 2020 13:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618812;
-        bh=yU/BCde+VQPfwl4DfTOEL7nAzesvlkrIGSOGDzKVqPo=;
+        s=default; t=1605618593;
+        bh=QEBM97sDOsOYGVJv2sJ0AfHyKIxvJh92X0hN957cl6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRGH1y2lsKiEf2N05lA5kY70bU12IUVknP+ME+5Wxiy7QSn1GAle9P5v57xkneJdA
-         x3NMiy4FW06/+yE8FiwfcptGkVb38IP+rtJwmqam7z+Nm7otKwtoXCtOQK3moKlzsh
-         AQCa18r2joCq2pyAzn+AQKAuXEqNFiAy9yDttxXQ=
+        b=f6eS9R3qrIEI5pBT7Wl6ThyeBKAXat5pLihBndypuRdx2PaOjOUXQEvIM2AHjNF9e
+         v/GCMyUMM8+i828y0cJCdcwqeuW9xHVoAhHLo2O2CIEcbi7qT7Dtum2tZOmXMoOIOf
+         x57mT5wYYyY8KQ4TDRqbagELBiLPAgaPxeQxtgWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Sergey Nemov <sergey.nemov@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/85] can: can_create_echo_skb(): fix echo skb generation: always use skb_clone()
-Date:   Tue, 17 Nov 2020 14:04:45 +0100
-Message-Id: <20201117122111.830535627@linuxfoundation.org>
+Subject: [PATCH 4.9 20/78] i40e: add num_vectors checker in iwarp handler
+Date:   Tue, 17 Nov 2020 14:04:46 +0100
+Message-Id: <20201117122110.095164212@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Sergey Nemov <sergey.nemov@intel.com>
 
-[ Upstream commit 286228d382ba6320f04fa2e7c6fc8d4d92e428f4 ]
+commit 7015ca3df965378bcef072cca9cd63ed098665b5 upstream.
 
-All user space generated SKBs are owned by a socket (unless injected into the
-key via AF_PACKET). If a socket is closed, all associated skbs will be cleaned
-up.
+Field num_vectors from struct virtchnl_iwarp_qvlist_info should not be
+larger than num_msix_vectors_vf in the hw struct.  The iwarp uses the
+same set of vectors as the LAN VF driver.
 
-This leads to a problem when a CAN driver calls can_put_echo_skb() on a
-unshared SKB. If the socket is closed prior to the TX complete handler,
-can_get_echo_skb() and the subsequent delivering of the echo SKB to all
-registered callbacks, a SKB with a refcount of 0 is delivered.
-
-To avoid the problem, in can_get_echo_skb() the original SKB is now always
-cloned, regardless of shared SKB or not. If the process exists it can now
-safely discard its SKBs, without disturbing the delivery of the echo SKB.
-
-The problem shows up in the j1939 stack, when it clones the incoming skb, which
-detects the already 0 refcount.
-
-We can easily reproduce this with following example:
-
-testj1939 -B -r can0: &
-cansend can0 1823ff40#0123
-
-WARNING: CPU: 0 PID: 293 at lib/refcount.c:25 refcount_warn_saturate+0x108/0x174
-refcount_t: addition on 0; use-after-free.
-Modules linked in: coda_vpu imx_vdoa videobuf2_vmalloc dw_hdmi_ahb_audio vcan
-CPU: 0 PID: 293 Comm: cansend Not tainted 5.5.0-rc6-00376-g9e20dcb7040d #1
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Backtrace:
-[<c010f570>] (dump_backtrace) from [<c010f90c>] (show_stack+0x20/0x24)
-[<c010f8ec>] (show_stack) from [<c0c3e1a4>] (dump_stack+0x8c/0xa0)
-[<c0c3e118>] (dump_stack) from [<c0127fec>] (__warn+0xe0/0x108)
-[<c0127f0c>] (__warn) from [<c01283c8>] (warn_slowpath_fmt+0xa8/0xcc)
-[<c0128324>] (warn_slowpath_fmt) from [<c0539c0c>] (refcount_warn_saturate+0x108/0x174)
-[<c0539b04>] (refcount_warn_saturate) from [<c0ad2cac>] (j1939_can_recv+0x20c/0x210)
-[<c0ad2aa0>] (j1939_can_recv) from [<c0ac9dc8>] (can_rcv_filter+0xb4/0x268)
-[<c0ac9d14>] (can_rcv_filter) from [<c0aca2cc>] (can_receive+0xb0/0xe4)
-[<c0aca21c>] (can_receive) from [<c0aca348>] (can_rcv+0x48/0x98)
-[<c0aca300>] (can_rcv) from [<c09b1fdc>] (__netif_receive_skb_one_core+0x64/0x88)
-[<c09b1f78>] (__netif_receive_skb_one_core) from [<c09b2070>] (__netif_receive_skb+0x38/0x94)
-[<c09b2038>] (__netif_receive_skb) from [<c09b2130>] (netif_receive_skb_internal+0x64/0xf8)
-[<c09b20cc>] (netif_receive_skb_internal) from [<c09b21f8>] (netif_receive_skb+0x34/0x19c)
-[<c09b21c4>] (netif_receive_skb) from [<c0791278>] (can_rx_offload_napi_poll+0x58/0xb4)
-
-Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: http://lore.kernel.org/r/20200124132656.22156-1-o.rempel@pengutronix.de
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sergey Nemov <sergey.nemov@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+[bwh: Backported to 4.9: adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/can/skb.h | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/include/linux/can/skb.h b/include/linux/can/skb.h
-index b3379a97245c1..a34694e675c9a 100644
---- a/include/linux/can/skb.h
-+++ b/include/linux/can/skb.h
-@@ -61,21 +61,17 @@ static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
-  */
- static inline struct sk_buff *can_create_echo_skb(struct sk_buff *skb)
- {
--	if (skb_shared(skb)) {
--		struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
-+	struct sk_buff *nskb;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 0f54269ffc463..0ac09c9e4aaac 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -418,6 +418,16 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
+ 	u32 next_q_idx, next_q_type;
+ 	u32 msix_vf, size;
  
--		if (likely(nskb)) {
--			can_skb_set_owner(nskb, skb->sk);
--			consume_skb(skb);
--			return nskb;
--		} else {
--			kfree_skb(skb);
--			return NULL;
--		}
-+	nskb = skb_clone(skb, GFP_ATOMIC);
-+	if (unlikely(!nskb)) {
-+		kfree_skb(skb);
-+		return NULL;
- 	}
- 
--	/* we can assume to have an unshared skb with proper owner */
--	return skb;
-+	can_skb_set_owner(nskb, skb->sk);
-+	consume_skb(skb);
-+	return nskb;
- }
- 
- #endif /* !_CAN_SKB_H */
++	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
++
++	if (qvlist_info->num_vectors > msix_vf) {
++		dev_warn(&pf->pdev->dev,
++			 "Incorrect number of iwarp vectors %u. Maximum %u allowed.\n",
++			 qvlist_info->num_vectors,
++			 msix_vf);
++		goto err;
++	}
++
+ 	size = sizeof(struct i40e_virtchnl_iwarp_qvlist_info) +
+ 	       (sizeof(struct i40e_virtchnl_iwarp_qv_info) *
+ 						(qvlist_info->num_vectors - 1));
 -- 
 2.27.0
 
