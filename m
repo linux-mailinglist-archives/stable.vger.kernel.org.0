@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C65552B607D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:10:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA292B6028
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbgKQNJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:09:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38966 "EHLO mail.kernel.org"
+        id S1728970AbgKQNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728820AbgKQNJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:09:48 -0500
+        id S1728962AbgKQNGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:06:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DE4B2225B;
-        Tue, 17 Nov 2020 13:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C4552465E;
+        Tue, 17 Nov 2020 13:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618587;
-        bh=G3VA7LTo9ESa06POafIDvzCdeisOEfi+LO/KW2BkJ8g=;
+        s=default; t=1605618408;
+        bh=CUuU7On8k9gquGH9FpyAONhSZTiem7DP/gZYyGMjaQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnCcB6WcIBULLFgkK28uqIWIXSPlFwp2luMjG0manMREpm5PAqoU26ZsDuf0z6KQm
-         Rx0VzAIf9ImRXD7dcDKTWY0bi9QY26YmuuN4gBjH2Qss0lH31ZjxkW2oBgqti601gp
-         tz7wbhUY71OnL8wIlHMzRAoNDtnHotMjaDXhcUk8=
+        b=IzMZLVKjsirdbNpkCABIAphEGlVFyfwmmjjQmTT3NDWrbDwUlpHUSBVC6mFXnDkZn
+         6Qcc0m2/WcWaEkxkGLLcE4KK5VJCCOotZTrwLpkLcGyj5Wn7zbuFC3VaWGTto1DzDU
+         xU9AGWZb0V5cKtkQd3OVZ9wDgZdzdoPhkHE5OYUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/78] i40e: Fix a potential NULL pointer dereference
+Subject: [PATCH 4.4 22/64] gfs2: check for live vs. read-only file system in gfs2_fitrim
 Date:   Tue, 17 Nov 2020 14:04:45 +0100
-Message-Id: <20201117122110.044610112@linuxfoundation.org>
+Message-Id: <20201117122107.225501505@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 54902349ee95045b67e2f0c39b75f5418540064b upstream.
+[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
 
-If 'kzalloc()' fails, a NULL pointer will be dereferenced.
-Return an error code (-ENOMEM) instead.
+Before this patch, gfs2_fitrim was not properly checking for a "live" file
+system. If the file system had something to trim and the file system
+was read-only (or spectator) it would start the trim, but when it starts
+the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
+and it errors out. However, if the file system was already trimmed so
+there's no work to do, it never called gfs2_trans_begin. That code is
+bypassed so it never returns the error. Instead, it returns a good
+return code with 0 work. All this makes for inconsistent behavior:
+The same fstrim command can return -EROFS in one case and 0 in another.
+This tripped up xfstests generic/537 which reports the error as:
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+    +fstrim with unrecovered metadata just ate your filesystem
+
+This patch adds a check for a "live" (iow, active journal, iow, RW)
+file system, and if not, returns the error properly.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 3 +++
+ fs/gfs2/rgrp.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 7484ad3c955db..0f54269ffc463 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -422,6 +422,9 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
- 	       (sizeof(struct i40e_virtchnl_iwarp_qv_info) *
- 						(qvlist_info->num_vectors - 1));
- 	vf->qvlist_info = kzalloc(size, GFP_KERNEL);
-+	if (!vf->qvlist_info)
-+		return -ENOMEM;
-+
- 	vf->qvlist_info->num_vectors = qvlist_info->num_vectors;
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 99dcbdc1ff3a4..faa5e0e2c4493 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1388,6 +1388,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
- 	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
++	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
++		return -EROFS;
++
+ 	if (!blk_queue_discard(q))
+ 		return -EOPNOTSUPP;
+ 
 -- 
 2.27.0
 
