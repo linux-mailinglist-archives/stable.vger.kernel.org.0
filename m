@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 241802B6275
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EBA2B61BD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731466AbgKQN2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
+        id S1730215AbgKQNV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731461AbgKQN2k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:40 -0500
+        id S1730695AbgKQNVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA862078E;
-        Tue, 17 Nov 2020 13:28:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C09AA2465E;
+        Tue, 17 Nov 2020 13:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619720;
-        bh=BfuTfJXIb0LLt+hxDKfmSbrX8QIkYFZF4qfpRJHgPuU=;
+        s=default; t=1605619314;
+        bh=JcCtDXP1TBnDBsuxkDxtzwebT7QyzeH9ixZ2iy/s/Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyUVD/A9STrjZuqdgN3l+Zs6cbWZQZMojyD+VpdKa6aTLCQQ8pzFoYsskzt1QjR/r
-         St+0VTlp6XffRa2prb8TWrhdV2iDnRM4kNI6+neb8+M/NmsF6gtkLVYQEPd3v+87+7
-         vUpr9oEpFYG/upkLf1JFV0BsOW2mn7NK8cvWUqJ8=
+        b=zkEiJmb7Rjr3AIavOCtXOgXqLlbqvqNM2c2vOmEvyHcaFGf7XTJSgB3lgOi9LxKke
+         KhDT39kPz5u7dXsuhxG6Du3mpcS8vBzHpw7HjLlTJ9+pCIjKVHfD1VOoRrLYH6rJv3
+         m0TL9YtZizyIWlbWyf3k/Hqggx8zMBuTPDrEaFaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 132/151] mmc: renesas_sdhi_core: Add missing tmio_mmc_host_free() at remove
-Date:   Tue, 17 Nov 2020 14:06:02 +0100
-Message-Id: <20201117122127.848194814@linuxfoundation.org>
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Fabian Frederick <fabf@skynet.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 099/101] reboot: fix overflow parsing reboot cpu number
+Date:   Tue, 17 Nov 2020 14:06:06 +0100
+Message-Id: <20201117122117.951015215@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit e8973201d9b281375b5a8c66093de5679423021a upstream.
+commit df5b0ab3e08a156701b537809914b339b0daa526 upstream.
 
-The commit 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
-added tmio_mmc_host_free(), but missed the function calling in
-the sh_mobile_sdhi_remove() at that time. So, fix it. Otherwise,
-we cannot rebind the sdhi/mmc devices when we use aliases of mmc.
+Limit the CPU number to num_possible_cpus(), because setting it to a
+value lower than INT_MAX but higher than NR_CPUS produces the following
+error on reboot and shutdown:
 
-Fixes: 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1604654730-29914-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+    BUG: unable to handle page fault for address: ffffffff90ab1bb0
+    #PF: supervisor read access in kernel mode
+    #PF: error_code(0x0000) - not-present page
+    PGD 1c09067 P4D 1c09067 PUD 1c0a063 PMD 0
+    Oops: 0000 [#1] SMP
+    CPU: 1 PID: 1 Comm: systemd-shutdow Not tainted 5.9.0-rc8-kvm #110
+    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+    RIP: 0010:migrate_to_reboot_cpu+0xe/0x60
+    Code: ea ea 00 48 89 fa 48 c7 c7 30 57 f1 81 e9 fa ef ff ff 66 2e 0f 1f 84 00 00 00 00 00 53 8b 1d d5 ea ea 00 e8 14 33 fe ff 89 da <48> 0f a3 15 ea fc bd 00 48 89 d0 73 29 89 c2 c1 e8 06 65 48 8b 3c
+    RSP: 0018:ffffc90000013e08 EFLAGS: 00010246
+    RAX: ffff88801f0a0000 RBX: 0000000077359400 RCX: 0000000000000000
+    RDX: 0000000077359400 RSI: 0000000000000002 RDI: ffffffff81c199e0
+    RBP: ffffffff81c1e3c0 R08: ffff88801f41f000 R09: ffffffff81c1e348
+    R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+    R13: 00007f32bedf8830 R14: 00000000fee1dead R15: 0000000000000000
+    FS:  00007f32bedf8980(0000) GS:ffff88801f480000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffffffff90ab1bb0 CR3: 000000001d057000 CR4: 00000000000006a0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+      __do_sys_reboot.cold+0x34/0x5b
+      do_syscall_64+0x2d/0x40
+
+Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103214025.116799-3-mcroce@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use reboot_mode instead of mode]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mmc/host/renesas_sdhi_core.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/reboot.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -874,6 +874,7 @@ int renesas_sdhi_remove(struct platform_
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -546,6 +546,13 @@ static int __init reboot_setup(char *str
+ 				reboot_cpu = simple_strtoul(str+3, NULL, 0);
+ 			else
+ 				reboot_mode = REBOOT_SOFT;
++			if (reboot_cpu >= num_possible_cpus()) {
++				pr_err("Ignoring the CPU number in reboot= option. "
++				       "CPU %d exceeds possible cpu number %d\n",
++				       reboot_cpu, num_possible_cpus());
++				reboot_cpu = 0;
++				break;
++			}
+ 			break;
  
- 	tmio_mmc_host_remove(host);
- 	renesas_sdhi_clk_disable(host);
-+	tmio_mmc_host_free(host);
- 
- 	return 0;
- }
+ 		case 'g':
 
 
