@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE87F2B642E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F7E2B65B8
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:58:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733015AbgKQNh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:37:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49160 "EHLO mail.kernel.org"
+        id S1731737AbgKQN6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:58:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732995AbgKQNh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:56 -0500
+        id S1729399AbgKQNS4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:18:56 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 957B4207BC;
-        Tue, 17 Nov 2020 13:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44760206D5;
+        Tue, 17 Nov 2020 13:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620275;
-        bh=iaaVi/kG/GEXKUfnpdvNXmq4FIzllGf18xVtxHBoDFw=;
+        s=default; t=1605619134;
+        bh=WvWDUe7Efs3/UaLV6ZcsfA0N93uLYypki29yXvVf2ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsl6Z9az2DE6pAfNRET3LBihF0UU6OWkdQ8ngYOB0F2v7fOXBe/+/pFnjhEDYOL+h
-         dBEfbnJ3fajsQgLXl2LlDVZ7dnaWw+dKloWeySK4G+X3NvdzBcMzzoZZSb+bJhlZKs
-         QEcDiwywYdB2WLd9oW6VTYQ8AXjen+8GegxEuLK8=
+        b=Rpjh2UuH7FOwLcqjz/yOOLZvRnoopUfichfIqZPLqJ5ODrJjMNqFPa6Dyom+0/o8p
+         t7gTZ+xa7YvJZ0JGNnk0Wpdhs4cOhpPI0Sd/NgSiV2uMPsv56E3Ii+UBj3IT+yjHcn
+         rJAdykEvTZMMucPps+BaR8XY7C8RDBjv3P338pw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 165/255] ch_ktls: Update cheksum information
+Subject: [PATCH 4.19 038/101] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
 Date:   Tue, 17 Nov 2020 14:05:05 +0100
-Message-Id: <20201117122146.967639603@linuxfoundation.org>
+Message-Id: <20201117122114.950471960@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit Maheshwari <rohitm@chelsio.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 86716b51d14fc2201938939b323ba3ad99186910 ]
+[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
 
-Checksum update was missing in the WR.
+This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
+Fix bug where DPM is not enabled after hibernate and resume").
+It was intended to fix Hawaii S4(hibernation) issue but break S3. As
+ixFEATURE_STATUS is filled with garbage data on resume which can be
+only cleared by reloading smc firmware(but that will involve many
+changes). So, we will revert this S4 fix and seek a new way.
 
-Fixes: 429765a149f1 ("chcr: handle partial end part of a record")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_ktls.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_ktls.c b/drivers/crypto/chelsio/chcr_ktls.c
-index c5cce024886ac..026689d091102 100644
---- a/drivers/crypto/chelsio/chcr_ktls.c
-+++ b/drivers/crypto/chelsio/chcr_ktls.c
-@@ -926,6 +926,7 @@ chcr_ktls_write_tcp_options(struct chcr_ktls_info *tx_info, struct sk_buff *skb,
- 	struct iphdr *ip;
- 	int credits;
- 	u8 buf[150];
-+	u64 cntrl1;
- 	void *pos;
+diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+index 0d4dd607e85c8..c05bec5effb2e 100644
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -2723,10 +2723,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
  
- 	iplen = skb_network_header_len(skb);
-@@ -964,22 +965,28 @@ chcr_ktls_write_tcp_options(struct chcr_ktls_info *tx_info, struct sk_buff *skb,
- 			   TXPKT_PF_V(tx_info->adap->pf));
- 	cpl->pack = 0;
- 	cpl->len = htons(pktlen);
--	/* checksum offload */
--	cpl->ctrl1 = 0;
--
--	pos = cpl + 1;
+ static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
+ {
+-	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
+-					     CGS_IND_REG__SMC, FEATURE_STATUS,
+-					     VOLTAGE_CONTROLLER_ON))
+-		? true : false;
++	return ci_is_smc_ram_running(hwmgr);
+ }
  
- 	memcpy(buf, skb->data, pktlen);
- 	if (tx_info->ip_family == AF_INET) {
- 		/* we need to correct ip header len */
- 		ip = (struct iphdr *)(buf + maclen);
- 		ip->tot_len = htons(pktlen - maclen);
-+		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP);
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else {
- 		ip6 = (struct ipv6hdr *)(buf + maclen);
- 		ip6->payload_len = htons(pktlen - maclen - iplen);
-+		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP6);
- #endif
- 	}
-+
-+	cntrl1 |= T6_TXPKT_ETHHDR_LEN_V(maclen - ETH_HLEN) |
-+		  TXPKT_IPHDR_LEN_V(iplen);
-+	/* checksum offload */
-+	cpl->ctrl1 = cpu_to_be64(cntrl1);
-+
-+	pos = cpl + 1;
-+
- 	/* now take care of the tcp header, if fin is not set then clear push
- 	 * bit as well, and if fin is set, it will be sent at the last so we
- 	 * need to update the tcp sequence number as per the last packet.
+ static int ci_smu_init(struct pp_hwmgr *hwmgr)
 -- 
 2.27.0
 
