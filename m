@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4135D2B6185
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7FC02B6114
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730437AbgKQNTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:19:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53230 "EHLO mail.kernel.org"
+        id S1729077AbgKQNPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:15:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730337AbgKQNTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:52 -0500
+        id S1730198AbgKQNPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:15:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CFB52463D;
-        Tue, 17 Nov 2020 13:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC6A0221EB;
+        Tue, 17 Nov 2020 13:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619192;
-        bh=5kKcpGw954eg3NVFCsOovNhQJgpF+nYHOfnUCzNLAJw=;
+        s=default; t=1605618933;
+        bh=ZLfbjJetd2mwMbBTvrQ+pzHIWw+U0/kvUFLgVWSROGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTI0ngQkjIk7ZL/hsIBaljZVQdW2N3D16Fh48PVQDTmDD4rcUMvG62VKYwWuv4JgA
-         UgVYveYMpQYtcJCGHDlN9AONetXOZI9X4lf5viFftDaZwNLEuBepR6KtUfsWZHbjuj
-         T/efa9vq/EqkxWjn5vaSqqmSIr/pANWEQwCuoapE=
+        b=iny5VG8AOU8PwNcPiZYkCrFI8lyaltEKR+aElFqPrpxarJaichzeQIWlZp84WE6vG
+         +Pl2I5PM8Qr08kPfP0RcDHhdzzQ2sjhRmUBRir3c73Or77AwCRGe5CQI1k6J8HmRsG
+         zvmAOa49XpanHj0SlspO/lPGG/RtfljfCdCT6PFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/101] xfs: fix a missing unlock on error in xfs_fs_map_blocks
+        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 4.14 57/85] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
 Date:   Tue, 17 Nov 2020 14:05:26 +0100
-Message-Id: <20201117122115.978115770@linuxfoundation.org>
+Message-Id: <20201117122113.827306499@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-[ Upstream commit 2bd3fa793aaa7e98b74e3653fdcc72fa753913b5 ]
+commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
 
-We also need to drop the iolock when invalidate_inode_pages2 fails, not
-only on all other error or successful cases.
+kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
+allocate a buffer for the swiotlb. It does so by calling
 
-Fixes: 527851124d10 ("xfs: implement pNFS export operations")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
+
+If the allocation must fail, no_iotlb_memory is set.
+
+Later during initialization swiotlb-xen comes in
+(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
+is != 0, it thinks the memory is ready to use when actually it is not.
+
+When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
+and since no_iotlb_memory is set the kernel panics.
+
+Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
+initialized, it would do the initialization itself, which might still
+succeed.
+
+Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
+failure, and also by setting no_iotlb_memory to false on swiotlb
+initialization success.
+
+Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
+
+Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
+Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/xfs/xfs_pnfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/swiotlb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
-index f44c3599527d0..1c9bced3e8601 100644
---- a/fs/xfs/xfs_pnfs.c
-+++ b/fs/xfs/xfs_pnfs.c
-@@ -141,7 +141,7 @@ xfs_fs_map_blocks(
- 		goto out_unlock;
- 	error = invalidate_inode_pages2(inode->i_mapping);
- 	if (WARN_ON_ONCE(error))
--		return error;
-+		goto out_unlock;
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -254,6 +254,7 @@ int __init swiotlb_init_with_tbl(char *t
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
  
- 	end_fsb = XFS_B_TO_FSB(mp, (xfs_ufsize_t)offset + length);
- 	offset_fsb = XFS_B_TO_FSBT(mp, offset);
--- 
-2.27.0
-
+ 	if (verbose)
+ 		swiotlb_print_info();
+@@ -285,9 +286,11 @@ swiotlb_init(int verbose)
+ 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
+ 		return;
+ 
+-	if (io_tlb_start)
++	if (io_tlb_start) {
+ 		memblock_free_early(io_tlb_start,
+ 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
++		io_tlb_start = 0;
++	}
+ 	pr_warn("Cannot allocate buffer");
+ 	no_iotlb_memory = true;
+ }
+@@ -390,6 +393,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
+ 
+ 	swiotlb_print_info();
+ 
 
 
