@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319632B6287
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC9B2B6289
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731583AbgKQN3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37952 "EHLO mail.kernel.org"
+        id S1731593AbgKQN32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:29:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731576AbgKQN3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:22 -0500
+        id S1731064AbgKQN30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4485A2078D;
-        Tue, 17 Nov 2020 13:29:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224BD2078E;
+        Tue, 17 Nov 2020 13:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619761;
-        bh=ha6bZhqTCYO40+kGQ3S6CrIeRW3n9o6h2ac7PtqCpRU=;
+        s=default; t=1605619764;
+        bh=dLHs5/OgqfER8dfaafMMG2L4JrCjgESHbhuOxVoh1aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1+YMshN7jiDFFgEBZvDSqi1BOmu587v3MGD64IoQXvyIwsOxSeWaK1iYKvYHT/tg
-         NJKp4G1jokMPKS66n4ryGZEVghBgeWCQKJ33gtz4uV7K74IYMQAgPnxPPqecC0eGVh
-         cmGduHQlJWCEXCI4KBvZKRWZj9CF1kqa+pHzZ+YI=
+        b=RYDUzR18wQbvs7VgWweXUdjIs9wQ66smUCWOdMgBCIkN6rBPkeL6mM+ceWQnuB3fo
+         qpV+HfsfJfO4ASh8/3OOwCcigTwg9few9JC/fWu5pfb3O30MRCYeXykonKyTiD0HmU
+         i3vhbVgw6wst1elwrEoiJiLegR8T853nq58Ux5zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
         Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Tapas Kundu <tkundu@vmware.com>
-Subject: [PATCH 5.4 148/151] perf scripting python: Avoid declaring function pointers with a visibility attribute
-Date:   Tue, 17 Nov 2020 14:06:18 +0100
-Message-Id: <20201117122128.630029567@linuxfoundation.org>
+        Wade Mealing <wmealing@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 149/151] perf/core: Fix race in the perf_mmap_close() function
+Date:   Tue, 17 Nov 2020 14:06:19 +0100
+Message-Id: <20201117122128.679016771@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -45,79 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit d0e7b0c71fbb653de90a7163ef46912a96f0bdaf upstream.
+commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream.
 
-To avoid this:
+There's a possible race in perf_mmap_close() when checking ring buffer's
+mmap_count refcount value. The problem is that the mmap_count check is
+not atomic because we call atomic_dec() and atomic_read() separately.
 
-  util/scripting-engines/trace-event-python.c: In function 'python_start_script':
-  util/scripting-engines/trace-event-python.c:1595:2: error: 'visibility' attribute ignored [-Werror=attributes]
-   1595 |  PyMODINIT_FUNC (*initfunc)(void);
-        |  ^~~~~~~~~~~~~~
+  perf_mmap_close:
+  ...
+   atomic_dec(&rb->mmap_count);
+   ...
+   if (atomic_read(&rb->mmap_count))
+      goto out_put;
 
-That started breaking when building with PYTHON=python3 and these gcc
-versions (I haven't checked with the clang ones, maybe it breaks there
-as well):
+   <ring buffer detach>
+   free_uid
 
-  # export PERF_TARBALL=http://192.168.86.5/perf/perf-5.9.0.tar.xz
-  # dm  fedora:33 fedora:rawhide
-     1   107.80 fedora:33         : Ok   gcc (GCC) 10.2.1 20201005 (Red Hat 10.2.1-5), clang version 11.0.0 (Fedora 11.0.0-1.fc33)
-     2    92.47 fedora:rawhide    : Ok   gcc (GCC) 10.2.1 20201016 (Red Hat 10.2.1-6), clang version 11.0.0 (Fedora 11.0.0-1.fc34)
-  #
+out_put:
+  ring_buffer_put(rb); /* could be last */
 
-Avoid that by ditching that 'initfunc' function pointer with its:
+The race can happen when we have two (or more) events sharing same ring
+buffer and they go through atomic_dec() and then they both see 0 as refcount
+value later in atomic_read(). Then both will go on and execute code which
+is meant to be run just once.
 
-    #define Py_EXPORTED_SYMBOL _attribute_ ((visibility ("default")))
-    #define PyMODINIT_FUNC Py_EXPORTED_SYMBOL PyObject*
+The code that detaches ring buffer is probably fine to be executed more
+than once, but the problem is in calling free_uid(), which will later on
+demonstrate in related crashes and refcount warnings, like:
 
-And just call PyImport_AppendInittab() at the end of the ifdef python3
-block with the functions that were being attributed to that initfunc.
+  refcount_t: addition on 0; use-after-free.
+  ...
+  RIP: 0010:refcount_warn_saturate+0x6d/0xf
+  ...
+  Call Trace:
+  prepare_creds+0x190/0x1e0
+  copy_creds+0x35/0x172
+  copy_process+0x471/0x1a80
+  _do_fork+0x83/0x3a0
+  __do_sys_wait4+0x83/0x90
+  __do_sys_clone+0x85/0xa0
+  do_syscall_64+0x5b/0x1e0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Tapas Kundu <tkundu@vmware.com>
+Using atomic decrease and check instead of separated calls.
+
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Wade Mealing <wmealing@redhat.com>
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
+Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+[sudip: used ring_buffer]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/perf/util/scripting-engines/trace-event-python.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ kernel/events/core.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/tools/perf/util/scripting-engines/trace-event-python.c
-+++ b/tools/perf/util/scripting-engines/trace-event-python.c
-@@ -1587,7 +1587,6 @@ static void _free_command_line(wchar_t *
- static int python_start_script(const char *script, int argc, const char **argv)
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5596,11 +5596,11 @@ static void perf_pmu_output_stop(struct
+ static void perf_mmap_close(struct vm_area_struct *vma)
  {
- 	struct tables *tables = &tables_global;
--	PyMODINIT_FUNC (*initfunc)(void);
- #if PY_MAJOR_VERSION < 3
- 	const char **command_line;
- #else
-@@ -1602,20 +1601,18 @@ static int python_start_script(const cha
- 	FILE *fp;
- 
- #if PY_MAJOR_VERSION < 3
--	initfunc = initperf_trace_context;
- 	command_line = malloc((argc + 1) * sizeof(const char *));
- 	command_line[0] = script;
- 	for (i = 1; i < argc + 1; i++)
- 		command_line[i] = argv[i - 1];
-+	PyImport_AppendInittab(name, initperf_trace_context);
- #else
--	initfunc = PyInit_perf_trace_context;
- 	command_line = malloc((argc + 1) * sizeof(wchar_t *));
- 	command_line[0] = Py_DecodeLocale(script, NULL);
- 	for (i = 1; i < argc + 1; i++)
- 		command_line[i] = Py_DecodeLocale(argv[i - 1], NULL);
-+	PyImport_AppendInittab(name, PyInit_perf_trace_context);
- #endif
+ 	struct perf_event *event = vma->vm_file->private_data;
 -
--	PyImport_AppendInittab(name, initfunc);
- 	Py_Initialize();
+ 	struct ring_buffer *rb = ring_buffer_get(event);
+ 	struct user_struct *mmap_user = rb->mmap_user;
+ 	int mmap_locked = rb->mmap_locked;
+ 	unsigned long size = perf_data_size(rb);
++	bool detach_rest = false;
  
- #if PY_MAJOR_VERSION < 3
+ 	if (event->pmu->event_unmapped)
+ 		event->pmu->event_unmapped(event, vma->vm_mm);
+@@ -5631,7 +5631,8 @@ static void perf_mmap_close(struct vm_ar
+ 		mutex_unlock(&event->mmap_mutex);
+ 	}
+ 
+-	atomic_dec(&rb->mmap_count);
++	if (atomic_dec_and_test(&rb->mmap_count))
++		detach_rest = true;
+ 
+ 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
+ 		goto out_put;
+@@ -5640,7 +5641,7 @@ static void perf_mmap_close(struct vm_ar
+ 	mutex_unlock(&event->mmap_mutex);
+ 
+ 	/* If there's still other mmap()s of this buffer, we're done. */
+-	if (atomic_read(&rb->mmap_count))
++	if (!detach_rest)
+ 		goto out_put;
+ 
+ 	/*
 
 
