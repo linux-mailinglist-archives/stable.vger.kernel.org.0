@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2512B665E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1FFA2B668E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729166AbgKQOCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43602 "EHLO mail.kernel.org"
+        id S1730459AbgKQOEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:04:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729937AbgKQNNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:13:17 -0500
+        id S1728756AbgKQNJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97DAF241A5;
-        Tue, 17 Nov 2020 13:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B93002468F;
+        Tue, 17 Nov 2020 13:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618795;
-        bh=3Ctmw80OXu6Bsy+X7/2vucJp1FoYS/pIixt1QcdspZM=;
+        s=default; t=1605618579;
+        bh=t3JGyHdjsXTbb079SDqrfbvWVGSqp45TnabyFe6Jzq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muv4/mCHN4x2V3zOh8498PMzBrSJgMlMlFM8LrFcVKpEb9NEZFWP8fOeA1vsn8Chu
-         qTOuUYJjDe7AKnb70qkKgdi8O4G/sw0Uiuz8N9LSpPski5VhicMGJkbKT/QSPXdm7T
-         vyL5m3T33cet+rUDOmYUm2Kec1QZ6OKhjHO5iuLg=
+        b=LQESJTiW1GFZxTBZSgMw7fyVKG85YyKgkRUePyzXQWG/ik5DFFcbOSwHS700HCxye
+         npBxjO70tD/HIO3LX+kBQ9FWrSM7iN1sfpu2lg/5AWznPohd0eeE4wQhvSKjXxpEhx
+         2MPmNWD6jMSd6m+RndwbghlI9eJwc9oehTh3kah8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        zhuoliang zhang <zhuoliang.zhang@mediatek.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/85] net: xfrm: fix a race condition during allocing spi
-Date:   Tue, 17 Nov 2020 14:04:39 +0100
-Message-Id: <20201117122111.533392945@linuxfoundation.org>
+Subject: [PATCH 4.9 16/78] xfs: flush new eof page on truncate to avoid post-eof corruption
+Date:   Tue, 17 Nov 2020 14:04:42 +0100
+Message-Id: <20201117122109.897877304@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit a779d91314ca7208b7feb3ad817b62904397c56d ]
+[ Upstream commit 869ae85dae64b5540e4362d7fe4cd520e10ec05c ]
 
-we found that the following race condition exists in
-xfrm_alloc_userspi flow:
+It is possible to expose non-zeroed post-EOF data in XFS if the new
+EOF page is dirty, backed by an unwritten block and the truncate
+happens to race with writeback. iomap_truncate_page() will not zero
+the post-EOF portion of the page if the underlying block is
+unwritten. The subsequent call to truncate_setsize() will, but
+doesn't dirty the page. Therefore, if writeback happens to complete
+after iomap_truncate_page() (so it still sees the unwritten block)
+but before truncate_setsize(), the cached page becomes inconsistent
+with the on-disk block. A mapped read after the associated page is
+reclaimed or invalidated exposes non-zero post-EOF data.
 
-user thread                                    state_hash_work thread
-----                                           ----
-xfrm_alloc_userspi()
- __find_acq_core()
-   /*alloc new xfrm_state:x*/
-   xfrm_state_alloc()
-   /*schedule state_hash_work thread*/
-   xfrm_hash_grow_check()   	               xfrm_hash_resize()
- xfrm_alloc_spi                                  /*hold lock*/
-      x->id.spi = htonl(spi)                     spin_lock_bh(&net->xfrm.xfrm_state_lock)
-      /*waiting lock release*/                     xfrm_hash_transfer()
-      spin_lock_bh(&net->xfrm.xfrm_state_lock)      /*add x into hlist:net->xfrm.state_byspi*/
-	                                                hlist_add_head_rcu(&x->byspi)
-                                                 spin_unlock_bh(&net->xfrm.xfrm_state_lock)
+For example, consider the following sequence when run on a kernel
+modified to explicitly flush the new EOF page within the race
+window:
 
-    /*add x into hlist:net->xfrm.state_byspi 2 times*/
-    hlist_add_head_rcu(&x->byspi)
+$ xfs_io -fc "falloc 0 4k" -c fsync /mnt/file
+$ xfs_io -c "pwrite 0 4k" -c "truncate 1k" /mnt/file
+  ...
+$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
+00000400:  00 00 00 00 00 00 00 00  ........
+$ umount /mnt/; mount <dev> /mnt/
+$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
+00000400:  cd cd cd cd cd cd cd cd  ........
 
-1. a new state x is alloced in xfrm_state_alloc() and added into the bydst hlist
-in  __find_acq_core() on the LHS;
-2. on the RHS, state_hash_work thread travels the old bydst and tranfers every xfrm_state
-(include x) into the new bydst hlist and new byspi hlist;
-3. user thread on the LHS gets the lock and adds x into the new byspi hlist again.
+Update xfs_setattr_size() to explicitly flush the new EOF page prior
+to the page truncate to ensure iomap has the latest state of the
+underlying block.
 
-So the same xfrm_state (x) is added into the same list_hash
-(net->xfrm.state_byspi) 2 times that makes the list_hash become
-an inifite loop.
-
-To fix the race, x->id.spi = htonl(spi) in the xfrm_alloc_spi() is moved
-to the back of spin_lock_bh, sothat state_hash_work thread no longer add x
-which id.spi is zero into the hash_list.
-
-Fixes: f034b5d4efdf ("[XFRM]: Dynamic xfrm_state hash table sizing.")
-Signed-off-by: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 68a9f5e7007c ("xfs: implement iomap based buffered write path")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_state.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_iops.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 05c275a712f11..5164dfe0aa097 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1783,6 +1783,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
- 	int err = -ENOENT;
- 	__be32 minspi = htonl(low);
- 	__be32 maxspi = htonl(high);
-+	__be32 newspi = 0;
- 	u32 mark = x->mark.v & x->mark.m;
- 
- 	spin_lock_bh(&x->lock);
-@@ -1801,21 +1802,22 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
- 			xfrm_state_put(x0);
- 			goto unlock;
- 		}
--		x->id.spi = minspi;
-+		newspi = minspi;
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index 7bfddcd32d73e..0d587657056d8 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -864,6 +864,16 @@ xfs_setattr_size(
+ 	if (newsize > oldsize) {
+ 		error = xfs_zero_eof(ip, newsize, oldsize, &did_zeroing);
  	} else {
- 		u32 spi = 0;
- 		for (h = 0; h < high-low+1; h++) {
- 			spi = low + prandom_u32()%(high-low+1);
- 			x0 = xfrm_state_lookup(net, mark, &x->id.daddr, htonl(spi), x->id.proto, x->props.family);
- 			if (x0 == NULL) {
--				x->id.spi = htonl(spi);
-+				newspi = htonl(spi);
- 				break;
- 			}
- 			xfrm_state_put(x0);
- 		}
++		/*
++		 * iomap won't detect a dirty page over an unwritten block (or a
++		 * cow block over a hole) and subsequently skips zeroing the
++		 * newly post-EOF portion of the page. Flush the new EOF to
++		 * convert the block before the pagecache truncate.
++		 */
++		error = filemap_write_and_wait_range(inode->i_mapping, newsize,
++						     newsize);
++		if (error)
++			return error;
+ 		error = iomap_truncate_page(inode, newsize, &did_zeroing,
+ 				&xfs_iomap_ops);
  	}
--	if (x->id.spi) {
-+	if (newspi) {
- 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
-+		x->id.spi = newspi;
- 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
- 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
- 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 -- 
 2.27.0
 
