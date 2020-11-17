@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E94592B66BD
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C0E2B66C9
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgKQNHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:07:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35326 "EHLO mail.kernel.org"
+        id S1727202AbgKQOGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:06:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729126AbgKQNHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:38 -0500
+        id S1729136AbgKQNHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 009E724698;
-        Tue, 17 Nov 2020 13:07:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD25B246BE;
+        Tue, 17 Nov 2020 13:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618457;
-        bh=E/ylpNjfTYnYrW8Ivjb7kMwyCcrIvyGzkZxCdGnehTw=;
+        s=default; t=1605618460;
+        bh=BgUU6vuA4mdDWxDbHnZ3Iq/uuzNoZaKCqquELStN1Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvQMPUoud2+z7hn6EmPv3AuzMfWKHqFTjhnlWpeLr/HIPOaqq0aAdP/nESmtbP6RN
-         WaFaJkfbAaKyU94PGC7xJ+xkVISkVqrl02wDltrz3Qcyfc2XCZRnx/Y0R+hdF+4FHw
-         7SBOgfR7Ijz5wuS10Im+dLmVTcaEu9jmYcIAIsck=
+        b=IbbJ/oljRrSjdkrWZ5RHFMx+x7dTCwiRaMZMI6NeDmwLblEGrburGwuFvEkUCIon3
+         LZaXsKhGZtHsWxBzrP1RNHaelyc0YXyG1n4muNkpl0ynELW4NQPsSWRCIJpS9vmyy5
+         gOhVU1yZNoc1QSgZtaE/7yWJcjRWzUKFrkoa57hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@vger.kerne.org,
-        Coiby Xu <coiby.xu@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.4 40/64] pinctrl: amd: fix incorrect way to disable debounce filter
-Date:   Tue, 17 Nov 2020 14:05:03 +0100
-Message-Id: <20201117122108.143061960@linuxfoundation.org>
+        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 4.4 41/64] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
+Date:   Tue, 17 Nov 2020 14:05:04 +0100
+Message-Id: <20201117122108.191850580@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
 References: <20201117122106.144800239@linuxfoundation.org>
@@ -44,44 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-commit 06abe8291bc31839950f7d0362d9979edc88a666 upstream.
+commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
 
-The correct way to disable debounce filter is to clear bit 5 and 6
-of the register.
+kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
+allocate a buffer for the swiotlb. It does so by calling
 
-Cc: stable@vger.kerne.org
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/linux-gpio/df2c008b-e7b5-4fdd-42ea-4d1c62b52139@redhat.com/
-Link: https://lore.kernel.org/r/20201105231912.69527-2-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
+
+If the allocation must fail, no_iotlb_memory is set.
+
+Later during initialization swiotlb-xen comes in
+(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
+is != 0, it thinks the memory is ready to use when actually it is not.
+
+When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
+and since no_iotlb_memory is set the kernel panics.
+
+Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
+initialized, it would do the initialization itself, which might still
+succeed.
+
+Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
+failure, and also by setting no_iotlb_memory to false on swiotlb
+initialization success.
+
+Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
+
+Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
+Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/swiotlb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -154,14 +154,14 @@ static int amd_gpio_set_debounce(struct
- 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
- 		} else {
--			pin_reg &= ~DB_CNTRl_MASK;
-+			pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
- 			ret = -EINVAL;
- 		}
- 	} else {
- 		pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
- 		pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
- 		pin_reg &= ~DB_TMR_OUT_MASK;
--		pin_reg &= ~DB_CNTRl_MASK;
-+		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -195,6 +195,7 @@ int __init swiotlb_init_with_tbl(char *t
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
  	}
- 	writel(pin_reg, gpio_dev->base + offset * 4);
- 	spin_unlock_irqrestore(&gpio_dev->lock, flags);
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
+ 
+ 	if (verbose)
+ 		swiotlb_print_info();
+@@ -225,9 +226,11 @@ swiotlb_init(int verbose)
+ 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
+ 		return;
+ 
+-	if (io_tlb_start)
++	if (io_tlb_start) {
+ 		memblock_free_early(io_tlb_start,
+ 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
++		io_tlb_start = 0;
++	}
+ 	pr_warn("Cannot allocate buffer");
+ 	no_iotlb_memory = true;
+ }
+@@ -326,6 +329,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
+ 
+ 	swiotlb_print_info();
+ 
 
 
