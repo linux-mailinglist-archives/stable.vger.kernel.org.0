@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 304A62B635C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 241F92B6334
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732106AbgKQNfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S1732524AbgKQNfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:35:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732518AbgKQNfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:35:51 -0500
+        id S1732010AbgKQNfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:35:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B13E2078E;
-        Tue, 17 Nov 2020 13:35:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA9E624654;
+        Tue, 17 Nov 2020 13:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620151;
-        bh=3XIFQy1igTvJoiMFNy7IC0L1KE+4cWAQr3s3KH9fNcU=;
+        s=default; t=1605620154;
+        bh=6XlyFZ9oASdXq6WPisknSIGYAu6qFcFe0nHE8uxr0dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/gnNKjga/F+D66aUrrLXWf8lK6GgqWIWb2TvdneOPOi8ojp/EMKUQ2s73vFEX+Bs
-         63rMDs/9vpIwalESUP+fHnqeO+2MaE7Wb9ng5V/O5o4N3InXC/J2NlqL2f+hfkeAdV
-         LhGrEypkurMFPnM1d4ZPJ8BBLiIgGsuSnmcVZp+s=
+        b=yZwEROAvX2QQfSpQf+R7qTbyZq9XaNjhyTlHPmwY7stwGQicKrljo2pzJvFoZAbXM
+         3BqOjU8bZieZSZ3ApzLbhmbfBzwovbZIHJLeEbCyHjdnarcpxkEZlVQsu6lKCkiTxE
+         +dZELAypImt/auX22vRHPiHCdxoIecfuIsE5KIY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sandeep Raghuraman <sandy.8925@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 093/255] drm/amdgpu: perform srbm soft reset always on SDMA resume
-Date:   Tue, 17 Nov 2020 14:03:53 +0100
-Message-Id: <20201117122143.480621387@linuxfoundation.org>
+Subject: [PATCH 5.9 094/255] drm/amd/pm: correct the baco reset sequence for CI ASICs
+Date:   Tue, 17 Nov 2020 14:03:54 +0100
+Message-Id: <20201117122143.532338247@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -46,10 +46,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
+[ Upstream commit c108725ef589af462be6b957f63c7925e38213eb ]
 
-This can address the random SDMA hang after pci config reset
-seen on Hawaii.
+Correct some registers bitmasks and add mmBIOS_SCRATCH_7
+reset.
 
 Signed-off-by: Evan Quan <evan.quan@amd.com>
 Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
@@ -57,48 +57,37 @@ Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-index 20f108818b2b9..a3c3fe96515f2 100644
---- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-+++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-@@ -1071,22 +1071,19 @@ static int cik_sdma_soft_reset(void *handle)
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c b/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
+index 3be40114e63d2..45f608838f6eb 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/ci_baco.c
+@@ -142,12 +142,12 @@ static const struct baco_cmd_entry exit_baco_tbl[] =
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_BCLK_OFF_MASK,           BACO_CNTL__BACO_BCLK_OFF__SHIFT, 0, 0x00 },
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_POWER_OFF_MASK,          BACO_CNTL__BACO_POWER_OFF__SHIFT, 0, 0x00 },
+ 	{ CMD_DELAY_MS, 0, 0, 0, 20, 0 },
+-	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_BF_MASK, 0, 0xffffffff, 0x20 },
++	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_BF_MASK, 0, 0xffffffff, 0x200 },
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_ISO_DIS_MASK, BACO_CNTL__BACO_ISO_DIS__SHIFT, 0, 0x01 },
+-	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_MASK, 0, 5, 0x1c },
++	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__PWRGOOD_MASK, 0, 5, 0x1c00 },
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_ANA_ISO_DIS_MASK, BACO_CNTL__BACO_ANA_ISO_DIS__SHIFT, 0, 0x01 },
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_RESET_EN_MASK, BACO_CNTL__BACO_RESET_EN__SHIFT, 0, 0x00 },
+-	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__RCU_BIF_CONFIG_DONE_MASK, 0, 5, 0x10 },
++	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__RCU_BIF_CONFIG_DONE_MASK, 0, 5, 0x100 },
+ 	{ CMD_READMODIFYWRITE, mmBACO_CNTL, BACO_CNTL__BACO_EN_MASK, BACO_CNTL__BACO_EN__SHIFT, 0, 0x00 },
+ 	{ CMD_WAITFOR, mmBACO_CNTL, BACO_CNTL__BACO_MODE_MASK, 0, 0xffffffff, 0x00 }
+ };
+@@ -155,6 +155,7 @@ static const struct baco_cmd_entry exit_baco_tbl[] =
+ static const struct baco_cmd_entry clean_baco_tbl[] =
  {
- 	u32 srbm_soft_reset = 0;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--	u32 tmp = RREG32(mmSRBM_STATUS2);
-+	u32 tmp;
+ 	{ CMD_WRITE, mmBIOS_SCRATCH_6, 0, 0, 0, 0 },
++	{ CMD_WRITE, mmBIOS_SCRATCH_7, 0, 0, 0, 0 },
+ 	{ CMD_WRITE, mmCP_PFP_UCODE_ADDR, 0, 0, 0, 0 }
+ };
  
--	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
--		/* sdma0 */
--		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
--		tmp |= SDMA0_F32_CNTL__HALT_MASK;
--		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
--		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
--	}
--	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
--		/* sdma1 */
--		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
--		tmp |= SDMA0_F32_CNTL__HALT_MASK;
--		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
--		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
--	}
-+	/* sdma0 */
-+	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
-+	tmp |= SDMA0_F32_CNTL__HALT_MASK;
-+	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
-+	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
-+
-+	/* sdma1 */
-+	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
-+	tmp |= SDMA0_F32_CNTL__HALT_MASK;
-+	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
-+	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
- 
- 	if (srbm_soft_reset) {
- 		tmp = RREG32(mmSRBM_SOFT_RESET);
 -- 
 2.27.0
 
