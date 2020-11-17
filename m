@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4C22B6203
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4DCC2B60DC
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731012AbgKQNYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59608 "EHLO mail.kernel.org"
+        id S1729957AbgKQNNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730835AbgKQNYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:34 -0500
+        id S1729948AbgKQNNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE31B2467A;
-        Tue, 17 Nov 2020 13:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C8842225B;
+        Tue, 17 Nov 2020 13:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619473;
-        bh=zAo+rX/HJd0EhyEP4ZjfM0EPLEC2xbl048pitavwzjs=;
+        s=default; t=1605618800;
+        bh=di5cSrTeag/RmFy7tCw5MxC3Y59sAQtTkEwdi41AJfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StcuKT+zxkYuuJqlrtXqROQf8IatiOgqo7udq6I7pPsTPq84L5EnvDbpZEgL/M4uU
-         EGbLtv6VMkxQTbMc61yUarQxs7atCGEid4p3nrLSfp9bWJ8CoXFXY5nvPeXuaEx/qe
-         0NRkQoULJ//WXvLWasHc0E61RmZ510rauIBaVJgI=
+        b=dCeD+QdaUW+XRq6ejR8kCvi3AF+WIE8GTG7mfv8D943gOFnnrFpBEIcfUyXblBaaz
+         r5ZH94sgpyKE7XVvIyoL4JUdw5EG4WGe/0HpJuEJlJb0F0XYP2EIW0YAM9Hv/HzoF4
+         iVoMcNOze5sWn1LglLEwyAuhKGGVoWQUu3B0rgGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/151] selftests/ftrace: check for do_sys_openat2 in user-memory test
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/85] ALSA: hda: prevent undefined shift in snd_hdac_ext_bus_get_link()
 Date:   Tue, 17 Nov 2020 14:04:41 +0100
-Message-Id: <20201117122123.914573332@linuxfoundation.org>
+Message-Id: <20201117122111.639283353@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e3e40312567087fbe6880f316cb2b0e1f3d8a82c ]
+[ Upstream commit 158e1886b6262c1d1c96a18c85fac5219b8bf804 ]
 
-More recent libc implementations are now using openat/openat2 system
-calls so also add do_sys_openat2 to the tracing so that the test
-passes on these systems because do_sys_open may not be called.
+This is harmless, but the "addr" comes from the user and it could lead
+to a negative shift or to shift wrapping if it's too high.
 
-Thanks to Masami Hiramatsu for the help on getting this fix to work
-correctly.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 0b00a5615dc4 ("ALSA: hdac_ext: add hdac extended controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20201103101807.GC1127762@mwanda
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_args_user.tc        | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/hda/ext/hdac_ext_controller.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-index 0f60087583d8f..a753c73d869ab 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-@@ -11,12 +11,16 @@ grep -A10 "fetcharg:" README | grep -q '\[u\]<offset>' || exit_unsupported
- :;: "user-memory access syntax and ustring working on user memory";:
- echo 'p:myevent do_sys_open path=+0($arg2):ustring path2=+u0($arg2):string' \
- 	> kprobe_events
-+echo 'p:myevent2 do_sys_openat2 path=+0($arg2):ustring path2=+u0($arg2):string' \
-+	>> kprobe_events
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index 84f3b81687164..b679d5f37e4d2 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -155,6 +155,8 @@ struct hdac_ext_link *snd_hdac_ext_bus_get_link(struct hdac_ext_bus *ebus,
+ 		return NULL;
+ 	if (ebus->idx != bus_idx)
+ 		return NULL;
++	if (addr < 0 || addr > 31)
++		return NULL;
  
- grep myevent kprobe_events | \
- 	grep -q 'path=+0($arg2):ustring path2=+u0($arg2):string'
- echo 1 > events/kprobes/myevent/enable
-+echo 1 > events/kprobes/myevent2/enable
- echo > /dev/null
- echo 0 > events/kprobes/myevent/enable
-+echo 0 > events/kprobes/myevent2/enable
- 
- grep myevent trace | grep -q 'path="/dev/null" path2="/dev/null"'
- 
+ 	list_for_each_entry(hlink, &ebus->hlink_list, list) {
+ 		for (i = 0; i < HDA_MAX_CODECS; i++) {
 -- 
 2.27.0
 
