@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 263722B64D9
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D8E2B64F5
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733139AbgKQNuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:50:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42504 "EHLO mail.kernel.org"
+        id S1732168AbgKQNvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:51:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732328AbgKQNcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:43 -0500
+        id S1731474AbgKQNbO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:31:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B20621734;
-        Tue, 17 Nov 2020 13:32:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7676620781;
+        Tue, 17 Nov 2020 13:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619962;
-        bh=he4KIhkkXcT7YqobN4HKFO1MI7XBPuzBlAVknM5R6SM=;
+        s=default; t=1605619873;
+        bh=UICNO9Y31Lhk/Lk46mkr+31/8pW7+nHiX0aUDE9I5XI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLHVZvAUhYAKHtQFwRVb2awuCeHTlrUhnr1FObTmB9TNqsn1dGu+PuS8mhQMbcalf
-         3XnO0IpUC3Y5OHTGPmad3cvZkcU/ablcrwWkeEatnpQHqOQ4iKQBrftmKvPUrhVMS7
-         OkGJQ6ZoPgSfMk6eJSDhhRPA/YOSSTIUcyAaDF+E=
+        b=zZ043lKFk7SeEU1jDhfSAg8bNn683+ZTvLxr/auHqg8dHEZ8ZuhmOhDFto/VCHnc4
+         p+CQkRN6kp8yjE5Myj7BFHjkFrS3LfgBK3xT5+F+pbMbXdzEEsftntHxs1DZ10ND8E
+         waslq9gTGqMATn+Bl73AouNAeqCeQ80Dc5MotFak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        zhongjiang-ali <zhongjiang-ali@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 032/255] mm: memcontrol: correct the NR_ANON_THPS counter of hierarchical memcg
-Date:   Tue, 17 Nov 2020 14:02:52 +0100
-Message-Id: <20201117122140.506848721@linuxfoundation.org>
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 033/255] drm/panfrost: rename error labels in device_init
+Date:   Tue, 17 Nov 2020 14:02:53 +0100
+Message-Id: <20201117122140.553551213@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -47,53 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhongjiang-ali <zhongjiang-ali@linux.alibaba.com>
+From: Clément Péron <peron.clem@gmail.com>
 
-[ Upstream commit 7de2e9f195b9cb27583c5c64deaaf5e6afcc163e ]
+[ Upstream commit d3c335da0200be9287cdf5755d19f62ce1670a8d ]
 
-memcg_page_state will get the specified number in hierarchical memcg, It
-should multiply by HPAGE_PMD_NR rather than an page if the item is
-NR_ANON_THPS.
+Rename goto labels in device_init it will be easier to maintain.
 
-[akpm@linux-foundation.org: fix printk warning]
-[akpm@linux-foundation.org: use u64 cast, per Michal]
-
-Fixes: 468c398233da ("mm: memcontrol: switch to native NR_ANON_THPS counter")
-Signed-off-by: zhongjiang-ali <zhongjiang-ali@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Link: https://lkml.kernel.org/r/1603722395-72443-1-git-send-email-zhongjiang-ali@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200710095409.407087-8-peron.clem@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_device.c | 30 +++++++++++-----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index de51787831728..51ce5d172855a 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4068,11 +4068,17 @@ static int memcg_stat_show(struct seq_file *m, void *v)
- 			   (u64)memsw * PAGE_SIZE);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
+index b172087eee6ae..9f89984f652a6 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.c
++++ b/drivers/gpu/drm/panfrost/panfrost_device.c
+@@ -216,56 +216,56 @@ int panfrost_device_init(struct panfrost_device *pfdev)
  
- 	for (i = 0; i < ARRAY_SIZE(memcg1_stats); i++) {
-+		unsigned long nr;
-+
- 		if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
- 			continue;
-+		nr = memcg_page_state(memcg, memcg1_stats[i]);
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+		if (memcg1_stats[i] == NR_ANON_THPS)
-+			nr *= HPAGE_PMD_NR;
-+#endif
- 		seq_printf(m, "total_%s %llu\n", memcg1_stat_names[i],
--			   (u64)memcg_page_state(memcg, memcg1_stats[i]) *
--			   PAGE_SIZE);
-+						(u64)nr * PAGE_SIZE);
+ 	err = panfrost_regulator_init(pfdev);
+ 	if (err)
+-		goto err_out0;
++		goto out_clk;
+ 
+ 	err = panfrost_reset_init(pfdev);
+ 	if (err) {
+ 		dev_err(pfdev->dev, "reset init failed %d\n", err);
+-		goto err_out1;
++		goto out_regulator;
  	}
  
- 	for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
+ 	err = panfrost_pm_domain_init(pfdev);
+ 	if (err)
+-		goto err_out2;
++		goto out_reset;
+ 
+ 	res = platform_get_resource(pfdev->pdev, IORESOURCE_MEM, 0);
+ 	pfdev->iomem = devm_ioremap_resource(pfdev->dev, res);
+ 	if (IS_ERR(pfdev->iomem)) {
+ 		dev_err(pfdev->dev, "failed to ioremap iomem\n");
+ 		err = PTR_ERR(pfdev->iomem);
+-		goto err_out3;
++		goto out_pm_domain;
+ 	}
+ 
+ 	err = panfrost_gpu_init(pfdev);
+ 	if (err)
+-		goto err_out3;
++		goto out_pm_domain;
+ 
+ 	err = panfrost_mmu_init(pfdev);
+ 	if (err)
+-		goto err_out4;
++		goto out_gpu;
+ 
+ 	err = panfrost_job_init(pfdev);
+ 	if (err)
+-		goto err_out5;
++		goto out_mmu;
+ 
+ 	err = panfrost_perfcnt_init(pfdev);
+ 	if (err)
+-		goto err_out6;
++		goto out_job;
+ 
+ 	return 0;
+-err_out6:
++out_job:
+ 	panfrost_job_fini(pfdev);
+-err_out5:
++out_mmu:
+ 	panfrost_mmu_fini(pfdev);
+-err_out4:
++out_gpu:
+ 	panfrost_gpu_fini(pfdev);
+-err_out3:
++out_pm_domain:
+ 	panfrost_pm_domain_fini(pfdev);
+-err_out2:
++out_reset:
+ 	panfrost_reset_fini(pfdev);
+-err_out1:
++out_regulator:
+ 	panfrost_regulator_fini(pfdev);
+-err_out0:
++out_clk:
+ 	panfrost_clk_fini(pfdev);
+ 	return err;
+ }
 -- 
 2.27.0
 
