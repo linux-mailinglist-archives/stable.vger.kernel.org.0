@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1213C2B6195
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4692B604F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730762AbgKQNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:20:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53990 "EHLO mail.kernel.org"
+        id S1729217AbgKQNIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:08:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbgKQNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:20:28 -0500
+        id S1729215AbgKQNIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:08:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E7AC206D5;
-        Tue, 17 Nov 2020 13:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 228CD246BF;
+        Tue, 17 Nov 2020 13:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619228;
-        bh=Ejy93RLnNmUphyjzU+ljQMEPhyJJaHefgobGx91pGyQ=;
+        s=default; t=1605618480;
+        bh=NsSMxTTXiXeT1xzRNNesefAXSNHTiC/wjqSL1jedHOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MoptByzGaCdUxAZXEPG9pA0Tmg1h6Q+MCHvc4vl4PkQU2qDDACqPYpptQiiLcOVq
-         CRISpVgtNCDnD32BUEtqs8BevsyRnnBi8Y3BnkZ6JHFatOKneuJe+Hp20LQ+L34WTa
-         NvhmZJdbVcN/AI9E1N8+EWzNLgJrahfWa2jyK7UQ=
+        b=TfGjB7+gXdYGWBTPuWuLcoJz5kM55xLxyomJ8Zx8ppZtXjJ19GXA0GmBm+NVNArhp
+         w4HPj3lSwmqLlzdWHkqC2UxjT6JpsxxU369WYAcdGYcS/ki8Q+rMph5GxqznvPwv7v
+         6SgpZZCKHmwIYZaF1gfdmzBCjOTPnLQwQG2zTWWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/101] iommu/amd: Increase interrupt remapping table limit to 512 entries
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.4 47/64] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
 Date:   Tue, 17 Nov 2020 14:05:10 +0100
-Message-Id: <20201117122115.191217891@linuxfoundation.org>
+Message-Id: <20201117122108.484682239@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Anand K Mistry <amistry@google.com>
 
-[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
+commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
 
-Certain device drivers allocate IO queues on a per-cpu basis.
-On AMD EPYC platform, which can support up-to 256 cpu threads,
-this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
-and result in the error message:
+On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
+STIBP is set to on and
 
-    AMD-Vi: Failed to allocate IRTE
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-This has been observed with certain NVME devices.
+At the same time, IBPB can be set to conditional.
 
-AMD IOMMU hardware can actually support upto 512 interrupt
-remapping table entries. Therefore, update the driver to
-match the hardware limit.
+However, this leads to the case where it's impossible to turn on IBPB
+for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
 
-Please note that this also increases the size of interrupt remapping
-table to 8KB per device when using the 128-bit IRTE format.
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+condition leads to a return before the task flag is set. Similarly,
+ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
+conditional.
+
+More generally, the following cases are possible:
+
+1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
+2. STIBP = on && IBPB = conditional for AMD CPUs with
+   X86_FEATURE_AMD_STIBP_ALWAYS_ON
+
+The first case functions correctly today, but only because
+spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
+
+At a high level, this change does one thing. If either STIBP or IBPB
+is set to conditional, allow the prctl to change the task flag.
+Also, reflect that capability when querying the state. This isn't
+perfect since it doesn't take into account if only STIBP or IBPB is
+unconditionally on. But it allows the conditional feature to work as
+expected, without affecting the unconditional one.
+
+ [ bp: Massage commit message and comment; space out statements for
+   better readability. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/amd_iommu_types.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |   52 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index 859b06424e5c4..df6f3cc958e5e 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -410,7 +410,11 @@ extern bool amd_iommu_np_cache;
- /* Only true if all IOMMUs support device IOTLBs */
- extern bool amd_iommu_iotlb_sup;
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1223,6 +1223,14 @@ static int ssb_prctl_set(struct task_str
+ 	return 0;
+ }
  
--#define MAX_IRQS_PER_TABLE	256
-+/*
-+ * AMD IOMMU hardware only support 512 IRTEs despite
-+ * the architectural limitation of 2048 entries.
-+ */
-+#define MAX_IRQS_PER_TABLE	512
- #define IRQ_TABLE_ALIGNMENT	128
++static bool is_spec_ib_user_controlled(void)
++{
++	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
++}
++
+ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ {
+ 	switch (ctrl) {
+@@ -1230,17 +1238,26 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-		/*
+-		 * Indirect branch speculation is always disabled in strict
+-		 * mode. It can neither be enabled if it was force-disabled
+-		 * by a  previous prctl call.
  
- struct irq_remap_table {
--- 
-2.27.0
-
++		/*
++		 * With strict mode for both IBPB and STIBP, the instruction
++		 * code paths avoid checking this task flag and instead,
++		 * unconditionally run the instruction. However, STIBP and IBPB
++		 * are independent and either can be set to conditionally
++		 * enabled regardless of the mode of the other.
++		 *
++		 * If either is set to conditional, allow the task flag to be
++		 * updated, unless it was force-disabled by a previous prctl
++		 * call. Currently, this is possible on an AMD CPU which has the
++		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
++		 * kernel is booted with 'spectre_v2_user=seccomp', then
++		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
++		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
+ 		 */
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		if (!is_spec_ib_user_controlled() ||
+ 		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
++
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
+ 		break;
+@@ -1253,10 +1270,10 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return -EPERM;
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++
++		if (!is_spec_ib_user_controlled())
+ 			return 0;
++
+ 		task_set_spec_ib_disable(task);
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+ 			task_set_spec_ib_force_disable(task);
+@@ -1319,20 +1336,17 @@ static int ib_prctl_get(struct task_stru
+ 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 		return PR_SPEC_ENABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
+-		return PR_SPEC_DISABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
++	else if (is_spec_ib_user_controlled()) {
+ 		if (task_spec_ib_force_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
+ 		if (task_spec_ib_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+ 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+-	} else
++	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		return PR_SPEC_DISABLE;
++	else
+ 		return PR_SPEC_NOT_AFFECTED;
+ }
+ 
 
 
