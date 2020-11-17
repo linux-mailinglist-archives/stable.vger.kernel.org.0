@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9472B649F
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C08082B64C1
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732105AbgKQNdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
+        id S1731796AbgKQNtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:49:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgKQNdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:33:51 -0500
+        id S1732104AbgKQNdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:33:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59ADE2168B;
-        Tue, 17 Nov 2020 13:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 380322463D;
+        Tue, 17 Nov 2020 13:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620029;
-        bh=BzJ5fn01EUmgbhvM1Ni9TpmnHvKjX7Qmq6br3wANDC8=;
+        s=default; t=1605620032;
+        bh=RxdypS5yFALZA7A6ct64lelo/+SmNXp/dWCwIyV0Fao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mrjuWdee1LTuUiEySZImNtvP5/eomf44t2F/b6zR+TigTOmNiDHMnNnn/0+VVGtL
-         Y+nx67NmNuHlYxu4PP5p+Xt5Iilnhvy8calrkftOME1YmiJ+G63ns6Gv4IZlbCFRr9
-         86/3HDq9QtjKYI636tR5kS3bsvt3jMCIvfGo0s6Q=
+        b=he6XluYpKx8qiVD+zQ/rNTcZOSLiXSUC5xIHexB1XSAo+MVuE0G8+pV73QEq4H103
+         H0TZANSFnOnZPA/y+E8Vl9IBAbxPFG3o0Bfl74V0gu5LsQCYbl/vvltus3rtsrpRUZ
+         zIfS8ZV2wnIu0uvdIcH9V8VOx0MLFV5B8XbN9Lo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
+        Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 084/255] selftests/ftrace: check for do_sys_openat2 in user-memory test
-Date:   Tue, 17 Nov 2020 14:03:44 +0100
-Message-Id: <20201117122143.045428181@linuxfoundation.org>
+Subject: [PATCH 5.9 085/255] selftests: pidfd: fix compilation errors due to wait.h
+Date:   Tue, 17 Nov 2020 14:03:45 +0100
+Message-Id: <20201117122143.095474739@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,47 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tommi Rantala <tommi.t.rantala@nokia.com>
 
-[ Upstream commit e3e40312567087fbe6880f316cb2b0e1f3d8a82c ]
+[ Upstream commit 1948172fdba5ad643529ddcd00a601c0caa913ed ]
 
-More recent libc implementations are now using openat/openat2 system
-calls so also add do_sys_openat2 to the tracing so that the test
-passes on these systems because do_sys_open may not be called.
+Drop unneeded <linux/wait.h> header inclusion to fix pidfd compilation
+errors seen in Fedora 32:
 
-Thanks to Masami Hiramatsu for the help on getting this fix to work
-correctly.
+In file included from pidfd_open_test.c:9:
+../../../../usr/include/linux/wait.h:17:16: error: expected identifier before numeric constant
+   17 | #define P_ALL  0
+      |                ^
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_args_user.tc        | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/pidfd/pidfd_open_test.c | 1 -
+ tools/testing/selftests/pidfd/pidfd_poll_test.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-index a30a9c07290d0..d25d01a197781 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
-@@ -9,12 +9,16 @@ grep -A10 "fetcharg:" README | grep -q '\[u\]<offset>' || exit_unsupported
- :;: "user-memory access syntax and ustring working on user memory";:
- echo 'p:myevent do_sys_open path=+0($arg2):ustring path2=+u0($arg2):string' \
- 	> kprobe_events
-+echo 'p:myevent2 do_sys_openat2 path=+0($arg2):ustring path2=+u0($arg2):string' \
-+	>> kprobe_events
- 
- grep myevent kprobe_events | \
- 	grep -q 'path=+0($arg2):ustring path2=+u0($arg2):string'
- echo 1 > events/kprobes/myevent/enable
-+echo 1 > events/kprobes/myevent2/enable
- echo > /dev/null
- echo 0 > events/kprobes/myevent/enable
-+echo 0 > events/kprobes/myevent2/enable
- 
- grep myevent trace | grep -q 'path="/dev/null" path2="/dev/null"'
- 
+diff --git a/tools/testing/selftests/pidfd/pidfd_open_test.c b/tools/testing/selftests/pidfd/pidfd_open_test.c
+index b9fe75fc3e517..8a59438ccc78b 100644
+--- a/tools/testing/selftests/pidfd/pidfd_open_test.c
++++ b/tools/testing/selftests/pidfd/pidfd_open_test.c
+@@ -6,7 +6,6 @@
+ #include <inttypes.h>
+ #include <limits.h>
+ #include <linux/types.h>
+-#include <linux/wait.h>
+ #include <sched.h>
+ #include <signal.h>
+ #include <stdbool.h>
+diff --git a/tools/testing/selftests/pidfd/pidfd_poll_test.c b/tools/testing/selftests/pidfd/pidfd_poll_test.c
+index 4b115444dfe90..6108112753573 100644
+--- a/tools/testing/selftests/pidfd/pidfd_poll_test.c
++++ b/tools/testing/selftests/pidfd/pidfd_poll_test.c
+@@ -3,7 +3,6 @@
+ #define _GNU_SOURCE
+ #include <errno.h>
+ #include <linux/types.h>
+-#include <linux/wait.h>
+ #include <poll.h>
+ #include <signal.h>
+ #include <stdbool.h>
 -- 
 2.27.0
 
