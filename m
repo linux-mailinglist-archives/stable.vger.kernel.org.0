@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925752B6533
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C022B63FE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732989AbgKQNwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:52:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
+        id S1733119AbgKQNnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:43:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731464AbgKQN3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:07 -0500
+        id S2387429AbgKQNm0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC5D22078D;
-        Tue, 17 Nov 2020 13:29:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B60F320729;
+        Tue, 17 Nov 2020 13:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619747;
-        bh=juE6iuSA1t62Gy995uukaf3S7jWxNWn/uGhW3aEWx50=;
+        s=default; t=1605620545;
+        bh=YcAP/ifFzpln7KSxQKBrl+59+cGuxbryCDa05qAn07s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZPv6xS0+kIG8BrQFOPkqB879AJj42UhGP+qf69yB9XhkalJuPslisyHWztr/u03K
-         PCn9fKUfcuUBIZ0sXXKbXRdj6UUH09kmvq0MlHwVNoaoHiCH4PHrxuTlnwrCAlkRGv
-         j3YWdcIA6HWBRsdkdb5uFqGWb1a4MOlBR2l3qsJA=
+        b=r+V2ADIrOgUfQvQRVHKeiqQb/BaK257QQLAb/P552jNmmiUGFg5RK02/ulcMMMTsA
+         Iul8xgKqiYBKwJPhJP6fgK0UIXywbTYY6+KP8D23z4tkawdF7BSD09P9gWhiWA6vSg
+         DvXCpSCNZga8azslNde1Z4gPI2iHS9+BtMSS1rLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Coiby Xu <coiby.xu@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 135/151] pinctrl: amd: use higher precision for 512 RtcClk
-Date:   Tue, 17 Nov 2020 14:06:05 +0100
-Message-Id: <20201117122127.996312036@linuxfoundation.org>
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.9 226/255] mmc: renesas_sdhi_core: Add missing tmio_mmc_host_free() at remove
+Date:   Tue, 17 Nov 2020 14:06:06 +0100
+Message-Id: <20201117122149.933593295@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit c64a6a0d4a928c63e5bc3b485552a8903a506c36 upstream.
+commit e8973201d9b281375b5a8c66093de5679423021a upstream.
 
-RTC is 32.768kHz thus 512 RtcClk equals 15625 usec. The documentation
-likely has dropped precision and that's why the driver mistakenly took
-the slightly deviated value.
+The commit 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
+added tmio_mmc_host_free(), but missed the function calling in
+the sh_mobile_sdhi_remove() at that time. So, fix it. Otherwise,
+we cannot rebind the sdhi/mmc devices when we use aliases of mmc.
 
+Fixes: 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 Cc: stable@vger.kernel.org
-Reported-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/linux-gpio/2f4706a1-502f-75f0-9596-cc25b4933b6c@redhat.com/
-Link: https://lore.kernel.org/r/20201105231912.69527-3-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1604654730-29914-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -153,7 +153,7 @@ static int amd_gpio_set_debounce(struct
- 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
- 		} else if (debounce < 250000) {
--			time = debounce / 15600;
-+			time = debounce / 15625;
- 			pin_reg |= time & DB_TMR_OUT_MASK;
- 			pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -997,6 +997,7 @@ int renesas_sdhi_remove(struct platform_
+ 
+ 	tmio_mmc_host_remove(host);
+ 	renesas_sdhi_clk_disable(host);
++	tmio_mmc_host_free(host);
+ 
+ 	return 0;
+ }
 
 
