@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3BB2B5FE7
+	by mail.lfdr.de (Postfix) with ESMTP id E6B5D2B5FE8
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728580AbgKQM5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:57:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54006 "EHLO mail.kernel.org"
+        id S1728576AbgKQM7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:59:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgKQM5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:15 -0500
+        id S1728577AbgKQM5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BC3B24654;
-        Tue, 17 Nov 2020 12:57:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D81F2151B;
+        Tue, 17 Nov 2020 12:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617834;
-        bh=ovRUdtpGjvjFtygeVO2FJg+vAgIvobDh8vJPiYHA19Q=;
+        s=default; t=1605617835;
+        bh=w7VnWskPvaV6tzVCHJZWzM2nqZnQFY5pXxE3yIS/zU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlyObSmaaDxi3U89YLKN838I0k7I/uVp6pOWYLxGp+Va0MSlCRMrv+n3Z7z6aF0pP
-         FR957Oica0u2V8xUSJFDMgLvUqYnD0D7sdVb4iM2GRT9OTYv15zfjA7pmZvlW9FzmC
-         hjNhi1Yz+yw/Cq2LPT1akDmJDuuddpeZmvkHqgrM=
+        b=Imay0JLK23QK72zKUkvfJQbPqI5+grkFxmpdRE04xRKX5WP1dYZ5cszII666KlS2J
+         ixXIl0xbASGv+PmT56kKizE2sA/nQQ6EKqWkNsmiyWNwOEy2tFwSPGCRVE1i0hx7hi
+         bJgxfWpLYL0sH3q7VszUPfRkKoBz2NyiGAGpGorI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boqun Feng <boqun.feng@gmail.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 13/21] lockdep: Avoid to modify chain keys in validate_chain()
-Date:   Tue, 17 Nov 2020 07:56:44 -0500
-Message-Id: <20201117125652.599614-13-sashal@kernel.org>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christopher Obbard <chris.obbard@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 14/21] um: Call pgtable_pmd_page_dtor() in __pmd_free_tlb()
+Date:   Tue, 17 Nov 2020 07:56:45 -0500
+Message-Id: <20201117125652.599614-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201117125652.599614-1-sashal@kernel.org>
 References: <20201117125652.599614-1-sashal@kernel.org>
@@ -43,80 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Richard Weinberger <richard@nod.at>
 
-[ Upstream commit d61fc96a37603384cd531622c1e89de1096b5123 ]
+[ Upstream commit 9a5085b3fad5d5d6019a3d160cdd70357d35c8b1 ]
 
-Chris Wilson reported a problem spotted by check_chain_key(): a chain
-key got changed in validate_chain() because we modify the ->read in
-validate_chain() to skip checks for dependency adding, and ->read is
-taken into calculation for chain key since commit f611e8cf98ec
-("lockdep: Take read/write status in consideration when generate
-chainkey").
+Commit b2b29d6d0119 ("mm: account PMD tables like PTE tables") uncovered
+a bug in uml, we forgot to call the destructor.
+While we are here, give x a sane name.
 
-Fix this by avoiding to modify ->read in validate_chain() based on two
-facts: a) since we now support recursive read lock detection, there is
-no need to skip checks for dependency adding for recursive readers, b)
-since we have a), there is only one case left (nest_lock) where we want
-to skip checks in validate_chain(), we simply remove the modification
-for ->read and rely on the return value of check_deadlock() to skip the
-dependency adding.
-
-Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201102053743.450459-1-boqun.feng@gmail.com
+Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Co-developed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Tested-by: Christopher Obbard <chris.obbard@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/um/include/asm/pgalloc.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 3eb35ad1b5241..f3a4302a1251f 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -2421,7 +2421,9 @@ print_deadlock_bug(struct task_struct *curr, struct held_lock *prev,
-  * (Note that this has to be done separately, because the graph cannot
-  * detect such classes of deadlocks.)
-  *
-- * Returns: 0 on deadlock detected, 1 on OK, 2 on recursive read
-+ * Returns: 0 on deadlock detected, 1 on OK, 2 if another lock with the same
-+ * lock class is held but nest_lock is also held, i.e. we rely on the
-+ * nest_lock to avoid the deadlock.
-  */
- static int
- check_deadlock(struct task_struct *curr, struct held_lock *next)
-@@ -2444,7 +2446,7 @@ check_deadlock(struct task_struct *curr, struct held_lock *next)
- 		 * lock class (i.e. read_lock(lock)+read_lock(lock)):
- 		 */
- 		if ((next->read == 2) && prev->read)
--			return 2;
-+			continue;
+diff --git a/arch/um/include/asm/pgalloc.h b/arch/um/include/asm/pgalloc.h
+index 5393e13e07e0a..2bbf28cf3aa92 100644
+--- a/arch/um/include/asm/pgalloc.h
++++ b/arch/um/include/asm/pgalloc.h
+@@ -33,7 +33,13 @@ do {							\
+ } while (0)
  
- 		/*
- 		 * We're holding the nest_lock, which serializes this lock's
-@@ -3227,16 +3229,13 @@ static int validate_chain(struct task_struct *curr,
+ #ifdef CONFIG_3_LEVEL_PGTABLES
+-#define __pmd_free_tlb(tlb,x, address)   tlb_remove_page((tlb),virt_to_page(x))
++
++#define __pmd_free_tlb(tlb, pmd, address)		\
++do {							\
++	pgtable_pmd_page_dtor(virt_to_page(pmd));	\
++	tlb_remove_page((tlb),virt_to_page(pmd));	\
++} while (0)						\
++
+ #endif
  
- 		if (!ret)
- 			return 0;
--		/*
--		 * Mark recursive read, as we jump over it when
--		 * building dependencies (just like we jump over
--		 * trylock entries):
--		 */
--		if (ret == 2)
--			hlock->read = 2;
- 		/*
- 		 * Add dependency only if this lock is not the head
--		 * of the chain, and if it's not a secondary read-lock:
-+		 * of the chain, and if the new lock introduces no more
-+		 * lock dependency (because we already hold a lock with the
-+		 * same lock class) nor deadlock (because the nest_lock
-+		 * serializes nesting locks), see the comments for
-+		 * check_deadlock().
- 		 */
- 		if (!chain_head && ret != 2) {
- 			if (!check_prevs_add(curr, hlock))
+ #endif
 -- 
 2.27.0
 
