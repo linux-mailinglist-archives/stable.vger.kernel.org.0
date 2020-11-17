@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8592B6018
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B622B6174
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728548AbgKQNGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60620 "EHLO mail.kernel.org"
+        id S1730747AbgKQNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:19:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728524AbgKQNGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:22 -0500
+        id S1730745AbgKQNTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:19:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3899221EB;
-        Tue, 17 Nov 2020 13:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F17C2225B;
+        Tue, 17 Nov 2020 13:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618382;
-        bh=Am6Fb1ha9CqL6Ygoc8p8yH7JyPN9dzWPlHGqqaIAKbQ=;
+        s=default; t=1605619140;
+        bh=kW6BdGEdt/qVS4A1JYuP8GKZc0CMpt5ud0hNVAooEno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+aJkmLjecXjym0VpyTlQFZAhNTaLO8kQMy5oSZkDaNZwe3VA34xAy2TslJLc2qf1
-         5fc6hWFjpS5T0XROKlHOibJE1qhXOLYK+Q/El6bWqGyGmD8sLYoJ72UpXTbTTNN/aO
-         0KJ9v17l4rzRDFpSruD3vyNWmH+cLT97CeIggyfE=
+        b=ieI8egw1ygRGJw0zrYIM7lwdXv5802BZh9LCDtmODUCScOsdM417S/+XqcF4Lkr2Y
+         oCDuZmK3wntgnLwn7IEC4YY3zBZNRgV+/a+HzQrg+V+KdN5z9ss2niPKYTWH5rVg3T
+         WBc6S6eSkMNnGCnGZ6QZqtLk/v149pFU0tG3w+gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/64] Btrfs: fix missing error return if writeback for extent buffer never started
-Date:   Tue, 17 Nov 2020 14:04:37 +0100
-Message-Id: <20201117122106.835732234@linuxfoundation.org>
+Subject: [PATCH 4.19 011/101] xfs: set xefi_discard when creating a deferred agfl free log intent item
+Date:   Tue, 17 Nov 2020 14:04:38 +0100
+Message-Id: <20201117122113.651550678@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 0607eb1d452d45c5ac4c745a9e9e0d95152ea9d0 ]
+[ Upstream commit 2c334e12f957cd8c6bb66b4aa3f79848b7c33cab ]
 
-If lock_extent_buffer_for_io() fails, it returns a negative value, but its
-caller btree_write_cache_pages() ignores such error. This means that a
-call to flush_write_bio(), from lock_extent_buffer_for_io(), might have
-failed. We should make btree_write_cache_pages() notice such error values
-and stop immediatelly, making sure filemap_fdatawrite_range() returns an
-error to the transaction commit path. A failure from flush_write_bio()
-should also result in the endio callback end_bio_extent_buffer_writepage()
-being invoked, which sets the BTRFS_FS_*_ERR bits appropriately, so that
-there's no risk a transaction or log commit doesn't catch a writeback
-failure.
+Make sure that we actually initialize xefi_discard when we're scheduling
+a deferred free of an AGFL block.  This was (eventually) found by the
+UBSAN while I was banging on realtime rmap problems, but it exists in
+the upstream codebase.  While we're at it, rearrange the structure to
+reduce the struct size from 64 to 56 bytes.
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: fcb762f5de2e ("xfs: add bmapi nodiscard flag")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/xfs/libxfs/xfs_alloc.c | 1 +
+ fs/xfs/libxfs/xfs_bmap.h  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 97a80238fdee3..b28bc7690d4b3 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4000,6 +4000,10 @@ int btree_write_cache_pages(struct address_space *mapping,
- 			if (!ret) {
- 				free_extent_buffer(eb);
- 				continue;
-+			} else if (ret < 0) {
-+				done = 1;
-+				free_extent_buffer(eb);
-+				break;
- 			}
+diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
+index 1eb7933dac83e..b3a9043b0c9ee 100644
+--- a/fs/xfs/libxfs/xfs_alloc.c
++++ b/fs/xfs/libxfs/xfs_alloc.c
+@@ -2213,6 +2213,7 @@ xfs_defer_agfl_block(
+ 	new->xefi_startblock = XFS_AGB_TO_FSB(mp, agno, agbno);
+ 	new->xefi_blockcount = 1;
+ 	new->xefi_oinfo = *oinfo;
++	new->xefi_skip_discard = false;
  
- 			ret = write_one_eb(eb, fs_info, wbc, &epd);
+ 	trace_xfs_agfl_free_defer(mp, agno, 0, agbno, 1);
+ 
+diff --git a/fs/xfs/libxfs/xfs_bmap.h b/fs/xfs/libxfs/xfs_bmap.h
+index 488dc8860fd7c..50242ba3cdb72 100644
+--- a/fs/xfs/libxfs/xfs_bmap.h
++++ b/fs/xfs/libxfs/xfs_bmap.h
+@@ -52,9 +52,9 @@ struct xfs_extent_free_item
+ {
+ 	xfs_fsblock_t		xefi_startblock;/* starting fs block number */
+ 	xfs_extlen_t		xefi_blockcount;/* number of blocks in extent */
++	bool			xefi_skip_discard;
+ 	struct list_head	xefi_list;
+ 	struct xfs_owner_info	xefi_oinfo;	/* extent owner */
+-	bool			xefi_skip_discard;
+ };
+ 
+ #define	XFS_BMAP_MAX_NMAP	4
 -- 
 2.27.0
 
