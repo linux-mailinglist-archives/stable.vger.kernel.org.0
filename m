@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E725D2B6579
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E7D2B632B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731152AbgKQNWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:22:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56802 "EHLO mail.kernel.org"
+        id S1732305AbgKQNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:35:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731161AbgKQNWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:22:31 -0500
+        id S1732052AbgKQNff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:35:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E55AE2464E;
-        Tue, 17 Nov 2020 13:22:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 997BA2467A;
+        Tue, 17 Nov 2020 13:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619350;
-        bh=xjhdHuJ0Paq8gtsXiv5Yho0nQBVHBBt8VfS/npQfWSI=;
+        s=default; t=1605620135;
+        bh=sW56ZONulphTJNrzR+SU5Sy5PAkV0u1J025vu7So/C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAEmdtSa8Qt7D6beT2+VWDoH2bpFcnG9cckUQQE24pZLtSJoKo+fM3XY7APH6yokn
-         NFvAxFACcXs8oe9jLu+3xagP8Yh/UaHSV34rse+EPeXZXgMVoJ3/zk6jGVceaPqZDl
-         +ni72nheZuYnlW/1qa3+JZkA0pISpXEvMtRe1HDw=
+        b=1KJSBD1TuAgb4GSN1/K8uNA6Ij3YXcDWDWQLUPOaxpCiZMGdskrHKGlwo564amfVp
+         SxSKxTjCo9HwfSA8HWHZ6rB8gvSONJTUJV0Ulo0gUfvZPD+9aGnXnWGYGbF4Prpl0m
+         wYgvNipZTqVe+we77IOlaL/IFq9L4aksSzSbGqSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Zbigniew=20Kempczy=C5=84ski?= 
-        <zbigniew.kempczynski@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Matthew Auld <matthew.william.auld@gmail.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/151] drm/i915/gem: Flush coherency domains on first set-domain-ioctl
+Subject: [PATCH 5.9 091/255] gfs2: check for live vs. read-only file system in gfs2_fitrim
 Date:   Tue, 17 Nov 2020 14:03:51 +0100
-Message-Id: <20201117122121.459286658@linuxfoundation.org>
+Message-Id: <20201117122143.388063276@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,84 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 59dd13ad310793757e34afa489dd6fc8544fc3da ]
+[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
 
-Avoid skipping what appears to be a no-op set-domain-ioctl if the cache
-coherency state is inconsistent with our target domain. This also has
-the utility of using the population of the pages to validate the backing
-store.
+Before this patch, gfs2_fitrim was not properly checking for a "live" file
+system. If the file system had something to trim and the file system
+was read-only (or spectator) it would start the trim, but when it starts
+the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
+and it errors out. However, if the file system was already trimmed so
+there's no work to do, it never called gfs2_trans_begin. That code is
+bypassed so it never returns the error. Instead, it returns a good
+return code with 0 work. All this makes for inconsistent behavior:
+The same fstrim command can return -EROFS in one case and 0 in another.
+This tripped up xfstests generic/537 which reports the error as:
 
-The danger in skipping the first set-domain is leaving the cache
-inconsistent and submitting stale data, or worse leaving the clean data
-in the cache and not flushing it to the GPU. The impact should be small
-as it requires a no-op set-domain as the very first ioctl in a
-particular sequence not found in typical userspace.
+    +fstrim with unrecovered metadata just ate your filesystem
 
-Reported-by: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
-Fixes: 754a25442705 ("drm/i915: Skip object locking around a no-op set-domain ioctl")
-Testcase: igt/gem_mmap_offset/blt-coherency
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Matthew Auld <matthew.william.auld@gmail.com>
-Cc: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201019203825.10966-1-chris@chris-wilson.co.uk
-(cherry picked from commit 44c2200afcd59f441b43f27829b4003397cc495d)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+This patch adds a check for a "live" (iow, active journal, iow, RW)
+file system, and if not, returns the error properly.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_domain.c | 28 ++++++++++------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ fs/gfs2/rgrp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-index 9c58e8fac1d97..a4b48c9abeacd 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-@@ -605,21 +605,6 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
- 	if (!obj)
- 		return -ENOENT;
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 1d65db1b3914a..ac306895bbbcc 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1374,6 +1374,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
--	/*
--	 * Already in the desired write domain? Nothing for us to do!
--	 *
--	 * We apply a little bit of cunning here to catch a broader set of
--	 * no-ops. If obj->write_domain is set, we must be in the same
--	 * obj->read_domains, and only that domain. Therefore, if that
--	 * obj->write_domain matches the request read_domains, we are
--	 * already in the same read/write domain and can skip the operation,
--	 * without having to further check the requested write_domain.
--	 */
--	if (READ_ONCE(obj->write_domain) == read_domains) {
--		err = 0;
--		goto out;
--	}
--
- 	/*
- 	 * Try to flush the object off the GPU without holding the lock.
- 	 * We will repeat the flush holding the lock in the normal manner
-@@ -657,6 +642,19 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
- 	if (err)
- 		goto out;
- 
-+	/*
-+	 * Already in the desired write domain? Nothing for us to do!
-+	 *
-+	 * We apply a little bit of cunning here to catch a broader set of
-+	 * no-ops. If obj->write_domain is set, we must be in the same
-+	 * obj->read_domains, and only that domain. Therefore, if that
-+	 * obj->write_domain matches the request read_domains, we are
-+	 * already in the same read/write domain and can skip the operation,
-+	 * without having to further check the requested write_domain.
-+	 */
-+	if (READ_ONCE(obj->write_domain) == read_domains)
-+		goto out_unpin;
++	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
++		return -EROFS;
 +
- 	err = i915_gem_object_lock_interruptible(obj);
- 	if (err)
- 		goto out_unpin;
+ 	if (!blk_queue_discard(q))
+ 		return -EOPNOTSUPP;
+ 
 -- 
 2.27.0
 
