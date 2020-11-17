@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D842B62B5
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E842B651B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731897AbgKQNaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:30:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
+        id S1731970AbgKQNaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:30:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731474AbgKQNau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:30:50 -0500
+        id S1731958AbgKQNax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9AAD20781;
-        Tue, 17 Nov 2020 13:30:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2FC22078E;
+        Tue, 17 Nov 2020 13:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619849;
-        bh=GrX3qo/YHdIbhWI/HK5fZnDSi4lEofcHhX2T1djg3eU=;
+        s=default; t=1605619852;
+        bh=s/gBwMAh46zW2Ctf+OHxe2kRiwTZxgrwuZjOcNgDb18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zne7gEUeZ56tMN2Gac9zK3YNOb9fPaJPmqSfelbw1vHtkkjc2UlsfutDnHi9h2MvG
-         +1levI8g2ds5g4agplLdLEFIZTWA5XVgKWiFtL4DN4sTuXNtFeGXJ/ID/87nIQ+0qk
-         7H0tx7eJExob6EXEJAqlFZvC5x1TMR58xGAhKqRU=
+        b=CSd70rC57qlsSZXiMCOYf7zjmZDmdTaC2H5otOBeLCDh5KOQPEAhSs2cPurvBh9FX
+         HYnQeSSfeKvZJSJ+DfSNih61jz8PhBF26yzWP8Sq9evsjCn/VTJ0H/QK2vgT1a+ZWC
+         6E0hoEyNGGv3yU6uZxo9Kry7tFW9NrTjdBbxyrUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lining <lining2020x@163.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 004/255] nbd: dont update block size after device is started
-Date:   Tue, 17 Nov 2020 14:02:24 +0100
-Message-Id: <20201117122139.147220144@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Santosh Shukla <sashukla@nvidia.com>,
+        Gavin Shan <gshan@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 005/255] KVM: arm64: Force PTE mapping on fault resulting in a device mapping
+Date:   Tue, 17 Nov 2020 14:02:25 +0100
+Message-Id: <20201117122139.196309454@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,70 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Santosh Shukla <sashukla@nvidia.com>
 
-[ Upstream commit b40813ddcd6bf9f01d020804e4cb8febc480b9e4 ]
+[ Upstream commit 91a2c34b7d6fadc9c5d9433c620ea4c32ee7cae8 ]
 
-Mounted NBD device can be resized, one use case is rbd-nbd.
+VFIO allows a device driver to resolve a fault by mapping a MMIO
+range. This can be subsequently result in user_mem_abort() to
+try and compute a huge mapping based on the MMIO pfn, which is
+a sure recipe for things to go wrong.
 
-Fix the issue by setting up default block size, then not touch it
-in nbd_size_update() any more. This kind of usage is aligned with loop
-which has same use case too.
+Instead, force a PTE mapping when the pfn faulted in has a device
+mapping.
 
+Fixes: 6d674e28f642 ("KVM: arm/arm64: Properly handle faulting of device mappings")
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Santosh Shukla <sashukla@nvidia.com>
+[maz: rewritten commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Gavin Shan <gshan@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: c8a83a6b54d0 ("nbd: Use set_blocksize() to set device blocksize")
-Reported-by: lining <lining2020x@163.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Cc: Jan Kara <jack@suse.cz>
-Tested-by: lining <lining2020x@163.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/1603711447-11998-2-git-send-email-sashukla@nvidia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/mmu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index f46e26c9d9b3c..d76fca629c143 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -296,7 +296,7 @@ static void nbd_size_clear(struct nbd_device *nbd)
- 	}
- }
- 
--static void nbd_size_update(struct nbd_device *nbd)
-+static void nbd_size_update(struct nbd_device *nbd, bool start)
- {
- 	struct nbd_config *config = nbd->config;
- 	struct block_device *bdev = bdget_disk(nbd->disk, 0);
-@@ -312,7 +312,8 @@ static void nbd_size_update(struct nbd_device *nbd)
- 	if (bdev) {
- 		if (bdev->bd_disk) {
- 			bd_set_size(bdev, config->bytesize);
--			set_blocksize(bdev, config->blksize);
-+			if (start)
-+				set_blocksize(bdev, config->blksize);
- 		} else
- 			bdev->bd_invalidated = 1;
- 		bdput(bdev);
-@@ -327,7 +328,7 @@ static void nbd_size_set(struct nbd_device *nbd, loff_t blocksize,
- 	config->blksize = blocksize;
- 	config->bytesize = blocksize * nr_blocks;
- 	if (nbd->task_recv != NULL)
--		nbd_size_update(nbd);
-+		nbd_size_update(nbd, false);
- }
- 
- static void nbd_complete_rq(struct request *req)
-@@ -1307,7 +1308,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		args->index = i;
- 		queue_work(nbd->recv_workq, &args->work);
- 	}
--	nbd_size_update(nbd);
-+	nbd_size_update(nbd, true);
- 	return error;
- }
- 
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index 3d26b47a13430..7a4ad984d54e0 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -1920,6 +1920,7 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
+ 	if (kvm_is_device_pfn(pfn)) {
+ 		mem_type = PAGE_S2_DEVICE;
+ 		flags |= KVM_S2PTE_FLAG_IS_IOMAP;
++		force_pte = true;
+ 	} else if (logging_active) {
+ 		/*
+ 		 * Faults on pages in a memslot with logging enabled
 -- 
 2.27.0
 
