@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EC82B664B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44ACE2B66C6
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729368AbgKQNNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:13:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43952 "EHLO mail.kernel.org"
+        id S1728947AbgKQNGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:06:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728643AbgKQNN1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:13:27 -0500
+        id S1728945AbgKQNGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:06:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 086C6246C3;
-        Tue, 17 Nov 2020 13:13:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B245E24248;
+        Tue, 17 Nov 2020 13:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618806;
-        bh=L5VTr8X2OXy6sxrXyoXMwlZk1hPWPod3JAZrnp0UmKg=;
+        s=default; t=1605618403;
+        bh=A37OiWbnTjlyCr+Wpq+gqaATOUcIelbqofq8d0wJNqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfUy9VeSi3xVS6P64jshrfTxAtrma/YYvm0bwaeDOH6YU4z2EDHHM0daU2yBnDB2x
-         t5bUfTGK2XPxYqDW//XRBS5wVJopDv5ZDTElZJSB60yiitQ7fd39MJdED1NpbzZbFA
-         Z9lanvwfl1q9RT81o51NbzgHcYbXVdt+J76ZF+x0=
+        b=rqw7gcvnn9sdwH2sJYA74bTvgn0i60mTK8+FucRtAPbC1BjdGXdv5UxEQrtHQTkl4
+         X4VtzstnxLhsNbNiaLRvT7XEQfY9tegV9toh09S6pYDsM420T573l5pipz9+pNdqH9
+         w+UmRSvYc5qCT04Rs4y2YJr2/xYHWFXZfIML+xtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Pavel Andrianov <andrianov@ispras.ru>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/85] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
+Subject: [PATCH 4.4 20/64] usb: gadget: goku_udc: fix potential crashes in probe
 Date:   Tue, 17 Nov 2020 14:04:43 +0100
-Message-Id: <20201117122111.733175438@linuxfoundation.org>
+Message-Id: <20201117122107.127030934@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
+[ Upstream commit 0d66e04875c5aae876cf3d4f4be7978fa2b00523 ]
 
-If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
-not always, the case), the 'WARN_ON(in_irq)' in
-net/core/skbuff.c#skb_release_head_state() might be triggered, under network
-congestion circumstances, together with the potential risk of a NULL pointer
-dereference.
+goku_probe() goes to error label "err" and invokes goku_remove()
+in case of failures of pci_enable_device(), pci_resource_start()
+and ioremap(). goku_remove() gets a device from
+pci_get_drvdata(pdev) and works with it without any checks, in
+particular it dereferences a corresponding pointer. But
+goku_probe() did not set this device yet. So, one can expect
+various crashes. The patch moves setting the device just after
+allocation of memory for it.
 
-The root cause of this issue is the call to kfree_skb() instead of
-dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
+Found by Linux Driver Verification project (linuxtesting.org).
 
-This patch prevents the skb to be freed within the call to netif_rx() by
-incrementing its reference count with skb_get(). The skb is finally freed by
-one of the in-irq-context safe functions: dev_consume_skb_any() or
-dev_kfree_skb_any(). The "any" version is used because some drivers might call
-can_get_echo_skb() in a normal context.
-
-The reason for this issue to occur is that initially, in the core network
-stack, loopback skb were not supposed to be received in hardware IRQ context.
-The CAN stack is an exeption.
-
-This bug was previously reported back in 2017 in [1] but the proposed patch
-never got accepted.
-
-While [1] directly modifies net/core/dev.c, we try to propose here a
-smoother modification local to CAN network stack (the assumption
-behind is that only CAN devices are affected by this issue).
-
-[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
-
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
-Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reported-by: Pavel Andrianov <andrianov@ispras.ru>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/goku_udc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 05ad5ed145a3a..926d663eed37a 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -519,7 +519,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
- 	if (!skb)
- 		return 0;
+diff --git a/drivers/usb/gadget/udc/goku_udc.c b/drivers/usb/gadget/udc/goku_udc.c
+index 1fdfec14a3ba1..5d4616061309e 100644
+--- a/drivers/usb/gadget/udc/goku_udc.c
++++ b/drivers/usb/gadget/udc/goku_udc.c
+@@ -1773,6 +1773,7 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto err;
+ 	}
  
--	netif_rx(skb);
-+	skb_get(skb);
-+	if (netif_rx(skb) == NET_RX_SUCCESS)
-+		dev_consume_skb_any(skb);
-+	else
-+		dev_kfree_skb_any(skb);
++	pci_set_drvdata(pdev, dev);
+ 	spin_lock_init(&dev->lock);
+ 	dev->pdev = pdev;
+ 	dev->gadget.ops = &goku_ops;
+@@ -1806,7 +1807,6 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	}
+ 	dev->regs = (struct goku_udc_regs __iomem *) base;
  
- 	return len;
- }
+-	pci_set_drvdata(pdev, dev);
+ 	INFO(dev, "%s\n", driver_desc);
+ 	INFO(dev, "version: " DRIVER_VERSION " %s\n", dmastr());
+ 	INFO(dev, "irq %d, pci mem %p\n", pdev->irq, base);
 -- 
 2.27.0
 
