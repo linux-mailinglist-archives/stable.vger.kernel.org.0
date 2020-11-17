@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C34D2B63DF
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 630B42B652A
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733047AbgKQNlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:41:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53436 "EHLO mail.kernel.org"
+        id S1732998AbgKQNvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:51:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733040AbgKQNlH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:41:07 -0500
+        id S1731597AbgKQN3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7A6A207BC;
-        Tue, 17 Nov 2020 13:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2801F20781;
+        Tue, 17 Nov 2020 13:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620466;
-        bh=kG9H6gj7gjLkuQiml/8Yje27kYOXE5q1qZ4fi5gkF1k=;
+        s=default; t=1605619786;
+        bh=QpYELbB2Oh2l4OZ/VvRqHSyhzMNSDAnCHwv1+Za/aa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOxhMGEcsWivluMh9rMiLnHh9ANc6xREPFUC2pDuVGGK9lKYDqQ2T8wdD+xAgS8FO
-         a8Sa4KjifbS4Gq9udugrAsfvln4bYQPU66m+NKq7XnoQIDl734TCO3EDB6mtRq9TGU
-         BJyyAkYoWSLirQPRzSPxR4YdCxKXwi0YPg5cAxJk=
+        b=XhokegserkeH3e4QOy8mlnsiwnwBDujvN9JGSA82RWyg6L6inGFjOyoZPHFq16Xop
+         zWBnLzYHz9JlbgJ9s+wm7/JCyVihes6WY8fJ88y7lQs5TaXJumy6duAgkS9xMp4QyZ
+         zV8bUOg246kB6a2xC8RMElzw0QO54PVc6rJA1Ias=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Roper <matthew.d.roper@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 229/255] drm/i915: Correctly set SFC capability for video engines
-Date:   Tue, 17 Nov 2020 14:06:09 +0100
-Message-Id: <20201117122150.080568605@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 140/151] net: udp: fix UDP header access on Fast/frag0 UDP GRO
+Date:   Tue, 17 Nov 2020 14:06:10 +0100
+Message-Id: <20201117122128.243375930@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-commit 5ce6861d36ed5207aff9e5eead4c7cc38a986586 upstream.
+[ Upstream commit 4b1a86281cc1d0de46df3ad2cb8c1f86ac07681c ]
 
-SFC capability of video engines is not set correctly because i915
-is testing for incorrect bits.
+UDP GRO uses udp_hdr(skb) in its .gro_receive() callback. While it's
+probably OK for non-frag0 paths (when all headers or even the entire
+frame are already in skb head), this inline points to junk when
+using Fast GRO (napi_gro_frags() or napi_gro_receive() with only
+Ethernet header in skb head and all the rest in the frags) and breaks
+GRO packet compilation and the packet flow itself.
+To support both modes, skb_gro_header_fast() + skb_gro_header_slow()
+are typically used. UDP even has an inline helper that makes use of
+them, udp_gro_udphdr(). Use that instead of troublemaking udp_hdr()
+to get rid of the out-of-order delivers.
 
-Fixes: c5d3e39caa45 ("drm/i915: Engine discovery query")
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201106011842.36203-1-daniele.ceraolospurio@intel.com
-(cherry picked from commit ad18fa0f5f052046cad96fee762b5c64f42dd86a)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Present since the introduction of plain UDP GRO in 5.0-rc1.
+
+Fixes: e20cf8d3f1f7 ("udp: implement GRO for plain UDP sockets.")
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/i915/gt/intel_engine_cs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/udp_offload.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -370,7 +370,8 @@ static void __setup_engine_capabilities(
- 		 * instances.
- 		 */
- 		if ((INTEL_GEN(i915) >= 11 &&
--		     engine->gt->info.vdbox_sfc_access & engine->mask) ||
-+		     (engine->gt->info.vdbox_sfc_access &
-+		      BIT(engine->instance))) ||
- 		    (INTEL_GEN(i915) >= 9 && engine->instance == 0))
- 			engine->uabi_capabilities |=
- 				I915_VIDEO_AND_ENHANCE_CLASS_CAPABILITY_SFC;
+--- a/net/ipv4/udp_offload.c
++++ b/net/ipv4/udp_offload.c
+@@ -349,7 +349,7 @@ out:
+ static struct sk_buff *udp_gro_receive_segment(struct list_head *head,
+ 					       struct sk_buff *skb)
+ {
+-	struct udphdr *uh = udp_hdr(skb);
++	struct udphdr *uh = udp_gro_udphdr(skb);
+ 	struct sk_buff *pp = NULL;
+ 	struct udphdr *uh2;
+ 	struct sk_buff *p;
 
 
