@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19022B66A0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F802B6678
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729356AbgKQNJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:09:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37698 "EHLO mail.kernel.org"
+        id S1728963AbgKQODo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:03:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729369AbgKQNJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:09:03 -0500
+        id S1729735AbgKQNLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:11:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF8A8221EB;
-        Tue, 17 Nov 2020 13:09:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D7BC24698;
+        Tue, 17 Nov 2020 13:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618542;
-        bh=EboRDqWR0ty8njnVhjop7TgETSHaZFTP5a+mimYOoqo=;
+        s=default; t=1605618706;
+        bh=YZazvjlvemrBYLJFCENxdHrYjC4xxJ97fb5MfuuvgIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diKrxPdrxGfle8rjJAavnVFv/KK9V1r4GfTHVcEUYHjs+8ZePS7kzsObbOq+rW+D1
-         eczWpeLjmsdEdtCCBjpX+ldMHRrsIkq3fw2fnb4MzuHAkC6ixybU+Q14vukm95Iavb
-         5JtLi+N45HtWYrJ/U3wetm1N/hBCtvUBE/Qg1on0=
+        b=StLWTN5aHUJFE+XSa1lHYKM5hx374GrABHvk0Shx7PyLZacfTq6B/8F1AqXau5ghM
+         tG7tLpMXDRKRPPCqeNSCcgQXBMZTs//LAChCVgH3B4viwVoSTpsM2N+N4b+8fmbVr4
+         H7UVxNSbAENi+GRT7qOcUU/p+Ej44v3L7xmbNxnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-        Mike Rapoport <rppt@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 61/64] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.9 58/78] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
 Date:   Tue, 17 Nov 2020 14:05:24 +0100
-Message-Id: <20201117122109.190012835@linuxfoundation.org>
+Message-Id: <20201117122111.950324481@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,87 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Anand K Mistry <amistry@google.com>
 
-commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
+commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
 
-Patch series "fix parsing of reboot= cmdline", v3.
+On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
+STIBP is set to on and
 
-The parsing of the reboot= cmdline has two major errors:
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
- - a missing bound check can crash the system on reboot
+At the same time, IBPB can be set to conditional.
 
- - parsing of the cpu number only works if specified last
+However, this leads to the case where it's impossible to turn on IBPB
+for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
 
-Fix both.
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-This patch (of 2):
+condition leads to a return before the task flag is set. Similarly,
+ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
+conditional.
 
-This reverts commit 616feab753972b97.
+More generally, the following cases are possible:
 
-kstrtoint() and simple_strtoul() have a subtle difference which makes
-them non interchangeable: if a non digit character is found amid the
-parsing, the former will return an error, while the latter will just
-stop parsing, e.g.  simple_strtoul("123xyx") = 123.
+1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
+2. STIBP = on && IBPB = conditional for AMD CPUs with
+   X86_FEATURE_AMD_STIBP_ALWAYS_ON
 
-The kernel cmdline reboot= argument allows to specify the CPU used for
-rebooting, with the syntax `s####` among the other flags, e.g.
-"reboot=warm,s31,force", so if this flag is not the last given, it's
-silently ignored as well as the subsequent ones.
+The first case functions correctly today, but only because
+spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
 
-Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Robin Holt <robinmholt@gmail.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[sudip: use reboot_mode instead of mode]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+At a high level, this change does one thing. If either STIBP or IBPB
+is set to conditional, allow the prctl to change the task flag.
+Also, reflect that capability when querying the state. This isn't
+perfect since it doesn't take into account if only STIBP or IBPB is
+unconditionally on. But it allows the conditional feature to work as
+expected, without affecting the unconditional one.
+
+ [ bp: Massage commit message and comment; space out statements for
+   better readability. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/reboot.c |   21 +++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -512,22 +512,15 @@ static int __init reboot_setup(char *str
- 			break;
+---
+ arch/x86/kernel/cpu/bugs.c |   52 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 19 deletions(-)
+
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1248,6 +1248,14 @@ static int ssb_prctl_set(struct task_str
+ 	return 0;
+ }
  
- 		case 's':
--		{
--			int rc;
--
--			if (isdigit(*(str+1))) {
--				rc = kstrtoint(str+1, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else if (str[1] == 'm' && str[2] == 'p' &&
--				   isdigit(*(str+3))) {
--				rc = kstrtoint(str+3, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else
-+			if (isdigit(*(str+1)))
-+				reboot_cpu = simple_strtoul(str+1, NULL, 0);
-+			else if (str[1] == 'm' && str[2] == 'p' &&
-+							isdigit(*(str+3)))
-+				reboot_cpu = simple_strtoul(str+3, NULL, 0);
-+			else
- 				reboot_mode = REBOOT_SOFT;
- 			break;
--		}
++static bool is_spec_ib_user_controlled(void)
++{
++	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
++}
 +
- 		case 'g':
- 			reboot_mode = REBOOT_GPIO;
- 			break;
+ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ {
+ 	switch (ctrl) {
+@@ -1255,17 +1263,26 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-		/*
+-		 * Indirect branch speculation is always disabled in strict
+-		 * mode. It can neither be enabled if it was force-disabled
+-		 * by a  previous prctl call.
+ 
++		/*
++		 * With strict mode for both IBPB and STIBP, the instruction
++		 * code paths avoid checking this task flag and instead,
++		 * unconditionally run the instruction. However, STIBP and IBPB
++		 * are independent and either can be set to conditionally
++		 * enabled regardless of the mode of the other.
++		 *
++		 * If either is set to conditional, allow the task flag to be
++		 * updated, unless it was force-disabled by a previous prctl
++		 * call. Currently, this is possible on an AMD CPU which has the
++		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
++		 * kernel is booted with 'spectre_v2_user=seccomp', then
++		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
++		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
+ 		 */
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		if (!is_spec_ib_user_controlled() ||
+ 		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
++
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
+ 		break;
+@@ -1278,10 +1295,10 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return -EPERM;
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++
++		if (!is_spec_ib_user_controlled())
+ 			return 0;
++
+ 		task_set_spec_ib_disable(task);
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+ 			task_set_spec_ib_force_disable(task);
+@@ -1344,20 +1361,17 @@ static int ib_prctl_get(struct task_stru
+ 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 		return PR_SPEC_ENABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
+-		return PR_SPEC_DISABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
++	else if (is_spec_ib_user_controlled()) {
+ 		if (task_spec_ib_force_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
+ 		if (task_spec_ib_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+ 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+-	} else
++	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		return PR_SPEC_DISABLE;
++	else
+ 		return PR_SPEC_NOT_AFFECTED;
+ }
+ 
 
 
