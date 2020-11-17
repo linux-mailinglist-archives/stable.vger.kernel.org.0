@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6FD2B667A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E94592B66BD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729631AbgKQODw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:03:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41054 "EHLO mail.kernel.org"
+        id S1729132AbgKQNHl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729634AbgKQNL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:28 -0500
+        id S1729126AbgKQNHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947042151B;
-        Tue, 17 Nov 2020 13:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 009E724698;
+        Tue, 17 Nov 2020 13:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618688;
-        bh=3uCbvFkz7ftTmGmmmbXlOs5RjKWiK5OgCyKJxqptNqY=;
+        s=default; t=1605618457;
+        bh=E/ylpNjfTYnYrW8Ivjb7kMwyCcrIvyGzkZxCdGnehTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDeodMik0+gGOBbT4zutl2dWw/qZUyEU7z1mpZQqnguTnaWCIvKVL+n2pZSUSD9hD
-         RtNXbCki0psWTAZ1HD2FF/uVgvJCWAQ6YzZDjvUkr/+GViYmeDL/RSrLjmdNsQ34GJ
-         R35LlcidviBWsOkmDiCYAaLNUM11JplyV9z4ABxc=
+        b=MvQMPUoud2+z7hn6EmPv3AuzMfWKHqFTjhnlWpeLr/HIPOaqq0aAdP/nESmtbP6RN
+         WaFaJkfbAaKyU94PGC7xJ+xkVISkVqrl02wDltrz3Qcyfc2XCZRnx/Y0R+hdF+4FHw
+         7SBOgfR7Ijz5wuS10Im+dLmVTcaEu9jmYcIAIsck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/78] iommu/amd: Increase interrupt remapping table limit to 512 entries
-Date:   Tue, 17 Nov 2020 14:05:01 +0100
-Message-Id: <20201117122110.824580079@linuxfoundation.org>
+        stable@vger.kernel.org, stable@vger.kerne.org,
+        Coiby Xu <coiby.xu@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.4 40/64] pinctrl: amd: fix incorrect way to disable debounce filter
+Date:   Tue, 17 Nov 2020 14:05:03 +0100
+Message-Id: <20201117122108.143061960@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Coiby Xu <coiby.xu@gmail.com>
 
-[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
+commit 06abe8291bc31839950f7d0362d9979edc88a666 upstream.
 
-Certain device drivers allocate IO queues on a per-cpu basis.
-On AMD EPYC platform, which can support up-to 256 cpu threads,
-this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
-and result in the error message:
+The correct way to disable debounce filter is to clear bit 5 and 6
+of the register.
 
-    AMD-Vi: Failed to allocate IRTE
+Cc: stable@vger.kerne.org
+Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/linux-gpio/df2c008b-e7b5-4fdd-42ea-4d1c62b52139@redhat.com/
+Link: https://lore.kernel.org/r/20201105231912.69527-2-coiby.xu@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This has been observed with certain NVME devices.
-
-AMD IOMMU hardware can actually support upto 512 interrupt
-remapping table entries. Therefore, update the driver to
-match the hardware limit.
-
-Please note that this also increases the size of interrupt remapping
-table to 8KB per device when using the 128-bit IRTE format.
-
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_types.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-amd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index da3fbf82d1cf4..e19c05d9e84ba 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -383,7 +383,11 @@ extern bool amd_iommu_np_cache;
- /* Only true if all IOMMUs support device IOTLBs */
- extern bool amd_iommu_iotlb_sup;
- 
--#define MAX_IRQS_PER_TABLE	256
-+/*
-+ * AMD IOMMU hardware only support 512 IRTEs despite
-+ * the architectural limitation of 2048 entries.
-+ */
-+#define MAX_IRQS_PER_TABLE	512
- #define IRQ_TABLE_ALIGNMENT	128
- 
- struct irq_remap_table {
--- 
-2.27.0
-
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -154,14 +154,14 @@ static int amd_gpio_set_debounce(struct
+ 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
+ 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
+ 		} else {
+-			pin_reg &= ~DB_CNTRl_MASK;
++			pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+ 			ret = -EINVAL;
+ 		}
+ 	} else {
+ 		pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
+ 		pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
+ 		pin_reg &= ~DB_TMR_OUT_MASK;
+-		pin_reg &= ~DB_CNTRl_MASK;
++		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+ 	}
+ 	writel(pin_reg, gpio_dev->base + offset * 4);
+ 	spin_unlock_irqrestore(&gpio_dev->lock, flags);
 
 
