@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 414CC2B630C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:34:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 767D32B656D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732190AbgKQNea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:34:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S1730809AbgKQNz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:55:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732184AbgKQNea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:34:30 -0500
+        id S1730969AbgKQNX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A4122467A;
-        Tue, 17 Nov 2020 13:34:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18AA120781;
+        Tue, 17 Nov 2020 13:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620070;
-        bh=BYzD6UaKc4s5o3gN7OudfqlHsDG5FIyVSpOhmvsP2wk=;
+        s=default; t=1605619438;
+        bh=BaOL1dYlnv115RptE7gIYvHKtOOydMLymkOiZG0lg5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTS+jWSxkCVOnw/sUB2KMROBvoBnHZRDeqQbUDVrnfe2056TuqO9Z5hMGUAkExjq2
-         dkir7jFoA+1C/atk3Icrw3e/QFdUh7iAhHN2FJSVN3anpZb1oNK656zBGOPWlnLIvC
-         Q/LmgFB0xX12PYc6jQDdLV5UV7s+Ho535cVMQVyM=
+        b=Aocexx2bs1bvWk/F4blmJDrAsnmdNaCnF2JPF4xN+1M1fVx/faIkt6YFAOChzG/3m
+         sXvouQCF5Plz9K99ePYdPFdEzXxTlCg1zT6jchHPoQPtkFspq6CapRzi4XmmX5pRht
+         h98Js5LYOETl9W4F6TiM8LuvGnEMvpkkWfY1YuAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 098/255] cfg80211: initialize wdev data earlier
-Date:   Tue, 17 Nov 2020 14:03:58 +0100
-Message-Id: <20201117122143.727393391@linuxfoundation.org>
+Subject: [PATCH 5.4 009/151] btrfs: sysfs: init devices outside of the chunk_mutex
+Date:   Tue, 17 Nov 2020 14:03:59 +0100
+Message-Id: <20201117122121.854247942@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,162 +43,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 9bdaf3b91efd229dd272b228e13df10310c80d19 ]
+[ Upstream commit ca10845a56856fff4de3804c85e6424d0f6d0cde ]
 
-There's a race condition in the netdev registration in that
-NETDEV_REGISTER actually happens after the netdev is available,
-and so if we initialize things only there, we might get called
-with an uninitialized wdev through nl80211 - not using a wdev
-but using a netdev interface index.
+While running btrfs/061, btrfs/073, btrfs/078, or btrfs/178 we hit the
+following lockdep splat:
 
-I found this while looking into a syzbot report, but it doesn't
-really seem to be related, and unfortunately there's no repro
-for it (yet). I can't (yet) explain how it managed to get into
-cfg80211_release_pmsr() from nl80211_netlink_notify() without
-the wdev having been initialized, as the latter only iterates
-the wdevs that are linked into the rdev, which even without the
-change here happened after init.
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc3+ #4 Not tainted
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff96ecc22ef4a0 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
 
-However, looking at this, it seems fairly clear that the init
-needs to be done earlier, otherwise we might even re-init on a
-netns move, when data might still be pending.
+  but task is already holding lock:
+  ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20201009135821.fdcbba3aad65.Ie9201d91dbcb7da32318812effdc1561aeaf4cdc@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #3 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc+0x37/0x270
+	 alloc_inode+0x82/0xb0
+	 iget_locked+0x10d/0x2c0
+	 kernfs_get_inode+0x1b/0x130
+	 kernfs_get_tree+0x136/0x240
+	 sysfs_get_tree+0x16/0x40
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #2 (kernfs_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 kernfs_add_one+0x23/0x150
+	 kernfs_create_link+0x63/0xa0
+	 sysfs_do_create_link_sd+0x5e/0xd0
+	 btrfs_sysfs_add_devices_dir+0x81/0x130
+	 btrfs_init_new_device+0x67f/0x1250
+	 btrfs_ioctl+0x1ef/0x2e20
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_insert_empty_items+0x64/0xb0
+	 btrfs_insert_delayed_items+0x90/0x4f0
+	 btrfs_commit_inode_delayed_items+0x93/0x140
+	 btrfs_log_inode+0x5de/0x2020
+	 btrfs_log_inode_parent+0x429/0xc90
+	 btrfs_log_new_name+0x95/0x9b
+	 btrfs_rename2+0xbb9/0x1800
+	 vfs_rename+0x64f/0x9f0
+	 do_renameat2+0x320/0x4e0
+	 __x64_sys_rename+0x1f/0x30
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x119c/0x1fc0
+	 lock_acquire+0xa7/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &delayed_node->mutex --> kernfs_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(kernfs_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffff8dd65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff96ed2ade30e0 (&type->s_umount_key#36){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 0 PID: 100 Comm: kswapd0 Not tainted 5.9.0-rc3+ #4
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x8b/0xb8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x119c/0x1fc0
+   lock_acquire+0xa7/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa7/0x3d0
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x41/0x50
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This happens because we are holding the chunk_mutex at the time of
+adding in a new device.  However we only need to hold the
+device_list_mutex, as we're going to iterate over the fs_devices
+devices.  Move the sysfs init stuff outside of the chunk_mutex to get
+rid of this lockdep splat.
+
+CC: stable@vger.kernel.org # 4.4.x: f3cd2c58110dad14e: btrfs: sysfs, rename device_link add/remove functions
+CC: stable@vger.kernel.org # 4.4.x
+Reported-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/core.c    | 57 +++++++++++++++++++++++-------------------
- net/wireless/core.h    |  5 ++--
- net/wireless/nl80211.c |  3 ++-
- 3 files changed, 36 insertions(+), 29 deletions(-)
+ fs/btrfs/volumes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/wireless/core.c b/net/wireless/core.c
-index 354b0ccbdc240..e025493171262 100644
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -1248,8 +1248,7 @@ void cfg80211_stop_iface(struct wiphy *wiphy, struct wireless_dev *wdev,
- }
- EXPORT_SYMBOL(cfg80211_stop_iface);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 58910a0a3e4a4..00e7816dc9a1e 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2728,9 +2728,6 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	btrfs_set_super_num_devices(fs_info->super_copy,
+ 				    orig_super_num_devices + 1);
  
--void cfg80211_init_wdev(struct cfg80211_registered_device *rdev,
--			struct wireless_dev *wdev)
-+void cfg80211_init_wdev(struct wireless_dev *wdev)
- {
- 	mutex_init(&wdev->mtx);
- 	INIT_LIST_HEAD(&wdev->event_list);
-@@ -1260,6 +1259,30 @@ void cfg80211_init_wdev(struct cfg80211_registered_device *rdev,
- 	spin_lock_init(&wdev->pmsr_lock);
- 	INIT_WORK(&wdev->pmsr_free_wk, cfg80211_pmsr_free_wk);
- 
-+#ifdef CONFIG_CFG80211_WEXT
-+	wdev->wext.default_key = -1;
-+	wdev->wext.default_mgmt_key = -1;
-+	wdev->wext.connect.auth_type = NL80211_AUTHTYPE_AUTOMATIC;
-+#endif
-+
-+	if (wdev->wiphy->flags & WIPHY_FLAG_PS_ON_BY_DEFAULT)
-+		wdev->ps = true;
-+	else
-+		wdev->ps = false;
-+	/* allow mac80211 to determine the timeout */
-+	wdev->ps_timeout = -1;
-+
-+	if ((wdev->iftype == NL80211_IFTYPE_STATION ||
-+	     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT ||
-+	     wdev->iftype == NL80211_IFTYPE_ADHOC) && !wdev->use_4addr)
-+		wdev->netdev->priv_flags |= IFF_DONT_BRIDGE;
-+
-+	INIT_WORK(&wdev->disconnect_wk, cfg80211_autodisconnect_wk);
-+}
-+
-+void cfg80211_register_wdev(struct cfg80211_registered_device *rdev,
-+			    struct wireless_dev *wdev)
-+{
+-	/* add sysfs device entry */
+-	btrfs_sysfs_add_device_link(fs_devices, device);
+-
  	/*
- 	 * We get here also when the interface changes network namespaces,
- 	 * as it's registered into the new one, but we don't want it to
-@@ -1293,6 +1316,11 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
- 	switch (state) {
- 	case NETDEV_POST_INIT:
- 		SET_NETDEV_DEVTYPE(dev, &wiphy_type);
-+		wdev->netdev = dev;
-+		/* can only change netns with wiphy */
-+		dev->features |= NETIF_F_NETNS_LOCAL;
+ 	 * we've got more storage, clear any full flags on the space
+ 	 * infos
+@@ -2738,6 +2735,10 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	btrfs_clear_space_info_full(fs_info);
+ 
+ 	mutex_unlock(&fs_info->chunk_mutex);
 +
-+		cfg80211_init_wdev(wdev);
- 		break;
- 	case NETDEV_REGISTER:
- 		/*
-@@ -1300,35 +1328,12 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
- 		 * called within code protected by it when interfaces
- 		 * are added with nl80211.
- 		 */
--		/* can only change netns with wiphy */
--		dev->features |= NETIF_F_NETNS_LOCAL;
--
- 		if (sysfs_create_link(&dev->dev.kobj, &rdev->wiphy.dev.kobj,
- 				      "phy80211")) {
- 			pr_err("failed to add phy80211 symlink to netdev!\n");
- 		}
--		wdev->netdev = dev;
--#ifdef CONFIG_CFG80211_WEXT
--		wdev->wext.default_key = -1;
--		wdev->wext.default_mgmt_key = -1;
--		wdev->wext.connect.auth_type = NL80211_AUTHTYPE_AUTOMATIC;
--#endif
--
--		if (wdev->wiphy->flags & WIPHY_FLAG_PS_ON_BY_DEFAULT)
--			wdev->ps = true;
--		else
--			wdev->ps = false;
--		/* allow mac80211 to determine the timeout */
--		wdev->ps_timeout = -1;
--
--		if ((wdev->iftype == NL80211_IFTYPE_STATION ||
--		     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT ||
--		     wdev->iftype == NL80211_IFTYPE_ADHOC) && !wdev->use_4addr)
--			dev->priv_flags |= IFF_DONT_BRIDGE;
--
--		INIT_WORK(&wdev->disconnect_wk, cfg80211_autodisconnect_wk);
++	/* Add sysfs device entry */
++	btrfs_sysfs_add_device_link(fs_devices, device);
++
+ 	mutex_unlock(&fs_devices->device_list_mutex);
  
--		cfg80211_init_wdev(rdev, wdev);
-+		cfg80211_register_wdev(rdev, wdev);
- 		break;
- 	case NETDEV_GOING_DOWN:
- 		cfg80211_leave(rdev, wdev);
-diff --git a/net/wireless/core.h b/net/wireless/core.h
-index 67b0389fca4dc..8cd4a9793298e 100644
---- a/net/wireless/core.h
-+++ b/net/wireless/core.h
-@@ -208,8 +208,9 @@ struct wiphy *wiphy_idx_to_wiphy(int wiphy_idx);
- int cfg80211_switch_netns(struct cfg80211_registered_device *rdev,
- 			  struct net *net);
- 
--void cfg80211_init_wdev(struct cfg80211_registered_device *rdev,
--			struct wireless_dev *wdev);
-+void cfg80211_init_wdev(struct wireless_dev *wdev);
-+void cfg80211_register_wdev(struct cfg80211_registered_device *rdev,
-+			    struct wireless_dev *wdev);
- 
- static inline void wdev_lock(struct wireless_dev *wdev)
- 	__acquires(wdev)
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index e14307f2bddcc..8eb43c47e582a 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -3801,7 +3801,8 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
- 		 * P2P Device and NAN do not have a netdev, so don't go
- 		 * through the netdev notifier and must be added here
- 		 */
--		cfg80211_init_wdev(rdev, wdev);
-+		cfg80211_init_wdev(wdev);
-+		cfg80211_register_wdev(rdev, wdev);
- 		break;
- 	default:
- 		break;
+ 	if (seeding_dev) {
 -- 
 2.27.0
 
