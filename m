@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A042B60EE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3132B60F1
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729985AbgKQNOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:14:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45010 "EHLO mail.kernel.org"
+        id S1730021AbgKQNOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728810AbgKQNOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:14:10 -0500
+        id S1730023AbgKQNOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 524C8246BB;
-        Tue, 17 Nov 2020 13:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F5F2221EB;
+        Tue, 17 Nov 2020 13:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618850;
-        bh=DKFwifTrSAb+TfOv6Bg6WjffagdiKBxeBbxVXaQ5060=;
+        s=default; t=1605618853;
+        bh=vYfmboIzGbBiNDdt8ogPl6hax31zFik+g+zN1Zf1vRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/5tSrz29eMl9Dy3CHJATzdmy3p0bLaie/RnW9D1hXndHBlAC9AxW9ejT/ede+Sbg
-         xhIx/Qbm57gP2rJA99IzTYXq9KpwFj3RubrrEM3+RJG8XLxqPkmPFUldJXYBiLsSzE
-         0Mw0l+SsyK1esfm4NxFFYZQJSR6IpRjpx+xTLxNI=
+        b=iTP9iRj3H0nCMpKZhZ0a/0e702YIY2PaETJhz2YlYysgLzRbPSMomH9aH5U48khEh
+         DMI9Uwi87YOfmpxzNORrJH2iUVQIQW0p2asDoyK91/zJ/LMdP1xFbyY9Hu4cWSNm7r
+         Hxp4g+kmZQZMgMtmBqahCHTewBFvFLrvpAP/vt6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/85] drm/amdgpu: perform srbm soft reset always on SDMA resume
-Date:   Tue, 17 Nov 2020 14:04:57 +0100
-Message-Id: <20201117122112.411499644@linuxfoundation.org>
+Subject: [PATCH 4.14 29/85] mac80211: fix use of skb payload instead of header
+Date:   Tue, 17 Nov 2020 14:04:58 +0100
+Message-Id: <20201117122112.463374188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
 References: <20201117122111.018425544@linuxfoundation.org>
@@ -44,61 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
+[ Upstream commit 14f46c1e5108696ec1e5a129e838ecedf108c7bf ]
 
-This can address the random SDMA hang after pci config reset
-seen on Hawaii.
+When ieee80211_skb_resize() is called from ieee80211_build_hdr()
+the skb has no 802.11 header yet, in fact it consist only of the
+payload as the ethernet frame is removed. As such, we're using
+the payload data for ieee80211_is_mgmt(), which is of course
+completely wrong. This didn't really hurt us because these are
+always data frames, so we could only have added more tailroom
+than we needed if we determined it was a management frame and
+sdata->crypto_tx_tailroom_needed_cnt was false.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+However, syzbot found that of course there need not be any payload,
+so we're using at best uninitialized memory for the check.
+
+Fix this to pass explicitly the kind of frame that we have instead
+of checking there, by replacing the "bool may_encrypt" argument
+with an argument that can carry the three possible states - it's
+not going to be encrypted, it's a management frame, or it's a data
+frame (and then we check sdata->crypto_tx_tailroom_needed_cnt).
+
+Reported-by: syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20201009132538.e1fd7f802947.I799b288466ea2815f9d4c84349fae697dca2f189@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ net/mac80211/tx.c | 35 +++++++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-index 11beef7c595f2..d35e5d8e8a058 100644
---- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-+++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-@@ -1098,22 +1098,19 @@ static int cik_sdma_soft_reset(void *handle)
- {
- 	u32 srbm_soft_reset = 0;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--	u32 tmp = RREG32(mmSRBM_STATUS2);
-+	u32 tmp;
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 1b1f2d6cb3f4b..0ab710576673f 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -1851,19 +1851,24 @@ static bool ieee80211_tx(struct ieee80211_sub_if_data *sdata,
  
--	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
--		/* sdma0 */
--		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
--		tmp |= SDMA0_F32_CNTL__HALT_MASK;
--		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
--		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
--	}
--	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
--		/* sdma1 */
--		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
--		tmp |= SDMA0_F32_CNTL__HALT_MASK;
--		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
--		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
--	}
-+	/* sdma0 */
-+	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
-+	tmp |= SDMA0_F32_CNTL__HALT_MASK;
-+	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
-+	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
+ /* device xmit handlers */
+ 
++enum ieee80211_encrypt {
++	ENCRYPT_NO,
++	ENCRYPT_MGMT,
++	ENCRYPT_DATA,
++};
 +
-+	/* sdma1 */
-+	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
-+	tmp |= SDMA0_F32_CNTL__HALT_MASK;
-+	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
-+	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+ static int ieee80211_skb_resize(struct ieee80211_sub_if_data *sdata,
+ 				struct sk_buff *skb,
+-				int head_need, bool may_encrypt)
++				int head_need,
++				enum ieee80211_encrypt encrypt)
+ {
+ 	struct ieee80211_local *local = sdata->local;
+-	struct ieee80211_hdr *hdr;
+ 	bool enc_tailroom;
+ 	int tail_need = 0;
  
- 	if (srbm_soft_reset) {
- 		tmp = RREG32(mmSRBM_SOFT_RESET);
+-	hdr = (struct ieee80211_hdr *) skb->data;
+-	enc_tailroom = may_encrypt &&
+-		       (sdata->crypto_tx_tailroom_needed_cnt ||
+-			ieee80211_is_mgmt(hdr->frame_control));
++	enc_tailroom = encrypt == ENCRYPT_MGMT ||
++		       (encrypt == ENCRYPT_DATA &&
++			sdata->crypto_tx_tailroom_needed_cnt);
+ 
+ 	if (enc_tailroom) {
+ 		tail_need = IEEE80211_ENCRYPT_TAILROOM;
+@@ -1896,21 +1901,27 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	int headroom;
+-	bool may_encrypt;
++	enum ieee80211_encrypt encrypt;
+ 
+-	may_encrypt = !(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT);
++	if (info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)
++		encrypt = ENCRYPT_NO;
++	else if (ieee80211_is_mgmt(hdr->frame_control))
++		encrypt = ENCRYPT_MGMT;
++	else
++		encrypt = ENCRYPT_DATA;
+ 
+ 	headroom = local->tx_headroom;
+-	if (may_encrypt)
++	if (encrypt != ENCRYPT_NO)
+ 		headroom += sdata->encrypt_headroom;
+ 	headroom -= skb_headroom(skb);
+ 	headroom = max_t(int, 0, headroom);
+ 
+-	if (ieee80211_skb_resize(sdata, skb, headroom, may_encrypt)) {
++	if (ieee80211_skb_resize(sdata, skb, headroom, encrypt)) {
+ 		ieee80211_free_txskb(&local->hw, skb);
+ 		return;
+ 	}
+ 
++	/* reload after potential resize */
+ 	hdr = (struct ieee80211_hdr *) skb->data;
+ 	info->control.vif = &sdata->vif;
+ 
+@@ -2692,7 +2703,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
+ 		head_need += sdata->encrypt_headroom;
+ 		head_need += local->tx_headroom;
+ 		head_need = max_t(int, 0, head_need);
+-		if (ieee80211_skb_resize(sdata, skb, head_need, true)) {
++		if (ieee80211_skb_resize(sdata, skb, head_need, ENCRYPT_DATA)) {
+ 			ieee80211_free_txskb(&local->hw, skb);
+ 			skb = NULL;
+ 			return ERR_PTR(-ENOMEM);
+@@ -3352,7 +3363,7 @@ static bool ieee80211_xmit_fast(struct ieee80211_sub_if_data *sdata,
+ 	if (unlikely(ieee80211_skb_resize(sdata, skb,
+ 					  max_t(int, extra_head + hw_headroom -
+ 						     skb_headroom(skb), 0),
+-					  false))) {
++					  ENCRYPT_NO))) {
+ 		kfree_skb(skb);
+ 		return true;
+ 	}
 -- 
 2.27.0
 
