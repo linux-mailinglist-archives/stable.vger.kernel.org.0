@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B26FE2B5FEC
+	by mail.lfdr.de (Postfix) with ESMTP id 462252B5FEB
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728536AbgKQM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:57:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53900 "EHLO mail.kernel.org"
+        id S1728532AbgKQM5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:57:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728532AbgKQM5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:08 -0500
+        id S1728538AbgKQM5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE19A2225B;
-        Tue, 17 Nov 2020 12:57:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46D812467A;
+        Tue, 17 Nov 2020 12:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617827;
-        bh=brDKBbGdSgwPLZM5AU6k6cfr4JV5ACzmzCx2P5mZHsU=;
+        s=default; t=1605617829;
+        bh=dcc9ZYODhGy88IwftRQKbI3ECgtQ+Xsb/S2yYHQYT2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olkrynhpCqr34xgNoZAM8gEhpEgI2gK29nMipBwsSUB0Ns6IbbUzMNpn+UBKrapN8
-         EtJARn6kAQIUq0LfNSXB11Sx2dYAZ52J7u2bZdK+JVHbtPEpD+JWQffT9nU7V+IeBa
-         N7E34EQ6msHVthyRGnvEQs2lJoKVMCqSqd5rZbcc=
+        b=nQ8BQfXab5+4thS5PK8LapPAwZcw5PXA5arTJFB827lPZa+3TpruLIXOuB7pnWWZn
+         nLASXlTmKl2zo9kpHm5w8xmdYCyP7IGHI5VF1KI3roN3D1UfKh5ARxlOMTiCcTBZwF
+         Q7IEK73ksYge5asQFAmNeJ6+15SdKDeG9JrW1YNg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 09/21] ACPI: button: Add DMI quirk for Medion Akoya E2228T
-Date:   Tue, 17 Nov 2020 07:56:40 -0500
-Message-Id: <20201117125652.599614-9-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 10/21] arm64: errata: Fix handling of 1418040 with late CPU onlining
+Date:   Tue, 17 Nov 2020 07:56:41 -0500
+Message-Id: <20201117125652.599614-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201117125652.599614-1-sashal@kernel.org>
 References: <20201117125652.599614-1-sashal@kernel.org>
@@ -42,58 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 7daaa06357bf7f1874b62bb1ea9d66a51d4e567e ]
+[ Upstream commit f969f03888b9438fdb227b6460d99ede5737326d ]
 
-The Medion Akoya E2228T's ACPI _LID implementation is quite broken,
-it has the same issues as the one from the Medion Akoya E2215T:
+In a surprising turn of events, it transpires that CPU capabilities
+configured as ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE are never set as the
+result of late-onlining. Therefore our handling of erratum 1418040 does
+not get activated if it is not required by any of the boot CPUs, even
+though we allow late-onlining of an affected CPU.
 
-1. For notifications it uses an ActiveLow Edge GpioInt, rather then
-   an ActiveBoth one, meaning that the device is only notified when the
-   lid is closed, not when it is opened.
+In order to get things working again, replace the cpus_have_const_cap()
+invocation with an explicit check for the current CPU using
+this_cpu_has_cap().
 
-2. Matching with this its _LID method simply always returns 0 (closed)
-
-In order for the Linux LID code to work properly with this implementation,
-the lid_init_state selection needs to be set to ACPI_BUTTON_LID_INIT_OPEN,
-add a DMI quirk for this.
-
-While working on this I also found out that the MD60### part of the model
-number differs per country/batch while all of the E2215T and E2228T models
-have this issue, so also remove the " MD60198" part from the E2215T quirk.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Cc: Stephen Boyd <swboyd@chromium.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20201106114952.10032-1-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/cpufeature.h | 2 ++
+ arch/arm64/kernel/process.c         | 5 ++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index da4b125ab4c3e..088ec847fd26a 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -102,7 +102,18 @@ static const struct dmi_system_id dmi_lid_quirks[] = {
- 		 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T MD60198"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
-+	{
-+		/*
-+		 * Medion Akoya E2228T, notification of the LID device only
-+		 * happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E2228T"),
- 		},
- 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
- 	},
+diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
+index 89b4f0142c287..a986ecd0b0074 100644
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -268,6 +268,8 @@ extern struct arm64_ftr_reg arm64_ftr_reg_ctrel0;
+ /*
+  * CPU feature detected at boot time based on feature of one or more CPUs.
+  * All possible conflicts for a late CPU are ignored.
++ * NOTE: this means that a late CPU with the feature will *not* cause the
++ * capability to be advertised by cpus_have_*cap()!
+  */
+ #define ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE		\
+ 	(ARM64_CPUCAP_SCOPE_LOCAL_CPU		|	\
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index f1804496b9350..2da5f3f9d345f 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -526,14 +526,13 @@ static void erratum_1418040_thread_switch(struct task_struct *prev,
+ 	bool prev32, next32;
+ 	u64 val;
+ 
+-	if (!(IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) &&
+-	      cpus_have_const_cap(ARM64_WORKAROUND_1418040)))
++	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040))
+ 		return;
+ 
+ 	prev32 = is_compat_thread(task_thread_info(prev));
+ 	next32 = is_compat_thread(task_thread_info(next));
+ 
+-	if (prev32 == next32)
++	if (prev32 == next32 || !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
+ 		return;
+ 
+ 	val = read_sysreg(cntkctl_el1);
 -- 
 2.27.0
 
