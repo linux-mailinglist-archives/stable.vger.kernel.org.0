@@ -2,100 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6C52B5640
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 02:27:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 788902B56FF
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 03:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729485AbgKQBZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 20:25:13 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:7690 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726387AbgKQBZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 20:25:13 -0500
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4CZpC86y4JzkYxZ;
-        Tue, 17 Nov 2020 09:24:52 +0800 (CST)
-Received: from [10.174.176.185] (10.174.176.185) by
- DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
- 14.3.487.0; Tue, 17 Nov 2020 09:25:09 +0800
-Subject: Re: [PATCH] ubifs: wbuf: Don't leak kernel memory to flash
-To:     Richard Weinberger <richard@nod.at>,
-        <linux-mtd@lists.infradead.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20201116210530.26230-1-richard@nod.at>
-From:   Zhihao Cheng <chengzhihao1@huawei.com>
-Message-ID: <bfea268f-b5c2-5467-7b17-5eef7b0269ce@huawei.com>
-Date:   Tue, 17 Nov 2020 09:25:08 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1726361AbgKQClp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 21:41:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbgKQClp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 21:41:45 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B966C0613CF
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 18:41:45 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id b63so12476569pfg.12
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 18:41:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=h4FkQfIkrN0f6UC+MX4yH5yv2MukgdjUnmi4/PokAuE=;
+        b=ANRHGtnMtce4E7fzU8OlGkl78ydU8pZjLkzQ/31xafYtZCbLqTbjTrZO9j4sFVjof0
+         Q21MLNAXnKOhM/OL7QeEj21ye588k3T4qp4gbk/yxaBR7rImQLoxwNHub2VTyr5NLoj5
+         5Wi3ugeXYgbXZxhrQm65zJOq6v7WWaeBPxoDhw0SJQOEm8LgsfabEEty0Gvfc16UReEo
+         reNc+Z9rRLLJgIw0bRJNNuOOdhwMwZjDN3acuqmTlCoWfSaM9HVPVOHTxSKJE4U1zCJP
+         ed7QOhahqa2Eu/WCxSe44hNFKu3t68PW38cA1VR/HWU3r2iBBHq6oFfTO8PpbS4uHDvc
+         Z70A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=h4FkQfIkrN0f6UC+MX4yH5yv2MukgdjUnmi4/PokAuE=;
+        b=CXRb2tB053FjTd88J89/nqpUQOzs9aO17RFW2m7H3+jGswj387AaxuU4n828czl899
+         d4hJfDgY/o5g+cUUf1cmQo0aIbf1uM+3ZmIAx5fLKk5F6IT7JvbsuRQAhKQ4teXh2+lC
+         FzZqYRTZKAb2RAbsCAxLGscpz4hk3rZi+gEeLN/odseOe0AJwDj6if097I3UPeezMlBG
+         1iZInFs7P0ITuH0qRP6NR+5k07frCkU++YCVt/pNek5nVyMobwtcK57ePBjRy8OkycUs
+         Oyntgv97vnyZOq2ij2lIQWygKFbdMHwMQZ8du4ymkJ7FEDpIoYGhwd8APvFHFRGuf6bR
+         U8/w==
+X-Gm-Message-State: AOAM533/8UatTr8bM+VEwbWL7Is11DovHUJwB527gyAFsfbQo1yCh6Vx
+        Si+BNgztwc6gcjeVr4x7rnHGPd1q6Va3og==
+X-Google-Smtp-Source: ABdhPJyGGN5kHvtUy4HikFwfboe8mvG7gFLxzwhTa2P/ypiES+CnAOloOwiUmgV8fFcjuEpIMAXdhA==
+X-Received: by 2002:a63:c157:: with SMTP id p23mr1827039pgi.349.1605580904262;
+        Mon, 16 Nov 2020 18:41:44 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q12sm19699319pfc.84.2020.11.16.18.41.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2020 18:41:43 -0800 (PST)
+Message-ID: <5fb33867.1c69fb81.28d13.cdf3@mx.google.com>
+Date:   Mon, 16 Nov 2020 18:41:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201116210530.26230-1-richard@nod.at>
-Content-Type: text/plain; charset="gbk"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.176.185]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.4.243-41-g75498c12fce0
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 build: 4 builds: 0 failed,
+ 4 passed (v4.4.243-41-g75498c12fce0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ÔÚ 2020/11/17 5:05, Richard Weinberger Ð´µÀ:
-> Write buffers use a kmalloc()'ed buffer, they can leak
-> up to seven bytes of kernel memory to flash if writes are not
-> aligned.
-> So use ubifs_pad() to fill these gaps with padding bytes.
-> This was never a problem while scanning because the scanner logic
-> manually aligns node lengths and skips over these gaps.
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> ---
->   fs/ubifs/io.c | 13 +++++++++++--
->   1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
-> index 7e4bfaf2871f..eae9cf5a57b0 100644
-> --- a/fs/ubifs/io.c
-> +++ b/fs/ubifs/io.c
-> @@ -319,7 +319,7 @@ void ubifs_pad(const struct ubifs_info *c, void *buf, int pad)
->   {
->   	uint32_t crc;
->   
-> -	ubifs_assert(c, pad >= 0 && !(pad & 7));
-> +	ubifs_assert(c, pad >= 0);
->   
->   	if (pad >= UBIFS_PAD_NODE_SZ) {
->   		struct ubifs_ch *ch = buf;
-> @@ -764,6 +764,10 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
->   		 * write-buffer.
->   		 */
->   		memcpy(wbuf->buf + wbuf->used, buf, len);
-> +		if (aligned_len > len) {
-> +			ubifs_assert(c, aligned_len - len < 8);
-> +			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
-> +		}
->   
->   		if (aligned_len == wbuf->avail) {
->   			dbg_io("flush jhead %s wbuf to LEB %d:%d",
-> @@ -856,13 +860,18 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
->   	}
->   
->   	spin_lock(&wbuf->lock);
-> -	if (aligned_len)
-> +	if (aligned_len) {
->   		/*
->   		 * And now we have what's left and what does not take whole
->   		 * max. write unit, so write it to the write-buffer and we are
->   		 * done.
->   		 */
->   		memcpy(wbuf->buf, buf + written, len);
-> +		if (aligned_len > len) {
-> +			ubifs_assert(c, aligned_len - len < 8);
-> +			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
-> +		}
-> +	}
->   
->   	if (c->leb_size - wbuf->offs >= c->max_write_size)
->   		wbuf->size = c->max_write_size;
-> 
+stable-rc/queue/4.4 build: 4 builds: 0 failed, 4 passed (v4.4.243-41-g75498=
+c12fce0)
 
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
+/kernel/v4.4.243-41-g75498c12fce0/
+
+Tree: stable-rc
+Branch: queue/4.4
+Git Describe: v4.4.243-41-g75498c12fce0
+Git Commit: 75498c12fce0d400d89cf310841ed46844936e6f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 2 unique architectures
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---
+For more info write to <info@kernelci.org>
