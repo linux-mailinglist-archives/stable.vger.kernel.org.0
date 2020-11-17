@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827B72B627A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F782B60D4
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731456AbgKQN3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37668 "EHLO mail.kernel.org"
+        id S1729913AbgKQNNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731571AbgKQN27 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:59 -0500
+        id S1728827AbgKQNNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 202C52078E;
-        Tue, 17 Nov 2020 13:28:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE78C221EB;
+        Tue, 17 Nov 2020 13:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619738;
-        bh=KnvMcIJa2HSZRwMtFn6ycN3pR8KsrmbxhiHYam6ZtKU=;
+        s=default; t=1605618786;
+        bh=7VGnJb/e2JX3WsNJAqASnGnKnnUvJYAr5ZezzCKHD/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFhjOD99IlHN02d84iu4A4UAvPY+hZ9t7iHYB4KUzUeRQtiAfbIODxQATRkyVngvy
-         HXI0T+1iCOe+68LAVLtdH2hMMwrno6K4Bqhk4IEPhUzCn1mUhVKTxyFUQHyhzlg5hF
-         KHpB0Kfz42yvNq/oleuEkgiCv9srqGSQ70OhWLZk=
+        b=lMF2PnXUHSSLwKP0heeixyArmfjzaygeBJDmebp6h6uMKmkIcmeL6164nSIhit2hT
+         sVCqIRV9LGkE+PeFA0NsYN6rdkn+Ux3m7lyOCrmeVZ67knx9ZE2p8UHCqW0NmDicKt
+         hQ884Ck0W89+KdGP8yfixVjA8EUWvWom+zWrHQtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 110/151] btrfs: fix min reserved size calculation in merge_reloc_root
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wade Mealing <wmealing@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 74/78] perf/core: Fix race in the perf_mmap_close() function
 Date:   Tue, 17 Nov 2020 14:05:40 +0100
-Message-Id: <20201117122126.779597607@linuxfoundation.org>
+Message-Id: <20201117122112.722605910@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit fca3a45d08782a2bb85e048fb8e3128b1388d7b7 upstream.
+commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream.
 
-The minimum reserve size was adjusted to take into account the height of
-the tree we are merging, however we can have a root with a level == 0.
-What we want is root_level + 1 to get the number of nodes we may have to
-cow.  This fixes the enospc_debug warning pops with btrfs/101.
+There's a possible race in perf_mmap_close() when checking ring buffer's
+mmap_count refcount value. The problem is that the mmap_count check is
+not atomic because we call atomic_dec() and atomic_read() separately.
 
-Nikolay: this fixes failures on btrfs/060 btrfs/062 btrfs/063 and
-btrfs/195 That I was seeing, the call trace was:
+  perf_mmap_close:
+  ...
+   atomic_dec(&rb->mmap_count);
+   ...
+   if (atomic_read(&rb->mmap_count))
+      goto out_put;
 
-  [ 3680.515564] ------------[ cut here ]------------
-  [ 3680.515566] BTRFS: block rsv returned -28
-  [ 3680.515585] WARNING: CPU: 2 PID: 8339 at fs/btrfs/block-rsv.c:521 btrfs_use_block_rsv+0x162/0x180
-  [ 3680.515587] Modules linked in:
-  [ 3680.515591] CPU: 2 PID: 8339 Comm: btrfs Tainted: G        W         5.9.0-rc8-default #95
-  [ 3680.515593] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-  [ 3680.515595] RIP: 0010:btrfs_use_block_rsv+0x162/0x180
-  [ 3680.515600] RSP: 0018:ffffa01ac9753910 EFLAGS: 00010282
-  [ 3680.515602] RAX: 0000000000000000 RBX: ffff984b34200000 RCX: 0000000000000027
-  [ 3680.515604] RDX: 0000000000000027 RSI: 0000000000000000 RDI: ffff984b3bd19e28
-  [ 3680.515606] RBP: 0000000000004000 R08: ffff984b3bd19e20 R09: 0000000000000001
-  [ 3680.515608] R10: 0000000000000004 R11: 0000000000000046 R12: ffff984b264fdc00
-  [ 3680.515609] R13: ffff984b13149000 R14: 00000000ffffffe4 R15: ffff984b34200000
-  [ 3680.515613] FS:  00007f4e2912b8c0(0000) GS:ffff984b3bd00000(0000) knlGS:0000000000000000
-  [ 3680.515615] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ 3680.515617] CR2: 00007fab87122150 CR3: 0000000118e42000 CR4: 00000000000006e0
-  [ 3680.515620] Call Trace:
-  [ 3680.515627]  btrfs_alloc_tree_block+0x8b/0x340
-  [ 3680.515633]  ? __lock_acquire+0x51a/0xac0
-  [ 3680.515646]  alloc_tree_block_no_bg_flush+0x4f/0x60
-  [ 3680.515651]  __btrfs_cow_block+0x14e/0x7e0
-  [ 3680.515662]  btrfs_cow_block+0x144/0x2c0
-  [ 3680.515670]  merge_reloc_root+0x4d4/0x610
-  [ 3680.515675]  ? btrfs_lookup_fs_root+0x78/0x90
-  [ 3680.515686]  merge_reloc_roots+0xee/0x280
-  [ 3680.515695]  relocate_block_group+0x2ce/0x5e0
-  [ 3680.515704]  btrfs_relocate_block_group+0x16e/0x310
-  [ 3680.515711]  btrfs_relocate_chunk+0x38/0xf0
-  [ 3680.515716]  btrfs_shrink_device+0x200/0x560
-  [ 3680.515728]  btrfs_rm_device+0x1ae/0x6a6
-  [ 3680.515744]  ? _copy_from_user+0x6e/0xb0
-  [ 3680.515750]  btrfs_ioctl+0x1afe/0x28c0
-  [ 3680.515755]  ? find_held_lock+0x2b/0x80
-  [ 3680.515760]  ? do_user_addr_fault+0x1f8/0x418
-  [ 3680.515773]  ? __x64_sys_ioctl+0x77/0xb0
-  [ 3680.515775]  __x64_sys_ioctl+0x77/0xb0
-  [ 3680.515781]  do_syscall_64+0x31/0x70
-  [ 3680.515785]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+   <ring buffer detach>
+   free_uid
 
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Fixes: 44d354abf33e ("btrfs: relocation: review the call sites which can be interrupted by signal")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+out_put:
+  ring_buffer_put(rb); /* could be last */
+
+The race can happen when we have two (or more) events sharing same ring
+buffer and they go through atomic_dec() and then they both see 0 as refcount
+value later in atomic_read(). Then both will go on and execute code which
+is meant to be run just once.
+
+The code that detaches ring buffer is probably fine to be executed more
+than once, but the problem is in calling free_uid(), which will later on
+demonstrate in related crashes and refcount warnings, like:
+
+  refcount_t: addition on 0; use-after-free.
+  ...
+  RIP: 0010:refcount_warn_saturate+0x6d/0xf
+  ...
+  Call Trace:
+  prepare_creds+0x190/0x1e0
+  copy_creds+0x35/0x172
+  copy_process+0x471/0x1a80
+  _do_fork+0x83/0x3a0
+  __do_sys_wait4+0x83/0x90
+  __do_sys_clone+0x85/0xa0
+  do_syscall_64+0x5b/0x1e0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Using atomic decrease and check instead of separated calls.
+
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Wade Mealing <wmealing@redhat.com>
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
+Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+[sudip: backport to v4.9.y by using ring_buffer]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/btrfs/relocation.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/events/core.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -2287,6 +2287,7 @@ static noinline_for_stack int merge_relo
- 	struct btrfs_root_item *root_item;
- 	struct btrfs_path *path;
- 	struct extent_buffer *leaf;
-+	int reserve_level;
- 	int level;
- 	int max_level;
- 	int replaced = 0;
-@@ -2335,7 +2336,8 @@ static noinline_for_stack int merge_relo
- 	 * Thus the needed metadata size is at most root_level * nodesize,
- 	 * and * 2 since we have two trees to COW.
- 	 */
--	min_reserved = fs_info->nodesize * btrfs_root_level(root_item) * 2;
-+	reserve_level = max_t(int, 1, btrfs_root_level(root_item));
-+	min_reserved = fs_info->nodesize * reserve_level * 2;
- 	memset(&next_key, 0, sizeof(next_key));
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5069,11 +5069,11 @@ static void perf_pmu_output_stop(struct
+ static void perf_mmap_close(struct vm_area_struct *vma)
+ {
+ 	struct perf_event *event = vma->vm_file->private_data;
+-
+ 	struct ring_buffer *rb = ring_buffer_get(event);
+ 	struct user_struct *mmap_user = rb->mmap_user;
+ 	int mmap_locked = rb->mmap_locked;
+ 	unsigned long size = perf_data_size(rb);
++	bool detach_rest = false;
  
- 	while (1) {
+ 	if (event->pmu->event_unmapped)
+ 		event->pmu->event_unmapped(event);
+@@ -5104,7 +5104,8 @@ static void perf_mmap_close(struct vm_ar
+ 		mutex_unlock(&event->mmap_mutex);
+ 	}
+ 
+-	atomic_dec(&rb->mmap_count);
++	if (atomic_dec_and_test(&rb->mmap_count))
++		detach_rest = true;
+ 
+ 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
+ 		goto out_put;
+@@ -5113,7 +5114,7 @@ static void perf_mmap_close(struct vm_ar
+ 	mutex_unlock(&event->mmap_mutex);
+ 
+ 	/* If there's still other mmap()s of this buffer, we're done. */
+-	if (atomic_read(&rb->mmap_count))
++	if (!detach_rest)
+ 		goto out_put;
+ 
+ 	/*
 
 
