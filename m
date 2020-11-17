@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4622B6340
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD952B6347
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732545AbgKQNgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:36:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S1732580AbgKQNgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:36:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732244AbgKQNgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:36:21 -0500
+        id S1732576AbgKQNgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:36:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D316C207BC;
-        Tue, 17 Nov 2020 13:36:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B8A720780;
+        Tue, 17 Nov 2020 13:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620179;
-        bh=6pm9zhYWTKSf9n/U7JJrG8UYnvk7dGT/fQfxR+jD/Rw=;
+        s=default; t=1605620182;
+        bh=ZQOU+KaXU427X6FDYgvER0NThEXdA4kIOuopGtcHNEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uR+dNe4RqGKnpLuFBYdN66U1VzquVMW2P87mLxZW6dyYf0KYqlyAaq3L1qQ95g2h6
-         otzyMC6XtqhyePQ7g3E56wNHT7QxHrgL/TN6BXt8NkQVn2iPnnOFfkhjIWt0q/r+BX
-         gSQwZ0kmrNH13t9soUIp6NBJLmiVPsTry+Uwx0L8=
+        b=s4WL+wbLkwph7+zt5svUNiAF300CVtqyoMPcm/i9AIeiF89kJpE2vvUsuYtjLyUDG
+         ctP5DKmEy234Zoy5NcsaeCTs55u/iiZtG/TTIXXp5Vl/YgZoe5DaOIVjMUOKCsHb54
+         B1pJZkwOCKvrvynwID6gp9rRWTvkPoP7rWRUwzIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>
-Subject: [PATCH 5.9 133/255] libbpf, hashmap: Fix undefined behavior in hash_bits
-Date:   Tue, 17 Nov 2020 14:04:33 +0100
-Message-Id: <20201117122145.411242639@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Hundeb=C3=B8ll?= <martin@geanix.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 134/255] pinctrl: mcp23s08: Use full chunk of memory for regmap configuration
+Date:   Tue, 17 Nov 2020 14:04:34 +0100
+Message-Id: <20201117122145.460890570@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -46,67 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7a078d2d18801bba7bde7337a823d7342299acf7 ]
+[ Upstream commit 2b12c13637134897ba320bd8906a8d918ee7069b ]
 
-If bits is 0, the case when the map is empty, then the >> is the size of
-the register which is undefined behavior - on x86 it is the same as a
-shift by 0.
+It appears that simplification of mcp23s08_spi_regmap_init() made
+a regression due to wrong size calculation for dev_kmemdup() call.
+It misses the fact that config variable is already a pointer, thus
+the sizeof() calculation is wrong and only 4 or 8 bytes were copied.
 
-Fix by handling the 0 case explicitly and guarding calls to hash_bits for
-empty maps in hashmap__for_each_key_entry and hashmap__for_each_entry_safe.
+Fix the parameters to devm_kmemdup() to copy a full chunk of memory.
 
-Fixes: e3b924224028 ("libbpf: add resizable non-thread safe internal hashmap")
-Suggested-by: Andrii Nakryiko <andriin@fb.com>,
-Signed-off-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20201029223707.494059-1-irogers@google.com
+Fixes: 0874758ecb2b ("pinctrl: mcp23s08: Refactor mcp23s08_spi_regmap_init()")
+Reported-by: Martin Hundebøll <martin@geanix.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Martin Hundebøll <martin@geanix.com>
+Link: https://lore.kernel.org/r/20201009180856.4738-1-andriy.shevchenko@linux.intel.com
+Tested-by: Jan Kundrát <jan.kundrat@cesnet.cz>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/hashmap.h | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/pinctrl/pinctrl-mcp23s08_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/hashmap.h b/tools/lib/bpf/hashmap.h
-index e0af36b0e5d83..6a3c3d8bb4ab8 100644
---- a/tools/lib/bpf/hashmap.h
-+++ b/tools/lib/bpf/hashmap.h
-@@ -15,6 +15,9 @@
- static inline size_t hash_bits(size_t h, int bits)
- {
- 	/* shuffle bits and return requested number of upper bits */
-+	if (bits == 0)
-+		return 0;
-+
- #if (__SIZEOF_SIZE_T__ == __SIZEOF_LONG_LONG__)
- 	/* LP64 case */
- 	return (h * 11400714819323198485llu) >> (__SIZEOF_LONG_LONG__ * 8 - bits);
-@@ -162,17 +165,17 @@ bool hashmap__find(const struct hashmap *map, const void *key, void **value);
-  * @key: key to iterate entries for
-  */
- #define hashmap__for_each_key_entry(map, cur, _key)			    \
--	for (cur = ({ size_t bkt = hash_bits(map->hash_fn((_key), map->ctx),\
--					     map->cap_bits);		    \
--		     map->buckets ? map->buckets[bkt] : NULL; });	    \
-+	for (cur = map->buckets						    \
-+		     ? map->buckets[hash_bits(map->hash_fn((_key), map->ctx), map->cap_bits)] \
-+		     : NULL;						    \
- 	     cur;							    \
- 	     cur = cur->next)						    \
- 		if (map->equal_fn(cur->key, (_key), map->ctx))
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08_spi.c b/drivers/pinctrl/pinctrl-mcp23s08_spi.c
+index 1f47a661b0a79..7c72cffe14127 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08_spi.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08_spi.c
+@@ -119,7 +119,7 @@ static int mcp23s08_spi_regmap_init(struct mcp23s08 *mcp, struct device *dev,
+ 		return -EINVAL;
+ 	}
  
- #define hashmap__for_each_key_entry_safe(map, cur, tmp, _key)		    \
--	for (cur = ({ size_t bkt = hash_bits(map->hash_fn((_key), map->ctx),\
--					     map->cap_bits);		    \
--		     cur = map->buckets ? map->buckets[bkt] : NULL; });	    \
-+	for (cur = map->buckets						    \
-+		     ? map->buckets[hash_bits(map->hash_fn((_key), map->ctx), map->cap_bits)] \
-+		     : NULL;						    \
- 	     cur && ({ tmp = cur->next; true; });			    \
- 	     cur = tmp)							    \
- 		if (map->equal_fn(cur->key, (_key), map->ctx))
+-	copy = devm_kmemdup(dev, &config, sizeof(config), GFP_KERNEL);
++	copy = devm_kmemdup(dev, config, sizeof(*config), GFP_KERNEL);
+ 	if (!copy)
+ 		return -ENOMEM;
+ 
 -- 
 2.27.0
 
