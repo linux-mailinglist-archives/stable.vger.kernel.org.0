@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4D92B6495
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3FEB2B62EC
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:34:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732350AbgKQNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:32:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42942 "EHLO mail.kernel.org"
+        id S1732357AbgKQNdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:33:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732347AbgKQNc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:58 -0500
+        id S1732355AbgKQNdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:33:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84D04207BC;
-        Tue, 17 Nov 2020 13:32:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 968292168B;
+        Tue, 17 Nov 2020 13:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619978;
-        bh=FpFaCCixdI35SDiZzQGPcTSdml225m0Sfi834D66Z/o=;
+        s=default; t=1605619981;
+        bh=tRa10IYiYXWcjvwvF6rc8ISPqe7cNk+B1PEO0ZexQE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hanaIfBHUrjjjm50yEimo709TUcreCrEWye7YOdQ4XwL7oJg7LIrJT8DSbqcHk2hJ
-         6911PeXRYMpskdhRdKXrYJAH9gAie/9d1tc5wsX5Bgjmf4SNx3PZVqdcUXN9yojHHO
-         O8qpvBeNQkInlVDg3EKwUL72qKnUIsiU+QV5y5r8=
+        b=Om48ozs9Xb8yvVkgaIIDxpo58/cyYuQO8NaPa1tV0cit6iyvLNtT2n7BSGcRAT5+a
+         k6D7f9GyPHTEbp/FGVJs+G4sQ6Gxtlb4Ejl27e7SaDCQhVTkxPeCotczM+Z7neFoMs
+         Yfu2dG3A7WC9qS84kN566TDUcZ7YPTyRk0sWru/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 068/255] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
-Date:   Tue, 17 Nov 2020 14:03:28 +0100
-Message-Id: <20201117122142.261978864@linuxfoundation.org>
+Subject: [PATCH 5.9 069/255] kbuild: explicitly specify the build id style
+Date:   Tue, 17 Nov 2020 14:03:29 +0100
+Message-Id: <20201117122142.310456724@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,149 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+From: Bill Wendling <morbo@google.com>
 
-[ Upstream commit 1978b3a53a74e3230cd46932b149c6e62e832e9a ]
+[ Upstream commit a968433723310f35898b4a2f635a7991aeef66b1 ]
 
-On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
-STIBP is set to on and
+ld's --build-id defaults to "sha1" style, while lld defaults to "fast".
+The build IDs are very different between the two, which may confuse
+programs that reference them.
 
-  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
-
-At the same time, IBPB can be set to conditional.
-
-However, this leads to the case where it's impossible to turn on IBPB
-for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
-
-  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
-
-condition leads to a return before the task flag is set. Similarly,
-ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
-conditional.
-
-More generally, the following cases are possible:
-
-1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
-2. STIBP = on && IBPB = conditional for AMD CPUs with
-   X86_FEATURE_AMD_STIBP_ALWAYS_ON
-
-The first case functions correctly today, but only because
-spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
-
-At a high level, this change does one thing. If either STIBP or IBPB
-is set to conditional, allow the prctl to change the task flag.
-Also, reflect that capability when querying the state. This isn't
-perfect since it doesn't take into account if only STIBP or IBPB is
-unconditionally on. But it allows the conditional feature to work as
-expected, without affecting the unconditional one.
-
- [ bp: Massage commit message and comment; space out statements for
-   better readability. ]
-
-Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
+Signed-off-by: Bill Wendling <morbo@google.com>
+Acked-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c | 51 ++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 18 deletions(-)
+ Makefile                             | 4 ++--
+ arch/arm/vdso/Makefile               | 2 +-
+ arch/arm64/kernel/vdso/Makefile      | 2 +-
+ arch/arm64/kernel/vdso32/Makefile    | 2 +-
+ arch/mips/vdso/Makefile              | 2 +-
+ arch/riscv/kernel/vdso/Makefile      | 2 +-
+ arch/s390/kernel/vdso64/Makefile     | 2 +-
+ arch/sparc/vdso/Makefile             | 2 +-
+ arch/x86/entry/vdso/Makefile         | 2 +-
+ tools/testing/selftests/bpf/Makefile | 2 +-
+ 10 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index d3f0db463f96a..581fb7223ad0e 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1254,6 +1254,14 @@ static int ssb_prctl_set(struct task_struct *task, unsigned long ctrl)
- 	return 0;
- }
+diff --git a/Makefile b/Makefile
+index 035d86a0d291d..245c66fa8be17 100644
+--- a/Makefile
++++ b/Makefile
+@@ -973,8 +973,8 @@ KBUILD_CPPFLAGS += $(KCPPFLAGS)
+ KBUILD_AFLAGS   += $(KAFLAGS)
+ KBUILD_CFLAGS   += $(KCFLAGS)
  
-+static bool is_spec_ib_user_controlled(void)
-+{
-+	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
-+		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
-+		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
-+}
-+
- static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- {
- 	switch (ctrl) {
-@@ -1261,16 +1269,26 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return 0;
-+
- 		/*
--		 * Indirect branch speculation is always disabled in strict
--		 * mode. It can neither be enabled if it was force-disabled
--		 * by a  previous prctl call.
-+		 * With strict mode for both IBPB and STIBP, the instruction
-+		 * code paths avoid checking this task flag and instead,
-+		 * unconditionally run the instruction. However, STIBP and IBPB
-+		 * are independent and either can be set to conditionally
-+		 * enabled regardless of the mode of the other.
-+		 *
-+		 * If either is set to conditional, allow the task flag to be
-+		 * updated, unless it was force-disabled by a previous prctl
-+		 * call. Currently, this is possible on an AMD CPU which has the
-+		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
-+		 * kernel is booted with 'spectre_v2_user=seccomp', then
-+		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
-+		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
- 		 */
--		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
-+		if (!is_spec_ib_user_controlled() ||
- 		    task_spec_ib_force_disable(task))
- 			return -EPERM;
-+
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
- 		break;
-@@ -1283,10 +1301,10 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return -EPERM;
--		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+
-+		if (!is_spec_ib_user_controlled())
- 			return 0;
-+
- 		task_set_spec_ib_disable(task);
- 		if (ctrl == PR_SPEC_FORCE_DISABLE)
- 			task_set_spec_ib_force_disable(task);
-@@ -1351,20 +1369,17 @@ static int ib_prctl_get(struct task_struct *task)
- 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 		return PR_SPEC_ENABLE;
--	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
--		return PR_SPEC_DISABLE;
--	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
--	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
-+	else if (is_spec_ib_user_controlled()) {
- 		if (task_spec_ib_force_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
- 		if (task_spec_ib_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
- 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
--	} else
-+	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		return PR_SPEC_DISABLE;
-+	else
- 		return PR_SPEC_NOT_AFFECTED;
- }
+-KBUILD_LDFLAGS_MODULE += --build-id
+-LDFLAGS_vmlinux += --build-id
++KBUILD_LDFLAGS_MODULE += --build-id=sha1
++LDFLAGS_vmlinux += --build-id=sha1
  
+ ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
+ LDFLAGS_vmlinux	+= $(call ld-option, -X,)
+diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
+index a54f70731d9f1..150ce6e6a5d31 100644
+--- a/arch/arm/vdso/Makefile
++++ b/arch/arm/vdso/Makefile
+@@ -19,7 +19,7 @@ ccflags-y += -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO32
+ ldflags-$(CONFIG_CPU_ENDIAN_BE8) := --be8
+ ldflags-y := -Bsymbolic --no-undefined -soname=linux-vdso.so.1 \
+ 	    -z max-page-size=4096 -nostdlib -shared $(ldflags-y) \
+-	    --hash-style=sysv --build-id \
++	    --hash-style=sysv --build-id=sha1 \
+ 	    -T
+ 
+ obj-$(CONFIG_VDSO) += vdso.o
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index 45d5cfe464290..871915097f9d1 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -24,7 +24,7 @@ btildflags-$(CONFIG_ARM64_BTI_KERNEL) += -z force-bti
+ # routines, as x86 does (see 6f121e548f83 ("x86, vdso: Reimplement vdso.so
+ # preparation in build-time C")).
+ ldflags-y := -shared -nostdlib -soname=linux-vdso.so.1 --hash-style=sysv	\
+-	     -Bsymbolic $(call ld-option, --no-eh-frame-hdr) --build-id -n	\
++	     -Bsymbolic $(call ld-option, --no-eh-frame-hdr) --build-id=sha1 -n	\
+ 	     $(btildflags-y) -T
+ 
+ ccflags-y := -fno-common -fno-builtin -fno-stack-protector -ffixed-x18
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index d6adb4677c25f..4fa4b3fe8efb7 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -128,7 +128,7 @@ VDSO_LDFLAGS += -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1
+ VDSO_LDFLAGS += -Wl,-z,max-page-size=4096 -Wl,-z,common-page-size=4096
+ VDSO_LDFLAGS += -nostdlib -shared -mfloat-abi=soft
+ VDSO_LDFLAGS += -Wl,--hash-style=sysv
+-VDSO_LDFLAGS += -Wl,--build-id
++VDSO_LDFLAGS += -Wl,--build-id=sha1
+ VDSO_LDFLAGS += $(call cc32-ldoption,-fuse-ld=bfd)
+ 
+ 
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 57fe832352819..5810cc12bc1d9 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -61,7 +61,7 @@ endif
+ # VDSO linker flags.
+ ldflags-y := -Bsymbolic --no-undefined -soname=linux-vdso.so.1 \
+ 	$(filter -E%,$(KBUILD_CFLAGS)) -nostdlib -shared \
+-	-G 0 --eh-frame-hdr --hash-style=sysv --build-id -T
++	-G 0 --eh-frame-hdr --hash-style=sysv --build-id=sha1 -T
+ 
+ CFLAGS_REMOVE_vdso.o = -pg
+ 
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 478e7338ddc10..7d6a94d45ec94 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -49,7 +49,7 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
+ # refer to these symbols in the kernel code rather than hand-coded addresses.
+ 
+ SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+-	-Wl,--build-id -Wl,--hash-style=both
++	-Wl,--build-id=sha1 -Wl,--hash-style=both
+ $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
+ 	$(call if_changed,vdsold)
+ 
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 4a66a1cb919b1..edc473b32e420 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -19,7 +19,7 @@ KBUILD_AFLAGS_64 += -m64 -s
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+ ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
+-	     --hash-style=both --build-id -T
++	     --hash-style=both --build-id=sha1 -T
+ 
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+diff --git a/arch/sparc/vdso/Makefile b/arch/sparc/vdso/Makefile
+index f44355e46f31f..469dd23887abb 100644
+--- a/arch/sparc/vdso/Makefile
++++ b/arch/sparc/vdso/Makefile
+@@ -115,7 +115,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
+ 		sh $(srctree)/$(src)/checkundef.sh '$(OBJDUMP)' '$@'
+ 
+-VDSO_LDFLAGS = -shared --hash-style=both --build-id -Bsymbolic
++VDSO_LDFLAGS = -shared --hash-style=both --build-id=sha1 -Bsymbolic
+ GCOV_PROFILE := n
+ 
+ #
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 215376d975a29..ebba25ed9a386 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -176,7 +176,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		       -T $(filter %.lds,$^) $(filter %.o,$^) && \
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+-VDSO_LDFLAGS = -shared --hash-style=both --build-id \
++VDSO_LDFLAGS = -shared --hash-style=both --build-id=sha1 \
+ 	$(call ld-option, --eh-frame-hdr) -Bsymbolic
+ GCOV_PROFILE := n
+ 
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index fc946b7ac288d..daf186f88a636 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -133,7 +133,7 @@ $(OUTPUT)/%:%.c
+ 
+ $(OUTPUT)/urandom_read: urandom_read.c
+ 	$(call msg,BINARY,,$@)
+-	$(Q)$(CC) $(LDFLAGS) -o $@ $< $(LDLIBS) -Wl,--build-id
++	$(Q)$(CC) $(LDFLAGS) -o $@ $< $(LDLIBS) -Wl,--build-id=sha1
+ 
+ $(OUTPUT)/test_stub.o: test_stub.c $(BPFOBJ)
+ 	$(call msg,CC,,$@)
 -- 
 2.27.0
 
