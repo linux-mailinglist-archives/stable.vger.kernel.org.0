@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C022B63FE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 307192B63FA
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733119AbgKQNnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:43:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55000 "EHLO mail.kernel.org"
+        id S1732205AbgKQNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:43:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387429AbgKQNm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:42:26 -0500
+        id S1732799AbgKQNm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B60F320729;
-        Tue, 17 Nov 2020 13:42:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B822206A5;
+        Tue, 17 Nov 2020 13:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620545;
-        bh=YcAP/ifFzpln7KSxQKBrl+59+cGuxbryCDa05qAn07s=;
+        s=default; t=1605620548;
+        bh=sU+XLF+c8M5/3Njj5JwXL6mncXFDKU9OjluWl1kAOC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+V2ADIrOgUfQvQRVHKeiqQb/BaK257QQLAb/P552jNmmiUGFg5RK02/ulcMMMTsA
-         Iul8xgKqiYBKwJPhJP6fgK0UIXywbTYY6+KP8D23z4tkawdF7BSD09P9gWhiWA6vSg
-         DvXCpSCNZga8azslNde1Z4gPI2iHS9+BtMSS1rLE=
+        b=q0ugcr/S4NyXF6e691AlbkAq+1K0IwsH6Mi9AHx5bFssWlnk9U0H4ipqxZ5YArIA0
+         rIIC8s4QGOwocX0rYzX1KwWI5QiCRBeC07V2FiADJ1ncAtIp3ho+n8E6s+oi5vqBJQ
+         A8/EynjTjAdFJ12FDxY/SY+5EmS/aaQSHV9KpcMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.9 226/255] mmc: renesas_sdhi_core: Add missing tmio_mmc_host_free() at remove
-Date:   Tue, 17 Nov 2020 14:06:06 +0100
-Message-Id: <20201117122149.933593295@linuxfoundation.org>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.9 227/255] dont dump the threads that had been already exiting when zapped.
+Date:   Tue, 17 Nov 2020 14:06:07 +0100
+Message-Id: <20201117122149.983757618@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -46,38 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit e8973201d9b281375b5a8c66093de5679423021a upstream.
+commit 77f6ab8b7768cf5e6bdd0e72499270a0671506ee upstream.
 
-The commit 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
-added tmio_mmc_host_free(), but missed the function calling in
-the sh_mobile_sdhi_remove() at that time. So, fix it. Otherwise,
-we cannot rebind the sdhi/mmc devices when we use aliases of mmc.
+Coredump logics needs to report not only the registers of the dumping
+thread, but (since 2.5.43) those of other threads getting killed.
 
-Fixes: 94b110aff867 ("mmc: tmio: add tmio_mmc_host_alloc/free()")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Doing that might require extra state saved on the stack in asm glue at
+kernel entry; signal delivery logics does that (we need to be able to
+save sigcontext there, at the very least) and so does seccomp.
+
+That covers all callers of do_coredump().  Secondary threads get hit with
+SIGKILL and caught as soon as they reach exit_mm(), which normally happens
+in signal delivery, so those are also fine most of the time.  Unfortunately,
+it is possible to end up with secondary zapped when it has already entered
+exit(2) (or, worse yet, is oopsing).  In those cases we reach exit_mm()
+when mm->core_state is already set, but the stack contents is not what
+we would have in signal delivery.
+
+At least on two architectures (alpha and m68k) it leads to infoleaks - we
+end up with a chunk of kernel stack written into coredump, with the contents
+consisting of normal C stack frames of the call chain leading to exit_mm()
+instead of the expected copy of userland registers.  In case of alpha we
+leak 312 bytes of stack.  Other architectures (including the regset-using
+ones) might have similar problems - the normal user of regsets is ptrace
+and the state of tracee at the time of such calls is special in the same
+way signal delivery is.
+
+Note that had the zapper gotten to the exiting thread slightly later,
+it wouldn't have been included into coredump anyway - we skip the threads
+that have already cleared their ->mm.  So let's pretend that zapper always
+loses the race.  IOW, have exit_mm() only insert into the dumper list if
+we'd gotten there from handling a fatal signal[*]
+
+As the result, the callers of do_exit() that have *not* gone through get_signal()
+are not seen by coredump logics as secondary threads.  Which excludes voluntary
+exit()/oopsen/traps/etc.  The dumper thread itself is unaffected by that,
+so seccomp is fine.
+
+[*] originally I intended to add a new flag in tsk->flags, but ebiederman pointed
+out that PF_SIGNALED is already doing just what we need.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1604654730-29914-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: d89f3847def4 ("[PATCH] thread-aware coredumps, 2.5.43-C3")
+History-tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/renesas_sdhi_core.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/exit.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -997,6 +997,7 @@ int renesas_sdhi_remove(struct platform_
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -454,7 +454,10 @@ static void exit_mm(void)
+ 		mmap_read_unlock(mm);
  
- 	tmio_mmc_host_remove(host);
- 	renesas_sdhi_clk_disable(host);
-+	tmio_mmc_host_free(host);
- 
- 	return 0;
- }
+ 		self.task = current;
+-		self.next = xchg(&core_state->dumper.next, &self);
++		if (self.task->flags & PF_SIGNALED)
++			self.next = xchg(&core_state->dumper.next, &self);
++		else
++			self.task = NULL;
+ 		/*
+ 		 * Implies mb(), the result of xchg() must be visible
+ 		 * to core_state->dumper.
 
 
