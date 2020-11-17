@@ -2,61 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EF42B5CCD
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 11:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 606E82B5CD4
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 11:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726136AbgKQK1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 05:27:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S1725774AbgKQK2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 05:28:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725774AbgKQK1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 05:27:10 -0500
+        id S1725770AbgKQK2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 05:28:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63E6E22202;
-        Tue, 17 Nov 2020 10:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB4FD20E65;
+        Tue, 17 Nov 2020 10:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605608830;
-        bh=suTWvoLJ55Ut1FqBR7Xy/ItUlnZJmBkmEfCbJxX1yR4=;
+        s=default; t=1605608892;
+        bh=Qggw/1raSUAHDLYANebW0oUUWEe6Ft3XNlmK1I2pxXE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EkcUKO1bbVjQJmBvMV2pyTcBInGMm4m9iRqXrWXX5MRwMzD4VKEJWrR5yl0v5j9Sy
-         Qa1rzwANDRKu7H4ErZmJG58j71EYDkX2HDFXurin6kop5cauF87/7wX2YozUgklB0a
-         z2dJKsQwsSvH2ihf5/fVQEJrhFt13eByVTt2qwUU=
-Date:   Tue, 17 Nov 2020 11:27:58 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH for 5.4] powerpc/603: Always fault when _PAGE_ACCESSED is
- not set
-Message-ID: <X7OlrpFkRKBQMNQ8@kroah.com>
-References: <9351d8a775f749d7c881c909388e69af944087b9.1604943353.git.christophe.leroy@csgroup.eu>
+        b=LTT2sWvEEBSaDnsxeGQQLRD+2d4K3EqvkQHX0wFrlGgr0ry7OSjW1lyIhUbKudirL
+         Ual9LvnroxGKzI/Iovyp2gOa4npj1KqNwmNgANjmuqOQkr1o2mkGyskV01c2ykX9RN
+         rm8akAfW1T2odNxGReFCP+sWTSkIQIjgzfW2jXY8=
+Date:   Tue, 17 Nov 2020 11:29:00 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <damien.lemoal@wdc.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] null_blk: Fix scheduling in atomic with zoned mode
+Message-ID: <X7Ol7OoF7z02TCVK@kroah.com>
+References: <160491753798199@kroah.com>
+ <20201110073605.296624-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9351d8a775f749d7c881c909388e69af944087b9.1604943353.git.christophe.leroy@csgroup.eu>
+In-Reply-To: <20201110073605.296624-1-damien.lemoal@wdc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 09, 2020 at 05:40:52PM +0000, Christophe Leroy wrote:
-> [That is backport of 11522448e641e8f1690c9db06e01985e8e19b401 to linux 5.4]
+On Tue, Nov 10, 2020 at 04:36:05PM +0900, Damien Le Moal wrote:
+> commit e1777d099728a76a8f8090f89649aac961e7e530 upstream.
 > 
-> The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+> Commit aa1c09cb65e2 ("null_blk: Fix locking in zoned mode") changed
+> zone locking to using the potentially sleeping wait_on_bit_io()
+> function. This is acceptable when memory backing is enabled as the
+> device queue is in that case marked as blocking, but this triggers a
+> scheduling while in atomic context with memory backing disabled.
 > 
-> Make sure a minor fault is taken to set _PAGE_ACCESSED when it
-> is not already set, regardless of the selection of CONFIG_SWAP.
+> Fix this by relying solely on the device zone spinlock for zone
+> information protection without temporarily releasing this lock around
+> null_process_cmd() execution in null_zone_write(). This is OK to do
+> since when memory backing is disabled, command processing does not
+> block and the memory backing lock nullb->lock is unused. This solution
+> avoids the overhead of having to mark a zoned null_blk device queue as
+> blocking when memory backing is unused.
 > 
-> Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+> This patch also adds comments to the zone locking code to explain the
+> unusual locking scheme.
+> 
+> Fixes: aa1c09cb65e2 ("null_blk: Fix locking in zoned mode")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
 > ---
->  arch/powerpc/kernel/head_32.S | 12 ------------
->  1 file changed, 12 deletions(-)
+>  drivers/block/null_blk.h       |  1 +
+>  drivers/block/null_blk_zoned.c | 31 +++++++++++++++++++++++++------
+>  2 files changed, 26 insertions(+), 6 deletions(-)
 
-Both backports now queued up, thanks.
+Now queued up, thanks.
 
 greg k-h
