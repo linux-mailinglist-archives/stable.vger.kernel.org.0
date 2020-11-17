@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 705C32B637C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56D42B6552
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732650AbgKQNii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:38:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
+        id S1730778AbgKQNZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732556AbgKQNgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:36:15 -0500
+        id S1731336AbgKQNZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:25:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D627A24654;
-        Tue, 17 Nov 2020 13:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 906442464E;
+        Tue, 17 Nov 2020 13:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620173;
-        bh=ZiZ4IgdMoOWjO2OPHzsRuRDLUTgimNHjwbGZFbK4Udg=;
+        s=default; t=1605619536;
+        bh=dI3ZDd4eYkBEmLYe7wBxGqgrUnyg9Q0/C/nUycn4sVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKno5ORHmLNWJbBXqggg5AjPrRzky6qCmxxSaMDCzONWJK3VDbn+vkRYIUQGAG7WF
-         Ku+tkUdalnVc0GwqjI42+reeFDoBT0JTdFZ2JwQWUSSnj/mlz3WV6gS2320Ow9mJs0
-         6QcHs9SSFJo7Ff5uoG3gj9oBFOHx/EDSbO64FmS8=
+        b=iMgObzraHA6TMzuwZNHc5reABxB5IlcOL/pHs2cCdmnLW+zIRpjV835q6mnDrsbRJ
+         yamjj8h+4y8G+HUqc2VceGlDwSVIyRSzE9R9wdWcI0W1n5oJ6t5kpt5gPhCo+a19Bd
+         UwM+B/9ghXJmCwPvt8qoZEJLgcsKc6ZTfHYxTYHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Luka Oreskovic <luka.oreskovic@sartura.hr>,
-        Joel Stanley <joel@jms.id.au>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Juraj Vijtiuk <juraj.vijtiuk@sartura.hr>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 131/255] ARM: 9019/1: kprobes: Avoid fortify_panic() when copying optprobe template
-Date:   Tue, 17 Nov 2020 14:04:31 +0100
-Message-Id: <20201117122145.309777301@linuxfoundation.org>
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
+        Florian Westphal <fw@strlen.de>,
+        Marc Plumb <lkml.mplumb@gmail.com>,
+        George Spelvin <lkml@sdf.org>
+Subject: [PATCH 5.4 042/151] random32: make prandom_u32() output unpredictable
+Date:   Tue, 17 Nov 2020 14:04:32 +0100
+Message-Id: <20201117122123.470797469@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,227 +51,649 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Jeffery <andrew@aj.id.au>
+From: George Spelvin <lkml@sdf.org>
 
-[ Upstream commit 9fa2e7af3d53a4b769136eccc32c02e128a4ee51 ]
+commit c51f8f88d705e06bd696d7510aff22b33eb8e638 upstream.
 
-Setting both CONFIG_KPROBES=y and CONFIG_FORTIFY_SOURCE=y on ARM leads
-to a panic in memcpy() when injecting a kprobe despite the fixes found
-in commit e46daee53bb5 ("ARM: 8806/1: kprobes: Fix false positive with
-FORTIFY_SOURCE") and commit 0ac569bf6a79 ("ARM: 8834/1: Fix: kprobes:
-optimized kprobes illegal instruction").
+Non-cryptographic PRNGs may have great statistical properties, but
+are usually trivially predictable to someone who knows the algorithm,
+given a small sample of their output.  An LFSR like prandom_u32() is
+particularly simple, even if the sample is widely scattered bits.
 
-arch/arm/include/asm/kprobes.h effectively declares
-the target type of the optprobe_template_entry assembly label as a u32
-which leads memcpy()'s __builtin_object_size() call to determine that
-the pointed-to object is of size four. However, the symbol is used as a handle
-for the optimised probe assembly template that is at least 96 bytes in size.
-The symbol's use despite its type blows up the memcpy() in ARM's
-arch_prepare_optimized_kprobe() with a false-positive fortify_panic() when it
-should instead copy the optimised probe template into place:
+It turns out the network stack uses prandom_u32() for some things like
+random port numbers which it would prefer are *not* trivially predictable.
+Predictability led to a practical DNS spoofing attack.  Oops.
 
-```
-$ sudo perf probe -a aspeed_g6_pinctrl_probe
-[  158.457252] detected buffer overflow in memcpy
-[  158.458069] ------------[ cut here ]------------
-[  158.458283] kernel BUG at lib/string.c:1153!
-[  158.458436] Internal error: Oops - BUG: 0 [#1] SMP ARM
-[  158.458768] Modules linked in:
-[  158.459043] CPU: 1 PID: 99 Comm: perf Not tainted 5.9.0-rc7-00038-gc53ebf8167e9 #158
-[  158.459296] Hardware name: Generic DT based system
-[  158.459529] PC is at fortify_panic+0x18/0x20
-[  158.459658] LR is at __irq_work_queue_local+0x3c/0x74
-[  158.459831] pc : [<8047451c>]    lr : [<8020ecd4>]    psr: 60000013
-[  158.460032] sp : be2d1d50  ip : be2d1c58  fp : be2d1d5c
-[  158.460174] r10: 00000006  r9 : 00000000  r8 : 00000060
-[  158.460348] r7 : 8011e434  r6 : b9e0b800  r5 : 7f000000  r4 : b9fe4f0c
-[  158.460557] r3 : 80c04cc8  r2 : 00000000  r1 : be7c03cc  r0 : 00000022
-[  158.460801] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[  158.461037] Control: 10c5387d  Table: b9cd806a  DAC: 00000051
-[  158.461251] Process perf (pid: 99, stack limit = 0x81c71a69)
-[  158.461472] Stack: (0xbe2d1d50 to 0xbe2d2000)
-[  158.461757] 1d40:                                     be2d1d84 be2d1d60 8011e724 80474510
-[  158.462104] 1d60: b9e0b800 b9fe4f0c 00000000 b9fe4f14 80c8ec80 be235000 be2d1d9c be2d1d88
-[  158.462436] 1d80: 801cee44 8011e57c b9fe4f0c 00000000 be2d1dc4 be2d1da0 801d0ad0 801cedec
-[  158.462742] 1da0: 00000000 00000000 b9fe4f00 ffffffea 00000000 be235000 be2d1de4 be2d1dc8
-[  158.463087] 1dc0: 80204604 801d0738 00000000 00000000 b9fe4004 ffffffea be2d1e94 be2d1de8
-[  158.463428] 1de0: 80205434 80204570 00385c00 00000000 00000000 00000000 be2d1e14 be2d1e08
-[  158.463880] 1e00: 802ba014 b9fe4f00 b9e718c0 b9fe4f84 b9e71ec8 be2d1e24 00000000 00385c00
-[  158.464365] 1e20: 00000000 626f7270 00000065 802b905c be2d1e94 0000002e 00000000 802b9914
-[  158.464829] 1e40: be2d1e84 be2d1e50 802b9914 8028ff78 804629d0 b9e71ec0 0000002e b9e71ec0
-[  158.465141] 1e60: be2d1ea8 80c04cc8 00000cc0 b9e713c4 00000002 80205834 80205834 0000002e
-[  158.465488] 1e80: be235000 be235000 be2d1ea4 be2d1e98 80205854 80204e94 be2d1ecc be2d1ea8
-[  158.465806] 1ea0: 801ee4a0 80205840 00000002 80c04cc8 00000000 0000002e 0000002e 00000000
-[  158.466110] 1ec0: be2d1f0c be2d1ed0 801ee5c8 801ee428 00000000 be2d0000 006b1fd0 00000051
-[  158.466398] 1ee0: 00000000 b9eedf00 0000002e 80204410 006b1fd0 be2d1f60 00000000 00000004
-[  158.466763] 1f00: be2d1f24 be2d1f10 8020442c 801ee4c4 80205834 802c613c be2d1f5c be2d1f28
-[  158.467102] 1f20: 802c60ac 8020441c be2d1fac be2d1f38 8010c764 802e9888 be2d1f5c b9eedf00
-[  158.467447] 1f40: b9eedf00 006b1fd0 0000002e 00000000 be2d1f94 be2d1f60 802c634c 802c5fec
-[  158.467812] 1f60: 00000000 00000000 00000000 80c04cc8 006b1fd0 00000003 76f7a610 00000004
-[  158.468155] 1f80: 80100284 be2d0000 be2d1fa4 be2d1f98 802c63ec 802c62e8 00000000 be2d1fa8
-[  158.468508] 1fa0: 80100080 802c63e0 006b1fd0 00000003 00000003 006b1fd0 0000002e 00000000
-[  158.468858] 1fc0: 006b1fd0 00000003 76f7a610 00000004 006b1fb0 0026d348 00000017 7ef2738c
-[  158.469202] 1fe0: 76f3431c 7ef272d8 0014ec50 76f34338 60000010 00000003 00000000 00000000
-[  158.469461] Backtrace:
-[  158.469683] [<80474504>] (fortify_panic) from [<8011e724>] (arch_prepare_optimized_kprobe+0x1b4/0x1f8)
-[  158.470021] [<8011e570>] (arch_prepare_optimized_kprobe) from [<801cee44>] (alloc_aggr_kprobe+0x64/0x70)
-[  158.470287]  r9:be235000 r8:80c8ec80 r7:b9fe4f14 r6:00000000 r5:b9fe4f0c r4:b9e0b800
-[  158.470478] [<801cede0>] (alloc_aggr_kprobe) from [<801d0ad0>] (register_kprobe+0x3a4/0x5a0)
-[  158.470685]  r5:00000000 r4:b9fe4f0c
-[  158.470790] [<801d072c>] (register_kprobe) from [<80204604>] (__register_trace_kprobe+0xa0/0xa4)
-[  158.471001]  r9:be235000 r8:00000000 r7:ffffffea r6:b9fe4f00 r5:00000000 r4:00000000
-[  158.471188] [<80204564>] (__register_trace_kprobe) from [<80205434>] (trace_kprobe_create+0x5ac/0x9ac)
-[  158.471408]  r7:ffffffea r6:b9fe4004 r5:00000000 r4:00000000
-[  158.471553] [<80204e88>] (trace_kprobe_create) from [<80205854>] (create_or_delete_trace_kprobe+0x20/0x3c)
-[  158.471766]  r10:be235000 r9:be235000 r8:0000002e r7:80205834 r6:80205834 r5:00000002
-[  158.471949]  r4:b9e713c4
-[  158.472027] [<80205834>] (create_or_delete_trace_kprobe) from [<801ee4a0>] (trace_run_command+0x84/0x9c)
-[  158.472255] [<801ee41c>] (trace_run_command) from [<801ee5c8>] (trace_parse_run_command+0x110/0x1f8)
-[  158.472471]  r6:00000000 r5:0000002e r4:0000002e
-[  158.472594] [<801ee4b8>] (trace_parse_run_command) from [<8020442c>] (probes_write+0x1c/0x28)
-[  158.472800]  r10:00000004 r9:00000000 r8:be2d1f60 r7:006b1fd0 r6:80204410 r5:0000002e
-[  158.472968]  r4:b9eedf00
-[  158.473046] [<80204410>] (probes_write) from [<802c60ac>] (vfs_write+0xcc/0x1e8)
-[  158.473226] [<802c5fe0>] (vfs_write) from [<802c634c>] (ksys_write+0x70/0xf8)
-[  158.473400]  r8:00000000 r7:0000002e r6:006b1fd0 r5:b9eedf00 r4:b9eedf00
-[  158.473567] [<802c62dc>] (ksys_write) from [<802c63ec>] (sys_write+0x18/0x1c)
-[  158.473745]  r9:be2d0000 r8:80100284 r7:00000004 r6:76f7a610 r5:00000003 r4:006b1fd0
-[  158.473932] [<802c63d4>] (sys_write) from [<80100080>] (ret_fast_syscall+0x0/0x54)
-[  158.474126] Exception stack(0xbe2d1fa8 to 0xbe2d1ff0)
-[  158.474305] 1fa0:                   006b1fd0 00000003 00000003 006b1fd0 0000002e 00000000
-[  158.474573] 1fc0: 006b1fd0 00000003 76f7a610 00000004 006b1fb0 0026d348 00000017 7ef2738c
-[  158.474811] 1fe0: 76f3431c 7ef272d8 0014ec50 76f34338
-[  158.475171] Code: e24cb004 e1a01000 e59f0004 ebf40dd3 (e7f001f2)
-[  158.475847] ---[ end trace 55a5b31c08a29f00 ]---
-[  158.476088] Kernel panic - not syncing: Fatal exception
-[  158.476375] CPU0: stopping
-[  158.476709] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G      D           5.9.0-rc7-00038-gc53ebf8167e9 #158
-[  158.477176] Hardware name: Generic DT based system
-[  158.477411] Backtrace:
-[  158.477604] [<8010dd28>] (dump_backtrace) from [<8010dfd4>] (show_stack+0x20/0x24)
-[  158.477990]  r7:00000000 r6:60000193 r5:00000000 r4:80c2f634
-[  158.478323] [<8010dfb4>] (show_stack) from [<8046390c>] (dump_stack+0xcc/0xe8)
-[  158.478686] [<80463840>] (dump_stack) from [<80110750>] (handle_IPI+0x334/0x3a0)
-[  158.479063]  r7:00000000 r6:00000004 r5:80b65cc8 r4:80c78278
-[  158.479352] [<8011041c>] (handle_IPI) from [<801013f8>] (gic_handle_irq+0x88/0x94)
-[  158.479757]  r10:10c5387d r9:80c01ed8 r8:00000000 r7:c0802000 r6:80c0537c r5:000003ff
-[  158.480146]  r4:c080200c r3:fffffff4
-[  158.480364] [<80101370>] (gic_handle_irq) from [<80100b6c>] (__irq_svc+0x6c/0x90)
-[  158.480748] Exception stack(0x80c01ed8 to 0x80c01f20)
-[  158.481031] 1ec0:                                                       000128bc 00000000
-[  158.481499] 1ee0: be7b8174 8011d3a0 80c00000 00000000 80c04cec 80c04d28 80c5d7c2 80a026d4
-[  158.482091] 1f00: 10c5387d 80c01f34 80c01f38 80c01f28 80109554 80109558 60000013 ffffffff
-[  158.482621]  r9:80c00000 r8:80c5d7c2 r7:80c01f0c r6:ffffffff r5:60000013 r4:80109558
-[  158.482983] [<80109518>] (arch_cpu_idle) from [<80818780>] (default_idle_call+0x38/0x120)
-[  158.483360] [<80818748>] (default_idle_call) from [<801585a8>] (do_idle+0xd4/0x158)
-[  158.483945]  r5:00000000 r4:80c00000
-[  158.484237] [<801584d4>] (do_idle) from [<801588f4>] (cpu_startup_entry+0x28/0x2c)
-[  158.484784]  r9:80c78000 r8:00000000 r7:80c78000 r6:80c78040 r5:80c04cc0 r4:000000d6
-[  158.485328] [<801588cc>] (cpu_startup_entry) from [<80810a78>] (rest_init+0x9c/0xbc)
-[  158.485930] [<808109dc>] (rest_init) from [<80b00ae4>] (arch_call_rest_init+0x18/0x1c)
-[  158.486503]  r5:80c04cc0 r4:00000001
-[  158.486857] [<80b00acc>] (arch_call_rest_init) from [<80b00fcc>] (start_kernel+0x46c/0x548)
-[  158.487589] [<80b00b60>] (start_kernel) from [<00000000>] (0x0)
-```
+This patch replaces the LFSR with a homebrew cryptographic PRNG based
+on the SipHash round function, which is in turn seeded with 128 bits
+of strong random key.  (The authors of SipHash have *not* been consulted
+about this abuse of their algorithm.)  Speed is prioritized over security;
+attacks are rare, while performance is always wanted.
 
-Fixes: e46daee53bb5 ("ARM: 8806/1: kprobes: Fix false positive with FORTIFY_SOURCE")
-Fixes: 0ac569bf6a79 ("ARM: 8834/1: Fix: kprobes: optimized kprobes illegal instruction")
-Suggested-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-Tested-by: Luka Oreskovic <luka.oreskovic@sartura.hr>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Luka Oreskovic <luka.oreskovic@sartura.hr>
-Cc: Juraj Vijtiuk <juraj.vijtiuk@sartura.hr>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Replacing all callers of prandom_u32() is the quick fix.
+Whether to reinstate a weaker PRNG for uses which can tolerate it
+is an open question.
+
+Commit f227e3ec3b5c ("random32: update the net random state on interrupt
+and activity") was an earlier attempt at a solution.  This patch replaces
+it.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: tytso@mit.edu
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Marc Plumb <lkml.mplumb@gmail.com>
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
+[ willy: partial reversal of f227e3ec3b5c; moved SIPROUND definitions
+  to prandom.h for later use; merged George's prandom_seed() proposal;
+  inlined siprand_u32(); replaced the net_rand_state[] array with 4
+  members to fix a build issue; cosmetic cleanups to make checkpatch
+  happy; fixed RANDOM32_SELFTEST build ]
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+[wt: backported to 5.4 -- no tracepoint there]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/kprobes.h    | 22 +++++++++++-----------
- arch/arm/probes/kprobes/opt-arm.c | 18 +++++++++---------
- 2 files changed, 20 insertions(+), 20 deletions(-)
+ drivers/char/random.c   |    1 
+ include/linux/prandom.h |   36 +++
+ kernel/time/timer.c     |    7 
+ lib/random32.c          |  462 +++++++++++++++++++++++++++++-------------------
+ 4 files changed, 317 insertions(+), 189 deletions(-)
 
-diff --git a/arch/arm/include/asm/kprobes.h b/arch/arm/include/asm/kprobes.h
-index 213607a1f45c1..e26a278d301ab 100644
---- a/arch/arm/include/asm/kprobes.h
-+++ b/arch/arm/include/asm/kprobes.h
-@@ -44,20 +44,20 @@ int kprobe_exceptions_notify(struct notifier_block *self,
- 			     unsigned long val, void *data);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1330,7 +1330,6 @@ void add_interrupt_randomness(int irq, i
  
- /* optinsn template addresses */
--extern __visible kprobe_opcode_t optprobe_template_entry;
--extern __visible kprobe_opcode_t optprobe_template_val;
--extern __visible kprobe_opcode_t optprobe_template_call;
--extern __visible kprobe_opcode_t optprobe_template_end;
--extern __visible kprobe_opcode_t optprobe_template_sub_sp;
--extern __visible kprobe_opcode_t optprobe_template_add_sp;
--extern __visible kprobe_opcode_t optprobe_template_restore_begin;
--extern __visible kprobe_opcode_t optprobe_template_restore_orig_insn;
--extern __visible kprobe_opcode_t optprobe_template_restore_end;
-+extern __visible kprobe_opcode_t optprobe_template_entry[];
-+extern __visible kprobe_opcode_t optprobe_template_val[];
-+extern __visible kprobe_opcode_t optprobe_template_call[];
-+extern __visible kprobe_opcode_t optprobe_template_end[];
-+extern __visible kprobe_opcode_t optprobe_template_sub_sp[];
-+extern __visible kprobe_opcode_t optprobe_template_add_sp[];
-+extern __visible kprobe_opcode_t optprobe_template_restore_begin[];
-+extern __visible kprobe_opcode_t optprobe_template_restore_orig_insn[];
-+extern __visible kprobe_opcode_t optprobe_template_restore_end[];
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
+-	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
  
- #define MAX_OPTIMIZED_LENGTH	4
- #define MAX_OPTINSN_SIZE				\
--	((unsigned long)&optprobe_template_end -	\
--	 (unsigned long)&optprobe_template_entry)
-+	((unsigned long)optprobe_template_end -	\
-+	 (unsigned long)optprobe_template_entry)
- #define RELATIVEJUMP_SIZE	4
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -16,12 +16,44 @@ void prandom_bytes(void *buf, size_t nby
+ void prandom_seed(u32 seed);
+ void prandom_reseed_late(void);
  
- struct arch_optimized_insn {
-diff --git a/arch/arm/probes/kprobes/opt-arm.c b/arch/arm/probes/kprobes/opt-arm.c
-index 7a449df0b3591..c78180172120f 100644
---- a/arch/arm/probes/kprobes/opt-arm.c
-+++ b/arch/arm/probes/kprobes/opt-arm.c
-@@ -85,21 +85,21 @@ asm (
- 			"optprobe_template_end:\n");
++#if BITS_PER_LONG == 64
++/*
++ * The core SipHash round function.  Each line can be executed in
++ * parallel given enough CPU resources.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
++	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
++)
++
++#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
++#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
++
++#elif BITS_PER_LONG == 32
++/*
++ * On 32-bit machines, we use HSipHash, a reduced-width version of SipHash.
++ * This is weaker, but 32-bit machines are not used for high-traffic
++ * applications, so there is less output for an attacker to analyze.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
++	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
++)
++#define PRND_K0 0x6c796765
++#define PRND_K1 0x74656462
++
++#else
++#error Unsupported BITS_PER_LONG
++#endif
++
+ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
  
- #define TMPL_VAL_IDX \
--	((unsigned long *)&optprobe_template_val - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_val - (unsigned long *)optprobe_template_entry)
- #define TMPL_CALL_IDX \
--	((unsigned long *)&optprobe_template_call - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_call - (unsigned long *)optprobe_template_entry)
- #define TMPL_END_IDX \
--	((unsigned long *)&optprobe_template_end - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_end - (unsigned long *)optprobe_template_entry)
- #define TMPL_ADD_SP \
--	((unsigned long *)&optprobe_template_add_sp - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_add_sp - (unsigned long *)optprobe_template_entry)
- #define TMPL_SUB_SP \
--	((unsigned long *)&optprobe_template_sub_sp - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_sub_sp - (unsigned long *)optprobe_template_entry)
- #define TMPL_RESTORE_BEGIN \
--	((unsigned long *)&optprobe_template_restore_begin - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_restore_begin - (unsigned long *)optprobe_template_entry)
- #define TMPL_RESTORE_ORIGN_INSN \
--	((unsigned long *)&optprobe_template_restore_orig_insn - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_restore_orig_insn - (unsigned long *)optprobe_template_entry)
- #define TMPL_RESTORE_END \
--	((unsigned long *)&optprobe_template_restore_end - (unsigned long *)&optprobe_template_entry)
-+	((unsigned long *)optprobe_template_restore_end - (unsigned long *)optprobe_template_entry)
+-DECLARE_PER_CPU(struct rnd_state, net_rand_state);
+-
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1743,13 +1743,6 @@ void update_process_times(int user_tick)
+ 	scheduler_tick();
+ 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
+ 		run_posix_cpu_timers();
+-
+-	/* The current CPU might make use of net randoms without receiving IRQs
+-	 * to renew them often enough. Let's update the net_rand_state from a
+-	 * non-constant value that's not affine to the number of calls to make
+-	 * sure it's updated when there's some activity (we don't care in idle).
+-	 */
+-	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
+ }
  
- /*
-  * ARM can always optimize an instruction when using ARM ISA, except
-@@ -234,7 +234,7 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op, struct kprobe *or
- 	}
+ /**
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -40,16 +40,6 @@
+ #include <linux/sched.h>
+ #include <asm/unaligned.h>
  
- 	/* Copy arch-dep-instance from template. */
--	memcpy(code, (unsigned long *)&optprobe_template_entry,
-+	memcpy(code, (unsigned long *)optprobe_template_entry,
- 			TMPL_END_IDX * sizeof(kprobe_opcode_t));
+-#ifdef CONFIG_RANDOM32_SELFTEST
+-static void __init prandom_state_selftest(void);
+-#else
+-static inline void prandom_state_selftest(void)
+-{
+-}
+-#endif
+-
+-DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
+-
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
+  *	@state: pointer to state structure holding seeded state.
+@@ -70,25 +60,6 @@ u32 prandom_u32_state(struct rnd_state *
+ EXPORT_SYMBOL(prandom_u32_state);
  
- 	/* Adjust buffer according to instruction. */
--- 
-2.27.0
-
+ /**
+- *	prandom_u32 - pseudo random number generator
+- *
+- *	A 32 bit pseudo-random number is generated using a fast
+- *	algorithm suitable for simulation. This algorithm is NOT
+- *	considered safe for cryptographic use.
+- */
+-u32 prandom_u32(void)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-	u32 res;
+-
+-	res = prandom_u32_state(state);
+-	put_cpu_var(net_rand_state);
+-
+-	return res;
+-}
+-EXPORT_SYMBOL(prandom_u32);
+-
+-/**
+  *	prandom_bytes_state - get the requested number of pseudo-random bytes
+  *
+  *	@state: pointer to state structure holding seeded state.
+@@ -119,20 +90,6 @@ void prandom_bytes_state(struct rnd_stat
+ }
+ EXPORT_SYMBOL(prandom_bytes_state);
+ 
+-/**
+- *	prandom_bytes - get the requested number of pseudo-random bytes
+- *	@buf: where to copy the pseudo-random bytes to
+- *	@bytes: the requested number of bytes
+- */
+-void prandom_bytes(void *buf, size_t bytes)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-
+-	prandom_bytes_state(state, buf, bytes);
+-	put_cpu_var(net_rand_state);
+-}
+-EXPORT_SYMBOL(prandom_bytes);
+-
+ static void prandom_warmup(struct rnd_state *state)
+ {
+ 	/* Calling RNG ten times to satisfy recurrence condition */
+@@ -148,96 +105,6 @@ static void prandom_warmup(struct rnd_st
+ 	prandom_u32_state(state);
+ }
+ 
+-static u32 __extract_hwseed(void)
+-{
+-	unsigned int val = 0;
+-
+-	(void)(arch_get_random_seed_int(&val) ||
+-	       arch_get_random_int(&val));
+-
+-	return val;
+-}
+-
+-static void prandom_seed_early(struct rnd_state *state, u32 seed,
+-			       bool mix_with_hwseed)
+-{
+-#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
+-#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
+-	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
+-	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
+-	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
+-	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
+-}
+-
+-/**
+- *	prandom_seed - add entropy to pseudo random number generator
+- *	@entropy: entropy value
+- *
+- *	Add some additional entropy to the prandom pool.
+- */
+-void prandom_seed(u32 entropy)
+-{
+-	int i;
+-	/*
+-	 * No locking on the CPUs, but then somewhat random results are, well,
+-	 * expected.
+-	 */
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-
+-		state->s1 = __seed(state->s1 ^ entropy, 2U);
+-		prandom_warmup(state);
+-	}
+-}
+-EXPORT_SYMBOL(prandom_seed);
+-
+-/*
+- *	Generate some initially weak seeding values to allow
+- *	to start the prandom_u32() engine.
+- */
+-static int __init prandom_init(void)
+-{
+-	int i;
+-
+-	prandom_state_selftest();
+-
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-		u32 weak_seed = (i + jiffies) ^ random_get_entropy();
+-
+-		prandom_seed_early(state, weak_seed, true);
+-		prandom_warmup(state);
+-	}
+-
+-	return 0;
+-}
+-core_initcall(prandom_init);
+-
+-static void __prandom_timer(struct timer_list *unused);
+-
+-static DEFINE_TIMER(seed_timer, __prandom_timer);
+-
+-static void __prandom_timer(struct timer_list *unused)
+-{
+-	u32 entropy;
+-	unsigned long expires;
+-
+-	get_random_bytes(&entropy, sizeof(entropy));
+-	prandom_seed(entropy);
+-
+-	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
+-	expires = 40 + prandom_u32_max(40);
+-	seed_timer.expires = jiffies + msecs_to_jiffies(expires * MSEC_PER_SEC);
+-
+-	add_timer(&seed_timer);
+-}
+-
+-static void __init __prandom_start_seed_timer(void)
+-{
+-	seed_timer.expires = jiffies + msecs_to_jiffies(40 * MSEC_PER_SEC);
+-	add_timer(&seed_timer);
+-}
+-
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+ {
+ 	int i;
+@@ -257,51 +124,6 @@ void prandom_seed_full_state(struct rnd_
+ }
+ EXPORT_SYMBOL(prandom_seed_full_state);
+ 
+-/*
+- *	Generate better values after random number generator
+- *	is fully initialized.
+- */
+-static void __prandom_reseed(bool late)
+-{
+-	unsigned long flags;
+-	static bool latch = false;
+-	static DEFINE_SPINLOCK(lock);
+-
+-	/* Asking for random bytes might result in bytes getting
+-	 * moved into the nonblocking pool and thus marking it
+-	 * as initialized. In this case we would double back into
+-	 * this function and attempt to do a late reseed.
+-	 * Ignore the pointless attempt to reseed again if we're
+-	 * already waiting for bytes when the nonblocking pool
+-	 * got initialized.
+-	 */
+-
+-	/* only allow initial seeding (late == false) once */
+-	if (!spin_trylock_irqsave(&lock, flags))
+-		return;
+-
+-	if (latch && !late)
+-		goto out;
+-
+-	latch = true;
+-	prandom_seed_full_state(&net_rand_state);
+-out:
+-	spin_unlock_irqrestore(&lock, flags);
+-}
+-
+-void prandom_reseed_late(void)
+-{
+-	__prandom_reseed(true);
+-}
+-
+-static int __init prandom_reseed(void)
+-{
+-	__prandom_reseed(false);
+-	__prandom_start_seed_timer();
+-	return 0;
+-}
+-late_initcall(prandom_reseed);
+-
+ #ifdef CONFIG_RANDOM32_SELFTEST
+ static struct prandom_test1 {
+ 	u32 seed;
+@@ -421,7 +243,28 @@ static struct prandom_test2 {
+ 	{  407983964U, 921U,  728767059U },
+ };
+ 
+-static void __init prandom_state_selftest(void)
++static u32 __extract_hwseed(void)
++{
++	unsigned int val = 0;
++
++	(void)(arch_get_random_seed_int(&val) ||
++	       arch_get_random_int(&val));
++
++	return val;
++}
++
++static void prandom_seed_early(struct rnd_state *state, u32 seed,
++			       bool mix_with_hwseed)
++{
++#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
++#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
++	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
++	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
++	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
++	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
++}
++
++static int __init prandom_state_selftest(void)
+ {
+ 	int i, j, errors = 0, runs = 0;
+ 	bool error = false;
+@@ -461,5 +304,266 @@ static void __init prandom_state_selftes
+ 		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
+ 	else
+ 		pr_info("prandom: %d self tests passed\n", runs);
++	return 0;
+ }
++core_initcall(prandom_state_selftest);
+ #endif
++
++/*
++ * The prandom_u32() implementation is now completely separate from the
++ * prandom_state() functions, which are retained (for now) for compatibility.
++ *
++ * Because of (ab)use in the networking code for choosing random TCP/UDP port
++ * numbers, which open DoS possibilities if guessable, we want something
++ * stronger than a standard PRNG.  But the performance requirements of
++ * the network code do not allow robust crypto for this application.
++ *
++ * So this is a homebrew Junior Spaceman implementation, based on the
++ * lowest-latency trustworthy crypto primitive available, SipHash.
++ * (The authors of SipHash have not been consulted about this abuse of
++ * their work.)
++ *
++ * Standard SipHash-2-4 uses 2n+4 rounds to hash n words of input to
++ * one word of output.  This abbreviated version uses 2 rounds per word
++ * of output.
++ */
++
++struct siprand_state {
++	unsigned long v0;
++	unsigned long v1;
++	unsigned long v2;
++	unsigned long v3;
++};
++
++static DEFINE_PER_CPU(struct siprand_state, net_rand_state) __latent_entropy;
++
++/*
++ * This is the core CPRNG function.  As "pseudorandom", this is not used
++ * for truly valuable things, just intended to be a PITA to guess.
++ * For maximum speed, we do just two SipHash rounds per word.  This is
++ * the same rate as 4 rounds per 64 bits that SipHash normally uses,
++ * so hopefully it's reasonably secure.
++ *
++ * There are two changes from the official SipHash finalization:
++ * - We omit some constants XORed with v2 in the SipHash spec as irrelevant;
++ *   they are there only to make the output rounds distinct from the input
++ *   rounds, and this application has no input rounds.
++ * - Rather than returning v0^v1^v2^v3, return v1+v3.
++ *   If you look at the SipHash round, the last operation on v3 is
++ *   "v3 ^= v0", so "v0 ^ v3" just undoes that, a waste of time.
++ *   Likewise "v1 ^= v2".  (The rotate of v2 makes a difference, but
++ *   it still cancels out half of the bits in v2 for no benefit.)
++ *   Second, since the last combining operation was xor, continue the
++ *   pattern of alternating xor/add for a tiny bit of extra non-linearity.
++ */
++static inline u32 siprand_u32(struct siprand_state *s)
++{
++	unsigned long v0 = s->v0, v1 = s->v1, v2 = s->v2, v3 = s->v3;
++
++	PRND_SIPROUND(v0, v1, v2, v3);
++	PRND_SIPROUND(v0, v1, v2, v3);
++	s->v0 = v0;  s->v1 = v1;  s->v2 = v2;  s->v3 = v3;
++	return v1 + v3;
++}
++
++
++/**
++ *	prandom_u32 - pseudo random number generator
++ *
++ *	A 32 bit pseudo-random number is generated using a fast
++ *	algorithm suitable for simulation. This algorithm is NOT
++ *	considered safe for cryptographic use.
++ */
++u32 prandom_u32(void)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u32 res = siprand_u32(state);
++
++	put_cpu_ptr(&net_rand_state);
++	return res;
++}
++EXPORT_SYMBOL(prandom_u32);
++
++/**
++ *	prandom_bytes - get the requested number of pseudo-random bytes
++ *	@buf: where to copy the pseudo-random bytes to
++ *	@bytes: the requested number of bytes
++ */
++void prandom_bytes(void *buf, size_t bytes)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u8 *ptr = buf;
++
++	while (bytes >= sizeof(u32)) {
++		put_unaligned(siprand_u32(state), (u32 *)ptr);
++		ptr += sizeof(u32);
++		bytes -= sizeof(u32);
++	}
++
++	if (bytes > 0) {
++		u32 rem = siprand_u32(state);
++
++		do {
++			*ptr++ = (u8)rem;
++			rem >>= BITS_PER_BYTE;
++		} while (--bytes > 0);
++	}
++	put_cpu_ptr(&net_rand_state);
++}
++EXPORT_SYMBOL(prandom_bytes);
++
++/**
++ *	prandom_seed - add entropy to pseudo random number generator
++ *	@entropy: entropy value
++ *
++ *	Add some additional seed material to the prandom pool.
++ *	The "entropy" is actually our IP address (the only caller is
++ *	the network code), not for unpredictability, but to ensure that
++ *	different machines are initialized differently.
++ */
++void prandom_seed(u32 entropy)
++{
++	int i;
++
++	add_device_randomness(&entropy, sizeof(entropy));
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state = per_cpu_ptr(&net_rand_state, i);
++		unsigned long v0 = state->v0, v1 = state->v1;
++		unsigned long v2 = state->v2, v3 = state->v3;
++
++		do {
++			v3 ^= entropy;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= entropy;
++		} while (unlikely(!v0 || !v1 || !v2 || !v3));
++
++		WRITE_ONCE(state->v0, v0);
++		WRITE_ONCE(state->v1, v1);
++		WRITE_ONCE(state->v2, v2);
++		WRITE_ONCE(state->v3, v3);
++	}
++}
++EXPORT_SYMBOL(prandom_seed);
++
++/*
++ *	Generate some initially weak seeding values to allow
++ *	the prandom_u32() engine to be started.
++ */
++static int __init prandom_init_early(void)
++{
++	int i;
++	unsigned long v0, v1, v2, v3;
++
++	if (!arch_get_random_long(&v0))
++		v0 = jiffies;
++	if (!arch_get_random_long(&v1))
++		v1 = random_get_entropy();
++	v2 = v0 ^ PRND_K0;
++	v3 = v1 ^ PRND_K1;
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++
++		v3 ^= i;
++		PRND_SIPROUND(v0, v1, v2, v3);
++		PRND_SIPROUND(v0, v1, v2, v3);
++		v0 ^= i;
++
++		state = per_cpu_ptr(&net_rand_state, i);
++		state->v0 = v0;  state->v1 = v1;
++		state->v2 = v2;  state->v3 = v3;
++	}
++
++	return 0;
++}
++core_initcall(prandom_init_early);
++
++
++/* Stronger reseeding when available, and periodically thereafter. */
++static void prandom_reseed(struct timer_list *unused);
++
++static DEFINE_TIMER(seed_timer, prandom_reseed);
++
++static void prandom_reseed(struct timer_list *unused)
++{
++	unsigned long expires;
++	int i;
++
++	/*
++	 * Reinitialize each CPU's PRNG with 128 bits of key.
++	 * No locking on the CPUs, but then somewhat random results are,
++	 * well, expected.
++	 */
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++		unsigned long v0 = get_random_long(), v2 = v0 ^ PRND_K0;
++		unsigned long v1 = get_random_long(), v3 = v1 ^ PRND_K1;
++#if BITS_PER_LONG == 32
++		int j;
++
++		/*
++		 * On 32-bit machines, hash in two extra words to
++		 * approximate 128-bit key length.  Not that the hash
++		 * has that much security, but this prevents a trivial
++		 * 64-bit brute force.
++		 */
++		for (j = 0; j < 2; j++) {
++			unsigned long m = get_random_long();
++
++			v3 ^= m;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= m;
++		}
++#endif
++		/*
++		 * Probably impossible in practice, but there is a
++		 * theoretical risk that a race between this reseeding
++		 * and the target CPU writing its state back could
++		 * create the all-zero SipHash fixed point.
++		 *
++		 * To ensure that never happens, ensure the state
++		 * we write contains no zero words.
++		 */
++		state = per_cpu_ptr(&net_rand_state, i);
++		WRITE_ONCE(state->v0, v0 ? v0 : -1ul);
++		WRITE_ONCE(state->v1, v1 ? v1 : -1ul);
++		WRITE_ONCE(state->v2, v2 ? v2 : -1ul);
++		WRITE_ONCE(state->v3, v3 ? v3 : -1ul);
++	}
++
++	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
++	expires = round_jiffies(jiffies + 40 * HZ + prandom_u32_max(40 * HZ));
++	mod_timer(&seed_timer, expires);
++}
++
++/*
++ * The random ready callback can be called from almost any interrupt.
++ * To avoid worrying about whether it's safe to delay that interrupt
++ * long enough to seed all CPUs, just schedule an immediate timer event.
++ */
++static void prandom_timer_start(struct random_ready_callback *unused)
++{
++	mod_timer(&seed_timer, jiffies);
++}
++
++/*
++ * Start periodic full reseeding as soon as strong
++ * random numbers are available.
++ */
++static int __init prandom_init_late(void)
++{
++	static struct random_ready_callback random_ready = {
++		.func = prandom_timer_start
++	};
++	int ret = add_random_ready_callback(&random_ready);
++
++	if (ret == -EALREADY) {
++		prandom_timer_start(&random_ready);
++		ret = 0;
++	}
++	return ret;
++}
++late_initcall(prandom_init_late);
 
 
