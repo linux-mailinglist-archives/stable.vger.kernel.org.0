@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BCD2B625E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 535D22B61AA
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731806AbgKQN2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36134 "EHLO mail.kernel.org"
+        id S1730824AbgKQNVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731287AbgKQN2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:02 -0500
+        id S1730835AbgKQNVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4932020781;
-        Tue, 17 Nov 2020 13:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91E8A2463D;
+        Tue, 17 Nov 2020 13:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619681;
-        bh=jPuyBa0TFVZn/Vmsf9yYWkhloXgwvGOjxCiFIchbXaY=;
+        s=default; t=1605619268;
+        bh=EToaU/VKICbx+ZOTvHcjhyy5Bx3pOpF9ha4m/ozKKww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYOv87oImqYGygMYkSqZFhqlvF4OhBdSxDlBEatNKeIgGEpF8S6M2omrlWC8YgemI
-         2WQKmcpdocm9Btijo9GzG8h5vE2xu9S0OeCjJlDvev9COlCgEytLR0oN1qEJFTs9IS
-         R4zdPY35kk7CL8/8C43f/sKxHz7z68ikKPO64BwU=
+        b=hotGb/cpHPHBYA3t2CpeKHQKBe57qBmBt9Vg2uiDO7Rdgob+coQaKFiXeOeCwajkS
+         uQYDhUFIwPsbSrwMQNXOcQkMh0f1vshlngrJrug05iTJNulTfCJbpf2u6ZMfQn8IEX
+         BslWinzZeDEnxo2JlqQ2mqnMi54bLlAnHgvu7GC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 121/151] jbd2: fix up sparse warnings in checkpoint code
-Date:   Tue, 17 Nov 2020 14:05:51 +0100
-Message-Id: <20201117122127.308168306@linuxfoundation.org>
+        stable@vger.kernel.org, nl6720 <nl6720@gmail.com>,
+        Chao Yu <yuchao0@huawei.com>, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 4.19 085/101] erofs: derive atime instead of leaving it empty
+Date:   Tue, 17 Nov 2020 14:05:52 +0100
+Message-Id: <20201117122117.267551596@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-commit 05d5233df85e9621597c5838e95235107eb624a2 upstream.
+commit d3938ee23e97bfcac2e0eb6b356875da73d700df upstream.
 
-Add missing __acquires() and __releases() annotations.  Also, in an
-"this should never happen" WARN_ON check, if it *does* actually
-happen, we need to release j_state_lock since this function is always
-supposed to release that lock.  Otherwise, things will quickly grind
-to a halt after the WARN_ON trips.
+EROFS has _only one_ ondisk timestamp (ctime is currently
+documented and recorded, we might also record mtime instead
+with a new compat feature if needed) for each extended inode
+since EROFS isn't mainly for archival purposes so no need to
+keep all timestamps on disk especially for Android scenarios
+due to security concerns. Also, romfs/cramfs don't have their
+own on-disk timestamp, and squashfs only records mtime instead.
 
-Fixes: 96f1e0974575 ("jbd2: avoid long hold times of j_state_lock...")
-Cc: stable@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Let's also derive access time from ondisk timestamp rather than
+leaving it empty, and if mtime/atime for each file are really
+needed for specific scenarios as well, we can also use xattrs
+to record them then.
+
+Link: https://lore.kernel.org/r/20201031195102.21221-1-hsiangkao@aol.com
+[ Gao Xiang: It'd be better to backport for user-friendly concern. ]
+Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+Cc: stable <stable@vger.kernel.org> # 4.19+
+Reported-by: nl6720 <nl6720@gmail.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+[ Gao Xiang: Manually backport to 4.19.y due to trivial conflicts. ]
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/jbd2/checkpoint.c  |    2 ++
- fs/jbd2/transaction.c |    4 +++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/staging/erofs/inode.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/fs/jbd2/checkpoint.c
-+++ b/fs/jbd2/checkpoint.c
-@@ -106,6 +106,8 @@ static int __try_to_free_cp_buf(struct j
-  * for a checkpoint to free up some space in the log.
-  */
- void __jbd2_log_wait_for_space(journal_t *journal)
-+__acquires(&journal->j_state_lock)
-+__releases(&journal->j_state_lock)
- {
- 	int nblocks, space_left;
- 	/* assert_spin_locked(&journal->j_state_lock); */
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -171,8 +171,10 @@ static void wait_transaction_switching(j
- 	DEFINE_WAIT(wait);
+--- a/drivers/staging/erofs/inode.c
++++ b/drivers/staging/erofs/inode.c
+@@ -53,11 +53,9 @@ static int read_inode(struct inode *inod
+ 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
+ 		set_nlink(inode, le32_to_cpu(v2->i_nlink));
  
- 	if (WARN_ON(!journal->j_running_transaction ||
--		    journal->j_running_transaction->t_state != T_SWITCH))
-+		    journal->j_running_transaction->t_state != T_SWITCH)) {
-+		read_unlock(&journal->j_state_lock);
- 		return;
-+	}
- 	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
- 			TASK_UNINTERRUPTIBLE);
- 	read_unlock(&journal->j_state_lock);
+-		/* ns timestamp */
+-		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
+-			le64_to_cpu(v2->i_ctime);
+-		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
+-			le32_to_cpu(v2->i_ctime_nsec);
++		/* extended inode has its own timestamp */
++		inode->i_ctime.tv_sec = le64_to_cpu(v2->i_ctime);
++		inode->i_ctime.tv_nsec = le32_to_cpu(v2->i_ctime_nsec);
+ 
+ 		inode->i_size = le64_to_cpu(v2->i_size);
+ 	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
+@@ -83,11 +81,9 @@ static int read_inode(struct inode *inod
+ 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
+ 		set_nlink(inode, le16_to_cpu(v1->i_nlink));
+ 
+-		/* use build time to derive all file time */
+-		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
+-			sbi->build_time;
+-		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
+-			sbi->build_time_nsec;
++		/* use build time for compact inodes */
++		inode->i_ctime.tv_sec = sbi->build_time;
++		inode->i_ctime.tv_nsec = sbi->build_time_nsec;
+ 
+ 		inode->i_size = le32_to_cpu(v1->i_size);
+ 	} else {
+@@ -97,6 +93,11 @@ static int read_inode(struct inode *inod
+ 		return -EIO;
+ 	}
+ 
++	inode->i_mtime.tv_sec = inode->i_ctime.tv_sec;
++	inode->i_atime.tv_sec = inode->i_ctime.tv_sec;
++	inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec;
++	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec;
++
+ 	/* measure inode.i_blocks as the generic filesystem */
+ 	inode->i_blocks = ((inode->i_size - 1) >> 9) + 1;
+ 	return 0;
 
 
