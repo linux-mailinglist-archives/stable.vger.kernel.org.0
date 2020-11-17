@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEFB62B655B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BEE2B645F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731077AbgKQNZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:25:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60506 "EHLO mail.kernel.org"
+        id S1732481AbgKQNqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:46:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731073AbgKQNZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:25:09 -0500
+        id S1732947AbgKQNhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3267A2463D;
-        Tue, 17 Nov 2020 13:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70A5F20870;
+        Tue, 17 Nov 2020 13:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619508;
-        bh=M4hcLjhHGzIhowy0S8XsQXjjTI/Iecg157SYTnXM+Lw=;
+        s=default; t=1605620243;
+        bh=eioIBJxLKiEpJRcB3ViW2s8x0ek8thK0oEexwvMsF8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxi+N2FzA8slGMLr4MgC2Ui+VYFY268y83RB+FWtQVXS+eK/w8uD3sUrVczmi9fb1
-         VUr8+P5Xt9NsGWQ02E32jX+vtUNKaeLVkmcz8pg0YZl5UCo7tlfSYaqHbsvsRpuvhQ
-         y3QIoycuu4GbYqyeYTbjAIKO2kqgOksa9ic1aQjw=
+        b=f5NKfF2l9k+JbvJSaD0/YB7gcohuAqBN2eu1IK5WeyMq7UsKCrFlungUbtMgVF2bI
+         qEZefMY63nKhRKaI8vQqTBYlRlGeatPxPmjMy9HpoqAZw+Rf6Vs3JWFHxvRHYsojY9
+         HHT+r696FizQs0ad1vvqTDxkrlRVeByBEtWbUUhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/151] mac80211: fix use of skb payload instead of header
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 152/255] nbd: fix a block_device refcount leak in nbd_release
 Date:   Tue, 17 Nov 2020 14:04:52 +0100
-Message-Id: <20201117122124.437761843@linuxfoundation.org>
+Message-Id: <20201117122146.365344112@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,125 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 14f46c1e5108696ec1e5a129e838ecedf108c7bf ]
+[ Upstream commit 2bd645b2d3f0bacadaa6037f067538e1cd4e42ef ]
 
-When ieee80211_skb_resize() is called from ieee80211_build_hdr()
-the skb has no 802.11 header yet, in fact it consist only of the
-payload as the ethernet frame is removed. As such, we're using
-the payload data for ieee80211_is_mgmt(), which is of course
-completely wrong. This didn't really hurt us because these are
-always data frames, so we could only have added more tailroom
-than we needed if we determined it was a management frame and
-sdata->crypto_tx_tailroom_needed_cnt was false.
+bdget_disk needs to be paired with bdput to not leak a reference
+on the block device inode.
 
-However, syzbot found that of course there need not be any payload,
-so we're using at best uninitialized memory for the check.
-
-Fix this to pass explicitly the kind of frame that we have instead
-of checking there, by replacing the "bool may_encrypt" argument
-with an argument that can carry the three possible states - it's
-not going to be encrypted, it's a management frame, or it's a data
-frame (and then we check sdata->crypto_tx_tailroom_needed_cnt).
-
-Reported-by: syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20201009132538.e1fd7f802947.I799b288466ea2815f9d4c84349fae697dca2f189@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 08ba91ee6e2c ("nbd: Add the nbd NBD_DISCONNECT_ON_CLOSE config flag.")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+ drivers/block/nbd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index f029e75ec815a..30a0c7c6224b3 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -1944,19 +1944,24 @@ static bool ieee80211_tx(struct ieee80211_sub_if_data *sdata,
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index d76fca629c143..36c46fe078556 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1517,6 +1517,7 @@ static void nbd_release(struct gendisk *disk, fmode_t mode)
+ 	if (test_bit(NBD_RT_DISCONNECT_ON_CLOSE, &nbd->config->runtime_flags) &&
+ 			bdev->bd_openers == 0)
+ 		nbd_disconnect_and_put(nbd);
++	bdput(bdev);
  
- /* device xmit handlers */
- 
-+enum ieee80211_encrypt {
-+	ENCRYPT_NO,
-+	ENCRYPT_MGMT,
-+	ENCRYPT_DATA,
-+};
-+
- static int ieee80211_skb_resize(struct ieee80211_sub_if_data *sdata,
- 				struct sk_buff *skb,
--				int head_need, bool may_encrypt)
-+				int head_need,
-+				enum ieee80211_encrypt encrypt)
- {
- 	struct ieee80211_local *local = sdata->local;
--	struct ieee80211_hdr *hdr;
- 	bool enc_tailroom;
- 	int tail_need = 0;
- 
--	hdr = (struct ieee80211_hdr *) skb->data;
--	enc_tailroom = may_encrypt &&
--		       (sdata->crypto_tx_tailroom_needed_cnt ||
--			ieee80211_is_mgmt(hdr->frame_control));
-+	enc_tailroom = encrypt == ENCRYPT_MGMT ||
-+		       (encrypt == ENCRYPT_DATA &&
-+			sdata->crypto_tx_tailroom_needed_cnt);
- 
- 	if (enc_tailroom) {
- 		tail_need = IEEE80211_ENCRYPT_TAILROOM;
-@@ -1988,23 +1993,29 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
- {
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
--	struct ieee80211_hdr *hdr;
-+	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
- 	int headroom;
--	bool may_encrypt;
-+	enum ieee80211_encrypt encrypt;
- 
--	may_encrypt = !(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT);
-+	if (info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)
-+		encrypt = ENCRYPT_NO;
-+	else if (ieee80211_is_mgmt(hdr->frame_control))
-+		encrypt = ENCRYPT_MGMT;
-+	else
-+		encrypt = ENCRYPT_DATA;
- 
- 	headroom = local->tx_headroom;
--	if (may_encrypt)
-+	if (encrypt != ENCRYPT_NO)
- 		headroom += sdata->encrypt_headroom;
- 	headroom -= skb_headroom(skb);
- 	headroom = max_t(int, 0, headroom);
- 
--	if (ieee80211_skb_resize(sdata, skb, headroom, may_encrypt)) {
-+	if (ieee80211_skb_resize(sdata, skb, headroom, encrypt)) {
- 		ieee80211_free_txskb(&local->hw, skb);
- 		return;
- 	}
- 
-+	/* reload after potential resize */
- 	hdr = (struct ieee80211_hdr *) skb->data;
- 	info->control.vif = &sdata->vif;
- 
-@@ -2808,7 +2819,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
- 		head_need += sdata->encrypt_headroom;
- 		head_need += local->tx_headroom;
- 		head_need = max_t(int, 0, head_need);
--		if (ieee80211_skb_resize(sdata, skb, head_need, true)) {
-+		if (ieee80211_skb_resize(sdata, skb, head_need, ENCRYPT_DATA)) {
- 			ieee80211_free_txskb(&local->hw, skb);
- 			skb = NULL;
- 			return ERR_PTR(-ENOMEM);
-@@ -3482,7 +3493,7 @@ static bool ieee80211_xmit_fast(struct ieee80211_sub_if_data *sdata,
- 	if (unlikely(ieee80211_skb_resize(sdata, skb,
- 					  max_t(int, extra_head + hw_headroom -
- 						     skb_headroom(skb), 0),
--					  false))) {
-+					  ENCRYPT_NO))) {
- 		kfree_skb(skb);
- 		return true;
- 	}
+ 	nbd_config_put(nbd);
+ 	nbd_put(nbd);
 -- 
 2.27.0
 
