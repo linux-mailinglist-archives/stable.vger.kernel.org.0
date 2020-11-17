@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D272B6381
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B894C2B65CD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732489AbgKQNik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:38:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47932 "EHLO mail.kernel.org"
+        id S1730047AbgKQNRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:17:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732853AbgKQNgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:36:55 -0500
+        id S1730600AbgKQNRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C624120780;
-        Tue, 17 Nov 2020 13:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11DAA241A6;
+        Tue, 17 Nov 2020 13:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620215;
-        bh=5chNI52tjZEY8XlpZjeJ7rSm/KurCIeRPXa6E6EFi/4=;
+        s=default; t=1605619069;
+        bh=yU/BCde+VQPfwl4DfTOEL7nAzesvlkrIGSOGDzKVqPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkbEwXrl2pyK3SzmSDQ/FBgHC/ARHOk81UyQZqvHjETzmyWr4k6lgngA/nMSRTX9W
-         Za65Syk+IgkIqTtyLphVDpdLiBanGCP/+FKoJNVo4vDyWHKAzs9q8iGXCg2agEBs8P
-         cWlFaxecIT6TFlHsX72Spz2JpC8WMqYTADNqV+JI=
+        b=yyFtZ9rLnwMLZRfiuAly8Tq624tALYJx6DWD6pBgA3Y3R4x39D1FtJt2TqlgAbMEA
+         Cxk1r2yHCRy9VmeTWTMJdVWpj5/q2C6n6AtqXhNwbcn5BXgnfJrSmrIZxp7zfxJoGg
+         kCEM7Fg+tOLFm1xqO5AjqaRm3bApHMLF3dAv0Sis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 144/255] NFSD: Fix use-after-free warning when doing inter-server copy
-Date:   Tue, 17 Nov 2020 14:04:44 +0100
-Message-Id: <20201117122145.959037674@linuxfoundation.org>
+Subject: [PATCH 4.19 018/101] can: can_create_echo_skb(): fix echo skb generation: always use skb_clone()
+Date:   Tue, 17 Nov 2020 14:04:45 +0100
+Message-Id: <20201117122113.977504749@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 36e1e5ba90fb3fba6888fae26e4dfc28bf70aaf1 ]
+[ Upstream commit 286228d382ba6320f04fa2e7c6fc8d4d92e428f4 ]
 
-The source file nfsd_file is not constructed the same as other
-nfsd_file's via nfsd_file_alloc. nfsd_file_put should not be
-called to free the object; nfsd_file_put is not the inverse of
-kzalloc, instead kfree is called by nfsd4_do_async_copy when done.
+All user space generated SKBs are owned by a socket (unless injected into the
+key via AF_PACKET). If a socket is closed, all associated skbs will be cleaned
+up.
 
-Fixes: ce0887ac96d3 ("NFSD add nfs4 inter ssc to nfsd4_copy")
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+This leads to a problem when a CAN driver calls can_put_echo_skb() on a
+unshared SKB. If the socket is closed prior to the TX complete handler,
+can_get_echo_skb() and the subsequent delivering of the echo SKB to all
+registered callbacks, a SKB with a refcount of 0 is delivered.
+
+To avoid the problem, in can_get_echo_skb() the original SKB is now always
+cloned, regardless of shared SKB or not. If the process exists it can now
+safely discard its SKBs, without disturbing the delivery of the echo SKB.
+
+The problem shows up in the j1939 stack, when it clones the incoming skb, which
+detects the already 0 refcount.
+
+We can easily reproduce this with following example:
+
+testj1939 -B -r can0: &
+cansend can0 1823ff40#0123
+
+WARNING: CPU: 0 PID: 293 at lib/refcount.c:25 refcount_warn_saturate+0x108/0x174
+refcount_t: addition on 0; use-after-free.
+Modules linked in: coda_vpu imx_vdoa videobuf2_vmalloc dw_hdmi_ahb_audio vcan
+CPU: 0 PID: 293 Comm: cansend Not tainted 5.5.0-rc6-00376-g9e20dcb7040d #1
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Backtrace:
+[<c010f570>] (dump_backtrace) from [<c010f90c>] (show_stack+0x20/0x24)
+[<c010f8ec>] (show_stack) from [<c0c3e1a4>] (dump_stack+0x8c/0xa0)
+[<c0c3e118>] (dump_stack) from [<c0127fec>] (__warn+0xe0/0x108)
+[<c0127f0c>] (__warn) from [<c01283c8>] (warn_slowpath_fmt+0xa8/0xcc)
+[<c0128324>] (warn_slowpath_fmt) from [<c0539c0c>] (refcount_warn_saturate+0x108/0x174)
+[<c0539b04>] (refcount_warn_saturate) from [<c0ad2cac>] (j1939_can_recv+0x20c/0x210)
+[<c0ad2aa0>] (j1939_can_recv) from [<c0ac9dc8>] (can_rcv_filter+0xb4/0x268)
+[<c0ac9d14>] (can_rcv_filter) from [<c0aca2cc>] (can_receive+0xb0/0xe4)
+[<c0aca21c>] (can_receive) from [<c0aca348>] (can_rcv+0x48/0x98)
+[<c0aca300>] (can_rcv) from [<c09b1fdc>] (__netif_receive_skb_one_core+0x64/0x88)
+[<c09b1f78>] (__netif_receive_skb_one_core) from [<c09b2070>] (__netif_receive_skb+0x38/0x94)
+[<c09b2038>] (__netif_receive_skb) from [<c09b2130>] (netif_receive_skb_internal+0x64/0xf8)
+[<c09b20cc>] (netif_receive_skb_internal) from [<c09b21f8>] (netif_receive_skb+0x34/0x19c)
+[<c09b21c4>] (netif_receive_skb) from [<c0791278>] (can_rx_offload_napi_poll+0x58/0xb4)
+
+Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: http://lore.kernel.org/r/20200124132656.22156-1-o.rempel@pengutronix.de
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/can/skb.h | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 84e10aef14175..80effaa18b7b2 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1299,7 +1299,7 @@ nfsd4_cleanup_inter_ssc(struct vfsmount *ss_mnt, struct nfsd_file *src,
- 			struct nfsd_file *dst)
+diff --git a/include/linux/can/skb.h b/include/linux/can/skb.h
+index b3379a97245c1..a34694e675c9a 100644
+--- a/include/linux/can/skb.h
++++ b/include/linux/can/skb.h
+@@ -61,21 +61,17 @@ static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
+  */
+ static inline struct sk_buff *can_create_echo_skb(struct sk_buff *skb)
  {
- 	nfs42_ssc_close(src->nf_file);
--	nfsd_file_put(src);
-+	/* 'src' is freed by nfsd4_do_async_copy */
- 	nfsd_file_put(dst);
- 	mntput(ss_mnt);
+-	if (skb_shared(skb)) {
+-		struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
++	struct sk_buff *nskb;
+ 
+-		if (likely(nskb)) {
+-			can_skb_set_owner(nskb, skb->sk);
+-			consume_skb(skb);
+-			return nskb;
+-		} else {
+-			kfree_skb(skb);
+-			return NULL;
+-		}
++	nskb = skb_clone(skb, GFP_ATOMIC);
++	if (unlikely(!nskb)) {
++		kfree_skb(skb);
++		return NULL;
+ 	}
+ 
+-	/* we can assume to have an unshared skb with proper owner */
+-	return skb;
++	can_skb_set_owner(nskb, skb->sk);
++	consume_skb(skb);
++	return nskb;
  }
+ 
+ #endif /* !_CAN_SKB_H */
 -- 
 2.27.0
 
