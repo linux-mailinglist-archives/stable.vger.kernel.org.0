@@ -2,84 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF1E92B5CCC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 11:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45EF42B5CCD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 11:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727162AbgKQKYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 05:24:51 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:45817 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726196AbgKQKYv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 05:24:51 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 974CC5C00E5;
-        Tue, 17 Nov 2020 05:24:50 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 17 Nov 2020 05:24:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=GrxclhTeEs/Nu4RfstehOco5P02
-        q1DWOJgHj7ZJvVTw=; b=w934/waam+ocRVynfOh2rEQXyXKhrVcY5X/re/GEwOp
-        M4YaQ/McAJygkAd1O0i3tW8Pl6aEAoZ9u4iaCnidB+qONIOULweLkvTxVC7whJCS
-        t6tabNrDS28bxvMD7x/u1+G9/BEDTCHlQDOZNI9XtFihT4+rCQ6WH2FWPgfPy+3t
-        YgANvWh3A2U8N+CpXysLldwiRVbXkPl0kxHbmDQ+s0Vr5TBDqe1pKPkq6t1noMH/
-        /Wc5C4g27qXj47FmcBklzFtrijx1cseuY0epx7xDjeDlsqouyqQgMMSKxSaUHUmr
-        nMOChmivKqOuz/nCzRSogK/DyWxbPb21BUKYIuFPHPw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Grxclh
-        TeEs/Nu4RfstehOco5P02q1DWOJgHj7ZJvVTw=; b=ZYwB6lbn4zbziMl5XLd3/o
-        5SQEgVh5JBMAWEWKiBCTZ9f/V1x4kHQilcxxHr1Ef1tnVC1W+UR3thSd2glcU5gt
-        PfJU/vFcmmh3QN7AK2HaCjpgg/O263hreooThLn+KoBp86hy8oWOU8S5UE/XrM/n
-        IVlRuW6oCgMn2UuHwl2fZMGrhVugH4OR/ILBim+n5kwqaktGkFjVroG+jA05rkiG
-        FuknXf9eXDpO+wX6/FZ43H2CenYV/TETEYYddCKoDyWk8PlOlBepEKtEKndmPwhd
-        9uNabmaWe+GqrazwwQcL2jOxpt5fKvIkjkyZfWQwjZR1ITIATR83qtCtB2MdR5KA
-        ==
-X-ME-Sender: <xms:8qSzX2Av_Cm2rpSIC6PFDR-kYO-UpbRp2qiOHyVL8MVAN69-HFvrgQ>
-    <xme:8qSzXwiIZqeicwOXHQk0RGl8vpxUkcCRrYrKRQdg4UZHwmk0sfhfyMKF8lWZNWFOL
-    -zT_y_wewmEYQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeffedgudegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:8qSzX5lzn7O6Sxj6tgE05eOppERu4unNGbmBKzyUN-rXRWL9YYJW1Q>
-    <xmx:8qSzX0war0DbFzquHuzQJwC2_rrYHCav1FgzGfo0ORNQKdGdenWfPg>
-    <xmx:8qSzX7Q-gj58y7LF_1WHVTJnN_CMUoCSQGh4tRphR9iqegVZDSAYVQ>
-    <xmx:8qSzX-OzoFPMjRYHNc_kGVQo-PW1dCJZc8hWbQH0junP5Q8KJZUPYg>
+        id S1726136AbgKQK1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 05:27:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725774AbgKQK1K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 05:27:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AAFB93064AAA;
-        Tue, 17 Nov 2020 05:24:49 -0500 (EST)
-Date:   Tue, 17 Nov 2020 11:25:37 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc:     linux-stable <stable@vger.kernel.org>
-Subject: Re: Stable backport request for 44492e70adc8 ("rtw88: pci: Power
- cycle device during shutdown")
-Message-ID: <X7OlIVJLWq8y9xtn@kroah.com>
-References: <747E6F28-BE7E-424B-A879-7EA9DE015DB0@canonical.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63E6E22202;
+        Tue, 17 Nov 2020 10:27:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605608830;
+        bh=suTWvoLJ55Ut1FqBR7Xy/ItUlnZJmBkmEfCbJxX1yR4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EkcUKO1bbVjQJmBvMV2pyTcBInGMm4m9iRqXrWXX5MRwMzD4VKEJWrR5yl0v5j9Sy
+         Qa1rzwANDRKu7H4ErZmJG58j71EYDkX2HDFXurin6kop5cauF87/7wX2YozUgklB0a
+         z2dJKsQwsSvH2ihf5/fVQEJrhFt13eByVTt2qwUU=
+Date:   Tue, 17 Nov 2020 11:27:58 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH for 5.4] powerpc/603: Always fault when _PAGE_ACCESSED is
+ not set
+Message-ID: <X7OlrpFkRKBQMNQ8@kroah.com>
+References: <9351d8a775f749d7c881c909388e69af944087b9.1604943353.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <747E6F28-BE7E-424B-A879-7EA9DE015DB0@canonical.com>
+In-Reply-To: <9351d8a775f749d7c881c909388e69af944087b9.1604943353.git.christophe.leroy@csgroup.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 01:55:14PM +0800, Kai-Heng Feng wrote:
-> Hi,
+On Mon, Nov 09, 2020 at 05:40:52PM +0000, Christophe Leroy wrote:
+> [That is backport of 11522448e641e8f1690c9db06e01985e8e19b401 to linux 5.4]
 > 
-> Please backport 44492e70adc8 to 5.4 stable.
+> The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 > 
-> The commit fixes broken WiFi for many users.
-> Currently only stable 5.4 misses this patch, older kernels don't have rtw88.
+> Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+> is not already set, regardless of the selection of CONFIG_SWAP.
+> 
+> Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+> ---
+>  arch/powerpc/kernel/head_32.S | 12 ------------
+>  1 file changed, 12 deletions(-)
 
-It does not apply cleanly there, can you provide a working backport?
-
-thanks,
+Both backports now queued up, thanks.
 
 greg k-h
