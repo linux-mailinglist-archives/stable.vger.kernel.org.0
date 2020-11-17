@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CD02B6515
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AFBD2B62B2
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731722AbgKQNaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:30:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38856 "EHLO mail.kernel.org"
+        id S1731786AbgKQNai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:30:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731687AbgKQNaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:30:02 -0500
+        id S1731758AbgKQNae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E93520781;
-        Tue, 17 Nov 2020 13:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B2FD20781;
+        Tue, 17 Nov 2020 13:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619800;
-        bh=ZVTm+Rl8VcqdTjTPSlRjmhjKNKF9Qy8NpA4GzF+FyQ8=;
+        s=default; t=1605619835;
+        bh=FXhnEZUHqx+tUFAwV1GiZtp7xAjItAUvEr3Lkrfh9w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vo+IoBBQiQeOOtnJpCMxpWGPP6sJKo6r6EV/7BHzg7gdcRvXTjYJ0jwqbQ/WB70C8
-         rt67/MC7q4XOoimqmyIjy9DM8P8njnUsaDJi2+940tWm8CrqjUbr3K4kckk42H1Jv6
-         EoEKFy3+0qOrtwpz58itPhOblzEYcV98edxgFasA=
+        b=j9emVM3IxVjC/h9YjemngtBl98UXLR4ddrOfo+jLvNZ89IBvc58pbgSvMZW6pXp3g
+         YciQzluG+C9rISSpeoJe6Bq0JpDDjQnmMS42t9HIAlqgp+cFB1D/a5UTlV704+fuSl
+         onVx8sgZAc+cFt3dtetg4PGXaUI36TX1fyGz8tKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zbigniew=20Kempczy=C5=84ski?= 
+        <zbigniew.kempczynski@intel.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        Matthew Auld <matthew.auld@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 001/255] drm/i915: Hold onto an explicit ref to i915_vma_work.pinned
-Date:   Tue, 17 Nov 2020 14:02:21 +0100
-Message-Id: <20201117122138.996869649@linuxfoundation.org>
+Subject: [PATCH 5.9 002/255] drm/i915/gem: Flush coherency domains on first set-domain-ioctl
+Date:   Tue, 17 Nov 2020 14:02:22 +0100
+Message-Id: <20201117122139.047545665@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,55 +51,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 537457a979a02a410b555fab289dcb28b588f33b ]
+[ Upstream commit 59dd13ad310793757e34afa489dd6fc8544fc3da ]
 
-Since __vma_release is run by a kworker after the fence has been
-signaled, it is no longer protected by the active reference on the vma,
-and so the alias of vw->pinned to vma->obj is also not protected by a
-reference on the object. Add an explicit reference for vw->pinned so it
-will always be safe.
+Avoid skipping what appears to be a no-op set-domain-ioctl if the cache
+coherency state is inconsistent with our target domain. This also has
+the utility of using the population of the pages to validate the backing
+store.
 
-Found by inspection.
+The danger in skipping the first set-domain is leaving the cache
+inconsistent and submitting stale data, or worse leaving the clean data
+in the cache and not flushing it to the GPU. The impact should be small
+as it requires a no-op set-domain as the very first ioctl in a
+particular sequence not found in typical userspace.
 
-Fixes: 54d7195f8c64 ("drm/i915: Unpin vma->obj on early error")
-Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reported-by: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Fixes: 754a25442705 ("drm/i915: Skip object locking around a no-op set-domain ioctl")
+Testcase: igt/gem_mmap_offset/blt-coherency
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201102161931.30031-1-chris@chris-wilson.co.uk
-(cherry picked from commit bc73e5d33048b7ab5f12b11b5d923700467a8e1d)
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201019203825.10966-1-chris@chris-wilson.co.uk
+(cherry picked from commit 44c2200afcd59f441b43f27829b4003397cc495d)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_vma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c | 28 ++++++++++------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index bc64f773dcdb4..034d0a8d24c8c 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -315,8 +315,10 @@ static void __vma_release(struct dma_fence_work *work)
- {
- 	struct i915_vma_work *vw = container_of(work, typeof(*vw), base);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 7f76fc68f498a..ba8758011e297 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -484,21 +484,6 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (!obj)
+ 		return -ENOENT;
  
--	if (vw->pinned)
-+	if (vw->pinned) {
- 		__i915_gem_object_unpin_pages(vw->pinned);
-+		i915_gem_object_put(vw->pinned);
-+	}
- }
+-	/*
+-	 * Already in the desired write domain? Nothing for us to do!
+-	 *
+-	 * We apply a little bit of cunning here to catch a broader set of
+-	 * no-ops. If obj->write_domain is set, we must be in the same
+-	 * obj->read_domains, and only that domain. Therefore, if that
+-	 * obj->write_domain matches the request read_domains, we are
+-	 * already in the same read/write domain and can skip the operation,
+-	 * without having to further check the requested write_domain.
+-	 */
+-	if (READ_ONCE(obj->write_domain) == read_domains) {
+-		err = 0;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * Try to flush the object off the GPU without holding the lock.
+ 	 * We will repeat the flush holding the lock in the normal manner
+@@ -536,6 +521,19 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (err)
+ 		goto out;
  
- static const struct dma_fence_work_ops bind_ops = {
-@@ -430,7 +432,7 @@ int i915_vma_bind(struct i915_vma *vma,
- 
- 		if (vma->obj) {
- 			__i915_gem_object_pin_pages(vma->obj);
--			work->pinned = vma->obj;
-+			work->pinned = i915_gem_object_get(vma->obj);
- 		}
- 	} else {
- 		ret = vma->ops->bind_vma(vma->vm, vma, cache_level, bind_flags);
++	/*
++	 * Already in the desired write domain? Nothing for us to do!
++	 *
++	 * We apply a little bit of cunning here to catch a broader set of
++	 * no-ops. If obj->write_domain is set, we must be in the same
++	 * obj->read_domains, and only that domain. Therefore, if that
++	 * obj->write_domain matches the request read_domains, we are
++	 * already in the same read/write domain and can skip the operation,
++	 * without having to further check the requested write_domain.
++	 */
++	if (READ_ONCE(obj->write_domain) == read_domains)
++		goto out_unpin;
++
+ 	err = i915_gem_object_lock_interruptible(obj);
+ 	if (err)
+ 		goto out_unpin;
 -- 
 2.27.0
 
