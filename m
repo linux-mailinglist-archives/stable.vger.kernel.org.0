@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F542B6670
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34C42B6619
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730683AbgKQODS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:03:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42518 "EHLO mail.kernel.org"
+        id S1730904AbgKQOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:01:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729840AbgKQNM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:27 -0500
+        id S1730036AbgKQNOU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58C6C221EB;
-        Tue, 17 Nov 2020 13:12:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B5242225B;
+        Tue, 17 Nov 2020 13:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618746;
-        bh=54dFTDX6dGIi1lL6TnKrpnorImjiErTF+omysX5U3/I=;
+        s=default; t=1605618858;
+        bh=Dfgg1Zhwokh20GcGy7w+kYaS9x+RYxcfE22/X3DR9yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iP7KNkR+Dg7Bcswr+6QxXC3q6RbdRb27pIAFy+qvljjr0EUiuW+7h7IsE+51Oea2y
-         80WNYUw7rcc8RtzHdmfZ84TYSjns3awM0NZySbChLN7Qx3T/DkrC9HA7Gwq0pK+qo7
-         4LF001n6JBx6QeaIMa0ppmqvmdTALUlfxqQI/S44=
+        b=KmrxrpBNz+Vga0tqe6pDY+28hqEY92aeCzjQrAPxC9Fi5nlIHEhKJs3uqiNQxioSC
+         IkW6Li2ivzIbqRSGMDTwgmJspaX68AW35M9uVosft2WE2e888BtEf0nyNTHPIyVIQA
+         jwXNPS+Gml2ix+sOo4b9ZdJ7mFdu91aIkfK/4aH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Ye Bin <yebin10@huawei.com>,
+        stable@vger.kernel.org,
+        syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/78] cfg80211: regulatory: Fix inconsistent format argument
+Subject: [PATCH 4.14 30/85] mac80211: always wind down STA state
 Date:   Tue, 17 Nov 2020 14:04:59 +0100
-Message-Id: <20201117122110.724598520@linuxfoundation.org>
+Message-Id: <20201117122112.505581852@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit db18d20d1cb0fde16d518fb5ccd38679f174bc04 ]
+[ Upstream commit dcd479e10a0510522a5d88b29b8f79ea3467d501 ]
 
-Fix follow warning:
-[net/wireless/reg.c:3619]: (warning) %d in format string (no. 2)
-requires 'int' but the argument type is 'unsigned int'.
+When (for example) an IBSS station is pre-moved to AUTHORIZED
+before it's inserted, and then the insertion fails, we don't
+clean up the fast RX/TX states that might already have been
+created, since we don't go through all the state transitions
+again on the way down.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20201009070215.63695-1-yebin10@huawei.com
+Do that, if it hasn't been done already, when the station is
+freed. I considered only freeing the fast TX/RX state there,
+but we might add more state so it's more robust to wind down
+the state properly.
+
+Note that we warn if the station was ever inserted, it should
+have been properly cleaned up in that case, and the driver
+will probably not like things happening out of order.
+
+Reported-by: syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201009141710.7223b322a955.I95bd08b9ad0e039c034927cce0b75beea38e059b@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/sta_info.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index a649763b854d5..04da31c52d092 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -2759,7 +2759,7 @@ static void print_rd_rules(const struct ieee80211_regdomain *rd)
- 		power_rule = &reg_rule->power_rule;
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 2a18687019003..b74551323f5fb 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -244,6 +244,24 @@ struct sta_info *sta_info_get_by_idx(struct ieee80211_sub_if_data *sdata,
+  */
+ void sta_info_free(struct ieee80211_local *local, struct sta_info *sta)
+ {
++	/*
++	 * If we had used sta_info_pre_move_state() then we might not
++	 * have gone through the state transitions down again, so do
++	 * it here now (and warn if it's inserted).
++	 *
++	 * This will clear state such as fast TX/RX that may have been
++	 * allocated during state transitions.
++	 */
++	while (sta->sta_state > IEEE80211_STA_NONE) {
++		int ret;
++
++		WARN_ON_ONCE(test_sta_flag(sta, WLAN_STA_INSERTED));
++
++		ret = sta_info_move_state(sta, sta->sta_state - 1);
++		if (WARN_ONCE(ret, "sta_info_move_state() returned %d\n", ret))
++			break;
++	}
++
+ 	if (sta->rate_ctrl)
+ 		rate_control_free_sta(sta);
  
- 		if (reg_rule->flags & NL80211_RRF_AUTO_BW)
--			snprintf(bw, sizeof(bw), "%d KHz, %d KHz AUTO",
-+			snprintf(bw, sizeof(bw), "%d KHz, %u KHz AUTO",
- 				 freq_range->max_bandwidth_khz,
- 				 reg_get_max_bandwidth(rd, reg_rule));
- 		else
 -- 
 2.27.0
 
