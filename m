@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CCE2B6281
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4153B2B6283
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731541AbgKQN3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37840 "EHLO mail.kernel.org"
+        id S1731558AbgKQN3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:29:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731534AbgKQN3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:13 -0500
+        id S1731551AbgKQN3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE53E2078D;
-        Tue, 17 Nov 2020 13:29:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9396220781;
+        Tue, 17 Nov 2020 13:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619753;
-        bh=w8XOlxJaAOn+/e+5QFRCN5A04FHeFp13fckscBopjnU=;
+        s=default; t=1605619756;
+        bh=z9NTU619R+5CEdd4pUp0MofU7lmkDm90S80NkQVZqFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wxqpVicsVH6eP+k7r+EUcPuWBfm/TG/9xENQXR2cJX1FzetxLH7vvUHbq6iFRbVi
-         iPK8ftojHHI5o8l9NJHkop482qZ/ZSPJN7jvmch5yZAERemIX0tNlf7KwUhWBbI5zE
-         Fd60K8ysX6zm0dT8MTWMyDfl8LeJrIoUCT140Urw=
+        b=Xnu4ScunJTB40gu/ljLL7YzHWyxlOR/voweKkyv2dmrve5GEl1vBfaDo8Z9UMyY3V
+         kxi3C1ppb3bcSfh9XtD2hdWIA+2g30f+43rZZog/E6iHiE60nsiKgdOo3+creiYhmv
+         P/toHLczufvQcPHIqvu+fVgST4VUQP89e+Ew7Bss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Roper <matthew.d.roper@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.4 145/151] drm/i915: Correctly set SFC capability for video engines
-Date:   Tue, 17 Nov 2020 14:06:15 +0100
-Message-Id: <20201117122128.481273627@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 146/151] powerpc/603: Always fault when _PAGE_ACCESSED is not set
+Date:   Tue, 17 Nov 2020 14:06:16 +0100
+Message-Id: <20201117122128.530783513@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -46,40 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 5ce6861d36ed5207aff9e5eead4c7cc38a986586 upstream.
+commit 11522448e641e8f1690c9db06e01985e8e19b401 upstream.
 
-SFC capability of video engines is not set correctly because i915
-is testing for incorrect bits.
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-Fixes: c5d3e39caa45 ("drm/i915: Engine discovery query")
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201106011842.36203-1-daniele.ceraolospurio@intel.com
-(cherry picked from commit ad18fa0f5f052046cad96fee762b5c64f42dd86a)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
+
+Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/gt/intel_engine_cs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -354,7 +354,8 @@ static void __setup_engine_capabilities(
- 		 * instances.
- 		 */
- 		if ((INTEL_GEN(i915) >= 11 &&
--		     RUNTIME_INFO(i915)->vdbox_sfc_access & engine->mask) ||
-+		     (RUNTIME_INFO(i915)->vdbox_sfc_access &
-+		      BIT(engine->instance))) ||
- 		    (INTEL_GEN(i915) >= 9 && engine->instance == 0))
- 			engine->uabi_capabilities |=
- 				I915_VIDEO_AND_ENHANCE_CLASS_CAPABILITY_SFC;
+
+---
+ arch/powerpc/kernel/head_32.S |   12 ------------
+ 1 file changed, 12 deletions(-)
+
+--- a/arch/powerpc/kernel/head_32.S
++++ b/arch/powerpc/kernel/head_32.S
+@@ -418,11 +418,7 @@ InstructionTLBMiss:
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+-#else
+-	li	r1,_PAGE_PRESENT | _PAGE_EXEC
+-#endif
+ #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
+ 	bge-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+@@ -484,11 +480,7 @@ DataLoadTLBMiss:
+ 	lis	r1,PAGE_OFFSET@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_PRESENT
+-#endif
+ 	bge-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+@@ -564,11 +556,7 @@ DataStoreTLBMiss:
+ 	lis	r1,PAGE_OFFSET@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SPRG_PGDIR
+-#ifdef CONFIG_SWAP
+ 	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+-#else
+-	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
+-#endif
+ 	bge-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
 
 
