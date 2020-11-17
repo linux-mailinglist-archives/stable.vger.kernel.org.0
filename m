@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8822B612E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E05F2B618D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730232AbgKQNPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:15:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47242 "EHLO mail.kernel.org"
+        id S1730486AbgKQNUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:20:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730230AbgKQNPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:15:46 -0500
+        id S1730477AbgKQNUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99AA12151B;
-        Tue, 17 Nov 2020 13:15:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6322E206D5;
+        Tue, 17 Nov 2020 13:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618945;
-        bh=+7L50U+Rn6mR4jkCLVSeMWUE0ZRWHO0AgzJuyfTF9gs=;
+        s=default; t=1605619208;
+        bh=uFUuDq+cY6gH7bajSM6hbIkJmMQ2KZWAsv5BU9xvCx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWyiW1ybHT/kdwJMhheUg2x7/7UWwRqdJr8ZqpScULb/Vs/zFHwt8dekqPO4ualLp
-         IPwN2yzj8+ZR+o5e7YL8LcbCpmfnsn5PAhIXZC02nwbHUC+gCHAI+DwWSjYbBcKwrH
-         18svpIfL9vb6kDEP+YyUMH5RTP4xGQCxPVnqAytA=
+        b=CuxdsbOS4Ovdyk8IVzNtiDUNHTWvxFDP7cd17TRxoPlaRjSosTM9IYxh6IT3kybVW
+         ST9rw2cM8MSkhf6JhLsVMMD734K07ibfZH8+CyqKhsih6h1RWjZ52yFa9CDywY99cB
+         Docx3qHgQ6g83NsKqtlY/BV/xNaj5BibJljpcYeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 61/85] vrf: Fix fast path output packet handling with async Netfilter rules
+        stable@vger.kernel.org, Kaixu Xia <kaixuxia@tencent.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.19 063/101] ext4: correctly report "not supported" for {usr,grp}jquota when !CONFIG_QUOTA
 Date:   Tue, 17 Nov 2020 14:05:30 +0100
-Message-Id: <20201117122114.029087415@linuxfoundation.org>
+Message-Id: <20201117122116.171502201@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,192 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Willi <martin@strongswan.org>
+From: Kaixu Xia <kaixuxia@tencent.com>
 
-[ Upstream commit 9e2b7fa2df4365e99934901da4fb4af52d81e820 ]
+commit 174fe5ba2d1ea0d6c5ab2a7d4aa058d6d497ae4d upstream.
 
-VRF devices use an optimized direct path on output if a default qdisc
-is involved, calling Netfilter hooks directly. This path, however, does
-not consider Netfilter rules completing asynchronously, such as with
-NFQUEUE. The Netfilter okfn() is called for asynchronously accepted
-packets, but the VRF never passes that packet down the stack to send
-it out over the slave device. Using the slower redirect path for this
-seems not feasible, as we do not know beforehand if a Netfilter hook
-has asynchronously completing rules.
+The macro MOPT_Q is used to indicates the mount option is related to
+quota stuff and is defined to be MOPT_NOSUPPORT when CONFIG_QUOTA is
+disabled.  Normally the quota options are handled explicitly, so it
+didn't matter that the MOPT_STRING flag was missing, even though the
+usrjquota and grpjquota mount options take a string argument.  It's
+important that's present in the !CONFIG_QUOTA case, since without
+MOPT_STRING, the mount option matcher will match usrjquota= followed
+by an integer, and will otherwise skip the table entry, and so "mount
+option not supported" error message is never reported.
 
-Fix the use of asynchronously completing Netfilter rules in OUTPUT and
-POSTROUTING by using a special completion function that additionally
-calls dst_output() to pass the packet down the stack. Also, slightly
-adjust the use of nf_reset_ct() so that is called in the asynchronous
-case, too.
+[ Fixed up the commit description to better explain why the fix
+  works. --TYT ]
 
-Fixes: dcdd43c41e60 ("net: vrf: performance improvements for IPv4")
-Fixes: a9ec54d1b0cd ("net: vrf: performance improvements for IPv6")
-Signed-off-by: Martin Willi <martin@strongswan.org>
-Link: https://lore.kernel.org/r/20201106073030.3974927-1-martin@strongswan.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 26092bf52478 ("ext4: use a table-driven handler for mount options")
+Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
+Link: https://lore.kernel.org/r/1603986396-28917-1-git-send-email-kaixuxia@tencent.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/vrf.c |   92 ++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 69 insertions(+), 23 deletions(-)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -334,8 +334,7 @@ static netdev_tx_t vrf_xmit(struct sk_bu
- 	return ret;
- }
- 
--static int vrf_finish_direct(struct net *net, struct sock *sk,
--			     struct sk_buff *skb)
-+static void vrf_finish_direct(struct sk_buff *skb)
- {
- 	struct net_device *vrf_dev = skb->dev;
- 
-@@ -354,7 +353,8 @@ static int vrf_finish_direct(struct net
- 		skb_pull(skb, ETH_HLEN);
- 	}
- 
--	return 1;
-+	/* reset skb device */
-+	nf_reset(skb);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -433,15 +433,41 @@ static struct sk_buff *vrf_ip6_out_redir
- 	return skb;
- }
- 
-+static int vrf_output6_direct_finish(struct net *net, struct sock *sk,
-+				     struct sk_buff *skb)
-+{
-+	vrf_finish_direct(skb);
-+
-+	return vrf_ip6_local_out(net, sk, skb);
-+}
-+
- static int vrf_output6_direct(struct net *net, struct sock *sk,
- 			      struct sk_buff *skb)
- {
-+	int err = 1;
-+
- 	skb->protocol = htons(ETH_P_IPV6);
- 
--	return NF_HOOK_COND(NFPROTO_IPV6, NF_INET_POST_ROUTING,
--			    net, sk, skb, NULL, skb->dev,
--			    vrf_finish_direct,
--			    !(IPCB(skb)->flags & IPSKB_REROUTED));
-+	if (!(IPCB(skb)->flags & IPSKB_REROUTED))
-+		err = nf_hook(NFPROTO_IPV6, NF_INET_POST_ROUTING, net, sk, skb,
-+			      NULL, skb->dev, vrf_output6_direct_finish);
-+
-+	if (likely(err == 1))
-+		vrf_finish_direct(skb);
-+
-+	return err;
-+}
-+
-+static int vrf_ip6_out_direct_finish(struct net *net, struct sock *sk,
-+				     struct sk_buff *skb)
-+{
-+	int err;
-+
-+	err = vrf_output6_direct(net, sk, skb);
-+	if (likely(err == 1))
-+		err = vrf_ip6_local_out(net, sk, skb);
-+
-+	return err;
- }
- 
- static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
-@@ -454,18 +480,15 @@ static struct sk_buff *vrf_ip6_out_direc
- 	skb->dev = vrf_dev;
- 
- 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
--		      skb, NULL, vrf_dev, vrf_output6_direct);
-+		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
- 
- 	if (likely(err == 1))
- 		err = vrf_output6_direct(net, sk, skb);
- 
--	/* reset skb device */
- 	if (likely(err == 1))
--		nf_reset(skb);
--	else
--		skb = NULL;
-+		return skb;
- 
--	return skb;
-+	return NULL;
- }
- 
- static struct sk_buff *vrf_ip6_out(struct net_device *vrf_dev,
-@@ -649,15 +672,41 @@ static struct sk_buff *vrf_ip_out_redire
- 	return skb;
- }
- 
-+static int vrf_output_direct_finish(struct net *net, struct sock *sk,
-+				    struct sk_buff *skb)
-+{
-+	vrf_finish_direct(skb);
-+
-+	return vrf_ip_local_out(net, sk, skb);
-+}
-+
- static int vrf_output_direct(struct net *net, struct sock *sk,
- 			     struct sk_buff *skb)
- {
-+	int err = 1;
-+
- 	skb->protocol = htons(ETH_P_IP);
- 
--	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
--			    net, sk, skb, NULL, skb->dev,
--			    vrf_finish_direct,
--			    !(IPCB(skb)->flags & IPSKB_REROUTED));
-+	if (!(IPCB(skb)->flags & IPSKB_REROUTED))
-+		err = nf_hook(NFPROTO_IPV4, NF_INET_POST_ROUTING, net, sk, skb,
-+			      NULL, skb->dev, vrf_output_direct_finish);
-+
-+	if (likely(err == 1))
-+		vrf_finish_direct(skb);
-+
-+	return err;
-+}
-+
-+static int vrf_ip_out_direct_finish(struct net *net, struct sock *sk,
-+				    struct sk_buff *skb)
-+{
-+	int err;
-+
-+	err = vrf_output_direct(net, sk, skb);
-+	if (likely(err == 1))
-+		err = vrf_ip_local_out(net, sk, skb);
-+
-+	return err;
- }
- 
- static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
-@@ -670,18 +719,15 @@ static struct sk_buff *vrf_ip_out_direct
- 	skb->dev = vrf_dev;
- 
- 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
--		      skb, NULL, vrf_dev, vrf_output_direct);
-+		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
- 
- 	if (likely(err == 1))
- 		err = vrf_output_direct(net, sk, skb);
- 
--	/* reset skb device */
- 	if (likely(err == 1))
--		nf_reset(skb);
--	else
--		skb = NULL;
-+		return skb;
- 
--	return skb;
-+	return NULL;
- }
- 
- static struct sk_buff *vrf_ip_out(struct net_device *vrf_dev,
+---
+ fs/ext4/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1748,8 +1748,8 @@ static const struct mount_opts {
+ 	{Opt_noquota, (EXT4_MOUNT_QUOTA | EXT4_MOUNT_USRQUOTA |
+ 		       EXT4_MOUNT_GRPQUOTA | EXT4_MOUNT_PRJQUOTA),
+ 							MOPT_CLEAR | MOPT_Q},
+-	{Opt_usrjquota, 0, MOPT_Q},
+-	{Opt_grpjquota, 0, MOPT_Q},
++	{Opt_usrjquota, 0, MOPT_Q | MOPT_STRING},
++	{Opt_grpjquota, 0, MOPT_Q | MOPT_STRING},
+ 	{Opt_offusrjquota, 0, MOPT_Q},
+ 	{Opt_offgrpjquota, 0, MOPT_Q},
+ 	{Opt_jqfmt_vfsold, QFMT_VFS_OLD, MOPT_QFMT},
 
 
