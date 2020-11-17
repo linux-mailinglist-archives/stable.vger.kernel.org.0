@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9022B64C7
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F31F2B62FD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731923AbgKQNtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:49:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
+        id S1732125AbgKQNd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731982AbgKQNdY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:33:24 -0500
+        id S1731620AbgKQNdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:33:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81A7021534;
-        Tue, 17 Nov 2020 13:33:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30EE92078E;
+        Tue, 17 Nov 2020 13:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620003;
-        bh=/EtW8RuJzkBEg19v1Wxg0lMP1p2CC83GkJjQtPYtd6g=;
+        s=default; t=1605620035;
+        bh=7Ta/HP6YerJpzCoffSQvd1lfvwwCyIhHLaRkTXE8yJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbm36/enoVakyjgIsa9f27V/3rDzEy3UDKX8WrO5CVIUZCt/38YdDxjFPjzTxk2G8
-         2Slg+b3Qdx1LO3drBkBS0f6OZqyLeOsiWd4RekIkkhQjKIib2tmdnYLRFoLY3v02S2
-         2QYiBSwCwTnZ0XlpA2Jc9p7P2fgdqqcStCpjx7gY=
+        b=Wz5aN1dgF19YPDfAmLP9z8RWSnfv4xhaJ9bebYzHJsNfJIeaPXLtzU6xTmrLQz82x
+         na7n0vGvHY06yS1t04aEIhE4TOIaUoXi5DLKJxxujVmOPIiyHUi7HANgdNvkLy0x4D
+         8iW/C2j/ygo8uuKTRpOrl86La3kdmqmBWDoDVkCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        stable@vger.kernel.org,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 058/255] xfs: flush new eof page on truncate to avoid post-eof corruption
-Date:   Tue, 17 Nov 2020 14:03:18 +0100
-Message-Id: <20201117122141.777422358@linuxfoundation.org>
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 059/255] xfs: fix missing CoW blocks writeback conversion retry
+Date:   Tue, 17 Nov 2020 14:03:19 +0100
+Message-Id: <20201117122141.826247136@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,68 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 869ae85dae64b5540e4362d7fe4cd520e10ec05c ]
+[ Upstream commit c2f09217a4305478c55adc9a98692488dd19cd32 ]
 
-It is possible to expose non-zeroed post-EOF data in XFS if the new
-EOF page is dirty, backed by an unwritten block and the truncate
-happens to race with writeback. iomap_truncate_page() will not zero
-the post-EOF portion of the page if the underlying block is
-unwritten. The subsequent call to truncate_setsize() will, but
-doesn't dirty the page. Therefore, if writeback happens to complete
-after iomap_truncate_page() (so it still sees the unwritten block)
-but before truncate_setsize(), the cached page becomes inconsistent
-with the on-disk block. A mapped read after the associated page is
-reclaimed or invalidated exposes non-zero post-EOF data.
+In commit 7588cbeec6df, we tried to fix a race stemming from the lack of
+coordination between higher level code that wants to allocate and remap
+CoW fork extents into the data fork.  Christoph cites as examples the
+always_cow mode, and a directio write completion racing with writeback.
 
-For example, consider the following sequence when run on a kernel
-modified to explicitly flush the new EOF page within the race
-window:
+According to the comments before the goto retry, we want to restart the
+lookup to catch the extent in the data fork, but we don't actually reset
+whichfork or cow_fsb, which means the second try executes using stale
+information.  Up until now I think we've gotten lucky that either
+there's something left in the CoW fork to cause cow_fsb to be reset, or
+either data/cow fork sequence numbers have advanced enough to force a
+fresh lookup from the data fork.  However, if we reach the retry with an
+empty stable CoW fork and a stable data fork, neither of those things
+happens.  The retry foolishly re-calls xfs_convert_blocks on the CoW
+fork which fails again.  This time, we toss the write.
 
-$ xfs_io -fc "falloc 0 4k" -c fsync /mnt/file
-$ xfs_io -c "pwrite 0 4k" -c "truncate 1k" /mnt/file
-  ...
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  00 00 00 00 00 00 00 00  ........
-$ umount /mnt/; mount <dev> /mnt/
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  cd cd cd cd cd cd cd cd  ........
+I've recently been working on extending reflink to the realtime device.
+When the realtime extent size is larger than a single block, we have to
+force the page cache to CoW the entire rt extent if a write (or
+fallocate) are not aligned with the rt extent size.  The strategy I've
+chosen to deal with this is derived from Dave's blocksize > pagesize
+series: dirtying around the write range, and ensuring that writeback
+always starts mapping on an rt extent boundary.  This has brought this
+race front and center, since generic/522 blows up immediately.
 
-Update xfs_setattr_size() to explicitly flush the new EOF page prior
-to the page truncate to ensure iomap has the latest state of the
-underlying block.
+However, I'm pretty sure this is a bug outright, independent of that.
 
-Fixes: 68a9f5e7007c ("xfs: implement iomap based buffered write path")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: 7588cbeec6df ("xfs: retry COW fork delalloc conversion when no extent was found")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_iops.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/xfs/xfs_aops.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index 80a13c8561d85..bf93a7152181c 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -911,6 +911,16 @@ xfs_setattr_size(
- 		error = iomap_zero_range(inode, oldsize, newsize - oldsize,
- 				&did_zeroing, &xfs_buffered_write_iomap_ops);
- 	} else {
-+		/*
-+		 * iomap won't detect a dirty page over an unwritten block (or a
-+		 * cow block over a hole) and subsequently skips zeroing the
-+		 * newly post-EOF portion of the page. Flush the new EOF to
-+		 * convert the block before the pagecache truncate.
-+		 */
-+		error = filemap_write_and_wait_range(inode->i_mapping, newsize,
-+						     newsize);
-+		if (error)
-+			return error;
- 		error = iomap_truncate_page(inode, newsize, &did_zeroing,
- 				&xfs_buffered_write_iomap_ops);
- 	}
+diff --git a/fs/xfs/xfs_aops.c b/fs/xfs/xfs_aops.c
+index b35611882ff9c..e4210779cd79e 100644
+--- a/fs/xfs/xfs_aops.c
++++ b/fs/xfs/xfs_aops.c
+@@ -346,8 +346,8 @@ xfs_map_blocks(
+ 	ssize_t			count = i_blocksize(inode);
+ 	xfs_fileoff_t		offset_fsb = XFS_B_TO_FSBT(mp, offset);
+ 	xfs_fileoff_t		end_fsb = XFS_B_TO_FSB(mp, offset + count);
+-	xfs_fileoff_t		cow_fsb = NULLFILEOFF;
+-	int			whichfork = XFS_DATA_FORK;
++	xfs_fileoff_t		cow_fsb;
++	int			whichfork;
+ 	struct xfs_bmbt_irec	imap;
+ 	struct xfs_iext_cursor	icur;
+ 	int			retries = 0;
+@@ -381,6 +381,8 @@ xfs_map_blocks(
+ 	 * landed in a hole and we skip the block.
+ 	 */
+ retry:
++	cow_fsb = NULLFILEOFF;
++	whichfork = XFS_DATA_FORK;
+ 	xfs_ilock(ip, XFS_ILOCK_SHARED);
+ 	ASSERT(ip->i_df.if_format != XFS_DINODE_FMT_BTREE ||
+ 	       (ip->i_df.if_flags & XFS_IFEXTENTS));
 -- 
 2.27.0
 
