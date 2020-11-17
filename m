@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496942B6111
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E352B6271
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729733AbgKQNPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:15:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46992 "EHLO mail.kernel.org"
+        id S1731334AbgKQN2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729022AbgKQNPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:15:31 -0500
+        id S1731564AbgKQN0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:26:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEF952225B;
-        Tue, 17 Nov 2020 13:15:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D46FA2078D;
+        Tue, 17 Nov 2020 13:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618930;
-        bh=aXUGh1UxMukFxGGR6UQY36C2S57jrM7cADPoatME4Nw=;
+        s=default; t=1605619607;
+        bh=NbPT1sIn2yq17CMD0RaNvxfHh+0AHuuj9z1B3Js53ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aT3xsNg+VyKF+FtRjvsdJYWcYB8H+vdVdlM6Bc367+jDjtIv2zNpbd04fBad0xIcz
-         bcSCDr4dx9djtKU/xQZupVvY5+dI56rcl3YH7JgrrlzIJsvZJnhQnpmi0wlsbERRQq
-         2XfXFY5YdUqZQWnYCI3/y4//t7WFIWFFMh0O9LGk=
+        b=b7Th8w75xjrywhW2qH0F58RnITsJcNa7+XWdLlpRCA/CTpnw68wwfvLyusKYHqsrI
+         y4O9MaXtGb4Hf3IWqyI0y3lKGRR8ndADbJpXUNXtL6WC+h7qkVuVLO8IzHFcJ/Snfq
+         1To1jNYLpKd74pHwWH5nDsP31zm8SJj+ngt/CD1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@vger.kerne.org,
-        Coiby Xu <coiby.xu@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 56/85] pinctrl: amd: fix incorrect way to disable debounce filter
+        stable@vger.kernel.org,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 095/151] igc: Fix returning wrong statistics
 Date:   Tue, 17 Nov 2020 14:05:25 +0100
-Message-Id: <20201117122113.774287792@linuxfoundation.org>
+Message-Id: <20201117122126.028579936@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-commit 06abe8291bc31839950f7d0362d9979edc88a666 upstream.
+[ Upstream commit 6b7ed22ae4c96a415001f0c3116ebee15bb8491a ]
 
-The correct way to disable debounce filter is to clear bit 5 and 6
-of the register.
+'igc_update_stats()' was not updating 'netdev->stats', so the returned
+statistics, for example, requested by:
 
-Cc: stable@vger.kerne.org
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/linux-gpio/df2c008b-e7b5-4fdd-42ea-4d1c62b52139@redhat.com/
-Link: https://lore.kernel.org/r/20201105231912.69527-2-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+$ ip -s link show dev enp3s0
 
+were not being updated and were always zero.
+
+Fix by returning a set of statistics that are actually being
+updated (adapter->stats64).
+
+Fixes: c9a11c23ceb6 ("igc: Add netdev")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -154,14 +154,14 @@ static int amd_gpio_set_debounce(struct
- 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
- 		} else {
--			pin_reg &= ~DB_CNTRl_MASK;
-+			pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
- 			ret = -EINVAL;
- 		}
- 	} else {
- 		pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
- 		pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
- 		pin_reg &= ~DB_TMR_OUT_MASK;
--		pin_reg &= ~DB_CNTRl_MASK;
-+		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
- 	}
- 	writel(pin_reg, gpio_dev->base + offset * 4);
- 	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 24888676f69ba..6b43e1c5b1c3e 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -2222,21 +2222,23 @@ static int igc_change_mtu(struct net_device *netdev, int new_mtu)
+ }
+ 
+ /**
+- * igc_get_stats - Get System Network Statistics
++ * igc_get_stats64 - Get System Network Statistics
+  * @netdev: network interface device structure
++ * @stats: rtnl_link_stats64 pointer
+  *
+  * Returns the address of the device statistics structure.
+  * The statistics are updated here and also from the timer callback.
+  */
+-static struct net_device_stats *igc_get_stats(struct net_device *netdev)
++static void igc_get_stats64(struct net_device *netdev,
++			    struct rtnl_link_stats64 *stats)
+ {
+ 	struct igc_adapter *adapter = netdev_priv(netdev);
+ 
++	spin_lock(&adapter->stats64_lock);
+ 	if (!test_bit(__IGC_RESETTING, &adapter->state))
+ 		igc_update_stats(adapter);
+-
+-	/* only return the current stats */
+-	return &netdev->stats;
++	memcpy(stats, &adapter->stats64, sizeof(*stats));
++	spin_unlock(&adapter->stats64_lock);
+ }
+ 
+ static netdev_features_t igc_fix_features(struct net_device *netdev,
+@@ -3984,7 +3986,7 @@ static const struct net_device_ops igc_netdev_ops = {
+ 	.ndo_start_xmit		= igc_xmit_frame,
+ 	.ndo_set_mac_address	= igc_set_mac,
+ 	.ndo_change_mtu		= igc_change_mtu,
+-	.ndo_get_stats		= igc_get_stats,
++	.ndo_get_stats64	= igc_get_stats64,
+ 	.ndo_fix_features	= igc_fix_features,
+ 	.ndo_set_features	= igc_set_features,
+ 	.ndo_features_check	= igc_features_check,
+-- 
+2.27.0
+
 
 
