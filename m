@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBA22B65FB
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 593242B6714
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387454AbgKQN7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:59:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49682 "EHLO mail.kernel.org"
+        id S1728678AbgKQOIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730556AbgKQNRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:25 -0500
+        id S1729040AbgKQNHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21E5B2225B;
-        Tue, 17 Nov 2020 13:17:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6922324699;
+        Tue, 17 Nov 2020 13:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619043;
-        bh=r9FZfaF4eisPjUR73+5jQ3IF4euogePyoV4bXnwH3RA=;
+        s=default; t=1605618429;
+        bh=JHNdDcUV7C1fSr2AwcaX6HSFVrEmQGBcn2lpYiArMUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOxrVjQhAInJonKgjGsLSP96RjHJ+bUezv7bMDCK9LwsSkXGDlcGQKc1X7VTuV1M/
-         5wMu5jHiVgUWkzObFLSM1dM93H5AA/VOqcUdGODmHxST5Atkzh0DFjCbfgFR6mqxP2
-         PKptoSv8qu6GYcblirYUEU5Q2TIUVkq2FcbmU4iU=
+        b=f+yK1rUqmFqMzSbPnvK0VtygNByBBhqFVHzBq5xoU3DoGhxnZR1qzfTvDPEAGtWX5
+         kv1lc307iWvAVpPbxfp4StJ4/Z+W+6NAkFEGouC1iIsfryQbWupKMTXXKn7E6s7U33
+         YV+JRqXFsNYB3xx7XTbDumA0Y3XwRPmUDb0XaOqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        =?UTF-8?q?Ond=C5=99ej=20Jirman?= <megous@megous.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 001/101] regulator: defer probe when trying to get voltage from unresolved supply
+Subject: [PATCH 4.4 05/64] btrfs: reschedule when cloning lots of extents
 Date:   Tue, 17 Nov 2020 14:04:28 +0100
-Message-Id: <20201117122113.196963972@linuxfoundation.org>
+Message-Id: <20201117122106.395791491@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,42 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit cf1ad559a20d1930aa7b47a52f54e1f8718de301 ]
+[ Upstream commit 6b613cc97f0ace77f92f7bc112b8f6ad3f52baf8 ]
 
-regulator_get_voltage_rdev() is called in regulator probe() when
-applying machine constraints.  The "fixed" commit exposed the problem
-that non-bypassed regulators can forward the request to its parent
-(like bypassed ones) supply. Return -EPROBE_DEFER when the supply
-is expected but not resolved yet.
+We have several occurrences of a soft lockup from fstest's generic/175
+testcase, which look more or less like this one:
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reported-by: Ondřej Jirman <megous@megous.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Ondřej Jirman <megous@megous.com>
-Link: https://lore.kernel.org/r/a9041d68b4d35e4a2dd71629c8a6422662acb5ee.1604351936.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [xfs_io:10030]
+  Kernel panic - not syncing: softlockup: hung tasks
+  CPU: 0 PID: 10030 Comm: xfs_io Tainted: G             L    5.9.0-rc5+ #768
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
+  Call Trace:
+   <IRQ>
+   dump_stack+0x77/0xa0
+   panic+0xfa/0x2cb
+   watchdog_timer_fn.cold+0x85/0xa5
+   ? lockup_detector_update_enable+0x50/0x50
+   __hrtimer_run_queues+0x99/0x4c0
+   ? recalibrate_cpu_khz+0x10/0x10
+   hrtimer_run_queues+0x9f/0xb0
+   update_process_times+0x28/0x80
+   tick_handle_periodic+0x1b/0x60
+   __sysvec_apic_timer_interrupt+0x76/0x210
+   asm_call_on_stack+0x12/0x20
+   </IRQ>
+   sysvec_apic_timer_interrupt+0x7f/0x90
+   asm_sysvec_apic_timer_interrupt+0x12/0x20
+  RIP: 0010:btrfs_tree_unlock+0x91/0x1a0 [btrfs]
+  RSP: 0018:ffffc90007123a58 EFLAGS: 00000282
+  RAX: ffff8881cea2fbe0 RBX: ffff8881cea2fbe0 RCX: 0000000000000000
+  RDX: ffff8881d23fd200 RSI: ffffffff82045220 RDI: ffff8881cea2fba0
+  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000032
+  R10: 0000160000000000 R11: 0000000000001000 R12: 0000000000001000
+  R13: ffff8882357fd5b0 R14: ffff88816fa76e70 R15: ffff8881cea2fad0
+   ? btrfs_tree_unlock+0x15b/0x1a0 [btrfs]
+   btrfs_release_path+0x67/0x80 [btrfs]
+   btrfs_insert_replace_extent+0x177/0x2c0 [btrfs]
+   btrfs_replace_file_extents+0x472/0x7c0 [btrfs]
+   btrfs_clone+0x9ba/0xbd0 [btrfs]
+   btrfs_clone_files.isra.0+0xeb/0x140 [btrfs]
+   ? file_update_time+0xcd/0x120
+   btrfs_remap_file_range+0x322/0x3b0 [btrfs]
+   do_clone_file_range+0xb7/0x1e0
+   vfs_clone_file_range+0x30/0xa0
+   ioctl_file_clone+0x8a/0xc0
+   do_vfs_ioctl+0x5b2/0x6f0
+   __x64_sys_ioctl+0x37/0xa0
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f87977fc247
+  RSP: 002b:00007ffd51a2f6d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
+  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f87977fc247
+  RDX: 00007ffd51a2f710 RSI: 000000004020940d RDI: 0000000000000003
+  RBP: 0000000000000004 R08: 00007ffd51a79080 R09: 0000000000000000
+  R10: 00005621f11352f2 R11: 0000000000000206 R12: 0000000000000000
+  R13: 0000000000000000 R14: 00005621f128b958 R15: 0000000080000000
+  Kernel Offset: disabled
+  ---[ end Kernel panic - not syncing: softlockup: hung tasks ]---
+
+All of these lockup reports have the call chain btrfs_clone_files() ->
+btrfs_clone() in common. btrfs_clone_files() calls btrfs_clone() with
+both source and destination extents locked and loops over the source
+extent to create the clones.
+
+Conditionally reschedule in the btrfs_clone() loop, to give some time back
+to other processes.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 2 ++
+ fs/btrfs/ioctl.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index c290c89421314..ad5235ca8e4ee 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -3405,6 +3405,8 @@ static int _regulator_get_voltage(struct regulator_dev *rdev)
- 		ret = rdev->desc->fixed_uV;
- 	} else if (rdev->supply) {
- 		ret = _regulator_get_voltage(rdev->supply->rdev);
-+	} else if (rdev->supply_name) {
-+		return -EPROBE_DEFER;
- 	} else {
- 		return -EINVAL;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 67366515a29d2..f35e18e76f160 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3856,6 +3856,8 @@ process_slot:
+ 			ret = -EINTR;
+ 			goto out;
+ 		}
++
++		cond_resched();
  	}
+ 	ret = 0;
+ 
 -- 
 2.27.0
 
