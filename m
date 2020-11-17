@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF4B2B697F
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5BD2B6990
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:12:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgKQQKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 11:10:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41646 "EHLO mail.kernel.org"
+        id S1727206AbgKQQLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 11:11:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726982AbgKQQKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 11:10:25 -0500
+        id S1726897AbgKQQLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 11:11:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6613D2463D;
-        Tue, 17 Nov 2020 16:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EDB8221F8;
+        Tue, 17 Nov 2020 16:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605629423;
-        bh=j+J6Q8PPenbpavlCvu7NOpHFFTaf7EUG4Fhp6AZtewY=;
+        s=default; t=1605629495;
+        bh=uCKK/9ZMdgrnPHpZJ9uCObGewrVvWqeq87P4hs3pHRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5rX/1FtB/Ycfvg5yxV1kRzHpYPvWxV9zJBBWbR2Q7OTEg3ZZSKgFvrBQBvZXiUxA
-         wwE5Pcn2Rpw0SDB0cyyKMaoSWk5std/L2IQ4KvK/Sq79ht4+CXK5F7u1cSOrkU+472
-         bA/sMBAs8TrT6fRf0kPcSeVo6XfaxK9LjJ1OJ9tU=
+        b=O5yTJrCbPMA3SwK5168fWjmFANL1w5/3/9sJ/yG7wrBFg1nwboUihj/sia8mPnrts
+         JeME/QWNw4/hxYrPoJz6Me1sZM70JjjRiS2Jn/jcz5eGgXF2s5G7G2kjnBxt3XWz/K
+         unJK3FuD3hE5d3evpWrK7rw/VQANfz2e8fhBcjOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Alan Cox <alan@linux.intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 4.14 54/85] drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
-Date:   Tue, 17 Nov 2020 14:05:23 +0100
-Message-Id: <20201117122113.681699852@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E5=BC=A0=E4=B8=9C=E6=97=AD?= <xu910121@sina.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.9 191/255] KVM: arm64: Dont hide ID registers from userspace
+Date:   Tue, 17 Nov 2020 14:05:31 +0100
+Message-Id: <20201117122148.224730548@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Andrew Jones <drjones@redhat.com>
 
-commit 06ad8d339524bf94b89859047822c31df6ace239 upstream.
+commit f81cb2c3ad41ac6d8cb2650e3d72d5f67db1aa28 upstream.
 
-The gma500 driver expects 3 pipelines in several it's IRQ functions.
-Accessing struct drm_device.vblank[], this fails with devices that only
-have 2 pipelines. An example KASAN report is shown below.
+ID registers are RAZ until they've been allocated a purpose, but
+that doesn't mean they should be removed from the KVM_GET_REG_LIST
+list. So far we only have one register, SYS_ID_AA64ZFR0_EL1, that
+is hidden from userspace when its function, SVE, is not present.
 
-  [   62.267688] ==================================================================
-  [   62.268856] BUG: KASAN: slab-out-of-bounds in psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.269450] Read of size 1 at addr ffff8880012bc6d0 by task systemd-udevd/285
-  [   62.269949]
-  [   62.270192] CPU: 0 PID: 285 Comm: systemd-udevd Tainted: G            E     5.10.0-rc1-1-default+ #572
-  [   62.270807] Hardware name:  /DN2800MT, BIOS MTCDT10N.86A.0164.2012.1213.1024 12/13/2012
-  [   62.271366] Call Trace:
-  [   62.271705]  dump_stack+0xae/0xe5
-  [   62.272180]  print_address_description.constprop.0+0x17/0xf0
-  [   62.272987]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.273474]  __kasan_report.cold+0x20/0x38
-  [   62.273989]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.274460]  kasan_report+0x3a/0x50
-  [   62.274891]  psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.275380]  drm_irq_install+0x131/0x1f0
-  <...>
-  [   62.300751] Allocated by task 285:
-  [   62.301223]  kasan_save_stack+0x1b/0x40
-  [   62.301731]  __kasan_kmalloc.constprop.0+0xbf/0xd0
-  [   62.302293]  drmm_kmalloc+0x55/0x100
-  [   62.302773]  drm_vblank_init+0x77/0x210
+Expose SYS_ID_AA64ZFR0_EL1 to userspace as RAZ when SVE is not
+implemented. Removing the userspace visibility checks is enough
+to reexpose it, as it will already return zero to userspace when
+SVE is not present. The register already behaves as RAZ for the
+guest when SVE is not present.
 
-Resolve the issue by only handling vblank entries up to the number of
-CRTCs.
-
-I'm adding a Fixes tag for reference, although the bug has been present
-since the driver's initial commit.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Fixes: 5c49fd3aa0ab ("gma500: Add the core DRM files and headers")
-Cc: Alan Cox <alan@linux.intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: stable@vger.kernel.org#v3.3+
-Link: https://patchwork.freedesktop.org/patch/msgid/20201105190256.3893-1-tzimmermann@suse.de
+Fixes: 73433762fcae ("KVM: arm64/sve: System register context switch and access support")
+Reported-by: 张东旭 <xu910121@sina.com>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org#v5.2+
+Link: https://lore.kernel.org/r/20201105091022.15373-2-drjones@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/gma500/psb_irq.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ arch/arm64/kvm/sys_regs.c |   18 +-----------------
+ 1 file changed, 1 insertion(+), 17 deletions(-)
 
---- a/drivers/gpu/drm/gma500/psb_irq.c
-+++ b/drivers/gpu/drm/gma500/psb_irq.c
-@@ -350,6 +350,7 @@ int psb_irq_postinstall(struct drm_devic
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1193,16 +1193,6 @@ static unsigned int sve_visibility(const
+ 	return REG_HIDDEN_USER | REG_HIDDEN_GUEST;
+ }
+ 
+-/* Visibility overrides for SVE-specific ID registers */
+-static unsigned int sve_id_visibility(const struct kvm_vcpu *vcpu,
+-				      const struct sys_reg_desc *rd)
+-{
+-	if (vcpu_has_sve(vcpu))
+-		return 0;
+-
+-	return REG_HIDDEN_USER;
+-}
+-
+ /* Generate the emulated ID_AA64ZFR0_EL1 value exposed to the guest */
+ static u64 guest_id_aa64zfr0_el1(const struct kvm_vcpu *vcpu)
  {
- 	struct drm_psb_private *dev_priv = dev->dev_private;
- 	unsigned long irqflags;
-+	unsigned int i;
- 
- 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
- 
-@@ -362,20 +363,12 @@ int psb_irq_postinstall(struct drm_devic
- 	PSB_WVDC32(dev_priv->vdc_irq_mask, PSB_INT_ENABLE_R);
- 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
- 
--	if (dev->vblank[0].enabled)
--		psb_enable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[1].enabled)
--		psb_enable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[2].enabled)
--		psb_enable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	for (i = 0; i < dev->num_crtcs; ++i) {
-+		if (dev->vblank[i].enabled)
-+			psb_enable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+		else
-+			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	}
- 
- 	if (dev_priv->ops->hotplug_enable)
- 		dev_priv->ops->hotplug_enable(dev, true);
-@@ -388,6 +381,7 @@ void psb_irq_uninstall(struct drm_device
+@@ -1229,9 +1219,6 @@ static int get_id_aa64zfr0_el1(struct kv
  {
- 	struct drm_psb_private *dev_priv = dev->dev_private;
- 	unsigned long irqflags;
-+	unsigned int i;
+ 	u64 val;
  
- 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
- 
-@@ -396,14 +390,10 @@ void psb_irq_uninstall(struct drm_device
- 
- 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
- 
--	if (dev->vblank[0].enabled)
--		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
+-	if (WARN_ON(!vcpu_has_sve(vcpu)))
+-		return -ENOENT;
 -
--	if (dev->vblank[1].enabled)
--		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[2].enabled)
--		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	for (i = 0; i < dev->num_crtcs; ++i) {
-+		if (dev->vblank[i].enabled)
-+			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	}
+ 	val = guest_id_aa64zfr0_el1(vcpu);
+ 	return reg_to_user(uaddr, &val, reg->id);
+ }
+@@ -1244,9 +1231,6 @@ static int set_id_aa64zfr0_el1(struct kv
+ 	int err;
+ 	u64 val;
  
- 	dev_priv->vdc_irq_mask &= _PSB_IRQ_SGX_FLAG |
- 				  _PSB_IRQ_MSVDX_FLAG |
+-	if (WARN_ON(!vcpu_has_sve(vcpu)))
+-		return -ENOENT;
+-
+ 	err = reg_from_user(&val, uaddr, id);
+ 	if (err)
+ 		return err;
+@@ -1509,7 +1493,7 @@ static const struct sys_reg_desc sys_reg
+ 	ID_SANITISED(ID_AA64PFR1_EL1),
+ 	ID_UNALLOCATED(4,2),
+ 	ID_UNALLOCATED(4,3),
+-	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, .visibility = sve_id_visibility },
++	{ SYS_DESC(SYS_ID_AA64ZFR0_EL1), access_id_aa64zfr0_el1, .get_user = get_id_aa64zfr0_el1, .set_user = set_id_aa64zfr0_el1, },
+ 	ID_UNALLOCATED(4,5),
+ 	ID_UNALLOCATED(4,6),
+ 	ID_UNALLOCATED(4,7),
 
 
