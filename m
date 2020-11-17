@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14252B6029
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C65552B607D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728945AbgKQNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        id S1728899AbgKQNJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:09:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728954AbgKQNGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:47 -0500
+        id S1728820AbgKQNJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9132B2464E;
-        Tue, 17 Nov 2020 13:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DE4B2225B;
+        Tue, 17 Nov 2020 13:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618406;
-        bh=fsW6bgFU3buu5xvx3D94Li6vVxUF4G38khvZ+rUjhDU=;
+        s=default; t=1605618587;
+        bh=G3VA7LTo9ESa06POafIDvzCdeisOEfi+LO/KW2BkJ8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfcSDCGWpkupokNmSg3R11is5pBuYz3QbDqNbeFXS/7lkrx1oLJf5z9VHmuRrG6VG
-         CmciaE/PNA/BeGl25Eq5SzfPmzncE3BcpeTZbFe+Jc0LX3v0DKh/sXquR09sIkvUfm
-         xhRL/lN3qhE70OZY1yJbjqSfKVMMEdILb/SxRNEE=
+        b=LnCcB6WcIBULLFgkK28uqIWIXSPlFwp2luMjG0manMREpm5PAqoU26ZsDuf0z6KQm
+         Rx0VzAIf9ImRXD7dcDKTWY0bi9QY26YmuuN4gBjH2Qss0lH31ZjxkW2oBgqti601gp
+         tz7wbhUY71OnL8wIlHMzRAoNDtnHotMjaDXhcUk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 21/64] gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
-Date:   Tue, 17 Nov 2020 14:04:44 +0100
-Message-Id: <20201117122107.174939565@linuxfoundation.org>
+Subject: [PATCH 4.9 19/78] i40e: Fix a potential NULL pointer dereference
+Date:   Tue, 17 Nov 2020 14:04:45 +0100
+Message-Id: <20201117122110.044610112@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d0f17d3883f1e3f085d38572c2ea8edbd5150172 ]
+commit 54902349ee95045b67e2f0c39b75f5418540064b upstream.
 
-Function gfs2_clear_rgrpd calls kfree(rgd->rd_bits) before calling
-return_all_reservations, but return_all_reservations still dereferences
-rgd->rd_bits in __rs_deltree.  Fix that by moving the call to kfree below the
-call to return_all_reservations.
+If 'kzalloc()' fails, a NULL pointer will be dereferenced.
+Return an error code (-ENOMEM) instead.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 2736e9cfc2ee9..99dcbdc1ff3a4 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -747,9 +747,9 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
- 		}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 7484ad3c955db..0f54269ffc463 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -422,6 +422,9 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
+ 	       (sizeof(struct i40e_virtchnl_iwarp_qv_info) *
+ 						(qvlist_info->num_vectors - 1));
+ 	vf->qvlist_info = kzalloc(size, GFP_KERNEL);
++	if (!vf->qvlist_info)
++		return -ENOMEM;
++
+ 	vf->qvlist_info->num_vectors = qvlist_info->num_vectors;
  
- 		gfs2_free_clones(rgd);
-+		return_all_reservations(rgd);
- 		kfree(rgd->rd_bits);
- 		rgd->rd_bits = NULL;
--		return_all_reservations(rgd);
- 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
- 	}
- }
+ 	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
 -- 
 2.27.0
 
