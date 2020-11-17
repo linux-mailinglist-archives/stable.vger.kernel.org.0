@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE2E42B6016
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBE02B61FE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728525AbgKQNGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60564 "EHLO mail.kernel.org"
+        id S1730991AbgKQNYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:24:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728524AbgKQNGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:20 -0500
+        id S1730386AbgKQNYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:24:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D598B2225E;
-        Tue, 17 Nov 2020 13:06:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F4FB2463D;
+        Tue, 17 Nov 2020 13:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618379;
-        bh=jWTAwVdzS6NcpDiUfAHtzYjnNmyPatKrKUaYyTKCxPI=;
+        s=default; t=1605619460;
+        bh=lCSQVerc+jJ4Piycr3n5lNXAN1aByZZN2bWhfq7Vax4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7cYnC+Oj1lWFLgMP3T7m/kpy8sSfGE/4Crx68yT2LKgQRjNnRoc/qZ4J+fnxFAix
-         M98omry36ltXtb1mk0oCKCMQB2paPrwr0jzSDRcAdMPmIT6cYmil1/Jzv3WBvdXiqQ
-         JTUpN7snww+7gVO88aJGk70FtcFQ/aaPTHllmCVE=
+        b=Cl/6LlzEFPPexY0rETDLm0n0UESKBNsweui693MREW+SpMWx6Yx1DlmAF6Ui1lHBW
+         OJ71ufnLi34nm+osYR54ym16hdojkapdzafIM1BUSNvfoI3oksf8JMTz+f/QkuOL4r
+         nsXxn3NPFn/zQVm/SaPe/EtBUzOA2FHMzdQYEZSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabian Inostroza <fabianinostrozap@gmail.com>,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/64] can: peak_usb: peak_usb_get_ts_time(): fix timestamp wrapping
-Date:   Tue, 17 Nov 2020 14:04:36 +0100
-Message-Id: <20201117122106.787667469@linuxfoundation.org>
+Subject: [PATCH 5.4 047/151] ASoC: cs42l51: manage mclk shutdown delay
+Date:   Tue, 17 Nov 2020 14:04:37 +0100
+Message-Id: <20201117122123.717745008@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-[ Upstream commit ecc7b4187dd388549544195fb13a11b4ea8e6a84 ]
+[ Upstream commit 20afe581c9b980848ad097c4d54dde9bec7593ef ]
 
-Fabian Inostroza <fabianinostrozap@gmail.com> has discovered a potential
-problem in the hardware timestamp reporting from the PCAN-USB USB CAN interface
-(only), related to the fact that a timestamp of an event may precede the
-timestamp used for synchronization when both records are part of the same USB
-packet. However, this case was used to detect the wrapping of the time counter.
+A delay must be introduced before the shutdown down of the mclk,
+as stated in CS42L51 datasheet. Otherwise the codec may
+produce some noise after the end of DAPM power down sequence.
+The delay between DAC and CLOCK_SUPPLY widgets is too short.
+Add a delay in mclk shutdown request to manage the shutdown delay
+explicitly. From experiments, at least 10ms delay is necessary.
+Set delay to 20ms as recommended in Documentation/timers/timers-howto.rst
+when using msleep().
 
-This patch details and fixes the two identified cases where this problem can
-occur.
-
-Reported-by: Fabian Inostroza <fabianinostrozap@gmail.com>
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Link: https://lore.kernel.org/r/20201014085631.15128-1-s.grosjean@peak-system.com
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Link: https://lore.kernel.org/r/20201020150109.482-1-olivier.moysan@st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 51 ++++++++++++++++++--
- 1 file changed, 46 insertions(+), 5 deletions(-)
+ sound/soc/codecs/cs42l51.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index 8c47cc8dc8965..22deddb2dbf5a 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -150,14 +150,55 @@ void peak_usb_get_ts_tv(struct peak_time_ref *time_ref, u32 ts,
- 	/* protect from getting timeval before setting now */
- 	if (time_ref->tv_host.tv_sec > 0) {
- 		u64 delta_us;
-+		s64 delta_ts = 0;
+diff --git a/sound/soc/codecs/cs42l51.c b/sound/soc/codecs/cs42l51.c
+index 55408c8fcb4e3..cdd7ae90c2b59 100644
+--- a/sound/soc/codecs/cs42l51.c
++++ b/sound/soc/codecs/cs42l51.c
+@@ -247,8 +247,28 @@ static const struct snd_soc_dapm_widget cs42l51_dapm_widgets[] = {
+ 		&cs42l51_adcr_mux_controls),
+ };
+ 
++static int mclk_event(struct snd_soc_dapm_widget *w,
++		      struct snd_kcontrol *kcontrol, int event)
++{
++	struct snd_soc_component *comp = snd_soc_dapm_to_component(w->dapm);
++	struct cs42l51_private *cs42l51 = snd_soc_component_get_drvdata(comp);
 +
-+		/* General case: dev_ts_1 < dev_ts_2 < ts, with:
-+		 *
-+		 * - dev_ts_1 = previous sync timestamp
-+		 * - dev_ts_2 = last sync timestamp
-+		 * - ts = event timestamp
-+		 * - ts_period = known sync period (theoretical)
-+		 *             ~ dev_ts2 - dev_ts1
-+		 * *but*:
-+		 *
-+		 * - time counters wrap (see adapter->ts_used_bits)
-+		 * - sometimes, dev_ts_1 < ts < dev_ts2
-+		 *
-+		 * "normal" case (sync time counters increase):
-+		 * must take into account case when ts wraps (tsw)
-+		 *
-+		 *      < ts_period > <          >
-+		 *     |             |            |
-+		 *  ---+--------+----+-------0-+--+-->
-+		 *     ts_dev_1 |    ts_dev_2  |
-+		 *              ts             tsw
-+		 */
-+		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
-+			/* case when event time (tsw) wraps */
-+			if (ts < time_ref->ts_dev_1)
-+				delta_ts = 1 << time_ref->adapter->ts_used_bits;
++	switch (event) {
++	case SND_SOC_DAPM_PRE_PMU:
++		return clk_prepare_enable(cs42l51->mclk_handle);
++	case SND_SOC_DAPM_POST_PMD:
++		/* Delay mclk shutdown to fulfill power-down sequence requirements */
++		msleep(20);
++		clk_disable_unprepare(cs42l51->mclk_handle);
++		break;
++	}
 +
-+		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
-+		 * handle case when event time (tsn) hasn't.
-+		 *
-+		 *      < ts_period > <          >
-+		 *     |             |            |
-+		 *  ---+--------+--0-+---------+--+-->
-+		 *     ts_dev_1 |    ts_dev_2  |
-+		 *              tsn            ts
-+		 */
-+		} else if (time_ref->ts_dev_1 < ts) {
-+			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
-+		}
++	return 0;
++}
++
+ static const struct snd_soc_dapm_widget cs42l51_dapm_mclk_widgets[] = {
+-	SND_SOC_DAPM_CLOCK_SUPPLY("MCLK")
++	SND_SOC_DAPM_SUPPLY("MCLK", SND_SOC_NOPM, 0, 0, mclk_event,
++			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+ };
  
--		delta_us = ts - time_ref->ts_dev_2;
--		if (ts < time_ref->ts_dev_2)
--			delta_us &= (1 << time_ref->adapter->ts_used_bits) - 1;
-+		/* add delay between last sync and event timestamps */
-+		delta_ts += (signed int)(ts - time_ref->ts_dev_2);
- 
--		delta_us += time_ref->ts_total;
-+		/* add time from beginning to last sync */
-+		delta_ts += time_ref->ts_total;
- 
--		delta_us *= time_ref->adapter->us_per_ts_scale;
-+		/* convert ticks number into microseconds */
-+		delta_us = delta_ts * time_ref->adapter->us_per_ts_scale;
- 		delta_us >>= time_ref->adapter->us_per_ts_shift;
- 
- 		*tv = time_ref->tv_host_0;
+ static const struct snd_soc_dapm_route cs42l51_routes[] = {
 -- 
 2.27.0
 
