@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6BB2B62CD
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED042B64EB
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731594AbgKQNbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:31:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41294 "EHLO mail.kernel.org"
+        id S1732268AbgKQNux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:50:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732214AbgKQNby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:31:54 -0500
+        id S1731050AbgKQNb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:31:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EC47207BC;
-        Tue, 17 Nov 2020 13:31:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00CB02078E;
+        Tue, 17 Nov 2020 13:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619914;
-        bh=6oRxiNQn1YoAEooPoybd6dJPOfrWAJ4c3/qlpl5SieI=;
+        s=default; t=1605619917;
+        bh=2bia6SePkmrj/nEMIR7fnWPfuhgi+aAZoeQkqlJXWiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sQnxRlYf5G7YvDQM9hfpQvzzL3R+XNzAOGFwjPaKYqZWWHpNiiuDRfLmTrnx3Awx
-         IE/qJ6SDJ1UEwp2ysVe1DlPsHlRbEI1JaSJ3Psf8Gvs02jN1NDtssNMm1aFj1hLlw+
-         ltGYxqT9Tim2HC5iKvKW9irrjUSyOWy1Sgtu+ZzA=
+        b=gRI1ZdQtP9jBCzdkNXqxmLEJwGPbXV40OOKKP3KcxRfRiERKRGPQtVLdLPI47w+sg
+         ZjFqc2TAbuOWEE2wmjAP02LpGNKy7xig7Bw97c+eIzmwXe/NQ56cWT0A9KPzJ745Op
+         EgjBBRtdzIcVWqi25meuyal/AlIfLe7jeeKWN5OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 046/255] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
-Date:   Tue, 17 Nov 2020 14:03:06 +0100
-Message-Id: <20201117122141.192156658@linuxfoundation.org>
+Subject: [PATCH 5.9 047/255] can: dev: __can_get_echo_skb(): fix real payload length return value for RTR frames
+Date:   Tue, 17 Nov 2020 14:03:07 +0100
+Message-Id: <20201117122141.241165980@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,64 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
+[ Upstream commit ed3320cec279407a86bc4c72edc4a39eb49165ec ]
 
-If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
-not always, the case), the 'WARN_ON(in_irq)' in
-net/core/skbuff.c#skb_release_head_state() might be triggered, under network
-congestion circumstances, together with the potential risk of a NULL pointer
-dereference.
+The can_get_echo_skb() function returns the number of received bytes to
+be used for netdev statistics. In the case of RTR frames we get a valid
+(potential non-zero) data length value which has to be passed for further
+operations. But on the wire RTR frames have no payload length. Therefore
+the value to be used in the statistics has to be zero for RTR frames.
 
-The root cause of this issue is the call to kfree_skb() instead of
-dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
-
-This patch prevents the skb to be freed within the call to netif_rx() by
-incrementing its reference count with skb_get(). The skb is finally freed by
-one of the in-irq-context safe functions: dev_consume_skb_any() or
-dev_kfree_skb_any(). The "any" version is used because some drivers might call
-can_get_echo_skb() in a normal context.
-
-The reason for this issue to occur is that initially, in the core network
-stack, loopback skb were not supposed to be received in hardware IRQ context.
-The CAN stack is an exeption.
-
-This bug was previously reported back in 2017 in [1] but the proposed patch
-never got accepted.
-
-While [1] directly modifies net/core/dev.c, we try to propose here a
-smoother modification local to CAN network stack (the assumption
-behind is that only CAN devices are affected by this issue).
-
-[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
-
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
-Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
+Reported-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Link: https://lore.kernel.org/r/20201020064443.80164-1-socketcan@hartkopp.net
+Fixes: cf5046b309b3 ("can: dev: let can_get_echo_skb() return dlc of CAN frame")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/can/dev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 68834a2853c9d..e291fda395a0f 100644
+index e291fda395a0f..d5e52ffc7ed25 100644
 --- a/drivers/net/can/dev.c
 +++ b/drivers/net/can/dev.c
-@@ -512,7 +512,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
- 	if (!skb)
- 		return 0;
+@@ -486,9 +486,13 @@ __can_get_echo_skb(struct net_device *dev, unsigned int idx, u8 *len_ptr)
+ 		 */
+ 		struct sk_buff *skb = priv->echo_skb[idx];
+ 		struct canfd_frame *cf = (struct canfd_frame *)skb->data;
+-		u8 len = cf->len;
  
--	netif_rx(skb);
-+	skb_get(skb);
-+	if (netif_rx(skb) == NET_RX_SUCCESS)
-+		dev_consume_skb_any(skb);
-+	else
-+		dev_kfree_skb_any(skb);
+-		*len_ptr = len;
++		/* get the real payload length for netdev statistics */
++		if (cf->can_id & CAN_RTR_FLAG)
++			*len_ptr = 0;
++		else
++			*len_ptr = cf->len;
++
+ 		priv->echo_skb[idx] = NULL;
  
- 	return len;
- }
+ 		return skb;
 -- 
 2.27.0
 
