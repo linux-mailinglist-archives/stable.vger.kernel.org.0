@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 357C02B6660
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A885E2B66A7
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgKQOCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:02:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44868 "EHLO mail.kernel.org"
+        id S1729331AbgKQNIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:08:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728762AbgKQNOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:14:07 -0500
+        id S1729326AbgKQNIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:08:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47FF42225B;
-        Tue, 17 Nov 2020 13:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B41532468F;
+        Tue, 17 Nov 2020 13:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618847;
-        bh=hfVjhpLdemkw7Vf4tF+lJ893noreThwlUGghtIhaEXE=;
+        s=default; t=1605618531;
+        bh=hw0zv2f522OPGgfKPxzCuZETXRm58zVzGazybghGR9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8wZI/uKs0jTPWAT7LaDHA3ujkToa8DHgayUT+zqRX99zwEmYYGuqSpUgC8nG3NmM
-         K8W/SjBU0xJoV9zA/OFo1s+VpYwc1WcKJyeJniOewvysvLODrSMNcehJz1tyPUhSEs
-         AJOzrWYBUXOQt10OhUzSxNu/RsVMeVnZGpj5FBE0=
+        b=hr1XLo6LJLfhmNItHlQCT7F723lYEjOMcJvEgX/mSOWI0U4rQr1mwTKX/glvjkfPq
+         gxIs3+sg7YRX0OsrMcV60el2FW38qkd2EG+fVld7HHRmYkgWpYDbaSCYxh3zaigCxa
+         AW2VyX22e4hQjGNp3Q9vNcHt34vcJqkd3D/A6EZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Don Brace <don.brace@microchip.com>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/85] scsi: hpsa: Fix memory leak in hpsa_init_one()
-Date:   Tue, 17 Nov 2020 14:04:56 +0100
-Message-Id: <20201117122112.368900483@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH 4.4 34/64] usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
+Date:   Tue, 17 Nov 2020 14:04:57 +0100
+Message-Id: <20201117122107.838788611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Chris Brandt <chris.brandt@renesas.com>
 
-[ Upstream commit af61bc1e33d2c0ec22612b46050f5b58ac56a962 ]
+commit 6d853c9e4104b4fc8d55dc9cd3b99712aa347174 upstream.
 
-When hpsa_scsi_add_host() fails, h->lastlogicals is leaked since it is
-missing a free() in the error handler.
+Renesas R-Car and RZ/G SoCs have a firmware download mode over USB.
+However, on reset a banner string is transmitted out which is not expected
+to be echoed back and will corrupt the protocol.
 
-Fix this by adding free() when hpsa_scsi_add_host() fails.
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Link: https://lore.kernel.org/r/20201111131209.3977903-1-chris.brandt@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: https://lore.kernel.org/r/20201027073125.14229-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Tested-by: Don Brace <don.brace@microchip.com>
-Acked-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 3b892918d8219..9ad9910cc0855 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -8549,7 +8549,7 @@ reinit_after_soft_reset:
- 	/* hook into SCSI subsystem */
- 	rc = hpsa_scsi_add_host(h);
- 	if (rc)
--		goto clean7; /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
-+		goto clean8; /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
- 
- 	/* Monitor the controller for firmware lockups */
- 	h->heartbeat_sample_interval = HEARTBEAT_SAMPLE_INTERVAL;
-@@ -8564,6 +8564,8 @@ reinit_after_soft_reset:
- 				HPSA_EVENT_MONITOR_INTERVAL);
- 	return 0;
- 
-+clean8: /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
-+	kfree(h->lastlogicals);
- clean7: /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
- 	hpsa_free_performant_mode(h);
- 	h->access.set_intr_mask(h, HPSA_INTR_OFF);
--- 
-2.27.0
-
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1693,6 +1693,15 @@ static const struct usb_device_id acm_id
+ 	{ USB_DEVICE(0x0870, 0x0001), /* Metricom GS Modem */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
++	{ USB_DEVICE(0x045b, 0x023c),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x0248),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x024D),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
+ 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
 
 
