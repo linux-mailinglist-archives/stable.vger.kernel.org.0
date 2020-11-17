@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E3A2B621B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3512B60D7
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731172AbgKQNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60736 "EHLO mail.kernel.org"
+        id S1729931AbgKQNNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730802AbgKQNZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:25:25 -0500
+        id S1729925AbgKQNNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 367222464E;
-        Tue, 17 Nov 2020 13:25:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC75F24199;
+        Tue, 17 Nov 2020 13:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619523;
-        bh=icsVlTOXLNN+criObkESs5KjI6CTJWsp8/wy9bJPGe8=;
+        s=default; t=1605618792;
+        bh=GiKTxWptGcefTqyv9+6bBRFNNeCcS4vNi9GvRyXSJsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p13wen/qR+WLTzBRjnQu0Jw1bS+8YTerql9TcSiU0tTcuzu6h637Oj19NKFRQaIM7
-         hTtfzGQczpeCbHuGipQVcmDn0xFkh5MfZvSzXa5gNy8HPbFTl7JtRhMYaXJ8mxOqQC
-         2scJ4XVj2eY4aRFXtBuciil79x+w3HW8oCHLA0x0=
+        b=Jngx/z5i8zx3zIWzzL7tYgDy4r4YQsR3V9ExINCqXhquqQifh0QBg9Efaajhy51qR
+         63bB8roeob+5rklXML8YaHrcFO1+evrVulYXEZlgxi+9nKZMin5XQ00Q2HMnxT+TEG
+         xiyn0ftauBsRnWTSrgifl49qd8CQlciR/IGdMbHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/151] xfs: fix scrub flagging rtinherit even if there is no rt device
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        =?UTF-8?q?Ond=C5=99ej=20Jirman?= <megous@megous.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 01/85] regulator: defer probe when trying to get voltage from unresolved supply
 Date:   Tue, 17 Nov 2020 14:04:30 +0100
-Message-Id: <20201117122123.369889021@linuxfoundation.org>
+Message-Id: <20201117122111.088811490@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,35 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit c1f6b1ac00756a7108e5fcb849a2f8230c0b62a5 ]
+[ Upstream commit cf1ad559a20d1930aa7b47a52f54e1f8718de301 ]
 
-The kernel has always allowed directories to have the rtinherit flag
-set, even if there is no rt device, so this check is wrong.
+regulator_get_voltage_rdev() is called in regulator probe() when
+applying machine constraints.  The "fixed" commit exposed the problem
+that non-bypassed regulators can forward the request to its parent
+(like bypassed ones) supply. Return -EPROBE_DEFER when the supply
+is expected but not resolved yet.
 
-Fixes: 80e4e1268802 ("xfs: scrub inodes")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reported-by: Ondřej Jirman <megous@megous.com>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Ondřej Jirman <megous@megous.com>
+Link: https://lore.kernel.org/r/a9041d68b4d35e4a2dd71629c8a6422662acb5ee.1604351936.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/scrub/inode.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/regulator/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/xfs/scrub/inode.c b/fs/xfs/scrub/inode.c
-index 6d483ab29e639..1bea029b634a6 100644
---- a/fs/xfs/scrub/inode.c
-+++ b/fs/xfs/scrub/inode.c
-@@ -121,8 +121,7 @@ xchk_inode_flags(
- 		goto bad;
- 
- 	/* rt flags require rt device */
--	if ((flags & (XFS_DIFLAG_REALTIME | XFS_DIFLAG_RTINHERIT)) &&
--	    !mp->m_rtdev_targp)
-+	if ((flags & XFS_DIFLAG_REALTIME) && !mp->m_rtdev_targp)
- 		goto bad;
- 
- 	/* new rt bitmap flag only valid for rbmino */
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index a3c265177855d..978e145b5c8f9 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -3217,6 +3217,8 @@ static int _regulator_get_voltage(struct regulator_dev *rdev)
+ 		ret = rdev->desc->fixed_uV;
+ 	} else if (rdev->supply) {
+ 		ret = _regulator_get_voltage(rdev->supply->rdev);
++	} else if (rdev->supply_name) {
++		return -EPROBE_DEFER;
+ 	} else {
+ 		return -EINVAL;
+ 	}
 -- 
 2.27.0
 
