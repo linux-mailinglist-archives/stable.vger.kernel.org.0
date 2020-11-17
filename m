@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787282B6613
+	by mail.lfdr.de (Postfix) with ESMTP id 07A342B6612
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387535AbgKQOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730065AbgKQOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 17 Nov 2020 09:00:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45322 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729057AbgKQNO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:14:28 -0500
+        id S1729528AbgKQNOb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACB2C241A5;
-        Tue, 17 Nov 2020 13:14:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DE20246BC;
+        Tue, 17 Nov 2020 13:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618867;
-        bh=J4zeeKNy8JRtCJcZKOQEo10fGGyKWqDlH2ii/KXrWx4=;
+        s=default; t=1605618870;
+        bh=bY7Tcxo9PmhlFNmxxE+k39FPkfeBeoVtExWGf44sOic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0r+6UNgStFWuz7Sv4S7C/pF9lDflw6plv6CgFkPh7uAa4L2Et1M6IP7Jjb2iGD/y
-         dz8gqZa31nfq4jrA8SCU0awS8CEirSW0aMVjv0R/2vSV8HHz3KATLt+BJw6U61d5Fy
-         78nMPe8BXq9E4jW/k2VxJoftln2gNd22z/wVND7s=
+        b=MBDuQtNgSUbEe+qtbdTzYPDbLKKjKfygwOTaY4PngsiVJlDQLcjkG3cW720YUtkwo
+         RaOberoREMJoSe+4cRz4k0Kfon1n4l1NGnJD/OGliux341ojEqOtj2jJPGj4qrcc16
+         pqhor4W3j1DmXKs3/gY620k3KOvWxPHs2f9WCB9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lining <lining2020x@163.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/85] nbd: dont update block size after device is started
-Date:   Tue, 17 Nov 2020 14:04:34 +0100
-Message-Id: <20201117122111.281487055@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/85] btrfs: sysfs: init devices outside of the chunk_mutex
+Date:   Tue, 17 Nov 2020 14:04:35 +0100
+Message-Id: <20201117122111.332358444@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
 References: <20201117122111.018425544@linuxfoundation.org>
@@ -44,70 +43,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit b40813ddcd6bf9f01d020804e4cb8febc480b9e4 ]
+[ Upstream commit ca10845a56856fff4de3804c85e6424d0f6d0cde ]
 
-Mounted NBD device can be resized, one use case is rbd-nbd.
+While running btrfs/061, btrfs/073, btrfs/078, or btrfs/178 we hit the
+following lockdep splat:
 
-Fix the issue by setting up default block size, then not touch it
-in nbd_size_update() any more. This kind of usage is aligned with loop
-which has same use case too.
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc3+ #4 Not tainted
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff96ecc22ef4a0 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
 
-Cc: stable@vger.kernel.org
-Fixes: c8a83a6b54d0 ("nbd: Use set_blocksize() to set device blocksize")
-Reported-by: lining <lining2020x@163.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Cc: Jan Kara <jack@suse.cz>
-Tested-by: lining <lining2020x@163.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  but task is already holding lock:
+  ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #3 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc+0x37/0x270
+	 alloc_inode+0x82/0xb0
+	 iget_locked+0x10d/0x2c0
+	 kernfs_get_inode+0x1b/0x130
+	 kernfs_get_tree+0x136/0x240
+	 sysfs_get_tree+0x16/0x40
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #2 (kernfs_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 kernfs_add_one+0x23/0x150
+	 kernfs_create_link+0x63/0xa0
+	 sysfs_do_create_link_sd+0x5e/0xd0
+	 btrfs_sysfs_add_devices_dir+0x81/0x130
+	 btrfs_init_new_device+0x67f/0x1250
+	 btrfs_ioctl+0x1ef/0x2e20
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_insert_empty_items+0x64/0xb0
+	 btrfs_insert_delayed_items+0x90/0x4f0
+	 btrfs_commit_inode_delayed_items+0x93/0x140
+	 btrfs_log_inode+0x5de/0x2020
+	 btrfs_log_inode_parent+0x429/0xc90
+	 btrfs_log_new_name+0x95/0x9b
+	 btrfs_rename2+0xbb9/0x1800
+	 vfs_rename+0x64f/0x9f0
+	 do_renameat2+0x320/0x4e0
+	 __x64_sys_rename+0x1f/0x30
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x119c/0x1fc0
+	 lock_acquire+0xa7/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &delayed_node->mutex --> kernfs_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(kernfs_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffff8dd65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff96ed2ade30e0 (&type->s_umount_key#36){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 0 PID: 100 Comm: kswapd0 Not tainted 5.9.0-rc3+ #4
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x8b/0xb8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x119c/0x1fc0
+   lock_acquire+0xa7/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa7/0x3d0
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x41/0x50
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This happens because we are holding the chunk_mutex at the time of
+adding in a new device.  However we only need to hold the
+device_list_mutex, as we're going to iterate over the fs_devices
+devices.  Move the sysfs init stuff outside of the chunk_mutex to get
+rid of this lockdep splat.
+
+CC: stable@vger.kernel.org # 4.4.x: f3cd2c58110dad14e: btrfs: sysfs, rename device_link add/remove functions
+CC: stable@vger.kernel.org # 4.4.x
+Reported-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/btrfs/volumes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index cdf62fb94fb15..9a0fb2d52a76c 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -268,7 +268,7 @@ static void nbd_size_clear(struct nbd_device *nbd)
- 	}
- }
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index f3cb042a28d5c..3d92feff249a0 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2432,9 +2432,6 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	tmp = btrfs_super_num_devices(fs_info->super_copy);
+ 	btrfs_set_super_num_devices(fs_info->super_copy, tmp + 1);
  
--static void nbd_size_update(struct nbd_device *nbd)
-+static void nbd_size_update(struct nbd_device *nbd, bool start)
- {
- 	struct nbd_config *config = nbd->config;
- 	struct block_device *bdev = bdget_disk(nbd->disk, 0);
-@@ -279,7 +279,8 @@ static void nbd_size_update(struct nbd_device *nbd)
- 	if (bdev) {
- 		if (bdev->bd_disk) {
- 			bd_set_size(bdev, config->bytesize);
--			set_blocksize(bdev, config->blksize);
-+			if (start)
-+				set_blocksize(bdev, config->blksize);
- 		} else
- 			bdev->bd_invalidated = 1;
- 		bdput(bdev);
-@@ -294,7 +295,7 @@ static void nbd_size_set(struct nbd_device *nbd, loff_t blocksize,
- 	config->blksize = blocksize;
- 	config->bytesize = blocksize * nr_blocks;
- 	if (nbd->task_recv != NULL)
--		nbd_size_update(nbd);
-+		nbd_size_update(nbd, false);
- }
+-	/* add sysfs device entry */
+-	btrfs_sysfs_add_device_link(fs_info->fs_devices, device);
+-
+ 	/*
+ 	 * we've got more storage, clear any full flags on the space
+ 	 * infos
+@@ -2442,6 +2439,10 @@ int btrfs_init_new_device(struct btrfs_fs_info *fs_info, const char *device_path
+ 	btrfs_clear_space_info_full(fs_info);
  
- static void nbd_complete_rq(struct request *req)
-@@ -1231,7 +1232,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		args->index = i;
- 		queue_work(nbd->recv_workq, &args->work);
- 	}
--	nbd_size_update(nbd);
-+	nbd_size_update(nbd, true);
- 	return error;
- }
+ 	mutex_unlock(&fs_info->chunk_mutex);
++
++	/* Add sysfs device entry */
++	btrfs_sysfs_add_device_link(fs_info->fs_devices, device);
++
+ 	mutex_unlock(&fs_info->fs_devices->device_list_mutex);
  
+ 	if (seeding_dev) {
 -- 
 2.27.0
 
