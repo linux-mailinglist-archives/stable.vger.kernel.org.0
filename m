@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D072B6564
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C422B6491
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731014AbgKQNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59914 "EHLO mail.kernel.org"
+        id S2387756AbgKQNsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:48:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731030AbgKQNYp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:45 -0500
+        id S1731486AbgKQNhB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C29BA20781;
-        Tue, 17 Nov 2020 13:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D99C20780;
+        Tue, 17 Nov 2020 13:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619485;
-        bh=AXGl4i0sd3uZ4N/wxzz1HS67eCR7OMtrahG+cUobNRA=;
+        s=default; t=1605620221;
+        bh=4xuzPg0kOjxj2nNV9bckmdhedAE/3CqJSwUrZfjd9fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sc0G6CmQU5DgazJpBszqQdjggFj1df4VgDpWEUWR38KQ4//xPccLOnt6HZfBTW/KR
-         TvaC4LOIX5Df2uGqKNwzGLo5zq7NAdY4ErYip2rX8Wx1r4iEkqSyCIAQYG44GikSis
-         tU5g7dDeYZW73l0ovz7vrcOAeCuKm/vR7tnIv1PI=
+        b=d4FyxoE4DZq0DozJGGvB/vT/LHxz3OYH30KnLkfIUGBK4sW+KJJtQE73KFFgQ6lLr
+         oA8Uqr2diGaQQLUILAu989vLGNXjzCaO796VjAemTeE1XQXXR8Y4OP5WokO9NBuSBR
+         zgEMzw7IOARYTjqizXJBW0SBXq3BsT7NljDt/Ec4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
+        Lorenz Bauer <lmb@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/151] gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
-Date:   Tue, 17 Nov 2020 14:04:45 +0100
-Message-Id: <20201117122124.112290775@linuxfoundation.org>
+Subject: [PATCH 5.9 146/255] tools/bpftool: Fix attaching flow dissector
+Date:   Tue, 17 Nov 2020 14:04:46 +0100
+Message-Id: <20201117122146.068682284@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-[ Upstream commit d0f17d3883f1e3f085d38572c2ea8edbd5150172 ]
+[ Upstream commit f9b7ff0d7f7a466a920424246e7ddc2b84c87e52 ]
 
-Function gfs2_clear_rgrpd calls kfree(rgd->rd_bits) before calling
-return_all_reservations, but return_all_reservations still dereferences
-rgd->rd_bits in __rs_deltree.  Fix that by moving the call to kfree below the
-call to return_all_reservations.
+My earlier patch to reject non-zero arguments to flow dissector attach
+broke attaching via bpftool. Instead of 0 it uses -1 for target_fd.
+Fix this by passing a zero argument when attaching the flow dissector.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 1b514239e859 ("bpf: flow_dissector: Check value of unused flags to BPF_PROG_ATTACH")
+Reported-by: Jiri Benc <jbenc@redhat.com>
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20201105115230.296657-1-lmb@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 2 +-
+ tools/bpf/bpftool/prog.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 2466bb44a23c5..e23735084ad17 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -736,9 +736,9 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
- 		}
- 
- 		gfs2_free_clones(rgd);
-+		return_all_reservations(rgd);
- 		kfree(rgd->rd_bits);
- 		rgd->rd_bits = NULL;
--		return_all_reservations(rgd);
- 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index d393eb8263a60..994506540e564 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -741,7 +741,7 @@ static int parse_attach_detach_args(int argc, char **argv, int *progfd,
  	}
- }
+ 
+ 	if (*attach_type == BPF_FLOW_DISSECTOR) {
+-		*mapfd = -1;
++		*mapfd = 0;
+ 		return 0;
+ 	}
+ 
 -- 
 2.27.0
 
