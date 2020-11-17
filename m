@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA632B613F
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1806B2B60C6
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729782AbgKQNRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:17:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
+        id S1729857AbgKQNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730529AbgKQNRP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:15 -0500
+        id S1729852AbgKQNMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ABBF241A5;
-        Tue, 17 Nov 2020 13:17:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29CA224199;
+        Tue, 17 Nov 2020 13:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619034;
-        bh=MMnO4sjRiKkTxWezw4rX+lA7iqfPOga9KpZqGnhN6KY=;
+        s=default; t=1605618754;
+        bh=Erzmw6T1KHPpYXvP6UTHaqQVh+xzUZeFxd3OXrj3tkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ewpEWFTJ+bnQSKkDwmBTmY0J+rnas9whQb04OjJb7dbfW/7a2DFC7ioYpJPfjogr
-         L6q6jI2Mr6PQ+IwEkP8s63uIYcaqvPcsy2Wi6JUhuKdZQ5YeDuHQ7rvMeLYPWwCPUe
-         zTuUmNWjLHpSY32/PmZgIpjGe2DDTtWI21TA3a84=
+        b=IRkrWlDpmspUJSXrmO/fLlYBEy3YvmaMteu7b/YgFN4S+Mw4O9PqavqNFwSZZ0w0z
+         2hW2qeaiqXY/wyAaB0XwnbRaXXIsUYs1e5zqUbiZXagzSwOi0VZsvxu4BNEoqQX2Gr
+         Bw5lNAsVLoFvzWu1AIJs/sr7FxcVhDfa6BnVnyNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 4.14 73/85] xen/blkback: use lateeoi irq binding
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Fabian Frederick <fabf@skynet.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 76/78] reboot: fix overflow parsing reboot cpu number
 Date:   Tue, 17 Nov 2020 14:05:42 +0100
-Message-Id: <20201117122114.618028230@linuxfoundation.org>
+Message-Id: <20201117122112.811466407@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,125 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit 01263a1fabe30b4d542f34c7e2364a22587ddaf2 upstream.
+commit df5b0ab3e08a156701b537809914b339b0daa526 upstream.
 
-In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving blkfront use the lateeoi
-irq binding for blkback and unmask the event channel only after
-processing all pending requests.
+Limit the CPU number to num_possible_cpus(), because setting it to a
+value lower than INT_MAX but higher than NR_CPUS produces the following
+error on reboot and shutdown:
 
-As the thread processing requests is used to do purging work in regular
-intervals an EOI may be sent only after having received an event. If
-there was no pending I/O request flag the EOI as spurious.
+    BUG: unable to handle page fault for address: ffffffff90ab1bb0
+    #PF: supervisor read access in kernel mode
+    #PF: error_code(0x0000) - not-present page
+    PGD 1c09067 P4D 1c09067 PUD 1c0a063 PMD 0
+    Oops: 0000 [#1] SMP
+    CPU: 1 PID: 1 Comm: systemd-shutdow Not tainted 5.9.0-rc8-kvm #110
+    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+    RIP: 0010:migrate_to_reboot_cpu+0xe/0x60
+    Code: ea ea 00 48 89 fa 48 c7 c7 30 57 f1 81 e9 fa ef ff ff 66 2e 0f 1f 84 00 00 00 00 00 53 8b 1d d5 ea ea 00 e8 14 33 fe ff 89 da <48> 0f a3 15 ea fc bd 00 48 89 d0 73 29 89 c2 c1 e8 06 65 48 8b 3c
+    RSP: 0018:ffffc90000013e08 EFLAGS: 00010246
+    RAX: ffff88801f0a0000 RBX: 0000000077359400 RCX: 0000000000000000
+    RDX: 0000000077359400 RSI: 0000000000000002 RDI: ffffffff81c199e0
+    RBP: ffffffff81c1e3c0 R08: ffff88801f41f000 R09: ffffffff81c1e348
+    R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+    R13: 00007f32bedf8830 R14: 00000000fee1dead R15: 0000000000000000
+    FS:  00007f32bedf8980(0000) GS:ffff88801f480000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffffffff90ab1bb0 CR3: 000000001d057000 CR4: 00000000000006a0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+      __do_sys_reboot.cold+0x34/0x5b
+      do_syscall_64+0x2d/0x40
 
-This is part of XSA-332.
-
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
+Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103214025.116799-3-mcroce@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use reboot_mode instead of mode]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkback/blkback.c |   22 +++++++++++++++++-----
- drivers/block/xen-blkback/xenbus.c  |    5 ++---
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ kernel/reboot.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/block/xen-blkback/blkback.c
-+++ b/drivers/block/xen-blkback/blkback.c
-@@ -183,7 +183,7 @@ static inline void shrink_free_pagepool(
- 
- #define vaddr(page) ((unsigned long)pfn_to_kaddr(page_to_pfn(page)))
- 
--static int do_block_io_op(struct xen_blkif_ring *ring);
-+static int do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags);
- static int dispatch_rw_block_io(struct xen_blkif_ring *ring,
- 				struct blkif_request *req,
- 				struct pending_req *pending_req);
-@@ -608,6 +608,8 @@ int xen_blkif_schedule(void *arg)
- 	struct xen_vbd *vbd = &blkif->vbd;
- 	unsigned long timeout;
- 	int ret;
-+	bool do_eoi;
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
- 	set_freezable();
- 	while (!kthread_should_stop()) {
-@@ -632,16 +634,23 @@ int xen_blkif_schedule(void *arg)
- 		if (timeout == 0)
- 			goto purge_gnt_list;
- 
-+		do_eoi = ring->waiting_reqs;
-+
- 		ring->waiting_reqs = 0;
- 		smp_mb(); /* clear flag *before* checking for work */
- 
--		ret = do_block_io_op(ring);
-+		ret = do_block_io_op(ring, &eoi_flags);
- 		if (ret > 0)
- 			ring->waiting_reqs = 1;
- 		if (ret == -EACCES)
- 			wait_event_interruptible(ring->shutdown_wq,
- 						 kthread_should_stop());
- 
-+		if (do_eoi && !ring->waiting_reqs) {
-+			xen_irq_lateeoi(ring->irq, eoi_flags);
-+			eoi_flags |= XEN_EOI_FLAG_SPURIOUS;
-+		}
-+
- purge_gnt_list:
- 		if (blkif->vbd.feature_gnt_persistent &&
- 		    time_after(jiffies, ring->next_lru)) {
-@@ -1114,7 +1123,7 @@ static void end_block_io_op(struct bio *
-  * and transmute  it to the block API to hand it over to the proper block disk.
-  */
- static int
--__do_block_io_op(struct xen_blkif_ring *ring)
-+__do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
- {
- 	union blkif_back_rings *blk_rings = &ring->blk_rings;
- 	struct blkif_request req;
-@@ -1137,6 +1146,9 @@ __do_block_io_op(struct xen_blkif_ring *
- 		if (RING_REQUEST_CONS_OVERFLOW(&blk_rings->common, rc))
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -519,6 +519,13 @@ static int __init reboot_setup(char *str
+ 				reboot_cpu = simple_strtoul(str+3, NULL, 0);
+ 			else
+ 				reboot_mode = REBOOT_SOFT;
++			if (reboot_cpu >= num_possible_cpus()) {
++				pr_err("Ignoring the CPU number in reboot= option. "
++				       "CPU %d exceeds possible cpu number %d\n",
++				       reboot_cpu, num_possible_cpus());
++				reboot_cpu = 0;
++				break;
++			}
  			break;
  
-+		/* We've seen a request, so clear spurious eoi flag. */
-+		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
-+
- 		if (kthread_should_stop()) {
- 			more_to_do = 1;
- 			break;
-@@ -1195,13 +1207,13 @@ done:
- }
- 
- static int
--do_block_io_op(struct xen_blkif_ring *ring)
-+do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
- {
- 	union blkif_back_rings *blk_rings = &ring->blk_rings;
- 	int more_to_do;
- 
- 	do {
--		more_to_do = __do_block_io_op(ring);
-+		more_to_do = __do_block_io_op(ring, eoi_flags);
- 		if (more_to_do)
- 			break;
- 
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -236,9 +236,8 @@ static int xen_blkif_map(struct xen_blki
- 		BUG();
- 	}
- 
--	err = bind_interdomain_evtchn_to_irqhandler(blkif->domid, evtchn,
--						    xen_blkif_be_int, 0,
--						    "blkif-backend", ring);
-+	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(blkif->domid,
-+			evtchn, xen_blkif_be_int, 0, "blkif-backend", ring);
- 	if (err < 0) {
- 		xenbus_unmap_ring_vfree(blkif->be->dev, ring->blk_ring);
- 		ring->blk_rings.common.sring = NULL;
+ 		case 'g':
 
 
