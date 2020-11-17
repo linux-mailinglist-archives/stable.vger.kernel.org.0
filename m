@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EC52B659E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6BD2B6370
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730433AbgKQN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:57:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53278 "EHLO mail.kernel.org"
+        id S1732535AbgKQNiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:38:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730447AbgKQNTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:55 -0500
+        id S1731634AbgKQNiH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:38:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E3E0241A6;
-        Tue, 17 Nov 2020 13:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23EEE2465E;
+        Tue, 17 Nov 2020 13:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619195;
-        bh=RBJ9y4/oa7/bY94unf5ZZ/waRSM/GIKyKc+JiZfknWc=;
+        s=default; t=1605620286;
+        bh=9rHokNqXDrt3/W7kyFVR6/D2SJ8EngZBVc5l42VSREs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0d8uI0X9fqH5yNnwxNGmGTXwsBQV+4wN5sI5q+u3qyyinVUvvlbsV9O7AhXJFDyS
-         Uzvrdm6jJveAhVHkL+L7ex7ITouI7UTNQ4G0YpW1TQ0Pv/4twh79xitbR7JNIWWrus
-         tg0p+jCOOAGh3/xQt0M9udygXq74Eq7/NPnEM41w=
+        b=1tis4M0UEZWkyOIz4DFcjal6tIGukrrEU8WJTdnUTcpVK/s9Qyu16lUIYF2FLGj1h
+         KRck8Qa5WRgAbVmpOwRwyEBu5TdiTmyQmPR2cVn9bHLzR7jS7KCB73BAGOC2g/TRdj
+         L8B12STr5pnSHM0K1iQTHQILvUhcafMP6I7Fpk6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Bunker <brian@purestorage.com>,
-        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/101] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
+Subject: [PATCH 5.9 169/255] NFS: Fix listxattr receive buffer size
 Date:   Tue, 17 Nov 2020 14:05:09 +0100
-Message-Id: <20201117122115.140763276@linuxfoundation.org>
+Message-Id: <20201117122147.162738015@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
+[ Upstream commit 6c2190b3fcbc92cb79e39cc7e7531656b341e463 ]
 
-alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
-we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
-handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
-rcu_synchronize() before the final delete to ensure that all concurrent
-threads have left the critical section.  Then we can get rid of the
-BUG_ON() and replace it with a simple if condition.
+Certain NFSv4.2/RDMA tests fail with v5.9-rc1.
 
-Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
-Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
-Cc: Brian Bunker <brian@purestorage.com>
-Acked-by: Brian Bunker <brian@purestorage.com>
-Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+rpcrdma_convert_kvec() runs off the end of the rl_segments array
+because rq_rcv_buf.tail[0].iov_len holds a very large positive
+value. The resultant kernel memory corruption is enough to crash
+the client system.
+
+Callers of rpc_prepare_reply_pages() must reserve an extra XDR_UNIT
+in the maximum decode size for a possible XDR pad of the contents
+of the xdr_buf's pages. That guarantees the allocated receive buffer
+will be large enough to accommodate the usual contents plus that XDR
+pad word.
+
+encode_op_hdr() cannot add that extra word. If it does,
+xdr_inline_pages() underruns the length of the tail iovec.
+
+Fixes: 3e1f02123fba ("NFSv4.2: add client side XDR handling for extended attributes")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/nfs/nfs42xdr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index c95c782b93a53..60c48dc5d9453 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -672,8 +672,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 					rcu_read_lock();
- 					list_for_each_entry_rcu(h,
- 						&tmp_pg->dh_list, node) {
--						/* h->sdev should always be valid */
--						BUG_ON(!h->sdev);
-+						if (!h->sdev)
-+							continue;
- 						h->sdev->access_state = desc[0];
- 					}
- 					rcu_read_unlock();
-@@ -719,7 +719,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 			pg->expiry = 0;
- 			rcu_read_lock();
- 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
--				BUG_ON(!h->sdev);
-+				if (!h->sdev)
-+					continue;
- 				h->sdev->access_state =
- 					(pg->state & SCSI_ACCESS_STATE_MASK);
- 				if (pg->pref)
-@@ -1160,7 +1161,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 	spin_lock(&h->pg_lock);
- 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
- 	rcu_assign_pointer(h->pg, NULL);
--	h->sdev = NULL;
- 	spin_unlock(&h->pg_lock);
- 	if (pg) {
- 		spin_lock_irq(&pg->lock);
-@@ -1169,6 +1169,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 		kref_put(&pg->kref, release_port_group);
- 	}
- 	sdev->handler_data = NULL;
-+	synchronize_rcu();
- 	kfree(h);
- }
+diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
+index cc50085e151c5..d0ddf90c9be48 100644
+--- a/fs/nfs/nfs42xdr.c
++++ b/fs/nfs/nfs42xdr.c
+@@ -179,7 +179,7 @@
+ 				 1 + nfs4_xattr_name_maxsz + 1)
+ #define decode_setxattr_maxsz   (op_decode_hdr_maxsz + decode_change_info_maxsz)
+ #define encode_listxattrs_maxsz  (op_encode_hdr_maxsz + 2 + 1)
+-#define decode_listxattrs_maxsz  (op_decode_hdr_maxsz + 2 + 1 + 1)
++#define decode_listxattrs_maxsz  (op_decode_hdr_maxsz + 2 + 1 + 1 + 1)
+ #define encode_removexattr_maxsz (op_encode_hdr_maxsz + 1 + \
+ 				  nfs4_xattr_name_maxsz)
+ #define decode_removexattr_maxsz (op_decode_hdr_maxsz + \
+@@ -504,7 +504,7 @@ static void encode_listxattrs(struct xdr_stream *xdr,
+ {
+ 	__be32 *p;
  
+-	encode_op_hdr(xdr, OP_LISTXATTRS, decode_listxattrs_maxsz + 1, hdr);
++	encode_op_hdr(xdr, OP_LISTXATTRS, decode_listxattrs_maxsz, hdr);
+ 
+ 	p = reserve_space(xdr, 12);
+ 	if (unlikely(!p))
 -- 
 2.27.0
 
