@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8589A2B62DA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2612B62DC
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732294AbgKQNc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:32:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42208 "EHLO mail.kernel.org"
+        id S1732307AbgKQNcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:32:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732286AbgKQNc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:27 -0500
+        id S1732300AbgKQNcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:32:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E742078E;
-        Tue, 17 Nov 2020 13:32:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 019F2207BC;
+        Tue, 17 Nov 2020 13:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619947;
-        bh=g1AnMRXKuTUwG+cJbRJIAPBUU5jwwclDqG/k6nrlbJg=;
+        s=default; t=1605619950;
+        bh=AufjsZnaraoDT0A1wRYXrs5ZDK489E0BRZL79+EN+2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyWoa9ruk+hAwg/8/8+yueDN8rKhRrd/NSlNb+QYjjmb1GRUq0HLI5leAJAN7N+yW
-         7tesQBrCX/XikmQOe71fLArxn2rLXId2pcr2j8ssn+J6SWg98dMzugufNZIIk/+tW/
-         J7/5v2/k+5ZA9GyZCweQ7kNJRwGQmoFzbsj6PZD8=
+        b=TasY/79g54GdTBDjjZtKEXnuGglRwX1FcpJYSYHzupMp1vCP/XoT/rBDQCz9GMVVz
+         Ct3VRPFqk/MFclP/bNqE3J1WpCpGaiJBWd1WcXf9E1MZtG2ZgvRyx9r6E5rotf8XQo
+         QFtZdUWUoylfe2vMOYsYwbAi7T4SzpITRNxzbZNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mithil Mhatre <mmhatre@redhat.com>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Greentime Hu <greentime.hu@sifive.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atish.patra@wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 027/255] netfilter: ipset: Update byte and packet counters regardless of whether they match
-Date:   Tue, 17 Nov 2020 14:02:47 +0100
-Message-Id: <20201117122140.265147954@linuxfoundation.org>
+Subject: [PATCH 5.9 028/255] irqchip/sifive-plic: Fix chip_data access within a hierarchy
+Date:   Tue, 17 Nov 2020 14:02:48 +0100
+Message-Id: <20201117122140.313789869@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,68 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Greentime Hu <greentime.hu@sifive.com>
 
-[ Upstream commit 7d10e62c2ff8e084c136c94d32d9a94de4d31248 ]
+[ Upstream commit f9ac7bbd6e4540dcc6df621b9c9b6eb2e26ded1d ]
 
-In ip_set_match_extensions(), for sets with counters, we take care of
-updating counters themselves by calling ip_set_update_counter(), and of
-checking if the given comparison and values match, by calling
-ip_set_match_counter() if needed.
+The plic driver crashes in plic_irq_unmask() when the interrupt is within a
+hierarchy, as it picks the top-level chip_data instead of its local one.
 
-However, if a given comparison on counters doesn't match the configured
-values, that doesn't mean the set entry itself isn't matching.
+Using irq_data_get_irq_chip_data() instead of irq_get_chip_data() solves
+the issue for good.
 
-This fix restores the behaviour we had before commit 4750005a85f7
-("netfilter: ipset: Fix "don't update counters" mode when counters used
-at the matching"), without reintroducing the issue fixed there: back
-then, mtype_data_match() first updated counters in any case, and then
-took care of matching on counters.
-
-Now, if the IPSET_FLAG_SKIP_COUNTER_UPDATE flag is set,
-ip_set_update_counter() will anyway skip counter updates if desired.
-
-The issue observed is illustrated by this reproducer:
-
-  ipset create c hash:ip counters
-  ipset add c 192.0.2.1
-  iptables -I INPUT -m set --match-set c src --bytes-gt 800 -j DROP
-
-if we now send packets from 192.0.2.1, bytes and packets counters
-for the entry as shown by 'ipset list' are always zero, and, no
-matter how many bytes we send, the rule will never match, because
-counters themselves are not updated.
-
-Reported-by: Mithil Mhatre <mmhatre@redhat.com>
-Fixes: 4750005a85f7 ("netfilter: ipset: Fix "don't update counters" mode when counters used at the matching")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: f1ad1133b18f ("irqchip/sifive-plic: Add support for multiple PLICs")
+Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
+[maz: rewrote commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+Link: https://lore.kernel.org/r/20201029023738.127472-1-greentime.hu@sifive.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-sifive-plic.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index 920b7c4331f0c..2643dc982eb4e 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -652,13 +652,14 @@ ip_set_match_extensions(struct ip_set *set, const struct ip_set_ext *ext,
- 	if (SET_WITH_COUNTER(set)) {
- 		struct ip_set_counter *counter = ext_counter(data, set);
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index 4048657ece0ac..6f432d2a5cebd 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -99,7 +99,7 @@ static inline void plic_irq_toggle(const struct cpumask *mask,
+ 				   struct irq_data *d, int enable)
+ {
+ 	int cpu;
+-	struct plic_priv *priv = irq_get_chip_data(d->irq);
++	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
  
-+		ip_set_update_counter(counter, ext, flags);
-+
- 		if (flags & IPSET_FLAG_MATCH_COUNTERS &&
- 		    !(ip_set_match_counter(ip_set_get_packets(counter),
- 				mext->packets, mext->packets_op) &&
- 		      ip_set_match_counter(ip_set_get_bytes(counter),
- 				mext->bytes, mext->bytes_op)))
- 			return false;
--		ip_set_update_counter(counter, ext, flags);
- 	}
- 	if (SET_WITH_SKBINFO(set))
- 		ip_set_get_skbinfo(ext_skbinfo(data, set),
+ 	writel(enable, priv->regs + PRIORITY_BASE + d->hwirq * PRIORITY_PER_ID);
+ 	for_each_cpu(cpu, mask) {
+@@ -115,7 +115,7 @@ static void plic_irq_unmask(struct irq_data *d)
+ {
+ 	struct cpumask amask;
+ 	unsigned int cpu;
+-	struct plic_priv *priv = irq_get_chip_data(d->irq);
++	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
+ 
+ 	cpumask_and(&amask, &priv->lmask, cpu_online_mask);
+ 	cpu = cpumask_any_and(irq_data_get_affinity_mask(d),
+@@ -127,7 +127,7 @@ static void plic_irq_unmask(struct irq_data *d)
+ 
+ static void plic_irq_mask(struct irq_data *d)
+ {
+-	struct plic_priv *priv = irq_get_chip_data(d->irq);
++	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
+ 
+ 	plic_irq_toggle(&priv->lmask, d, 0);
+ }
+@@ -138,7 +138,7 @@ static int plic_set_affinity(struct irq_data *d,
+ {
+ 	unsigned int cpu;
+ 	struct cpumask amask;
+-	struct plic_priv *priv = irq_get_chip_data(d->irq);
++	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
+ 
+ 	cpumask_and(&amask, &priv->lmask, mask_val);
+ 
 -- 
 2.27.0
 
