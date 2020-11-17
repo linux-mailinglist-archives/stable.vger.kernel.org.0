@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AF42B65E0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D87A2B63FF
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730702AbgKQN6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:58:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
+        id S1733123AbgKQNnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:43:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729771AbgKQNVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:51 -0500
+        id S2387421AbgKQNmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FEE32464E;
-        Tue, 17 Nov 2020 13:21:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A77206A5;
+        Tue, 17 Nov 2020 13:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619310;
-        bh=yqHezGp2K5VIdKSu1R5xqEoOp9qfb0OsKkdIQoDQsIE=;
+        s=default; t=1605620542;
+        bh=XONCNc+kiJcQmu1pa2kQmSO0UV5T3k2+PmC5CtMgIC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYwyZY7zMcCcD9eOJ6MVT/Y+eaOUheMa8SqLN3q3EQ7wtrYYTgC1c+oCOBGcMsDAJ
-         RqMxJOCv0kS+B8nFxglbrO0uJzLhZpf4pkE3QUutzaVeMmvg0ENEUNvjje0m3aRRIt
-         z2Z3EvJEfUcwpBesruY6HcVifZLPNXaH2iLyNzQc=
+        b=uiTYtJBO3lvGiAVYfemO+3iSrffzQ6QzOpQFJOEKkgKekBHKh8Kyl98ah8HeECowR
+         RO3Otpm7acCCxVLujHWv43r+0h8A8XxXGWySVt2+WwM+EVgm7xjpPoe/+Jg60nnff0
+         Zj7Sb4H91hODtC43TAkbD5MyFFhuyg1jD8kY85Xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-        Mike Rapoport <rppt@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Fabian Frederick <fabf@skynet.be>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 098/101] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.9 225/255] mmc: sdhci-of-esdhc: Handle pulse width detection erratum for more SoCs
 Date:   Tue, 17 Nov 2020 14:06:05 +0100
-Message-Id: <20201117122117.909452999@linuxfoundation.org>
+Message-Id: <20201117122149.886817025@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,87 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Yangbo Lu <yangbo.lu@nxp.com>
 
-commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
+commit 71b053276a87ddfa40c8f236315d81543219bfb9 upstream.
 
-Patch series "fix parsing of reboot= cmdline", v3.
+Apply erratum workaround of unreliable pulse width detection to
+more affected platforms (LX2160A Rev2.0 and LS1028A Rev1.0).
 
-The parsing of the reboot= cmdline has two major errors:
-
- - a missing bound check can crash the system on reboot
-
- - parsing of the cpu number only works if specified last
-
-Fix both.
-
-This patch (of 2):
-
-This reverts commit 616feab753972b97.
-
-kstrtoint() and simple_strtoul() have a subtle difference which makes
-them non interchangeable: if a non digit character is found amid the
-parsing, the former will return an error, while the latter will just
-stop parsing, e.g.  simple_strtoul("123xyx") = 123.
-
-The kernel cmdline reboot= argument allows to specify the CPU used for
-rebooting, with the syntax `s####` among the other flags, e.g.
-"reboot=warm,s31,force", so if this flag is not the last given, it's
-silently ignored as well as the subsequent ones.
-
-Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Robin Holt <robinmholt@gmail.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[sudip: use reboot_mode instead of mode]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Fixes: 48e304cc1970 ("mmc: sdhci-of-esdhc: workaround for unreliable pulse width detection")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201110071314.3868-1-yangbo.lu@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/reboot.c |   21 +++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -539,22 +539,15 @@ static int __init reboot_setup(char *str
- 			break;
+---
+ drivers/mmc/host/sdhci-of-esdhc.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -1324,6 +1324,8 @@ static struct soc_device_attribute soc_f
  
- 		case 's':
--		{
--			int rc;
--
--			if (isdigit(*(str+1))) {
--				rc = kstrtoint(str+1, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else if (str[1] == 'm' && str[2] == 'p' &&
--				   isdigit(*(str+3))) {
--				rc = kstrtoint(str+3, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--			} else
-+			if (isdigit(*(str+1)))
-+				reboot_cpu = simple_strtoul(str+1, NULL, 0);
-+			else if (str[1] == 'm' && str[2] == 'p' &&
-+							isdigit(*(str+3)))
-+				reboot_cpu = simple_strtoul(str+3, NULL, 0);
-+			else
- 				reboot_mode = REBOOT_SOFT;
- 			break;
--		}
-+
- 		case 'g':
- 			reboot_mode = REBOOT_GPIO;
- 			break;
+ static struct soc_device_attribute soc_unreliable_pulse_detection[] = {
+ 	{ .family = "QorIQ LX2160A", .revision = "1.0", },
++	{ .family = "QorIQ LX2160A", .revision = "2.0", },
++	{ .family = "QorIQ LS1028A", .revision = "1.0", },
+ 	{ },
+ };
+ 
 
 
