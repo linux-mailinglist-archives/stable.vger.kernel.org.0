@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 606222B613D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D79332B61B6
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730523AbgKQNRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:17:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49332 "EHLO mail.kernel.org"
+        id S1730279AbgKQNVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730331AbgKQNRL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:11 -0500
+        id S1729547AbgKQNV3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CDA821734;
-        Tue, 17 Nov 2020 13:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F804246AA;
+        Tue, 17 Nov 2020 13:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619030;
-        bh=1ei5hvYYh0J7ib1lLGCSVXe659qGcmv8JcTQoiDUDss=;
+        s=default; t=1605619289;
+        bh=dbXJ0Zy+kmRpVXWfClIgbeagYJ/fXBJ+8uR2hhV8kV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2hsHPD0YmZkLdZ67+NBFCymWuLyg72UQj/se7ChAeAhXQ7ykHcyY/AY+EaYfmG5x
-         FOClJUv2/24XpSBmCTVXE6mDU27rDwr8Wc8ccgpAavUXcioCzm5fbk7/upFYNqy/qJ
-         a5J0q/6e5y2yNdSYAcPkeyeqtdqHAxwuZls2CcVc=
+        b=Y+tHc/ckMPTO5D35W0rO606ALIMTglIuV0d1fq9srhhkFTEnBI80NvJ4uez3eCG7I
+         7emfmlwA2iAr5Tc3tCejOyTsvZvT3+A2E83iqC4NhqijbS63bOpXJPLVlZ1TSEN6G0
+         fiBUpjVtTGDMJuEKVUBp9MUQZYt6RVGCWvpOjKd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Wei Liu <wl@xen.org>
-Subject: [PATCH 4.14 72/85] xen/events: add a new "late EOI" evtchn framework
+        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 074/101] ocfs2: initialize ip_next_orphan
 Date:   Tue, 17 Nov 2020 14:05:41 +0100
-Message-Id: <20201117122114.567671512@linuxfoundation.org>
+Message-Id: <20201117122116.721172863@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,342 +49,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Wengang Wang <wen.gang.wang@oracle.com>
 
-commit 54c9de89895e0a36047fcc4ae754ea5b8655fb9d upstream.
+commit f5785283dd64867a711ca1fb1f5bb172f252ecdf upstream.
 
-In order to avoid tight event channel related IRQ loops add a new
-framework of "late EOI" handling: the IRQ the event channel is bound
-to will be masked until the event has been handled and the related
-driver is capable to handle another event. The driver is responsible
-for unmasking the event channel via the new function xen_irq_lateeoi().
+Though problem if found on a lower 4.1.12 kernel, I think upstream has
+same issue.
 
-This is similar to binding an event channel to a threaded IRQ, but
-without having to structure the driver accordingly.
+In one node in the cluster, there is the following callback trace:
 
-In order to support a future special handling in case a rogue guest
-is sending lots of unsolicited events, add a flag to xen_irq_lateeoi()
-which can be set by the caller to indicate the event was a spurious
-one.
+   # cat /proc/21473/stack
+   __ocfs2_cluster_lock.isra.36+0x336/0x9e0 [ocfs2]
+   ocfs2_inode_lock_full_nested+0x121/0x520 [ocfs2]
+   ocfs2_evict_inode+0x152/0x820 [ocfs2]
+   evict+0xae/0x1a0
+   iput+0x1c6/0x230
+   ocfs2_orphan_filldir+0x5d/0x100 [ocfs2]
+   ocfs2_dir_foreach_blk+0x490/0x4f0 [ocfs2]
+   ocfs2_dir_foreach+0x29/0x30 [ocfs2]
+   ocfs2_recover_orphans+0x1b6/0x9a0 [ocfs2]
+   ocfs2_complete_recovery+0x1de/0x5c0 [ocfs2]
+   process_one_work+0x169/0x4a0
+   worker_thread+0x5b/0x560
+   kthread+0xcb/0xf0
+   ret_from_fork+0x61/0x90
 
-This is part of XSA-332.
+The above stack is not reasonable, the final iput shouldn't happen in
+ocfs2_orphan_filldir() function.  Looking at the code,
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Wei Liu <wl@xen.org>
+  2067         /* Skip inodes which are already added to recover list, since dio may
+  2068          * happen concurrently with unlink/rename */
+  2069         if (OCFS2_I(iter)->ip_next_orphan) {
+  2070                 iput(iter);
+  2071                 return 0;
+  2072         }
+  2073
+
+The logic thinks the inode is already in recover list on seeing
+ip_next_orphan is non-NULL, so it skip this inode after dropping a
+reference which incremented in ocfs2_iget().
+
+While, if the inode is already in recover list, it should have another
+reference and the iput() at line 2070 should not be the final iput
+(dropping the last reference).  So I don't think the inode is really in
+the recover list (no vmcore to confirm).
+
+Note that ocfs2_queue_orphans(), though not shown up in the call back
+trace, is holding cluster lock on the orphan directory when looking up
+for unlinked inodes.  The on disk inode eviction could involve a lot of
+IOs which may need long time to finish.  That means this node could hold
+the cluster lock for very long time, that can lead to the lock requests
+(from other nodes) to the orhpan directory hang for long time.
+
+Looking at more on ip_next_orphan, I found it's not initialized when
+allocating a new ocfs2_inode_info structure.
+
+This causes te reflink operations from some nodes hang for very long
+time waiting for the cluster lock on the orphan directory.
+
+Fix: initialize ip_next_orphan as NULL.
+
+Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201109171746.27884-1-wen.gang.wang@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/events/events_base.c |  151 ++++++++++++++++++++++++++++++++++-----
- include/xen/events.h             |   29 ++++++-
- 2 files changed, 159 insertions(+), 21 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -111,6 +111,7 @@ static bool (*pirq_needs_eoi)(unsigned i
- static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
+---
+ fs/ocfs2/super.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1747,6 +1747,7 @@ static void ocfs2_inode_init_once(void *
  
- static struct irq_chip xen_dynamic_chip;
-+static struct irq_chip xen_lateeoi_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
- static void enable_dynirq(struct irq_data *data);
-@@ -395,6 +396,33 @@ void notify_remote_via_irq(int irq)
- }
- EXPORT_SYMBOL_GPL(notify_remote_via_irq);
+ 	oi->ip_blkno = 0ULL;
+ 	oi->ip_clusters = 0;
++	oi->ip_next_orphan = NULL;
  
-+static void xen_irq_lateeoi_locked(struct irq_info *info)
-+{
-+	evtchn_port_t evtchn;
-+
-+	evtchn = info->evtchn;
-+	if (!VALID_EVTCHN(evtchn))
-+		return;
-+
-+	unmask_evtchn(evtchn);
-+}
-+
-+void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
-+{
-+	struct irq_info *info;
-+	unsigned long flags;
-+
-+	read_lock_irqsave(&evtchn_rwlock, flags);
-+
-+	info = info_for_irq(irq);
-+
-+	if (info)
-+		xen_irq_lateeoi_locked(info);
-+
-+	read_unlock_irqrestore(&evtchn_rwlock, flags);
-+}
-+EXPORT_SYMBOL_GPL(xen_irq_lateeoi);
-+
- static void xen_irq_init(unsigned irq)
- {
- 	struct irq_info *info;
-@@ -866,7 +894,7 @@ int xen_pirq_from_irq(unsigned irq)
- }
- EXPORT_SYMBOL_GPL(xen_pirq_from_irq);
+ 	ocfs2_resv_init_once(&oi->ip_la_data_resv);
  
--int bind_evtchn_to_irq(unsigned int evtchn)
-+static int bind_evtchn_to_irq_chip(evtchn_port_t evtchn, struct irq_chip *chip)
- {
- 	int irq;
- 	int ret;
-@@ -883,7 +911,7 @@ int bind_evtchn_to_irq(unsigned int evtc
- 		if (irq < 0)
- 			goto out;
- 
--		irq_set_chip_and_handler_name(irq, &xen_dynamic_chip,
-+		irq_set_chip_and_handler_name(irq, chip,
- 					      handle_edge_irq, "event");
- 
- 		ret = xen_irq_info_evtchn_setup(irq, evtchn);
-@@ -904,8 +932,19 @@ out:
- 
- 	return irq;
- }
-+
-+int bind_evtchn_to_irq(evtchn_port_t evtchn)
-+{
-+	return bind_evtchn_to_irq_chip(evtchn, &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
- 
-+int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn)
-+{
-+	return bind_evtchn_to_irq_chip(evtchn, &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irq_lateeoi);
-+
- static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
- {
- 	struct evtchn_bind_ipi bind_ipi;
-@@ -947,8 +986,9 @@ static int bind_ipi_to_irq(unsigned int
- 	return irq;
- }
- 
--int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
--				   unsigned int remote_port)
-+static int bind_interdomain_evtchn_to_irq_chip(unsigned int remote_domain,
-+					       evtchn_port_t remote_port,
-+					       struct irq_chip *chip)
- {
- 	struct evtchn_bind_interdomain bind_interdomain;
- 	int err;
-@@ -959,10 +999,26 @@ int bind_interdomain_evtchn_to_irq(unsig
- 	err = HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain,
- 					  &bind_interdomain);
- 
--	return err ? : bind_evtchn_to_irq(bind_interdomain.local_port);
-+	return err ? : bind_evtchn_to_irq_chip(bind_interdomain.local_port,
-+					       chip);
-+}
-+
-+int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
-+				   evtchn_port_t remote_port)
-+{
-+	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						   &xen_dynamic_chip);
- }
- EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq);
- 
-+int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
-+					   evtchn_port_t remote_port)
-+{
-+	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						   &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq_lateeoi);
-+
- static int find_virq(unsigned int virq, unsigned int cpu)
- {
- 	struct evtchn_status status;
-@@ -1058,14 +1114,15 @@ static void unbind_from_irq(unsigned int
- 	mutex_unlock(&irq_mapping_update_lock);
- }
- 
--int bind_evtchn_to_irqhandler(unsigned int evtchn,
--			      irq_handler_t handler,
--			      unsigned long irqflags,
--			      const char *devname, void *dev_id)
-+static int bind_evtchn_to_irqhandler_chip(evtchn_port_t evtchn,
-+					  irq_handler_t handler,
-+					  unsigned long irqflags,
-+					  const char *devname, void *dev_id,
-+					  struct irq_chip *chip)
- {
- 	int irq, retval;
- 
--	irq = bind_evtchn_to_irq(evtchn);
-+	irq = bind_evtchn_to_irq_chip(evtchn, chip);
- 	if (irq < 0)
- 		return irq;
- 	retval = request_irq(irq, handler, irqflags, devname, dev_id);
-@@ -1076,18 +1133,38 @@ int bind_evtchn_to_irqhandler(unsigned i
- 
- 	return irq;
- }
-+
-+int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
-+			      irq_handler_t handler,
-+			      unsigned long irqflags,
-+			      const char *devname, void *dev_id)
-+{
-+	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
-+					      devname, dev_id,
-+					      &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
- 
--int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
--					  unsigned int remote_port,
--					  irq_handler_t handler,
--					  unsigned long irqflags,
--					  const char *devname,
--					  void *dev_id)
-+int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
-+				      irq_handler_t handler,
-+				      unsigned long irqflags,
-+				      const char *devname, void *dev_id)
-+{
-+	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
-+					      devname, dev_id,
-+					      &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler_lateeoi);
-+
-+static int bind_interdomain_evtchn_to_irqhandler_chip(
-+		unsigned int remote_domain, evtchn_port_t remote_port,
-+		irq_handler_t handler, unsigned long irqflags,
-+		const char *devname, void *dev_id, struct irq_chip *chip)
- {
- 	int irq, retval;
- 
--	irq = bind_interdomain_evtchn_to_irq(remote_domain, remote_port);
-+	irq = bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
-+						  chip);
- 	if (irq < 0)
- 		return irq;
- 
-@@ -1099,8 +1176,33 @@ int bind_interdomain_evtchn_to_irqhandle
- 
- 	return irq;
- }
-+
-+int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
-+					  evtchn_port_t remote_port,
-+					  irq_handler_t handler,
-+					  unsigned long irqflags,
-+					  const char *devname,
-+					  void *dev_id)
-+{
-+	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
-+				remote_port, handler, irqflags, devname,
-+				dev_id, &xen_dynamic_chip);
-+}
- EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler);
- 
-+int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
-+						  evtchn_port_t remote_port,
-+						  irq_handler_t handler,
-+						  unsigned long irqflags,
-+						  const char *devname,
-+						  void *dev_id)
-+{
-+	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
-+				remote_port, handler, irqflags, devname,
-+				dev_id, &xen_lateeoi_chip);
-+}
-+EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler_lateeoi);
-+
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
- 			    irq_handler_t handler,
- 			    unsigned long irqflags, const char *devname, void *dev_id)
-@@ -1641,6 +1743,21 @@ static struct irq_chip xen_dynamic_chip
- 	.irq_mask_ack		= mask_ack_dynirq,
- 
- 	.irq_set_affinity	= set_affinity_irq,
-+	.irq_retrigger		= retrigger_dynirq,
-+};
-+
-+static struct irq_chip xen_lateeoi_chip __read_mostly = {
-+	/* The chip name needs to contain "xen-dyn" for irqbalance to work. */
-+	.name			= "xen-dyn-lateeoi",
-+
-+	.irq_disable		= disable_dynirq,
-+	.irq_mask		= disable_dynirq,
-+	.irq_unmask		= enable_dynirq,
-+
-+	.irq_ack		= mask_ack_dynirq,
-+	.irq_mask_ack		= mask_ack_dynirq,
-+
-+	.irq_set_affinity	= set_affinity_irq,
- 	.irq_retrigger		= retrigger_dynirq,
- };
- 
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -14,11 +14,16 @@
- 
- unsigned xen_evtchn_nr_channels(void);
- 
--int bind_evtchn_to_irq(unsigned int evtchn);
--int bind_evtchn_to_irqhandler(unsigned int evtchn,
-+int bind_evtchn_to_irq(evtchn_port_t evtchn);
-+int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn);
-+int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
- 			      irq_handler_t handler,
- 			      unsigned long irqflags, const char *devname,
- 			      void *dev_id);
-+int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
-+				      irq_handler_t handler,
-+				      unsigned long irqflags, const char *devname,
-+				      void *dev_id);
- int bind_virq_to_irq(unsigned int virq, unsigned int cpu, bool percpu);
- int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
- 			    irq_handler_t handler,
-@@ -31,13 +36,21 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 			   const char *devname,
- 			   void *dev_id);
- int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
--				   unsigned int remote_port);
-+				   evtchn_port_t remote_port);
-+int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
-+					   evtchn_port_t remote_port);
- int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
--					  unsigned int remote_port,
-+					  evtchn_port_t remote_port,
- 					  irq_handler_t handler,
- 					  unsigned long irqflags,
- 					  const char *devname,
- 					  void *dev_id);
-+int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
-+						  evtchn_port_t remote_port,
-+						  irq_handler_t handler,
-+						  unsigned long irqflags,
-+						  const char *devname,
-+						  void *dev_id);
- 
- /*
-  * Common unbind function for all event sources. Takes IRQ to unbind from.
-@@ -46,6 +59,14 @@ int bind_interdomain_evtchn_to_irqhandle
-  */
- void unbind_from_irqhandler(unsigned int irq, void *dev_id);
- 
-+/*
-+ * Send late EOI for an IRQ bound to an event channel via one of the *_lateeoi
-+ * functions above.
-+ */
-+void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags);
-+/* Signal an event was spurious, i.e. there was no action resulting from it. */
-+#define XEN_EOI_FLAG_SPURIOUS	0x00000001
-+
- #define XEN_IRQ_PRIORITY_MAX     EVTCHN_FIFO_PRIORITY_MAX
- #define XEN_IRQ_PRIORITY_DEFAULT EVTCHN_FIFO_PRIORITY_DEFAULT
- #define XEN_IRQ_PRIORITY_MIN     EVTCHN_FIFO_PRIORITY_MIN
 
 
