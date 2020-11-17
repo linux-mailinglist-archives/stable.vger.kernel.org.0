@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CBD2B64EE
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCCD2B64ED
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731769AbgKQNbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:31:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
+        id S1732217AbgKQNby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:31:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732193AbgKQNbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:31:47 -0500
+        id S1731609AbgKQNbu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:31:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CA162078E;
-        Tue, 17 Nov 2020 13:31:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36A0D207BC;
+        Tue, 17 Nov 2020 13:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619906;
-        bh=fLP/TmWcuJGS2zWkd6vJZ2o9VAbP5C2PCdoRjGqmOfE=;
+        s=default; t=1605619908;
+        bh=Mt69135e1oi6Zy6gjvQ/+941SEt9u4XvZhiHgz0TAtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBFK31xq1GsErWIyJNsYSdzsEp+2LcXnLDEYx/wA4s3YkBBRP1vcTQtu3Z5C72+ei
-         WnwczERs2cCxOS3rkY55MHqySW9C/30PLiR7bK+Wdw32exAy5+J1eHBha8bTx9RfcL
-         YMSe6q9/LwL4rCyXxLcsZz8kOttrccf4bgF269nM=
+        b=aBgzPuNfNKWTt6kS88V+y/SYKtUynxyK3QB7eXxzVzjGy2779ywu7LEEg0miYGoW/
+         zkldwqpNFPjlkTZ40sWa9mHhbygGf4nKmm6WpBTDyAvGEeSuGTjizTwihu9pusYqrI
+         AbmPiYbdm1aqvCOUD+t7s8wAN+ezwhEjMPIQEtek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ian Pilcher <arequipeno@gmail.com>,
+        Justin Gatzen <justin.gatzen@gmail.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 043/255] afs: Fix incorrect freeing of the ACL passed to the YFS ACL store op
-Date:   Tue, 17 Nov 2020 14:03:03 +0100
-Message-Id: <20201117122141.047754990@linuxfoundation.org>
+Subject: [PATCH 5.9 044/255] vfio/pci: Implement ioeventfd thread handler for contended memory lock
+Date:   Tue, 17 Nov 2020 14:03:04 +0100
+Message-Id: <20201117122141.095356131@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,68 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit f4c79144edd8a49ffca8fa737a31d606be742a34 ]
+[ Upstream commit 38565c93c8a1306dc5f245572a545fbea908ac41 ]
 
-The cleanup for the yfs_store_opaque_acl2_operation calls the wrong
-function to destroy the ACL content buffer.  It's an afs_acl struct, not
-a yfs_acl struct - and the free function for latter may pass invalid
-pointers to kfree().
+The ioeventfd is called under spinlock with interrupts disabled,
+therefore if the memory lock is contended defer code that might
+sleep to a thread context.
 
-Fix this by using the afs_acl_put() function.  The yfs_acl_put()
-function is then no longer used and can be removed.
-
-	general protection fault, probably for non-canonical address 0x7ebde00000000: 0000 [#1] SMP PTI
-	...
-	RIP: 0010:compound_head+0x0/0x11
-	...
-	Call Trace:
-	 virt_to_cache+0x8/0x51
-	 kfree+0x5d/0x79
-	 yfs_free_opaque_acl+0x16/0x29
-	 afs_put_operation+0x60/0x114
-	 __vfs_setxattr+0x67/0x72
-	 __vfs_setxattr_noperm+0x66/0xe9
-	 vfs_setxattr+0x67/0xce
-	 setxattr+0x14e/0x184
-	 __do_sys_fsetxattr+0x66/0x8f
-	 do_syscall_64+0x2d/0x3a
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: e49c7b2f6de7 ("afs: Build an abstraction around an "operation" concept")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: bc93b9ae0151 ("vfio-pci: Avoid recursive read-lock usage")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209253#c1
+Reported-by: Ian Pilcher <arequipeno@gmail.com>
+Tested-by: Ian Pilcher <arequipeno@gmail.com>
+Tested-by: Justin Gatzen <justin.gatzen@gmail.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/xattr.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/vfio/pci/vfio_pci_rdwr.c | 43 ++++++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 8 deletions(-)
 
-diff --git a/fs/afs/xattr.c b/fs/afs/xattr.c
-index 38884d6c57cdc..95c573dcda116 100644
---- a/fs/afs/xattr.c
-+++ b/fs/afs/xattr.c
-@@ -148,11 +148,6 @@ static const struct xattr_handler afs_xattr_afs_acl_handler = {
- 	.set    = afs_xattr_set_acl,
- };
+diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+index 9e353c484ace2..a0b5fc8e46f4d 100644
+--- a/drivers/vfio/pci/vfio_pci_rdwr.c
++++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+@@ -356,34 +356,60 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
+ 	return done;
+ }
  
--static void yfs_acl_put(struct afs_operation *op)
--{
--	yfs_free_opaque_acl(op->yacl);
--}
+-static int vfio_pci_ioeventfd_handler(void *opaque, void *unused)
++static void vfio_pci_ioeventfd_do_write(struct vfio_pci_ioeventfd *ioeventfd,
++					bool test_mem)
+ {
+-	struct vfio_pci_ioeventfd *ioeventfd = opaque;
 -
- static const struct afs_operation_ops yfs_fetch_opaque_acl_operation = {
- 	.issue_yfs_rpc	= yfs_fs_fetch_opaque_acl,
- 	.success	= afs_acl_success,
-@@ -246,7 +241,7 @@ error:
- static const struct afs_operation_ops yfs_store_opaque_acl2_operation = {
- 	.issue_yfs_rpc	= yfs_fs_store_opaque_acl2,
- 	.success	= afs_acl_success,
--	.put		= yfs_acl_put,
-+	.put		= afs_acl_put,
- };
+ 	switch (ioeventfd->count) {
+ 	case 1:
+-		vfio_pci_iowrite8(ioeventfd->vdev, ioeventfd->test_mem,
++		vfio_pci_iowrite8(ioeventfd->vdev, test_mem,
+ 				  ioeventfd->data, ioeventfd->addr);
+ 		break;
+ 	case 2:
+-		vfio_pci_iowrite16(ioeventfd->vdev, ioeventfd->test_mem,
++		vfio_pci_iowrite16(ioeventfd->vdev, test_mem,
+ 				   ioeventfd->data, ioeventfd->addr);
+ 		break;
+ 	case 4:
+-		vfio_pci_iowrite32(ioeventfd->vdev, ioeventfd->test_mem,
++		vfio_pci_iowrite32(ioeventfd->vdev, test_mem,
+ 				   ioeventfd->data, ioeventfd->addr);
+ 		break;
+ #ifdef iowrite64
+ 	case 8:
+-		vfio_pci_iowrite64(ioeventfd->vdev, ioeventfd->test_mem,
++		vfio_pci_iowrite64(ioeventfd->vdev, test_mem,
+ 				   ioeventfd->data, ioeventfd->addr);
+ 		break;
+ #endif
+ 	}
++}
++
++static int vfio_pci_ioeventfd_handler(void *opaque, void *unused)
++{
++	struct vfio_pci_ioeventfd *ioeventfd = opaque;
++	struct vfio_pci_device *vdev = ioeventfd->vdev;
++
++	if (ioeventfd->test_mem) {
++		if (!down_read_trylock(&vdev->memory_lock))
++			return 1; /* Lock contended, use thread */
++		if (!__vfio_pci_memory_enabled(vdev)) {
++			up_read(&vdev->memory_lock);
++			return 0;
++		}
++	}
++
++	vfio_pci_ioeventfd_do_write(ioeventfd, false);
++
++	if (ioeventfd->test_mem)
++		up_read(&vdev->memory_lock);
  
- /*
+ 	return 0;
+ }
+ 
++static void vfio_pci_ioeventfd_thread(void *opaque, void *unused)
++{
++	struct vfio_pci_ioeventfd *ioeventfd = opaque;
++
++	vfio_pci_ioeventfd_do_write(ioeventfd, ioeventfd->test_mem);
++}
++
+ long vfio_pci_ioeventfd(struct vfio_pci_device *vdev, loff_t offset,
+ 			uint64_t data, int count, int fd)
+ {
+@@ -457,7 +483,8 @@ long vfio_pci_ioeventfd(struct vfio_pci_device *vdev, loff_t offset,
+ 	ioeventfd->test_mem = vdev->pdev->resource[bar].flags & IORESOURCE_MEM;
+ 
+ 	ret = vfio_virqfd_enable(ioeventfd, vfio_pci_ioeventfd_handler,
+-				 NULL, NULL, &ioeventfd->virqfd, fd);
++				 vfio_pci_ioeventfd_thread, NULL,
++				 &ioeventfd->virqfd, fd);
+ 	if (ret) {
+ 		kfree(ioeventfd);
+ 		goto out_unlock;
 -- 
 2.27.0
 
