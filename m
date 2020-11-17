@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E7B2B6600
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B956F2B6648
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731321AbgKQOAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:00:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48952 "EHLO mail.kernel.org"
+        id S1729896AbgKQNM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729221AbgKQNQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:53 -0500
+        id S1728692AbgKQNMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A9D2241A5;
-        Tue, 17 Nov 2020 13:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B1812225B;
+        Tue, 17 Nov 2020 13:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619012;
-        bh=sH4NVl1JYehCiLD5BPGU+ZvloVF/+5g8V5eNToulZNI=;
+        s=default; t=1605618774;
+        bh=KZM7/r0snN9vNCEHE1q5UXQbTZ9BLsIDzvWFPGTfZa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRYxdSU3HqsIuzisqkcPlcY1INHyJVfQp0kWy0pPU0Xi+ix3CvIY84bNdbw9FYI0P
-         8VO0pG/FXAnDD4+bks6strnoW3pHXpn7CsoHvNtKAwiKz61lG+TcwB3XNRFoIVazWq
-         kxmg7HSd3Dr6w8GaFRsiQ2B7l/fRdgphdekF3LkI=
+        b=dW9nhi0yFN1f9XimNGZ1pJet82J6TpMeGGv8yiWL6SDkTxaH6qTBuxJVo34V8KymF
+         jyqsxqlarpvl//wWV1B6FtsEWA3wXZgJaZ7+r3r+Vcbk5s5ezlTl92EyMxn6EMKmbY
+         PCQKUCkpFc/khqVN1zrXIU6HFkrsABOw0sBVVAh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
-        miklos@szeredi.hu, namhyung@kernel.org, songliubraving@fb.com,
-        Ingo Molnar <mingo@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 67/85] perf/core: Fix crash when using HW tracing kernel filters
-Date:   Tue, 17 Nov 2020 14:05:36 +0100
-Message-Id: <20201117122114.313330905@linuxfoundation.org>
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
+Subject: [PATCH 4.9 71/78] xen/events: use a common cpu hotplug hook for event channels
+Date:   Tue, 17 Nov 2020 14:05:37 +0100
+Message-Id: <20201117122112.577584263@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +42,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 7f635ff187ab6be0b350b3ec06791e376af238ab upstream
+commit 7beb290caa2adb0a399e735a1e175db9aae0523a upstream.
 
-In function perf_event_parse_addr_filter(), the path::dentry of each struct
-perf_addr_filter is left unassigned (as it should be) when the pattern
-being parsed is related to kernel space.  But in function
-perf_addr_filter_match() the same dentries are given to d_inode() where
-the value is not expected to be NULL, resulting in the following splat:
+Today only fifo event channels have a cpu hotplug callback. In order
+to prepare for more percpu (de)init work move that callback into
+events_base.c and add percpu_init() and percpu_deinit() hooks to
+struct evtchn_ops.
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000058
-  pc : perf_event_mmap+0x2fc/0x5a0
-  lr : perf_event_mmap+0x2c8/0x5a0
-  Process uname (pid: 2860, stack limit = 0x000000001cbcca37)
-  Call trace:
-   perf_event_mmap+0x2fc/0x5a0
-   mmap_region+0x124/0x570
-   do_mmap+0x344/0x4f8
-   vm_mmap_pgoff+0xe4/0x110
-   vm_mmap+0x2c/0x40
-   elf_map+0x60/0x108
-   load_elf_binary+0x450/0x12c4
-   search_binary_handler+0x90/0x290
-   __do_execve_file.isra.13+0x6e4/0x858
-   sys_execve+0x3c/0x50
-   el0_svc_naked+0x30/0x34
+This is part of XSA-332.
 
-This patch is fixing the problem by introducing a new check in function
-perf_addr_filter_match() to see if the filter's dentry is NULL.
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: miklos@szeredi.hu
-Cc: namhyung@kernel.org
-Cc: songliubraving@fb.com
-Fixes: 9511bce9fe8e ("perf/core: Fix bad use of igrab()")
-Link: http://lkml.kernel.org/r/1531782831-1186-1-git-send-email-mathieu.poirier@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/xen/events/events_base.c     |   25 ++++++++++++++++++++++
+ drivers/xen/events/events_fifo.c     |   39 +++++++++++++++++------------------
+ drivers/xen/events/events_internal.h |    3 ++
+ 3 files changed, 47 insertions(+), 20 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -7124,6 +7124,10 @@ static bool perf_addr_filter_match(struc
- 				     struct file *file, unsigned long offset,
- 				     unsigned long size)
- {
-+	/* d_inode(NULL) won't be equal to any mapped user-space file */
-+	if (!filter->path.dentry)
-+		return false;
-+
- 	if (d_inode(filter->path.dentry) != file_inode(file))
- 		return false;
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -33,6 +33,7 @@
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
+ #include <linux/spinlock.h>
++#include <linux/cpuhotplug.h>
  
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -1833,6 +1834,26 @@ void xen_callback_vector(void) {}
+ static bool fifo_events = true;
+ module_param(fifo_events, bool, 0);
+ 
++static int xen_evtchn_cpu_prepare(unsigned int cpu)
++{
++	int ret = 0;
++
++	if (evtchn_ops->percpu_init)
++		ret = evtchn_ops->percpu_init(cpu);
++
++	return ret;
++}
++
++static int xen_evtchn_cpu_dead(unsigned int cpu)
++{
++	int ret = 0;
++
++	if (evtchn_ops->percpu_deinit)
++		ret = evtchn_ops->percpu_deinit(cpu);
++
++	return ret;
++}
++
+ void __init xen_init_IRQ(void)
+ {
+ 	int ret = -EINVAL;
+@@ -1842,6 +1863,10 @@ void __init xen_init_IRQ(void)
+ 	if (ret < 0)
+ 		xen_evtchn_2l_init();
+ 
++	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
++				  "CPUHP_XEN_EVTCHN_PREPARE",
++				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
++
+ 	evtchn_to_irq = kcalloc(EVTCHN_ROW(xen_evtchn_max_channels()),
+ 				sizeof(*evtchn_to_irq), GFP_KERNEL);
+ 	BUG_ON(!evtchn_to_irq);
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -386,21 +386,6 @@ static void evtchn_fifo_resume(void)
+ 	event_array_pages = 0;
+ }
+ 
+-static const struct evtchn_ops evtchn_ops_fifo = {
+-	.max_channels      = evtchn_fifo_max_channels,
+-	.nr_channels       = evtchn_fifo_nr_channels,
+-	.setup             = evtchn_fifo_setup,
+-	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
+-	.clear_pending     = evtchn_fifo_clear_pending,
+-	.set_pending       = evtchn_fifo_set_pending,
+-	.is_pending        = evtchn_fifo_is_pending,
+-	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
+-	.mask              = evtchn_fifo_mask,
+-	.unmask            = evtchn_fifo_unmask,
+-	.handle_events     = evtchn_fifo_handle_events,
+-	.resume            = evtchn_fifo_resume,
+-};
+-
+ static int evtchn_fifo_alloc_control_block(unsigned cpu)
+ {
+ 	void *control_block = NULL;
+@@ -423,19 +408,36 @@ static int evtchn_fifo_alloc_control_blo
+ 	return ret;
+ }
+ 
+-static int xen_evtchn_cpu_prepare(unsigned int cpu)
++static int evtchn_fifo_percpu_init(unsigned int cpu)
+ {
+ 	if (!per_cpu(cpu_control_block, cpu))
+ 		return evtchn_fifo_alloc_control_block(cpu);
+ 	return 0;
+ }
+ 
+-static int xen_evtchn_cpu_dead(unsigned int cpu)
++static int evtchn_fifo_percpu_deinit(unsigned int cpu)
+ {
+ 	__evtchn_fifo_handle_events(cpu, true);
+ 	return 0;
+ }
+ 
++static const struct evtchn_ops evtchn_ops_fifo = {
++	.max_channels      = evtchn_fifo_max_channels,
++	.nr_channels       = evtchn_fifo_nr_channels,
++	.setup             = evtchn_fifo_setup,
++	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
++	.clear_pending     = evtchn_fifo_clear_pending,
++	.set_pending       = evtchn_fifo_set_pending,
++	.is_pending        = evtchn_fifo_is_pending,
++	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
++	.mask              = evtchn_fifo_mask,
++	.unmask            = evtchn_fifo_unmask,
++	.handle_events     = evtchn_fifo_handle_events,
++	.resume            = evtchn_fifo_resume,
++	.percpu_init       = evtchn_fifo_percpu_init,
++	.percpu_deinit     = evtchn_fifo_percpu_deinit,
++};
++
+ int __init xen_evtchn_fifo_init(void)
+ {
+ 	int cpu = get_cpu();
+@@ -449,9 +451,6 @@ int __init xen_evtchn_fifo_init(void)
+ 
+ 	evtchn_ops = &evtchn_ops_fifo;
+ 
+-	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
+-				  "CPUHP_XEN_EVTCHN_PREPARE",
+-				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
+ out:
+ 	put_cpu();
+ 	return ret;
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -71,6 +71,9 @@ struct evtchn_ops {
+ 
+ 	void (*handle_events)(unsigned cpu);
+ 	void (*resume)(void);
++
++	int (*percpu_init)(unsigned int cpu);
++	int (*percpu_deinit)(unsigned int cpu);
+ };
+ 
+ extern const struct evtchn_ops *evtchn_ops;
 
 
