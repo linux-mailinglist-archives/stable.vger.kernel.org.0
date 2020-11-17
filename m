@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B8B2B61DA
+	by mail.lfdr.de (Postfix) with ESMTP id EF8122B61DB
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731231AbgKQNXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:23:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57616 "EHLO mail.kernel.org"
+        id S1731248AbgKQNXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:23:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731228AbgKQNXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:23:02 -0500
+        id S1731193AbgKQNXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412CE20781;
-        Tue, 17 Nov 2020 13:23:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09B242463D;
+        Tue, 17 Nov 2020 13:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619381;
-        bh=xwxz8r5FtmajNpC87PJfKNuW9ZOvDS/QdVyOUkgyzgA=;
+        s=default; t=1605619384;
+        bh=J/OoGI3lhZzsJVrWdJRlf7V+GkrL+Pr584KccF1kmCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZtx0nOkvb955q7RUiHxxe4pd4S4CkxCWHK6pejFkT06SI13S+1t89NaQz+gMGFk6
-         SUk4poUxIC4a3vDbNt+BOWn7iDeS/GTThwPwhpv18c0sAdkU5xkJrqNcq/eDItqd+D
-         OTRIb+SgnNMNXb9F876UeOoSE/se0AduEnurQtxE=
+        b=yibHGKl7ICr0XUQCA/ipv1eyG2p44D+Q63bC8+G0cjRJ5RkKHtmwHjUS2qUui7GSU
+         U4G215STcQVft+JVwmFy0odLwkvrP6psvONPuOoUdJJkkfUszfAGFMLBpkjUjKQY7M
+         FQsydz6lyMBroXl2tR8gv3vjMwx38fgfyRbWsiYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Stanislav Ivanichkin <sivanichkin@yandex-team.ru>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 020/151] powerpc/eeh_cache: Fix a possible debugfs deadlock
-Date:   Tue, 17 Nov 2020 14:04:10 +0100
-Message-Id: <20201117122122.388656201@linuxfoundation.org>
+Subject: [PATCH 5.4 021/151] perf trace: Fix segfault when trying to trace events by cgroup
+Date:   Tue, 17 Nov 2020 14:04:11 +0100
+Message-Id: <20201117122122.437439911@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -44,84 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@redhat.com>
+From: Stanislav Ivanichkin <sivanichkin@yandex-team.ru>
 
-[ Upstream commit fd552e0542b4532483289cce48fdbd27b692984b ]
+[ Upstream commit a6293f36ac92ab513771a98efe486477be2f981f ]
 
-Lockdep complains that a possible deadlock below in
-eeh_addr_cache_show() because it is acquiring a lock with IRQ enabled,
-but eeh_addr_cache_insert_dev() needs to acquire the same lock with IRQ
-disabled. Let's just make eeh_addr_cache_show() acquire the lock with
-IRQ disabled as well.
+  # ./perf trace -e sched:sched_switch -G test -a sleep 1
+  perf: Segmentation fault
+  Obtained 11 stack frames.
+  ./perf(sighandler_dump_stack+0x43) [0x55cfdc636db3]
+  /lib/x86_64-linux-gnu/libc.so.6(+0x3efcf) [0x7fd23eecafcf]
+  ./perf(parse_cgroups+0x36) [0x55cfdc673f36]
+  ./perf(+0x3186ed) [0x55cfdc70d6ed]
+  ./perf(parse_options_subcommand+0x629) [0x55cfdc70e999]
+  ./perf(cmd_trace+0x9c2) [0x55cfdc5ad6d2]
+  ./perf(+0x1e8ae0) [0x55cfdc5ddae0]
+  ./perf(+0x1e8ded) [0x55cfdc5ddded]
+  ./perf(main+0x370) [0x55cfdc556f00]
+  /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xe6) [0x7fd23eeadb96]
+  ./perf(_start+0x29) [0x55cfdc557389]
+  Segmentation fault
+  #
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&pci_io_addr_cache_root.piar_lock);
-                                local_irq_disable();
-                                lock(&tp->lock);
-                                lock(&pci_io_addr_cache_root.piar_lock);
-   <Interrupt>
-     lock(&tp->lock);
+ It happens because "struct trace" in option->value is passed to the
+ parse_cgroups function instead of "struct evlist".
 
-  *** DEADLOCK ***
-
-  lock_acquire+0x140/0x5f0
-  _raw_spin_lock_irqsave+0x64/0xb0
-  eeh_addr_cache_insert_dev+0x48/0x390
-  eeh_probe_device+0xb8/0x1a0
-  pnv_pcibios_bus_add_device+0x3c/0x80
-  pcibios_bus_add_device+0x118/0x290
-  pci_bus_add_device+0x28/0xe0
-  pci_bus_add_devices+0x54/0xb0
-  pcibios_init+0xc4/0x124
-  do_one_initcall+0xac/0x528
-  kernel_init_freeable+0x35c/0x3fc
-  kernel_init+0x24/0x148
-  ret_from_kernel_thread+0x5c/0x80
-
-  lock_acquire+0x140/0x5f0
-  _raw_spin_lock+0x4c/0x70
-  eeh_addr_cache_show+0x38/0x110
-  seq_read+0x1a0/0x660
-  vfs_read+0xc8/0x1f0
-  ksys_read+0x74/0x130
-  system_call_exception+0xf8/0x1d0
-  system_call_common+0xe8/0x218
-
-Fixes: 5ca85ae6318d ("powerpc/eeh_cache: Add a way to dump the EEH address cache")
-Signed-off-by: Qian Cai <cai@redhat.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201028152717.8967-1-cai@redhat.com
+Fixes: 9ea42ba4411ac ("perf trace: Support setting cgroups as targets")
+Signed-off-by: Stanislav Ivanichkin <sivanichkin@yandex-team.ru>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Link: http://lore.kernel.org/lkml/20201027094357.94881-1-sivanichkin@yandex-team.ru
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_cache.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/perf/builtin-trace.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/kernel/eeh_cache.c b/arch/powerpc/kernel/eeh_cache.c
-index cf11277ebd020..000ebb5a6fb3c 100644
---- a/arch/powerpc/kernel/eeh_cache.c
-+++ b/arch/powerpc/kernel/eeh_cache.c
-@@ -272,8 +272,9 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
- {
- 	struct pci_io_addr_range *piar;
- 	struct rb_node *n;
-+	unsigned long flags;
+diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+index bb5130d021554..a5201de1a191d 100644
+--- a/tools/perf/builtin-trace.c
++++ b/tools/perf/builtin-trace.c
+@@ -3979,9 +3979,9 @@ do_concat:
+ 	err = 0;
  
--	spin_lock(&pci_io_addr_cache_root.piar_lock);
-+	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
- 	for (n = rb_first(&pci_io_addr_cache_root.rb_root); n; n = rb_next(n)) {
- 		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
- 
-@@ -281,7 +282,7 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
- 		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem",
- 		       &piar->addr_lo, &piar->addr_hi, pci_name(piar->pcidev));
+ 	if (lists[0]) {
+-		struct option o = OPT_CALLBACK('e', "event", &trace->evlist, "event",
+-					       "event selector. use 'perf list' to list available events",
+-					       parse_events_option);
++		struct option o = {
++			.value = &trace->evlist,
++		};
+ 		err = parse_events_option(&o, lists[0], 0);
  	}
--	spin_unlock(&pci_io_addr_cache_root.piar_lock);
-+	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
+ out:
+@@ -3995,9 +3995,12 @@ static int trace__parse_cgroups(const struct option *opt, const char *str, int u
+ {
+ 	struct trace *trace = opt->value;
+ 
+-	if (!list_empty(&trace->evlist->core.entries))
+-		return parse_cgroups(opt, str, unset);
+-
++	if (!list_empty(&trace->evlist->core.entries)) {
++		struct option o = {
++			.value = &trace->evlist,
++		};
++		return parse_cgroups(&o, str, unset);
++	}
+ 	trace->cgroup = evlist__findnew_cgroup(trace->evlist, str);
  
  	return 0;
- }
 -- 
 2.27.0
 
