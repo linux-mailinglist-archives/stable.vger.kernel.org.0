@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0AE2B65CB
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 015832B6362
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730560AbgKQNR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:17:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
+        id S1732965AbgKQNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730557AbgKQNR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:27 -0500
+        id S1732466AbgKQNhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF738206D5;
-        Tue, 17 Nov 2020 13:17:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6478E207BC;
+        Tue, 17 Nov 2020 13:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619046;
-        bh=QgDgQ4frAwnB+dR6pI1lZLkBY0lciBNMnTt8BjZaNog=;
+        s=default; t=1605620258;
+        bh=aTPvIWSdGl3VNu+IMvu8NQNJp1W9U1nYpkDGppYYOTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abl63HpjTdlQwx04jSe/YLSzyrHUJG5hlqt8MRSjgPmIvRIc9lkY05uCb8wkQKn24
-         q1FhnW9725Qq89brzzmEfsh4Ekn2fhUWf3VQE2U/fQTeJtMiLJqTqm+sASV1ThHgPM
-         3gHMOMShS0DGKBWNBNjSzba3h4Nv/MDLJPUHakmg=
+        b=boiD/3luQLfTlONo+giPDgdJ2wl43oP2/pySPOpQc7FvHMtOcs3E5wWP/Fkye+kc2
+         +7vaI9BpnEGbUIQTHTXd3VUy897BfJHwB0OlTVtqdZNopkju2c0Miv3LIjR8bEqQ1L
+         hseQ8AtyME/XZZ5cjpUOyM95PM5CmVZmELIWHuYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/101] time: Prevent undefined behaviour in timespec64_to_ns()
+        stable@vger.kernel.org, Jamie McClymont <jamie@kwiius.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 129/255] pinctrl: intel: Set default bias in case no particular value given
 Date:   Tue, 17 Nov 2020 14:04:29 +0100
-Message-Id: <20201117122113.240871219@linuxfoundation.org>
+Message-Id: <20201117122145.213313363@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Tao <prime.zeng@hisilicon.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit cb47755725da7b90fecbb2aa82ac3b24a7adb89b ]
+[ Upstream commit f3c75e7a9349d1d33eb53ddc1b31640994969f73 ]
 
-UBSAN reports:
+When GPIO library asks pin control to set the bias, it doesn't pass
+any value of it and argument is considered boolean (and this is true
+for ACPI GpioIo() / GpioInt() resources, by the way). Thus, individual
+drivers must behave well, when they got the resistance value of 1 Ohm,
+i.e. transforming it to sane default.
 
-Undefined behaviour in ./include/linux/time64.h:127:27
-signed integer overflow:
-17179869187 * 1000000000 cannot be represented in type 'long long int'
-Call Trace:
- timespec64_to_ns include/linux/time64.h:127 [inline]
- set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
- do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
- __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
- do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
+In case of Intel pin control hardware the 5 kOhm sounds plausible
+because on one hand it's a minimum of resistors present in all
+hardware generations and at the same time it's high enough to minimize
+leakage current (will be only 200 uA with the above choice).
 
-Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
-replaced the original conversion which handled time clamping correctly with
-timespec64_to_ns() which has no overflow protection.
-
-Fix it in timespec64_to_ns() as this is not necessarily limited to the
-usage in itimers.
-
-[ tglx: Added comment and adjusted the fixes tag ]
-
-Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
+Fixes: e57725eabf87 ("pinctrl: intel: Add support for hardware debouncer")
+Reported-by: Jamie McClymont <jamie@kwiius.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/time64.h | 4 ++++
- kernel/time/itimer.c   | 4 ----
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/pinctrl/intel/pinctrl-intel.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index 4a45aea0f96e9..8dbdf6cae3e8b 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -138,6 +138,10 @@ static inline bool timespec64_valid_settod(const struct timespec64 *ts)
-  */
- static inline s64 timespec64_to_ns(const struct timespec64 *ts)
- {
-+	/* Prevent multiplication overflow */
-+	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
-+		return KTIME_MAX;
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index b738b28239bd4..31e7840bc5e25 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -683,6 +683,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 
+ 		value |= PADCFG1_TERM_UP;
+ 
++		/* Set default strength value in case none is given */
++		if (arg == 1)
++			arg = 5000;
 +
- 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
+ 		switch (arg) {
+ 		case 20000:
+ 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
+@@ -705,6 +709,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 	case PIN_CONFIG_BIAS_PULL_DOWN:
+ 		value &= ~(PADCFG1_TERM_UP | PADCFG1_TERM_MASK);
  
-diff --git a/kernel/time/itimer.c b/kernel/time/itimer.c
-index 9a65713c83093..2e2b335ef1018 100644
---- a/kernel/time/itimer.c
-+++ b/kernel/time/itimer.c
-@@ -154,10 +154,6 @@ static void set_cpu_itimer(struct task_struct *tsk, unsigned int clock_id,
- 	u64 oval, nval, ointerval, ninterval;
- 	struct cpu_itimer *it = &tsk->signal->it[clock_id];
- 
--	/*
--	 * Use the to_ktime conversion because that clamps the maximum
--	 * value to KTIME_MAX and avoid multiplication overflows.
--	 */
- 	nval = ktime_to_ns(timeval_to_ktime(value->it_value));
- 	ninterval = ktime_to_ns(timeval_to_ktime(value->it_interval));
- 
++		/* Set default strength value in case none is given */
++		if (arg == 1)
++			arg = 5000;
++
+ 		switch (arg) {
+ 		case 20000:
+ 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
 -- 
 2.27.0
 
