@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F125D2B61A7
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:22:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BCD2B625E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730831AbgKQNVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54750 "EHLO mail.kernel.org"
+        id S1731806AbgKQN2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730824AbgKQNVF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:05 -0500
+        id S1731287AbgKQN2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:28:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B46152464E;
-        Tue, 17 Nov 2020 13:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4932020781;
+        Tue, 17 Nov 2020 13:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619265;
-        bh=wjNwfYlUfR5/nAez3SWIMYvLe24Zu7xaKkTQKgEDCig=;
+        s=default; t=1605619681;
+        bh=jPuyBa0TFVZn/Vmsf9yYWkhloXgwvGOjxCiFIchbXaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqKwzUiR1n/f80S41v0yUDxproVF814NZTuwpbWwAx1QKDysB2VzfFoIHX18XVNxp
-         GKgDPvXrF0HJcADNmnbeIcrpg5fnpy3bESnqrE3jO7knfOQnhAKdgmJzQBE2wupyhD
-         fFHxppMZFENNWVLeB1rzIJJAuo8O9yP3ey+uv/oU=
+        b=OYOv87oImqYGygMYkSqZFhqlvF4OhBdSxDlBEatNKeIgGEpF8S6M2omrlWC8YgemI
+         2WQKmcpdocm9Btijo9GzG8h5vE2xu9S0OeCjJlDvev9COlCgEytLR0oN1qEJFTs9IS
+         R4zdPY35kk7CL8/8C43f/sKxHz7z68ikKPO64BwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@vger.kerne.org,
-        Coiby Xu <coiby.xu@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 084/101] pinctrl: amd: fix incorrect way to disable debounce filter
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 121/151] jbd2: fix up sparse warnings in checkpoint code
 Date:   Tue, 17 Nov 2020 14:05:51 +0100
-Message-Id: <20201117122117.218348279@linuxfoundation.org>
+Message-Id: <20201117122127.308168306@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 06abe8291bc31839950f7d0362d9979edc88a666 upstream.
+commit 05d5233df85e9621597c5838e95235107eb624a2 upstream.
 
-The correct way to disable debounce filter is to clear bit 5 and 6
-of the register.
+Add missing __acquires() and __releases() annotations.  Also, in an
+"this should never happen" WARN_ON check, if it *does* actually
+happen, we need to release j_state_lock since this function is always
+supposed to release that lock.  Otherwise, things will quickly grind
+to a halt after the WARN_ON trips.
 
-Cc: stable@vger.kerne.org
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/linux-gpio/df2c008b-e7b5-4fdd-42ea-4d1c62b52139@redhat.com/
-Link: https://lore.kernel.org/r/20201105231912.69527-2-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 96f1e0974575 ("jbd2: avoid long hold times of j_state_lock...")
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/jbd2/checkpoint.c  |    2 ++
+ fs/jbd2/transaction.c |    4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -167,14 +167,14 @@ static int amd_gpio_set_debounce(struct
- 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
- 		} else {
--			pin_reg &= ~DB_CNTRl_MASK;
-+			pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
- 			ret = -EINVAL;
- 		}
- 	} else {
- 		pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
- 		pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
- 		pin_reg &= ~DB_TMR_OUT_MASK;
--		pin_reg &= ~DB_CNTRl_MASK;
-+		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
- 	}
- 	writel(pin_reg, gpio_dev->base + offset * 4);
- 	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+--- a/fs/jbd2/checkpoint.c
++++ b/fs/jbd2/checkpoint.c
+@@ -106,6 +106,8 @@ static int __try_to_free_cp_buf(struct j
+  * for a checkpoint to free up some space in the log.
+  */
+ void __jbd2_log_wait_for_space(journal_t *journal)
++__acquires(&journal->j_state_lock)
++__releases(&journal->j_state_lock)
+ {
+ 	int nblocks, space_left;
+ 	/* assert_spin_locked(&journal->j_state_lock); */
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -171,8 +171,10 @@ static void wait_transaction_switching(j
+ 	DEFINE_WAIT(wait);
+ 
+ 	if (WARN_ON(!journal->j_running_transaction ||
+-		    journal->j_running_transaction->t_state != T_SWITCH))
++		    journal->j_running_transaction->t_state != T_SWITCH)) {
++		read_unlock(&journal->j_state_lock);
+ 		return;
++	}
+ 	prepare_to_wait(&journal->j_wait_transaction_locked, &wait,
+ 			TASK_UNINTERRUPTIBLE);
+ 	read_unlock(&journal->j_state_lock);
 
 
