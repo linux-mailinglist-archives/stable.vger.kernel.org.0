@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B956F2B6648
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 444BF2B65FD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbgKQNM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:12:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S1730179AbgKQOAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:00:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728692AbgKQNMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:55 -0500
+        id S1730310AbgKQNRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B1812225B;
-        Tue, 17 Nov 2020 13:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E1F1241A6;
+        Tue, 17 Nov 2020 13:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618774;
-        bh=KZM7/r0snN9vNCEHE1q5UXQbTZ9BLsIDzvWFPGTfZa0=;
+        s=default; t=1605619027;
+        bh=cFm+X33idwFBFy3k9VmCTbLnVijn82oAwo+YDVz0Upk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dW9nhi0yFN1f9XimNGZ1pJet82J6TpMeGGv8yiWL6SDkTxaH6qTBuxJVo34V8KymF
-         jyqsxqlarpvl//wWV1B6FtsEWA3wXZgJaZ7+r3r+Vcbk5s5ezlTl92EyMxn6EMKmbY
-         PCQKUCkpFc/khqVN1zrXIU6HFkrsABOw0sBVVAh8=
+        b=Eeu2ifDbXK1dQaziyFL2+d55bK6p3nYNKANoGpt7h5dLIH9QHo5hoH1Cy9+UVH16M
+         Q0tLOaj+eiQZAUcIbOVfK1spe6itlT7olmlaEzb7wsGAYNXkg/Zux7XyCxTdJXMPWo
+         ninWNVD2tc7weH1fakFWQf0STM6nnd6jOssB4jp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 4.9 71/78] xen/events: use a common cpu hotplug hook for event channels
-Date:   Tue, 17 Nov 2020 14:05:37 +0100
-Message-Id: <20201117122112.577584263@linuxfoundation.org>
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.14 71/85] xen/events: fix race in evtchn_fifo_unmask()
+Date:   Tue, 17 Nov 2020 14:05:40 +0100
+Message-Id: <20201117122114.517303856@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,158 +44,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 7beb290caa2adb0a399e735a1e175db9aae0523a upstream.
+commit f01337197419b7e8a492e83089552b77d3b5fb90 upstream.
 
-Today only fifo event channels have a cpu hotplug callback. In order
-to prepare for more percpu (de)init work move that callback into
-events_base.c and add percpu_init() and percpu_deinit() hooks to
-struct evtchn_ops.
+Unmasking a fifo event channel can result in unmasking it twice, once
+directly in the kernel and once via a hypercall in case the event was
+pending.
+
+Fix that by doing the local unmask only if the event is not pending.
 
 This is part of XSA-332.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c     |   25 ++++++++++++++++++++++
- drivers/xen/events/events_fifo.c     |   39 +++++++++++++++++------------------
- drivers/xen/events/events_internal.h |    3 ++
- 3 files changed, 47 insertions(+), 20 deletions(-)
+ drivers/xen/events/events_fifo.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -33,6 +33,7 @@
- #include <linux/irqnr.h>
- #include <linux/pci.h>
- #include <linux/spinlock.h>
-+#include <linux/cpuhotplug.h>
- 
- #ifdef CONFIG_X86
- #include <asm/desc.h>
-@@ -1833,6 +1834,26 @@ void xen_callback_vector(void) {}
- static bool fifo_events = true;
- module_param(fifo_events, bool, 0);
- 
-+static int xen_evtchn_cpu_prepare(unsigned int cpu)
-+{
-+	int ret = 0;
-+
-+	if (evtchn_ops->percpu_init)
-+		ret = evtchn_ops->percpu_init(cpu);
-+
-+	return ret;
-+}
-+
-+static int xen_evtchn_cpu_dead(unsigned int cpu)
-+{
-+	int ret = 0;
-+
-+	if (evtchn_ops->percpu_deinit)
-+		ret = evtchn_ops->percpu_deinit(cpu);
-+
-+	return ret;
-+}
-+
- void __init xen_init_IRQ(void)
- {
- 	int ret = -EINVAL;
-@@ -1842,6 +1863,10 @@ void __init xen_init_IRQ(void)
- 	if (ret < 0)
- 		xen_evtchn_2l_init();
- 
-+	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
-+				  "CPUHP_XEN_EVTCHN_PREPARE",
-+				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
-+
- 	evtchn_to_irq = kcalloc(EVTCHN_ROW(xen_evtchn_max_channels()),
- 				sizeof(*evtchn_to_irq), GFP_KERNEL);
- 	BUG_ON(!evtchn_to_irq);
 --- a/drivers/xen/events/events_fifo.c
 +++ b/drivers/xen/events/events_fifo.c
-@@ -386,21 +386,6 @@ static void evtchn_fifo_resume(void)
- 	event_array_pages = 0;
+@@ -227,19 +227,25 @@ static bool evtchn_fifo_is_masked(unsign
+ 	return sync_test_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
  }
- 
--static const struct evtchn_ops evtchn_ops_fifo = {
--	.max_channels      = evtchn_fifo_max_channels,
--	.nr_channels       = evtchn_fifo_nr_channels,
--	.setup             = evtchn_fifo_setup,
--	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
--	.clear_pending     = evtchn_fifo_clear_pending,
--	.set_pending       = evtchn_fifo_set_pending,
--	.is_pending        = evtchn_fifo_is_pending,
--	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
--	.mask              = evtchn_fifo_mask,
--	.unmask            = evtchn_fifo_unmask,
--	.handle_events     = evtchn_fifo_handle_events,
--	.resume            = evtchn_fifo_resume,
--};
--
- static int evtchn_fifo_alloc_control_block(unsigned cpu)
+ /*
+- * Clear MASKED, spinning if BUSY is set.
++ * Clear MASKED if not PENDING, spinning if BUSY is set.
++ * Return true if mask was cleared.
+  */
+-static void clear_masked(volatile event_word_t *word)
++static bool clear_masked_cond(volatile event_word_t *word)
  {
- 	void *control_block = NULL;
-@@ -423,19 +408,36 @@ static int evtchn_fifo_alloc_control_blo
- 	return ret;
- }
+ 	event_word_t new, old, w;
  
--static int xen_evtchn_cpu_prepare(unsigned int cpu)
-+static int evtchn_fifo_percpu_init(unsigned int cpu)
- {
- 	if (!per_cpu(cpu_control_block, cpu))
- 		return evtchn_fifo_alloc_control_block(cpu);
- 	return 0;
- }
+ 	w = *word;
  
--static int xen_evtchn_cpu_dead(unsigned int cpu)
-+static int evtchn_fifo_percpu_deinit(unsigned int cpu)
- {
- 	__evtchn_fifo_handle_events(cpu, true);
- 	return 0;
- }
- 
-+static const struct evtchn_ops evtchn_ops_fifo = {
-+	.max_channels      = evtchn_fifo_max_channels,
-+	.nr_channels       = evtchn_fifo_nr_channels,
-+	.setup             = evtchn_fifo_setup,
-+	.bind_to_cpu       = evtchn_fifo_bind_to_cpu,
-+	.clear_pending     = evtchn_fifo_clear_pending,
-+	.set_pending       = evtchn_fifo_set_pending,
-+	.is_pending        = evtchn_fifo_is_pending,
-+	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
-+	.mask              = evtchn_fifo_mask,
-+	.unmask            = evtchn_fifo_unmask,
-+	.handle_events     = evtchn_fifo_handle_events,
-+	.resume            = evtchn_fifo_resume,
-+	.percpu_init       = evtchn_fifo_percpu_init,
-+	.percpu_deinit     = evtchn_fifo_percpu_deinit,
-+};
+ 	do {
++		if (w & (1 << EVTCHN_FIFO_PENDING))
++			return false;
 +
- int __init xen_evtchn_fifo_init(void)
- {
- 	int cpu = get_cpu();
-@@ -449,9 +451,6 @@ int __init xen_evtchn_fifo_init(void)
- 
- 	evtchn_ops = &evtchn_ops_fifo;
- 
--	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
--				  "CPUHP_XEN_EVTCHN_PREPARE",
--				  xen_evtchn_cpu_prepare, xen_evtchn_cpu_dead);
- out:
- 	put_cpu();
- 	return ret;
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -71,6 +71,9 @@ struct evtchn_ops {
- 
- 	void (*handle_events)(unsigned cpu);
- 	void (*resume)(void);
+ 		old = w & ~(1 << EVTCHN_FIFO_BUSY);
+ 		new = old & ~(1 << EVTCHN_FIFO_MASKED);
+ 		w = sync_cmpxchg(word, old, new);
+ 	} while (w != old);
 +
-+	int (*percpu_init)(unsigned int cpu);
-+	int (*percpu_deinit)(unsigned int cpu);
- };
++	return true;
+ }
  
- extern const struct evtchn_ops *evtchn_ops;
+ static void evtchn_fifo_unmask(unsigned port)
+@@ -248,8 +254,7 @@ static void evtchn_fifo_unmask(unsigned
+ 
+ 	BUG_ON(!irqs_disabled());
+ 
+-	clear_masked(word);
+-	if (evtchn_fifo_is_pending(port)) {
++	if (!clear_masked_cond(word)) {
+ 		struct evtchn_unmask unmask = { .port = port };
+ 		(void)HYPERVISOR_event_channel_op(EVTCHNOP_unmask, &unmask);
+ 	}
 
 
