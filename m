@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0892D2B6204
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B12E2B6179
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730833AbgKQNYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59758 "EHLO mail.kernel.org"
+        id S1730394AbgKQNTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:19:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731014AbgKQNYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:36 -0500
+        id S1730382AbgKQNTR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:19:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF7002464E;
-        Tue, 17 Nov 2020 13:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A04D7206D5;
+        Tue, 17 Nov 2020 13:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619476;
-        bh=RxdypS5yFALZA7A6ct64lelo/+SmNXp/dWCwIyV0Fao=;
+        s=default; t=1605619155;
+        bh=MZk2mRD1qjys7a2I8jirLXucMTlVvT1r3XsMOo29Jjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUmjMvPZ9yy4Qwir75fx2OfZ+l0rPtuTXINgi23SxnvWlACuJ/iCR5vJZUnLxDkcs
-         24KejVgL3TMS9Bcs4Jfk3Iq3+c1Bhr0u3D77iDOBl/Lhtt+BPOZugbsvu/feK517dN
-         RlMzPze4eqUDF7FzEX3m9jxoJ8t3HIRVJHWhTmlo=
+        b=COdd6PQTSrmQnPaAKS4tIvLtWC75pWMAnNXklR+FAci4+gdALVDoUkRSIwD54Hv3/
+         bjNsYrlUSvAi2do52cgwZUM9m3CstKU6fG3UwR48K4web5rN2+S4Xpo8fKWEgcyn6Y
+         3rIPV5+SaHQ72KlnynGEr9GoRKRLEGltzqKUBva4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Kees Cook <keescook@chromium.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/151] selftests: pidfd: fix compilation errors due to wait.h
-Date:   Tue, 17 Nov 2020 14:04:42 +0100
-Message-Id: <20201117122123.965547388@linuxfoundation.org>
+Subject: [PATCH 4.19 016/101] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
+Date:   Tue, 17 Nov 2020 14:04:43 +0100
+Message-Id: <20201117122113.885320075@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 1948172fdba5ad643529ddcd00a601c0caa913ed ]
+[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
 
-Drop unneeded <linux/wait.h> header inclusion to fix pidfd compilation
-errors seen in Fedora 32:
+If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
+not always, the case), the 'WARN_ON(in_irq)' in
+net/core/skbuff.c#skb_release_head_state() might be triggered, under network
+congestion circumstances, together with the potential risk of a NULL pointer
+dereference.
 
-In file included from pidfd_open_test.c:9:
-../../../../usr/include/linux/wait.h:17:16: error: expected identifier before numeric constant
-   17 | #define P_ALL  0
-      |                ^
+The root cause of this issue is the call to kfree_skb() instead of
+dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
 
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+This patch prevents the skb to be freed within the call to netif_rx() by
+incrementing its reference count with skb_get(). The skb is finally freed by
+one of the in-irq-context safe functions: dev_consume_skb_any() or
+dev_kfree_skb_any(). The "any" version is used because some drivers might call
+can_get_echo_skb() in a normal context.
+
+The reason for this issue to occur is that initially, in the core network
+stack, loopback skb were not supposed to be received in hardware IRQ context.
+The CAN stack is an exeption.
+
+This bug was previously reported back in 2017 in [1] but the proposed patch
+never got accepted.
+
+While [1] directly modifies net/core/dev.c, we try to propose here a
+smoother modification local to CAN network stack (the assumption
+behind is that only CAN devices are affected by this issue).
+
+[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
+
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
+Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/pidfd/pidfd_open_test.c | 1 -
- tools/testing/selftests/pidfd/pidfd_poll_test.c | 1 -
- 2 files changed, 2 deletions(-)
+ drivers/net/can/dev.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/pidfd/pidfd_open_test.c b/tools/testing/selftests/pidfd/pidfd_open_test.c
-index b9fe75fc3e517..8a59438ccc78b 100644
---- a/tools/testing/selftests/pidfd/pidfd_open_test.c
-+++ b/tools/testing/selftests/pidfd/pidfd_open_test.c
-@@ -6,7 +6,6 @@
- #include <inttypes.h>
- #include <limits.h>
- #include <linux/types.h>
--#include <linux/wait.h>
- #include <sched.h>
- #include <signal.h>
- #include <stdbool.h>
-diff --git a/tools/testing/selftests/pidfd/pidfd_poll_test.c b/tools/testing/selftests/pidfd/pidfd_poll_test.c
-index 4b115444dfe90..6108112753573 100644
---- a/tools/testing/selftests/pidfd/pidfd_poll_test.c
-+++ b/tools/testing/selftests/pidfd/pidfd_poll_test.c
-@@ -3,7 +3,6 @@
- #define _GNU_SOURCE
- #include <errno.h>
- #include <linux/types.h>
--#include <linux/wait.h>
- #include <poll.h>
- #include <signal.h>
- #include <stdbool.h>
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 1545f2b299d06..be532eb64baa2 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -520,7 +520,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
+ 	if (!skb)
+ 		return 0;
+ 
+-	netif_rx(skb);
++	skb_get(skb);
++	if (netif_rx(skb) == NET_RX_SUCCESS)
++		dev_consume_skb_any(skb);
++	else
++		dev_kfree_skb_any(skb);
+ 
+ 	return len;
+ }
 -- 
 2.27.0
 
