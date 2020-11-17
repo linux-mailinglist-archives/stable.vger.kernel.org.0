@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578E02B6096
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF22C2B60E3
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729507AbgKQNKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
+        id S1729401AbgKQNNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgKQNKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:39 -0500
+        id S1729722AbgKQNNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AACB2225B;
-        Tue, 17 Nov 2020 13:10:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08614221EB;
+        Tue, 17 Nov 2020 13:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618638;
-        bh=2dQHQ4y/7d2lTuy439M7DmWm45Nj0t27ZhtaEcZzszQ=;
+        s=default; t=1605618823;
+        bh=8ob0CyxlvL7lTuw+NAc1Pp9r/zR7825ePp7woDTRSX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LviORb2FZGYH22hK8irrlcKimqH04wLeuv2R8llDuhCGoYXi+wDcjjzAs9VY6Jb3O
-         f/kdjDwJlUyiEv10PBrHq1M7yL/00RlgHYn2coPz2V58IdJ830F4gum/hgdKHWm3Ik
-         Zxmikt8n5bs9a7n8fGCZJAmL59ESnRwrEkpGwT3g=
+        b=0v2YHzDzQ5r+xqnA49G6oibdkCU1/SeqoqFg0q6lzcIWMq+ESUX7eEek4u0IaPP+f
+         aRhgz8zDVvboEnzDeWMPgNL9bLDf9XgLLoC1rEUU9TK8i7idQo5JxIcBcuCAtErup4
+         NIU12WIMRdsCPVQMGE1rVnfJ0OMTpARbbXeliWzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/78] time: Prevent undefined behaviour in timespec64_to_ns()
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 02/85] ring-buffer: Fix recursion protection transitions between interrupt context
 Date:   Tue, 17 Nov 2020 14:04:31 +0100
-Message-Id: <20201117122109.366986454@linuxfoundation.org>
+Message-Id: <20201117122111.139672659@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Tao <prime.zeng@hisilicon.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit cb47755725da7b90fecbb2aa82ac3b24a7adb89b ]
+[ Upstream commit b02414c8f045ab3b9afc816c3735bc98c5c3d262 ]
 
-UBSAN reports:
+The recursion protection of the ring buffer depends on preempt_count() to be
+correct. But it is possible that the ring buffer gets called after an
+interrupt comes in but before it updates the preempt_count(). This will
+trigger a false positive in the recursion code.
 
-Undefined behaviour in ./include/linux/time64.h:127:27
-signed integer overflow:
-17179869187 * 1000000000 cannot be represented in type 'long long int'
-Call Trace:
- timespec64_to_ns include/linux/time64.h:127 [inline]
- set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
- do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
- __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
- do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
+Use the same trick from the ftrace function callback recursion code which
+uses a "transition" bit that gets set, to allow for a single recursion for
+to handle transitions between contexts.
 
-Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
-replaced the original conversion which handled time clamping correctly with
-timespec64_to_ns() which has no overflow protection.
-
-Fix it in timespec64_to_ns() as this is not necessarily limited to the
-usage in itimers.
-
-[ tglx: Added comment and adjusted the fixes tag ]
-
-Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
+Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/time64.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/trace/ring_buffer.c | 54 +++++++++++++++++++++++++++++++-------
+ 1 file changed, 44 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/time64.h b/include/linux/time64.h
-index 980c71b3001a5..2a45b8c87edbf 100644
---- a/include/linux/time64.h
-+++ b/include/linux/time64.h
-@@ -188,6 +188,10 @@ static inline bool timespec64_valid_strict(const struct timespec64 *ts)
-  */
- static inline s64 timespec64_to_ns(const struct timespec64 *ts)
- {
-+	/* Prevent multiplication overflow */
-+	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
-+		return KTIME_MAX;
-+
- 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index b9b71e7fb6979..8082328eb01a4 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -416,14 +416,16 @@ struct rb_event_info {
  
+ /*
+  * Used for which event context the event is in.
+- *  NMI     = 0
+- *  IRQ     = 1
+- *  SOFTIRQ = 2
+- *  NORMAL  = 3
++ *  TRANSITION = 0
++ *  NMI     = 1
++ *  IRQ     = 2
++ *  SOFTIRQ = 3
++ *  NORMAL  = 4
+  *
+  * See trace_recursive_lock() comment below for more details.
+  */
+ enum {
++	RB_CTX_TRANSITION,
+ 	RB_CTX_NMI,
+ 	RB_CTX_IRQ,
+ 	RB_CTX_SOFTIRQ,
+@@ -2553,10 +2555,10 @@ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
+  * a bit of overhead in something as critical as function tracing,
+  * we use a bitmask trick.
+  *
+- *  bit 0 =  NMI context
+- *  bit 1 =  IRQ context
+- *  bit 2 =  SoftIRQ context
+- *  bit 3 =  normal context.
++ *  bit 1 =  NMI context
++ *  bit 2 =  IRQ context
++ *  bit 3 =  SoftIRQ context
++ *  bit 4 =  normal context.
+  *
+  * This works because this is the order of contexts that can
+  * preempt other contexts. A SoftIRQ never preempts an IRQ
+@@ -2579,6 +2581,30 @@ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
+  * The least significant bit can be cleared this way, and it
+  * just so happens that it is the same bit corresponding to
+  * the current context.
++ *
++ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
++ * is set when a recursion is detected at the current context, and if
++ * the TRANSITION bit is already set, it will fail the recursion.
++ * This is needed because there's a lag between the changing of
++ * interrupt context and updating the preempt count. In this case,
++ * a false positive will be found. To handle this, one extra recursion
++ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
++ * bit is already set, then it is considered a recursion and the function
++ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
++ *
++ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
++ * to be cleared. Even if it wasn't the context that set it. That is,
++ * if an interrupt comes in while NORMAL bit is set and the ring buffer
++ * is called before preempt_count() is updated, since the check will
++ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
++ * NMI then comes in, it will set the NMI bit, but when the NMI code
++ * does the trace_recursive_unlock() it will clear the TRANSTION bit
++ * and leave the NMI bit set. But this is fine, because the interrupt
++ * code that set the TRANSITION bit will then clear the NMI bit when it
++ * calls trace_recursive_unlock(). If another NMI comes in, it will
++ * set the TRANSITION bit and continue.
++ *
++ * Note: The TRANSITION bit only handles a single transition between context.
+  */
+ 
+ static __always_inline int
+@@ -2597,8 +2623,16 @@ trace_recursive_lock(struct ring_buffer_per_cpu *cpu_buffer)
+ 	} else
+ 		bit = RB_CTX_NORMAL;
+ 
+-	if (unlikely(val & (1 << bit)))
+-		return 1;
++	if (unlikely(val & (1 << bit))) {
++		/*
++		 * It is possible that this was called by transitioning
++		 * between interrupt context, and preempt_count() has not
++		 * been updated yet. In this case, use the TRANSITION bit.
++		 */
++		bit = RB_CTX_TRANSITION;
++		if (val & (1 << bit))
++			return 1;
++	}
+ 
+ 	val |= (1 << bit);
+ 	cpu_buffer->current_context = val;
 -- 
 2.27.0
 
