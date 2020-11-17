@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE432B6673
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C22A2B6642
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729801AbgKQODd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:03:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41854 "EHLO mail.kernel.org"
+        id S1729199AbgKQNMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729750AbgKQNL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:56 -0500
+        id S1729186AbgKQNMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06FFD221EB;
-        Tue, 17 Nov 2020 13:11:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 913562225B;
+        Tue, 17 Nov 2020 13:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618714;
-        bh=SB3DuEP7PdcLkx/S+q44Z17xDP1AcMGKha/fpi548io=;
+        s=default; t=1605618726;
+        bh=cFm+X33idwFBFy3k9VmCTbLnVijn82oAwo+YDVz0Upk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TqNjNFkSMbb8cOMqGq8fmxmsUYPadjM5EvKV8Z+2HKoOTG9ln/r+jezNKtu4o4I9t
-         ZEEs6pwVobirFoHQJCnpeQ4xebEttc63XLah+fcsbv3Y5hKKNxKwMrLjXyuFW4HSGQ
-         QG5E34Zow7HytzYILkNB/kvf2DhNXeflIv/jqqi0=
+        b=c7GSewzoYrUnnzTCYVV9XeepzSNpwkKlU6c8OylKhp0ME/JilY5LY5GJBAL/VF6i1
+         hlHWa/1K8wZoeYS0x9SvIpScitFj0cXmpNHed7lfltrl8+wftxLiF+fKtyZcVPWgZL
+         tGujG2SwY3kDWMzawnCTTHyq2uqf6wsANnx3Ui4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
-        Anthony Liguori <aliguori@amazon.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 61/78] perf/core: Fix a memory leak in perf_event_parse_addr_filter()
-Date:   Tue, 17 Nov 2020 14:05:27 +0100
-Message-Id: <20201117122112.089828466@linuxfoundation.org>
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.9 64/78] xen/events: fix race in evtchn_fifo_unmask()
+Date:   Tue, 17 Nov 2020 14:05:30 +0100
+Message-Id: <20201117122112.244286061@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
 References: <20201117122109.116890262@linuxfoundation.org>
@@ -46,80 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "kiyin(尹亮)" <kiyin@tencent.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 7bdb157cdebbf95a1cd94ed2e01b338714075d00 upstream
+commit f01337197419b7e8a492e83089552b77d3b5fb90 upstream.
 
-As shown through runtime testing, the "filename" allocation is not
-always freed in perf_event_parse_addr_filter().
+Unmasking a fifo event channel can result in unmasking it twice, once
+directly in the kernel and once via a hypercall in case the event was
+pending.
 
-There are three possible ways that this could happen:
+Fix that by doing the local unmask only if the event is not pending.
 
- - It could be allocated twice on subsequent iterations through the loop,
- - or leaked on the success path,
- - or on the failure path.
+This is part of XSA-332.
 
-Clean up the code flow to make it obvious that 'filename' is always
-freed in the reallocation path and in the two return paths as well.
-
-We rely on the fact that kfree(NULL) is NOP and filename is initialized
-with NULL.
-
-This fixes the leak. No other side effects expected.
-
-[ Dan Carpenter: cleaned up the code flow & added a changelog. ]
-[ Ingo Molnar: updated the changelog some more. ]
-
-Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
-Signed-off-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Cc: Anthony Liguori <aliguori@amazon.com>
-[sudip: Backported to 4.9: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/xen/events/events_fifo.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -8261,6 +8261,7 @@ perf_event_parse_addr_filter(struct perf
- 			if (token == IF_SRC_FILE || token == IF_SRC_FILEADDR) {
- 				int fpos = filter->range ? 2 : 1;
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -227,19 +227,25 @@ static bool evtchn_fifo_is_masked(unsign
+ 	return sync_test_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
+ }
+ /*
+- * Clear MASKED, spinning if BUSY is set.
++ * Clear MASKED if not PENDING, spinning if BUSY is set.
++ * Return true if mask was cleared.
+  */
+-static void clear_masked(volatile event_word_t *word)
++static bool clear_masked_cond(volatile event_word_t *word)
+ {
+ 	event_word_t new, old, w;
  
-+				kfree(filename);
- 				filename = match_strdup(&args[fpos]);
- 				if (!filename) {
- 					ret = -ENOMEM;
-@@ -8292,10 +8293,7 @@ perf_event_parse_addr_filter(struct perf
- 				ret = kern_path(filename, LOOKUP_FOLLOW,
- 						&filter->path);
- 				if (ret)
--					goto fail_free_name;
--
--				kfree(filename);
--				filename = NULL;
-+					goto fail;
+ 	w = *word;
  
- 				ret = -EINVAL;
- 				if (!filter->path.dentry ||
-@@ -8313,13 +8311,13 @@ perf_event_parse_addr_filter(struct perf
- 	if (state != IF_STATE_ACTION)
- 		goto fail;
+ 	do {
++		if (w & (1 << EVTCHN_FIFO_PENDING))
++			return false;
++
+ 		old = w & ~(1 << EVTCHN_FIFO_BUSY);
+ 		new = old & ~(1 << EVTCHN_FIFO_MASKED);
+ 		w = sync_cmpxchg(word, old, new);
+ 	} while (w != old);
++
++	return true;
+ }
  
-+	kfree(filename);
- 	kfree(orig);
+ static void evtchn_fifo_unmask(unsigned port)
+@@ -248,8 +254,7 @@ static void evtchn_fifo_unmask(unsigned
  
- 	return 0;
+ 	BUG_ON(!irqs_disabled());
  
--fail_free_name:
--	kfree(filename);
- fail:
-+	kfree(filename);
- 	free_filters_list(filters);
- 	kfree(orig);
- 
+-	clear_masked(word);
+-	if (evtchn_fifo_is_pending(port)) {
++	if (!clear_masked_cond(word)) {
+ 		struct evtchn_unmask unmask = { .port = port };
+ 		(void)HYPERVISOR_event_channel_op(EVTCHNOP_unmask, &unmask);
+ 	}
 
 
