@@ -2,94 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814282B713A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 23:07:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CDB62B71A7
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 23:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728741AbgKQWGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 17:06:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728726AbgKQWGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 17:06:41 -0500
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20165C0617A6
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 14:06:41 -0800 (PST)
-Received: by mail-il1-x141.google.com with SMTP id x18so106637ilq.4
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 14:06:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SMxWeh8e5DNkgRIVx+jsEW7I6O9OLAOqcDNVLYpDoac=;
-        b=igHDZi4KcaQAWD61z2SFEFRzOEQAY8adDtFSSy/f9H1g/rU++I4h1QgXFB4+RhEtJE
-         K921Q8MZE7cPmo1zCsvuEpZxQ2slQEENEIemcTdLUT6/bNNJYV0t1Peixuv+jgtUywjl
-         uDnamq4kTGLSKvjAQtJnibdMavbGat3+LYu0o=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SMxWeh8e5DNkgRIVx+jsEW7I6O9OLAOqcDNVLYpDoac=;
-        b=nfrCTkTiWEa+dfzTJkCEn8vbSdop+dOCOGnFIYgxeLx8Z0gQobzJUz87mUiou62DH6
-         RWV1fXp6YqIIBc4bqxSfiePrR3S7uQAAErsdhlaUQwoqnyGU4Dtxi+rx5ww6CIeZ8ez7
-         MY+Mb4FnOnsHU0+h2om3Z/s+JnECCmCA5cwEdUTRm3u6He6+FssdSl5rs5AgOEEQqcaS
-         OhVLpxBW+X68J4QQksliOCAZlZNCOTn78D3u7/L7s9lyDeBz2HTiIkA3AamjE/ej9prv
-         97GjBLbFvHYDHHrCb0MPUhgHSDeQKWUTbYry7Ws85YK7iddkBqDen/MGsrCymQ1VxAFp
-         ATPw==
-X-Gm-Message-State: AOAM532GNYZEOEMh9bj+kV6jIcFNysC3Ai4U295VrNy41sBfQ4CZyge4
-        dYmoZjgxutvlfBDXXBPzQs/IdI39fFldrQ==
-X-Google-Smtp-Source: ABdhPJwLcEEPobS8s9JKOlw25TC4euYStZqTnLPoZbxNrwKhrT7an+7GlUXjr0v1+idXItPvtjcGlA==
-X-Received: by 2002:a92:40c8:: with SMTP id d69mr14096764ill.66.1605650800471;
-        Tue, 17 Nov 2020 14:06:40 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id b15sm14411923ilg.83.2020.11.17.14.06.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Nov 2020 14:06:39 -0800 (PST)
-Subject: Re: [PATCH 4.9 00/78] 4.9.244-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, skhan@linuxfoundation.org
-References: <20201117122109.116890262@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <46f69429-9c62-cad3-2e8e-bc6f8d0ef8ab@linuxfoundation.org>
-Date:   Tue, 17 Nov 2020 15:06:38 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.2
+        id S1729098AbgKQWhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 17:37:15 -0500
+Received: from manchmal.in-ulm.de ([217.10.9.201]:50178 "EHLO
+        manchmal.in-ulm.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729085AbgKQWhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 17:37:14 -0500
+X-Greylist: delayed 475 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Nov 2020 17:37:14 EST
+Date:   Tue, 17 Nov 2020 23:29:16 +0100
+From:   Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+To:     Hussam Al-Tayeb <ht990332@gmx.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Suggestion: Lengthen the review period for stable releases from
+ 48 hours to 7 days.
+Message-ID: <1605651898@msgid.manchmal.in-ulm.de>
+References: <17c526d0c5f8ed8584f7bee9afe1b73753d1c70b.camel@gmx.com>
+ <20201117080141.GA6275@amd>
+ <f4cb8d3de515e97d409fa5accca4e9965036bdb5.camel@gmx.com>
 MIME-Version: 1.0
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Content-Disposition: inline
+In-Reply-To: <f4cb8d3de515e97d409fa5accca4e9965036bdb5.camel@gmx.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/17/20 6:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.244 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.244-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-Compiled and booted on my test system. No dmesg regressions.
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+>> On Sat 2020-11-14 17:40:36, Hussam Al-Tayeb wrote:
 
-thanks,
--- Shuah
+>>> Hello. I would like to suggest lengthening the review period for stable
+>>> releases from 48 hours to 7 days.
+>>> The rationale is that 48 hours is not enough for people to test those
+>>> stable releases and make sure there are no regressions for
+>>> particular workflows.
+
+Disclaimer: I am mostly a user of stable
+
+It's hard to make a good decision here. I share your position the 48-ish
+hours are a fairly short amound of time, and increasing it would grant
+more time for tests. As for me, I might resume testing -rc on a regular
+base as I used to in the past - which is a time-consuming procedure, and
+since I do that as a hobby, sometimes more important things are in the
+way. But I have to concede the number of issues that occured only here
+was never high, and I don't expect it would grow significantly.
+
+On the other hand the pace of the stable patches became fairly high=C2=B9, =
+so
+during a week of -rc review a *lot* of them will queue up and I predict
+we'll see requests for fast-laning some of them. Also, a release would
+immediately be followed by the next -rc review period, a procedure that
+gives me a bad feeling.
+
+So for me, I'd appreciate an extension of the review period, even if
+it's just four days. But I understand if people prefer to keep the
+procedures simple, and get fixes out of the door as soon as possible.
+
+My 2=C2=A2
+
+    Christoph
+
+=C2=B9 If somebody made statistics on the development of the number of
+  patches for stable kernels (in count/second), I'd be curious to see
+  the numbers.
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEWXMI+726A12MfJXdxCxY61kUkv0FAl+0TrgACgkQxCxY61kU
+kv3WVRAAgcgNcSd/s5EG/rpPZ4XhwzksCx61QegKbyoFGpnFMUx/HlmEv34wRbaG
+djTNr6EODFg+mznSHHuP0vDu4b9DakPyAavYO99GxVFkIW2tnHhii8NByPLf5/GC
+2QTemHPmcqp4AHlljHFBX8rFOQMTKcSWwdxVD6SoSw1JtoMxMUalkD0bNQbsFTmj
+5K5+aXtPGjVYQ7zFW0dEdQ1O0DH3F6o2qpQ0++z4TK5I+iKoPS5gg6H3GvQmQa9r
+CfF8e90FBCYyunhMUn0yDERvcGT/bMGBbyYQ0Ea6mopgLsIFDYGK3BsuydmuyqGz
+EMHLmgIvXt2AIoaiF7l+yag0wdM1QRwRXMck7tcIKtpJIxzbvCo8U/IOGQgO8n0W
+bi4L/wceTVR/Tej/c5XMOwAPyhgPPePUr1Wb3UqT47hNupwFpoiGKWCy8sxQ5Ezm
+jc4WeR9Cr177TLTcuTvZqz1tc8U5fIZnzS6BUMobH1Rc7l22QXpjGoy+kqbDB9j9
+Z0YJGy4Fxyj3N92HXDb2wQo1rHQQ+TukGSvnojK69t/vVwMr+CHgN0q6OYMHKtB7
+9T5TTmZG/WSwiBK5HdQb0uM0KDOojM54y6QMqUvQmx+k46uoZdICgA5dd+5Aqs3I
+lLn3d8gHBW8djHGAkbtaCGeO1FUhaMwQPmXfYaOeLXUiqeHopio=
+=jC9Y
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--
