@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0202B6516
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D23112B652B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731774AbgKQNaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:30:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
+        id S1733231AbgKQNvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:51:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731758AbgKQNaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:30:08 -0500
+        id S1731891AbgKQNaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 288AA24686;
-        Tue, 17 Nov 2020 13:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D122B2078E;
+        Tue, 17 Nov 2020 13:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619806;
-        bh=QshdQkn4yg/oNUoCLbaym09JkJHX2VemgqKsh5YTIWU=;
+        s=default; t=1605619816;
+        bh=xpxuWE5pO62/YMqkZ2nFUDwZHSXCZjj46pc1owWSEDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g34aDssNiLooJj8DVwjrbWNQel4bWnnTK+xnUEeOr8CJ5ybjG6U1ZFLzaTA1UBB+N
-         RXwkIh+ppG+8xbwFJ3x+q14DSImTQipDHhUru4BHQAxCkFY2OTnCzPfOfGn5MJ3O8k
-         oLBU3Gta6Xs1lknNMo0a4JOe2QAxBjuI6WusiH5c=
+        b=l0tqQ/LKt2B71OUJjyRIuETK53wv95LeBcXvkinyQJcRnMhNwgjq11RW+0/n9I62w
+         TAPAtCPUT5xL9MBRT+v2cu6AqSriPuWSCf6ZAbcNQyYpIl3jC6Jiezfg6sESMnOWbz
+         0nIXT12bLg+MyZl6Fizr2Sh+jsm2T0KdWzWkMAf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 011/255] ASoC: codecs: wsa881x: add missing stream rates and format
-Date:   Tue, 17 Nov 2020 14:02:31 +0100
-Message-Id: <20201117122139.487143480@linuxfoundation.org>
+Subject: [PATCH 5.9 014/255] kunit: Fix kunit.py --raw_output option
+Date:   Tue, 17 Nov 2020 14:02:34 +0100
+Message-Id: <20201117122139.634413840@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit f47d0742515748162d3fc35f04331c5b81c0ed47 ]
+[ Upstream commit 3023d8ff3fc60e5d32dc1d05f99ad6ffa12b0033 ]
 
-Add missing supported rates and formats for the stream, without
-which attempt to do playback will fail to find any matching rates/format.
+Due to the raw_output() function on kunit_parser.py actually being a
+generator, it only runs if something reads the lines it returns. Since
+we no-longer do that (parsing doesn't actually happen if raw_output is
+enabled), it was not printing anything.
 
-Fixes: a0aab9e1404a ("ASoC: codecs: add wsa881x amplifier support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20201022130518.31723-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 45ba7a893ad8 ("kunit: kunit_tool: Separate out config/build/exec/parse")
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wsa881x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/kunit/kunit_parser.py | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wsa881x.c b/sound/soc/codecs/wsa881x.c
-index d39d479e23786..5456124457a7c 100644
---- a/sound/soc/codecs/wsa881x.c
-+++ b/sound/soc/codecs/wsa881x.c
-@@ -1026,6 +1026,8 @@ static struct snd_soc_dai_driver wsa881x_dais[] = {
- 		.id = 0,
- 		.playback = {
- 			.stream_name = "SPKR Playback",
-+			.rates = SNDRV_PCM_RATE_48000,
-+			.formats = SNDRV_PCM_FMTBIT_S16_LE,
- 			.rate_max = 48000,
- 			.rate_min = 48000,
- 			.channels_min = 1,
+diff --git a/tools/testing/kunit/kunit_parser.py b/tools/testing/kunit/kunit_parser.py
+index f13e0c0d66639..62a0848699671 100644
+--- a/tools/testing/kunit/kunit_parser.py
++++ b/tools/testing/kunit/kunit_parser.py
+@@ -65,7 +65,6 @@ def isolate_kunit_output(kernel_output):
+ def raw_output(kernel_output):
+ 	for line in kernel_output:
+ 		print(line)
+-		yield line
+ 
+ DIVIDER = '=' * 60
+ 
 -- 
 2.27.0
 
