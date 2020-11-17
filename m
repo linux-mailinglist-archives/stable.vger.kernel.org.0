@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5396D2B6580
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 534C02B633B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730920AbgKQNXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:23:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
+        id S1732555AbgKQNgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:36:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730912AbgKQNXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:23:35 -0500
+        id S1732551AbgKQNgM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:36:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8721F20781;
-        Tue, 17 Nov 2020 13:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54590207BC;
+        Tue, 17 Nov 2020 13:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619415;
-        bh=aFJNC4rGFzcPsvlvtFWpoSvfjsrrpdqP98G3LlqgoN0=;
+        s=default; t=1605620170;
+        bh=HJPSa0KmKV95ZybTLaMu/IKpYZrY18GvP37V/Fllc/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlLjGHKh8IAiOzLUHNYfnIVcF+r0rJ5jFJrgruisgblhHaEhyKyVowVra4UPGUtU8
-         HOR8eYUjpmCC2SV5rEqmzJyUFzP5hWBoaRe48cx15TfbMi+yk5V6dkY/KWY72hOAgO
-         wJT/TWcuJysdAxymP6ai5S1qhjJbXqKx8p9ZEH30=
+        b=DWHaxgKQSsZMmdPz+R5zKQcnZOHGGPsRuz5UDdZ+AzBUfx43fXjZYFS4ztuQMLV/n
+         yTlHDeGXua79P5hvWU3cFm0DqFQaSqwR/09mAoY/0+nP6LoV0mdDhPG3yHq+6iWQBl
+         WaDSbD2+tZ77cV1EJJonQrJHiITwnM+7knh1Gn5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/151] can: j1939: j1939_sk_bind(): return failure if netdev is down
-Date:   Tue, 17 Nov 2020 14:04:21 +0100
-Message-Id: <20201117122122.934065027@linuxfoundation.org>
+        stable@vger.kernel.org, Ulrich Hecht <uli+renesas@fpond.eu>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 122/255] i2c: sh_mobile: implement atomic transfers
+Date:   Tue, 17 Nov 2020 14:04:22 +0100
+Message-Id: <20201117122144.879152511@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Ulrich Hecht <uli+renesas@fpond.eu>
 
-[ Upstream commit 08c487d8d807535f509ed80c6a10ad90e6872139 ]
+[ Upstream commit a49cc1fe9d64a2dc4e19b599204f403e5d25f44b ]
 
-When a netdev down event occurs after a successful call to
-j1939_sk_bind(), j1939_netdev_notify() can handle it correctly.
+Implements atomic transfers to fix reboot/shutdown on r8a7790 Lager and
+similar boards.
 
-But if the netdev already in down state before calling j1939_sk_bind(),
-j1939_sk_release() will stay in wait_event_interruptible() blocked
-forever. Because in this case, j1939_netdev_notify() won't be called and
-j1939_tp_txtimer() won't call j1939_session_cancel() or other function
-to clear session for ENETDOWN error, this lead to mismatch of
-j1939_session_get/put() and jsk->skb_pending will never decrease to
-zero.
-
-To reproduce it use following commands:
-1. ip link add dev vcan0 type vcan
-2. j1939acd -r 100,80-120 1122334455667788 vcan0
-3. presses ctrl-c and thread will be blocked forever
-
-This patch adds check for ndev->flags in j1939_sk_bind() to avoid this
-kind of situation and return with -ENETDOWN.
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1599460308-18770-1-git-send-email-zhangchangzhong@huawei.com
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+[wsa: some whitespace fixing]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/socket.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-sh_mobile.c | 86 +++++++++++++++++++++++-------
+ 1 file changed, 66 insertions(+), 20 deletions(-)
 
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index bf9fd6ee88fe0..0470909605392 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -475,6 +475,12 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 			goto out_release_sock;
- 		}
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index cab7255599991..bdd60770779ad 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -129,6 +129,7 @@ struct sh_mobile_i2c_data {
+ 	int sr;
+ 	bool send_stop;
+ 	bool stop_after_dma;
++	bool atomic_xfer;
  
-+		if (!(ndev->flags & IFF_UP)) {
-+			dev_put(ndev);
-+			ret = -ENETDOWN;
-+			goto out_release_sock;
-+		}
+ 	struct resource *res;
+ 	struct dma_chan *dma_tx;
+@@ -330,13 +331,15 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd, enum sh_mobile_i2c_op
+ 		ret = iic_rd(pd, ICDR);
+ 		break;
+ 	case OP_RX_STOP: /* enable DTE interrupt, issue stop */
+-		iic_wr(pd, ICIC,
+-		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
++		if (!pd->atomic_xfer)
++			iic_wr(pd, ICIC,
++			       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
+ 		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
+ 		break;
+ 	case OP_RX_STOP_DATA: /* enable DTE interrupt, read data, issue stop */
+-		iic_wr(pd, ICIC,
+-		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
++		if (!pd->atomic_xfer)
++			iic_wr(pd, ICIC,
++			       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
+ 		ret = iic_rd(pd, ICDR);
+ 		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
+ 		break;
+@@ -429,7 +432,8 @@ static irqreturn_t sh_mobile_i2c_isr(int irq, void *dev_id)
+ 
+ 	if (wakeup) {
+ 		pd->sr |= SW_DONE;
+-		wake_up(&pd->wait);
++		if (!pd->atomic_xfer)
++			wake_up(&pd->wait);
+ 	}
+ 
+ 	/* defeat write posting to avoid spurious WAIT interrupts */
+@@ -581,6 +585,9 @@ static void start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
+ 	pd->pos = -1;
+ 	pd->sr = 0;
+ 
++	if (pd->atomic_xfer)
++		return;
 +
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
- 		if (IS_ERR(priv)) {
+ 	pd->dma_buf = i2c_get_dma_safe_msg_buf(pd->msg, 8);
+ 	if (pd->dma_buf)
+ 		sh_mobile_i2c_xfer_dma(pd);
+@@ -637,15 +644,13 @@ static int poll_busy(struct sh_mobile_i2c_data *pd)
+ 	return i ? 0 : -ETIMEDOUT;
+ }
+ 
+-static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+-			      struct i2c_msg *msgs,
+-			      int num)
++static int sh_mobile_xfer(struct sh_mobile_i2c_data *pd,
++			 struct i2c_msg *msgs, int num)
+ {
+-	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
+ 	struct i2c_msg	*msg;
+ 	int err = 0;
+ 	int i;
+-	long timeout;
++	long time_left;
+ 
+ 	/* Wake up device and enable clock */
+ 	pm_runtime_get_sync(pd->dev);
+@@ -662,15 +667,35 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+ 		if (do_start)
+ 			i2c_op(pd, OP_START);
+ 
+-		/* The interrupt handler takes care of the rest... */
+-		timeout = wait_event_timeout(pd->wait,
+-				       pd->sr & (ICSR_TACK | SW_DONE),
+-				       adapter->timeout);
+-
+-		/* 'stop_after_dma' tells if DMA transfer was complete */
+-		i2c_put_dma_safe_msg_buf(pd->dma_buf, pd->msg, pd->stop_after_dma);
++		if (pd->atomic_xfer) {
++			unsigned long j = jiffies + pd->adap.timeout;
++
++			time_left = time_before_eq(jiffies, j);
++			while (time_left &&
++			       !(pd->sr & (ICSR_TACK | SW_DONE))) {
++				unsigned char sr = iic_rd(pd, ICSR);
++
++				if (sr & (ICSR_AL   | ICSR_TACK |
++					  ICSR_WAIT | ICSR_DTE)) {
++					sh_mobile_i2c_isr(0, pd);
++					udelay(150);
++				} else {
++					cpu_relax();
++				}
++				time_left = time_before_eq(jiffies, j);
++			}
++		} else {
++			/* The interrupt handler takes care of the rest... */
++			time_left = wait_event_timeout(pd->wait,
++					pd->sr & (ICSR_TACK | SW_DONE),
++					pd->adap.timeout);
++
++			/* 'stop_after_dma' tells if DMA xfer was complete */
++			i2c_put_dma_safe_msg_buf(pd->dma_buf, pd->msg,
++						 pd->stop_after_dma);
++		}
+ 
+-		if (!timeout) {
++		if (!time_left) {
+ 			dev_err(pd->dev, "Transfer request timed out\n");
+ 			if (pd->dma_direction != DMA_NONE)
+ 				sh_mobile_i2c_cleanup_dma(pd);
+@@ -696,14 +721,35 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+ 	return err ?: num;
+ }
+ 
++static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
++			      struct i2c_msg *msgs,
++			      int num)
++{
++	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
++
++	pd->atomic_xfer = false;
++	return sh_mobile_xfer(pd, msgs, num);
++}
++
++static int sh_mobile_i2c_xfer_atomic(struct i2c_adapter *adapter,
++				     struct i2c_msg *msgs,
++				     int num)
++{
++	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
++
++	pd->atomic_xfer = true;
++	return sh_mobile_xfer(pd, msgs, num);
++}
++
+ static u32 sh_mobile_i2c_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
+ }
+ 
+ static const struct i2c_algorithm sh_mobile_i2c_algorithm = {
+-	.functionality	= sh_mobile_i2c_func,
+-	.master_xfer	= sh_mobile_i2c_xfer,
++	.functionality = sh_mobile_i2c_func,
++	.master_xfer = sh_mobile_i2c_xfer,
++	.master_xfer_atomic = sh_mobile_i2c_xfer_atomic,
+ };
+ 
+ static const struct i2c_adapter_quirks sh_mobile_i2c_quirks = {
 -- 
 2.27.0
 
