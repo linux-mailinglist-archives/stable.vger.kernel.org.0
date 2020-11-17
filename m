@@ -2,90 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A2E2B5FC8
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0358D2B6299
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728841AbgKQM6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:58:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
+        id S1729652AbgKQNaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:30:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728793AbgKQM6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:58:10 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1731389AbgKQNaD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:03 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEC552464E;
-        Tue, 17 Nov 2020 12:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2627F24199;
+        Tue, 17 Nov 2020 13:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617889;
-        bh=LgOf4RUUX2aOzmRVCY4k7EOzBrEF5eZj+47Nx5X8j3w=;
+        s=default; t=1605619803;
+        bh=enJ27nmL3wgtvSLAonBJ4mERyTw5s17Og5sqGPv3txE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlOtLbJyqSHk8jmVL6HxJygYFAl6pntOKad1lgiXeHnReG0p6YFS3TfIlI5X2kwwQ
-         aaEOwPXBH1ZUWtESLp0Xjh4uwIIaBTrDUTwK8cpuMaRRoR3jfQS4GtDsBAxoE1FlfP
-         8g3+mCtzx5OWhDUKoGf7sKEfjlfgGH9uxcPK/Wzo=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>, Qian Cai <cai@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 2/2] arm64: psci: Avoid printing in cpu_psci_cpu_die()
-Date:   Tue, 17 Nov 2020 07:58:05 -0500
-Message-Id: <20201117125805.600223-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201117125805.600223-1-sashal@kernel.org>
-References: <20201117125805.600223-1-sashal@kernel.org>
+        b=N4oxcBOWRe7YAUKMHp7/N/aOqmLjAFNmLbr+UTkfOSzzjXOyXF0qvpgBz8Gzn9Js2
+         ELBo4Yftuhh/28I1DuER5ux+ZTfMHsu0WJ8wno44aQaC4BJ1w8eqsQjgrilJAk5VEZ
+         GtlxPskg4fEwyuHpDxCUGIbVpzM6WhHM7BdD9W7o=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        zhuoliang zhang <zhuoliang.zhang@mediatek.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 010/255] net: xfrm: fix a race condition during allocing spi
+Date:   Tue, 17 Nov 2020 14:02:30 +0100
+Message-Id: <20201117122139.437587147@linuxfoundation.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
 
-[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
+[ Upstream commit a779d91314ca7208b7feb3ad817b62904397c56d ]
 
-cpu_psci_cpu_die() is called in the context of the dying CPU, which
-will no longer be online or tracked by RCU. It is therefore not generally
-safe to call printk() if the PSCI "cpu off" request fails, so remove the
-pr_crit() invocation.
+we found that the following race condition exists in
+xfrm_alloc_userspi flow:
 
-Cc: Qian Cai <cai@redhat.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+user thread                                    state_hash_work thread
+----                                           ----
+xfrm_alloc_userspi()
+ __find_acq_core()
+   /*alloc new xfrm_state:x*/
+   xfrm_state_alloc()
+   /*schedule state_hash_work thread*/
+   xfrm_hash_grow_check()   	               xfrm_hash_resize()
+ xfrm_alloc_spi                                  /*hold lock*/
+      x->id.spi = htonl(spi)                     spin_lock_bh(&net->xfrm.xfrm_state_lock)
+      /*waiting lock release*/                     xfrm_hash_transfer()
+      spin_lock_bh(&net->xfrm.xfrm_state_lock)      /*add x into hlist:net->xfrm.state_byspi*/
+	                                                hlist_add_head_rcu(&x->byspi)
+                                                 spin_unlock_bh(&net->xfrm.xfrm_state_lock)
+
+    /*add x into hlist:net->xfrm.state_byspi 2 times*/
+    hlist_add_head_rcu(&x->byspi)
+
+1. a new state x is alloced in xfrm_state_alloc() and added into the bydst hlist
+in  __find_acq_core() on the LHS;
+2. on the RHS, state_hash_work thread travels the old bydst and tranfers every xfrm_state
+(include x) into the new bydst hlist and new byspi hlist;
+3. user thread on the LHS gets the lock and adds x into the new byspi hlist again.
+
+So the same xfrm_state (x) is added into the same list_hash
+(net->xfrm.state_byspi) 2 times that makes the list_hash become
+an inifite loop.
+
+To fix the race, x->id.spi = htonl(spi) in the xfrm_alloc_spi() is moved
+to the back of spin_lock_bh, sothat state_hash_work thread no longer add x
+which id.spi is zero into the hash_list.
+
+Fixes: f034b5d4efdf ("[XFRM]: Dynamic xfrm_state hash table sizing.")
+Signed-off-by: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/psci.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/xfrm/xfrm_state.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
-index e6ad81556575c..ae91d202b7475 100644
---- a/arch/arm64/kernel/psci.c
-+++ b/arch/arm64/kernel/psci.c
-@@ -136,7 +136,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index efc89a92961df..ee6ac32bb06d7 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2004,6 +2004,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 	int err = -ENOENT;
+ 	__be32 minspi = htonl(low);
+ 	__be32 maxspi = htonl(high);
++	__be32 newspi = 0;
+ 	u32 mark = x->mark.v & x->mark.m;
  
- static void cpu_psci_cpu_die(unsigned int cpu)
- {
--	int ret;
- 	/*
- 	 * There are no known implementations of PSCI actually using the
- 	 * power state field, pass a sensible default for now.
-@@ -144,9 +143,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
- 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
- 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
- 
--	ret = psci_ops.cpu_off(state);
--
--	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
-+	psci_ops.cpu_off(state);
- }
- 
- static int cpu_psci_cpu_kill(unsigned int cpu)
+ 	spin_lock_bh(&x->lock);
+@@ -2022,21 +2023,22 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 			xfrm_state_put(x0);
+ 			goto unlock;
+ 		}
+-		x->id.spi = minspi;
++		newspi = minspi;
+ 	} else {
+ 		u32 spi = 0;
+ 		for (h = 0; h < high-low+1; h++) {
+ 			spi = low + prandom_u32()%(high-low+1);
+ 			x0 = xfrm_state_lookup(net, mark, &x->id.daddr, htonl(spi), x->id.proto, x->props.family);
+ 			if (x0 == NULL) {
+-				x->id.spi = htonl(spi);
++				newspi = htonl(spi);
+ 				break;
+ 			}
+ 			xfrm_state_put(x0);
+ 		}
+ 	}
+-	if (x->id.spi) {
++	if (newspi) {
+ 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
++		x->id.spi = newspi;
+ 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
+ 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
+ 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 -- 
 2.27.0
+
+
 
