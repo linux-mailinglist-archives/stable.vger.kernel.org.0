@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A10C62B62F7
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2382E2B64C4
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732081AbgKQNdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:33:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43866 "EHLO mail.kernel.org"
+        id S1732093AbgKQNtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:49:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgKQNdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:33:39 -0500
+        id S1732090AbgKQNdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:33:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A03472078E;
-        Tue, 17 Nov 2020 13:33:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86C46207BC;
+        Tue, 17 Nov 2020 13:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620018;
-        bh=tdRDeBb688Tbj/zy/2sTeleiGzaqdpmOChiOlz+fbb4=;
+        s=default; t=1605620021;
+        bh=kJ9D4gPCppPR2jdULZdI/Hn5d/8VvmaLfUWrzlAUvnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6/2hzKShMKR+P2lQyo0kcE1rYJEfeEsCiqUrMPG//BAgSZ2Dh9MtlhpDar6b2wGn
-         +lLhsNFINJV+Q/XUkqtVFAY4pAJECjIGQd1qfepLf9WNnS0M6o564UI1/g3BPlqJ8O
-         Nz4tNkjRi7IUbZGx0p4UvwQPePUddLoiEzQjMO7w=
+        b=ML0LAsYX+/f/RH2m0QDvI8FEHZ1spdRdeE6REVydWJwzB49IfZxp5lvPbAhrmRWGM
+         1YNzL8OyJ5II0s0Eqfe8n8HKipU7okB+vBJ2u4GNrbq1e+harpu/iICHQ9s9ewQ7x2
+         qbjYPMh5c3LPBJaYPUY6TSpYoMG9IYztlmYU0guI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 080/255] usb: dwc3: pci: add support for the Intel Alder Lake-S
-Date:   Tue, 17 Nov 2020 14:03:40 +0100
-Message-Id: <20201117122142.844636842@linuxfoundation.org>
+Subject: [PATCH 5.9 081/255] opp: Reduce the size of critical section in _opp_table_kref_release()
+Date:   Tue, 17 Nov 2020 14:03:41 +0100
+Message-Id: <20201117122142.895520931@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,42 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 1384ab4fee12c4c4f8bd37bc9f8686881587b286 ]
+[ Upstream commit e0df59de670b48a923246fae1f972317b84b2764 ]
 
-This patch adds the necessary PCI ID for Intel Alder Lake-S
-devices.
+There is a lot of stuff here which can be done outside of the big
+opp_table_lock, do that. This helps avoiding few circular dependency
+lockdeps around debugfs and interconnects.
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reported-by: Rob Clark <robdclark@gmail.com>
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/opp/core.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 242b6210380a4..bae6a70664c80 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -40,6 +40,7 @@
- #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
- #define PCI_DEVICE_ID_INTEL_JSP			0x4dee
-+#define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index 1a95ad40795be..a963df7bd2749 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -1160,6 +1160,10 @@ static void _opp_table_kref_release(struct kref *kref)
+ 	struct opp_device *opp_dev, *temp;
+ 	int i;
  
- #define PCI_INTEL_BXT_DSM_GUID		"732b85d5-b7a7-4a1b-9ba0-4bbd00ffd511"
- #define PCI_INTEL_BXT_FUNC_PMU_PWR	4
-@@ -367,6 +368,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_JSP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_ADLS),
-+	  (kernel_ulong_t) &dwc3_pci_intel_properties, },
++	/* Drop the lock as soon as we can */
++	list_del(&opp_table->node);
++	mutex_unlock(&opp_table_lock);
 +
- 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NL_USB),
- 	  (kernel_ulong_t) &dwc3_pci_amd_properties, },
- 	{  }	/* Terminating Entry */
+ 	_of_clear_opp_table(opp_table);
+ 
+ 	/* Release clk */
+@@ -1187,10 +1191,7 @@ static void _opp_table_kref_release(struct kref *kref)
+ 
+ 	mutex_destroy(&opp_table->genpd_virt_dev_lock);
+ 	mutex_destroy(&opp_table->lock);
+-	list_del(&opp_table->node);
+ 	kfree(opp_table);
+-
+-	mutex_unlock(&opp_table_lock);
+ }
+ 
+ void dev_pm_opp_put_opp_table(struct opp_table *opp_table)
 -- 
 2.27.0
 
