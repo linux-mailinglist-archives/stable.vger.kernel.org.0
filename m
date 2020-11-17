@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 595A02B6501
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDD52B654E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731676AbgKQN1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:27:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
+        id S1731881AbgKQNyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:54:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731068AbgKQN1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:27:06 -0500
+        id S1731684AbgKQN1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F26821534;
-        Tue, 17 Nov 2020 13:27:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ADE221534;
+        Tue, 17 Nov 2020 13:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619626;
-        bh=qwdpYe9dQvbElnJFGEYTs27gqFA8bL7Z7XqD5aqNAf8=;
+        s=default; t=1605619628;
+        bh=O8Ob1sptsY0HiOvxNcLs5zTEtY+1UyMP+M9La1bL620=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMJHC/Ir8Uf0dakl2SD8eDXt6u9+Z9G7n+TkYyj1U61atfOPuqnmcMCvVi7zU8Bse
-         NY+RjLwmsEIChthI/1gvdgiI9aUMtYQX1zoFMeeeQtsPM5V+M80VFwzvLmsWL5VW8z
-         jN2Hzutnc1UVIkRIgdyEYfWJrJs1c3J9IYyrcsq8=
+        b=XNFY8eHDrKq6HWeiOadNG8p6YkoRHa5ePWAD0Qt0ty0ulfpUKggn+kWOFQt2Z6AOK
+         xnpuwRKgRFtUt8U5ECuCeAVCWn44phESMZDUVl6JxKMTvcWdcMR3YYi/pEMP9FmiJ+
+         +MFonIRKGVgKXO1HfRX+C1M+k0bGcB5qy+KLa/JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/151] lan743x: fix "BUG: invalid wait context" when setting rx mode
-Date:   Tue, 17 Nov 2020 14:05:30 +0100
-Message-Id: <20201117122126.275599872@linuxfoundation.org>
+Subject: [PATCH 5.4 101/151] xfs: fix a missing unlock on error in xfs_fs_map_blocks
+Date:   Tue, 17 Nov 2020 14:05:31 +0100
+Message-Id: <20201117122126.324304115@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -43,90 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 2b52a4b65bc8f14520fe6e996ea7fb3f7e400761 ]
+[ Upstream commit 2bd3fa793aaa7e98b74e3653fdcc72fa753913b5 ]
 
-In the net core, the struct net_device_ops -> ndo_set_rx_mode()
-callback is called with the dev->addr_list_lock spinlock held.
+We also need to drop the iolock when invalidate_inode_pages2 fails, not
+only on all other error or successful cases.
 
-However, this driver's ndo_set_rx_mode callback eventually calls
-lan743x_dp_write(), which acquires a mutex. Mutex acquisition
-may sleep, and this is not allowed when holding a spinlock.
-
-Fix by removing the dp_lock mutex entirely. Its purpose is to
-prevent concurrent accesses to the data port. No concurrent
-accesses are possible, because the dev->addr_list_lock
-spinlock in the core only lets through one thread at a time.
-
-Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
-Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
-Link: https://lore.kernel.org/r/20201109203828.5115-1-TheSven73@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 527851124d10 ("xfs: implement pNFS export operations")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c | 12 +++---------
- drivers/net/ethernet/microchip/lan743x_main.h |  3 ---
- 2 files changed, 3 insertions(+), 12 deletions(-)
+ fs/xfs/xfs_pnfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan743x_main.c b/drivers/net/ethernet/microchip/lan743x_main.c
-index a43140f7b5eb8..b8e0e08b79de2 100644
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -672,14 +672,12 @@ clean_up:
- static int lan743x_dp_write(struct lan743x_adapter *adapter,
- 			    u32 select, u32 addr, u32 length, u32 *buf)
- {
--	int ret = -EIO;
- 	u32 dp_sel;
- 	int i;
+diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
+index a339bd5fa2604..f63fe8d924a36 100644
+--- a/fs/xfs/xfs_pnfs.c
++++ b/fs/xfs/xfs_pnfs.c
+@@ -134,7 +134,7 @@ xfs_fs_map_blocks(
+ 		goto out_unlock;
+ 	error = invalidate_inode_pages2(inode->i_mapping);
+ 	if (WARN_ON_ONCE(error))
+-		return error;
++		goto out_unlock;
  
--	mutex_lock(&adapter->dp_lock);
- 	if (lan743x_csr_wait_for_bit(adapter, DP_SEL, DP_SEL_DPRDY_,
- 				     1, 40, 100, 100))
--		goto unlock;
-+		return -EIO;
- 	dp_sel = lan743x_csr_read(adapter, DP_SEL);
- 	dp_sel &= ~DP_SEL_MASK_;
- 	dp_sel |= select;
-@@ -691,13 +689,10 @@ static int lan743x_dp_write(struct lan743x_adapter *adapter,
- 		lan743x_csr_write(adapter, DP_CMD, DP_CMD_WRITE_);
- 		if (lan743x_csr_wait_for_bit(adapter, DP_SEL, DP_SEL_DPRDY_,
- 					     1, 40, 100, 100))
--			goto unlock;
-+			return -EIO;
- 	}
--	ret = 0;
- 
--unlock:
--	mutex_unlock(&adapter->dp_lock);
--	return ret;
-+	return 0;
- }
- 
- static u32 lan743x_mac_mii_access(u16 id, u16 index, int read)
-@@ -2674,7 +2669,6 @@ static int lan743x_hardware_init(struct lan743x_adapter *adapter,
- 
- 	adapter->intr.irq = adapter->pdev->irq;
- 	lan743x_csr_write(adapter, INT_EN_CLR, 0xFFFFFFFF);
--	mutex_init(&adapter->dp_lock);
- 
- 	ret = lan743x_gpio_init(adapter);
- 	if (ret)
-diff --git a/drivers/net/ethernet/microchip/lan743x_main.h b/drivers/net/ethernet/microchip/lan743x_main.h
-index 3b02eeae5f45d..1fbcef3910989 100644
---- a/drivers/net/ethernet/microchip/lan743x_main.h
-+++ b/drivers/net/ethernet/microchip/lan743x_main.h
-@@ -706,9 +706,6 @@ struct lan743x_adapter {
- 	struct lan743x_csr      csr;
- 	struct lan743x_intr     intr;
- 
--	/* lock, used to prevent concurrent access to data port */
--	struct mutex		dp_lock;
--
- 	struct lan743x_gpio	gpio;
- 	struct lan743x_ptp	ptp;
- 
+ 	end_fsb = XFS_B_TO_FSB(mp, (xfs_ufsize_t)offset + length);
+ 	offset_fsb = XFS_B_TO_FSBT(mp, offset);
 -- 
 2.27.0
 
