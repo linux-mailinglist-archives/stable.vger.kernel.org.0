@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B43A72B608B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2012B608C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbgKQNKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
+        id S1729065AbgKQNKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:10:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729438AbgKQNKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:14 -0500
+        id S1729447AbgKQNKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:10:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A72FB221EB;
-        Tue, 17 Nov 2020 13:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9103F2468F;
+        Tue, 17 Nov 2020 13:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618612;
-        bh=cG3vbnM8bx1OdB0QcQcJ72+101WCvZN42O7uuetWIYY=;
+        s=default; t=1605618615;
+        bh=qkWavBfOqHxAJgW4ykEWsYQH2aj3VzXkm8hVXHhHPK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPmUVmLrJ1MJ5Kq6v6/LFwqduXbJf07SOav2RXpG54TwE2HVXNvwdW813AyI3Z7Cc
-         poahWdAr9Y9yV9meIg0ld1jReJKKZ4cXzqm9P6IsyYCk67d7aCEU8nf2FA7JLo4PaB
-         jcHShxNdV42P80PMg2GzachkI8jECzyfdlF57j7g=
+        b=yHpan5QGIysdtsKX3Xs6wVTM1aQjuvuRTAkXNw1cmvdTWK0Bus0/TnDQBynk2mJtO
+         LPpTbsUIZuaPky9Q45ZcY4tP7bI3BP98MNtchLz+CrHHwM+4dybdwvDmTMLJG238ir
+         ib/dydaFZN1RHFXojvIOLshFRmn+EZVyoDzS4XPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Andrianov <andrianov@ispras.ru>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/78] usb: gadget: goku_udc: fix potential crashes in probe
-Date:   Tue, 17 Nov 2020 14:04:52 +0100
-Message-Id: <20201117122110.391863698@linuxfoundation.org>
+Subject: [PATCH 4.9 27/78] gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
+Date:   Tue, 17 Nov 2020 14:04:53 +0100
+Message-Id: <20201117122110.432797956@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
 References: <20201117122109.116890262@linuxfoundation.org>
@@ -44,49 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 0d66e04875c5aae876cf3d4f4be7978fa2b00523 ]
+[ Upstream commit d0f17d3883f1e3f085d38572c2ea8edbd5150172 ]
 
-goku_probe() goes to error label "err" and invokes goku_remove()
-in case of failures of pci_enable_device(), pci_resource_start()
-and ioremap(). goku_remove() gets a device from
-pci_get_drvdata(pdev) and works with it without any checks, in
-particular it dereferences a corresponding pointer. But
-goku_probe() did not set this device yet. So, one can expect
-various crashes. The patch moves setting the device just after
-allocation of memory for it.
+Function gfs2_clear_rgrpd calls kfree(rgd->rd_bits) before calling
+return_all_reservations, but return_all_reservations still dereferences
+rgd->rd_bits in __rs_deltree.  Fix that by moving the call to kfree below the
+call to return_all_reservations.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Reported-by: Pavel Andrianov <andrianov@ispras.ru>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/goku_udc.c | 2 +-
+ fs/gfs2/rgrp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/goku_udc.c b/drivers/usb/gadget/udc/goku_udc.c
-index 5107987bd3538..d363224dce6f5 100644
---- a/drivers/usb/gadget/udc/goku_udc.c
-+++ b/drivers/usb/gadget/udc/goku_udc.c
-@@ -1772,6 +1772,7 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
- 	}
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 0a80f66365492..0958f76ada6a3 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -730,9 +730,9 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
+ 		}
  
-+	pci_set_drvdata(pdev, dev);
- 	spin_lock_init(&dev->lock);
- 	dev->pdev = pdev;
- 	dev->gadget.ops = &goku_ops;
-@@ -1805,7 +1806,6 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		gfs2_free_clones(rgd);
++		return_all_reservations(rgd);
+ 		kfree(rgd->rd_bits);
+ 		rgd->rd_bits = NULL;
+-		return_all_reservations(rgd);
+ 		kmem_cache_free(gfs2_rgrpd_cachep, rgd);
  	}
- 	dev->regs = (struct goku_udc_regs __iomem *) base;
- 
--	pci_set_drvdata(pdev, dev);
- 	INFO(dev, "%s\n", driver_desc);
- 	INFO(dev, "version: " DRIVER_VERSION " %s\n", dmastr());
- 	INFO(dev, "irq %d, pci mem %p\n", pdev->irq, base);
+ }
 -- 
 2.27.0
 
