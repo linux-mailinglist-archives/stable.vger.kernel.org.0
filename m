@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D53BF2B6402
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AF42B65E0
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732711AbgKQNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:43:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1730702AbgKQN6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:58:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733307AbgKQNmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:42:20 -0500
+        id S1729771AbgKQNVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCA2820729;
-        Tue, 17 Nov 2020 13:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FEE32464E;
+        Tue, 17 Nov 2020 13:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620539;
-        bh=V6LGZmNS+SesxQuKzm2a/vPmzgkePS/fpKl5IJ0fWJM=;
+        s=default; t=1605619310;
+        bh=yqHezGp2K5VIdKSu1R5xqEoOp9qfb0OsKkdIQoDQsIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qEqRAEc7fcBownCOzxQtNbmLoDg0hhCLFTYJH7PvHYmhE+TYFACoQnJ5cJJ01alEi
-         a2AmnjoKtFOGIzA152j8dRkU4i1adClnjpMPLH/Qp2OfqMQuuWOZa2HkrLflKRUa7g
-         IdsVXP4lU1134/8gcPEgPkVRH6p0E4SlEvSBIolg=
+        b=BYwyZY7zMcCcD9eOJ6MVT/Y+eaOUheMa8SqLN3q3EQ7wtrYYTgC1c+oCOBGcMsDAJ
+         RqMxJOCv0kS+B8nFxglbrO0uJzLhZpf4pkE3QUutzaVeMmvg0ENEUNvjje0m3aRRIt
+         z2Z3EvJEfUcwpBesruY6HcVifZLPNXaH2iLyNzQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaud de Turckheim <quarium@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.9 224/255] gpio: pcie-idio-24: Enable PEX8311 interrupts
-Date:   Tue, 17 Nov 2020 14:06:04 +0100
-Message-Id: <20201117122149.838643784@linuxfoundation.org>
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 098/101] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+Date:   Tue, 17 Nov 2020 14:06:05 +0100
+Message-Id: <20201117122117.909452999@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +51,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud de Turckheim <quarium@gmail.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit 10a2f11d3c9e48363c729419e0f0530dea76e4fe upstream.
+commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
 
-This enables the PEX8311 internal PCI wire interrupt and the PEX8311
-local interrupt input so the local interrupts are forwarded to the PCI.
+Patch series "fix parsing of reboot= cmdline", v3.
 
-Fixes: 585562046628 ("gpio: Add GPIO support for the ACCES PCIe-IDIO-24 family")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnaud de Turckheim <quarium@gmail.com>
-Reviewed-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+The parsing of the reboot= cmdline has two major errors:
+
+ - a missing bound check can crash the system on reboot
+
+ - parsing of the cpu number only works if specified last
+
+Fix both.
+
+This patch (of 2):
+
+This reverts commit 616feab753972b97.
+
+kstrtoint() and simple_strtoul() have a subtle difference which makes
+them non interchangeable: if a non digit character is found amid the
+parsing, the former will return an error, while the latter will just
+stop parsing, e.g.  simple_strtoul("123xyx") = 123.
+
+The kernel cmdline reboot= argument allows to specify the CPU used for
+rebooting, with the syntax `s####` among the other flags, e.g.
+"reboot=warm,s31,force", so if this flag is not the last given, it's
+silently ignored as well as the subsequent ones.
+
+Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use reboot_mode instead of mode]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpio/gpio-pcie-idio-24.c |   52 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 51 insertions(+), 1 deletion(-)
+ kernel/reboot.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/drivers/gpio/gpio-pcie-idio-24.c
-+++ b/drivers/gpio/gpio-pcie-idio-24.c
-@@ -28,6 +28,47 @@
- #include <linux/spinlock.h>
- #include <linux/types.h>
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -539,22 +539,15 @@ static int __init reboot_setup(char *str
+ 			break;
  
-+/*
-+ * PLX PEX8311 PCI LCS_INTCSR Interrupt Control/Status
-+ *
-+ * Bit: Description
-+ *   0: Enable Interrupt Sources (Bit 0)
-+ *   1: Enable Interrupt Sources (Bit 1)
-+ *   2: Generate Internal PCI Bus Internal SERR# Interrupt
-+ *   3: Mailbox Interrupt Enable
-+ *   4: Power Management Interrupt Enable
-+ *   5: Power Management Interrupt
-+ *   6: Slave Read Local Data Parity Check Error Enable
-+ *   7: Slave Read Local Data Parity Check Error Status
-+ *   8: Internal PCI Wire Interrupt Enable
-+ *   9: PCI Express Doorbell Interrupt Enable
-+ *  10: PCI Abort Interrupt Enable
-+ *  11: Local Interrupt Input Enable
-+ *  12: Retry Abort Enable
-+ *  13: PCI Express Doorbell Interrupt Active
-+ *  14: PCI Abort Interrupt Active
-+ *  15: Local Interrupt Input Active
-+ *  16: Local Interrupt Output Enable
-+ *  17: Local Doorbell Interrupt Enable
-+ *  18: DMA Channel 0 Interrupt Enable
-+ *  19: DMA Channel 1 Interrupt Enable
-+ *  20: Local Doorbell Interrupt Active
-+ *  21: DMA Channel 0 Interrupt Active
-+ *  22: DMA Channel 1 Interrupt Active
-+ *  23: Built-In Self-Test (BIST) Interrupt Active
-+ *  24: Direct Master was the Bus Master during a Master or Target Abort
-+ *  25: DMA Channel 0 was the Bus Master during a Master or Target Abort
-+ *  26: DMA Channel 1 was the Bus Master during a Master or Target Abort
-+ *  27: Target Abort after internal 256 consecutive Master Retrys
-+ *  28: PCI Bus wrote data to LCS_MBOX0
-+ *  29: PCI Bus wrote data to LCS_MBOX1
-+ *  30: PCI Bus wrote data to LCS_MBOX2
-+ *  31: PCI Bus wrote data to LCS_MBOX3
-+ */
-+#define PLX_PEX8311_PCI_LCS_INTCSR  0x68
-+#define INTCSR_INTERNAL_PCI_WIRE    BIT(8)
-+#define INTCSR_LOCAL_INPUT          BIT(11)
+ 		case 's':
+-		{
+-			int rc;
+-
+-			if (isdigit(*(str+1))) {
+-				rc = kstrtoint(str+1, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else if (str[1] == 'm' && str[2] == 'p' &&
+-				   isdigit(*(str+3))) {
+-				rc = kstrtoint(str+3, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else
++			if (isdigit(*(str+1)))
++				reboot_cpu = simple_strtoul(str+1, NULL, 0);
++			else if (str[1] == 'm' && str[2] == 'p' &&
++							isdigit(*(str+3)))
++				reboot_cpu = simple_strtoul(str+3, NULL, 0);
++			else
+ 				reboot_mode = REBOOT_SOFT;
+ 			break;
+-		}
 +
- /**
-  * struct idio_24_gpio_reg - GPIO device registers structure
-  * @out0_7:	Read: FET Outputs 0-7
-@@ -92,6 +133,7 @@ struct idio_24_gpio_reg {
- struct idio_24_gpio {
- 	struct gpio_chip chip;
- 	raw_spinlock_t lock;
-+	__u8 __iomem *plx;
- 	struct idio_24_gpio_reg __iomem *reg;
- 	unsigned long irq_mask;
- };
-@@ -455,6 +497,7 @@ static int idio_24_probe(struct pci_dev
- 	struct device *const dev = &pdev->dev;
- 	struct idio_24_gpio *idio24gpio;
- 	int err;
-+	const size_t pci_plx_bar_index = 1;
- 	const size_t pci_bar_index = 2;
- 	const char *const name = pci_name(pdev);
- 	struct gpio_irq_chip *girq;
-@@ -469,12 +512,13 @@ static int idio_24_probe(struct pci_dev
- 		return err;
- 	}
- 
--	err = pcim_iomap_regions(pdev, BIT(pci_bar_index), name);
-+	err = pcim_iomap_regions(pdev, BIT(pci_plx_bar_index) | BIT(pci_bar_index), name);
- 	if (err) {
- 		dev_err(dev, "Unable to map PCI I/O addresses (%d)\n", err);
- 		return err;
- 	}
- 
-+	idio24gpio->plx = pcim_iomap_table(pdev)[pci_plx_bar_index];
- 	idio24gpio->reg = pcim_iomap_table(pdev)[pci_bar_index];
- 
- 	idio24gpio->chip.label = name;
-@@ -504,6 +548,12 @@ static int idio_24_probe(struct pci_dev
- 
- 	/* Software board reset */
- 	iowrite8(0, &idio24gpio->reg->soft_reset);
-+	/*
-+	 * enable PLX PEX8311 internal PCI wire interrupt and local interrupt
-+	 * input
-+	 */
-+	iowrite8((INTCSR_INTERNAL_PCI_WIRE | INTCSR_LOCAL_INPUT) >> 8,
-+		 idio24gpio->plx + PLX_PEX8311_PCI_LCS_INTCSR + 1);
- 
- 	err = devm_gpiochip_add_data(dev, &idio24gpio->chip, idio24gpio);
- 	if (err) {
+ 		case 'g':
+ 			reboot_mode = REBOOT_GPIO;
+ 			break;
 
 
