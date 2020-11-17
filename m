@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E93112B6170
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA392B6162
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730743AbgKQNSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:18:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S1730139AbgKQNSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:18:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730734AbgKQNSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:18:54 -0500
+        id S1729850AbgKQNQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:16:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31A6D2225B;
-        Tue, 17 Nov 2020 13:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DB382151B;
+        Tue, 17 Nov 2020 13:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619131;
-        bh=ymSK9agiH04LuUS7bKGzlYGYWqJyM6s2xTmSjorwK1c=;
+        s=default; t=1605618960;
+        bh=CkhcIAxtkUpPBXKvzqUuIpv/4DMVZZlllOGxLQYcRts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfuPS1Uq/YM8k4TIrRe6tSUJYAxRusAzn0M6NLjTUW0DtZPbCIcPKjKjM/vkmL52D
-         h6W/6cQ1RIedsihwABKfe3BeWkYpDRalr1jUT+vjQS8ClcAY8r8m1krZSfRWXu04XU
-         dnhMu5llkqIajAKG/bYNV0bEgWFusjZaf6EBGI5c=
+        b=SjZv0t/F+o3IuffrhMsAV35U9wnHtokvavdE3Sz6PPPD4wOcHpkJrSq8CgQYKm3zs
+         IxtSYI2OpWdEaRBtR0rUmerVkndY3FtI6RdvDvBiao6v08ggSi7DKrnJE+JhauElng
+         ORnFat5F3shYEVbqiH/KlqVXWJtXtSzKcDcdr70Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Billy Tsai <billy_tsai@aspeedtech.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 037/101] drm/amd/pm: perform SMC reset on suspend/hibernation
-Date:   Tue, 17 Nov 2020 14:05:04 +0100
-Message-Id: <20201117122114.897781933@linuxfoundation.org>
+Subject: [PATCH 4.14 36/85] pinctrl: aspeed: Fix GPI only function problem.
+Date:   Tue, 17 Nov 2020 14:05:05 +0100
+Message-Id: <20201117122112.799838542@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Billy Tsai <billy_tsai@aspeedtech.com>
 
-[ Upstream commit 277b080f98803cb73a83fb234f0be83a10e63958 ]
+[ Upstream commit 9b92f5c51e9a41352d665f6f956bd95085a56a83 ]
 
-So that the succeeding resume can be performed based on
-a clean state.
+Some gpio pin at aspeed soc is input only and the prefix name of these
+pin is "GPI" only.
+This patch fine-tune the condition of GPIO check from "GPIO" to "GPI"
+and it will fix the usage error of banks D and E in the AST2400/AST2500
+and banks T and U in the AST2600.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4d3d0e4272d8 ("pinctrl: Add core support for Aspeed SoCs")
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20201030055450.29613-1-billy_tsai@aspeedtech.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c  |  4 ++++
- drivers/gpu/drm/amd/powerplay/inc/hwmgr.h     |  1 +
- drivers/gpu/drm/amd/powerplay/inc/smumgr.h    |  2 ++
- .../gpu/drm/amd/powerplay/smumgr/ci_smumgr.c  | 24 +++++++++++++++++++
- drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c |  8 +++++++
- 5 files changed, 39 insertions(+)
+ drivers/pinctrl/aspeed/pinctrl-aspeed.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-index 058898b321b8a..d8e624d64ae38 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-@@ -1531,6 +1531,10 @@ int smu7_disable_dpm_tasks(struct pp_hwmgr *hwmgr)
- 	PP_ASSERT_WITH_CODE((tmp_result == 0),
- 			"Failed to reset to default!", result = tmp_result);
- 
-+	tmp_result = smum_stop_smc(hwmgr);
-+	PP_ASSERT_WITH_CODE((tmp_result == 0),
-+			"Failed to stop smc!", result = tmp_result);
-+
- 	tmp_result = smu7_force_switch_to_arbf0(hwmgr);
- 	PP_ASSERT_WITH_CODE((tmp_result == 0),
- 			"Failed to force to switch arbf0!", result = tmp_result);
-diff --git a/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h b/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
-index 6ee864455a12a..f59e1e737735f 100644
---- a/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
-+++ b/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
-@@ -216,6 +216,7 @@ struct pp_smumgr_func {
- 	bool (*is_hw_avfs_present)(struct pp_hwmgr  *hwmgr);
- 	int (*update_dpm_settings)(struct pp_hwmgr *hwmgr, void *profile_setting);
- 	int (*smc_table_manager)(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t table_id, bool rw); /*rw: true for read, false for write */
-+	int (*stop_smc)(struct pp_hwmgr *hwmgr);
- };
- 
- struct pp_hwmgr_func {
-diff --git a/drivers/gpu/drm/amd/powerplay/inc/smumgr.h b/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
-index 82550a8a3a3fc..ef4f2392e2e7d 100644
---- a/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
-+++ b/drivers/gpu/drm/amd/powerplay/inc/smumgr.h
-@@ -113,4 +113,6 @@ extern int smum_update_dpm_settings(struct pp_hwmgr *hwmgr, void *profile_settin
- 
- extern int smum_smc_table_manager(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t table_id, bool rw);
- 
-+extern int smum_stop_smc(struct pp_hwmgr *hwmgr);
-+
- #endif
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-index db87cb8930d24..0d4dd607e85c8 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -2934,6 +2934,29 @@ static int ci_update_smc_table(struct pp_hwmgr *hwmgr, uint32_t type)
- 	return 0;
+diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed.c b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
+index 7f13ce8450a34..5249033ed413e 100644
+--- a/drivers/pinctrl/aspeed/pinctrl-aspeed.c
++++ b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
+@@ -458,13 +458,14 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
+ static bool aspeed_expr_is_gpio(const struct aspeed_sig_expr *expr)
+ {
+ 	/*
+-	 * The signal type is GPIO if the signal name has "GPIO" as a prefix.
++	 * The signal type is GPIO if the signal name has "GPI" as a prefix.
+ 	 * strncmp (rather than strcmp) is used to implement the prefix
+ 	 * requirement.
+ 	 *
+-	 * expr->signal might look like "GPIOT3" in the GPIO case.
++	 * expr->signal might look like "GPIOB1" in the GPIO case.
++	 * expr->signal might look like "GPIT0" in the GPI case.
+ 	 */
+-	return strncmp(expr->signal, "GPIO", 4) == 0;
++	return strncmp(expr->signal, "GPI", 3) == 0;
  }
  
-+static void ci_reset_smc(struct pp_hwmgr *hwmgr)
-+{
-+	PHM_WRITE_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
-+				  SMC_SYSCON_RESET_CNTL,
-+				  rst_reg, 1);
-+}
-+
-+
-+static void ci_stop_smc_clock(struct pp_hwmgr *hwmgr)
-+{
-+	PHM_WRITE_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
-+				  SMC_SYSCON_CLOCK_CNTL_0,
-+				  ck_disable, 1);
-+}
-+
-+static int ci_stop_smc(struct pp_hwmgr *hwmgr)
-+{
-+	ci_reset_smc(hwmgr);
-+	ci_stop_smc_clock(hwmgr);
-+
-+	return 0;
-+}
-+
- const struct pp_smumgr_func ci_smu_funcs = {
- 	.smu_init = ci_smu_init,
- 	.smu_fini = ci_smu_fini,
-@@ -2957,4 +2980,5 @@ const struct pp_smumgr_func ci_smu_funcs = {
- 	.is_dpm_running = ci_is_dpm_running,
- 	.update_dpm_settings = ci_update_dpm_settings,
- 	.update_smc_table = ci_update_smc_table,
-+	.stop_smc = ci_stop_smc,
- };
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
-index a6edd5df33b0f..20ecf994d47f3 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/smumgr.c
-@@ -213,3 +213,11 @@ int smum_smc_table_manager(struct pp_hwmgr *hwmgr, uint8_t *table, uint16_t tabl
- 
- 	return -EINVAL;
- }
-+
-+int smum_stop_smc(struct pp_hwmgr *hwmgr)
-+{
-+	if (hwmgr->smumgr_funcs->stop_smc)
-+		return hwmgr->smumgr_funcs->stop_smc(hwmgr);
-+
-+	return 0;
-+}
+ static bool aspeed_gpio_in_exprs(const struct aspeed_sig_expr **exprs)
 -- 
 2.27.0
 
