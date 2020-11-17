@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6BD2B6370
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CE52B642F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732535AbgKQNiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:38:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
+        id S1733038AbgKQNiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:38:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731634AbgKQNiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:38:07 -0500
+        id S1732516AbgKQNiL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:38:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23EEE2465E;
-        Tue, 17 Nov 2020 13:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF3622467A;
+        Tue, 17 Nov 2020 13:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620286;
-        bh=9rHokNqXDrt3/W7kyFVR6/D2SJ8EngZBVc5l42VSREs=;
+        s=default; t=1605620289;
+        bh=r1l6VpMHl4LT2wpy1CIy1ZrDkRuIB2yk8/82xH6+dGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tis4M0UEZWkyOIz4DFcjal6tIGukrrEU8WJTdnUTcpVK/s9Qyu16lUIYF2FLGj1h
-         KRck8Qa5WRgAbVmpOwRwyEBu5TdiTmyQmPR2cVn9bHLzR7jS7KCB73BAGOC2g/TRdj
-         L8B12STr5pnSHM0K1iQTHQILvUhcafMP6I7Fpk6c=
+        b=UVgBGGMjacrmXNHO3EVqiZZPvX9KfaZWfmlWsqetdmPGTpMZSWPj6vupo48kK/DMS
+         aMuEvTbflzrH0D+fLGw3lX5EskSLlmiddgZi0lLI1sQa+6R036EYVICdLBoHBwpTKV
+         pSQocnCVN/F7QFY1GSz9hG9KuRgwxsjgmIsZejHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 169/255] NFS: Fix listxattr receive buffer size
-Date:   Tue, 17 Nov 2020 14:05:09 +0100
-Message-Id: <20201117122147.162738015@linuxfoundation.org>
+Subject: [PATCH 5.9 170/255] vrf: Fix fast path output packet handling with async Netfilter rules
+Date:   Tue, 17 Nov 2020 14:05:10 +0100
+Message-Id: <20201117122147.211623472@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,56 +43,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Martin Willi <martin@strongswan.org>
 
-[ Upstream commit 6c2190b3fcbc92cb79e39cc7e7531656b341e463 ]
+[ Upstream commit 9e2b7fa2df4365e99934901da4fb4af52d81e820 ]
 
-Certain NFSv4.2/RDMA tests fail with v5.9-rc1.
+VRF devices use an optimized direct path on output if a default qdisc
+is involved, calling Netfilter hooks directly. This path, however, does
+not consider Netfilter rules completing asynchronously, such as with
+NFQUEUE. The Netfilter okfn() is called for asynchronously accepted
+packets, but the VRF never passes that packet down the stack to send
+it out over the slave device. Using the slower redirect path for this
+seems not feasible, as we do not know beforehand if a Netfilter hook
+has asynchronously completing rules.
 
-rpcrdma_convert_kvec() runs off the end of the rl_segments array
-because rq_rcv_buf.tail[0].iov_len holds a very large positive
-value. The resultant kernel memory corruption is enough to crash
-the client system.
+Fix the use of asynchronously completing Netfilter rules in OUTPUT and
+POSTROUTING by using a special completion function that additionally
+calls dst_output() to pass the packet down the stack. Also, slightly
+adjust the use of nf_reset_ct() so that is called in the asynchronous
+case, too.
 
-Callers of rpc_prepare_reply_pages() must reserve an extra XDR_UNIT
-in the maximum decode size for a possible XDR pad of the contents
-of the xdr_buf's pages. That guarantees the allocated receive buffer
-will be large enough to accommodate the usual contents plus that XDR
-pad word.
-
-encode_op_hdr() cannot add that extra word. If it does,
-xdr_inline_pages() underruns the length of the tail iovec.
-
-Fixes: 3e1f02123fba ("NFSv4.2: add client side XDR handling for extended attributes")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: dcdd43c41e60 ("net: vrf: performance improvements for IPv4")
+Fixes: a9ec54d1b0cd ("net: vrf: performance improvements for IPv6")
+Signed-off-by: Martin Willi <martin@strongswan.org>
+Link: https://lore.kernel.org/r/20201106073030.3974927-1-martin@strongswan.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42xdr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/vrf.c | 92 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 69 insertions(+), 23 deletions(-)
 
-diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
-index cc50085e151c5..d0ddf90c9be48 100644
---- a/fs/nfs/nfs42xdr.c
-+++ b/fs/nfs/nfs42xdr.c
-@@ -179,7 +179,7 @@
- 				 1 + nfs4_xattr_name_maxsz + 1)
- #define decode_setxattr_maxsz   (op_decode_hdr_maxsz + decode_change_info_maxsz)
- #define encode_listxattrs_maxsz  (op_encode_hdr_maxsz + 2 + 1)
--#define decode_listxattrs_maxsz  (op_decode_hdr_maxsz + 2 + 1 + 1)
-+#define decode_listxattrs_maxsz  (op_decode_hdr_maxsz + 2 + 1 + 1 + 1)
- #define encode_removexattr_maxsz (op_encode_hdr_maxsz + 1 + \
- 				  nfs4_xattr_name_maxsz)
- #define decode_removexattr_maxsz (op_decode_hdr_maxsz + \
-@@ -504,7 +504,7 @@ static void encode_listxattrs(struct xdr_stream *xdr,
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index 60c1aadece89a..f2793ffde1913 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -608,8 +608,7 @@ static netdev_tx_t vrf_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	return ret;
+ }
+ 
+-static int vrf_finish_direct(struct net *net, struct sock *sk,
+-			     struct sk_buff *skb)
++static void vrf_finish_direct(struct sk_buff *skb)
  {
- 	__be32 *p;
+ 	struct net_device *vrf_dev = skb->dev;
  
--	encode_op_hdr(xdr, OP_LISTXATTRS, decode_listxattrs_maxsz + 1, hdr);
-+	encode_op_hdr(xdr, OP_LISTXATTRS, decode_listxattrs_maxsz, hdr);
+@@ -628,7 +627,8 @@ static int vrf_finish_direct(struct net *net, struct sock *sk,
+ 		skb_pull(skb, ETH_HLEN);
+ 	}
  
- 	p = reserve_space(xdr, 12);
- 	if (unlikely(!p))
+-	return 1;
++	/* reset skb device */
++	nf_reset_ct(skb);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -707,15 +707,41 @@ static struct sk_buff *vrf_ip6_out_redirect(struct net_device *vrf_dev,
+ 	return skb;
+ }
+ 
++static int vrf_output6_direct_finish(struct net *net, struct sock *sk,
++				     struct sk_buff *skb)
++{
++	vrf_finish_direct(skb);
++
++	return vrf_ip6_local_out(net, sk, skb);
++}
++
+ static int vrf_output6_direct(struct net *net, struct sock *sk,
+ 			      struct sk_buff *skb)
+ {
++	int err = 1;
++
+ 	skb->protocol = htons(ETH_P_IPV6);
+ 
+-	return NF_HOOK_COND(NFPROTO_IPV6, NF_INET_POST_ROUTING,
+-			    net, sk, skb, NULL, skb->dev,
+-			    vrf_finish_direct,
+-			    !(IPCB(skb)->flags & IPSKB_REROUTED));
++	if (!(IPCB(skb)->flags & IPSKB_REROUTED))
++		err = nf_hook(NFPROTO_IPV6, NF_INET_POST_ROUTING, net, sk, skb,
++			      NULL, skb->dev, vrf_output6_direct_finish);
++
++	if (likely(err == 1))
++		vrf_finish_direct(skb);
++
++	return err;
++}
++
++static int vrf_ip6_out_direct_finish(struct net *net, struct sock *sk,
++				     struct sk_buff *skb)
++{
++	int err;
++
++	err = vrf_output6_direct(net, sk, skb);
++	if (likely(err == 1))
++		err = vrf_ip6_local_out(net, sk, skb);
++
++	return err;
+ }
+ 
+ static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
+@@ -728,18 +754,15 @@ static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
+ 	skb->dev = vrf_dev;
+ 
+ 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
+-		      skb, NULL, vrf_dev, vrf_output6_direct);
++		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
+ 
+ 	if (likely(err == 1))
+ 		err = vrf_output6_direct(net, sk, skb);
+ 
+-	/* reset skb device */
+ 	if (likely(err == 1))
+-		nf_reset_ct(skb);
+-	else
+-		skb = NULL;
++		return skb;
+ 
+-	return skb;
++	return NULL;
+ }
+ 
+ static struct sk_buff *vrf_ip6_out(struct net_device *vrf_dev,
+@@ -919,15 +942,41 @@ static struct sk_buff *vrf_ip_out_redirect(struct net_device *vrf_dev,
+ 	return skb;
+ }
+ 
++static int vrf_output_direct_finish(struct net *net, struct sock *sk,
++				    struct sk_buff *skb)
++{
++	vrf_finish_direct(skb);
++
++	return vrf_ip_local_out(net, sk, skb);
++}
++
+ static int vrf_output_direct(struct net *net, struct sock *sk,
+ 			     struct sk_buff *skb)
+ {
++	int err = 1;
++
+ 	skb->protocol = htons(ETH_P_IP);
+ 
+-	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
+-			    net, sk, skb, NULL, skb->dev,
+-			    vrf_finish_direct,
+-			    !(IPCB(skb)->flags & IPSKB_REROUTED));
++	if (!(IPCB(skb)->flags & IPSKB_REROUTED))
++		err = nf_hook(NFPROTO_IPV4, NF_INET_POST_ROUTING, net, sk, skb,
++			      NULL, skb->dev, vrf_output_direct_finish);
++
++	if (likely(err == 1))
++		vrf_finish_direct(skb);
++
++	return err;
++}
++
++static int vrf_ip_out_direct_finish(struct net *net, struct sock *sk,
++				    struct sk_buff *skb)
++{
++	int err;
++
++	err = vrf_output_direct(net, sk, skb);
++	if (likely(err == 1))
++		err = vrf_ip_local_out(net, sk, skb);
++
++	return err;
+ }
+ 
+ static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
+@@ -940,18 +989,15 @@ static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
+ 	skb->dev = vrf_dev;
+ 
+ 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
+-		      skb, NULL, vrf_dev, vrf_output_direct);
++		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
+ 
+ 	if (likely(err == 1))
+ 		err = vrf_output_direct(net, sk, skb);
+ 
+-	/* reset skb device */
+ 	if (likely(err == 1))
+-		nf_reset_ct(skb);
+-	else
+-		skb = NULL;
++		return skb;
+ 
+-	return skb;
++	return NULL;
+ }
+ 
+ static struct sk_buff *vrf_ip_out(struct net_device *vrf_dev,
 -- 
 2.27.0
 
