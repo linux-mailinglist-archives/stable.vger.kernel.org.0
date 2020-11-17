@@ -2,255 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213672B700D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 21:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59CCB2B706C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 21:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbgKQU3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 15:29:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41374 "EHLO
+        id S1728578AbgKQUn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 15:43:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726146AbgKQU3U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 15:29:20 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDEEC0613CF;
-        Tue, 17 Nov 2020 12:29:20 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id m9so7195352pgb.4;
-        Tue, 17 Nov 2020 12:29:20 -0800 (PST)
+        with ESMTP id S1728195AbgKQUn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 15:43:57 -0500
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB38C0613CF
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 12:43:57 -0800 (PST)
+Received: by mail-qk1-x744.google.com with SMTP id y197so22099710qkb.7
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 12:43:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=A04NdGw3EYYnjizlVIom+Qa0tfDsLEhS7W1vhUNsh64=;
-        b=AL2QC4FX7HIPPHrmuPaqw0qaE2rf455IERCc268AcGBiGhcj5vbVatxOe0cNKE0Zez
-         dAAuX4PxD0jincL8S/xz3B4FYaZmtcXe3Iob/yqX9+6NCI9SPSTqO+0DXNDG4tZR1wHp
-         gpjIZZJVlnLrQUZFP6C7P0G/ntFZ/8fGKUfsoInvlVn0LA/S7xxxq3ZSibx9DVr+hv5H
-         A19z0XBIYmUYa5OW6nmGK//EJol9U6PA9gFTVK3orvCFIxBG3YxtVBQXjQI5rJ+eCePx
-         9dSb6oldALYZC6KOzNHItD2Bt9l2dLGe05HUTUnIjlwFfOxXeyGLQQNdg+d11ji2uQrY
-         vSDA==
+        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=63xsiwtULQ4G6VpX+0Ay1KZ0sy50QK7nr5FZ4J13748=;
+        b=JjLWGKprFQ4G64Sh5h0Y6ikJxJ8EGI9AwX9t6km2PcYmnzT6TMJmvOQV2nrpx2Ydez
+         HDvUu2pHHzdeN/nP70vNJzeGfccegsLOaXeUzHbA7hZAN/PY4oleAUVkLYp9jkheBv+b
+         GPLbHLr2kP9qsfQR77A1UL5ENac/HQJzEv59AXvtDnFmE/Frd3ef1SgtOp2IQjskWpSB
+         V9Ha6Yq5wSzCwUX0cCbffciVWjZVB8lKoMx/ZUmT9M3VOBPdfEZmfwAl5kxqlxNpWmg0
+         bRKMuiU+xvEbFV8Ee1tk+uS6qiehKUH8/WTPjjIoW3Qu98KVgnZ9X5hAt42CGrcKck96
+         VOQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=A04NdGw3EYYnjizlVIom+Qa0tfDsLEhS7W1vhUNsh64=;
-        b=roy+Hmbs8IdoiOjwJfnevUJwenROOjR78xQ9Ck6m5d1xeGaX+Sxm0VuUIhyQVb2YJ2
-         hcsKCv7Xz0WczI/zyedJp1qOxtv+Pig+Un9Xv2Mm6kR1tYO7sjdlvH2zyJhJRBsxhTSN
-         Gswm3uEt0gFLOGJ2Z6BrtweVWRTY3lGN9c0XgNpqOlwOQueWT2+xTEZeX0cLJ8qWHRWN
-         y5wtWx8/By847qbkFthSXyxUHBFnjag9drnAx+AzyNwWg2iZnH0IRZcchfilXoefV52t
-         YEG6N2/8Q1+pxOcnPDCcwlA1W4dC5NoV+tpZdRdh3Nwz5gZyoyn49hLzJbUuwOhGbiBL
-         VThw==
-X-Gm-Message-State: AOAM533Rajd3AVbbxyaaQixlGvLgbtG0yFheEUArsv9hslkzqzyq57yF
-        3ViByTjBiTShzJBhGL4lcsg=
-X-Google-Smtp-Source: ABdhPJzPaLg+9m926PfSHe5hFt/HzmTYiFVRagNeDtcWTPYTqAe/L+otCw+OaCGvKsNUX8/59thZPA==
-X-Received: by 2002:a63:486:: with SMTP id 128mr4693071pge.200.1605644959967;
-        Tue, 17 Nov 2020 12:29:19 -0800 (PST)
-Received: from google.com ([2620:15c:211:201:7220:84ff:fe09:5e58])
-        by smtp.gmail.com with ESMTPSA id m73sm7389164pfd.106.2020.11.17.12.29.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2020 12:29:18 -0800 (PST)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Tue, 17 Nov 2020 12:29:16 -0800
-From:   Minchan Kim <minchan@kernel.org>
-To:     Christoph Hellwig <hch@infradead.org>,
-        sergey.senozhatsky.work@gmail.com, tony@atomide.com,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Harish Sriram <harish@linux.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "mm/vunmap: add cond_resched() in
- vunmap_pmd_range"
-Message-ID: <20201117202916.GA3856507@google.com>
-References: <20201105170249.387069-1-minchan@kernel.org>
- <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
- <20201107083939.GA1633068@google.com>
- <20201112200101.GC123036@google.com>
- <20201112144919.5f6b36876f4e59ebb4a99d6d@linux-foundation.org>
- <20201113162529.GA2378542@google.com>
- <20201116175323.GB3805951@google.com>
- <20201117135632.GA27763@infradead.org>
+        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
+         :from:date:message-id:subject:to:content-transfer-encoding;
+        bh=63xsiwtULQ4G6VpX+0Ay1KZ0sy50QK7nr5FZ4J13748=;
+        b=j/aKIC57zsZ2bXmKmo+sNSKUAcz9s9iCumghtgPSt0rqs3FBkTqygGbkgZYOSBqHFM
+         M3UJgHwikOEK7uEZI4sK2KASAi1FAdxQGSz/g9xP0sIoYmtqlrL2lpp0mnAvw01dlHXx
+         SSAsvwXIlRZjkE0E3d/6VN1ZWxrr1VxBRwid8uivGFMOCpu3kNSKp2z1xI6YN2OZpoCf
+         IAArIjgLY+9aOxZcykSDv3W8xsnq3Xc1YY6gbfxkumYrO2YTB5N7LEO6fQBSJAwHfla5
+         z8CLxxzX42BFwc4f0oFFqaWY57AKeuSnEf3FCGYOfFy3RzbFjqDauJb7h4kHLR5G3+vI
+         WioQ==
+X-Gm-Message-State: AOAM5300w2HMXTIByjkRzMOBd59OIjixdOrHCb/tI735ELVRTfpQXPjT
+        1YwmbMjFdk+C/DUxRHij2CCVg3ZshO7sp341FOc=
+X-Google-Smtp-Source: ABdhPJy/EndM+mBIUvM7AyTlpBNrGaKDS97DwKtzNcLCRhKx7n6UGQjv3Gpf9hIR6cmsoceCv3k934GrZlPUch+iYRA=
+X-Received: by 2002:ae9:edc1:: with SMTP id c184mr1493338qkg.188.1605645836845;
+ Tue, 17 Nov 2020 12:43:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201117135632.GA27763@infradead.org>
+Received: by 2002:ac8:3502:0:0:0:0:0 with HTTP; Tue, 17 Nov 2020 12:43:56
+ -0800 (PST)
+Reply-To: rhajihaid8888888@gmail.com
+In-Reply-To: <CANC2eqGOqaE25_gSaxJ0mAT=+FJtRx+cJ9XEmPicgd5OeO1eCA@mail.gmail.com>
+References: <CANC2eqHbN1Cwm9BSDAEv+jkHn8ugWd=R8SK0dqXSNa+_EhPSvQ@mail.gmail.com>
+ <CANC2eqEf373Sd98GjKjdF54=vrPVQTpmJ4BM1cVHHZ665_5AaA@mail.gmail.com>
+ <CANC2eqF6K0zM02v4-1-1_tskS+UKVsC3SMt1ywhK8k6DrNYzvw@mail.gmail.com>
+ <CANC2eqEeXs04VR9AWDX_K+ThTgnYse0jiNtKdKiy+5OANjz0tg@mail.gmail.com>
+ <CANC2eqFNmyOpBvbqq9jsCCuMC2v-LQdRNB4WM9hkjqHLsj4XXw@mail.gmail.com>
+ <CANC2eqH4+9VSv9e1DcLuo6O7OWeB7dpxPEBw79YsN1vYQ8EaKg@mail.gmail.com>
+ <CANC2eqHeYOqyjbj-F5KM-YHCffA5dyLGjgp6A9qrCTz_rf7dBQ@mail.gmail.com>
+ <CANC2eqGY-9Wmhgx+sOgS-cuoCQ09dSD6uVtWi4WOXNUu98BZrw@mail.gmail.com>
+ <CANC2eqFGRiqgGzoDugaj=9eF8ODmMW1Vt5ayGmZuQXF3uK+PDA@mail.gmail.com>
+ <CANC2eqGi06BWBpEjvzrPZEL==jquNZQbrSQi79=ZCdBYi8HrOQ@mail.gmail.com>
+ <CANC2eqGFt1FsQ-_mfMwXGL4KnxVOz3pi9E+EySgq_8_Y1oyGBg@mail.gmail.com>
+ <CANC2eqHD09o3S6wU4_pa5p+idad2mhUM61b7neRw9pQ=5ivumw@mail.gmail.com>
+ <CANC2eqGR=Vgaz_rS_HUfnD1JsVw5cjsiyx_=1W-s-i-naog=Yw@mail.gmail.com>
+ <CANC2eqEC=-yVov7kpLE+tr2AuqVpMn86wm9k+jMq184FBUPOsA@mail.gmail.com>
+ <CANC2eqFhMYFnFVCnOf_4yEjkAR35cfHEd_Ag43HsK+BPw-uJ6g@mail.gmail.com>
+ <CANC2eqEqQo0zOyw=-A3gDMZFXqmWGw9tgi9_Dfm9e2MVupcDuw@mail.gmail.com>
+ <CANC2eqEUkHEJ7a04pdBSFN322y5Qrf4V5HLK8ar3SEw6tLZtyQ@mail.gmail.com>
+ <CANC2eqGoLwtx0JOp5yhSm4j_vb4osDtx0007jq0_9eS7oDCRaA@mail.gmail.com>
+ <CANC2eqHjTpb5QnAEJLEm7=Con-qh9_Z_GCV0ZA6of+tD1BM-Jw@mail.gmail.com>
+ <CANC2eqGb7w4zu3=n4+PJ_8QA1enmHjkaY_dSuG3vht_Lz4h8yw@mail.gmail.com>
+ <CANC2eqFhP9_Q3rXcVVuj_0NE_s_Aap3B2sFf932HZ_8S3=JsRw@mail.gmail.com>
+ <CANC2eqEh_Db_0=S1h=R_wH3s5LL7jvrAWbYDA9uG5amRWkV5+w@mail.gmail.com>
+ <CANC2eqFQX6CBvW40VR7T-SUKK5j9=55WXYQRb0Rp13jooDuMfw@mail.gmail.com>
+ <CANC2eqExJEiCdYVrZoWJVTNaa2iNNRcyF8K31pHdPn00BeKb+g@mail.gmail.com>
+ <CANC2eqF0z144HwvD0wG8dFpcy1+ABb2YJ7_8dygAa55jexXz7g@mail.gmail.com>
+ <CANC2eqHHEtQqfGxwi5sZ7oUV5zaDEubV2UKZPNBQ31ahWjj=Cw@mail.gmail.com>
+ <CANC2eqF_7Z4mrWeihopqB1Fh51XHKYhMdP_+6e1EMXkc7KeSpw@mail.gmail.com>
+ <CANC2eqFm1ja_VXrWT+X4xy72Y==qtocKawgdoU_3aqRcYVi+mA@mail.gmail.com>
+ <CANC2eqE73EQwC9xLHOSRXJdOFNhu41LBu8KmBSPb4H5mnqKB+A@mail.gmail.com>
+ <CANC2eqHsWLDgusthDcRsSQ_yW_OwOzZ3SL_U7z0X3bhQAEBLNg@mail.gmail.com>
+ <CANC2eqGu4JyKRk7qskXPZLJVY4QX61zYkqfwZn60VSZ_fBtnbw@mail.gmail.com>
+ <CANC2eqGaCZn9XyGXU4RGw8SrbRN9DwM0NMq3E9YeMxF7SjiS7Q@mail.gmail.com>
+ <CANC2eqHA6FD6Hy6C5PpJbnBUO2WhJHeES1zLaWxpyNyFMY563w@mail.gmail.com>
+ <CANC2eqGtEDOn_yzv5444fotnTT9N8HN7x21P0PuyinXzXTfXfQ@mail.gmail.com>
+ <CANC2eqGskykKPj1nWrLPPL59R15vYL1q9tmW6k6Gudgd0y_8-w@mail.gmail.com>
+ <CANC2eqF6AvuMW9fXOuuxs2JBRMmYHVaHpcFiZsOVdMXyjXeB9A@mail.gmail.com>
+ <CANC2eqFMZk3MdL6gdLfCFqEVeyoCVGONs=N66KD0JcnnQ+NnKQ@mail.gmail.com>
+ <CANC2eqGEe9e_rubyNSaYo3g7=iU=_CHHkGGAzTiLuKxr5m6zkQ@mail.gmail.com>
+ <CANC2eqHr2rueY+gHronF63WXy2+SGZFo_CB-rRKBfmiHi4Ad0w@mail.gmail.com>
+ <CANC2eqF_==cTSvrVpW2tnxS-q-hXFS06-mAAmiPGLJiqxMXOOg@mail.gmail.com>
+ <CANC2eqFEK4CAZM5p=z4qsXGWpD4EQEKafxTQsQ0ofEPscZ9jUQ@mail.gmail.com>
+ <CANC2eqFoYSF8bW8=YKekJfprAtdmZhW21eC5LpQu_c5DrfQJ2A@mail.gmail.com>
+ <CANC2eqEzXOBkuB5ANorFL3kZsjaVobuHNGqR8PSd57625uyytA@mail.gmail.com>
+ <CANC2eqFa59rzS0ehhXioz0H2V3=6oTjrRh045t=8Rx9AVjDnyA@mail.gmail.com>
+ <CANC2eqH=bQYuDusTvi9ysQUAzo1hgsBzhqXkQ2Yah7z079SCfw@mail.gmail.com>
+ <CANC2eqEo8UTA7e1edG4pEESfV3hYv+KaQBZPc38kk_EVh6+Ohw@mail.gmail.com>
+ <CANC2eqFUvq3QXn-2zkRJVNoFVLGXbf_8gZAbeDi9veF3SSQw+g@mail.gmail.com>
+ <CANC2eqGfc2m238tx8a4sawWsfbBy3LoDBXt_BWpvy++XnfFtmw@mail.gmail.com>
+ <CANC2eqHLqSzz0N-=NXsTLT1SZapetnCfc-cFXXCaWkeu46N0NA@mail.gmail.com>
+ <CANC2eqEqOS7dr_WYRriBOe5bkGR4Y_=mw4CBhDsWO7Cfyxr0fw@mail.gmail.com>
+ <CANC2eqEUZJAwoqMyh=_1uadr_Xj90uCQFKZFCTNT_mF0C8ETcA@mail.gmail.com>
+ <CANC2eqGtOgHnJGW04XE7BYKB-+Wm3zGCeveWZh1EKaUxTwaXUA@mail.gmail.com>
+ <CANC2eqE31DEhwHXYG6UBWEw5+pAPpnF35qp7EDfiBzO7iNyoqQ@mail.gmail.com>
+ <CANC2eqHiTgo9y4o916ASuVSt-a2S7f-_zByRqt5JSmB=2XBZVg@mail.gmail.com>
+ <CANC2eqH2LQj7aYgZrb3t8=OXeGEPm2o0U8n3uY41GwmQB6CLvA@mail.gmail.com>
+ <CANC2eqFzQXwEw94N7dHoS8Tt=fs11Piqw36x1JfNvcgp1fLhxQ@mail.gmail.com>
+ <CANC2eqGm1AOKy9FJ9sa9TiL44dHS1qMb6hHhijOh9G+2t+040A@mail.gmail.com>
+ <CANC2eqFqXv9-t741xRosT4my-SKKOjLFmraUVgCpBb9hB6_qhQ@mail.gmail.com>
+ <CANC2eqH5T8Xsq=z8bS0P1Byk3SKkxi7h8LFB6FzKG9+=HDWu+w@mail.gmail.com>
+ <CANC2eqHcenAVwMFzaBrbEyt0_8fy_niEhd8czREuo0DSPTq2eg@mail.gmail.com>
+ <CANC2eqGXRa7ACWND6Z6oXZMTODMiYNYQhij_FFid-HK3D9-L2A@mail.gmail.com>
+ <CANC2eqHTAT5viEGfXOywmwvi5_2_3vMAfCk3LiO38z0LuVWLmg@mail.gmail.com>
+ <CANC2eqHsLD2SJPr3k1HSXzh5borS-d8DDip2-Lvvgyr2mmFqFw@mail.gmail.com>
+ <CANC2eqEnuPFh09KC-Ux29bpc877ELbMaBH4-AoSth+Gou-f2zg@mail.gmail.com>
+ <CANC2eqHHtwcmhZQLDJoG4BdjG3xw9FujW-bYWdQzj1OkKqzQsA@mail.gmail.com>
+ <CANC2eqFNBVDz81jz-e-yBak5-o2A=jkBb+zy4LN5ZRyybbYtfA@mail.gmail.com>
+ <CANC2eqE-H3M7hgpaaD3ZY8kS8Z2dU0xGHaE4YzMhYR_WNAosmQ@mail.gmail.com>
+ <CANC2eqEh3uYQM=cPRCn-3o1f0COd4AH66=LPxmX9hvQzim1JyQ@mail.gmail.com>
+ <CANC2eqHvC++TXsFS3Ft0rPg+_vu40+MUporyGrChb0bw88Unaw@mail.gmail.com>
+ <CANC2eqGm04TSX2nMkL3xhPUV=3ocy15w91+CUKPBCgmDhuogaQ@mail.gmail.com>
+ <CANC2eqHnSh+4YrDLGd8_=4+J=dKAKNyxuPL4wX=HkL1KdVB-pw@mail.gmail.com>
+ <CANC2eqFBx9J5NjW72dwe5fob6jyYuieE+6e=BmNcN=Wse5uErQ@mail.gmail.com>
+ <CANC2eqGpEgPbASHMRf-VgU1fi-N=moOhwvzwXxj6nMbkWz1FPQ@mail.gmail.com> <CANC2eqGOqaE25_gSaxJ0mAT=+FJtRx+cJ9XEmPicgd5OeO1eCA@mail.gmail.com>
+From:   Mr Rhaji Haid <johnmoor1002@gmail.com>
+Date:   Tue, 17 Nov 2020 22:43:56 +0200
+Message-ID: <CANC2eqEpfsJxZRzwTiBir7Wzj7i1ihnmG7Z4fooR69x_NEzxdQ@mail.gmail.com>
+Subject: URGENT ASSISTANT NEEDED
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 01:56:32PM +0000, Christoph Hellwig wrote:
-> Btw, I remember that the whole vmalloc magic in zsmalloc was only giving
-> a small benefit for a few niche use cases.  Given that it generally has
-> very strange interaction with the vmalloc core, including using various
-> APIs not used by any driver I'm going to ask once again why we can't
-> just drop the CONFIG_ZSMALLOC_PGTABLE_MAPPING case entirely?
+Dear Friend
 
-Yub, I remeber the discussion. 
-https://lore.kernel.org/linux-mm/20200416203736.GB50092@google.com/
+you may be surprise to receive this mail since you don=E2=80=99t know me
+personally, but with due respect, trust and humility, I write to you
+this proposal. I am Mr. Rhaji Haid the son of Mr Tariq Haid of Darfur
+Sudan. It is indeed my pleasure to contact you for assistance of a
+business venture which I intend to establish in a country with a
+stable economy.
 
-I wanted to remove it but 30% gain made me think again before
-deciding to drop it.
-Since it continue to make problems and Linux is approaching to
-deprecate the 32bit machines, I think it would be better to drop it
-rather than inventing weird workaround.
+ I got your contact while I was doing a private research on the
+Internet for a reliable and capable foreign partner that will assist
+me and my family to transfer a fund to a personal or private account
+for investment purpose.  Though I have not met with you before, but
+considering the recent political instabilities in my country, I
+believe one has to risk confiding in success sometimes in life.
 
-Ccing Tony since omap2plus have used it by default for just in case.
+There is this huge amount of money (US$18 Million.) EIGHTEEN MILLION
+UNITED STATES DOLLARS ) which my late Father deposited here in South
+Africa awaiting claim before he was assassinated by unknown persons
+during this war in Darfur Sudan.
 
-From fc1b17a120991fd86b9e1153ab22d0b0bdadd8d0 Mon Sep 17 00:00:00 2001
-From: Minchan Kim <minchan@kernel.org>
-Date: Tue, 17 Nov 2020 11:58:51 -0800
-Subject: [PATCH] mm/zsmalloc.c: drop ZSMALLOC_PGTABLE_MAPPING
+Now I have decided to invest this money in a stable economy country or
+anywhere safe for security and political reasons. I want you to help
+me retrieve this money for onward transfer to any designated bank
+account of your choice for investment purposes on these areas below:
 
-Even though this option showed some amount improvement(e.g., 30%)
-in some arm32 platforms, it has been headache to maintain since it
-have abused APIs[1](e.g., unmap_kernel_range in atomic context).
+1) Transport Industry
 
-Since we are approaching to deprecate 32bit machines and already made
-the config option available for only builtin build since v5.8, lastly
-it has been not default option in zsmalloc, it's time to drop the
-option for better maintainance.
+2) Mechanized agriculture.
 
-[1] http://lore.kernel.org/linux-mm/20201105170249.387069-1-minchan@kernel.org
+3} Estate investment
 
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: <stable@vger.kernel.org>
-Fixes: e47110e90584 ("mm/vunmap: add cond_resched() in vunmap_pmd_range")
-Signed-off-by: Minchan Kim <minchan@kernel.org>
----
- arch/arm/configs/omap2plus_defconfig |  1 -
- include/linux/zsmalloc.h             |  1 -
- mm/Kconfig                           | 13 -------
- mm/zsmalloc.c                        | 54 ----------------------------
- 4 files changed, 69 deletions(-)
+I will then furnish you with more details and I have mutually agreed
+to compensate you with 30% which is your share for assisting me, and
+5% for any expenses that might be incurred by both parties in the
+course of the transaction. Then the remaining 65% will be for me and
+my family, which you will help us to invest in your country.
 
-diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
-index 77716f500813..70ee84a314c8 100644
---- a/arch/arm/configs/omap2plus_defconfig
-+++ b/arch/arm/configs/omap2plus_defconfig
-@@ -81,7 +81,6 @@ CONFIG_PARTITION_ADVANCED=y
- CONFIG_BINFMT_MISC=y
- CONFIG_CMA=y
- CONFIG_ZSMALLOC=m
--CONFIG_ZSMALLOC_PGTABLE_MAPPING=y
- CONFIG_NET=y
- CONFIG_PACKET=y
- CONFIG_UNIX=y
-diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
-index 0fdbf653b173..4807ca4d52e0 100644
---- a/include/linux/zsmalloc.h
-+++ b/include/linux/zsmalloc.h
-@@ -20,7 +20,6 @@
-  * zsmalloc mapping modes
-  *
-  * NOTE: These only make a difference when a mapped object spans pages.
-- * They also have no effect when ZSMALLOC_PGTABLE_MAPPING is selected.
-  */
- enum zs_mapmode {
- 	ZS_MM_RW, /* normal read-write mapping */
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 29904dc16bfc..7af1a55b708e 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -707,19 +707,6 @@ config ZSMALLOC
- 	  returned by an alloc().  This handle must be mapped in order to
- 	  access the allocated space.
- 
--config ZSMALLOC_PGTABLE_MAPPING
--	bool "Use page table mapping to access object in zsmalloc"
--	depends on ZSMALLOC=y
--	help
--	  By default, zsmalloc uses a copy-based object mapping method to
--	  access allocations that span two pages. However, if a particular
--	  architecture (ex, ARM) performs VM mapping faster than copying,
--	  then you should select this. This causes zsmalloc to use page table
--	  mapping rather than copying for object mapping.
--
--	  You can check speed with zsmalloc benchmark:
--	  https://github.com/spartacus06/zsmapbench
--
- config ZSMALLOC_STAT
- 	bool "Export zsmalloc statistics"
- 	depends on ZSMALLOC
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index b03bee2e1b5f..7289f502ffac 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -293,11 +293,7 @@ struct zspage {
- };
- 
- struct mapping_area {
--#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
--	struct vm_struct *vm; /* vm area for mapping object that span pages */
--#else
- 	char *vm_buf; /* copy buffer for objects that span pages */
--#endif
- 	char *vm_addr; /* address of kmap_atomic()'ed pages */
- 	enum zs_mapmode vm_mm; /* mapping mode */
- };
-@@ -1110,54 +1106,6 @@ static struct zspage *find_get_zspage(struct size_class *class)
- 	return zspage;
- }
- 
--#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
--static inline int __zs_cpu_up(struct mapping_area *area)
--{
--	/*
--	 * Make sure we don't leak memory if a cpu UP notification
--	 * and zs_init() race and both call zs_cpu_up() on the same cpu
--	 */
--	if (area->vm)
--		return 0;
--	area->vm = get_vm_area(PAGE_SIZE * 2, 0);
--	if (!area->vm)
--		return -ENOMEM;
--
--	/*
--	 * Populate ptes in advance to avoid pte allocation with GFP_KERNEL
--	 * in non-preemtible context of zs_map_object.
--	 */
--	return apply_to_page_range(&init_mm, (unsigned long)area->vm->addr,
--			PAGE_SIZE * 2, NULL, NULL);
--}
--
--static inline void __zs_cpu_down(struct mapping_area *area)
--{
--	if (area->vm)
--		free_vm_area(area->vm);
--	area->vm = NULL;
--}
--
--static inline void *__zs_map_object(struct mapping_area *area,
--				struct page *pages[2], int off, int size)
--{
--	unsigned long addr = (unsigned long)area->vm->addr;
--
--	BUG_ON(map_kernel_range(addr, PAGE_SIZE * 2, PAGE_KERNEL, pages) < 0);
--	area->vm_addr = area->vm->addr;
--	return area->vm_addr + off;
--}
--
--static inline void __zs_unmap_object(struct mapping_area *area,
--				struct page *pages[2], int off, int size)
--{
--	unsigned long addr = (unsigned long)area->vm_addr;
--
--	unmap_kernel_range(addr, PAGE_SIZE * 2);
--}
--
--#else /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
--
- static inline int __zs_cpu_up(struct mapping_area *area)
- {
- 	/*
-@@ -1238,8 +1186,6 @@ static void __zs_unmap_object(struct mapping_area *area,
- 	pagefault_enable();
- }
- 
--#endif /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
--
- static int zs_cpu_prepare(unsigned int cpu)
- {
- 	struct mapping_area *area;
--- 
-2.29.2.299.gdc1121823c-goog
+Please, you can contact me through this Email rhajihaid8888888@gmail.com
+all require is your honest & kind co-operation. I will give you
+further details as soon as you show interest in helping me. I wait for
+your kind consideration to my proposal.
 
+Best Regards,
+Mr.Rhaji Haid
