@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 303622B60A0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D657A2B619B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729581AbgKQNLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:11:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40690 "EHLO mail.kernel.org"
+        id S1730780AbgKQNUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:20:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729175AbgKQNLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:05 -0500
+        id S1730574AbgKQNUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E13A32225B;
-        Tue, 17 Nov 2020 13:11:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52D01206D5;
+        Tue, 17 Nov 2020 13:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618665;
-        bh=zI7wwrqjoxwZuXMVoGRjOAVci3j1VubmmZd7kUUYNLY=;
+        s=default; t=1605619240;
+        bh=cpf2rMftQf7xL/9QBBlS7qxPonhitPWGCCg9v88FIY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEC8gM2hKpzJb1P0Fgji1YMPdz43FQk0wl1OFKYicED/JqMcdbLjBM58BJXeiTyxz
-         +T+HCeJbXKor3gudiUdkXMwEONHQCOcLVXNA4bvIZWArrayl0yUHcY3O4po2hXEccD
-         hVJ2PBDhnkOy03FFcCEXQ7v2U7kyXYEVdhrwNgy4=
+        b=q70VLBZLu0ea4tkKwVKr20JTVn7ciGfPLpQGXZTM81sVD8ARHXUqg4/Yrwur5MIVJ
+         PujnRJL28SRx78cvmFhCMcGf3101FYTKcwEC5r3v7vAGONd1KngA1rhdu7NKlH/SET
+         5ug8vy2iDhc8pJyP+pucryRRp5Jh1wTbonWsi9Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH 4.9 45/78] usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
-Date:   Tue, 17 Nov 2020 14:05:11 +0100
-Message-Id: <20201117122111.307253638@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 045/101] vfio: platform: fix reference leak in vfio_platform_open
+Date:   Tue, 17 Nov 2020 14:05:12 +0100
+Message-Id: <20201117122115.291403772@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Brandt <chris.brandt@renesas.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit 6d853c9e4104b4fc8d55dc9cd3b99712aa347174 upstream.
+[ Upstream commit bb742ad01961a3b9d1f9d19375487b879668b6b2 ]
 
-Renesas R-Car and RZ/G SoCs have a firmware download mode over USB.
-However, on reset a banner string is transmitted out which is not expected
-to be echoed back and will corrupt the protocol.
+pm_runtime_get_sync() will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put will result in
+reference leak in vfio_platform_open, so we should fix it.
 
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-Link: https://lore.kernel.org/r/20201111131209.3977903-1-chris.brandt@renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/vfio/platform/vfio_platform_common.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1648,6 +1648,15 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x0870, 0x0001), /* Metricom GS Modem */
- 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
- 	},
-+	{ USB_DEVICE(0x045b, 0x023c),	/* Renesas USB Download mode */
-+	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
-+	},
-+	{ USB_DEVICE(0x045b, 0x0248),	/* Renesas USB Download mode */
-+	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
-+	},
-+	{ USB_DEVICE(0x045b, 0x024D),	/* Renesas USB Download mode */
-+	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
-+	},
- 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
- 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
- 	},
+diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+index c0cd824be2b76..460760d0becfe 100644
+--- a/drivers/vfio/platform/vfio_platform_common.c
++++ b/drivers/vfio/platform/vfio_platform_common.c
+@@ -273,7 +273,7 @@ static int vfio_platform_open(void *device_data)
+ 
+ 		ret = pm_runtime_get_sync(vdev->device);
+ 		if (ret < 0)
+-			goto err_pm;
++			goto err_rst;
+ 
+ 		ret = vfio_platform_call_reset(vdev, &extra_dbg);
+ 		if (ret && vdev->reset_required) {
+@@ -290,7 +290,6 @@ static int vfio_platform_open(void *device_data)
+ 
+ err_rst:
+ 	pm_runtime_put(vdev->device);
+-err_pm:
+ 	vfio_platform_irq_cleanup(vdev);
+ err_irq:
+ 	vfio_platform_regions_cleanup(vdev);
+-- 
+2.27.0
+
 
 
