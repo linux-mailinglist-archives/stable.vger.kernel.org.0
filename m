@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD092B615C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 351562B624A
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgKQNQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:16:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
+        id S1731085AbgKQN1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:27:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729487AbgKQNQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:08 -0500
+        id S1731709AbgKQN1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B6672151B;
-        Tue, 17 Nov 2020 13:16:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F25920781;
+        Tue, 17 Nov 2020 13:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618966;
-        bh=lxCig9jN4rV94/Ixf9he4zJcNg4cvN90W2b+dS7YWwQ=;
+        s=default; t=1605619643;
+        bh=imKwv/Fb3tX8Sf2PNoVY7wcaiXIi4oQ+RdrROR2vnxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBsCrcItZA1hJQ8TfiX7T5vQrOGM0wb3TKtWhbzgfoMewIXN5ZoHBB+qQ/HGc/qnG
-         nFubuSYCrIaPsAlL0mRhL+nbZKqcdDiEkrkWZM3ztJeP1l7k9cvdR/b45pRlHcjVOR
-         AXxAJD7A8TP+IACoiPKZlWbgvQYqy9iWAOelk7Kw=
+        b=qaAISAaC3s7Vpp4NypM6UuT+ESSw+KGWF2X/yhg+y3Ktpurjv2Gnlt0tjawZenSw2
+         OTAQCY3g9ffbkfAaRed64rqg0adyFqlR5Nz1NSVauYnverLiQNGjdvMApRtO5APQzD
+         TuQlW1SSbOOttH88W23ertyMYB5CvxD9x0MHBC3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/85] xfs: fix flags argument to rmap lookup when converting shared file rmaps
+        stable@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Xiong Zhang <xiong.y.zhang@intel.com>,
+        Hang Yuan <hang.yuan@linux.intel.com>,
+        Stuart Summers <stuart.summers@intel.com>,
+        Fred Gao <fred.gao@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 077/151] vfio/pci: Bypass IGD init in case of -ENODEV
 Date:   Tue, 17 Nov 2020 14:05:07 +0100
-Message-Id: <20201117122112.890908844@linuxfoundation.org>
+Message-Id: <20201117122125.166272510@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Fred Gao <fred.gao@intel.com>
 
-[ Upstream commit ea8439899c0b15a176664df62aff928010fad276 ]
+[ Upstream commit e4eccb853664de7bcf9518fb658f35e748bf1f68 ]
 
-Pass the same oldext argument (which contains the existing rmapping's
-unwritten state) to xfs_rmap_lookup_le_range at the start of
-xfs_rmap_convert_shared.  At this point in the code, flags is zero,
-which means that we perform lookups using the wrong key.
+Bypass the IGD initialization when -ENODEV returns,
+that should be the case if opregion is not available for IGD
+or within discrete graphics device's option ROM,
+or host/lpc bridge is not found.
 
-Fixes: 3f165b334e51 ("xfs: convert unwritten status of reverse mappings for shared files")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Then use of -ENODEV here means no special device resources found
+which needs special care for VFIO, but we still allow other normal
+device resource access.
+
+Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
+Cc: Xiong Zhang <xiong.y.zhang@intel.com>
+Cc: Hang Yuan <hang.yuan@linux.intel.com>
+Cc: Stuart Summers <stuart.summers@intel.com>
+Signed-off-by: Fred Gao <fred.gao@intel.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap.c | 2 +-
+ drivers/vfio/pci/vfio_pci.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap.c b/fs/xfs/libxfs/xfs_rmap.c
-index 55c88a732690e..1f16c2da24723 100644
---- a/fs/xfs/libxfs/xfs_rmap.c
-+++ b/fs/xfs/libxfs/xfs_rmap.c
-@@ -1319,7 +1319,7 @@ xfs_rmap_convert_shared(
- 	 * record for our insertion point. This will also give us the record for
- 	 * start block contiguity tests.
- 	 */
--	error = xfs_rmap_lookup_le_range(cur, bno, owner, offset, flags,
-+	error = xfs_rmap_lookup_le_range(cur, bno, owner, offset, oldext,
- 			&PREV, &i);
- 	XFS_WANT_CORRUPTED_GOTO(mp, i == 1, done);
- 
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index a72fd5309b09f..443a35dde7f52 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -334,7 +334,7 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
+ 	    pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    IS_ENABLED(CONFIG_VFIO_PCI_IGD)) {
+ 		ret = vfio_pci_igd_init(vdev);
+-		if (ret) {
++		if (ret && ret != -ENODEV) {
+ 			pci_warn(pdev, "Failed to setup Intel IGD regions\n");
+ 			goto disable_exit;
+ 		}
 -- 
 2.27.0
 
