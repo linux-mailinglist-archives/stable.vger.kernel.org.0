@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF4D2B6358
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEFB62B655B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732948AbgKQNhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:37:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48388 "EHLO mail.kernel.org"
+        id S1731077AbgKQNZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:25:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732942AbgKQNhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:20 -0500
+        id S1731073AbgKQNZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:25:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 765B920870;
-        Tue, 17 Nov 2020 13:37:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3267A2463D;
+        Tue, 17 Nov 2020 13:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620240;
-        bh=bioZgs54IsJCBS9zI1vVwe+T7Sjn2QpOZL13DAmAX1o=;
+        s=default; t=1605619508;
+        bh=M4hcLjhHGzIhowy0S8XsQXjjTI/Iecg157SYTnXM+Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoSuV5g65Wa2sDaSEMiJxJMLGLGmxXE0Z+npHJ4I0f00i/bH1NyqYvjSjyQGRsR+e
-         9aGeFAxNXipNrS5zw2xojkkA4Efn14BOg2A6YT/Q+mxTRYTXCyRRXmQXGHq+KDQwCL
-         eaumcQ0aa9e8Xr8ARx/lrvPIFlb4ks5O6kxWSH4I=
+        b=jxi+N2FzA8slGMLr4MgC2Ui+VYFY268y83RB+FWtQVXS+eK/w8uD3sUrVczmi9fb1
+         VUr8+P5Xt9NsGWQ02E32jX+vtUNKaeLVkmcz8pg0YZl5UCo7tlfSYaqHbsvsRpuvhQ
+         y3QIoycuu4GbYqyeYTbjAIKO2kqgOksa9ic1aQjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 151/255] pinctrl: qcom: sm8250: Specify PDC map
-Date:   Tue, 17 Nov 2020 14:04:51 +0100
-Message-Id: <20201117122146.313834344@linuxfoundation.org>
+Subject: [PATCH 5.4 062/151] mac80211: fix use of skb payload instead of header
+Date:   Tue, 17 Nov 2020 14:04:52 +0100
+Message-Id: <20201117122124.437761843@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b41efeed507addecb92e83dd444d86c1fbe38ae0 ]
+[ Upstream commit 14f46c1e5108696ec1e5a129e838ecedf108c7bf ]
 
-Specify the PDC mapping for SM8250, so that gpio interrupts are
-propertly mapped to the wakeup IRQs of the PDC.
+When ieee80211_skb_resize() is called from ieee80211_build_hdr()
+the skb has no 802.11 header yet, in fact it consist only of the
+payload as the ethernet frame is removed. As such, we're using
+the payload data for ieee80211_is_mgmt(), which is of course
+completely wrong. This didn't really hurt us because these are
+always data frames, so we could only have added more tailroom
+than we needed if we determined it was a management frame and
+sdata->crypto_tx_tailroom_needed_cnt was false.
 
-Fixes: 4e3ec9e407ad ("pinctrl: qcom: Add sm8250 pinctrl driver.")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20201028043642.1141723-1-bjorn.andersson@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+However, syzbot found that of course there need not be any payload,
+so we're using at best uninitialized memory for the check.
+
+Fix this to pass explicitly the kind of frame that we have instead
+of checking there, by replacing the "bool may_encrypt" argument
+with an argument that can carry the three possible states - it's
+not going to be encrypted, it's a management frame, or it's a data
+frame (and then we check sdata->crypto_tx_tailroom_needed_cnt).
+
+Reported-by: syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20201009132538.e1fd7f802947.I799b288466ea2815f9d4c84349fae697dca2f189@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sm8250.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ net/mac80211/tx.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-sm8250.c b/drivers/pinctrl/qcom/pinctrl-sm8250.c
-index 826df0d637eaa..af144e724bd9c 100644
---- a/drivers/pinctrl/qcom/pinctrl-sm8250.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sm8250.c
-@@ -1313,6 +1313,22 @@ static const struct msm_pingroup sm8250_groups[] = {
- 	[183] = SDC_PINGROUP(sdc2_data, 0xb7000, 9, 0),
- };
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index f029e75ec815a..30a0c7c6224b3 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -1944,19 +1944,24 @@ static bool ieee80211_tx(struct ieee80211_sub_if_data *sdata,
  
-+static const struct msm_gpio_wakeirq_map sm8250_pdc_map[] = {
-+	{ 0, 79 }, { 1, 84 }, { 2, 80 }, { 3, 82 }, { 4, 107 }, { 7, 43 },
-+	{ 11, 42 }, { 14, 44 }, { 15, 52 }, { 19, 67 }, { 23, 68 }, { 24, 105 },
-+	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 37 },
-+	{ 40, 108 }, { 43, 71 }, { 45, 72 }, { 47, 83 }, { 51, 74 }, { 55, 77 },
-+	{ 59, 78 }, { 63, 75 }, { 64, 81 }, { 65, 87 }, { 66, 88 }, { 67, 89 },
-+	{ 68, 54 }, { 70, 85 }, { 77, 46 }, { 80, 90 }, { 81, 91 }, { 83, 97 },
-+	{ 84, 98 }, { 86, 99 }, { 87, 100 }, { 88, 101 }, { 89, 102 },
-+	{ 92, 103 }, { 93, 104 }, { 100, 53 }, { 103, 47 }, { 104, 48 },
-+	{ 108, 49 }, { 109, 94 }, { 110, 95 }, { 111, 96 }, { 112, 55 },
-+	{ 113, 56 }, { 118, 50 }, { 121, 51 }, { 122, 57 }, { 123, 58 },
-+	{ 124, 45 }, { 126, 59 }, { 128, 76 }, { 129, 86 }, { 132, 93 },
-+	{ 133, 65 }, { 134, 66 }, { 136, 62 }, { 137, 63 }, { 138, 64 },
-+	{ 142, 60 }, { 143, 61 }
+ /* device xmit handlers */
+ 
++enum ieee80211_encrypt {
++	ENCRYPT_NO,
++	ENCRYPT_MGMT,
++	ENCRYPT_DATA,
 +};
 +
- static const struct msm_pinctrl_soc_data sm8250_pinctrl = {
- 	.pins = sm8250_pins,
- 	.npins = ARRAY_SIZE(sm8250_pins),
-@@ -1323,6 +1339,8 @@ static const struct msm_pinctrl_soc_data sm8250_pinctrl = {
- 	.ngpios = 181,
- 	.tiles = sm8250_tiles,
- 	.ntiles = ARRAY_SIZE(sm8250_tiles),
-+	.wakeirq_map = sm8250_pdc_map,
-+	.nwakeirq_map = ARRAY_SIZE(sm8250_pdc_map),
- };
+ static int ieee80211_skb_resize(struct ieee80211_sub_if_data *sdata,
+ 				struct sk_buff *skb,
+-				int head_need, bool may_encrypt)
++				int head_need,
++				enum ieee80211_encrypt encrypt)
+ {
+ 	struct ieee80211_local *local = sdata->local;
+-	struct ieee80211_hdr *hdr;
+ 	bool enc_tailroom;
+ 	int tail_need = 0;
  
- static int sm8250_pinctrl_probe(struct platform_device *pdev)
+-	hdr = (struct ieee80211_hdr *) skb->data;
+-	enc_tailroom = may_encrypt &&
+-		       (sdata->crypto_tx_tailroom_needed_cnt ||
+-			ieee80211_is_mgmt(hdr->frame_control));
++	enc_tailroom = encrypt == ENCRYPT_MGMT ||
++		       (encrypt == ENCRYPT_DATA &&
++			sdata->crypto_tx_tailroom_needed_cnt);
+ 
+ 	if (enc_tailroom) {
+ 		tail_need = IEEE80211_ENCRYPT_TAILROOM;
+@@ -1988,23 +1993,29 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
+ {
+ 	struct ieee80211_local *local = sdata->local;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+-	struct ieee80211_hdr *hdr;
++	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	int headroom;
+-	bool may_encrypt;
++	enum ieee80211_encrypt encrypt;
+ 
+-	may_encrypt = !(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT);
++	if (info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)
++		encrypt = ENCRYPT_NO;
++	else if (ieee80211_is_mgmt(hdr->frame_control))
++		encrypt = ENCRYPT_MGMT;
++	else
++		encrypt = ENCRYPT_DATA;
+ 
+ 	headroom = local->tx_headroom;
+-	if (may_encrypt)
++	if (encrypt != ENCRYPT_NO)
+ 		headroom += sdata->encrypt_headroom;
+ 	headroom -= skb_headroom(skb);
+ 	headroom = max_t(int, 0, headroom);
+ 
+-	if (ieee80211_skb_resize(sdata, skb, headroom, may_encrypt)) {
++	if (ieee80211_skb_resize(sdata, skb, headroom, encrypt)) {
+ 		ieee80211_free_txskb(&local->hw, skb);
+ 		return;
+ 	}
+ 
++	/* reload after potential resize */
+ 	hdr = (struct ieee80211_hdr *) skb->data;
+ 	info->control.vif = &sdata->vif;
+ 
+@@ -2808,7 +2819,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
+ 		head_need += sdata->encrypt_headroom;
+ 		head_need += local->tx_headroom;
+ 		head_need = max_t(int, 0, head_need);
+-		if (ieee80211_skb_resize(sdata, skb, head_need, true)) {
++		if (ieee80211_skb_resize(sdata, skb, head_need, ENCRYPT_DATA)) {
+ 			ieee80211_free_txskb(&local->hw, skb);
+ 			skb = NULL;
+ 			return ERR_PTR(-ENOMEM);
+@@ -3482,7 +3493,7 @@ static bool ieee80211_xmit_fast(struct ieee80211_sub_if_data *sdata,
+ 	if (unlikely(ieee80211_skb_resize(sdata, skb,
+ 					  max_t(int, extra_head + hw_headroom -
+ 						     skb_headroom(skb), 0),
+-					  false))) {
++					  ENCRYPT_NO))) {
+ 		kfree_skb(skb);
+ 		return true;
+ 	}
 -- 
 2.27.0
 
