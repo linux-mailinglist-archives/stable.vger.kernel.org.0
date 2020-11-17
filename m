@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F802B6678
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A46802B6672
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728963AbgKQODo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:03:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1729805AbgKQODd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:03:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729735AbgKQNLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:48 -0500
+        id S1729738AbgKQNLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:11:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D7BC24698;
-        Tue, 17 Nov 2020 13:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48791221EB;
+        Tue, 17 Nov 2020 13:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618706;
-        bh=YZazvjlvemrBYLJFCENxdHrYjC4xxJ97fb5MfuuvgIY=;
+        s=default; t=1605618709;
+        bh=BUclUuYgn4Y08iF/T/yjq2TNqKKw938+bWEZ7Ug7e0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StLWTN5aHUJFE+XSa1lHYKM5hx374GrABHvk0Shx7PyLZacfTq6B/8F1AqXau5ghM
-         tG7tLpMXDRKRPPCqeNSCcgQXBMZTs//LAChCVgH3B4viwVoSTpsM2N+N4b+8fmbVr4
-         H7UVxNSbAENi+GRT7qOcUU/p+Ej44v3L7xmbNxnQ=
+        b=b4ZDYAYgu/hXaaLkqViOB/6FTOkGP4l6p9VxHRbz80dgCiS7LWWfD36palFCcbSAm
+         7qNi5hzZcGozyLl5kW6+NbAUtbf8ULQPkCe3VG5aUoAoQP3LdmC7hnaDowNou9vGf3
+         WZuRwXVH8wC+EAMHX6CSL5qwGPsrCnLFGI19na0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
+        Song Liu <songliubraving@fb.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        kernel-team@fb.com,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stephane Eranian <eranian@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 4.9 58/78] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
-Date:   Tue, 17 Nov 2020 14:05:24 +0100
-Message-Id: <20201117122111.950324481@linuxfoundation.org>
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 59/78] perf/core: Fix bad use of igrab()
+Date:   Tue, 17 Nov 2020 14:05:25 +0100
+Message-Id: <20201117122111.996481401@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
 References: <20201117122109.116890262@linuxfoundation.org>
@@ -44,148 +53,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+From: Song Liu <songliubraving@fb.com>
 
-commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
+commit 9511bce9fe8e5e6c0f923c09243a713eba560141 upstream
 
-On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
-STIBP is set to on and
+As Miklos reported and suggested:
 
-  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
+ "This pattern repeats two times in trace_uprobe.c and in
+  kernel/events/core.c as well:
 
-At the same time, IBPB can be set to conditional.
+      ret = kern_path(filename, LOOKUP_FOLLOW, &path);
+      if (ret)
+          goto fail_address_parse;
 
-However, this leads to the case where it's impossible to turn on IBPB
-for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
+      inode = igrab(d_inode(path.dentry));
+      path_put(&path);
 
-  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
+  And it's wrong.  You can only hold a reference to the inode if you
+  have an active ref to the superblock as well (which is normally
+  through path.mnt) or holding s_umount.
 
-condition leads to a return before the task flag is set. Similarly,
-ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
-conditional.
+  This way unmounting the containing filesystem while the tracepoint is
+  active will give you the "VFS: Busy inodes after unmount..." message
+  and a crash when the inode is finally put.
 
-More generally, the following cases are possible:
+  Solution: store path instead of inode."
 
-1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
-2. STIBP = on && IBPB = conditional for AMD CPUs with
-   X86_FEATURE_AMD_STIBP_ALWAYS_ON
+This patch fixes the issue in kernel/event/core.c.
 
-The first case functions correctly today, but only because
-spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
-
-At a high level, this change does one thing. If either STIBP or IBPB
-is set to conditional, allow the prctl to change the task flag.
-Also, reflect that capability when querying the state. This isn't
-perfect since it doesn't take into account if only STIBP or IBPB is
-unconditionally on. But it allows the conditional feature to work as
-expected, without affecting the unconditional one.
-
- [ bp: Massage commit message and comment; space out statements for
-   better readability. ]
-
-Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
+Reviewed-and-tested-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reported-by: Miklos Szeredi <miklos@szeredi.hu>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <kernel-team@fb.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
+Link: http://lkml.kernel.org/r/20180418062907.3210386-2-songliubraving@fb.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[sudip: Backported to 4.9: use file_inode()]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/cpu/bugs.c |   52 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 19 deletions(-)
+ arch/x86/events/intel/pt.c |    4 ++--
+ include/linux/perf_event.h |    2 +-
+ kernel/events/core.c       |   21 +++++++++------------
+ 3 files changed, 12 insertions(+), 15 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1248,6 +1248,14 @@ static int ssb_prctl_set(struct task_str
- 	return 0;
- }
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -1117,7 +1117,7 @@ static int pt_event_addr_filters_validat
+ 		if (!filter->range || !filter->size)
+ 			return -EOPNOTSUPP;
  
-+static bool is_spec_ib_user_controlled(void)
-+{
-+	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
-+		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
-+		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
-+}
-+
- static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+-		if (!filter->inode) {
++		if (!filter->path.dentry) {
+ 			if (!valid_kernel_ip(filter->offset))
+ 				return -EINVAL;
+ 
+@@ -1144,7 +1144,7 @@ static void pt_event_addr_filters_sync(s
+ 		return;
+ 
+ 	list_for_each_entry(filter, &head->list, entry) {
+-		if (filter->inode && !offs[range]) {
++		if (filter->path.dentry && !offs[range]) {
+ 			msr_a = msr_b = 0;
+ 		} else {
+ 			/* apply the offset */
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -475,7 +475,7 @@ struct pmu {
+  */
+ struct perf_addr_filter {
+ 	struct list_head	entry;
+-	struct inode		*inode;
++	struct path		path;
+ 	unsigned long		offset;
+ 	unsigned long		size;
+ 	unsigned int		range	: 1,
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6271,7 +6271,7 @@ static void perf_event_addr_filters_exec
+ 
+ 	raw_spin_lock_irqsave(&ifh->lock, flags);
+ 	list_for_each_entry(filter, &ifh->list, entry) {
+-		if (filter->inode) {
++		if (filter->path.dentry) {
+ 			event->addr_filters_offs[count] = 0;
+ 			restart++;
+ 		}
+@@ -6814,7 +6814,7 @@ static bool perf_addr_filter_match(struc
+ 				     struct file *file, unsigned long offset,
+ 				     unsigned long size)
  {
- 	switch (ctrl) {
-@@ -1255,17 +1263,26 @@ static int ib_prctl_set(struct task_stru
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return 0;
--		/*
--		 * Indirect branch speculation is always disabled in strict
--		 * mode. It can neither be enabled if it was force-disabled
--		 * by a  previous prctl call.
+-	if (filter->inode != file->f_inode)
++	if (d_inode(filter->path.dentry) != file_inode(file))
+ 		return false;
  
-+		/*
-+		 * With strict mode for both IBPB and STIBP, the instruction
-+		 * code paths avoid checking this task flag and instead,
-+		 * unconditionally run the instruction. However, STIBP and IBPB
-+		 * are independent and either can be set to conditionally
-+		 * enabled regardless of the mode of the other.
-+		 *
-+		 * If either is set to conditional, allow the task flag to be
-+		 * updated, unless it was force-disabled by a previous prctl
-+		 * call. Currently, this is possible on an AMD CPU which has the
-+		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
-+		 * kernel is booted with 'spectre_v2_user=seccomp', then
-+		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
-+		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
+ 	if (filter->offset > offset + size)
+@@ -8028,8 +8028,7 @@ static void free_filters_list(struct lis
+ 	struct perf_addr_filter *filter, *iter;
+ 
+ 	list_for_each_entry_safe(filter, iter, filters, entry) {
+-		if (filter->inode)
+-			iput(filter->inode);
++		path_put(&filter->path);
+ 		list_del(&filter->entry);
+ 		kfree(filter);
+ 	}
+@@ -8123,7 +8122,7 @@ static void perf_event_addr_filters_appl
+ 		 * Adjust base offset if the filter is associated to a binary
+ 		 * that needs to be mapped:
  		 */
--		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
-+		if (!is_spec_ib_user_controlled() ||
- 		    task_spec_ib_force_disable(task))
- 			return -EPERM;
-+
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
- 		break;
-@@ -1278,10 +1295,10 @@ static int ib_prctl_set(struct task_stru
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return -EPERM;
--		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+
-+		if (!is_spec_ib_user_controlled())
- 			return 0;
-+
- 		task_set_spec_ib_disable(task);
- 		if (ctrl == PR_SPEC_FORCE_DISABLE)
- 			task_set_spec_ib_force_disable(task);
-@@ -1344,20 +1361,17 @@ static int ib_prctl_get(struct task_stru
- 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
- 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 		return PR_SPEC_ENABLE;
--	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
--		return PR_SPEC_DISABLE;
--	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
--	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
--	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
-+	else if (is_spec_ib_user_controlled()) {
- 		if (task_spec_ib_force_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
- 		if (task_spec_ib_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
- 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
--	} else
-+	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		return PR_SPEC_DISABLE;
-+	else
- 		return PR_SPEC_NOT_AFFECTED;
- }
+-		if (filter->inode)
++		if (filter->path.dentry)
+ 			event->addr_filters_offs[count] =
+ 				perf_addr_filter_apply(filter, mm);
+ 
+@@ -8196,7 +8195,6 @@ perf_event_parse_addr_filter(struct perf
+ {
+ 	struct perf_addr_filter *filter = NULL;
+ 	char *start, *orig, *filename = NULL;
+-	struct path path;
+ 	substring_t args[MAX_OPT_ARGS];
+ 	int state = IF_STATE_ACTION, token;
+ 	unsigned int kernel = 0;
+@@ -8287,19 +8285,18 @@ perf_event_parse_addr_filter(struct perf
+ 					goto fail;
+ 
+ 				/* look up the path and grab its inode */
+-				ret = kern_path(filename, LOOKUP_FOLLOW, &path);
++				ret = kern_path(filename, LOOKUP_FOLLOW,
++						&filter->path);
+ 				if (ret)
+ 					goto fail_free_name;
+ 
+-				filter->inode = igrab(d_inode(path.dentry));
+-				path_put(&path);
+ 				kfree(filename);
+ 				filename = NULL;
+ 
+ 				ret = -EINVAL;
+-				if (!filter->inode ||
+-				    !S_ISREG(filter->inode->i_mode))
+-					/* free_filters_list() will iput() */
++				if (!filter->path.dentry ||
++				    !S_ISREG(d_inode(filter->path.dentry)
++					     ->i_mode))
+ 					goto fail;
+ 			}
  
 
 
