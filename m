@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0132B6290
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14C02B6294
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731621AbgKQN3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38580 "EHLO mail.kernel.org"
+        id S1731635AbgKQN3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:29:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731619AbgKQN3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:43 -0500
+        id S1731255AbgKQN3v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B86D820781;
-        Tue, 17 Nov 2020 13:29:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 212F92078D;
+        Tue, 17 Nov 2020 13:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619782;
-        bh=oD5TV/Dd8Zaze+BzKb7XwaeR6FXH+IatHyJnVfpcSSM=;
+        s=default; t=1605619789;
+        bh=8vychjACC1LFnCXrvS8QNF1aC9mbaARz/UIJ33YZ81c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sx1WcLj4xFCVUSgml3DUcpN38KUHgA126RuQCxqlOFYjHTpb7DQrhwoawT6wwtSuD
-         7TU5m565G/xFx5GTcJi+rdJc4eSWukqsR8XYk+c4N2u4PmmiF98Ne8SAv1RFopJJSI
-         79898aPVBFyu8qeSax5KbZY5WK84VkYVb4TCoK1s=
+        b=Zj4tGcD6wAQbgH4DJBxR76aeSdVWZev0+iqjxJl2n+qah9xS1BTFmwSfRXiAJ+xRk
+         Ezq837+xUbElD9bYPbkmNmjsQI4io3TWAUT4JmPTMMpPZPx/OV+Erd+nErdsVlQXRG
+         VD37PjwYH72SgqnP3AyqNn5vgByEhG9PCz0kFkj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
+        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 139/151] net/af_iucv: fix null pointer dereference on shutdown
-Date:   Tue, 17 Nov 2020 14:06:09 +0100
-Message-Id: <20201117122128.194407096@linuxfoundation.org>
+Subject: [PATCH 5.4 141/151] net: Update window_clamp if SOCK_RCVBUF is set
+Date:   Tue, 17 Nov 2020 14:06:11 +0100
+Message-Id: <20201117122128.293232755@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -44,61 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Mao Wenan <wenan.mao@linux.alibaba.com>
 
-[ Upstream commit 4031eeafa71eaf22ae40a15606a134ae86345daf ]
+[ Upstream commit 909172a149749242990a6e64cb55d55460d4e417 ]
 
-syzbot reported the following KASAN finding:
+When net.ipv4.tcp_syncookies=1 and syn flood is happened,
+cookie_v4_check or cookie_v6_check tries to redo what
+tcp_v4_send_synack or tcp_v6_send_synack did,
+rsk_window_clamp will be changed if SOCK_RCVBUF is set,
+which will make rcv_wscale is different, the client
+still operates with initial window scale and can overshot
+granted window, the client use the initial scale but local
+server use new scale to advertise window value, and session
+work abnormally.
 
-BUG: KASAN: nullptr-dereference in iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
-Read of size 2 at addr 000000000000021e by task syz-executor907/519
-
-CPU: 0 PID: 519 Comm: syz-executor907 Not tainted 5.9.0-syzkaller-07043-gbcf9877ad213 #0
-Hardware name: IBM 3906 M04 701 (KVM/Linux)
-Call Trace:
- [<00000000c576af60>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
- [<00000000c576af60>] show_stack+0x180/0x228 arch/s390/kernel/dumpstack.c:135
- [<00000000c9dcd1f8>] __dump_stack lib/dump_stack.c:77 [inline]
- [<00000000c9dcd1f8>] dump_stack+0x268/0x2f0 lib/dump_stack.c:118
- [<00000000c5fed016>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:383
- [<00000000c5fec82a>] __kasan_report mm/kasan/report.c:517 [inline]
- [<00000000c5fec82a>] kasan_report+0x11a/0x168 mm/kasan/report.c:534
- [<00000000c98b5b60>] iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
- [<00000000c98b6262>] iucv_sock_shutdown+0x44a/0x4c0 net/iucv/af_iucv.c:1457
- [<00000000c89d3a54>] __sys_shutdown+0x12c/0x1c8 net/socket.c:2204
- [<00000000c89d3b70>] __do_sys_shutdown net/socket.c:2212 [inline]
- [<00000000c89d3b70>] __s390x_sys_shutdown+0x38/0x48 net/socket.c:2210
- [<00000000c9e36eac>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-There is nothing to shutdown if a connection has never been established.
-Besides that iucv->hs_dev is not yet initialized if a socket is in
-IUCV_OPEN state and iucv->path is not yet initialized if socket is in
-IUCV_BOUND state.
-So, just skip the shutdown calls for a socket in these states.
-
-Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
-Fixes: 82492a355fac ("af_iucv: add shutdown for HS transport")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-[jwi: correct one Fixes tag]
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: e88c64f0a425 ("tcp: allow effective reduction of TCP's rcv-buffer via setsockopt")
+Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1604967391-123737-1-git-send-email-wenan.mao@linux.alibaba.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/iucv/af_iucv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/syncookies.c |    9 +++++++--
+ net/ipv6/syncookies.c |   10 ++++++++--
+ 2 files changed, 15 insertions(+), 4 deletions(-)
 
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1574,7 +1574,8 @@ static int iucv_sock_shutdown(struct soc
- 		break;
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -291,7 +291,7 @@ struct sock *cookie_v4_check(struct sock
+ 	__u32 cookie = ntohl(th->ack_seq) - 1;
+ 	struct sock *ret = sk;
+ 	struct request_sock *req;
+-	int mss;
++	int full_space, mss;
+ 	struct rtable *rt;
+ 	__u8 rcv_wscale;
+ 	struct flowi4 fl4;
+@@ -386,8 +386,13 @@ struct sock *cookie_v4_check(struct sock
+ 
+ 	/* Try to redo what tcp_v4_send_synack did. */
+ 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(&rt->dst, RTAX_WINDOW);
++	/* limit the window selection if the user enforce a smaller rx buffer */
++	full_space = tcp_full_space(sk);
++	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
++	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
++		req->rsk_window_clamp = full_space;
+ 
+-	tcp_select_initial_window(sk, tcp_full_space(sk), req->mss,
++	tcp_select_initial_window(sk, full_space, req->mss,
+ 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
+ 				  ireq->wscale_ok, &rcv_wscale,
+ 				  dst_metric(&rt->dst, RTAX_INITRWND));
+--- a/net/ipv6/syncookies.c
++++ b/net/ipv6/syncookies.c
+@@ -136,7 +136,7 @@ struct sock *cookie_v6_check(struct sock
+ 	__u32 cookie = ntohl(th->ack_seq) - 1;
+ 	struct sock *ret = sk;
+ 	struct request_sock *req;
+-	int mss;
++	int full_space, mss;
+ 	struct dst_entry *dst;
+ 	__u8 rcv_wscale;
+ 	u32 tsoff = 0;
+@@ -241,7 +241,13 @@ struct sock *cookie_v6_check(struct sock
  	}
  
--	if (how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) {
-+	if ((how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) &&
-+	    sk->sk_state == IUCV_CONNECTED) {
- 		if (iucv->transport == AF_IUCV_TRANS_IUCV) {
- 			txmsg.class = 0;
- 			txmsg.tag = 0;
+ 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(dst, RTAX_WINDOW);
+-	tcp_select_initial_window(sk, tcp_full_space(sk), req->mss,
++	/* limit the window selection if the user enforce a smaller rx buffer */
++	full_space = tcp_full_space(sk);
++	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
++	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
++		req->rsk_window_clamp = full_space;
++
++	tcp_select_initial_window(sk, full_space, req->mss,
+ 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
+ 				  ireq->wscale_ok, &rcv_wscale,
+ 				  dst_metric(dst, RTAX_INITRWND));
 
 
