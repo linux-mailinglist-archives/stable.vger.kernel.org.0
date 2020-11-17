@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0D82B638E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A484D2B6556
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732756AbgKQNjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:39:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50882 "EHLO mail.kernel.org"
+        id S1731303AbgKQNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:25:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732408AbgKQNjH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:39:07 -0500
+        id S1731101AbgKQNZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:25:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D705520870;
-        Tue, 17 Nov 2020 13:39:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9FA82467D;
+        Tue, 17 Nov 2020 13:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620346;
-        bh=KQCuwdMUqM8EjjgvAFkva6iPqgagY4BwNMp1qW9+J0c=;
+        s=default; t=1605619526;
+        bh=7lcMbKOxhN/Le0MESmUbQj5z7nRfEq6LZOAd40/ORv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCI533KXeHEO080roUq8nC34aH2RCIQvJWHLCxjQCgG76s/SqTkdlEiZZ5hBiW/cg
-         3lz3TAxmh3IFXCBSbxmF8y/lQPO53TO4pIjPhYstxYW0w8uOUGFuh774Bk///GZcN0
-         HZRiPqOj0ia04cIeEf2xlnIysHVUnhyEg4SkzPz4=
+        b=iVFgxYdrZMJd2NqKLUbQBm4iygv/lFlksFoNwJ3ZSGCB1vEPovpLd1tpLrLW4KCIN
+         fXNZTgAaJ0DGNWPvp9Jk1WA1uqMTqpP8U5Q6ozHM4onH9kNe5r3doTQ6Gx85V09ATw
+         2gYcbXRWgbiYhkTac34Cf715dGpTsSllXxwTNuf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Brian Bunker <brian@purestorage.com>,
+        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 157/255] net: phy: realtek: support paged operations on RTL8201CP
+Subject: [PATCH 5.4 067/151] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
 Date:   Tue, 17 Nov 2020 14:04:57 +0100
-Message-Id: <20201117122146.590282409@linuxfoundation.org>
+Message-Id: <20201117122124.681334317@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit f3037c5a31b58a73b32a36e938ad0560085acadd ]
+[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
 
-The RTL8401-internal PHY identifies as RTL8201CP, and the init
-sequence in r8169, copied from vendor driver r8168, uses paged
-operations. Therefore set the same paged operation callbacks as
-for the other Realtek PHY's.
+alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
+we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
+handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
+rcu_synchronize() before the final delete to ensure that all concurrent
+threads have left the critical section.  Then we can get rid of the
+BUG_ON() and replace it with a simple if condition.
 
-Fixes: cdafdc29ef75 ("r8169: sync support for RTL8401 with vendor driver")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/69882f7a-ca2f-e0c7-ae83-c9b6937282cd@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
+Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
+Cc: Brian Bunker <brian@purestorage.com>
+Acked-by: Brian Bunker <brian@purestorage.com>
+Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/realtek.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
-index 0f09609718007..81a614f903c4a 100644
---- a/drivers/net/phy/realtek.c
-+++ b/drivers/net/phy/realtek.c
-@@ -542,6 +542,8 @@ static struct phy_driver realtek_drvs[] = {
- 	{
- 		PHY_ID_MATCH_EXACT(0x00008201),
- 		.name           = "RTL8201CP Ethernet",
-+		.read_page	= rtl821x_read_page,
-+		.write_page	= rtl821x_write_page,
- 	}, {
- 		PHY_ID_MATCH_EXACT(0x001cc816),
- 		.name		= "RTL8201F Fast Ethernet",
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index f32da0ca529e0..308bda2e9c000 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -658,8 +658,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 					rcu_read_lock();
+ 					list_for_each_entry_rcu(h,
+ 						&tmp_pg->dh_list, node) {
+-						/* h->sdev should always be valid */
+-						BUG_ON(!h->sdev);
++						if (!h->sdev)
++							continue;
+ 						h->sdev->access_state = desc[0];
+ 					}
+ 					rcu_read_unlock();
+@@ -705,7 +705,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			pg->expiry = 0;
+ 			rcu_read_lock();
+ 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
+-				BUG_ON(!h->sdev);
++				if (!h->sdev)
++					continue;
+ 				h->sdev->access_state =
+ 					(pg->state & SCSI_ACCESS_STATE_MASK);
+ 				if (pg->pref)
+@@ -1147,7 +1148,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 	spin_lock(&h->pg_lock);
+ 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
+ 	rcu_assign_pointer(h->pg, NULL);
+-	h->sdev = NULL;
+ 	spin_unlock(&h->pg_lock);
+ 	if (pg) {
+ 		spin_lock_irq(&pg->lock);
+@@ -1156,6 +1156,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 		kref_put(&pg->kref, release_port_group);
+ 	}
+ 	sdev->handler_data = NULL;
++	synchronize_rcu();
+ 	kfree(h);
+ }
+ 
 -- 
 2.27.0
 
