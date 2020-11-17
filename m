@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0EED2B603E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578E02B6096
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729075AbgKQNHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:07:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34606 "EHLO mail.kernel.org"
+        id S1729507AbgKQNKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:10:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729071AbgKQNHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:18 -0500
+        id S1729503AbgKQNKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:10:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15BF024699;
-        Tue, 17 Nov 2020 13:07:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AACB2225B;
+        Tue, 17 Nov 2020 13:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618437;
-        bh=XIty7VzwezHwWmMmxLNHSnMMIojTImj0Axn482Y+CK8=;
+        s=default; t=1605618638;
+        bh=2dQHQ4y/7d2lTuy439M7DmWm45Nj0t27ZhtaEcZzszQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVV1AjsenAVVTWktqVt3p33xbDCJXRbvVwNkhusEEX+NrJIhyIOswm20j6YaJP5qk
-         wTFAzn44sW00TO1DC1JzYEB53va3iMq7MF9QF2jZzEjUWGsY6/5J7ggOkfkJYVsqN+
-         StvmHFQ3zK4VS8J9vTe+hxLDkKow30ELv0zhkYJc=
+        b=LviORb2FZGYH22hK8irrlcKimqH04wLeuv2R8llDuhCGoYXi+wDcjjzAs9VY6Jb3O
+         f/kdjDwJlUyiEv10PBrHq1M7yL/00RlgHYn2coPz2V58IdJ830F4gum/hgdKHWm3Ik
+         Zxmikt8n5bs9a7n8fGCZJAmL59ESnRwrEkpGwT3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/64] ALSA: hda: prevent undefined shift in snd_hdac_ext_bus_get_link()
+        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 05/78] time: Prevent undefined behaviour in timespec64_to_ns()
 Date:   Tue, 17 Nov 2020 14:04:31 +0100
-Message-Id: <20201117122106.548075540@linuxfoundation.org>
+Message-Id: <20201117122109.366986454@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zeng Tao <prime.zeng@hisilicon.com>
 
-[ Upstream commit 158e1886b6262c1d1c96a18c85fac5219b8bf804 ]
+[ Upstream commit cb47755725da7b90fecbb2aa82ac3b24a7adb89b ]
 
-This is harmless, but the "addr" comes from the user and it could lead
-to a negative shift or to shift wrapping if it's too high.
+UBSAN reports:
 
-Fixes: 0b00a5615dc4 ("ALSA: hdac_ext: add hdac extended controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20201103101807.GC1127762@mwanda
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Undefined behaviour in ./include/linux/time64.h:127:27
+signed integer overflow:
+17179869187 * 1000000000 cannot be represented in type 'long long int'
+Call Trace:
+ timespec64_to_ns include/linux/time64.h:127 [inline]
+ set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
+ do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
+ __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
+ do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
+
+Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
+replaced the original conversion which handled time clamping correctly with
+timespec64_to_ns() which has no overflow protection.
+
+Fix it in timespec64_to_ns() as this is not necessarily limited to the
+usage in itimers.
+
+[ tglx: Added comment and adjusted the fixes tag ]
+
+Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
+Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/ext/hdac_ext_controller.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/time64.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
-index 63215b17247c8..379250dd0668e 100644
---- a/sound/hda/ext/hdac_ext_controller.c
-+++ b/sound/hda/ext/hdac_ext_controller.c
-@@ -221,6 +221,8 @@ struct hdac_ext_link *snd_hdac_ext_bus_get_link(struct hdac_ext_bus *ebus,
- 		return NULL;
- 	if (ebus->idx != bus_idx)
- 		return NULL;
-+	if (addr < 0 || addr > 31)
-+		return NULL;
+diff --git a/include/linux/time64.h b/include/linux/time64.h
+index 980c71b3001a5..2a45b8c87edbf 100644
+--- a/include/linux/time64.h
++++ b/include/linux/time64.h
+@@ -188,6 +188,10 @@ static inline bool timespec64_valid_strict(const struct timespec64 *ts)
+  */
+ static inline s64 timespec64_to_ns(const struct timespec64 *ts)
+ {
++	/* Prevent multiplication overflow */
++	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
++		return KTIME_MAX;
++
+ 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+ }
  
- 	list_for_each_entry(hlink, &ebus->hlink_list, list) {
- 		for (i = 0; i < HDA_MAX_CODECS; i++) {
 -- 
 2.27.0
 
