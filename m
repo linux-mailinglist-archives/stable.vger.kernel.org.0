@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 740AD2B64BC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F2D2B64BA
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732406AbgKQNs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:48:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
+        id S1732415AbgKQNsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:48:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731678AbgKQNev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:34:51 -0500
+        id S1727554AbgKQNew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:34:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 736A22467A;
-        Tue, 17 Nov 2020 13:34:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51B162078E;
+        Tue, 17 Nov 2020 13:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620090;
-        bh=7ztnYkMLU7W1/hYN9RH7Mo/BzV5XRX/k8BGYnIAvE5E=;
+        s=default; t=1605620092;
+        bh=7lcMbKOxhN/Le0MESmUbQj5z7nRfEq6LZOAd40/ORv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBXgzqVLeh4FpoJRGx1soQeaYrcDea4HQfsvrMk3IQNt6zV8DlHNhz5pEUn+tJGJM
-         w6poV44o0rYEsDDkf950KL3DADMRKK8IF/53QO1LQuWdPdE1XN1xcuFmPNv8janf/h
-         fXZHXssVjTeIPlg386+Ywur0+rndanqNAQsQ5UkU=
+        b=KYV9Dd6+H7lqcnC28QBQS6Qm2YGN9NYgIjGhJkkmXOXu0ZJwBdFL8vK2qIXTwGEaX
+         wDMqgSR3HUfT3ZaqJqQPdvLtw4oZc/fnU7qPCgY0aOIQUsVylxHP0SxUlaCprllAiQ
+         fbFfIs/0BMONlOFeGXuh3zfAArvtHN0c5zBeKdUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        linux-mm@kvack.org, Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Brian Bunker <brian@purestorage.com>,
+        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 104/255] ARC: [plat-hsdk] Remap CCMs super early in asm boot trampoline
-Date:   Tue, 17 Nov 2020 14:04:04 +0100
-Message-Id: <20201117122144.020937696@linuxfoundation.org>
+Subject: [PATCH 5.9 105/255] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
+Date:   Tue, 17 Nov 2020 14:04:05 +0100
+Message-Id: <20201117122144.069004291@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,106 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 3b57533b460c8dc22a432684b7e8d22571f34d2e ]
+[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
 
-ARC HSDK platform stopped booting on released v5.10-rc1, getting stuck
-in startup of non master SMP cores.
+alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
+we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
+handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
+rcu_synchronize() before the final delete to ensure that all concurrent
+threads have left the critical section.  Then we can get rid of the
+BUG_ON() and replace it with a simple if condition.
 
-This was bisected to upstream commit 7fef431be9c9ac25
-"(mm/page_alloc: place pages to tail in __free_pages_core())"
-That commit itself is harmless, it just exposed a subtle assumption in
-our platform code (hence CC'ing linux-mm just as FYI in case some other
-arches / platforms trip on it).
-
-The upstream commit is semantically disruptive as it reverses the order
-of page allocations (actually it can be good test for hardware
-verification to exercise different memory patterns altogether).
-For ARC HSDK platform that meant a remapped memory region (pertaining to
-unused Closely Coupled Memory) started getting used early for dynamice
-allocations, while not effectively remapped on all the cores, triggering
-memory error exception on those cores.
-
-The fix is to move the CCM remapping from early platform code to to early core
-boot code. And while it is undesirable to riddle common boot code with
-platform quirks, there is no other way to do this since the faltering code
-involves setting up stack itself so even function calls are not allowed at
-that point.
-
-If anyone is interested, all the gory details can be found at Link below.
-
-Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/32
-Cc: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
+Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
+Cc: Brian Bunker <brian@purestorage.com>
+Acked-by: Brian Bunker <brian@purestorage.com>
+Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/head.S        | 17 ++++++++++++++++-
- arch/arc/plat-hsdk/platform.c | 17 -----------------
- 2 files changed, 16 insertions(+), 18 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arc/kernel/head.S b/arch/arc/kernel/head.S
-index 17fd1ed700cca..9152782444b55 100644
---- a/arch/arc/kernel/head.S
-+++ b/arch/arc/kernel/head.S
-@@ -67,7 +67,22 @@
- 	sr	r5, [ARC_REG_LPB_CTRL]
- 1:
- #endif /* CONFIG_ARC_LPB_DISABLE */
--#endif
-+
-+	/* On HSDK, CCMs need to remapped super early */
-+#ifdef CONFIG_ARC_SOC_HSDK
-+	mov	r6, 0x60000000
-+	lr	r5, [ARC_REG_ICCM_BUILD]
-+	breq	r5, 0, 1f
-+	sr	r6, [ARC_REG_AUX_ICCM]
-+1:
-+	lr	r5, [ARC_REG_DCCM_BUILD]
-+	breq	r5, 0, 2f
-+	sr	r6, [ARC_REG_AUX_DCCM]
-+2:
-+#endif	/* CONFIG_ARC_SOC_HSDK */
-+
-+#endif	/* CONFIG_ISA_ARCV2 */
-+
- 	; Config DSP_CTRL properly, so kernel may use integer multiply,
- 	; multiply-accumulate, and divide operations
- 	DSP_EARLY_INIT
-diff --git a/arch/arc/plat-hsdk/platform.c b/arch/arc/plat-hsdk/platform.c
-index 0b961a2a10b8e..22c9e2c9c0283 100644
---- a/arch/arc/plat-hsdk/platform.c
-+++ b/arch/arc/plat-hsdk/platform.c
-@@ -17,22 +17,6 @@ int arc_hsdk_axi_dmac_coherent __section(.data) = 0;
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index f32da0ca529e0..308bda2e9c000 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -658,8 +658,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 					rcu_read_lock();
+ 					list_for_each_entry_rcu(h,
+ 						&tmp_pg->dh_list, node) {
+-						/* h->sdev should always be valid */
+-						BUG_ON(!h->sdev);
++						if (!h->sdev)
++							continue;
+ 						h->sdev->access_state = desc[0];
+ 					}
+ 					rcu_read_unlock();
+@@ -705,7 +705,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			pg->expiry = 0;
+ 			rcu_read_lock();
+ 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
+-				BUG_ON(!h->sdev);
++				if (!h->sdev)
++					continue;
+ 				h->sdev->access_state =
+ 					(pg->state & SCSI_ACCESS_STATE_MASK);
+ 				if (pg->pref)
+@@ -1147,7 +1148,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 	spin_lock(&h->pg_lock);
+ 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
+ 	rcu_assign_pointer(h->pg, NULL);
+-	h->sdev = NULL;
+ 	spin_unlock(&h->pg_lock);
+ 	if (pg) {
+ 		spin_lock_irq(&pg->lock);
+@@ -1156,6 +1156,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
+ 		kref_put(&pg->kref, release_port_group);
+ 	}
+ 	sdev->handler_data = NULL;
++	synchronize_rcu();
+ 	kfree(h);
+ }
  
- #define ARC_CCM_UNUSED_ADDR	0x60000000
- 
--static void __init hsdk_init_per_cpu(unsigned int cpu)
--{
--	/*
--	 * By default ICCM is mapped to 0x7z while this area is used for
--	 * kernel virtual mappings, so move it to currently unused area.
--	 */
--	if (cpuinfo_arc700[cpu].iccm.sz)
--		write_aux_reg(ARC_REG_AUX_ICCM, ARC_CCM_UNUSED_ADDR);
--
--	/*
--	 * By default DCCM is mapped to 0x8z while this area is used by kernel,
--	 * so move it to currently unused area.
--	 */
--	if (cpuinfo_arc700[cpu].dccm.sz)
--		write_aux_reg(ARC_REG_AUX_DCCM, ARC_CCM_UNUSED_ADDR);
--}
- 
- #define ARC_PERIPHERAL_BASE	0xf0000000
- #define CREG_BASE		(ARC_PERIPHERAL_BASE + 0x1000)
-@@ -339,5 +323,4 @@ static const char *hsdk_compat[] __initconst = {
- MACHINE_START(SIMULATION, "hsdk")
- 	.dt_compat	= hsdk_compat,
- 	.init_early     = hsdk_init_early,
--	.init_per_cpu	= hsdk_init_per_cpu,
- MACHINE_END
 -- 
 2.27.0
 
