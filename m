@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8FB2B645A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE87F2B642E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732637AbgKQNqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:46:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
+        id S1733015AbgKQNh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732989AbgKQNhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:52 -0500
+        id S1732995AbgKQNh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:56 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE5A52465E;
-        Tue, 17 Nov 2020 13:37:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 957B4207BC;
+        Tue, 17 Nov 2020 13:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620272;
-        bh=FLKBhWs9ZpMgIeeKx//TqHn6fR7JZ2pl0UdIwnGlBcI=;
+        s=default; t=1605620275;
+        bh=iaaVi/kG/GEXKUfnpdvNXmq4FIzllGf18xVtxHBoDFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ej1Hz39sGhCEF0i1nCYhdGJhDHS79zxAD9i9AxgYH3H0dPLGrVpM+HcXCCSeLhlwU
-         KLJzqOrsrVSsv+rFR2O2gCseuaUPcn6KCGL6/iMyHMobwDoaHj8QtL7RkC0w1mFfaa
-         719IvnuodCIAEQw9HWh5Uv/FFCbbJCU6HCoFjV5g=
+        b=rsl6Z9az2DE6pAfNRET3LBihF0UU6OWkdQ8ngYOB0F2v7fOXBe/+/pFnjhEDYOL+h
+         dBEfbnJ3fajsQgLXl2LlDVZ7dnaWw+dKloWeySK4G+X3NvdzBcMzzoZZSb+bJhlZKs
+         QEcDiwywYdB2WLd9oW6VTYQ8AXjen+8GegxEuLK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 164/255] of/address: Fix of_node memory leak in of_dma_is_coherent
-Date:   Tue, 17 Nov 2020 14:05:04 +0100
-Message-Id: <20201117122146.919134873@linuxfoundation.org>
+        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 165/255] ch_ktls: Update cheksum information
+Date:   Tue, 17 Nov 2020 14:05:05 +0100
+Message-Id: <20201117122146.967639603@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,45 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+From: Rohit Maheshwari <rohitm@chelsio.com>
 
-[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
+[ Upstream commit 86716b51d14fc2201938939b323ba3ad99186910 ]
 
-Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
-powerpc") added a check to of_dma_is_coherent which returns early
-if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
-being skipped causing a memory leak. Moved the of_node_get() below this
-check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
-enabled.
+Checksum update was missing in the WR.
 
-Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: 429765a149f1 ("chcr: handle partial end part of a record")
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/address.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/chelsio/chcr_ktls.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/of/address.c b/drivers/of/address.c
-index da4f7341323f2..37ac311843090 100644
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -1043,11 +1043,13 @@ out:
-  */
- bool of_dma_is_coherent(struct device_node *np)
- {
--	struct device_node *node = of_node_get(np);
-+	struct device_node *node;
+diff --git a/drivers/crypto/chelsio/chcr_ktls.c b/drivers/crypto/chelsio/chcr_ktls.c
+index c5cce024886ac..026689d091102 100644
+--- a/drivers/crypto/chelsio/chcr_ktls.c
++++ b/drivers/crypto/chelsio/chcr_ktls.c
+@@ -926,6 +926,7 @@ chcr_ktls_write_tcp_options(struct chcr_ktls_info *tx_info, struct sk_buff *skb,
+ 	struct iphdr *ip;
+ 	int credits;
+ 	u8 buf[150];
++	u64 cntrl1;
+ 	void *pos;
  
- 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
- 		return true;
+ 	iplen = skb_network_header_len(skb);
+@@ -964,22 +965,28 @@ chcr_ktls_write_tcp_options(struct chcr_ktls_info *tx_info, struct sk_buff *skb,
+ 			   TXPKT_PF_V(tx_info->adap->pf));
+ 	cpl->pack = 0;
+ 	cpl->len = htons(pktlen);
+-	/* checksum offload */
+-	cpl->ctrl1 = 0;
+-
+-	pos = cpl + 1;
  
-+	node = of_node_get(np);
+ 	memcpy(buf, skb->data, pktlen);
+ 	if (tx_info->ip_family == AF_INET) {
+ 		/* we need to correct ip header len */
+ 		ip = (struct iphdr *)(buf + maclen);
+ 		ip->tot_len = htons(pktlen - maclen);
++		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else {
+ 		ip6 = (struct ipv6hdr *)(buf + maclen);
+ 		ip6->payload_len = htons(pktlen - maclen - iplen);
++		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP6);
+ #endif
+ 	}
 +
- 	while (node) {
- 		if (of_property_read_bool(node, "dma-coherent")) {
- 			of_node_put(node);
++	cntrl1 |= T6_TXPKT_ETHHDR_LEN_V(maclen - ETH_HLEN) |
++		  TXPKT_IPHDR_LEN_V(iplen);
++	/* checksum offload */
++	cpl->ctrl1 = cpu_to_be64(cntrl1);
++
++	pos = cpl + 1;
++
+ 	/* now take care of the tcp header, if fin is not set then clear push
+ 	 * bit as well, and if fin is set, it will be sent at the last so we
+ 	 * need to update the tcp sequence number as per the last packet.
 -- 
 2.27.0
 
