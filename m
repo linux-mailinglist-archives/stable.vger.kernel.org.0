@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FA292B6028
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A698B2B6027
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728970AbgKQNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
+        id S1728983AbgKQNGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:06:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728962AbgKQNGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:49 -0500
+        id S1728978AbgKQNGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:06:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C4552465E;
-        Tue, 17 Nov 2020 13:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB0352467D;
+        Tue, 17 Nov 2020 13:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618408;
-        bh=CUuU7On8k9gquGH9FpyAONhSZTiem7DP/gZYyGMjaQg=;
+        s=default; t=1605618411;
+        bh=Z/YgsnwfhkS28seydQ/oqHbW2Cq5yaLndiz+w91ebe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzMZLVKjsirdbNpkCABIAphEGlVFyfwmmjjQmTT3NDWrbDwUlpHUSBVC6mFXnDkZn
-         6Qcc0m2/WcWaEkxkGLLcE4KK5VJCCOotZTrwLpkLcGyj5Wn7zbuFC3VaWGTto1DzDU
-         xU9AGWZb0V5cKtkQd3OVZ9wDgZdzdoPhkHE5OYUk=
+        b=QoxvZSiq5CnZ1LwJPZY/yPffRwgXWF82W7PoAVAl5ntD8eAovRZSEi/P77SMmR7CK
+         HIMP1IWr3I3G3soyIFisEsooTWi0h8/MmgaKfR7ATf8odg/KGznd3liQwIDUi7wBmC
+         exwHQBcGH8c4eWpot0lZdJP46RfCUugby7FZRgOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 22/64] gfs2: check for live vs. read-only file system in gfs2_fitrim
-Date:   Tue, 17 Nov 2020 14:04:45 +0100
-Message-Id: <20201117122107.225501505@linuxfoundation.org>
+Subject: [PATCH 4.4 23/64] drm/amdgpu: perform srbm soft reset always on SDMA resume
+Date:   Tue, 17 Nov 2020 14:04:46 +0100
+Message-Id: <20201117122107.275197754@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
 References: <20201117122106.144800239@linuxfoundation.org>
@@ -43,47 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
+[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
 
-Before this patch, gfs2_fitrim was not properly checking for a "live" file
-system. If the file system had something to trim and the file system
-was read-only (or spectator) it would start the trim, but when it starts
-the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
-and it errors out. However, if the file system was already trimmed so
-there's no work to do, it never called gfs2_trans_begin. That code is
-bypassed so it never returns the error. Instead, it returns a good
-return code with 0 work. All this makes for inconsistent behavior:
-The same fstrim command can return -EROFS in one case and 0 in another.
-This tripped up xfstests generic/537 which reports the error as:
+This can address the random SDMA hang after pci config reset
+seen on Hawaii.
 
-    +fstrim with unrecovered metadata just ate your filesystem
-
-This patch adds a check for a "live" (iow, active journal, iow, RW)
-file system, and if not, returns the error properly.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 99dcbdc1ff3a4..faa5e0e2c4493 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1388,6 +1388,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+index c568293cb6c1a..f1745c5cdf7b3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
++++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+@@ -1118,22 +1118,19 @@ static int cik_sdma_soft_reset(void *handle)
+ {
+ 	u32 srbm_soft_reset = 0;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-	u32 tmp = RREG32(mmSRBM_STATUS2);
++	u32 tmp;
  
-+	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
-+		return -EROFS;
+-	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
+-		/* sdma0 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
+-	}
+-	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
+-		/* sdma1 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+-	}
++	/* sdma0 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
 +
- 	if (!blk_queue_discard(q))
- 		return -EOPNOTSUPP;
++	/* sdma1 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
  
+ 	if (srbm_soft_reset) {
+ 		cik_sdma_print_status((void *)adev);
 -- 
 2.27.0
 
