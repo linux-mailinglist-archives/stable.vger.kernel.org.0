@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33CC62B63EC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 315DE2B63EE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387471AbgKQNmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:42:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
+        id S2387474AbgKQNms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:42:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387465AbgKQNmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:42:45 -0500
+        id S2387468AbgKQNmr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 122B72468D;
-        Tue, 17 Nov 2020 13:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B9902468D;
+        Tue, 17 Nov 2020 13:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620563;
-        bh=TW0kadzJVG5/0T+RUDy7xRV2L7Vy902zfmm/D1KQlZw=;
+        s=default; t=1605620566;
+        bh=lGTBwaOLzltDInUOiWY9XHnOqmHWlpFXn63vO0PF/mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/RPhNVf9xhXVKV4oP6dHtjGDokjhioydIITHhSuD2VnORRlqb0pvw0uZpwl0IXkJ
-         IagHh2Zoz7IXiJOXxPm8CVgaMSFdeg/mcDAMckjRTZmavNowSXxBMS9cbLphUQ6OSD
-         G2JLDHdtDqni5zcMIb5wjmlgpnKVk1IpkucYbQjA=
+        b=f4M1c50mmf71jQVIAsPi8MD+8RZSZQjtUJiG3eyfaBRnpBa3LniABGE6Rw8FzO4yo
+         a3xNedPFnW7ply2fpr75JN6kdoQ3a60ujAakYN60NX9ylHPqmW/qw1GJYeBRNLGJZG
+         9Ldqld3ijQoAYimXYaQa+Z/BlFoejRJdiwbYPILc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.9 254/255] coresight: Fix uninitialised pointer bug in etm_setup_aux()
-Date:   Tue, 17 Nov 2020 14:06:34 +0100
-Message-Id: <20201117122151.294783768@linuxfoundation.org>
+        stable@vger.kernel.org, Boris Protopopov <pboris@amazon.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.9 255/255] Convert trailing spaces and periods in path components
+Date:   Tue, 17 Nov 2020 14:06:35 +0100
+Message-Id: <20201117122151.335452495@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -42,72 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Leach <mike.leach@linaro.org>
+From: Boris Protopopov <pboris@amazon.com>
 
-commit 39a7661dcf655c8198fd5d72412f5030a8e58444 upstream.
+commit 57c176074057531b249cf522d90c22313fa74b0b upstream.
 
-Commit [bb1860efc817] changed the sink handling code introducing an
-uninitialised pointer bug. This results in the default sink selection
-failing.
+When converting trailing spaces and periods in paths, do so
+for every component of the path, not just the last component.
+If the conversion is not done for every path component, then
+subsequent operations in directories with trailing spaces or
+periods (e.g. create(), mkdir()) will fail with ENOENT. This
+is because on the server, the directory will have a special
+symbol in its name, and the client needs to provide the same.
 
-Prior to commit:
-
-static void etm_setup_aux(...)
-
-<snip>
-        struct coresight_device *sink;
-<snip>
-
-        /* First get the selected sink from user space. */
-        if (event->attr.config2) {
-                id = (u32)event->attr.config2;
-                sink = coresight_get_sink_by_id(id);
-        } else {
-                sink = coresight_get_enabled_sink(true);
-        }
-<ctd>
-
-*sink always initialised - possibly to NULL which triggers the
-automatic sink selection.
-
-After commit:
-
-static void etm_setup_aux(...)
-
-<snip>
-        struct coresight_device *sink;
-<snip>
-
-        /* First get the selected sink from user space. */
-        if (event->attr.config2) {
-                id = (u32)event->attr.config2;
-                sink = coresight_get_sink_by_id(id);
-        }
-<ctd>
-
-*sink pointer uninitialised when not providing a sink on the perf command
-line. This breaks later checks to enable automatic sink selection.
-
-Fixes: bb1860efc817 ("coresight: etm: perf: Sink selection using sysfs is deprecated")
-Signed-off-by: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201029164559.1268531-3-mathieu.poirier@linaro.org
+Signed-off-by: Boris Protopopov <pboris@amazon.com>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/coresight/coresight-etm-perf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifs_unicode.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -210,7 +210,7 @@ static void *etm_setup_aux(struct perf_e
- 	u32 id;
- 	int cpu = event->cpu;
- 	cpumask_t *mask;
--	struct coresight_device *sink;
-+	struct coresight_device *sink = NULL;
- 	struct etm_event_data *event_data = NULL;
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -488,7 +488,13 @@ cifsConvertToUTF16(__le16 *target, const
+ 		else if (map_chars == SFM_MAP_UNI_RSVD) {
+ 			bool end_of_string;
  
- 	event_data = alloc_event_data(cpu);
+-			if (i == srclen - 1)
++			/**
++			 * Remap spaces and periods found at the end of every
++			 * component of the path. The special cases of '.' and
++			 * '..' do not need to be dealt with explicitly because
++			 * they are addressed in namei.c:link_path_walk().
++			 **/
++			if ((i == srclen - 1) || (source[i+1] == '\\'))
+ 				end_of_string = true;
+ 			else
+ 				end_of_string = false;
 
 
