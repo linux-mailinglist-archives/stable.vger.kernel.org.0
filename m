@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51492B64CA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4362B64C6
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731457AbgKQNtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:49:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
+        id S1732104AbgKQNtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:49:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732381AbgKQNdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:33:17 -0500
+        id S1732390AbgKQNdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:33:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92B762078E;
-        Tue, 17 Nov 2020 13:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89DF9207BC;
+        Tue, 17 Nov 2020 13:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619997;
-        bh=O2DmgxRK509W1UDuTET9RNR/cXqe+9C2VisU0ezCa3E=;
+        s=default; t=1605620000;
+        bh=tj7CpmiYuztjJCVbxzgEbijWI2DDoAEPu6rbYaOk9WA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laDfMMLf4QOUIz1aH4vi19JAG5fF9XhArhg//SbUu+dU1FtvUuEayKvS01xs+Qv56
-         nKmkfTe0dYLq94aUXcTsSuUQiVH8pAE+J38GGjVV8/aEj8cWFdQ46UpKw5B2uSPd+R
-         iBsWbRKfGlOVd8UYuLpg1RqhHg6PA/zgxEahIJRw=
+        b=Ua+0c1SVTMDXtJzvsEHf/J0bmj/keVluylX7PDk2V9WeWZKpom56n60bYktc9tmVP
+         VDO24Wof+EeC/5/Na1YJR5BHN1hjLzIcIGgACO/t11YLINmpa4/wStoIdjei4F09yd
+         ZdnhWMd88UqaSxVe2Wn3jB5s3aBJfc4qnEEfPnz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Masashi Honma <masashi.honma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.9 074/255] ath9k_htc: Use appropriate rs_datalen type
-Date:   Tue, 17 Nov 2020 14:03:34 +0100
-Message-Id: <20201117122142.552267448@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Pujin Shi <shipujin.t@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.9 075/255] scsi: ufs: Fix missing brace warning for old compilers
+Date:   Tue, 17 Nov 2020 14:03:35 +0100
+Message-Id: <20201117122142.601466285@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,40 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Pujin Shi <shipujin.t@gmail.com>
 
-commit 5024f21c159f8c1668f581fff37140741c0b1ba9 upstream.
+commit 6500251e590657066a227dce897a0392f302af24 upstream.
 
-kernel test robot says:
-drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse: warning: incorrect type in assignment (different base types)
-drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse:    expected restricted __be16 [usertype] rs_datalen
-drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse:    got unsigned short [usertype]
-drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:988:13: sparse: warning: restricted __be16 degrades to integer
-drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:1001:13: sparse: warning: restricted __be16 degrades to integer
+For older versions of gcc, the array = {0}; will cause warnings:
 
-Indeed rs_datalen has host byte order, so modify it's own type.
+drivers/scsi/ufs/ufshcd-crypto.c: In function 'ufshcd_crypto_keyslot_program':
+drivers/scsi/ufs/ufshcd-crypto.c:62:8: warning: missing braces around initializer [-Wmissing-braces]
+  union ufs_crypto_cfg_entry cfg = { 0 };
+        ^
+drivers/scsi/ufs/ufshcd-crypto.c:62:8: warning: (near initialization for 'cfg.reg_val') [-Wmissing-braces]
+drivers/scsi/ufs/ufshcd-crypto.c: In function 'ufshcd_clear_keyslot':
+drivers/scsi/ufs/ufshcd-crypto.c:103:8: warning: missing braces around initializer [-Wmissing-braces]
+  union ufs_crypto_cfg_entry cfg = { 0 };
+        ^
+2 warnings generated
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200808233258.4596-1-masashi.honma@gmail.com
+Link: https://lore.kernel.org/r/20201002063538.1250-1-shipujin.t@gmail.com
+Fixes: 70297a8ac7a7 ("scsi: ufs: UFS crypto API")
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Pujin Shi <shipujin.t@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd-crypto.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -974,7 +974,7 @@ static bool ath9k_rx_prepare(struct ath9
- 	struct ath_htc_rx_status *rxstatus;
- 	struct ath_rx_status rx_stats;
- 	bool decrypt_error = false;
--	__be16 rs_datalen;
-+	u16 rs_datalen;
- 	bool is_phyerr;
+--- a/drivers/scsi/ufs/ufshcd-crypto.c
++++ b/drivers/scsi/ufs/ufshcd-crypto.c
+@@ -59,7 +59,7 @@ static int ufshcd_crypto_keyslot_program
+ 	u8 data_unit_mask = key->crypto_cfg.data_unit_size / 512;
+ 	int i;
+ 	int cap_idx = -1;
+-	union ufs_crypto_cfg_entry cfg = { 0 };
++	union ufs_crypto_cfg_entry cfg = {};
+ 	int err;
  
- 	if (skb->len < HTC_RX_FRAME_HEADER_SIZE) {
+ 	BUILD_BUG_ON(UFS_CRYPTO_KEY_SIZE_INVALID != 0);
+@@ -100,7 +100,7 @@ static int ufshcd_clear_keyslot(struct u
+ 	 * Clear the crypto cfg on the device. Clearing CFGE
+ 	 * might not be sufficient, so just clear the entire cfg.
+ 	 */
+-	union ufs_crypto_cfg_entry cfg = { 0 };
++	union ufs_crypto_cfg_entry cfg = {};
+ 
+ 	return ufshcd_program_key(hba, &cfg, slot);
+ }
 
 
