@@ -2,53 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 730E02B6896
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 16:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BB72B698E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbgKQPWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 10:22:35 -0500
-Received: from mx2.suse.de ([195.135.220.15]:44930 "EHLO mx2.suse.de"
+        id S1727193AbgKQQLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 11:11:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730290AbgKQPWa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 10:22:30 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 85B29AC23;
-        Tue, 17 Nov 2020 15:22:29 +0000 (UTC)
-Date:   Tue, 17 Nov 2020 16:22:27 +0100
-From:   Oscar Salvador <osalvador@suse.de>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Rashmica Gupta <rashmica.g@gmail.com>
-Subject: Re: [PATCH v2 2/8] powernv/memtrace: fix crashing the kernel when
- enabling concurrently
-Message-ID: <20201117152227.GB15987@linux>
-References: <20201111145322.15793-1-david@redhat.com>
- <20201111145322.15793-3-david@redhat.com>
+        id S1726897AbgKQQLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 11:11:33 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45C2C22240;
+        Tue, 17 Nov 2020 16:11:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605629493;
+        bh=+0+uKSU55cw8NMsseuTud1DNBTgmYmdc0AkLJ6osu6M=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Qq184SXtTxa/zKKpBRujx5yppGEM0x1TljCq59XyFpEG5E6wRU1BWERrZj2pmsj7C
+         yEw/b1vgS2B45dIIlPbPPzsuWr5XRprJusZPpoC7gHm95914tb6fcFI+HwB+ZWDI2/
+         J9W/44zs0ObWinfpB4KFsYBdmfeM9NX2i524lGfg=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, "Liu, Yi L" <yi.l.liu@intel.com>,
+        Yi Sun <yi.y.sun@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 041/255] iommu/vt-d: Fix a bug for PDP check in prq_event_thread
+Date:   Tue, 17 Nov 2020 14:03:01 +0100
+Message-Id: <20201117122140.948344102@linuxfoundation.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201111145322.15793-3-david@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 11, 2020 at 03:53:16PM +0100, David Hildenbrand wrote:
-> Fixes: 9d5171a8f248 ("powerpc/powernv: Enable removal of memory for in memory tracing")
-> Cc: stable@vger.kernel.org# v4.14+
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Rashmica Gupta <rashmica.g@gmail.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+From: Liu, Yi L <yi.l.liu@intel.com>
 
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+[ Upstream commit 71cd8e2d16703a9df5c86a9e19f4cba99316cc53 ]
 
+In prq_event_thread(), the QI_PGRP_PDP is wrongly set by
+'req->pasid_present' which should be replaced to
+'req->priv_data_present'.
+
+Fixes: 5b438f4ba315 ("iommu/vt-d: Support page request in scalable mode")
+Signed-off-by: Liu, Yi L <yi.l.liu@intel.com>
+Signed-off-by: Yi Sun <yi.y.sun@linux.intel.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/1604025444-6954-3-git-send-email-yi.y.sun@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/iommu/intel/svm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index a71fbbddaa66e..20fa8c7fcd8e7 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -1001,7 +1001,7 @@ no_pasid:
+ 			resp.qw0 = QI_PGRP_PASID(req->pasid) |
+ 				QI_PGRP_DID(req->rid) |
+ 				QI_PGRP_PASID_P(req->pasid_present) |
+-				QI_PGRP_PDP(req->pasid_present) |
++				QI_PGRP_PDP(req->priv_data_present) |
+ 				QI_PGRP_RESP_CODE(result) |
+ 				QI_PGRP_RESP_TYPE;
+ 			resp.qw1 = QI_PGRP_IDX(req->prg_index) |
 -- 
-Oscar Salvador
-SUSE L3
+2.27.0
+
+
+
