@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F412B641C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E42F22B63A7
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732852AbgKQNon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:44:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52224 "EHLO mail.kernel.org"
+        id S1732848AbgKQNkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:40:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732839AbgKQNkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:40:16 -0500
+        id S1732842AbgKQNkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:40:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5C672467A;
-        Tue, 17 Nov 2020 13:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 742E220870;
+        Tue, 17 Nov 2020 13:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620414;
-        bh=EHQecxWPq1uWQiw5Yjqw1rkWg0rgmJwKmTJ1M1SfG/U=;
+        s=default; t=1605620417;
+        bh=EkIHzp+RYqNvFkybL6enu4s1xN/VGiZWbOSXL5Y6RVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cl2kbsXRKR0LRgPm9Cd7iQQgxxDu/Jf/jA+pw52lW27F5f3zIB12pRVWBpqEDhvim
-         vlkpDnNXBpu/2/zd2SWXxjAz0ah6JQpDm83mA8MxLfoaxjAOMX6Y4GgdZ4XsLTVSl7
-         Pg31Iv5UHyyg8uq4a4GvVMklnQH/QgLegTMA429I=
+        b=bCx0p6a8xp0+vHByC++kFYuNv91+a51nKpxwVkVsv7oXvDMLup4mucX8Q51i5QtkW
+         zXKmIppgWqdunGOonxE1/9hnEgObWBav4uo+7/Gf6yc1f/VkZoRKD59rMHoseVrOOO
+         7cBTyzMjmYlxh+GzjheNbLrWESZ/bCtuPhaFObfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Zi Yan <ziy@nvidia.com>,
+        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Michal Hocko <mhocko@kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        Yang Shi <shy828301@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Michal Hocko <mhocko@suse.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 210/255] mm/compaction: stop isolation if too many pages are isolated and we have pages to migrate
-Date:   Tue, 17 Nov 2020 14:05:50 +0100
-Message-Id: <20201117122149.156459162@linuxfoundation.org>
+Subject: [PATCH 5.9 211/255] mm/slub: fix panic in slab_alloc_node()
+Date:   Tue, 17 Nov 2020 14:05:51 +0100
+Message-Id: <20201117122149.204321393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -48,50 +52,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zi Yan <ziy@nvidia.com>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-commit d20bdd571ee5c9966191568527ecdb1bd4b52368 upstream.
+commit 22e4663e916321b72972c69ca0c6b962f529bd78 upstream.
 
-In isolate_migratepages_block, if we have too many isolated pages and
-nr_migratepages is not zero, we should try to migrate what we have
-without wasting time on isolating.
+While doing memory hot-unplug operation on a PowerPC VM running 1024 CPUs
+with 11TB of ram, I hit the following panic:
 
-In theory it's possible that multiple parallel compactions will cause
-too_many_isolated() to become true even if each has isolated less than
-COMPACT_CLUSTER_MAX, and loop forever in the while loop.  Bailing
-immediately prevents that.
+    BUG: Kernel NULL pointer dereference on read at 0x00000007
+    Faulting instruction address: 0xc000000000456048
+    Oops: Kernel access of bad area, sig: 11 [#2]
+    LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS= 2048 NUMA pSeries
+    Modules linked in: rpadlpar_io rpaphp
+    CPU: 160 PID: 1 Comm: systemd Tainted: G      D           5.9.0 #1
+    NIP:  c000000000456048 LR: c000000000455fd4 CTR: c00000000047b350
+    REGS: c00006028d1b77a0 TRAP: 0300   Tainted: G      D            (5.9.0)
+    MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004228  XER: 00000000
+    CFAR: c00000000000f1b0 DAR: 0000000000000007 DSISR: 40000000 IRQMASK: 0
+    GPR00: c000000000455fd4 c00006028d1b7a30 c000000001bec800 0000000000000000
+    GPR04: 0000000000000dc0 0000000000000000 00000000000374ef c00007c53df99320
+    GPR08: 000007c53c980000 0000000000000000 000007c53c980000 0000000000000000
+    GPR12: 0000000000004400 c00000001e8e4400 0000000000000000 0000000000000f6a
+    GPR16: 0000000000000000 c000000001c25930 c000000001d62528 00000000000000c1
+    GPR20: c000000001d62538 c00006be469e9000 0000000fffffffe0 c0000000003c0ff8
+    GPR24: 0000000000000018 0000000000000000 0000000000000dc0 0000000000000000
+    GPR28: c00007c513755700 c000000001c236a4 c00007bc4001f800 0000000000000001
+    NIP [c000000000456048] __kmalloc_node+0x108/0x790
+    LR [c000000000455fd4] __kmalloc_node+0x94/0x790
+    Call Trace:
+      kvmalloc_node+0x58/0x110
+      mem_cgroup_css_online+0x10c/0x270
+      online_css+0x48/0xd0
+      cgroup_apply_control_enable+0x2c4/0x470
+      cgroup_mkdir+0x408/0x5f0
+      kernfs_iop_mkdir+0x90/0x100
+      vfs_mkdir+0x138/0x250
+      do_mkdirat+0x154/0x1c0
+      system_call_exception+0xf8/0x200
+      system_call_common+0xf0/0x27c
+    Instruction dump:
+    e93e0000 e90d0030 39290008 7cc9402a e94d0030 e93e0000 7ce95214 7f89502a
+    2fbc0000 419e0018 41920230 e9270010 <89290007> 7f994800 419e0220 7ee6bb78
 
-[vbabka@suse.cz: changelog addition]
+This pointing to the following code:
 
-Fixes: 1da2f328fa64 (“mm,thp,compaction,cma: allow THP migration for CMA allocations”)
-Suggested-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Zi Yan <ziy@nvidia.com>
+    mm/slub.c:2851
+            if (unlikely(!object || !node_match(page, node))) {
+    c000000000456038:       00 00 bc 2f     cmpdi   cr7,r28,0
+    c00000000045603c:       18 00 9e 41     beq     cr7,c000000000456054 <__kmalloc_node+0x114>
+    node_match():
+    mm/slub.c:2491
+            if (node != NUMA_NO_NODE && page_to_nid(page) != node)
+    c000000000456040:       30 02 92 41     beq     cr4,c000000000456270 <__kmalloc_node+0x330>
+    page_to_nid():
+    include/linux/mm.h:1294
+    c000000000456044:       10 00 27 e9     ld      r9,16(r7)
+    c000000000456048:       07 00 29 89     lbz     r9,7(r9)	<<<< r9 = NULL
+    node_match():
+    mm/slub.c:2491
+    c00000000045604c:       00 48 99 7f     cmpw    cr7,r25,r9
+    c000000000456050:       20 02 9e 41     beq     cr7,c000000000456270 <__kmalloc_node+0x330>
+
+The panic occurred in slab_alloc_node() when checking for the page's node:
+
+	object = c->freelist;
+	page = c->page;
+	if (unlikely(!object || !node_match(page, node))) {
+		object = __slab_alloc(s, gfpflags, node, addr, c);
+		stat(s, ALLOC_SLOWPATH);
+
+The issue is that object is not NULL while page is NULL which is odd but
+may happen if the cache flush happened after loading object but before
+loading page.  Thus checking for the page pointer is required too.
+
+The cache flush is done through an inter processor interrupt when a
+piece of memory is off-lined.  That interrupt is triggered when a memory
+hot-unplug operation is initiated and offline_pages() is calling the
+slub's MEM_GOING_OFFLINE callback slab_mem_going_offline_callback()
+which is calling flush_cpu_slab().  If that interrupt is caught between
+the reading of c->freelist and the reading of c->page, this could lead
+to such a situation.  That situation is expected and the later call to
+this_cpu_cmpxchg_double() will detect the change to c->freelist and redo
+the whole operation.
+
+In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
+node_match()") check on the page pointer has been removed assuming that
+page is always valid when it is called.  It happens that this is not
+true in that particular case, so check for page before calling
+node_match() here.
+
+Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Christoph Lameter <cl@linux.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Michal Hocko <mhocko@suse.com>
 Cc: <stable@vger.kernel.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Link: https://lkml.kernel.org/r/20201030183809.3616803-2-zi.yan@sent.com
+Link: https://lkml.kernel.org/r/20201027190406.33283-1-ldufour@linux.ibm.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/compaction.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -818,6 +818,10 @@ isolate_migratepages_block(struct compac
- 	 * delay for some time until fewer pages are isolated
- 	 */
- 	while (unlikely(too_many_isolated(pgdat))) {
-+		/* stop isolation if there are still pages not migrated */
-+		if (cc->nr_migratepages)
-+			return 0;
-+
- 		/* async migration should just abort */
- 		if (cc->mode == MIGRATE_ASYNC)
- 			return 0;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2848,7 +2848,7 @@ redo:
+ 
+ 	object = c->freelist;
+ 	page = c->page;
+-	if (unlikely(!object || !node_match(page, node))) {
++	if (unlikely(!object || !page || !node_match(page, node))) {
+ 		object = __slab_alloc(s, gfpflags, node, addr, c);
+ 		stat(s, ALLOC_SLOWPATH);
+ 	} else {
 
 
