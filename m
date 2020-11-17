@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69AE72B6684
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E97312B65F8
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729170AbgKQOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:04:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40000 "EHLO mail.kernel.org"
+        id S1730471AbgKQN7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:59:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729488AbgKQNKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:36 -0500
+        id S1727468AbgKQNRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12B56221EB;
-        Tue, 17 Nov 2020 13:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDF12241A5;
+        Tue, 17 Nov 2020 13:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618635;
-        bh=sDle4BanFvLiTyXPkW94/wH0luaWEP4b4rv4Z2/qip0=;
+        s=default; t=1605619052;
+        bh=dUvVRT7auAIFZotC3SYyNClJ93YgJxBW+SjL399KPQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFQGG2HqC3TsGv4QW6DICIAZtMdUcUIe9M/qQFmYzW5cDKKxEI7zcYEe1ZG88qR0j
-         r2z+zreJ3sgVsx1kll6ofbg/kzBNG49Li6nnSlQPp4Nnk5SNp6NJOpZ1pf0hpDxXg2
-         I8pZjzkKnDdKtglJCBr0VFN1Xv6RvmNsP4dShY1A=
+        b=dlV5Dxm5XzfLkNCvRPYSP+gTIn20g0Ge1HLpOsoprIcnn2tWwE80bnCXJKC00BE7t
+         miY55XFypBCvOF8XKW+NqaUcueQRLduNu1O1vT+PlJnCmhGRHQRGhL131aXShxCRWV
+         UVT+wT1o6SX7pAx2M2dXCTYIZPUNxvhEEHAw9pPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/78] mm: mempolicy: fix potential pte_unmap_unlock pte error
-Date:   Tue, 17 Nov 2020 14:04:30 +0100
-Message-Id: <20201117122109.334051504@linuxfoundation.org>
+Subject: [PATCH 4.19 004/101] usb: dwc3: gadget: Continue to process pending requests
+Date:   Tue, 17 Nov 2020 14:04:31 +0100
+Message-Id: <20201117122113.333051472@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shijie Luo <luoshijie1@huawei.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 3f08842098e842c51e3b97d0dcdebf810b32558e ]
+[ Upstream commit d9feef974e0d8cb6842533c92476a1b32a41ba31 ]
 
-When flags in queue_pages_pte_range don't have MPOL_MF_MOVE or
-MPOL_MF_MOVE_ALL bits, code breaks and passing origin pte - 1 to
-pte_unmap_unlock seems like not a good idea.
+If there are still pending requests because no TRB was available,
+prepare more when started requests are completed.
 
-queue_pages_pte_range can run in MPOL_MF_MOVE_ALL mode which doesn't
-migrate misplaced pages but returns with EIO when encountering such a
-page.  Since commit a7f40cfe3b7a ("mm: mempolicy: make mbind() return
--EIO when MPOL_MF_STRICT is specified") and early break on the first pte
-in the range results in pte_unmap_unlock on an underflow pte.  This can
-lead to lockups later on when somebody tries to lock the pte resp.
-page_table_lock again..
+Introduce dwc3_gadget_ep_should_continue() to check for incomplete and
+pending requests to resume updating new TRBs to the controller's TRB
+cache.
 
-Fixes: a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when MPOL_MF_STRICT is specified")
-Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Shijie Luo <luoshijie1@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201019074853.50856-1-luoshijie1@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mempolicy.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index a2be65bf5d8cc..2f443767fd1b4 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -487,7 +487,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	struct queue_pages *qp = walk->private;
- 	unsigned long flags = qp->flags;
- 	int nid, ret;
--	pte_t *pte;
-+	pte_t *pte, *mapped_pte;
- 	spinlock_t *ptl;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index f0d2f0a4e9908..f24cfb3a6907b 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2403,10 +2403,8 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
  
- 	if (pmd_trans_huge(*pmd)) {
-@@ -515,7 +515,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	if (pmd_trans_unstable(pmd))
- 		return 0;
- retry:
--	pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
-+	mapped_pte = pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
- 	for (; addr != end; pte++, addr += PAGE_SIZE) {
- 		if (!pte_present(*pte))
- 			continue;
-@@ -554,7 +554,7 @@ retry:
- 		} else
- 			break;
+ 	req->request.actual = req->request.length - req->remaining;
+ 
+-	if (!dwc3_gadget_ep_request_completed(req)) {
+-		__dwc3_gadget_kick_transfer(dep);
++	if (!dwc3_gadget_ep_request_completed(req))
+ 		goto out;
+-	}
+ 
+ 	dwc3_gadget_giveback(dep, req, status);
+ 
+@@ -2430,6 +2428,24 @@ static void dwc3_gadget_ep_cleanup_completed_requests(struct dwc3_ep *dep,
  	}
--	pte_unmap_unlock(pte - 1, ptl);
-+	pte_unmap_unlock(mapped_pte, ptl);
- 	cond_resched();
- 	return addr != end ? -EIO : 0;
  }
+ 
++static bool dwc3_gadget_ep_should_continue(struct dwc3_ep *dep)
++{
++	struct dwc3_request	*req;
++
++	if (!list_empty(&dep->pending_list))
++		return true;
++
++	/*
++	 * We only need to check the first entry of the started list. We can
++	 * assume the completed requests are removed from the started list.
++	 */
++	req = next_request(&dep->started_list);
++	if (!req)
++		return false;
++
++	return !dwc3_gadget_ep_request_completed(req);
++}
++
+ static void dwc3_gadget_endpoint_frame_from_event(struct dwc3_ep *dep,
+ 		const struct dwc3_event_depevt *event)
+ {
+@@ -2459,6 +2475,8 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
+ 
+ 	if (stop)
+ 		dwc3_stop_active_transfer(dep, true, true);
++	else if (dwc3_gadget_ep_should_continue(dep))
++		__dwc3_gadget_kick_transfer(dep);
+ 
+ 	/*
+ 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 -- 
 2.27.0
 
