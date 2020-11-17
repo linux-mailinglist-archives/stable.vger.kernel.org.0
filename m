@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8872B60B1
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2DA2B6188
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgKQNLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
+        id S1729831AbgKQNUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:20:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729258AbgKQNLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:52 -0500
+        id S1729575AbgKQNT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:19:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 405E624199;
-        Tue, 17 Nov 2020 13:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57A8C241A6;
+        Tue, 17 Nov 2020 13:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618711;
-        bh=xTAXFNREFzNiLURv6XXd01JKeNZ3ZXa4zHUHpNhRLEY=;
+        s=default; t=1605619198;
+        bh=QhHr7M29daAeMk7vkOkFo+ezbF6jU7vpB6jpsy5pCOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcgp/ZiAgHQunXzaE5k4cI56XDg5fbNRGqWsDP1U/6GL17q3SoWhPraSFnCNpCLcG
-         dMOeUJrBXPIZsnlWc4wEWrrsao/kK51yrjlpIveHNXSkgEZKbdNsmXMnDUzrfwGKl1
-         SSHv51Z/dkf5EPGaRK79DPAP+OUQ0iiRzsHFHiwM=
+        b=sURCy3CM6knfEbzPkHL9uo0/UOR/HTvBA15gVb/zLhh9DCTAGc3X+xSCuLrZZT3i3
+         iybJBvQ/zZbYZc59nL+uQMbPGnvsnGoeDwgSudr6bGTGutntwkpw7ZZ0I6uY543GJ9
+         sIaKwL68ITf1KKjL5sKKuJlWBn8u7zhQbySFeNqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
-        miklos@szeredi.hu, namhyung@kernel.org, songliubraving@fb.com,
-        Ingo Molnar <mingo@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 60/78] perf/core: Fix crash when using HW tracing kernel filters
-Date:   Tue, 17 Nov 2020 14:05:26 +0100
-Message-Id: <20201117122112.038248140@linuxfoundation.org>
+        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 060/101] of/address: Fix of_node memory leak in of_dma_is_coherent
+Date:   Tue, 17 Nov 2020 14:05:27 +0100
+Message-Id: <20201117122116.028079051@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-commit 7f635ff187ab6be0b350b3ec06791e376af238ab upstream
+[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
 
-In function perf_event_parse_addr_filter(), the path::dentry of each struct
-perf_addr_filter is left unassigned (as it should be) when the pattern
-being parsed is related to kernel space.  But in function
-perf_addr_filter_match() the same dentries are given to d_inode() where
-the value is not expected to be NULL, resulting in the following splat:
+Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
+powerpc") added a check to of_dma_is_coherent which returns early
+if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
+being skipped causing a memory leak. Moved the of_node_get() below this
+check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
+enabled.
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000058
-  pc : perf_event_mmap+0x2fc/0x5a0
-  lr : perf_event_mmap+0x2c8/0x5a0
-  Process uname (pid: 2860, stack limit = 0x000000001cbcca37)
-  Call trace:
-   perf_event_mmap+0x2fc/0x5a0
-   mmap_region+0x124/0x570
-   do_mmap+0x344/0x4f8
-   vm_mmap_pgoff+0xe4/0x110
-   vm_mmap+0x2c/0x40
-   elf_map+0x60/0x108
-   load_elf_binary+0x450/0x12c4
-   search_binary_handler+0x90/0x290
-   __do_execve_file.isra.13+0x6e4/0x858
-   sys_execve+0x3c/0x50
-   el0_svc_naked+0x30/0x34
-
-This patch is fixing the problem by introducing a new check in function
-perf_addr_filter_match() to see if the filter's dentry is NULL.
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: miklos@szeredi.hu
-Cc: namhyung@kernel.org
-Cc: songliubraving@fb.com
-Fixes: 9511bce9fe8e ("perf/core: Fix bad use of igrab()")
-Link: http://lkml.kernel.org/r/1531782831-1186-1-git-send-email-mathieu.poirier@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/of/address.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6814,6 +6814,10 @@ static bool perf_addr_filter_match(struc
- 				     struct file *file, unsigned long offset,
- 				     unsigned long size)
+diff --git a/drivers/of/address.c b/drivers/of/address.c
+index c42aebba35ab8..30806dd357350 100644
+--- a/drivers/of/address.c
++++ b/drivers/of/address.c
+@@ -975,11 +975,13 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
+  */
+ bool of_dma_is_coherent(struct device_node *np)
  {
-+	/* d_inode(NULL) won't be equal to any mapped user-space file */
-+	if (!filter->path.dentry)
-+		return false;
-+
- 	if (d_inode(filter->path.dentry) != file_inode(file))
- 		return false;
+-	struct device_node *node = of_node_get(np);
++	struct device_node *node;
  
+ 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
+ 		return true;
+ 
++	node = of_node_get(np);
++
+ 	while (node) {
+ 		if (of_property_read_bool(node, "dma-coherent")) {
+ 			of_node_put(node);
+-- 
+2.27.0
+
 
 
