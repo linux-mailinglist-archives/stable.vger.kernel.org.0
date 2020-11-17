@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AF62B6694
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B19022B66A0
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387487AbgKQOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:05:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38186 "EHLO mail.kernel.org"
+        id S1729356AbgKQNJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:09:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728619AbgKQNJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:09:15 -0500
+        id S1729369AbgKQNJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4F8924698;
-        Tue, 17 Nov 2020 13:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF8A8221EB;
+        Tue, 17 Nov 2020 13:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618554;
-        bh=G0CUy7218bVZ/qERDH8RjZBfATQhVOAGQzd3v7sKvxU=;
+        s=default; t=1605618542;
+        bh=EboRDqWR0ty8njnVhjop7TgETSHaZFTP5a+mimYOoqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8/PS8p/YKg5/J89whtKC9lTBEZigkaJYKEsoW4NU3Lbgnm8j5TqkYS2TBbhXCeTK
-         WrKEEm+AQYgMk5LybtlHcGF0teAOaXc9rdREvbmb08Zrgpwvl+yGhOXhd/Tb5ngRls
-         YuM2Z9ABtIkUmQfD8Rdh6VIL55EtyX8P8xcB5iE4=
+        b=diKrxPdrxGfle8rjJAavnVFv/KK9V1r4GfTHVcEUYHjs+8ZePS7kzsObbOq+rW+D1
+         eczWpeLjmsdEdtCCBjpX+ldMHRrsIkq3fw2fnb4MzuHAkC6ixybU+Q14vukm95Iavb
+         5JtLi+N45HtWYrJ/U3wetm1N/hBCtvUBE/Qg1on0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wade Mealing <wmealing@redhat.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 60/64] perf/core: Fix race in the perf_mmap_close() function
-Date:   Tue, 17 Nov 2020 14:05:23 +0100
-Message-Id: <20201117122109.140341844@linuxfoundation.org>
+Subject: [PATCH 4.4 61/64] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+Date:   Tue, 17 Nov 2020 14:05:24 +0100
+Message-Id: <20201117122109.190012835@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
 References: <20201117122106.144800239@linuxfoundation.org>
@@ -46,100 +51,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream.
+commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
 
-There's a possible race in perf_mmap_close() when checking ring buffer's
-mmap_count refcount value. The problem is that the mmap_count check is
-not atomic because we call atomic_dec() and atomic_read() separately.
+Patch series "fix parsing of reboot= cmdline", v3.
 
-  perf_mmap_close:
-  ...
-   atomic_dec(&rb->mmap_count);
-   ...
-   if (atomic_read(&rb->mmap_count))
-      goto out_put;
+The parsing of the reboot= cmdline has two major errors:
 
-   <ring buffer detach>
-   free_uid
+ - a missing bound check can crash the system on reboot
 
-out_put:
-  ring_buffer_put(rb); /* could be last */
+ - parsing of the cpu number only works if specified last
 
-The race can happen when we have two (or more) events sharing same ring
-buffer and they go through atomic_dec() and then they both see 0 as refcount
-value later in atomic_read(). Then both will go on and execute code which
-is meant to be run just once.
+Fix both.
 
-The code that detaches ring buffer is probably fine to be executed more
-than once, but the problem is in calling free_uid(), which will later on
-demonstrate in related crashes and refcount warnings, like:
+This patch (of 2):
 
-  refcount_t: addition on 0; use-after-free.
-  ...
-  RIP: 0010:refcount_warn_saturate+0x6d/0xf
-  ...
-  Call Trace:
-  prepare_creds+0x190/0x1e0
-  copy_creds+0x35/0x172
-  copy_process+0x471/0x1a80
-  _do_fork+0x83/0x3a0
-  __do_sys_wait4+0x83/0x90
-  __do_sys_clone+0x85/0xa0
-  do_syscall_64+0x5b/0x1e0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This reverts commit 616feab753972b97.
 
-Using atomic decrease and check instead of separated calls.
+kstrtoint() and simple_strtoul() have a subtle difference which makes
+them non interchangeable: if a non digit character is found amid the
+parsing, the former will return an error, while the latter will just
+stop parsing, e.g.  simple_strtoul("123xyx") = 123.
 
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Wade Mealing <wmealing@redhat.com>
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
-Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
-[sudip: backport to v4.9.y by using ring_buffer]
+The kernel cmdline reboot= argument allows to specify the CPU used for
+rebooting, with the syntax `s####` among the other flags, e.g.
+"reboot=warm,s31,force", so if this flag is not the last given, it's
+silently ignored as well as the subsequent ones.
+
+Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use reboot_mode instead of mode]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/reboot.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -4664,11 +4664,11 @@ static void perf_mmap_open(struct vm_are
- static void perf_mmap_close(struct vm_area_struct *vma)
- {
- 	struct perf_event *event = vma->vm_file->private_data;
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -512,22 +512,15 @@ static int __init reboot_setup(char *str
+ 			break;
+ 
+ 		case 's':
+-		{
+-			int rc;
 -
- 	struct ring_buffer *rb = ring_buffer_get(event);
- 	struct user_struct *mmap_user = rb->mmap_user;
- 	int mmap_locked = rb->mmap_locked;
- 	unsigned long size = perf_data_size(rb);
-+	bool detach_rest = false;
- 
- 	if (event->pmu->event_unmapped)
- 		event->pmu->event_unmapped(event);
-@@ -4687,7 +4687,8 @@ static void perf_mmap_close(struct vm_ar
- 		mutex_unlock(&event->mmap_mutex);
- 	}
- 
--	atomic_dec(&rb->mmap_count);
-+	if (atomic_dec_and_test(&rb->mmap_count))
-+		detach_rest = true;
- 
- 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
- 		goto out_put;
-@@ -4696,7 +4697,7 @@ static void perf_mmap_close(struct vm_ar
- 	mutex_unlock(&event->mmap_mutex);
- 
- 	/* If there's still other mmap()s of this buffer, we're done. */
--	if (atomic_read(&rb->mmap_count))
-+	if (!detach_rest)
- 		goto out_put;
- 
- 	/*
+-			if (isdigit(*(str+1))) {
+-				rc = kstrtoint(str+1, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else if (str[1] == 'm' && str[2] == 'p' &&
+-				   isdigit(*(str+3))) {
+-				rc = kstrtoint(str+3, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else
++			if (isdigit(*(str+1)))
++				reboot_cpu = simple_strtoul(str+1, NULL, 0);
++			else if (str[1] == 'm' && str[2] == 'p' &&
++							isdigit(*(str+3)))
++				reboot_cpu = simple_strtoul(str+3, NULL, 0);
++			else
+ 				reboot_mode = REBOOT_SOFT;
+ 			break;
+-		}
++
+ 		case 'g':
+ 			reboot_mode = REBOOT_GPIO;
+ 			break;
 
 
