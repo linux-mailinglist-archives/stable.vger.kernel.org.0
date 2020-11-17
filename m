@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D139D2B66BF
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69AE72B6684
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbgKQNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:07:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34370 "EHLO mail.kernel.org"
+        id S1729170AbgKQOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:04:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729059AbgKQNHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:15 -0500
+        id S1729488AbgKQNKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:10:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 276EF246B8;
-        Tue, 17 Nov 2020 13:07:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12B56221EB;
+        Tue, 17 Nov 2020 13:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618434;
-        bh=aKgEmp1TqCnKHC2LUaP9Mb4OZ2n5J8n3ognTMoa3l24=;
+        s=default; t=1605618635;
+        bh=sDle4BanFvLiTyXPkW94/wH0luaWEP4b4rv4Z2/qip0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mba19lDCimwHm4KCPmbP3TFEtyvOD7wxDPB7y5w4ckrDMh2shlPbAVoibSGI2JVkj
-         Gj9R+4k+Qi57P8eu2UD8QBkSZuT2bet4FoFTTnzPTyGgkUognkcdRFoOxB7CgOK2DR
-         EeS1sGgopqNUaLEMpssaajLhzM+vhs/vkmRtZ+IE=
+        b=qFQGG2HqC3TsGv4QW6DICIAZtMdUcUIe9M/qQFmYzW5cDKKxEI7zcYEe1ZG88qR0j
+         r2z+zreJ3sgVsx1kll6ofbg/kzBNG49Li6nnSlQPp4Nnk5SNp6NJOpZ1pf0hpDxXg2
+         I8pZjzkKnDdKtglJCBr0VFN1Xv6RvmNsP4dShY1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Shijie Luo <luoshijie1@huawei.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/64] perf tools: Add missing swap for ino_generation
+Subject: [PATCH 4.9 04/78] mm: mempolicy: fix potential pte_unmap_unlock pte error
 Date:   Tue, 17 Nov 2020 14:04:30 +0100
-Message-Id: <20201117122106.497185081@linuxfoundation.org>
+Message-Id: <20201117122109.334051504@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Shijie Luo <luoshijie1@huawei.com>
 
-[ Upstream commit fe01adb72356a4e2f8735e4128af85921ca98fa1 ]
+[ Upstream commit 3f08842098e842c51e3b97d0dcdebf810b32558e ]
 
-We are missing swap for ino_generation field.
+When flags in queue_pages_pte_range don't have MPOL_MF_MOVE or
+MPOL_MF_MOVE_ALL bits, code breaks and passing origin pte - 1 to
+pte_unmap_unlock seems like not a good idea.
 
-Fixes: 5c5e854bc760 ("perf tools: Add attr->mmap2 support")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20201101233103.3537427-2-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+queue_pages_pte_range can run in MPOL_MF_MOVE_ALL mode which doesn't
+migrate misplaced pages but returns with EIO when encountering such a
+page.  Since commit a7f40cfe3b7a ("mm: mempolicy: make mbind() return
+-EIO when MPOL_MF_STRICT is specified") and early break on the first pte
+in the range results in pte_unmap_unlock on an underflow pte.  This can
+lead to lockups later on when somebody tries to lock the pte resp.
+page_table_lock again..
+
+Fixes: a7f40cfe3b7a ("mm: mempolicy: make mbind() return -EIO when MPOL_MF_STRICT is specified")
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Shijie Luo <luoshijie1@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201019074853.50856-1-luoshijie1@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/mempolicy.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 0ae4f73dc8eb5..5b392662d100b 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -415,6 +415,7 @@ static void perf_event__mmap2_swap(union perf_event *event,
- 	event->mmap2.maj   = bswap_32(event->mmap2.maj);
- 	event->mmap2.min   = bswap_32(event->mmap2.min);
- 	event->mmap2.ino   = bswap_64(event->mmap2.ino);
-+	event->mmap2.ino_generation = bswap_64(event->mmap2.ino_generation);
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index a2be65bf5d8cc..2f443767fd1b4 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -487,7 +487,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
+ 	struct queue_pages *qp = walk->private;
+ 	unsigned long flags = qp->flags;
+ 	int nid, ret;
+-	pte_t *pte;
++	pte_t *pte, *mapped_pte;
+ 	spinlock_t *ptl;
  
- 	if (sample_id_all) {
- 		void *data = &event->mmap2.filename;
+ 	if (pmd_trans_huge(*pmd)) {
+@@ -515,7 +515,7 @@ static int queue_pages_pte_range(pmd_t *pmd, unsigned long addr,
+ 	if (pmd_trans_unstable(pmd))
+ 		return 0;
+ retry:
+-	pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
++	mapped_pte = pte = pte_offset_map_lock(walk->mm, pmd, addr, &ptl);
+ 	for (; addr != end; pte++, addr += PAGE_SIZE) {
+ 		if (!pte_present(*pte))
+ 			continue;
+@@ -554,7 +554,7 @@ retry:
+ 		} else
+ 			break;
+ 	}
+-	pte_unmap_unlock(pte - 1, ptl);
++	pte_unmap_unlock(mapped_pte, ptl);
+ 	cond_resched();
+ 	return addr != end ? -EIO : 0;
+ }
 -- 
 2.27.0
 
