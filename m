@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6632B6248
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1406E2B6122
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731103AbgKQN1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:27:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35016 "EHLO mail.kernel.org"
+        id S1730277AbgKQNQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:16:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731701AbgKQN1R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:27:17 -0500
+        id S1730271AbgKQNQF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:16:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC8A4206D5;
-        Tue, 17 Nov 2020 13:27:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11797221EB;
+        Tue, 17 Nov 2020 13:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619637;
-        bh=/hZ9nWbGGjFN9qdOakvapm58eAu1ac2ctQXS8eUyNkg=;
+        s=default; t=1605618963;
+        bh=A/k6XTPAawjrrPQ6K5c9pEXpDrHPINnEPp/rjI/B8uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Vrv52u86W1nyb2GjSwydOX4frucsCNnS3yVgRWxmGxV1iEFU413V/zQ15Kj2swfv
-         oTDeVhsBYiWR5HCTWQPT1LuSHCcS1fgWpkUVG5Aig5nWcb+eMuy3qQmMh8QuGjdjcT
-         iDPMdWy+eM0FTqm+ubv/8xZGudYFTGSRkfwfbDIA=
+        b=ptUVmxgWtQ2x7ARuU0eZ072gT13Rsn7mNp1tCOoanT8Y6cGOQdr6b6WpQTQvMqWVx
+         1eYFG8cBfe3azVG7m5Ql0of4cuM3AiXSmxYx9jiKQ8sYv1mJfqCS4e8Tkl/Sc3URT6
+         7LFsmM9US8RXGdno18fkoos6RRrI4MLdCj6sE47I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 075/151] s390/smp: move rcu_cpu_starting() earlier
-Date:   Tue, 17 Nov 2020 14:05:05 +0100
-Message-Id: <20201117122125.067675414@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/85] nbd: fix a block_device refcount leak in nbd_release
+Date:   Tue, 17 Nov 2020 14:05:06 +0100
+Message-Id: <20201117122112.842203051@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit de5d9dae150ca1c1b5c7676711a9ca139d1a8dec ]
+[ Upstream commit 2bd645b2d3f0bacadaa6037f067538e1cd4e42ef ]
 
-The call to rcu_cpu_starting() in smp_init_secondary() is not early
-enough in the CPU-hotplug onlining process, which results in lockdep
-splats as follows:
+bdget_disk needs to be paired with bdput to not leak a reference
+on the block device inode.
 
- WARNING: suspicious RCU usage
- -----------------------------
- kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
-
- other info that might help us debug this:
-
- RCU used illegally from offline CPU!
- rcu_scheduler_active = 1, debug_locks = 1
- no locks held by swapper/1/0.
-
- Call Trace:
- show_stack+0x158/0x1f0
- dump_stack+0x1f2/0x238
- __lock_acquire+0x2640/0x4dd0
- lock_acquire+0x3a8/0xd08
- _raw_spin_lock_irqsave+0xc0/0xf0
- clockevents_register_device+0xa8/0x528
- init_cpu_timer+0x33e/0x468
- smp_init_secondary+0x11a/0x328
- smp_start_secondary+0x82/0x88
-
-This is avoided by moving the call to rcu_cpu_starting up near the
-beginning of the smp_init_secondary() function. Note that the
-raw_smp_processor_id() is required in order to avoid calling into
-lockdep before RCU has declared the CPU to be watched for readers.
-
-Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
-Signed-off-by: Qian Cai <cai@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 08ba91ee6e2c ("nbd: Add the nbd NBD_DISCONNECT_ON_CLOSE config flag.")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/smp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/nbd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index ad426cc656e56..66d7ba61803c8 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -845,13 +845,14 @@ void __init smp_detect_cpus(void)
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 9a0fb2d52a76c..70ef826af7f8d 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1432,6 +1432,7 @@ static void nbd_release(struct gendisk *disk, fmode_t mode)
+ 	if (test_bit(NBD_DISCONNECT_ON_CLOSE, &nbd->config->runtime_flags) &&
+ 			bdev->bd_openers == 0)
+ 		nbd_disconnect_and_put(nbd);
++	bdput(bdev);
  
- static void smp_init_secondary(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = raw_smp_processor_id();
- 
- 	S390_lowcore.last_update_clock = get_tod_clock();
- 	restore_access_regs(S390_lowcore.access_regs_save_area);
- 	set_cpu_flag(CIF_ASCE_PRIMARY);
- 	set_cpu_flag(CIF_ASCE_SECONDARY);
- 	cpu_init();
-+	rcu_cpu_starting(cpu);
- 	preempt_disable();
- 	init_cpu_timer();
- 	vtime_init();
+ 	nbd_config_put(nbd);
+ 	nbd_put(nbd);
 -- 
 2.27.0
 
