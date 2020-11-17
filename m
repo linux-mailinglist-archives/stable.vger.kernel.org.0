@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13D2D2B6129
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D75A32B6270
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729892AbgKQNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:16:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
+        id S1731874AbgKQN2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730293AbgKQNQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:19 -0500
+        id S1730602AbgKQN01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:26:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 948462225B;
-        Tue, 17 Nov 2020 13:16:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4293920781;
+        Tue, 17 Nov 2020 13:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618978;
-        bh=iIbL3yXcO0qPZsTOZyqByBDm/eL4KmJNFj69ccpbTXk=;
+        s=default; t=1605619585;
+        bh=/ivqJ4qZHFXQ/UmytbY16dNsa/D7Z0R4ZoHjSDHfaNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICgEJ9BJWiVe1LCAxEE6gXb8V7nFy8kSpql6clJN2OvLkZv1O4sYq8dW0mAgO0wh4
-         55odjvNy2j2GQEzyP8wUGDAN1PBxcqTUXpnX1RqcJS8rt2i2OsZGAtUoBSlKNFiLhR
-         SoQdwlv7ye7JqCYnGiOFdTY+r+lVDw/0q3LvHTF8=
+        b=QDUFHw51ZTOTQpIeq76PlyVM/RBet7CVqWMJjLn1gleRTqj9cF8Odte0LkEd8VWSG
+         wrMeWxGKbISVkc/3wawKPyFGvWgPJtEUzsPXbfHDU/Fpm/dMxCL4GNA0+1OkoCXgN6
+         6db/H/V9CESRw6b1svpn9Xkf+QA85QIB9xWXbq1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Bunker <brian@purestorage.com>,
-        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 32/85] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
+        stable@vger.kernel.org, Chao Leng <lengchao@huawei.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/151] nvme-tcp: avoid race between time out and tear down
 Date:   Tue, 17 Nov 2020 14:05:01 +0100
-Message-Id: <20201117122112.605798393@linuxfoundation.org>
+Message-Id: <20201117122124.881869316@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Chao Leng <lengchao@huawei.com>
 
-[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
+[ Upstream commit d6f66210f4b1aa2f5944f0e34e0f8db44f499f92 ]
 
-alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
-we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
-handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
-rcu_synchronize() before the final delete to ensure that all concurrent
-threads have left the critical section.  Then we can get rid of the
-BUG_ON() and replace it with a simple if condition.
+Now use teardown_lock to serialize for time out and tear down. This may
+cause abnormal: first cancel all request in tear down, then time out may
+complete the request again, but the request may already be freed or
+restarted.
 
-Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
-Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
-Cc: Brian Bunker <brian@purestorage.com>
-Acked-by: Brian Bunker <brian@purestorage.com>
-Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To avoid race between time out and tear down, in tear down process,
+first we quiesce the queue, and then delete the timer and cancel
+the time out work for the queue. At the same time we need to delete
+teardown_lock.
+
+Signed-off-by: Chao Leng <lengchao@huawei.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/nvme/host/tcp.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 135376ee2cbf0..ba68454109bae 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -653,8 +653,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 					rcu_read_lock();
- 					list_for_each_entry_rcu(h,
- 						&tmp_pg->dh_list, node) {
--						/* h->sdev should always be valid */
--						BUG_ON(!h->sdev);
-+						if (!h->sdev)
-+							continue;
- 						h->sdev->access_state = desc[0];
- 					}
- 					rcu_read_unlock();
-@@ -700,7 +700,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 			pg->expiry = 0;
- 			rcu_read_lock();
- 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
--				BUG_ON(!h->sdev);
-+				if (!h->sdev)
-+					continue;
- 				h->sdev->access_state =
- 					(pg->state & SCSI_ACCESS_STATE_MASK);
- 				if (pg->pref)
-@@ -1138,7 +1139,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 	spin_lock(&h->pg_lock);
- 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
- 	rcu_assign_pointer(h->pg, NULL);
--	h->sdev = NULL;
- 	spin_unlock(&h->pg_lock);
- 	if (pg) {
- 		spin_lock_irq(&pg->lock);
-@@ -1147,6 +1147,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 		kref_put(&pg->kref, release_port_group);
- 	}
- 	sdev->handler_data = NULL;
-+	synchronize_rcu();
- 	kfree(h);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index e159b78b5f3b4..76440f26c1453 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -110,7 +110,6 @@ struct nvme_tcp_ctrl {
+ 	struct sockaddr_storage src_addr;
+ 	struct nvme_ctrl	ctrl;
+ 
+-	struct mutex		teardown_lock;
+ 	struct work_struct	err_work;
+ 	struct delayed_work	connect_work;
+ 	struct nvme_tcp_request async_req;
+@@ -1797,8 +1796,8 @@ out_free_queue:
+ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 		bool remove)
+ {
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
++	blk_sync_queue(ctrl->admin_q);
+ 	nvme_tcp_stop_queue(ctrl, 0);
+ 	if (ctrl->admin_tagset) {
+ 		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
+@@ -1808,18 +1807,17 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		blk_mq_unquiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_destroy_admin_queue(ctrl, remove);
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
  }
  
+ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 		bool remove)
+ {
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	if (ctrl->queue_count <= 1)
+-		goto out;
++		return;
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	nvme_start_freeze(ctrl);
+ 	nvme_stop_queues(ctrl);
++	nvme_sync_io_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+ 	if (ctrl->tagset) {
+ 		blk_mq_tagset_busy_iter(ctrl->tagset,
+@@ -1829,8 +1827,6 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 	if (remove)
+ 		nvme_start_queues(ctrl);
+ 	nvme_tcp_destroy_io_queues(ctrl, remove);
+-out:
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ }
+ 
+ static void nvme_tcp_reconnect_or_remove(struct nvme_ctrl *ctrl)
+@@ -2074,14 +2070,11 @@ static void nvme_tcp_complete_timed_out(struct request *rq)
+ 	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
+ 	struct nvme_ctrl *ctrl = &req->queue->ctrl->ctrl;
+ 
+-	/* fence other contexts that may complete the command */
+-	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ 	nvme_tcp_stop_queue(ctrl, nvme_tcp_queue_id(req->queue));
+ 	if (!blk_mq_request_completed(rq)) {
+ 		nvme_req(rq)->status = NVME_SC_HOST_ABORTED_CMD;
+ 		blk_mq_complete_request(rq);
+ 	}
+-	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
+ }
+ 
+ static enum blk_eh_timer_return
+@@ -2344,7 +2337,6 @@ static struct nvme_ctrl *nvme_tcp_create_ctrl(struct device *dev,
+ 			nvme_tcp_reconnect_ctrl_work);
+ 	INIT_WORK(&ctrl->err_work, nvme_tcp_error_recovery_work);
+ 	INIT_WORK(&ctrl->ctrl.reset_work, nvme_reset_ctrl_work);
+-	mutex_init(&ctrl->teardown_lock);
+ 
+ 	if (!(opts->mask & NVMF_OPT_TRSVCID)) {
+ 		opts->trsvcid =
 -- 
 2.27.0
 
