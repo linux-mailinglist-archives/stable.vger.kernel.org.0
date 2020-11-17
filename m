@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37652B65CF
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3AC2B6431
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730672AbgKQNS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:18:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
+        id S1732620AbgKQNi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:38:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730669AbgKQNSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:18:24 -0500
+        id S1733056AbgKQNiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:38:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 365592225B;
-        Tue, 17 Nov 2020 13:18:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D53920870;
+        Tue, 17 Nov 2020 13:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619102;
-        bh=71HFCKSLs4U5k0hEdLly7JzlmSqqmmbMfZKQRL+YpRM=;
+        s=default; t=1605620299;
+        bh=OVbaHfWOr7z7UMHvYVcobnP2alaoJh/dzSPHxWg185E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSG4NC1xdbh0DC0WvH4pkPNJIWZBR7/bMBWSxkwukgyCNZVygmqYzfaTVuyDeAFix
-         1qo126QYG0Fw/IdAUliuAiIFak15WdQlMqHvwMhs5fPkcONa+xqzOG2ub2Ls7Sf9aO
-         zI5Y2mwq+2JyUihuXvJKWWvqMN2rEVd1975f5hcA=
+        b=VzXi9okvSKY+ysuGOd0kWwNGUEB6FT5aERqddyejDvojN3/de24UkAzGNoNwJzrX/
+         yX7izzSZTRTGsvx7qdQtfe73JGiyyjapqQceBwzuz+m/PocIcjZxvsFM+pBCaYijCc
+         4QuG36Nv5xI/nYtK5tJhaJkBz7zicjaag+md16G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 028/101] netfilter: use actual socket sk rather than skb sk when routing harder
+Subject: [PATCH 5.9 155/255] igc: Fix returning wrong statistics
 Date:   Tue, 17 Nov 2020 14:04:55 +0100
-Message-Id: <20201117122114.466493674@linuxfoundation.org>
+Message-Id: <20201117122146.492809796@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,256 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-commit 46d6c5ae953cc0be38efd0e469284df7c4328cf8 upstream.
+[ Upstream commit 6b7ed22ae4c96a415001f0c3116ebee15bb8491a ]
 
-If netfilter changes the packet mark when mangling, the packet is
-rerouted using the route_me_harder set of functions. Prior to this
-commit, there's one big difference between route_me_harder and the
-ordinary initial routing functions, described in the comment above
-__ip_queue_xmit():
+'igc_update_stats()' was not updating 'netdev->stats', so the returned
+statistics, for example, requested by:
 
-   /* Note: skb->sk can be different from sk, in case of tunnels */
-   int __ip_queue_xmit(struct sock *sk, struct sk_buff *skb, struct flowi *fl,
+$ ip -s link show dev enp3s0
 
-That function goes on to correctly make use of sk->sk_bound_dev_if,
-rather than skb->sk->sk_bound_dev_if. And indeed the comment is true: a
-tunnel will receive a packet in ndo_start_xmit with an initial skb->sk.
-It will make some transformations to that packet, and then it will send
-the encapsulated packet out of a *new* socket. That new socket will
-basically always have a different sk_bound_dev_if (otherwise there'd be
-a routing loop). So for the purposes of routing the encapsulated packet,
-the routing information as it pertains to the socket should come from
-that socket's sk, rather than the packet's original skb->sk. For that
-reason __ip_queue_xmit() and related functions all do the right thing.
+were not being updated and were always zero.
 
-One might argue that all tunnels should just call skb_orphan(skb) before
-transmitting the encapsulated packet into the new socket. But tunnels do
-*not* do this -- and this is wisely avoided in skb_scrub_packet() too --
-because features like TSQ rely on skb->destructor() being called when
-that buffer space is truely available again. Calling skb_orphan(skb) too
-early would result in buffers filling up unnecessarily and accounting
-info being all wrong. Instead, additional routing must take into account
-the new sk, just as __ip_queue_xmit() notes.
+Fix by returning a set of statistics that are actually being
+updated (adapter->stats64).
 
-So, this commit addresses the problem by fishing the correct sk out of
-state->sk -- it's already set properly in the call to nf_hook() in
-__ip_local_out(), which receives the sk as part of its normal
-functionality. So we make sure to plumb state->sk through the various
-route_me_harder functions, and then make correct use of it following the
-example of __ip_queue_xmit().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: c9a11c23ceb6 ("igc: Add netdev")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-[Jason: backported to 4.19 from Sasha's 5.4 backport]
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter_ipv4.h            |    2 +-
- include/linux/netfilter_ipv6.h            |    2 +-
- net/ipv4/netfilter.c                      |   12 +++++++-----
- net/ipv4/netfilter/ipt_SYNPROXY.c         |    2 +-
- net/ipv4/netfilter/iptable_mangle.c       |    2 +-
- net/ipv4/netfilter/nf_nat_l3proto_ipv4.c  |    2 +-
- net/ipv4/netfilter/nf_reject_ipv4.c       |    2 +-
- net/ipv4/netfilter/nft_chain_route_ipv4.c |    2 +-
- net/ipv6/netfilter.c                      |    6 +++---
- net/ipv6/netfilter/ip6table_mangle.c      |    2 +-
- net/ipv6/netfilter/nf_nat_l3proto_ipv6.c  |    2 +-
- net/ipv6/netfilter/nft_chain_route_ipv6.c |    2 +-
- net/netfilter/ipvs/ip_vs_core.c           |    4 ++--
- 13 files changed, 22 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/include/linux/netfilter_ipv4.h
-+++ b/include/linux/netfilter_ipv4.h
-@@ -16,7 +16,7 @@ struct ip_rt_info {
- 	u_int32_t mark;
- };
- 
--int ip_route_me_harder(struct net *net, struct sk_buff *skb, unsigned addr_type);
-+int ip_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb, unsigned addr_type);
- 
- struct nf_queue_entry;
- 
---- a/include/linux/netfilter_ipv6.h
-+++ b/include/linux/netfilter_ipv6.h
-@@ -36,7 +36,7 @@ struct nf_ipv6_ops {
- };
- 
- #ifdef CONFIG_NETFILTER
--int ip6_route_me_harder(struct net *net, struct sk_buff *skb);
-+int ip6_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb);
- __sum16 nf_ip6_checksum(struct sk_buff *skb, unsigned int hook,
- 			unsigned int dataoff, u_int8_t protocol);
- 
---- a/net/ipv4/netfilter.c
-+++ b/net/ipv4/netfilter.c
-@@ -17,17 +17,19 @@
- #include <net/netfilter/nf_queue.h>
- 
- /* route_me_harder function, used by iptable_nat, iptable_mangle + ip_queue */
--int ip_route_me_harder(struct net *net, struct sk_buff *skb, unsigned int addr_type)
-+int ip_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb, unsigned int addr_type)
- {
- 	const struct iphdr *iph = ip_hdr(skb);
- 	struct rtable *rt;
- 	struct flowi4 fl4 = {};
- 	__be32 saddr = iph->saddr;
--	const struct sock *sk = skb_to_full_sk(skb);
--	__u8 flags = sk ? inet_sk_flowi_flags(sk) : 0;
-+	__u8 flags;
- 	struct net_device *dev = skb_dst(skb)->dev;
- 	unsigned int hh_len;
- 
-+	sk = sk_to_full_sk(sk);
-+	flags = sk ? inet_sk_flowi_flags(sk) : 0;
-+
- 	if (addr_type == RTN_UNSPEC)
- 		addr_type = inet_addr_type_dev_table(net, dev, saddr);
- 	if (addr_type == RTN_LOCAL || addr_type == RTN_UNICAST)
-@@ -91,8 +93,8 @@ int nf_ip_reroute(struct sk_buff *skb, c
- 		      skb->mark == rt_info->mark &&
- 		      iph->daddr == rt_info->daddr &&
- 		      iph->saddr == rt_info->saddr))
--			return ip_route_me_harder(entry->state.net, skb,
--						  RTN_UNSPEC);
-+			return ip_route_me_harder(entry->state.net, entry->state.sk,
-+						  skb, RTN_UNSPEC);
- 	}
- 	return 0;
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 9593aa4eea369..1358a39c34ad3 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -3890,21 +3890,23 @@ static int igc_change_mtu(struct net_device *netdev, int new_mtu)
  }
---- a/net/ipv4/netfilter/ipt_SYNPROXY.c
-+++ b/net/ipv4/netfilter/ipt_SYNPROXY.c
-@@ -54,7 +54,7 @@ synproxy_send_tcp(struct net *net,
  
- 	skb_dst_set_noref(nskb, skb_dst(skb));
- 	nskb->protocol = htons(ETH_P_IP);
--	if (ip_route_me_harder(net, nskb, RTN_UNSPEC))
-+	if (ip_route_me_harder(net, nskb->sk, nskb, RTN_UNSPEC))
- 		goto free_nskb;
- 
- 	if (nfct) {
---- a/net/ipv4/netfilter/iptable_mangle.c
-+++ b/net/ipv4/netfilter/iptable_mangle.c
-@@ -65,7 +65,7 @@ ipt_mangle_out(struct sk_buff *skb, cons
- 		    iph->daddr != daddr ||
- 		    skb->mark != mark ||
- 		    iph->tos != tos) {
--			err = ip_route_me_harder(state->net, skb, RTN_UNSPEC);
-+			err = ip_route_me_harder(state->net, state->sk, skb, RTN_UNSPEC);
- 			if (err < 0)
- 				ret = NF_DROP_ERR(err);
- 		}
---- a/net/ipv4/netfilter/nf_nat_l3proto_ipv4.c
-+++ b/net/ipv4/netfilter/nf_nat_l3proto_ipv4.c
-@@ -329,7 +329,7 @@ nf_nat_ipv4_local_fn(void *priv, struct
- 
- 		if (ct->tuplehash[dir].tuple.dst.u3.ip !=
- 		    ct->tuplehash[!dir].tuple.src.u3.ip) {
--			err = ip_route_me_harder(state->net, skb, RTN_UNSPEC);
-+			err = ip_route_me_harder(state->net, state->sk, skb, RTN_UNSPEC);
- 			if (err < 0)
- 				ret = NF_DROP_ERR(err);
- 		}
---- a/net/ipv4/netfilter/nf_reject_ipv4.c
-+++ b/net/ipv4/netfilter/nf_reject_ipv4.c
-@@ -129,7 +129,7 @@ void nf_send_reset(struct net *net, stru
- 				   ip4_dst_hoplimit(skb_dst(nskb)));
- 	nf_reject_ip_tcphdr_put(nskb, oldskb, oth);
- 
--	if (ip_route_me_harder(net, nskb, RTN_UNSPEC))
-+	if (ip_route_me_harder(net, nskb->sk, nskb, RTN_UNSPEC))
- 		goto free_nskb;
- 
- 	niph = ip_hdr(nskb);
---- a/net/ipv4/netfilter/nft_chain_route_ipv4.c
-+++ b/net/ipv4/netfilter/nft_chain_route_ipv4.c
-@@ -50,7 +50,7 @@ static unsigned int nf_route_table_hook(
- 		    iph->daddr != daddr ||
- 		    skb->mark != mark ||
- 		    iph->tos != tos) {
--			err = ip_route_me_harder(state->net, skb, RTN_UNSPEC);
-+			err = ip_route_me_harder(state->net, state->sk, skb, RTN_UNSPEC);
- 			if (err < 0)
- 				ret = NF_DROP_ERR(err);
- 		}
---- a/net/ipv6/netfilter.c
-+++ b/net/ipv6/netfilter.c
-@@ -17,10 +17,10 @@
- #include <net/xfrm.h>
- #include <net/netfilter/nf_queue.h>
- 
--int ip6_route_me_harder(struct net *net, struct sk_buff *skb)
-+int ip6_route_me_harder(struct net *net, struct sock *sk_partial, struct sk_buff *skb)
+ /**
+- * igc_get_stats - Get System Network Statistics
++ * igc_get_stats64 - Get System Network Statistics
+  * @netdev: network interface device structure
++ * @stats: rtnl_link_stats64 pointer
+  *
+  * Returns the address of the device statistics structure.
+  * The statistics are updated here and also from the timer callback.
+  */
+-static struct net_device_stats *igc_get_stats(struct net_device *netdev)
++static void igc_get_stats64(struct net_device *netdev,
++			    struct rtnl_link_stats64 *stats)
  {
- 	const struct ipv6hdr *iph = ipv6_hdr(skb);
--	struct sock *sk = sk_to_full_sk(skb->sk);
-+	struct sock *sk = sk_to_full_sk(sk_partial);
- 	unsigned int hh_len;
- 	struct dst_entry *dst;
- 	int strict = (ipv6_addr_type(&iph->daddr) &
-@@ -81,7 +81,7 @@ static int nf_ip6_reroute(struct sk_buff
- 		if (!ipv6_addr_equal(&iph->daddr, &rt_info->daddr) ||
- 		    !ipv6_addr_equal(&iph->saddr, &rt_info->saddr) ||
- 		    skb->mark != rt_info->mark)
--			return ip6_route_me_harder(entry->state.net, skb);
-+			return ip6_route_me_harder(entry->state.net, entry->state.sk, skb);
- 	}
- 	return 0;
+ 	struct igc_adapter *adapter = netdev_priv(netdev);
+ 
++	spin_lock(&adapter->stats64_lock);
+ 	if (!test_bit(__IGC_RESETTING, &adapter->state))
+ 		igc_update_stats(adapter);
+-
+-	/* only return the current stats */
+-	return &netdev->stats;
++	memcpy(stats, &adapter->stats64, sizeof(*stats));
++	spin_unlock(&adapter->stats64_lock);
  }
---- a/net/ipv6/netfilter/ip6table_mangle.c
-+++ b/net/ipv6/netfilter/ip6table_mangle.c
-@@ -60,7 +60,7 @@ ip6t_mangle_out(struct sk_buff *skb, con
- 	     skb->mark != mark ||
- 	     ipv6_hdr(skb)->hop_limit != hop_limit ||
- 	     flowlabel != *((u_int32_t *)ipv6_hdr(skb)))) {
--		err = ip6_route_me_harder(state->net, skb);
-+		err = ip6_route_me_harder(state->net, state->sk, skb);
- 		if (err < 0)
- 			ret = NF_DROP_ERR(err);
- 	}
---- a/net/ipv6/netfilter/nf_nat_l3proto_ipv6.c
-+++ b/net/ipv6/netfilter/nf_nat_l3proto_ipv6.c
-@@ -352,7 +352,7 @@ nf_nat_ipv6_local_fn(void *priv, struct
  
- 		if (!nf_inet_addr_cmp(&ct->tuplehash[dir].tuple.dst.u3,
- 				      &ct->tuplehash[!dir].tuple.src.u3)) {
--			err = ip6_route_me_harder(state->net, skb);
-+			err = ip6_route_me_harder(state->net, state->sk, skb);
- 			if (err < 0)
- 				ret = NF_DROP_ERR(err);
- 		}
---- a/net/ipv6/netfilter/nft_chain_route_ipv6.c
-+++ b/net/ipv6/netfilter/nft_chain_route_ipv6.c
-@@ -52,7 +52,7 @@ static unsigned int nf_route_table_hook(
- 	     skb->mark != mark ||
- 	     ipv6_hdr(skb)->hop_limit != hop_limit ||
- 	     flowlabel != *((u_int32_t *)ipv6_hdr(skb)))) {
--		err = ip6_route_me_harder(state->net, skb);
-+		err = ip6_route_me_harder(state->net, state->sk, skb);
- 		if (err < 0)
- 			ret = NF_DROP_ERR(err);
- 	}
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -725,12 +725,12 @@ static int ip_vs_route_me_harder(struct
- 		struct dst_entry *dst = skb_dst(skb);
- 
- 		if (dst->dev && !(dst->dev->flags & IFF_LOOPBACK) &&
--		    ip6_route_me_harder(ipvs->net, skb) != 0)
-+		    ip6_route_me_harder(ipvs->net, skb->sk, skb) != 0)
- 			return 1;
- 	} else
- #endif
- 		if (!(skb_rtable(skb)->rt_flags & RTCF_LOCAL) &&
--		    ip_route_me_harder(ipvs->net, skb, RTN_LOCAL) != 0)
-+		    ip_route_me_harder(ipvs->net, skb->sk, skb, RTN_LOCAL) != 0)
- 			return 1;
- 
- 	return 0;
+ static netdev_features_t igc_fix_features(struct net_device *netdev,
+@@ -4833,7 +4835,7 @@ static const struct net_device_ops igc_netdev_ops = {
+ 	.ndo_set_rx_mode	= igc_set_rx_mode,
+ 	.ndo_set_mac_address	= igc_set_mac,
+ 	.ndo_change_mtu		= igc_change_mtu,
+-	.ndo_get_stats		= igc_get_stats,
++	.ndo_get_stats64	= igc_get_stats64,
+ 	.ndo_fix_features	= igc_fix_features,
+ 	.ndo_set_features	= igc_set_features,
+ 	.ndo_features_check	= igc_features_check,
+-- 
+2.27.0
+
 
 
