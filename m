@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDEB2B6635
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81FDE2B65E9
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729411AbgKQNKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
+        id S1730692AbgKQN7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:59:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729449AbgKQNKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:18 -0500
+        id S1730670AbgKQNS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:18:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70204221EB;
-        Tue, 17 Nov 2020 13:10:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52B5B24654;
+        Tue, 17 Nov 2020 13:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618618;
-        bh=3b3JxQjWWLIMKkDFKWe9usMFORfS/9n5zVzlUkIyvkI=;
+        s=default; t=1605619105;
+        bh=O8sN/Fj7w+5g61Gjf9SEq4lrUkuxb/eAuuxjUzW77+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgLS7aLTgOxkg1QeD7uDG3ujorVRbGoBLSFgp6lDNulaFCrMt/gRZ4lq+4K9dEHhC
-         wvd9weIllPK27WRGME5IdPbPyyDaeTOgXxcuCXSxMmw+QAL0JLpK8I1bxxnbTwzWtF
-         DWf8JL485LOU0NoK+BzgfEAqfwWtwDB+7wx2bT4w=
+        b=qfgn3NbvhhyTc8spwsyTYbNl+XWrzkULpLIt/vN31h3pUKD3Ayzfuwh+s4oRFhj6F
+         Tyj8SknAex9ICLU1tygWOiO7IcgpGUzFcMQpacyIOyJhJBM6/XXN7V3mdPHwKyOhJT
+         7sUPGFlzNxu0USkQH0OHBXQG23b85Yx3Tq9aTfak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/78] gfs2: check for live vs. read-only file system in gfs2_fitrim
-Date:   Tue, 17 Nov 2020 14:04:54 +0100
-Message-Id: <20201117122110.482615481@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 029/101] crypto: arm64/aes-modes - get rid of literal load of addend vector
+Date:   Tue, 17 Nov 2020 14:04:56 +0100
+Message-Id: <20201117122114.510330023@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
+commit ed6ed11830a9ded520db31a6e2b69b6b0a1eb0e2 upstream.
 
-Before this patch, gfs2_fitrim was not properly checking for a "live" file
-system. If the file system had something to trim and the file system
-was read-only (or spectator) it would start the trim, but when it starts
-the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
-and it errors out. However, if the file system was already trimmed so
-there's no work to do, it never called gfs2_trans_begin. That code is
-bypassed so it never returns the error. Instead, it returns a good
-return code with 0 work. All this makes for inconsistent behavior:
-The same fstrim command can return -EROFS in one case and 0 in another.
-This tripped up xfstests generic/537 which reports the error as:
+Replace the literal load of the addend vector with a sequence that
+performs each add individually. This sequence is only 2 instructions
+longer than the original, and 2% faster on Cortex-A53.
 
-    +fstrim with unrecovered metadata just ate your filesystem
+This is an improvement by itself, but also works around a Clang issue,
+whose integrated assembler does not implement the GNU ARM asm syntax
+completely, and does not support the =literal notation for FP registers
+(more info at https://bugs.llvm.org/show_bug.cgi?id=38642)
 
-This patch adds a check for a "live" (iow, active journal, iow, RW)
-file system, and if not, returns the error properly.
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/crypto/aes-modes.S |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 0958f76ada6a3..9621badb95995 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1371,6 +1371,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
-+	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
-+		return -EROFS;
-+
- 	if (!blk_queue_discard(q))
- 		return -EOPNOTSUPP;
- 
--- 
-2.27.0
-
+--- a/arch/arm64/crypto/aes-modes.S
++++ b/arch/arm64/crypto/aes-modes.S
+@@ -232,17 +232,19 @@ AES_ENTRY(aes_ctr_encrypt)
+ 	bmi		.Lctr1x
+ 	cmn		w6, #4			/* 32 bit overflow? */
+ 	bcs		.Lctr1x
+-	ldr		q8, =0x30000000200000001	/* addends 1,2,3[,0] */
+-	dup		v7.4s, w6
++	add		w7, w6, #1
+ 	mov		v0.16b, v4.16b
+-	add		v7.4s, v7.4s, v8.4s
++	add		w8, w6, #2
+ 	mov		v1.16b, v4.16b
+-	rev32		v8.16b, v7.16b
++	add		w9, w6, #3
+ 	mov		v2.16b, v4.16b
++	rev		w7, w7
+ 	mov		v3.16b, v4.16b
+-	mov		v1.s[3], v8.s[0]
+-	mov		v2.s[3], v8.s[1]
+-	mov		v3.s[3], v8.s[2]
++	rev		w8, w8
++	mov		v1.s[3], w7
++	rev		w9, w9
++	mov		v2.s[3], w8
++	mov		v3.s[3], w9
+ 	ld1		{v5.16b-v7.16b}, [x20], #48	/* get 3 input blocks */
+ 	bl		aes_encrypt_block4x
+ 	eor		v0.16b, v5.16b, v0.16b
 
 
