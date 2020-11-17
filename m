@@ -2,91 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80AA72B70B0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 22:10:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F27B2B712F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 23:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726844AbgKQVJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 16:09:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47662 "EHLO
+        id S1726297AbgKQWEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 17:04:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726513AbgKQVJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 16:09:23 -0500
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9817AC0613CF
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 13:09:23 -0800 (PST)
-Received: by mail-pf1-x443.google.com with SMTP id g7so18156575pfc.2
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 13:09:23 -0800 (PST)
+        with ESMTP id S1726182AbgKQWEF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 17:04:05 -0500
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C98C0617A6
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 14:04:04 -0800 (PST)
+Received: by mail-io1-xd43.google.com with SMTP id n129so22847928iod.5
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 14:04:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=hisjjNtZoO7NOVuGAk1qUZr/IgvJJn18Uj0ZEIcow+Y=;
-        b=MxpWns22cbB20JMiTDCrtAXIpvCTxjwziLw3tNk1Yg3NtENesu0G9MWtLZH6Qyt+Fj
-         Kz66VrSUHiIieW/Xmo1DmRs5sJuzE4e4p68gc4ek1434QtU+etEvdZov3QFPNsb7xubf
-         MlSfiYZ4UG+0fweUxlJgU5n3JHTVBGaueDhRo=
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=iuyG7enSLH3C+ylnXG8w+GbI5uwYKAX52vWcxedXXNw=;
+        b=gTsO8g6IRE9TIWivpeuOir/sHEb6hYeljejWhQ3teem3n1kbgjnIvYRRUwwNOobOv9
+         yuBpIKv1h9qWu1jR/ZcAPGBZbDWHaSSdRVHtwnfvwVvfY6Zwipoj0IVtUV3L9JAkkdbb
+         zIAjDjyccm3J9X+sjFReu41Qg2Ltf1HvKmgzA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=hisjjNtZoO7NOVuGAk1qUZr/IgvJJn18Uj0ZEIcow+Y=;
-        b=rMzVSSn/mGEhotYFVoq4ku6CJgLDGl7aZ6rt+r826OsUsNN41udtrrhKYwryGYzzZc
-         4lrb6lQipWp69qZCjfw8VDHEl2sV9Gp3dJVB3SdwCdMP0VdARZJPqM1ATJsDSiL0LPjd
-         PquSOexoTQp6rAp7tNASQe7wYia6kqKLasF3YVrHwPytv0f5O9EihOSuPGsHtzuwfG/q
-         /Hxk5sBD1S+ynxTik8HrTugR/fxKlo13yklqR1rrxQhgHbTdtkGIyCD1y7l9Llj6ZbUE
-         wEEcfY7lylChoDKeEZUiLdLNqHy4OUtHAr/X5Q+bXGLUlDf4UArpcwEREgPz3zOBTE4F
-         nSfQ==
-X-Gm-Message-State: AOAM533SYDcNJHmV11UD5IE/5+WjpHyo70fJnpB3/AAPKhrkA6GRbh1+
-        ZRpvq1r+Kp66NGnbONfNWhHvPg==
-X-Google-Smtp-Source: ABdhPJyFe5P3cl72SKMo4dGnUuYR7nTvkbg6k+Yb1NSUXm/UvTBg4X0ngL39se9S4oxlNiBIqe9U2Q==
-X-Received: by 2002:a63:2107:: with SMTP id h7mr4939574pgh.157.1605647363148;
-        Tue, 17 Nov 2020 13:09:23 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id mp16sm4255459pjb.13.2020.11.17.13.09.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2020 13:09:22 -0800 (PST)
-From:   Kees Cook <keescook@chromium.org>
-To:     Oleg Nesterov <oleg@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Jann Horn <jannh@google.com>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Cc:     Kees Cook <keescook@chromium.org>, Eric Paris <eparis@redhat.com>,
-        Will Drewry <wad@chromium.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>, stable@vger.kernel.org,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 0/2] Fix misuse of security_capable()
-Date:   Tue, 17 Nov 2020 13:08:45 -0800
-Message-Id: <160564731624.1001615.8892910904546455542.b4-ty@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201030123849.770769-1-mic@digikod.net>
-References: <20201030123849.770769-1-mic@digikod.net>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iuyG7enSLH3C+ylnXG8w+GbI5uwYKAX52vWcxedXXNw=;
+        b=tcF081nQ1Q01rAvg4ojAPV6ghCeK5yNONcfGmwyzQ/mGK/dXravnPgIIN/9iw+3/6c
+         M+HFSZc5ph67idyEAExS8XRbk3ngXGwVzcrYJMfEf8DWntaig15PTMD5k2KXHj0cSCeN
+         SmryOTTuG0bxhXUS25n9wv0Mv0+LvZPJZu20qRyNNbp7SN4vYnYn6jbm/C/JKiFt6XpP
+         0CLB0+HCCG8KxjbbC0lCLrkMluy7g9EEJBOuzKtFJeUGDpKcz027azImrAIymbfRODsI
+         zXPa46ZT/cqAB7NpCJX97q/THyVeP+TCUeOkWaRrmVUTDqUbX3YhnGFfWJadzVD34ZSC
+         UDZg==
+X-Gm-Message-State: AOAM5319f2SsqqvLmqYBds+1TiPTs65kiFxBSeX8xz4KBPh47Gfp3oSG
+        h8cuUbnXnGXuArHe6UjkVVKmmA==
+X-Google-Smtp-Source: ABdhPJxQ62X3gAi9jbh6oOCZlHIC57zxknCpvMk1Hq+LKPgYCpgZvfpJV2SlwaX+gXn2kj/gEYC3hg==
+X-Received: by 2002:a02:ccd6:: with SMTP id k22mr5283838jaq.93.1605650644043;
+        Tue, 17 Nov 2020 14:04:04 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id w81sm14271467ilk.38.2020.11.17.14.04.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Nov 2020 14:04:02 -0800 (PST)
+Subject: Re: [PATCH 5.9 000/255] 5.9.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, skhan@linuxfoundation.org
+References: <20201117122138.925150709@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <06bf0c38-a484-86c7-5a6b-5191c79c143b@linuxfoundation.org>
+Date:   Tue, 17 Nov 2020 15:04:01 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 30 Oct 2020 13:38:47 +0100, Mickaël Salaün wrote:
-> This series replaces all the use of security_capable(current_cred(),
-> ...) with ns_capable{,_noaudit}() which set PF_SUPERPRIV.
+On 11/17/20 6:02 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.9.9 release.
+> There are 255 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This initially come from a review of Landlock by Jann Horn:
-> https://lore.kernel.org/lkml/CAG48ez1FQVkt78129WozBwFbVhAPyAr9oJAHFHAbbNxEBr9h1g@mail.gmail.com/
+> Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
+> Anything received after that time might be too late.
 > 
-> Mickaël Salaün (2):
->   ptrace: Set PF_SUPERPRIV when checking capability
->   seccomp: Set PF_SUPERPRIV when checking capability
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
+> and the diffstat can be found below.
 > 
-> [...]
+> thanks,
+> 
+> greg k-h
+> 
 
-Applied to for-linus/seccomp, thanks!
+Compiled and booted on my test system. No dmesg regressions.
 
-[1/2] ptrace: Set PF_SUPERPRIV when checking capability
-      https://git.kernel.org/kees/c/cf23705244c9
-[2/2] seccomp: Set PF_SUPERPRIV when checking capability
-      https://git.kernel.org/kees/c/fb14528e4436
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
--- 
-Kees Cook
-
+thanks,
+-- Shuah
