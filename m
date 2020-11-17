@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6CD2B620C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD672B602A
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731057AbgKQNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
+        id S1728971AbgKQNG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:06:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731050AbgKQNYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:54 -0500
+        id S1728991AbgKQNGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:06:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 619252463D;
-        Tue, 17 Nov 2020 13:24:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5D51238E6;
+        Tue, 17 Nov 2020 13:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619494;
-        bh=O/CzOtPuXcotBTHN4rjOHt8SUYFa7xTB3W2iAvt+Vzc=;
+        s=default; t=1605618414;
+        bh=OcpfW0WjPXMjdh4Sdc6X3qXvvfeQEuxE7xMccfYjUj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xe2agmbDN+BYasq6hNpRUOC1YVrNurQVCEgdGfC1Y0zpwUmrK+yLIU5oPNAtWr85B
-         xRNyri85ouNexqvzMmLABujxEQt1ryHUaewhPK0m/n6t5ZvPjZo7JWASDpohX1K1lN
-         L2vkqBp9vTutgotIMxwLrvSz5HJ8OtGtI58hf9PA=
+        b=ZAIzJwER67Rp4VP51PPCJfOjKu6gN1cQHcWhlSneKhkk6HQTUz9/mZAkRnq6C0+ga
+         eAdXj/QFh7OvR2RRcAFUCW0DaPbEexRadV5Y7f/GP4eXqs00Gr/RJfyoaa14Wz24EI
+         sBmGiAsgCb7DaEBWFUVgELCoZq6k8xg6tgmlai5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/151] gfs2: check for live vs. read-only file system in gfs2_fitrim
+Subject: [PATCH 4.4 24/64] mac80211: fix use of skb payload instead of header
 Date:   Tue, 17 Nov 2020 14:04:47 +0100
-Message-Id: <20201117122124.207296774@linuxfoundation.org>
+Message-Id: <20201117122107.328604707@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit c5c68724696e7d2f8db58a5fce3673208d35c485 ]
+[ Upstream commit 14f46c1e5108696ec1e5a129e838ecedf108c7bf ]
 
-Before this patch, gfs2_fitrim was not properly checking for a "live" file
-system. If the file system had something to trim and the file system
-was read-only (or spectator) it would start the trim, but when it starts
-the transaction, gfs2_trans_begin returns -EROFS (read-only file system)
-and it errors out. However, if the file system was already trimmed so
-there's no work to do, it never called gfs2_trans_begin. That code is
-bypassed so it never returns the error. Instead, it returns a good
-return code with 0 work. All this makes for inconsistent behavior:
-The same fstrim command can return -EROFS in one case and 0 in another.
-This tripped up xfstests generic/537 which reports the error as:
+When ieee80211_skb_resize() is called from ieee80211_build_hdr()
+the skb has no 802.11 header yet, in fact it consist only of the
+payload as the ethernet frame is removed. As such, we're using
+the payload data for ieee80211_is_mgmt(), which is of course
+completely wrong. This didn't really hurt us because these are
+always data frames, so we could only have added more tailroom
+than we needed if we determined it was a management frame and
+sdata->crypto_tx_tailroom_needed_cnt was false.
 
-    +fstrim with unrecovered metadata just ate your filesystem
+However, syzbot found that of course there need not be any payload,
+so we're using at best uninitialized memory for the check.
 
-This patch adds a check for a "live" (iow, active journal, iow, RW)
-file system, and if not, returns the error properly.
+Fix this to pass explicitly the kind of frame that we have instead
+of checking there, by replacing the "bool may_encrypt" argument
+with an argument that can carry the three possible states - it's
+not going to be encrypted, it's a management frame, or it's a data
+frame (and then we check sdata->crypto_tx_tailroom_needed_cnt).
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: syzbot+32fd1a1bfe355e93f1e2@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20201009132538.e1fd7f802947.I799b288466ea2815f9d4c84349fae697dca2f189@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/tx.c | 35 +++++++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index e23735084ad17..3d5aa0c10a4c1 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1410,6 +1410,9 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 98c34c3adf392..4466413c5eecc 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -1594,19 +1594,24 @@ static bool ieee80211_tx(struct ieee80211_sub_if_data *sdata,
  
-+	if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
-+		return -EROFS;
+ /* device xmit handlers */
+ 
++enum ieee80211_encrypt {
++	ENCRYPT_NO,
++	ENCRYPT_MGMT,
++	ENCRYPT_DATA,
++};
 +
- 	if (!blk_queue_discard(q))
- 		return -EOPNOTSUPP;
+ static int ieee80211_skb_resize(struct ieee80211_sub_if_data *sdata,
+ 				struct sk_buff *skb,
+-				int head_need, bool may_encrypt)
++				int head_need,
++				enum ieee80211_encrypt encrypt)
+ {
+ 	struct ieee80211_local *local = sdata->local;
+-	struct ieee80211_hdr *hdr;
+ 	bool enc_tailroom;
+ 	int tail_need = 0;
  
+-	hdr = (struct ieee80211_hdr *) skb->data;
+-	enc_tailroom = may_encrypt &&
+-		       (sdata->crypto_tx_tailroom_needed_cnt ||
+-			ieee80211_is_mgmt(hdr->frame_control));
++	enc_tailroom = encrypt == ENCRYPT_MGMT ||
++		       (encrypt == ENCRYPT_DATA &&
++			sdata->crypto_tx_tailroom_needed_cnt);
+ 
+ 	if (enc_tailroom) {
+ 		tail_need = IEEE80211_ENCRYPT_TAILROOM;
+@@ -1639,21 +1644,27 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata,
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	int headroom;
+-	bool may_encrypt;
++	enum ieee80211_encrypt encrypt;
+ 
+-	may_encrypt = !(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT);
++	if (info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)
++		encrypt = ENCRYPT_NO;
++	else if (ieee80211_is_mgmt(hdr->frame_control))
++		encrypt = ENCRYPT_MGMT;
++	else
++		encrypt = ENCRYPT_DATA;
+ 
+ 	headroom = local->tx_headroom;
+-	if (may_encrypt)
++	if (encrypt != ENCRYPT_NO)
+ 		headroom += sdata->encrypt_headroom;
+ 	headroom -= skb_headroom(skb);
+ 	headroom = max_t(int, 0, headroom);
+ 
+-	if (ieee80211_skb_resize(sdata, skb, headroom, may_encrypt)) {
++	if (ieee80211_skb_resize(sdata, skb, headroom, encrypt)) {
+ 		ieee80211_free_txskb(&local->hw, skb);
+ 		return;
+ 	}
+ 
++	/* reload after potential resize */
+ 	hdr = (struct ieee80211_hdr *) skb->data;
+ 	info->control.vif = &sdata->vif;
+ 
+@@ -2346,7 +2357,7 @@ static struct sk_buff *ieee80211_build_hdr(struct ieee80211_sub_if_data *sdata,
+ 		head_need += sdata->encrypt_headroom;
+ 		head_need += local->tx_headroom;
+ 		head_need = max_t(int, 0, head_need);
+-		if (ieee80211_skb_resize(sdata, skb, head_need, true)) {
++		if (ieee80211_skb_resize(sdata, skb, head_need, ENCRYPT_DATA)) {
+ 			ieee80211_free_txskb(&local->hw, skb);
+ 			skb = NULL;
+ 			return ERR_PTR(-ENOMEM);
+@@ -2756,7 +2767,7 @@ static bool ieee80211_xmit_fast(struct ieee80211_sub_if_data *sdata,
+ 	if (unlikely(ieee80211_skb_resize(sdata, skb,
+ 					  max_t(int, extra_head + hw_headroom -
+ 						     skb_headroom(skb), 0),
+-					  false))) {
++					  ENCRYPT_NO))) {
+ 		kfree_skb(skb);
+ 		return true;
+ 	}
 -- 
 2.27.0
 
