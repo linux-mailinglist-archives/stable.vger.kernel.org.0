@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5252B61AC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5E12B6266
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729907AbgKQNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54852 "EHLO mail.kernel.org"
+        id S1731848AbgKQN2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729481AbgKQNVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:14 -0500
+        id S1731841AbgKQN2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:28:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 526B12464E;
-        Tue, 17 Nov 2020 13:21:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A14F920781;
+        Tue, 17 Nov 2020 13:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619274;
-        bh=FzkOdRW074rezyjYXQChK2BcxggfyWFQoUxukawEFjo=;
+        s=default; t=1605619697;
+        bh=Q0RTIhGNqOyweI3/fgi/2oFcD95o3If9PgPCdlBtpOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiarzUpk7LJhq+v+7El4+dERJcU2KVGlHQHBNjPemEbbWi8wp3juGRA3/DN5wNk90
-         hnktZFB/Xl1USvVwXR875MSocor3gn1F/Nwq8cjWz0MWUW7awRL5+nzRuy+f+HRci5
-         OvVbrN/mzpchgBI4nofurjreRX6ANTtklwI7P1S4=
+        b=ylLQ8jqjqNR8d/QqSl9ELFf5e0DVAKtNUuIB+YrHna6i/N6I5gBc9L+PXwc08/grD
+         +KtJffyWEB6LmtV8o4aGcIML89UHT2QUsDNwMWSNYWD+JIbWny7h76QLULW+phdmPz
+         5u9TGxQ5RMNiphszdJmvOpIA9HeGu+1VV37npZ4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Herms <oliver.peter.herms@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 087/101] IPv6: Set SIT tunnel hard_header_len to zero
-Date:   Tue, 17 Nov 2020 14:05:54 +0100
-Message-Id: <20201117122117.368413165@linuxfoundation.org>
+        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 125/151] ocfs2: initialize ip_next_orphan
+Date:   Tue, 17 Nov 2020 14:05:55 +0100
+Message-Id: <20201117122127.504723088@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +49,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Herms <oliver.peter.herms@gmail.com>
+From: Wengang Wang <wen.gang.wang@oracle.com>
 
-[ Upstream commit 8ef9ba4d666614497a057d09b0a6eafc1e34eadf ]
+commit f5785283dd64867a711ca1fb1f5bb172f252ecdf upstream.
 
-Due to the legacy usage of hard_header_len for SIT tunnels while
-already using infrastructure from net/ipv4/ip_tunnel.c the
-calculation of the path MTU in tnl_update_pmtu is incorrect.
-This leads to unnecessary creation of MTU exceptions for any
-flow going over a SIT tunnel.
+Though problem if found on a lower 4.1.12 kernel, I think upstream has
+same issue.
 
-As SIT tunnels do not have a header themsevles other than their
-transport (L3, L2) headers we're leaving hard_header_len set to zero
-as tnl_update_pmtu is already taking care of the transport headers
-sizes.
+In one node in the cluster, there is the following callback trace:
 
-This will also help avoiding unnecessary IPv6 GC runs and spinlock
-contention seen when using SIT tunnels and for more than
-net.ipv6.route.gc_thresh flows.
+   # cat /proc/21473/stack
+   __ocfs2_cluster_lock.isra.36+0x336/0x9e0 [ocfs2]
+   ocfs2_inode_lock_full_nested+0x121/0x520 [ocfs2]
+   ocfs2_evict_inode+0x152/0x820 [ocfs2]
+   evict+0xae/0x1a0
+   iput+0x1c6/0x230
+   ocfs2_orphan_filldir+0x5d/0x100 [ocfs2]
+   ocfs2_dir_foreach_blk+0x490/0x4f0 [ocfs2]
+   ocfs2_dir_foreach+0x29/0x30 [ocfs2]
+   ocfs2_recover_orphans+0x1b6/0x9a0 [ocfs2]
+   ocfs2_complete_recovery+0x1de/0x5c0 [ocfs2]
+   process_one_work+0x169/0x4a0
+   worker_thread+0x5b/0x560
+   kthread+0xcb/0xf0
+   ret_from_fork+0x61/0x90
 
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Oliver Herms <oliver.peter.herms@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20201103104133.GA1573211@tws
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The above stack is not reasonable, the final iput shouldn't happen in
+ocfs2_orphan_filldir() function.  Looking at the code,
+
+  2067         /* Skip inodes which are already added to recover list, since dio may
+  2068          * happen concurrently with unlink/rename */
+  2069         if (OCFS2_I(iter)->ip_next_orphan) {
+  2070                 iput(iter);
+  2071                 return 0;
+  2072         }
+  2073
+
+The logic thinks the inode is already in recover list on seeing
+ip_next_orphan is non-NULL, so it skip this inode after dropping a
+reference which incremented in ocfs2_iget().
+
+While, if the inode is already in recover list, it should have another
+reference and the iput() at line 2070 should not be the final iput
+(dropping the last reference).  So I don't think the inode is really in
+the recover list (no vmcore to confirm).
+
+Note that ocfs2_queue_orphans(), though not shown up in the call back
+trace, is holding cluster lock on the orphan directory when looking up
+for unlinked inodes.  The on disk inode eviction could involve a lot of
+IOs which may need long time to finish.  That means this node could hold
+the cluster lock for very long time, that can lead to the lock requests
+(from other nodes) to the orhpan directory hang for long time.
+
+Looking at more on ip_next_orphan, I found it's not initialized when
+allocating a new ocfs2_inode_info structure.
+
+This causes te reflink operations from some nodes hang for very long
+time waiting for the cluster lock on the orphan directory.
+
+Fix: initialize ip_next_orphan as NULL.
+
+Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201109171746.27884-1-wen.gang.wang@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/sit.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1087,7 +1087,6 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+---
+ fs/ocfs2/super.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1692,6 +1692,7 @@ static void ocfs2_inode_init_once(void *
  
--		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
- 		dev->mtu = tdev->mtu - t_hlen;
- 		if (dev->mtu < IPV6_MIN_MTU)
- 			dev->mtu = IPV6_MIN_MTU;
-@@ -1377,7 +1376,6 @@ static void ipip6_tunnel_setup(struct ne
- 	dev->priv_destructor	= ipip6_dev_free;
+ 	oi->ip_blkno = 0ULL;
+ 	oi->ip_clusters = 0;
++	oi->ip_next_orphan = NULL;
  
- 	dev->type		= ARPHRD_SIT;
--	dev->hard_header_len	= LL_MAX_HEADER + t_hlen;
- 	dev->mtu		= ETH_DATA_LEN - t_hlen;
- 	dev->min_mtu		= IPV6_MIN_MTU;
- 	dev->max_mtu		= IP6_MAX_MTU - t_hlen;
+ 	ocfs2_resv_init_once(&oi->ip_la_data_resv);
+ 
 
 
