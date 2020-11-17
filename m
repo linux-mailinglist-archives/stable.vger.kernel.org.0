@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 498722B5FA2
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0282B5FA4
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728688AbgKQM5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:57:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54778 "EHLO mail.kernel.org"
+        id S1728697AbgKQM5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:57:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728625AbgKQM5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:36 -0500
+        id S1728690AbgKQM5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9EAB2468D;
-        Tue, 17 Nov 2020 12:57:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 359F1223AB;
+        Tue, 17 Nov 2020 12:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617855;
-        bh=rEJjTXKFIbJw1crVMURY0MUHunOV/OSzLjtn+W4dNSo=;
+        s=default; t=1605617857;
+        bh=sYI2T2mP9B1Ot0n51Un7gJWDZFLGvU+/Whru9pS96WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6JCpuAeJNCE3Ji6UGAyK/o+JJ1SQU6OtvPvhSh5wZd6PhjMnqFZsMA2+oZbyLnUD
-         URYp4TRKeNBjbSn/DfF4ISwUdZSgcthtDbhskiWzsJAiuec9MRnSmrYqinRH6Fd7Yw
-         zecqYPpEfBAUo6AyLjgEKdpGiIWoXISJ8ODv271Y=
+        b=KRMy2mMzMjJg0srEb6Yknkk8PIpzezfWaIvQTsfm3XNDYLY/4luPsZG75bJL7nTes
+         XYZ2RMbK7/w3Mz0aDzVNYOw6yWPBGYWO50DH93FqpSLrIOUNgFXlQAg/DPeu8eXgH3
+         +DbFZikjzScwRbMlIv8ShPFGrSkybUzHRCMhxfoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Will Deacon <will@kernel.org>, Qian Cai <cai@redhat.com>,
         "Paul E. McKenney" <paulmck@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 06/11] arm64: psci: Avoid printing in cpu_psci_cpu_die()
-Date:   Tue, 17 Nov 2020 07:57:20 -0500
-Message-Id: <20201117125725.599833-6-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 07/11] arm64: smp: Tell RCU about CPUs that fail to come online
+Date:   Tue, 17 Nov 2020 07:57:21 -0500
+Message-Id: <20201117125725.599833-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201117125725.599833-1-sashal@kernel.org>
 References: <20201117125725.599833-1-sashal@kernel.org>
@@ -46,46 +45,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
+[ Upstream commit 04e613ded8c26489b3e0f9101b44462f780d1a35 ]
 
-cpu_psci_cpu_die() is called in the context of the dying CPU, which
-will no longer be online or tracked by RCU. It is therefore not generally
-safe to call printk() if the PSCI "cpu off" request fails, so remove the
-pr_crit() invocation.
+Commit ce3d31ad3cac ("arm64/smp: Move rcu_cpu_starting() earlier") ensured
+that RCU is informed early about incoming CPUs that might end up calling
+into printk() before they are online. However, if such a CPU fails the
+early CPU feature compatibility checks in check_local_cpu_capabilities(),
+then it will be powered off or parked without informing RCU, leading to
+an endless stream of stalls:
+
+  | rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+  | rcu:	2-O...: (0 ticks this GP) idle=002/1/0x4000000000000000 softirq=0/0 fqs=2593
+  | (detected by 0, t=5252 jiffies, g=9317, q=136)
+  | Task dump for CPU 2:
+  | task:swapper/2       state:R  running task     stack:    0 pid:    0 ppid:     1 flags:0x00000028
+  | Call trace:
+  | ret_from_fork+0x0/0x30
+
+Ensure that the dying CPU invokes rcu_report_dead() prior to being powered
+off or parked.
 
 Cc: Qian Cai <cai@redhat.com>
 Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
+Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
+Suggested-by: Qian Cai <cai@redhat.com>
+Link: https://lore.kernel.org/r/20201105222242.GA8842@willie-the-truck
+Link: https://lore.kernel.org/r/20201106103602.9849-3-will@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/psci.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/arm64/kernel/smp.c | 1 +
+ kernel/rcu/tree.c       | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
-index 43ae4e0c968f6..62d2bda7adb80 100644
---- a/arch/arm64/kernel/psci.c
-+++ b/arch/arm64/kernel/psci.c
-@@ -66,7 +66,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 426409e0d0713..987220ac4cfef 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -388,6 +388,7 @@ void cpu_die_early(void)
  
- static void cpu_psci_cpu_die(unsigned int cpu)
- {
--	int ret;
- 	/*
- 	 * There are no known implementations of PSCI actually using the
- 	 * power state field, pass a sensible default for now.
-@@ -74,9 +73,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
- 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
- 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
+ 	/* Mark this CPU absent */
+ 	set_cpu_present(cpu, 0);
++	rcu_report_dead(cpu);
  
--	ret = psci_ops.cpu_off(state);
--
--	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
-+	psci_ops.cpu_off(state);
+ #ifdef CONFIG_HOTPLUG_CPU
+ 	update_cpu_boot_status(CPU_KILL_ME);
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 62e59596a30a0..1b1d2b09efa9b 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3157,7 +3157,6 @@ void rcu_cpu_starting(unsigned int cpu)
+ 	smp_mb(); /* Ensure RCU read-side usage follows above initialization. */
  }
  
- static int cpu_psci_cpu_kill(unsigned int cpu)
+-#ifdef CONFIG_HOTPLUG_CPU
+ /*
+  * The outgoing function has no further need of RCU, so remove it from
+  * the rcu_node tree's ->qsmaskinitnext bit masks.
+@@ -3197,6 +3196,7 @@ void rcu_report_dead(unsigned int cpu)
+ 	per_cpu(rcu_cpu_started, cpu) = 0;
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU
+ /*
+  * The outgoing CPU has just passed through the dying-idle state, and we
+  * are being invoked from the CPU that was IPIed to continue the offline
 -- 
 2.27.0
 
