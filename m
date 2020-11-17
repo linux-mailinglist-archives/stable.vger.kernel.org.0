@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4212B642D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C77CF2B6502
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732077AbgKQNhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:37:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49098 "EHLO mail.kernel.org"
+        id S1731700AbgKQN1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:27:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732995AbgKQNhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:50 -0500
+        id S1731696AbgKQN1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13871207BC;
-        Tue, 17 Nov 2020 13:37:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D924F241A5;
+        Tue, 17 Nov 2020 13:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620269;
-        bh=y2WvLAalC27K0xG+siRaph21xFn5zhQat78rNOQ0STw=;
+        s=default; t=1605619634;
+        bh=NUTZyNioEXke4Hr4cRd0ILcwsd3Nj7fg0IyQ+JFoBVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mp8DIi8Pt7PlksQLIK8HiK5OP/EgkEgX2kJAex9z9TtXf9A61Ss/UArWtnn+u1Uvc
-         HlQ1zCfrtoSVa4/MydRInlWfYp8IQDNGxscLFzkCHbSefmUMX1GEbVzPTuKaFkCr5a
-         wobMNEqjRUKkt+HHuVoXJ62F/JVrhCbqblrM4Fxw=
+        b=2VgJ/WrktAbMPiHMfjFfiO+CAQwditEZKx7yOZYijyp/WLtzM3qBDGlV+n2xHeX9h
+         TNNFXAVg+Dmi5SJy25oJEP2dTtLVzgi8pQ35HUN4N8G5dWXq7D9vjBvEtN7hhmYO66
+         gAmEB7zD6LTc2kBqnQcCgfYhLVi6Nm+4ZUA6YVdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 163/255] xfs: fix a missing unlock on error in xfs_fs_map_blocks
-Date:   Tue, 17 Nov 2020 14:05:03 +0100
-Message-Id: <20201117122146.870533645@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 074/151] iommu/amd: Increase interrupt remapping table limit to 512 entries
+Date:   Tue, 17 Nov 2020 14:05:04 +0100
+Message-Id: <20201117122125.018986641@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 2bd3fa793aaa7e98b74e3653fdcc72fa753913b5 ]
+[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
 
-We also need to drop the iolock when invalidate_inode_pages2 fails, not
-only on all other error or successful cases.
+Certain device drivers allocate IO queues on a per-cpu basis.
+On AMD EPYC platform, which can support up-to 256 cpu threads,
+this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
+and result in the error message:
 
-Fixes: 527851124d10 ("xfs: implement pNFS export operations")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+    AMD-Vi: Failed to allocate IRTE
+
+This has been observed with certain NVME devices.
+
+AMD IOMMU hardware can actually support upto 512 interrupt
+remapping table entries. Therefore, update the driver to
+match the hardware limit.
+
+Please note that this also increases the size of interrupt remapping
+table to 8KB per device when using the 128-bit IRTE format.
+
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_pnfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_types.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
-index b101feb2aab45..f3082a957d5e1 100644
---- a/fs/xfs/xfs_pnfs.c
-+++ b/fs/xfs/xfs_pnfs.c
-@@ -134,7 +134,7 @@ xfs_fs_map_blocks(
- 		goto out_unlock;
- 	error = invalidate_inode_pages2(inode->i_mapping);
- 	if (WARN_ON_ONCE(error))
--		return error;
-+		goto out_unlock;
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index 0679896b9e2e1..3ec090adcdae7 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -406,7 +406,11 @@ extern bool amd_iommu_np_cache;
+ /* Only true if all IOMMUs support device IOTLBs */
+ extern bool amd_iommu_iotlb_sup;
  
- 	end_fsb = XFS_B_TO_FSB(mp, (xfs_ufsize_t)offset + length);
- 	offset_fsb = XFS_B_TO_FSBT(mp, offset);
+-#define MAX_IRQS_PER_TABLE	256
++/*
++ * AMD IOMMU hardware only support 512 IRTEs despite
++ * the architectural limitation of 2048 entries.
++ */
++#define MAX_IRQS_PER_TABLE	512
+ #define IRQ_TABLE_ALIGNMENT	128
+ 
+ struct irq_remap_table {
 -- 
 2.27.0
 
