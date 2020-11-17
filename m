@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C47092B61EA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6612B61ED
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730906AbgKQNXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:23:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
+        id S1730931AbgKQNXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:23:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730895AbgKQNX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:23:29 -0500
+        id S1730925AbgKQNXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6A2620781;
-        Tue, 17 Nov 2020 13:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E3C2465E;
+        Tue, 17 Nov 2020 13:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619409;
-        bh=8yY0Nxew16rHwXLA2U6E1N6b5QpwdlsshNHk4V950ic=;
+        s=default; t=1605619418;
+        bh=mbnvf/uF8ekM/31s14a4hhd+dAA8BWiWXtmJVVIgU7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTvhfb02FLwH0cSpZWoHn8J7c4Yy2TamwwsY6dj0L1HIDwTQXsoChezyblE72Ax1V
-         3koaI23G9bVmpgz6vlCVzoogQsJzvAOeOYyK/OB2w4wdPBsTo9XfoZ8krj0RHN5d+V
-         xH5v70pw/9jB8EoVOzNjQmgOhGBP7cp4gEsFAvNI=
+        b=U5dsRz6kk/UD6Y4NLeVfKYDmgc8TuFpq6gTllh3kUorXqE9o4kdVKz81qKVXZBoQO
+         Q8xrsDFQp2W+aNXBn1Bxvbj534NsuNSK2BOyMEPgODyT6nOYucAkq3Ri4lV2ZTw9HX
+         EQBxbn5hoVPq/35nFqEtzTHWt4EHsujYsxa+P9Oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/151] can: can_create_echo_skb(): fix echo skb generation: always use skb_clone()
-Date:   Tue, 17 Nov 2020 14:04:19 +0100
-Message-Id: <20201117122122.835401654@linuxfoundation.org>
+Subject: [PATCH 5.4 032/151] can: ti_hecc: ti_hecc_probe(): add missed clk_disable_unprepare() in error path
+Date:   Tue, 17 Nov 2020 14:04:22 +0100
+Message-Id: <20201117122122.983048931@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -44,96 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 286228d382ba6320f04fa2e7c6fc8d4d92e428f4 ]
+[ Upstream commit e002103b36a695f7cb6048b96da73e66c86ddffb ]
 
-All user space generated SKBs are owned by a socket (unless injected into the
-key via AF_PACKET). If a socket is closed, all associated skbs will be cleaned
-up.
+The driver forgets to call clk_disable_unprepare() in error path after
+a success calling for clk_prepare_enable().
 
-This leads to a problem when a CAN driver calls can_put_echo_skb() on a
-unshared SKB. If the socket is closed prior to the TX complete handler,
-can_get_echo_skb() and the subsequent delivering of the echo SKB to all
-registered callbacks, a SKB with a refcount of 0 is delivered.
+Fix it by adding a clk_disable_unprepare() in error path.
 
-To avoid the problem, in can_get_echo_skb() the original SKB is now always
-cloned, regardless of shared SKB or not. If the process exists it can now
-safely discard its SKBs, without disturbing the delivery of the echo SKB.
-
-The problem shows up in the j1939 stack, when it clones the incoming skb, which
-detects the already 0 refcount.
-
-We can easily reproduce this with following example:
-
-testj1939 -B -r can0: &
-cansend can0 1823ff40#0123
-
-WARNING: CPU: 0 PID: 293 at lib/refcount.c:25 refcount_warn_saturate+0x108/0x174
-refcount_t: addition on 0; use-after-free.
-Modules linked in: coda_vpu imx_vdoa videobuf2_vmalloc dw_hdmi_ahb_audio vcan
-CPU: 0 PID: 293 Comm: cansend Not tainted 5.5.0-rc6-00376-g9e20dcb7040d #1
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Backtrace:
-[<c010f570>] (dump_backtrace) from [<c010f90c>] (show_stack+0x20/0x24)
-[<c010f8ec>] (show_stack) from [<c0c3e1a4>] (dump_stack+0x8c/0xa0)
-[<c0c3e118>] (dump_stack) from [<c0127fec>] (__warn+0xe0/0x108)
-[<c0127f0c>] (__warn) from [<c01283c8>] (warn_slowpath_fmt+0xa8/0xcc)
-[<c0128324>] (warn_slowpath_fmt) from [<c0539c0c>] (refcount_warn_saturate+0x108/0x174)
-[<c0539b04>] (refcount_warn_saturate) from [<c0ad2cac>] (j1939_can_recv+0x20c/0x210)
-[<c0ad2aa0>] (j1939_can_recv) from [<c0ac9dc8>] (can_rcv_filter+0xb4/0x268)
-[<c0ac9d14>] (can_rcv_filter) from [<c0aca2cc>] (can_receive+0xb0/0xe4)
-[<c0aca21c>] (can_receive) from [<c0aca348>] (can_rcv+0x48/0x98)
-[<c0aca300>] (can_rcv) from [<c09b1fdc>] (__netif_receive_skb_one_core+0x64/0x88)
-[<c09b1f78>] (__netif_receive_skb_one_core) from [<c09b2070>] (__netif_receive_skb+0x38/0x94)
-[<c09b2038>] (__netif_receive_skb) from [<c09b2130>] (netif_receive_skb_internal+0x64/0xf8)
-[<c09b20cc>] (netif_receive_skb_internal) from [<c09b21f8>] (netif_receive_skb+0x34/0x19c)
-[<c09b21c4>] (netif_receive_skb) from [<c0791278>] (can_rx_offload_napi_poll+0x58/0xb4)
-
-Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: http://lore.kernel.org/r/20200124132656.22156-1-o.rempel@pengutronix.de
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1594973079-27743-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: befa60113ce7 ("can: ti_hecc: add missing prepare and unprepare of the clock")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/can/skb.h | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/net/can/ti_hecc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/can/skb.h b/include/linux/can/skb.h
-index a954def26c0dd..0783b0c6d9e2f 100644
---- a/include/linux/can/skb.h
-+++ b/include/linux/can/skb.h
-@@ -61,21 +61,17 @@ static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
-  */
- static inline struct sk_buff *can_create_echo_skb(struct sk_buff *skb)
- {
--	if (skb_shared(skb)) {
--		struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
-+	struct sk_buff *nskb;
- 
--		if (likely(nskb)) {
--			can_skb_set_owner(nskb, skb->sk);
--			consume_skb(skb);
--			return nskb;
--		} else {
--			kfree_skb(skb);
--			return NULL;
--		}
-+	nskb = skb_clone(skb, GFP_ATOMIC);
-+	if (unlikely(!nskb)) {
-+		kfree_skb(skb);
-+		return NULL;
+diff --git a/drivers/net/can/ti_hecc.c b/drivers/net/can/ti_hecc.c
+index 31ad364a89bbe..d3a7631eecaf2 100644
+--- a/drivers/net/can/ti_hecc.c
++++ b/drivers/net/can/ti_hecc.c
+@@ -936,7 +936,7 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 	err = clk_prepare_enable(priv->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "clk_prepare_enable() failed\n");
+-		goto probe_exit_clk;
++		goto probe_exit_release_clk;
  	}
  
--	/* we can assume to have an unshared skb with proper owner */
--	return skb;
-+	can_skb_set_owner(nskb, skb->sk);
-+	consume_skb(skb);
-+	return nskb;
- }
+ 	priv->offload.mailbox_read = ti_hecc_mailbox_read;
+@@ -945,7 +945,7 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 	err = can_rx_offload_add_timestamp(ndev, &priv->offload);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "can_rx_offload_add_timestamp() failed\n");
+-		goto probe_exit_clk;
++		goto probe_exit_disable_clk;
+ 	}
  
- #endif /* !_CAN_SKB_H */
+ 	err = register_candev(ndev);
+@@ -963,7 +963,9 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 
+ probe_exit_offload:
+ 	can_rx_offload_del(&priv->offload);
+-probe_exit_clk:
++probe_exit_disable_clk:
++	clk_disable_unprepare(priv->clk);
++probe_exit_release_clk:
+ 	clk_put(priv->clk);
+ probe_exit_candev:
+ 	free_candev(ndev);
 -- 
 2.27.0
 
