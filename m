@@ -2,144 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 081412B58CE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 05:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D31EB2B5A78
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 08:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726338AbgKQE2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 23:28:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44800 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725804AbgKQE2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Nov 2020 23:28:35 -0500
-Received: from sol.localdomain (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 265382463D;
-        Tue, 17 Nov 2020 04:28:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605587314;
-        bh=9y0exohYjyxk5jiJ93JicBe//G14qZJKLu96RNf8udc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U5xJI1ZFG6t/NOXZAOAJ2NvidPqX9aLMxtmiiv5K5A4dLKCncWhATDIFCQTEE43Cr
-         qq9uouK7HlGbqzAUCo2eYF65fAG2KPt4xmDUTEtOTfy5sZIp6x9zddPt3RwtieD97q
-         mpj3xzC4hzTf5vIklPjkITGA8jCY7513Xe5rgJKc=
-Date:   Mon, 16 Nov 2020 20:28:32 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Ted Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: Fix checksum errors with indexed dirs
-Message-ID: <X7NRcBMnsR3w1K7X@sol.localdomain>
-References: <20200205173025.12221-1-jack@suse.cz>
+        id S1726272AbgKQHoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 02:44:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35622 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725978AbgKQHoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 02:44:21 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDF2C0613CF
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 23:44:21 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id i13so15589496pgm.9
+        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 23:44:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ibufVINebxG/WvdlvSEbopoLyn9JciWAoqVh9ZhbfbI=;
+        b=hyAzrxL3hVqfdNhFrZ1PGY5F8OvCp+CiW8O8L6i4I3daALi9q2OkEjYdS8qUSVJLi8
+         hGxwN8vhLp7fIQPwInqwNiToMmm//YFD1zG2V71tqQB/SVnyPYw1t6gEuhorAhHKIs/Y
+         AewbnMhJm18UYR2N0/SCJFBjW5G099z4lj1JaFsbrmcLNPDQ9ZsD6Rk8nxtpEqMTDO1A
+         sM+q40p8aAub1SC+UoNclskoucvIgKl2DQ/7/1kIxuoeKHiqAbcYNI0iVy5BzGIkIlw3
+         l49e9xbzTf+rujGVeVQz30XTRYRY73sqAtBOdIprOj345/WGNr2jCjlC1M895mYPB7a6
+         o9GQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ibufVINebxG/WvdlvSEbopoLyn9JciWAoqVh9ZhbfbI=;
+        b=YWiMTPOh144fPsmR9kZ2ZQvENGkAUB0jdCoAQdEQmC53Z1m6nq4zC+UA1IYTdj/5YN
+         +usTGHafkWqJli5aa0E5PWijRzCxEYLYf9heRpjIsn7mC2yLPlZZrnItrJjI+LCdhLI6
+         by2+m767NglfbwQcv+W0rdARiOAlFtnXL6hDWEJl563nDda51L62BFKLZXYk4HRdIxO+
+         TFdBsXCIgZLzGxwnlCMDgEB08ZL3i5GM52ZIM4NVN6M1FL3Ams7inz0MZyo4jU+Vo5F7
+         YHxMWBMabSnCeyeH7sCPnPgtjFdWbmOEVt84DTXqWAvzk3/2H9DwLeJt0IFdH9mH6bkI
+         J0NQ==
+X-Gm-Message-State: AOAM5308Vj5pvHsAtLp/FZ/lFn1JbarwF9G9xSaiLHV3HmFaOJLLOiUV
+        L51YNk1lP5KBVILmUfaw4qDNjHN6Wth77Q==
+X-Google-Smtp-Source: ABdhPJyyjfXFtwODH8fLZ5VXCHfRQ8QDXgsz+oxU5eEN3Us+ZPdJbeWWWchD3xRhxC6fQEiMQkp84g==
+X-Received: by 2002:a17:90a:680e:: with SMTP id p14mr3530034pjj.34.1605599061142;
+        Mon, 16 Nov 2020 23:44:21 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t16sm14582372pfl.75.2020.11.16.23.44.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2020 23:44:20 -0800 (PST)
+Message-ID: <5fb37f54.1c69fb81.361c0.1123@mx.google.com>
+Date:   Mon, 16 Nov 2020 23:44:20 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200205173025.12221-1-jack@suse.cz>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.206-57-g106ef0d11ee4
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 58 runs,
+ 1 regressions (v4.14.206-57-g106ef0d11ee4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jan,
+stable-rc/queue/4.14 baseline: 58 runs, 1 regressions (v4.14.206-57-g106ef0=
+d11ee4)
 
-On Wed, Feb 05, 2020 at 06:30:25PM +0100, Jan Kara wrote:
-> DIR_INDEX has been introduced as a compat ext4 feature. That means that
-> even kernels / tools that don't understand the feature may modify the
-> filesystem. This works because for kernels not understanding indexed dir
-> format, internal htree nodes appear just as empty directory entries.
-> Index dir aware kernels then check the htree structure is still
-> consistent before using the data. This all worked reasonably well until
-> metadata checksums were introduced. The problem is that these
-> effectively made DIR_INDEX only ro-compatible because internal htree
-> nodes store checksums in a different place than normal directory blocks.
-> Thus any modification ignorant to DIR_INDEX (or just clearing
-> EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
-> and trigger kernel errors. So we have to be more careful when dealing
-> with indexed directories on filesystems with checksumming enabled.
-> 
-> 1) We just disallow loading and directory inodes with EXT4_INDEX_FL when
-> DIR_INDEX is not enabled. This is harsh but it should be very rare (it
-> means someone disabled DIR_INDEX on existing filesystem and didn't run
-> e2fsck), e2fsck can fix the problem, and we don't want to answer the
-> difficult question: "Should we rather corrupt the directory more or
-> should we ignore that DIR_INDEX feature is not set?"
-> 
-> 2) When we find out htree structure is corrupted (but the filesystem and
-> the directory should in support htrees), we continue just ignoring htree
-> information for reading but we refuse to add new entries to the
-> directory to avoid corrupting it more.
-> 
-> CC: stable@vger.kernel.org
-> Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> ---
->  fs/ext4/dir.c   | 14 ++++++++------
->  fs/ext4/ext4.h  |  5 ++++-
->  fs/ext4/inode.c | 13 +++++++++++++
->  fs/ext4/namei.c |  7 +++++++
->  4 files changed, 32 insertions(+), 7 deletions(-)
-> 
-> diff --git a/fs/ext4/dir.c b/fs/ext4/dir.c
-> index 9f00fc0bf21d..cb9ea593b544 100644
-> --- a/fs/ext4/dir.c
-> +++ b/fs/ext4/dir.c
-> @@ -129,12 +129,14 @@ static int ext4_readdir(struct file *file, struct dir_context *ctx)
->  		if (err != ERR_BAD_DX_DIR) {
->  			return err;
->  		}
-> -		/*
-> -		 * We don't set the inode dirty flag since it's not
-> -		 * critical that it get flushed back to the disk.
-> -		 */
-> -		ext4_clear_inode_flag(file_inode(file),
-> -				      EXT4_INODE_INDEX);
-> +		/* Can we just clear INDEX flag to ignore htree information? */
-> +		if (!ext4_has_metadata_csum(sb)) {
-> +			/*
-> +			 * We don't set the inode dirty flag since it's not
-> +			 * critical that it gets flushed back to the disk.
-> +			 */
-> +			ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-> +		}
->  	}
->  
->  	if (ext4_has_inline_data(inode)) {
-> diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-> index f8578caba40d..1fd6c1e2ce2a 100644
-> --- a/fs/ext4/ext4.h
-> +++ b/fs/ext4/ext4.h
-> @@ -2482,8 +2482,11 @@ void ext4_insert_dentry(struct inode *inode,
->  			struct ext4_filename *fname);
->  static inline void ext4_update_dx_flag(struct inode *inode)
->  {
-> -	if (!ext4_has_feature_dir_index(inode->i_sb))
-> +	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-> +		/* ext4_iget() should have caught this... */
-> +		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
->  		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-> +	}
->  }
+Regressions Summary
+-------------------
 
-This new WARN_ON_ONCE() gets triggered by the following commands:
-
-	mkfs.ext4 -O ^dir_index /dev/vdc
-	mount /dev/vdc /vdc
-	mkdir /vdc/dir
-
-WARNING: CPU: 1 PID: 305 at fs/ext4/ext4.h:2700 add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2039
-CPU: 1 PID: 305 Comm: mkdir Not tainted 5.10.0-rc4 #14
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-RIP: 0010:ext4_update_dx_flag fs/ext4/ext4.h:2700 [inline]
-RIP: 0010:add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2038
-[...]
-Call Trace:
- ext4_add_entry+0x179/0x4d0 fs/ext4/namei.c:2248
- ext4_mkdir+0x1c0/0x320 fs/ext4/namei.c:2814
- vfs_mkdir+0xcc/0x130 fs/namei.c:3650
- do_mkdirat+0x81/0x120 fs/namei.c:3673
- __do_sys_mkdir fs/namei.c:3689 [inline]
+platform   | arch | lab           | compiler | defconfig          | regress=
+ions
+-----------+------+---------------+----------+--------------------+--------=
+----
+odroid-xu3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | 1      =
+    =
 
 
-What is intended here?  metadata_csum && ^dir_index is a weird combination,
-but it's technically valid, right?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.206-57-g106ef0d11ee4/plan/baseline/
 
-- Eric
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.206-57-g106ef0d11ee4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      106ef0d11ee4695a42a4544818b1b6dbf22379e6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab           | compiler | defconfig          | regress=
+ions
+-----------+------+---------------+----------+--------------------+--------=
+----
+odroid-xu3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb333f07e16472dcdd22e62
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.206=
+-57-g106ef0d11ee4/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-odroi=
+d-xu3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.206=
+-57-g106ef0d11ee4/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-odroi=
+d-xu3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb333f07e16472dcdd22=
+e63
+        new failure (last pass: v4.14.206-22-g2ec7a9bf443b0) =
+
+ =20
