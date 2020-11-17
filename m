@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5FB2B63EB
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61FCB2B63E5
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387430AbgKQNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:42:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55112 "EHLO mail.kernel.org"
+        id S2387453AbgKQNmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:42:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732391AbgKQNmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:42:35 -0500
+        id S2387447AbgKQNmh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DD48207BC;
-        Tue, 17 Nov 2020 13:42:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34DF524199;
+        Tue, 17 Nov 2020 13:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620554;
-        bh=3yvRMyzPZQ+0Tc7FTTr2JpOJiux30auAJEcJFZJKoEI=;
+        s=default; t=1605620556;
+        bh=vf3/VsnldaYPMIKyxlRhBZtuYWcuFWpptQSVXKRWd0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBaN8BXBhFs5FzlSSun8s0oHbmSl22/fYXv+W+PMFx5wvqVCu39o0SzYS8ig3ygEu
-         3sa3ewrSSlHui44X/KxLEcRnsud2/KfkSXEQZljFb2naILuoFeGqmmPTo8cIRrD5kK
-         tqa85Lr3aoElPnrt9IJK+ZI1xER+rpzSdZsN4YxQ=
+        b=g2FJOUgOHV++Gbp8kRHahvXMnZwWT5EqY5pLKVsEcjTbPVAWptCIYBRrmI5Pt/7pA
+         d6HcmaArKBpoVv/rp0Ybaslhe29w7QdoTxD9IiLC4PuWPwruM1QAh3bNMwIVn4uaPG
+         NUXX4boN+GMremkgqVuiKgmooZfTzdne/6oWL3mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.9 251/255] null_blk: Fix scheduling in atomic with zoned mode
-Date:   Tue, 17 Nov 2020 14:06:31 +0100
-Message-Id: <20201117122151.147477699@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Tapas Kundu <tkundu@vmware.com>
+Subject: [PATCH 5.9 252/255] perf scripting python: Avoid declaring function pointers with a visibility attribute
+Date:   Tue, 17 Nov 2020 14:06:32 +0100
+Message-Id: <20201117122151.197814127@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,109 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit e1777d099728a76a8f8090f89649aac961e7e530 upstream.
+commit d0e7b0c71fbb653de90a7163ef46912a96f0bdaf upstream.
 
-Commit aa1c09cb65e2 ("null_blk: Fix locking in zoned mode") changed
-zone locking to using the potentially sleeping wait_on_bit_io()
-function. This is acceptable when memory backing is enabled as the
-device queue is in that case marked as blocking, but this triggers a
-scheduling while in atomic context with memory backing disabled.
+To avoid this:
 
-Fix this by relying solely on the device zone spinlock for zone
-information protection without temporarily releasing this lock around
-null_process_cmd() execution in null_zone_write(). This is OK to do
-since when memory backing is disabled, command processing does not
-block and the memory backing lock nullb->lock is unused. This solution
-avoids the overhead of having to mark a zoned null_blk device queue as
-blocking when memory backing is unused.
+  util/scripting-engines/trace-event-python.c: In function 'python_start_script':
+  util/scripting-engines/trace-event-python.c:1595:2: error: 'visibility' attribute ignored [-Werror=attributes]
+   1595 |  PyMODINIT_FUNC (*initfunc)(void);
+        |  ^~~~~~~~~~~~~~
 
-This patch also adds comments to the zone locking code to explain the
-unusual locking scheme.
+That started breaking when building with PYTHON=python3 and these gcc
+versions (I haven't checked with the clang ones, maybe it breaks there
+as well):
 
-Fixes: aa1c09cb65e2 ("null_blk: Fix locking in zoned mode")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  # export PERF_TARBALL=http://192.168.86.5/perf/perf-5.9.0.tar.xz
+  # dm  fedora:33 fedora:rawhide
+     1   107.80 fedora:33         : Ok   gcc (GCC) 10.2.1 20201005 (Red Hat 10.2.1-5), clang version 11.0.0 (Fedora 11.0.0-1.fc33)
+     2    92.47 fedora:rawhide    : Ok   gcc (GCC) 10.2.1 20201016 (Red Hat 10.2.1-6), clang version 11.0.0 (Fedora 11.0.0-1.fc34)
+  #
+
+Avoid that by ditching that 'initfunc' function pointer with its:
+
+    #define Py_EXPORTED_SYMBOL _attribute_ ((visibility ("default")))
+    #define PyMODINIT_FUNC Py_EXPORTED_SYMBOL PyObject*
+
+And just call PyImport_AppendInittab() at the end of the ifdef python3
+block with the functions that were being attributed to that initfunc.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tapas Kundu <tkundu@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- drivers/block/null_blk.h       |    1 +
- drivers/block/null_blk_zoned.c |   31 +++++++++++++++++++++++++------
- 2 files changed, 26 insertions(+), 6 deletions(-)
+ tools/perf/util/scripting-engines/trace-event-python.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/block/null_blk.h
-+++ b/drivers/block/null_blk.h
-@@ -44,6 +44,7 @@ struct nullb_device {
- 	unsigned int nr_zones;
- 	struct blk_zone *zones;
- 	sector_t zone_size_sects;
-+	spinlock_t zone_lock;
- 	unsigned long *zone_locks;
- 
- 	unsigned long size; /* device size in MB */
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -46,10 +46,20 @@ int null_init_zoned_dev(struct nullb_dev
- 	if (!dev->zones)
- 		return -ENOMEM;
- 
--	dev->zone_locks = bitmap_zalloc(dev->nr_zones, GFP_KERNEL);
--	if (!dev->zone_locks) {
--		kvfree(dev->zones);
--		return -ENOMEM;
-+	/*
-+	 * With memory backing, the zone_lock spinlock needs to be temporarily
-+	 * released to avoid scheduling in atomic context. To guarantee zone
-+	 * information protection, use a bitmap to lock zones with
-+	 * wait_on_bit_lock_io(). Sleeping on the lock is OK as memory backing
-+	 * implies that the queue is marked with BLK_MQ_F_BLOCKING.
-+	 */
-+	spin_lock_init(&dev->zone_lock);
-+	if (dev->memory_backed) {
-+		dev->zone_locks = bitmap_zalloc(dev->nr_zones, GFP_KERNEL);
-+		if (!dev->zone_locks) {
-+			kvfree(dev->zones);
-+			return -ENOMEM;
-+		}
- 	}
- 
- 	if (dev->zone_nr_conv >= dev->nr_zones) {
-@@ -118,12 +128,16 @@ void null_free_zoned_dev(struct nullb_de
- 
- static inline void null_lock_zone(struct nullb_device *dev, unsigned int zno)
+--- a/tools/perf/util/scripting-engines/trace-event-python.c
++++ b/tools/perf/util/scripting-engines/trace-event-python.c
+@@ -1592,7 +1592,6 @@ static void _free_command_line(wchar_t *
+ static int python_start_script(const char *script, int argc, const char **argv)
  {
--	wait_on_bit_lock_io(dev->zone_locks, zno, TASK_UNINTERRUPTIBLE);
-+	if (dev->memory_backed)
-+		wait_on_bit_lock_io(dev->zone_locks, zno, TASK_UNINTERRUPTIBLE);
-+	spin_lock_irq(&dev->zone_lock);
- }
+ 	struct tables *tables = &tables_global;
+-	PyMODINIT_FUNC (*initfunc)(void);
+ #if PY_MAJOR_VERSION < 3
+ 	const char **command_line;
+ #else
+@@ -1607,20 +1606,18 @@ static int python_start_script(const cha
+ 	FILE *fp;
  
- static inline void null_unlock_zone(struct nullb_device *dev, unsigned int zno)
- {
--	clear_and_wake_up_bit(zno, dev->zone_locks);
-+	spin_unlock_irq(&dev->zone_lock);
-+	if (dev->memory_backed)
-+		clear_and_wake_up_bit(zno, dev->zone_locks);
- }
+ #if PY_MAJOR_VERSION < 3
+-	initfunc = initperf_trace_context;
+ 	command_line = malloc((argc + 1) * sizeof(const char *));
+ 	command_line[0] = script;
+ 	for (i = 1; i < argc + 1; i++)
+ 		command_line[i] = argv[i - 1];
++	PyImport_AppendInittab(name, initperf_trace_context);
+ #else
+-	initfunc = PyInit_perf_trace_context;
+ 	command_line = malloc((argc + 1) * sizeof(wchar_t *));
+ 	command_line[0] = Py_DecodeLocale(script, NULL);
+ 	for (i = 1; i < argc + 1; i++)
+ 		command_line[i] = Py_DecodeLocale(argv[i - 1], NULL);
++	PyImport_AppendInittab(name, PyInit_perf_trace_context);
+ #endif
+-
+-	PyImport_AppendInittab(name, initfunc);
+ 	Py_Initialize();
  
- int null_report_zones(struct gendisk *disk, sector_t sector,
-@@ -233,7 +247,12 @@ static blk_status_t null_zone_write(stru
- 		if (zone->cond != BLK_ZONE_COND_EXP_OPEN)
- 			zone->cond = BLK_ZONE_COND_IMP_OPEN;
- 
-+		if (dev->memory_backed)
-+			spin_unlock_irq(&dev->zone_lock);
- 		ret = null_process_cmd(cmd, REQ_OP_WRITE, sector, nr_sectors);
-+		if (dev->memory_backed)
-+			spin_lock_irq(&dev->zone_lock);
-+
- 		if (ret != BLK_STS_OK)
- 			break;
- 
+ #if PY_MAJOR_VERSION < 3
 
 
