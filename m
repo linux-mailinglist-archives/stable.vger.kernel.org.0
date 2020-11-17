@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81FDE2B65E9
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 357C02B6660
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730692AbgKQN7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:59:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
+        id S1730361AbgKQOCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:02:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730670AbgKQNS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:18:26 -0500
+        id S1728762AbgKQNOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52B5B24654;
-        Tue, 17 Nov 2020 13:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47FF42225B;
+        Tue, 17 Nov 2020 13:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619105;
-        bh=O8sN/Fj7w+5g61Gjf9SEq4lrUkuxb/eAuuxjUzW77+s=;
+        s=default; t=1605618847;
+        bh=hfVjhpLdemkw7Vf4tF+lJ893noreThwlUGghtIhaEXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfgn3NbvhhyTc8spwsyTYbNl+XWrzkULpLIt/vN31h3pUKD3Ayzfuwh+s4oRFhj6F
-         Tyj8SknAex9ICLU1tygWOiO7IcgpGUzFcMQpacyIOyJhJBM6/XXN7V3mdPHwKyOhJT
-         7sUPGFlzNxu0USkQH0OHBXQG23b85Yx3Tq9aTfak=
+        b=Y8wZI/uKs0jTPWAT7LaDHA3ujkToa8DHgayUT+zqRX99zwEmYYGuqSpUgC8nG3NmM
+         K8W/SjBU0xJoV9zA/OFo1s+VpYwc1WcKJyeJniOewvysvLODrSMNcehJz1tyPUhSEs
+         AJOzrWYBUXOQt10OhUzSxNu/RsVMeVnZGpj5FBE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 029/101] crypto: arm64/aes-modes - get rid of literal load of addend vector
+        stable@vger.kernel.org, Don Brace <don.brace@microchip.com>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/85] scsi: hpsa: Fix memory leak in hpsa_init_one()
 Date:   Tue, 17 Nov 2020 14:04:56 +0100
-Message-Id: <20201117122114.510330023@linuxfoundation.org>
+Message-Id: <20201117122112.368900483@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-commit ed6ed11830a9ded520db31a6e2b69b6b0a1eb0e2 upstream.
+[ Upstream commit af61bc1e33d2c0ec22612b46050f5b58ac56a962 ]
 
-Replace the literal load of the addend vector with a sequence that
-performs each add individually. This sequence is only 2 instructions
-longer than the original, and 2% faster on Cortex-A53.
+When hpsa_scsi_add_host() fails, h->lastlogicals is leaked since it is
+missing a free() in the error handler.
 
-This is an improvement by itself, but also works around a Clang issue,
-whose integrated assembler does not implement the GNU ARM asm syntax
-completely, and does not support the =literal notation for FP registers
-(more info at https://bugs.llvm.org/show_bug.cgi?id=38642)
+Fix this by adding free() when hpsa_scsi_add_host() fails.
 
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20201027073125.14229-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Tested-by: Don Brace <don.brace@microchip.com>
+Acked-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/crypto/aes-modes.S |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/scsi/hpsa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/crypto/aes-modes.S
-+++ b/arch/arm64/crypto/aes-modes.S
-@@ -232,17 +232,19 @@ AES_ENTRY(aes_ctr_encrypt)
- 	bmi		.Lctr1x
- 	cmn		w6, #4			/* 32 bit overflow? */
- 	bcs		.Lctr1x
--	ldr		q8, =0x30000000200000001	/* addends 1,2,3[,0] */
--	dup		v7.4s, w6
-+	add		w7, w6, #1
- 	mov		v0.16b, v4.16b
--	add		v7.4s, v7.4s, v8.4s
-+	add		w8, w6, #2
- 	mov		v1.16b, v4.16b
--	rev32		v8.16b, v7.16b
-+	add		w9, w6, #3
- 	mov		v2.16b, v4.16b
-+	rev		w7, w7
- 	mov		v3.16b, v4.16b
--	mov		v1.s[3], v8.s[0]
--	mov		v2.s[3], v8.s[1]
--	mov		v3.s[3], v8.s[2]
-+	rev		w8, w8
-+	mov		v1.s[3], w7
-+	rev		w9, w9
-+	mov		v2.s[3], w8
-+	mov		v3.s[3], w9
- 	ld1		{v5.16b-v7.16b}, [x20], #48	/* get 3 input blocks */
- 	bl		aes_encrypt_block4x
- 	eor		v0.16b, v5.16b, v0.16b
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 3b892918d8219..9ad9910cc0855 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -8549,7 +8549,7 @@ reinit_after_soft_reset:
+ 	/* hook into SCSI subsystem */
+ 	rc = hpsa_scsi_add_host(h);
+ 	if (rc)
+-		goto clean7; /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
++		goto clean8; /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
+ 
+ 	/* Monitor the controller for firmware lockups */
+ 	h->heartbeat_sample_interval = HEARTBEAT_SAMPLE_INTERVAL;
+@@ -8564,6 +8564,8 @@ reinit_after_soft_reset:
+ 				HPSA_EVENT_MONITOR_INTERVAL);
+ 	return 0;
+ 
++clean8: /* lastlogicals, perf, sg, cmd, irq, shost, pci, lu, aer/h */
++	kfree(h->lastlogicals);
+ clean7: /* perf, sg, cmd, irq, shost, pci, lu, aer/h */
+ 	hpsa_free_performant_mode(h);
+ 	h->access.set_intr_mask(h, HPSA_INTR_OFF);
+-- 
+2.27.0
+
 
 
