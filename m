@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F2B2B64DE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0921A2B62E2
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733268AbgKQNu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:50:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42332 "EHLO mail.kernel.org"
+        id S1731908AbgKQNck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:32:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731849AbgKQNch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:37 -0500
+        id S1732322AbgKQNcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:32:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE3E621534;
-        Tue, 17 Nov 2020 13:32:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C48C32078E;
+        Tue, 17 Nov 2020 13:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619956;
-        bh=TtG8PTcSMbodycPdWFhTPm49W+ZPjFYcro/5mLaoErk=;
+        s=default; t=1605619959;
+        bh=1bGqEOXpk0hm8uIgX2dJ8U9XAH9cjPnVfN81Puua2XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duAjtj5rAqf2ZOxHyQiG12xb/jh5OJoLtRIkn4VNC8MCPMBTIm8FiztbaT/gIpqKa
-         HoUpjBTvfkl6TxWq7YjptZKwcWwzFhgV/QEHFwd0fMXiLK4tEy01+oxbrqUu1TiDZ3
-         /aks2EXftDTRHkHSwullOQ+6qF8IiQRovzZt53Zw=
+        b=sowWMSUyBXF4qHZGykFnl6lYFhT/IKA7JTj4aj0kWcFeNnszDNSKq4TnKtAYhCVmD
+         UqKgTMIz2HmUgX6CTrFTwIX7HzbrJC3k5HH2UUH/ws5F9oCqjisALdTTu/OwN88ief
+         P7mA7giY1VZ6HD25iPNcGPuR2M6GHfjtmZG9YASI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 030/255] drm/vc4: bo: Add a managed action to cleanup the cache
-Date:   Tue, 17 Nov 2020 14:02:50 +0100
-Message-Id: <20201117122140.411872312@linuxfoundation.org>
+Subject: [PATCH 5.9 031/255] IB/srpt: Fix memory leak in srpt_add_one
+Date:   Tue, 17 Nov 2020 14:02:51 +0100
+Message-Id: <20201117122140.460354493@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,83 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 1c80be48c70a2198f7cf04a546b3805b92293ac6 ]
+[ Upstream commit 372a1786283e50e7cb437ab7fdb1b95597310ad7 ]
 
-The BO cache needs to be cleaned up using vc4_bo_cache_destroy, but it's
-not used consistently (vc4_drv's bind calls it in its error path, but
-doesn't in unbind), and we can make that automatic through a managed
-action. Let's remove the requirement to call vc4_bo_cache_destroy.
+Failure in srpt_refresh_port() for the second port will leave MAD
+registered for the first one, however, the srpt_add_one() will be marked
+as "failed" and SRPT will leak resources for that registered but not used
+and released first port.
 
-Fixes: c826a6e10644 ("drm/vc4: Add a BO cache.")
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201029190104.2181730-1-maxime@cerno.tech
+Unregister the MAD agent for all ports in case of failure.
+
+Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
+Link: https://lore.kernel.org/r/20201028065051.112430-1-leon@kernel.org
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_bo.c  | 5 +++--
- drivers/gpu/drm/vc4/vc4_drv.c | 1 -
- drivers/gpu/drm/vc4/vc4_drv.h | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_bo.c b/drivers/gpu/drm/vc4/vc4_bo.c
-index 74ceebd62fbce..073b528f33337 100644
---- a/drivers/gpu/drm/vc4/vc4_bo.c
-+++ b/drivers/gpu/drm/vc4/vc4_bo.c
-@@ -1005,6 +1005,7 @@ int vc4_get_tiling_ioctl(struct drm_device *dev, void *data,
- 	return 0;
- }
- 
-+static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused);
- int vc4_bo_cache_init(struct drm_device *dev)
+diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
+index 0065eb17ae36b..1b096305de1a4 100644
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.c
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
+@@ -622,10 +622,11 @@ static int srpt_refresh_port(struct srpt_port *sport)
+ /**
+  * srpt_unregister_mad_agent - unregister MAD callback functions
+  * @sdev: SRPT HCA pointer.
++ * #port_cnt: number of ports with registered MAD
+  *
+  * Note: It is safe to call this function more than once for the same device.
+  */
+-static void srpt_unregister_mad_agent(struct srpt_device *sdev)
++static void srpt_unregister_mad_agent(struct srpt_device *sdev, int port_cnt)
  {
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-@@ -1033,10 +1034,10 @@ int vc4_bo_cache_init(struct drm_device *dev)
- 	INIT_WORK(&vc4->bo_cache.time_work, vc4_bo_cache_time_work);
- 	timer_setup(&vc4->bo_cache.time_timer, vc4_bo_cache_time_timer, 0);
- 
--	return 0;
-+	return drmm_add_action_or_reset(dev, vc4_bo_cache_destroy, NULL);
- }
- 
--void vc4_bo_cache_destroy(struct drm_device *dev)
-+static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused)
- {
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+ 	struct ib_port_modify port_modify = {
+ 		.clr_port_cap_mask = IB_PORT_DEVICE_MGMT_SUP,
+@@ -633,7 +634,7 @@ static void srpt_unregister_mad_agent(struct srpt_device *sdev)
+ 	struct srpt_port *sport;
  	int i;
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
-index f6995e7f6eb6e..c7aeaba3fabe8 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.c
-+++ b/drivers/gpu/drm/vc4/vc4_drv.c
-@@ -311,7 +311,6 @@ unbind_all:
- gem_destroy:
- 	vc4_gem_destroy(drm);
- 	drm_mode_config_cleanup(drm);
--	vc4_bo_cache_destroy(drm);
- dev_put:
- 	drm_dev_put(drm);
- 	return ret;
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
-index fa19160c801f8..528c28895a8e0 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.h
-+++ b/drivers/gpu/drm/vc4/vc4_drv.h
-@@ -14,6 +14,7 @@
- #include <drm/drm_device.h>
- #include <drm/drm_encoder.h>
- #include <drm/drm_gem_cma_helper.h>
-+#include <drm/drm_managed.h>
- #include <drm/drm_mm.h>
- #include <drm/drm_modeset_lock.h>
  
-@@ -786,7 +787,6 @@ struct drm_gem_object *vc4_prime_import_sg_table(struct drm_device *dev,
- 						 struct sg_table *sgt);
- void *vc4_prime_vmap(struct drm_gem_object *obj);
- int vc4_bo_cache_init(struct drm_device *dev);
--void vc4_bo_cache_destroy(struct drm_device *dev);
- int vc4_bo_inc_usecnt(struct vc4_bo *bo);
- void vc4_bo_dec_usecnt(struct vc4_bo *bo);
- void vc4_bo_add_to_purgeable_pool(struct vc4_bo *bo);
+-	for (i = 1; i <= sdev->device->phys_port_cnt; i++) {
++	for (i = 1; i <= port_cnt; i++) {
+ 		sport = &sdev->port[i - 1];
+ 		WARN_ON(sport->port != i);
+ 		if (sport->mad_agent) {
+@@ -3185,7 +3186,8 @@ static int srpt_add_one(struct ib_device *device)
+ 		if (ret) {
+ 			pr_err("MAD registration failed for %s-%d.\n",
+ 			       dev_name(&sdev->device->dev), i);
+-			goto err_event;
++			i--;
++			goto err_port;
+ 		}
+ 	}
+ 
+@@ -3197,7 +3199,8 @@ static int srpt_add_one(struct ib_device *device)
+ 	pr_debug("added %s.\n", dev_name(&device->dev));
+ 	return 0;
+ 
+-err_event:
++err_port:
++	srpt_unregister_mad_agent(sdev, i);
+ 	ib_unregister_event_handler(&sdev->event_handler);
+ err_cm:
+ 	if (sdev->cm_id)
+@@ -3221,7 +3224,7 @@ static void srpt_remove_one(struct ib_device *device, void *client_data)
+ 	struct srpt_device *sdev = client_data;
+ 	int i;
+ 
+-	srpt_unregister_mad_agent(sdev);
++	srpt_unregister_mad_agent(sdev, sdev->device->phys_port_cnt);
+ 
+ 	ib_unregister_event_handler(&sdev->event_handler);
+ 
 -- 
 2.27.0
 
