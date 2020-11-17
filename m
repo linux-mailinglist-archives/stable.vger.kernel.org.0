@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AFB2B5FD4
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A25D2B5FAA
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728882AbgKQM65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:58:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54860 "EHLO mail.kernel.org"
+        id S1728704AbgKQM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:57:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgKQM5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:41 -0500
+        id S1728714AbgKQM5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 511742225E;
-        Tue, 17 Nov 2020 12:57:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9623424654;
+        Tue, 17 Nov 2020 12:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617861;
-        bh=4b3LcdyrpWcdzKVID58KAgkLxYPmc8Oeo+vJp7JUGXI=;
+        s=default; t=1605617862;
+        bh=stoMUMtMKbMWCjCDbMDcEIexQLblDJ1DcpgWpADEU0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOx+O5c83/2MMmYBcLsGBeT1ANDrpeMuluo/pCbekz46eizOxuLWLWPLCzP8Zl8ES
-         H2GUli9RtXWR8bVYajTKCf7btCnBbD6P7LdPEKEzrs+SP1bo7pVvf5uY9sQFfsh2eL
-         dwWurEO7wMNoQqyv5xMKKcBwo1fhbTQkDyCn4RWE=
+        b=yd7PA+YlMPlUG4SUYy7KUeuDO8mtWC0QJul2IN7dX/xWjIQT1cTlh37CAZARK2JNO
+         U1CSTW+F5EPCivBWkd8P3eMXnffmL2IqfewzVEguBjYeA+auDs8Uay8pSLoVLy6VjX
+         q7rU+avW3glTs1LT1Tw/NnI6BjriOTOspEtV5Wx8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 10/11] gfs2: fix possible reference leak in gfs2_check_blk_type
-Date:   Tue, 17 Nov 2020 07:57:24 -0500
-Message-Id: <20201117125725.599833-10-sashal@kernel.org>
+Cc:     Paul Barker <pbarker@konsulko.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/11] hwmon: (pwm-fan) Fix RPM calculation
+Date:   Tue, 17 Nov 2020 07:57:25 -0500
+Message-Id: <20201117125725.599833-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201117125725.599833-1-sashal@kernel.org>
 References: <20201117125725.599833-1-sashal@kernel.org>
@@ -42,43 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Paul Barker <pbarker@konsulko.com>
 
-[ Upstream commit bc923818b190c8b63c91a47702969c8053574f5b ]
+[ Upstream commit fd8feec665fef840277515a5c2b9b7c3e3970fad ]
 
-In the fail path of gfs2_check_blk_type, forgetting to call
-gfs2_glock_dq_uninit will result in rgd_gh reference leak.
+To convert the number of pulses counted into an RPM estimation, we need
+to divide by the width of our measurement interval instead of
+multiplying by it. If the width of the measurement interval is zero we
+don't update the RPM value to avoid dividing by zero.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+We also don't need to do 64-bit division, with 32-bits we can handle a
+fan running at over 4 million RPM.
+
+Signed-off-by: Paul Barker <pbarker@konsulko.com>
+Link: https://lore.kernel.org/r/20201111164643.7087-1-pbarker@konsulko.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hwmon/pwm-fan.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 2466bb44a23c5..2dfcea5a71153 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -2571,13 +2571,13 @@ int gfs2_check_blk_type(struct gfs2_sbd *sdp, u64 no_addr, unsigned int type)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 42ffd2e5182d5..c88ce77fe6763 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -54,16 +54,18 @@ static irqreturn_t pulse_handler(int irq, void *dev_id)
+ static void sample_timer(struct timer_list *t)
+ {
+ 	struct pwm_fan_ctx *ctx = from_timer(ctx, t, rpm_timer);
++	unsigned int delta = ktime_ms_delta(ktime_get(), ctx->sample_start);
+ 	int pulses;
+-	u64 tmp;
  
- 	rbm.rgd = rgd;
- 	error = gfs2_rbm_from_block(&rbm, no_addr);
--	if (WARN_ON_ONCE(error))
--		goto fail;
--
--	if (gfs2_testbit(&rbm, false) != type)
--		error = -ESTALE;
-+	if (!WARN_ON_ONCE(error)) {
-+		if (gfs2_testbit(&rbm, false) != type)
-+			error = -ESTALE;
+-	pulses = atomic_read(&ctx->pulses);
+-	atomic_sub(pulses, &ctx->pulses);
+-	tmp = (u64)pulses * ktime_ms_delta(ktime_get(), ctx->sample_start) * 60;
+-	do_div(tmp, ctx->pulses_per_revolution * 1000);
+-	ctx->rpm = tmp;
++	if (delta) {
++		pulses = atomic_read(&ctx->pulses);
++		atomic_sub(pulses, &ctx->pulses);
++		ctx->rpm = (unsigned int)(pulses * 1000 * 60) /
++			(ctx->pulses_per_revolution * delta);
++
++		ctx->sample_start = ktime_get();
 +	}
  
- 	gfs2_glock_dq_uninit(&rgd_gh);
-+
- fail:
- 	return error;
+-	ctx->sample_start = ktime_get();
+ 	mod_timer(&ctx->rpm_timer, jiffies + HZ);
  }
+ 
 -- 
 2.27.0
 
