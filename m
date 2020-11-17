@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E4C2B6577
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15FB92B6439
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731123AbgKQNWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:22:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56264 "EHLO mail.kernel.org"
+        id S1732793AbgKQNjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:39:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730301AbgKQNWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:22:08 -0500
+        id S1732776AbgKQNjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:39:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9523820781;
-        Tue, 17 Nov 2020 13:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 871B620870;
+        Tue, 17 Nov 2020 13:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619328;
-        bh=94q8a8Sdr2/5YegOkc8ordUd8NWPMcOAM7pZxMuU6IM=;
+        s=default; t=1605620391;
+        bh=HswQOayRJA3M7pC77Ok4nA9JGibXpiliqFLdEbe2UjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErNTLwz4qOpoNE8CmsbWgFALGeCKiU0mtR11vYtBaJEm2+AK3EWB2z730/ASsNrmi
-         VYPuXMRfGxc8NZqjFiHfVlT6oR8HadDL9GDkPv/jccMFoXUrJ5GVoCOd1ag/0Ei8tq
-         8CUdPXub9BBkC4Yh1EXUAd/ELxuUCuq6ioJVkdEo=
+        b=BBIT95XchfARYyS3SYEK9uqUDwElNv23gRHpceSB3+2wo8NKCEkniR9jesoIyUbU3
+         naitKVahB3BwLYLsK9VWrx6GlScBWRuyG2tRzYxpUVeE1Q074p7TFC/dST8DOZDjFZ
+         hAW5fe5ZK0pygpxLJpj2qGSdIq3pskuR7nj+7i+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chen Zhou <chenzhou10@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 076/101] selinux: Fix error return code in sel_ib_pkey_sid_slow()
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 5.9 203/255] xhci: hisilicon: fix refercence leak in xhci_histb_probe
 Date:   Tue, 17 Nov 2020 14:05:43 +0100
-Message-Id: <20201117122116.822050681@linuxfoundation.org>
+Message-Id: <20201117122148.811471287@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit c350f8bea271782e2733419bd2ab9bf4ec2051ef upstream.
+commit 76255470ffa2795a44032e8b3c1ced11d81aa2db upstream.
 
-Fix to return a negative error code from the error handling case
-instead of 0 in function sel_ib_pkey_sid_slow(), as done elsewhere
-in this function.
+pm_runtime_get_sync() will increment pm usage at first and it
+will resume the device later. We should decrease the usage count
+whetever it succeeded or failed(maybe runtime of the device has
+error, or device is in inaccessible state, or other error state).
+If we do not call put operation to decrease the reference, it will
+result in reference leak in xhci_histb_probe. Moreover, this
+device cannot enter the idle state and always stay busy or other
+non-idle state later. So we fixed it by jumping to error handling
+branch.
 
-Cc: stable@vger.kernel.org
-Fixes: 409dcf31538a ("selinux: Add a cache for quicker retreival of PKey SIDs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: c508f41da0788 ("xhci: hisilicon: support HiSilicon STB xHCI host controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201106122221.2304528-1-zhangqilong3@huawei.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/ibpkey.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-histb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/selinux/ibpkey.c
-+++ b/security/selinux/ibpkey.c
-@@ -161,8 +161,10 @@ static int sel_ib_pkey_sid_slow(u64 subn
- 	 * is valid, it just won't be added to the cache.
- 	 */
- 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
--	if (!new)
-+	if (!new) {
-+		ret = -ENOMEM;
- 		goto out;
-+	}
+--- a/drivers/usb/host/xhci-histb.c
++++ b/drivers/usb/host/xhci-histb.c
+@@ -240,7 +240,7 @@ static int xhci_histb_probe(struct platf
+ 	/* Initialize dma_mask and coherent_dma_mask to 32-bits */
+ 	ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(32));
+ 	if (ret)
+-		return ret;
++		goto disable_pm;
  
- 	new->psec.subnet_prefix = subnet_prefix;
- 	new->psec.pkey = pkey_num;
+ 	hcd = usb_create_hcd(driver, dev, dev_name(dev));
+ 	if (!hcd) {
 
 
