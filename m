@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE262B6272
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F0C2B6052
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731880AbgKQN2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33376 "EHLO mail.kernel.org"
+        id S1729229AbgKQNIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:08:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731400AbgKQN0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:26:03 -0500
+        id S1729224AbgKQNIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:08:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A16F2464E;
-        Tue, 17 Nov 2020 13:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53796238E6;
+        Tue, 17 Nov 2020 13:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619562;
-        bh=6Zp+YV6Z2BWDD9deiTge0AlKV+A0u0z1bSS6kiV9ATg=;
+        s=default; t=1605618484;
+        bh=bCshQWkkaXReYk2snvFAXpUAtrXIdW7b5JSTHMtVw+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DsGyAmIHedgNjKeKgdKPe50wA+zAzv29HAYK4ClQ8O9zA+UvCx34eOI+g0b3DygP5
-         LKuiqaPyuvK3pgZh5z8d/IY/TVBJiBgscYtg4VlN8En2o4xqtBnWDt8HsD4xMCG9Pw
-         MwYErDq0B2QqeKV22W+pun3XCYPkXWSWdpwYyGrA=
+        b=YWdiUJsUEEaiXld+YAvFCvnXE2PjLMWdkOWRq+SkGhvdwYO8Nf4Naj/Mv2+XVxA5Y
+         21rf2Kb64uB9ElanY+veYEHpfT15EQQlbNuzkq4pX5SnH5KahRo3Ivt9Lb/XHBVSkQ
+         RH1TDQ2MLjnMNLIVMs8w4QLdhrV4JfPzFXhFIjik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Anderson <seanga2@gmail.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/151] riscv: Set text_offset correctly for M-Mode
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Jinoh Kang <luke1337@theori.io>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Wei Liu <wl@xen.org>
+Subject: [PATCH 4.4 48/64] xen/events: avoid removing an event channel while handling it
 Date:   Tue, 17 Nov 2020 14:05:11 +0100
-Message-Id: <20201117122125.360974946@linuxfoundation.org>
+Message-Id: <20201117122108.536464247@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <seanga2@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 79605f1394261995c2b955c906a5a20fb27cdc84 ]
+commit 073d0552ead5bfc7a3a9c01de590e924f11b5dd2 upstream.
 
-M-Mode Linux is loaded at the start of RAM, not 2MB later. Perhaps this
-should be calculated based on PAGE_OFFSET somehow? Even better would be to
-deprecate text_offset and instead introduce something absolute.
+Today it can happen that an event channel is being removed from the
+system while the event handling loop is active. This can lead to a
+race resulting in crashes or WARN() splats when trying to access the
+irq_info structure related to the event channel.
 
-Signed-off-by: Sean Anderson <seanga2@gmail.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this problem by using a rwlock taken as reader in the event
+handling loop and as writer when deallocating the irq_info structure.
+
+As the observed problem was a NULL dereference in evtchn_from_irq()
+make this function more robust against races by testing the irq_info
+pointer to be not NULL before dereferencing it.
+
+And finally make all accesses to evtchn_to_irq[row][col] atomic ones
+in order to avoid seeing partial updates of an array element in irq
+handling. Note that irq handling can be entered only for event channels
+which have been valid before, so any not populated row isn't a problem
+in this regard, as rows are only ever added and never removed.
+
+This is XSA-331.
+
+Cc: stable@vger.kernel.org
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reported-by: Jinoh Kang <luke1337@theori.io>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Wei Liu <wl@xen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/head.S | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/xen/events/events_base.c |   40 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 35 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
-index 72f89b7590dd6..344793159b97d 100644
---- a/arch/riscv/kernel/head.S
-+++ b/arch/riscv/kernel/head.S
-@@ -26,12 +26,17 @@ ENTRY(_start)
- 	/* reserved */
- 	.word 0
- 	.balign 8
-+#ifdef CONFIG_RISCV_M_MODE
-+	/* Image load offset (0MB) from start of RAM for M-mode */
-+	.dword 0
-+#else
- #if __riscv_xlen == 64
- 	/* Image load offset(2MB) from start of RAM */
- 	.dword 0x200000
- #else
- 	/* Image load offset(4MB) from start of RAM */
- 	.dword 0x400000
-+#endif
- #endif
- 	/* Effective size of kernel image */
- 	.dword _end - _start
--- 
-2.27.0
-
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
++#include <linux/spinlock.h>
+ 
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -70,6 +71,23 @@ const struct evtchn_ops *evtchn_ops;
+  */
+ static DEFINE_MUTEX(irq_mapping_update_lock);
+ 
++/*
++ * Lock protecting event handling loop against removing event channels.
++ * Adding of event channels is no issue as the associated IRQ becomes active
++ * only after everything is setup (before request_[threaded_]irq() the handler
++ * can't be entered for an event, as the event channel will be unmasked only
++ * then).
++ */
++static DEFINE_RWLOCK(evtchn_rwlock);
++
++/*
++ * Lock hierarchy:
++ *
++ * irq_mapping_update_lock
++ *   evtchn_rwlock
++ *     IRQ-desc lock
++ */
++
+ static LIST_HEAD(xen_irq_list_head);
+ 
+ /* IRQ <-> VIRQ mapping. */
+@@ -104,7 +122,7 @@ static void clear_evtchn_to_irq_row(unsi
+ 	unsigned col;
+ 
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		evtchn_to_irq[row][col] = -1;
++		WRITE_ONCE(evtchn_to_irq[row][col], -1);
+ }
+ 
+ static void clear_evtchn_to_irq_all(void)
+@@ -141,7 +159,7 @@ static int set_evtchn_to_irq(unsigned ev
+ 		clear_evtchn_to_irq_row(row);
+ 	}
+ 
+-	evtchn_to_irq[row][col] = irq;
++	WRITE_ONCE(evtchn_to_irq[row][col], irq);
+ 	return 0;
+ }
+ 
+@@ -151,7 +169,7 @@ int get_evtchn_to_irq(unsigned evtchn)
+ 		return -1;
+ 	if (evtchn_to_irq[EVTCHN_ROW(evtchn)] == NULL)
+ 		return -1;
+-	return evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)];
++	return READ_ONCE(evtchn_to_irq[EVTCHN_ROW(evtchn)][EVTCHN_COL(evtchn)]);
+ }
+ 
+ /* Get info for IRQ */
+@@ -260,10 +278,14 @@ static void xen_irq_info_cleanup(struct
+  */
+ unsigned int evtchn_from_irq(unsigned irq)
+ {
+-	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
++	const struct irq_info *info = NULL;
++
++	if (likely(irq < nr_irqs))
++		info = info_for_irq(irq);
++	if (!info)
+ 		return 0;
+ 
+-	return info_for_irq(irq)->evtchn;
++	return info->evtchn;
+ }
+ 
+ unsigned irq_from_evtchn(unsigned int evtchn)
+@@ -447,16 +469,21 @@ static int __must_check xen_allocate_irq
+ static void xen_free_irq(unsigned irq)
+ {
+ 	struct irq_info *info = info_for_irq(irq);
++	unsigned long flags;
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+ 
++	write_lock_irqsave(&evtchn_rwlock, flags);
++
+ 	list_del(&info->list);
+ 
+ 	set_info_for_irq(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
++	write_unlock_irqrestore(&evtchn_rwlock, flags);
++
+ 	kfree(info);
+ 
+ 	/* Legacy IRQ descriptors are managed by the arch. */
+@@ -1241,6 +1268,8 @@ static void __xen_evtchn_do_upcall(void)
+ 	int cpu = get_cpu();
+ 	unsigned count;
+ 
++	read_lock(&evtchn_rwlock);
++
+ 	do {
+ 		vcpu_info->evtchn_upcall_pending = 0;
+ 
+@@ -1256,6 +1285,7 @@ static void __xen_evtchn_do_upcall(void)
+ 	} while (count != 1 || vcpu_info->evtchn_upcall_pending);
+ 
+ out:
++	read_unlock(&evtchn_rwlock);
+ 
+ 	put_cpu();
+ }
 
 
