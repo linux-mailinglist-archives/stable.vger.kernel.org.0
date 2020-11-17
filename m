@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B682B5FE3
+	by mail.lfdr.de (Postfix) with ESMTP id 31D7B2B5FE2
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728925AbgKQM7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:59:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54070 "EHLO mail.kernel.org"
+        id S1728063AbgKQM7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:59:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgKQM5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:18 -0500
+        id S1727685AbgKQM5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 403882464E;
-        Tue, 17 Nov 2020 12:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EBD12467A;
+        Tue, 17 Nov 2020 12:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617838;
-        bh=bA3X+duKvGEWB8VUml7ylvhLAUsM3ZE0/oXloRMssRQ=;
+        s=default; t=1605617839;
+        bh=aYS2f1e6fLmruGW0G06TxwfCvJ1cA7p5SDkLwRweTKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFafAI6OIW9AL+5EaWGTho3ZIG23P8lPX9ymGzQLUatfAlFONUyf9QfAJE2XxvdxT
-         7g1fPSRpJ/rGMBLSv5JIDcVgOPbXwFBBLD98Rmf7m/Ih6wWjezrfVCotUVz4MNmMoE
-         /ePCsY08a+WGsfh3oF2/upqA3qWQ84ookjYcXX38=
+        b=1X86R/a6jKYR/jso+a5MS+Bl/K3VPdgy60amO1ej37emUmYQIRAPNAzOjfVNL5UwB
+         rkrtdrEhUZxc2if7hOaE4iJm3eUtds1CgqZdkCDcZtYLOC98CRIfey+OdV7F3vVzqD
+         sM3gYp5PJc0o06vsIXL5mzSH2IpaH0lA+pdSQPMs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.9 16/21] gfs2: fix possible reference leak in gfs2_check_blk_type
-Date:   Tue, 17 Nov 2020 07:56:47 -0500
-Message-Id: <20201117125652.599614-16-sashal@kernel.org>
+Cc:     Paul Barker <pbarker@konsulko.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 17/21] hwmon: (pwm-fan) Fix RPM calculation
+Date:   Tue, 17 Nov 2020 07:56:48 -0500
+Message-Id: <20201117125652.599614-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201117125652.599614-1-sashal@kernel.org>
 References: <20201117125652.599614-1-sashal@kernel.org>
@@ -42,43 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Paul Barker <pbarker@konsulko.com>
 
-[ Upstream commit bc923818b190c8b63c91a47702969c8053574f5b ]
+[ Upstream commit fd8feec665fef840277515a5c2b9b7c3e3970fad ]
 
-In the fail path of gfs2_check_blk_type, forgetting to call
-gfs2_glock_dq_uninit will result in rgd_gh reference leak.
+To convert the number of pulses counted into an RPM estimation, we need
+to divide by the width of our measurement interval instead of
+multiplying by it. If the width of the measurement interval is zero we
+don't update the RPM value to avoid dividing by zero.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+We also don't need to do 64-bit division, with 32-bits we can handle a
+fan running at over 4 million RPM.
+
+Signed-off-by: Paul Barker <pbarker@konsulko.com>
+Link: https://lore.kernel.org/r/20201111164643.7087-1-pbarker@konsulko.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hwmon/pwm-fan.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 1bba5a9d45fa3..fc073cb729854 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -2530,13 +2530,13 @@ int gfs2_check_blk_type(struct gfs2_sbd *sdp, u64 no_addr, unsigned int type)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 17bb64299bfd8..3642086498d98 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -54,16 +54,18 @@ static irqreturn_t pulse_handler(int irq, void *dev_id)
+ static void sample_timer(struct timer_list *t)
+ {
+ 	struct pwm_fan_ctx *ctx = from_timer(ctx, t, rpm_timer);
++	unsigned int delta = ktime_ms_delta(ktime_get(), ctx->sample_start);
+ 	int pulses;
+-	u64 tmp;
  
- 	rbm.rgd = rgd;
- 	error = gfs2_rbm_from_block(&rbm, no_addr);
--	if (WARN_ON_ONCE(error))
--		goto fail;
--
--	if (gfs2_testbit(&rbm, false) != type)
--		error = -ESTALE;
-+	if (!WARN_ON_ONCE(error)) {
-+		if (gfs2_testbit(&rbm, false) != type)
-+			error = -ESTALE;
+-	pulses = atomic_read(&ctx->pulses);
+-	atomic_sub(pulses, &ctx->pulses);
+-	tmp = (u64)pulses * ktime_ms_delta(ktime_get(), ctx->sample_start) * 60;
+-	do_div(tmp, ctx->pulses_per_revolution * 1000);
+-	ctx->rpm = tmp;
++	if (delta) {
++		pulses = atomic_read(&ctx->pulses);
++		atomic_sub(pulses, &ctx->pulses);
++		ctx->rpm = (unsigned int)(pulses * 1000 * 60) /
++			(ctx->pulses_per_revolution * delta);
++
++		ctx->sample_start = ktime_get();
 +	}
  
- 	gfs2_glock_dq_uninit(&rgd_gh);
-+
- fail:
- 	return error;
+-	ctx->sample_start = ktime_get();
+ 	mod_timer(&ctx->rpm_timer, jiffies + HZ);
  }
+ 
 -- 
 2.27.0
 
