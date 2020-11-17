@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 393252B660E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2512B665E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730348AbgKQOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:00:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45536 "EHLO mail.kernel.org"
+        id S1729166AbgKQOCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:02:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730080AbgKQNOj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:14:39 -0500
+        id S1729937AbgKQNNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FBBD2151B;
-        Tue, 17 Nov 2020 13:14:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97DAF241A5;
+        Tue, 17 Nov 2020 13:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618878;
-        bh=53sPOCqyjTZ6q84/GUmPpLFon1FCsXnOcN22XZ9LvNw=;
+        s=default; t=1605618795;
+        bh=3Ctmw80OXu6Bsy+X7/2vucJp1FoYS/pIixt1QcdspZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tx2+RjeGdtvnaAnW1gyT+R0NIkGKCa7OSRQ9X8s4sIxou4xoYIIWGAbd1C4GS2OGx
-         N8PsAQaLPm33h+76SHJzrEP7jLTxlzNseEsfQ8Z049qzVWyKCKHiVkk1aAdo0sMaQp
-         Zz6mCKEQGDy6SGrQVwuYa6HE+gTBAnhyNxFUADB0=
+        b=muv4/mCHN4x2V3zOh8498PMzBrSJgMlMlFM8LrFcVKpEb9NEZFWP8fOeA1vsn8Chu
+         qTOuUYJjDe7AKnb70qkKgdi8O4G/sw0Uiuz8N9LSpPski5VhicMGJkbKT/QSPXdm7T
+         vyL5m3T33cet+rUDOmYUm2Kec1QZ6OKhjHO5iuLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/85] hv_balloon: disable warning when floor reached
-Date:   Tue, 17 Nov 2020 14:04:38 +0100
-Message-Id: <20201117122111.483455983@linuxfoundation.org>
+        stable@vger.kernel.org,
+        zhuoliang zhang <zhuoliang.zhang@mediatek.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/85] net: xfrm: fix a race condition during allocing spi
+Date:   Tue, 17 Nov 2020 14:04:39 +0100
+Message-Id: <20201117122111.533392945@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
 References: <20201117122111.018425544@linuxfoundation.org>
@@ -43,38 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olaf Hering <olaf@aepfle.de>
+From: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
 
-[ Upstream commit 2c3bd2a5c86fe744e8377733c5e511a5ca1e14f5 ]
+[ Upstream commit a779d91314ca7208b7feb3ad817b62904397c56d ]
 
-It is not an error if the host requests to balloon down, but the VM
-refuses to do so. Without this change a warning is logged in dmesg
-every five minutes.
+we found that the following race condition exists in
+xfrm_alloc_userspi flow:
 
-Fixes:  b3bb97b8a49f3 ("Drivers: hv: balloon: Add logging for dynamic memory operations")
+user thread                                    state_hash_work thread
+----                                           ----
+xfrm_alloc_userspi()
+ __find_acq_core()
+   /*alloc new xfrm_state:x*/
+   xfrm_state_alloc()
+   /*schedule state_hash_work thread*/
+   xfrm_hash_grow_check()   	               xfrm_hash_resize()
+ xfrm_alloc_spi                                  /*hold lock*/
+      x->id.spi = htonl(spi)                     spin_lock_bh(&net->xfrm.xfrm_state_lock)
+      /*waiting lock release*/                     xfrm_hash_transfer()
+      spin_lock_bh(&net->xfrm.xfrm_state_lock)      /*add x into hlist:net->xfrm.state_byspi*/
+	                                                hlist_add_head_rcu(&x->byspi)
+                                                 spin_unlock_bh(&net->xfrm.xfrm_state_lock)
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20201008071216.16554-1-olaf@aepfle.de
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+    /*add x into hlist:net->xfrm.state_byspi 2 times*/
+    hlist_add_head_rcu(&x->byspi)
+
+1. a new state x is alloced in xfrm_state_alloc() and added into the bydst hlist
+in  __find_acq_core() on the LHS;
+2. on the RHS, state_hash_work thread travels the old bydst and tranfers every xfrm_state
+(include x) into the new bydst hlist and new byspi hlist;
+3. user thread on the LHS gets the lock and adds x into the new byspi hlist again.
+
+So the same xfrm_state (x) is added into the same list_hash
+(net->xfrm.state_byspi) 2 times that makes the list_hash become
+an inifite loop.
+
+To fix the race, x->id.spi = htonl(spi) in the xfrm_alloc_spi() is moved
+to the back of spin_lock_bh, sothat state_hash_work thread no longer add x
+which id.spi is zero into the hash_list.
+
+Fixes: f034b5d4efdf ("[XFRM]: Dynamic xfrm_state hash table sizing.")
+Signed-off-by: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hv_balloon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_state.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
-index 2d93c8f454bcc..423754cc6c303 100644
---- a/drivers/hv/hv_balloon.c
-+++ b/drivers/hv/hv_balloon.c
-@@ -1230,7 +1230,7 @@ static void balloon_up(struct work_struct *dummy)
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 05c275a712f11..5164dfe0aa097 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1783,6 +1783,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 	int err = -ENOENT;
+ 	__be32 minspi = htonl(low);
+ 	__be32 maxspi = htonl(high);
++	__be32 newspi = 0;
+ 	u32 mark = x->mark.v & x->mark.m;
  
- 	/* Refuse to balloon below the floor. */
- 	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
--		pr_warn("Balloon request will be partially fulfilled. %s\n",
-+		pr_info("Balloon request will be partially fulfilled. %s\n",
- 			avail_pages < num_pages ? "Not enough memory." :
- 			"Balloon floor reached.");
- 
+ 	spin_lock_bh(&x->lock);
+@@ -1801,21 +1802,22 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 			xfrm_state_put(x0);
+ 			goto unlock;
+ 		}
+-		x->id.spi = minspi;
++		newspi = minspi;
+ 	} else {
+ 		u32 spi = 0;
+ 		for (h = 0; h < high-low+1; h++) {
+ 			spi = low + prandom_u32()%(high-low+1);
+ 			x0 = xfrm_state_lookup(net, mark, &x->id.daddr, htonl(spi), x->id.proto, x->props.family);
+ 			if (x0 == NULL) {
+-				x->id.spi = htonl(spi);
++				newspi = htonl(spi);
+ 				break;
+ 			}
+ 			xfrm_state_put(x0);
+ 		}
+ 	}
+-	if (x->id.spi) {
++	if (newspi) {
+ 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
++		x->id.spi = newspi;
+ 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
+ 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
+ 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 -- 
 2.27.0
 
