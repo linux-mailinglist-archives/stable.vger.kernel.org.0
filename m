@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190702B6603
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66AF62B6694
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729221AbgKQOAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:00:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46768 "EHLO mail.kernel.org"
+        id S2387487AbgKQOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:05:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730168AbgKQNPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:15:19 -0500
+        id S1728619AbgKQNJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7FE5246DD;
-        Tue, 17 Nov 2020 13:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F8924698;
+        Tue, 17 Nov 2020 13:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618919;
-        bh=uqGE8wpkaITO0ex9MMrcYTpJWm9L9GH831zZi00LWIQ=;
+        s=default; t=1605618554;
+        bh=G0CUy7218bVZ/qERDH8RjZBfATQhVOAGQzd3v7sKvxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=etPmTn/HOl2ffu+mk6WoNm/doyDCdAgDohgFnU6NzFRxPEBZKTxWiqD8uk4VUNGJe
-         AB34JHTq2enUjn0+iWP6GiYayWHyruphy+aTkWiREDR+n+COBWSJ7SBlJ2/XBTO9pW
-         kCC+5Jzp6TUlzfBYGGRbfnZmDzZvYjNTVtOEiEmI=
+        b=u8/PS8p/YKg5/J89whtKC9lTBEZigkaJYKEsoW4NU3Lbgnm8j5TqkYS2TBbhXCeTK
+         WrKEEm+AQYgMk5LybtlHcGF0teAOaXc9rdREvbmb08Zrgpwvl+yGhOXhd/Tb5ngRls
+         YuM2Z9ABtIkUmQfD8Rdh6VIL55EtyX8P8xcB5iE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chen Zhou <chenzhou10@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.14 52/85] selinux: Fix error return code in sel_ib_pkey_sid_slow()
-Date:   Tue, 17 Nov 2020 14:05:21 +0100
-Message-Id: <20201117122113.589598006@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wade Mealing <wmealing@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 60/64] perf/core: Fix race in the perf_mmap_close() function
+Date:   Tue, 17 Nov 2020 14:05:23 +0100
+Message-Id: <20201117122109.140341844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit c350f8bea271782e2733419bd2ab9bf4ec2051ef upstream.
+commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream.
 
-Fix to return a negative error code from the error handling case
-instead of 0 in function sel_ib_pkey_sid_slow(), as done elsewhere
-in this function.
+There's a possible race in perf_mmap_close() when checking ring buffer's
+mmap_count refcount value. The problem is that the mmap_count check is
+not atomic because we call atomic_dec() and atomic_read() separately.
 
-Cc: stable@vger.kernel.org
-Fixes: 409dcf31538a ("selinux: Add a cache for quicker retreival of PKey SIDs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+  perf_mmap_close:
+  ...
+   atomic_dec(&rb->mmap_count);
+   ...
+   if (atomic_read(&rb->mmap_count))
+      goto out_put;
+
+   <ring buffer detach>
+   free_uid
+
+out_put:
+  ring_buffer_put(rb); /* could be last */
+
+The race can happen when we have two (or more) events sharing same ring
+buffer and they go through atomic_dec() and then they both see 0 as refcount
+value later in atomic_read(). Then both will go on and execute code which
+is meant to be run just once.
+
+The code that detaches ring buffer is probably fine to be executed more
+than once, but the problem is in calling free_uid(), which will later on
+demonstrate in related crashes and refcount warnings, like:
+
+  refcount_t: addition on 0; use-after-free.
+  ...
+  RIP: 0010:refcount_warn_saturate+0x6d/0xf
+  ...
+  Call Trace:
+  prepare_creds+0x190/0x1e0
+  copy_creds+0x35/0x172
+  copy_process+0x471/0x1a80
+  _do_fork+0x83/0x3a0
+  __do_sys_wait4+0x83/0x90
+  __do_sys_clone+0x85/0xa0
+  do_syscall_64+0x5b/0x1e0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Using atomic decrease and check instead of separated calls.
+
+Tested-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Wade Mealing <wmealing@redhat.com>
+Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
+Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
+[sudip: backport to v4.9.y by using ring_buffer]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- security/selinux/ibpkey.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/events/core.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/security/selinux/ibpkey.c
-+++ b/security/selinux/ibpkey.c
-@@ -160,8 +160,10 @@ static int sel_ib_pkey_sid_slow(u64 subn
- 	 * is valid, it just won't be added to the cache.
- 	 */
- 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
--	if (!new)
-+	if (!new) {
-+		ret = -ENOMEM;
- 		goto out;
-+	}
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -4664,11 +4664,11 @@ static void perf_mmap_open(struct vm_are
+ static void perf_mmap_close(struct vm_area_struct *vma)
+ {
+ 	struct perf_event *event = vma->vm_file->private_data;
+-
+ 	struct ring_buffer *rb = ring_buffer_get(event);
+ 	struct user_struct *mmap_user = rb->mmap_user;
+ 	int mmap_locked = rb->mmap_locked;
+ 	unsigned long size = perf_data_size(rb);
++	bool detach_rest = false;
  
- 	new->psec.subnet_prefix = subnet_prefix;
- 	new->psec.pkey = pkey_num;
+ 	if (event->pmu->event_unmapped)
+ 		event->pmu->event_unmapped(event);
+@@ -4687,7 +4687,8 @@ static void perf_mmap_close(struct vm_ar
+ 		mutex_unlock(&event->mmap_mutex);
+ 	}
+ 
+-	atomic_dec(&rb->mmap_count);
++	if (atomic_dec_and_test(&rb->mmap_count))
++		detach_rest = true;
+ 
+ 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
+ 		goto out_put;
+@@ -4696,7 +4697,7 @@ static void perf_mmap_close(struct vm_ar
+ 	mutex_unlock(&event->mmap_mutex);
+ 
+ 	/* If there's still other mmap()s of this buffer, we're done. */
+-	if (atomic_read(&rb->mmap_count))
++	if (!detach_rest)
+ 		goto out_put;
+ 
+ 	/*
 
 
