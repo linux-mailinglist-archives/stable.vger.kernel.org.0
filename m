@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2612B62DC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 358BD2B62DE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732307AbgKQNcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:32:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42244 "EHLO mail.kernel.org"
+        id S1731886AbgKQNce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:32:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732300AbgKQNcb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:31 -0500
+        id S1732309AbgKQNcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:32:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 019F2207BC;
-        Tue, 17 Nov 2020 13:32:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF18E2078E;
+        Tue, 17 Nov 2020 13:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619950;
-        bh=AufjsZnaraoDT0A1wRYXrs5ZDK489E0BRZL79+EN+2Y=;
+        s=default; t=1605619953;
+        bh=8rYnH8nIj5RsHFfoO7A7+jZnzmRVEIBRQGnSz3oEm7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TasY/79g54GdTBDjjZtKEXnuGglRwX1FcpJYSYHzupMp1vCP/XoT/rBDQCz9GMVVz
-         Ct3VRPFqk/MFclP/bNqE3J1WpCpGaiJBWd1WcXf9E1MZtG2ZgvRyx9r6E5rotf8XQo
-         QFtZdUWUoylfe2vMOYsYwbAi7T4SzpITRNxzbZNM=
+        b=dfJikF6ihqlGLkOZ39mibPpgWPd34Yz2EcC6kzGfUVbUcms4KPla4oZDQEjVpXhsZ
+         bbWjtaeYJS3TxTf3dZ+UEp9JprjOQFYEwl5W3c/WKcR97LXODfwDM+XDujo2zFkvpe
+         qRekWzqjU1WhZ4+WjtlJAXNlJAzPgrwDEzTM3U2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greentime Hu <greentime.hu@sifive.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Anup Patel <anup@brainfault.org>,
-        Atish Patra <atish.patra@wdc.com>,
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 028/255] irqchip/sifive-plic: Fix chip_data access within a hierarchy
-Date:   Tue, 17 Nov 2020 14:02:48 +0100
-Message-Id: <20201117122140.313789869@linuxfoundation.org>
+Subject: [PATCH 5.9 029/255] powerpc/eeh_cache: Fix a possible debugfs deadlock
+Date:   Tue, 17 Nov 2020 14:02:49 +0100
+Message-Id: <20201117122140.362795722@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,68 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greentime Hu <greentime.hu@sifive.com>
+From: Qian Cai <cai@redhat.com>
 
-[ Upstream commit f9ac7bbd6e4540dcc6df621b9c9b6eb2e26ded1d ]
+[ Upstream commit fd552e0542b4532483289cce48fdbd27b692984b ]
 
-The plic driver crashes in plic_irq_unmask() when the interrupt is within a
-hierarchy, as it picks the top-level chip_data instead of its local one.
+Lockdep complains that a possible deadlock below in
+eeh_addr_cache_show() because it is acquiring a lock with IRQ enabled,
+but eeh_addr_cache_insert_dev() needs to acquire the same lock with IRQ
+disabled. Let's just make eeh_addr_cache_show() acquire the lock with
+IRQ disabled as well.
 
-Using irq_data_get_irq_chip_data() instead of irq_get_chip_data() solves
-the issue for good.
+        CPU0                    CPU1
+        ----                    ----
+   lock(&pci_io_addr_cache_root.piar_lock);
+                                local_irq_disable();
+                                lock(&tp->lock);
+                                lock(&pci_io_addr_cache_root.piar_lock);
+   <Interrupt>
+     lock(&tp->lock);
 
-Fixes: f1ad1133b18f ("irqchip/sifive-plic: Add support for multiple PLICs")
-Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
-[maz: rewrote commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Link: https://lore.kernel.org/r/20201029023738.127472-1-greentime.hu@sifive.com
+  *** DEADLOCK ***
+
+  lock_acquire+0x140/0x5f0
+  _raw_spin_lock_irqsave+0x64/0xb0
+  eeh_addr_cache_insert_dev+0x48/0x390
+  eeh_probe_device+0xb8/0x1a0
+  pnv_pcibios_bus_add_device+0x3c/0x80
+  pcibios_bus_add_device+0x118/0x290
+  pci_bus_add_device+0x28/0xe0
+  pci_bus_add_devices+0x54/0xb0
+  pcibios_init+0xc4/0x124
+  do_one_initcall+0xac/0x528
+  kernel_init_freeable+0x35c/0x3fc
+  kernel_init+0x24/0x148
+  ret_from_kernel_thread+0x5c/0x80
+
+  lock_acquire+0x140/0x5f0
+  _raw_spin_lock+0x4c/0x70
+  eeh_addr_cache_show+0x38/0x110
+  seq_read+0x1a0/0x660
+  vfs_read+0xc8/0x1f0
+  ksys_read+0x74/0x130
+  system_call_exception+0xf8/0x1d0
+  system_call_common+0xe8/0x218
+
+Fixes: 5ca85ae6318d ("powerpc/eeh_cache: Add a way to dump the EEH address cache")
+Signed-off-by: Qian Cai <cai@redhat.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201028152717.8967-1-cai@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/eeh_cache.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index 4048657ece0ac..6f432d2a5cebd 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -99,7 +99,7 @@ static inline void plic_irq_toggle(const struct cpumask *mask,
- 				   struct irq_data *d, int enable)
+diff --git a/arch/powerpc/kernel/eeh_cache.c b/arch/powerpc/kernel/eeh_cache.c
+index 6b50bf15d8c19..bf3270426d82d 100644
+--- a/arch/powerpc/kernel/eeh_cache.c
++++ b/arch/powerpc/kernel/eeh_cache.c
+@@ -264,8 +264,9 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
  {
- 	int cpu;
--	struct plic_priv *priv = irq_get_chip_data(d->irq);
-+	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
+ 	struct pci_io_addr_range *piar;
+ 	struct rb_node *n;
++	unsigned long flags;
  
- 	writel(enable, priv->regs + PRIORITY_BASE + d->hwirq * PRIORITY_PER_ID);
- 	for_each_cpu(cpu, mask) {
-@@ -115,7 +115,7 @@ static void plic_irq_unmask(struct irq_data *d)
- {
- 	struct cpumask amask;
- 	unsigned int cpu;
--	struct plic_priv *priv = irq_get_chip_data(d->irq);
-+	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
+-	spin_lock(&pci_io_addr_cache_root.piar_lock);
++	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
+ 	for (n = rb_first(&pci_io_addr_cache_root.rb_root); n; n = rb_next(n)) {
+ 		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
  
- 	cpumask_and(&amask, &priv->lmask, cpu_online_mask);
- 	cpu = cpumask_any_and(irq_data_get_affinity_mask(d),
-@@ -127,7 +127,7 @@ static void plic_irq_unmask(struct irq_data *d)
+@@ -273,7 +274,7 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
+ 		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem",
+ 		       &piar->addr_lo, &piar->addr_hi, pci_name(piar->pcidev));
+ 	}
+-	spin_unlock(&pci_io_addr_cache_root.piar_lock);
++	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
  
- static void plic_irq_mask(struct irq_data *d)
- {
--	struct plic_priv *priv = irq_get_chip_data(d->irq);
-+	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
- 
- 	plic_irq_toggle(&priv->lmask, d, 0);
+ 	return 0;
  }
-@@ -138,7 +138,7 @@ static int plic_set_affinity(struct irq_data *d,
- {
- 	unsigned int cpu;
- 	struct cpumask amask;
--	struct plic_priv *priv = irq_get_chip_data(d->irq);
-+	struct plic_priv *priv = irq_data_get_irq_chip_data(d);
- 
- 	cpumask_and(&amask, &priv->lmask, mask_val);
- 
 -- 
 2.27.0
 
