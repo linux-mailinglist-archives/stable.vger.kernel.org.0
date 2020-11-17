@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEBC2B6512
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 643CC2B6572
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731046AbgKQN3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37740 "EHLO mail.kernel.org"
+        id S1730503AbgKQNUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:20:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731482AbgKQN3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:05 -0500
+        id S1730497AbgKQNUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED81720781;
-        Tue, 17 Nov 2020 13:29:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E001241A6;
+        Tue, 17 Nov 2020 13:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619744;
-        bh=LeOLpe6JzKGsvUzYKvzdbXPz3fZyecQfFP587CelvAM=;
+        s=default; t=1605619213;
+        bh=Mvj3gVzoj/k0E8gkhN7B6i6pAWOOJtOxpd7fhYJfhuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsfvGsF/9pomp4LiR2KlnVLnlYgPgJYqTMHa1g+zLgwVRJ5s61EgVvgEV8xWVSM2Y
-         R9/y2DTDj0a8Qw5b+e9zQ5kdKX/rdOfVY69zc0cAfXprOKhAC/2GH3AActGeU59VAK
-         wxMor1GPY5LsHPp/Atps0pDXZmgUeLw57YcMd04Y=
+        b=NQo1rxRb/lKPbsehardJ/vfMZ+sJjI3diGu5dBaK0G6RVxK7/8ctNjZn3zgG59w+e
+         ctMQuxsu63CsEI4R2l/WSd0QmlXLuuWykvqtu9anVBefXvc+DbQ77JUoYicwxoWyjc
+         XOrIY7nAmzQviYSUidSK9gZVXF3kbVqMBS/ehnfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/151] of/address: Fix of_node memory leak in of_dma_is_coherent
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 065/101] btrfs: ref-verify: fix memory leak in btrfs_ref_tree_mod
 Date:   Tue, 17 Nov 2020 14:05:32 +0100
-Message-Id: <20201117122126.375356198@linuxfoundation.org>
+Message-Id: <20201117122116.274364522@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
+commit 468600c6ec28613b756193c5f780aac062f1acdf upstream.
 
-Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
-powerpc") added a check to of_dma_is_coherent which returns early
-if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
-being skipped causing a memory leak. Moved the of_node_get() below this
-check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
-enabled.
+There is one error handling path that does not free ref, which may cause
+a minor memory leak.
 
-Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/of/address.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/ref-verify.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/of/address.c b/drivers/of/address.c
-index 8f74c4626e0ef..5abb056b2b515 100644
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -1003,11 +1003,13 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
-  */
- bool of_dma_is_coherent(struct device_node *np)
- {
--	struct device_node *node = of_node_get(np);
-+	struct device_node *node;
- 
- 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
- 		return true;
- 
-+	node = of_node_get(np);
-+
- 	while (node) {
- 		if (of_property_read_bool(node, "dma-coherent")) {
- 			of_node_put(node);
--- 
-2.27.0
-
+--- a/fs/btrfs/ref-verify.c
++++ b/fs/btrfs/ref-verify.c
+@@ -854,6 +854,7 @@ int btrfs_ref_tree_mod(struct btrfs_root
+ "dropping a ref for a root that doesn't have a ref on the block");
+ 			dump_block_entry(fs_info, be);
+ 			dump_ref_action(fs_info, ra);
++			kfree(ref);
+ 			kfree(ra);
+ 			goto out_unlock;
+ 		}
 
 
