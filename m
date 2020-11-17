@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEC42B61F3
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 492DA2B6031
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730915AbgKQNX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:23:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58720 "EHLO mail.kernel.org"
+        id S1729039AbgKQNHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730959AbgKQNXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:23:53 -0500
+        id S1729034AbgKQNHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 276AA2464E;
-        Tue, 17 Nov 2020 13:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89B3E2465E;
+        Tue, 17 Nov 2020 13:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619432;
-        bh=fppZ3tL3kEZcMIYm3/kY3tHzuFwwlhI5gKSb5OuU9fA=;
+        s=default; t=1605618426;
+        bh=+ik/dmEYMup5DcNgxfoB/2tUIfGLVh9dNRL1JaFZg3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Su8uxiOkZYH554eYNVc6D6kISXaEyJKHkavY/rULpOg75IQBmen89Ef5qr34UZ46D
-         YKOfv/2kB0TYB5z23+52Y1yKp3LETTaW+GQxx3AaO37ticLsPkxDO62OfzdYeOudp3
-         DzRyHAIDSoBqrJz4jJUxR99asdr+dsRQmXAvy+5U=
+        b=17GCvp9aSqail48snOjdLyXXKuX14ddOOMXtFCWGtJPXSaGL5RLjS4Ro8aWzoWgHv
+         aLjAdglXvDXcJkLOkkmsm5YOIzqXH6yyFb3KJeSBSqPpJg1T+biMORuLrcR7ntA4vA
+         f5W4grdzUtF+2IAaNpG1SGWb+W8bWrAj79sq2+wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/151] can: peak_canfd: pucan_handle_can_rx(): fix echo management when loopback is on
-Date:   Tue, 17 Nov 2020 14:04:26 +0100
-Message-Id: <20201117122123.182892792@linuxfoundation.org>
+        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 04/64] time: Prevent undefined behaviour in timespec64_to_ns()
+Date:   Tue, 17 Nov 2020 14:04:27 +0100
+Message-Id: <20201117122106.344550754@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Zeng Tao <prime.zeng@hisilicon.com>
 
-[ Upstream commit 93ef65e5a6357cc7381f85fcec9283fe29970045 ]
+[ Upstream commit cb47755725da7b90fecbb2aa82ac3b24a7adb89b ]
 
-Echo management is driven by PUCAN_MSG_LOOPED_BACK bit, while loopback
-frames are identified with PUCAN_MSG_SELF_RECEIVE bit. Those bits are set
-for each outgoing frame written to the IP core so that a copy of each one
-will be placed into the rx path. Thus,
+UBSAN reports:
 
-- when PUCAN_MSG_LOOPED_BACK is set then the rx frame is an echo of a
-  previously sent frame,
-- when PUCAN_MSG_LOOPED_BACK+PUCAN_MSG_SELF_RECEIVE are set, then the rx
-  frame is an echo AND a loopback frame. Therefore, this frame must be
-  put into the socket rx path too.
+Undefined behaviour in ./include/linux/time64.h:127:27
+signed integer overflow:
+17179869187 * 1000000000 cannot be represented in type 'long long int'
+Call Trace:
+ timespec64_to_ns include/linux/time64.h:127 [inline]
+ set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
+ do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
+ __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
+ do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
 
-This patch fixes how CAN frames are handled when these are sent while the
-can interface is configured in "loopback on" mode.
+Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
+replaced the original conversion which handled time clamping correctly with
+timespec64_to_ns() which has no overflow protection.
 
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Link: https://lore.kernel.org/r/20201013153947.28012-1-s.grosjean@peak-system.com
-Fixes: 8ac8321e4a79 ("can: peak: add support for PEAK PCAN-PCIe FD CAN-FD boards")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fix it in timespec64_to_ns() as this is not necessarily limited to the
+usage in itimers.
+
+[ tglx: Added comment and adjusted the fixes tag ]
+
+Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
+Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/peak_canfd/peak_canfd.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ include/linux/time64.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/can/peak_canfd/peak_canfd.c b/drivers/net/can/peak_canfd/peak_canfd.c
-index 6b0c6a99fc8d6..91b156b2123a3 100644
---- a/drivers/net/can/peak_canfd/peak_canfd.c
-+++ b/drivers/net/can/peak_canfd/peak_canfd.c
-@@ -248,8 +248,7 @@ static int pucan_handle_can_rx(struct peak_canfd_priv *priv,
- 		cf_len = get_can_dlc(pucan_msg_get_dlc(msg));
- 
- 	/* if this frame is an echo, */
--	if ((rx_msg_flags & PUCAN_MSG_LOOPED_BACK) &&
--	    !(rx_msg_flags & PUCAN_MSG_SELF_RECEIVE)) {
-+	if (rx_msg_flags & PUCAN_MSG_LOOPED_BACK) {
- 		unsigned long flags;
- 
- 		spin_lock_irqsave(&priv->echo_lock, flags);
-@@ -263,7 +262,13 @@ static int pucan_handle_can_rx(struct peak_canfd_priv *priv,
- 		netif_wake_queue(priv->ndev);
- 
- 		spin_unlock_irqrestore(&priv->echo_lock, flags);
--		return 0;
+diff --git a/include/linux/time64.h b/include/linux/time64.h
+index 367d5af899e81..10239cffd70f8 100644
+--- a/include/linux/time64.h
++++ b/include/linux/time64.h
+@@ -197,6 +197,10 @@ static inline bool timespec64_valid_strict(const struct timespec64 *ts)
+  */
+ static inline s64 timespec64_to_ns(const struct timespec64 *ts)
+ {
++	/* Prevent multiplication overflow */
++	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
++		return KTIME_MAX;
 +
-+		/* if this frame is only an echo, stop here. Otherwise,
-+		 * continue to push this application self-received frame into
-+		 * its own rx queue.
-+		 */
-+		if (!(rx_msg_flags & PUCAN_MSG_SELF_RECEIVE))
-+			return 0;
- 	}
+ 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+ }
  
- 	/* otherwise, it should be pushed into rx fifo */
 -- 
 2.27.0
 
