@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3715B2B604C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6748E2B617B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbgKQNH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:07:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35974 "EHLO mail.kernel.org"
+        id S1730166AbgKQNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:19:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729184AbgKQNHx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:53 -0500
+        id S1729971AbgKQNTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:19:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 879DD246B7;
-        Tue, 17 Nov 2020 13:07:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4698B206D5;
+        Tue, 17 Nov 2020 13:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618472;
-        bh=eWNWn+AGuG8OTjv+VXmOQg1wbrEteXh2hLk5bsjqabE=;
+        s=default; t=1605619160;
+        bh=6dltTqMK6fLN6xRPRK6gOaEIOvMfLoPQIfmnkoPw5to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0+MQYHPW3DzekwR9iCaDN1X9VKQM4CrqFbQ5J9+e1CqUjL2+bBhu1z29ktB9rFWz
-         jWS+VpH9xOYpDS/UPrshvk174j1WCAW0VUDgmmHChKyEpm8QoUArU9MWDPzumxWwjR
-         OSCfootjX78e5VqSbRcsBJTrQ6/ZgbkrWfS5ewhQ=
+        b=Mr7pOZ9WjmhmDmk3ndQetnsL6icTT5ppFKbxINmocJjhUUw7AFpPv7d34nK2Uiiyu
+         bVXHslrcF9tyzFwurJjM2wSbKTZ4OoYx+xEPKInkiQ2zdXSpb4eTzeOCmrJiIHHCxt
+         WpKc21dSoc9KOY2UlZJbCsdaX0Q8LRN4JaQekwW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 45/64] net: Update window_clamp if SOCK_RCVBUF is set
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Ye Bin <yebin10@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/101] cfg80211: regulatory: Fix inconsistent format argument
 Date:   Tue, 17 Nov 2020 14:05:08 +0100
-Message-Id: <20201117122108.388301388@linuxfoundation.org>
+Message-Id: <20201117122115.091344998@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <wenan.mao@linux.alibaba.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 909172a149749242990a6e64cb55d55460d4e417 ]
+[ Upstream commit db18d20d1cb0fde16d518fb5ccd38679f174bc04 ]
 
-When net.ipv4.tcp_syncookies=1 and syn flood is happened,
-cookie_v4_check or cookie_v6_check tries to redo what
-tcp_v4_send_synack or tcp_v6_send_synack did,
-rsk_window_clamp will be changed if SOCK_RCVBUF is set,
-which will make rcv_wscale is different, the client
-still operates with initial window scale and can overshot
-granted window, the client use the initial scale but local
-server use new scale to advertise window value, and session
-work abnormally.
+Fix follow warning:
+[net/wireless/reg.c:3619]: (warning) %d in format string (no. 2)
+requires 'int' but the argument type is 'unsigned int'.
 
-Fixes: e88c64f0a425 ("tcp: allow effective reduction of TCP's rcv-buffer via setsockopt")
-Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1604967391-123737-1-git-send-email-wenan.mao@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20201009070215.63695-1-yebin10@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/syncookies.c |    9 +++++++--
- net/ipv6/syncookies.c |   10 ++++++++--
- 2 files changed, 15 insertions(+), 4 deletions(-)
+ net/wireless/reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -307,7 +307,7 @@ struct sock *cookie_v4_check(struct sock
- 	__u32 cookie = ntohl(th->ack_seq) - 1;
- 	struct sock *ret = sk;
- 	struct request_sock *req;
--	int mss;
-+	int full_space, mss;
- 	struct rtable *rt;
- 	__u8 rcv_wscale;
- 	struct flowi4 fl4;
-@@ -391,8 +391,13 @@ struct sock *cookie_v4_check(struct sock
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 935aebf150107..c7825b951f725 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -3374,7 +3374,7 @@ static void print_rd_rules(const struct ieee80211_regdomain *rd)
+ 		power_rule = &reg_rule->power_rule;
  
- 	/* Try to redo what tcp_v4_send_synack did. */
- 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(&rt->dst, RTAX_WINDOW);
-+	/* limit the window selection if the user enforce a smaller rx buffer */
-+	full_space = tcp_full_space(sk);
-+	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
-+	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
-+		req->rsk_window_clamp = full_space;
- 
--	tcp_select_initial_window(tcp_full_space(sk), req->mss,
-+	tcp_select_initial_window(full_space, req->mss,
- 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
- 				  ireq->wscale_ok, &rcv_wscale,
- 				  dst_metric(&rt->dst, RTAX_INITRWND));
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -144,7 +144,7 @@ struct sock *cookie_v6_check(struct sock
- 	__u32 cookie = ntohl(th->ack_seq) - 1;
- 	struct sock *ret = sk;
- 	struct request_sock *req;
--	int mss;
-+	int full_space, mss;
- 	struct dst_entry *dst;
- 	__u8 rcv_wscale;
- 
-@@ -237,7 +237,13 @@ struct sock *cookie_v6_check(struct sock
- 	}
- 
- 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(dst, RTAX_WINDOW);
--	tcp_select_initial_window(tcp_full_space(sk), req->mss,
-+	/* limit the window selection if the user enforce a smaller rx buffer */
-+	full_space = tcp_full_space(sk);
-+	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
-+	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
-+		req->rsk_window_clamp = full_space;
-+
-+	tcp_select_initial_window(full_space, req->mss,
- 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
- 				  ireq->wscale_ok, &rcv_wscale,
- 				  dst_metric(dst, RTAX_INITRWND));
+ 		if (reg_rule->flags & NL80211_RRF_AUTO_BW)
+-			snprintf(bw, sizeof(bw), "%d KHz, %d KHz AUTO",
++			snprintf(bw, sizeof(bw), "%d KHz, %u KHz AUTO",
+ 				 freq_range->max_bandwidth_khz,
+ 				 reg_get_max_bandwidth(rd, reg_rule));
+ 		else
+-- 
+2.27.0
+
 
 
