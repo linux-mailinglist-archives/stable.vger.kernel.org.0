@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00A92B626E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9790A2B60B0
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731870AbgKQN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34252 "EHLO mail.kernel.org"
+        id S1729734AbgKQNLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:11:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731464AbgKQN0m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:26:42 -0500
+        id S1729723AbgKQNLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:11:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DEFF20781;
-        Tue, 17 Nov 2020 13:26:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FA042225B;
+        Tue, 17 Nov 2020 13:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619601;
-        bh=lzlPIPiFVgtxRWJece5MTPypKexIcJYGWoklRc9edk8=;
+        s=default; t=1605618703;
+        bh=p3lVzb7la1DKRl0BJSy8kkK/GvCYp3YDDlpZih/wHAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNo9K2zEegNZFa/aY1XyZ4cUq1E4zIKLSmrPTJDeioB0j81rR9cfkjMjzCyGaDPeh
-         Woe293lGZD+qqpg3aSOy7Eum/u9xt1aYyiNi6b5CxInQODo8BEPo4FQ8wG/QqLlrmu
-         +w6mjKz9ykwTw5vKGT+sR6cFP4Mnyy00GjAVASaA=
+        b=jiGGl8IoUDkTVboVMXphFH6XlqwIalp0QjOJC3eiV8GShegCDbAOX1rZui3ReYAIo
+         cUM4ds6XNQpdRcSbilmmZ3uMw7mUxrkc1qgw55SxnBrWI/st0OFZND+lnexndJsEBY
+         mYk12Ta8qWlEarsKFPTHHvS1ykrN8Vy6bdh69WXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        David Verbeiren <david.verbeiren@tessares.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/151] bpf: Zero-fill re-used per-cpu map element
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
+        Florian Westphal <fw@strlen.de>,
+        Marc Plumb <lkml.mplumb@gmail.com>,
+        George Spelvin <lkml@sdf.org>
+Subject: [PATCH 4.9 57/78] random32: make prandom_u32() output unpredictable
 Date:   Tue, 17 Nov 2020 14:05:23 +0100
-Message-Id: <20201117122125.930740704@linuxfoundation.org>
+Message-Id: <20201117122111.896412966@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,357 +51,649 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Verbeiren <david.verbeiren@tessares.net>
+From: George Spelvin <lkml@sdf.org>
 
-[ Upstream commit d3bec0138bfbe58606fc1d6f57a4cdc1a20218db ]
+commit c51f8f88d705e06bd696d7510aff22b33eb8e638 upstream.
 
-Zero-fill element values for all other cpus than current, just as
-when not using prealloc. This is the only way the bpf program can
-ensure known initial values for all cpus ('onallcpus' cannot be
-set when coming from the bpf program).
+Non-cryptographic PRNGs may have great statistical properties, but
+are usually trivially predictable to someone who knows the algorithm,
+given a small sample of their output.  An LFSR like prandom_u32() is
+particularly simple, even if the sample is widely scattered bits.
 
-The scenario is: bpf program inserts some elements in a per-cpu
-map, then deletes some (or userspace does). When later adding
-new elements using bpf_map_update_elem(), the bpf program can
-only set the value of the new elements for the current cpu.
-When prealloc is enabled, previously deleted elements are re-used.
-Without the fix, values for other cpus remain whatever they were
-when the re-used entry was previously freed.
+It turns out the network stack uses prandom_u32() for some things like
+random port numbers which it would prefer are *not* trivially predictable.
+Predictability led to a practical DNS spoofing attack.  Oops.
 
-A selftest is added to validate correct operation in above
-scenario as well as in case of LRU per-cpu map element re-use.
+This patch replaces the LFSR with a homebrew cryptographic PRNG based
+on the SipHash round function, which is in turn seeded with 128 bits
+of strong random key.  (The authors of SipHash have *not* been consulted
+about this abuse of their algorithm.)  Speed is prioritized over security;
+attacks are rare, while performance is always wanted.
 
-Fixes: 6c9059817432 ("bpf: pre-allocate hash map elements")
-Signed-off-by: David Verbeiren <david.verbeiren@tessares.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20201104112332.15191-1-david.verbeiren@tessares.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Replacing all callers of prandom_u32() is the quick fix.
+Whether to reinstate a weaker PRNG for uses which can tolerate it
+is an open question.
+
+Commit f227e3ec3b5c ("random32: update the net random state on interrupt
+and activity") was an earlier attempt at a solution.  This patch replaces
+it.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: tytso@mit.edu
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Marc Plumb <lkml.mplumb@gmail.com>
+Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
+[ willy: partial reversal of f227e3ec3b5c; moved SIPROUND definitions
+  to prandom.h for later use; merged George's prandom_seed() proposal;
+  inlined siprand_u32(); replaced the net_rand_state[] array with 4
+  members to fix a build issue; cosmetic cleanups to make checkpatch
+  happy; fixed RANDOM32_SELFTEST build ]
+[wt: backported to 4.9 -- various context adjustments; timer API change]
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/hashtab.c                          |  30 ++-
- .../selftests/bpf/prog_tests/map_init.c       | 214 ++++++++++++++++++
- .../selftests/bpf/progs/test_map_init.c       |  33 +++
- 3 files changed, 275 insertions(+), 2 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/map_init.c
- create mode 100644 tools/testing/selftests/bpf/progs/test_map_init.c
+ drivers/char/random.c   |    1 
+ include/linux/prandom.h |   36 +++
+ kernel/time/timer.c     |    7 
+ lib/random32.c          |  462 +++++++++++++++++++++++++++++-------------------
+ 4 files changed, 317 insertions(+), 189 deletions(-)
 
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index 728ffec52cf36..03a67583f6fb9 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -709,6 +709,32 @@ static void pcpu_copy_value(struct bpf_htab *htab, void __percpu *pptr,
- 	}
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1211,7 +1211,6 @@ void add_interrupt_randomness(int irq, i
+ 
+ 	fast_mix(fast_pool);
+ 	add_interrupt_bench(cycles);
+-	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -16,12 +16,44 @@ void prandom_bytes(void *buf, size_t nby
+ void prandom_seed(u32 seed);
+ void prandom_reseed_late(void);
+ 
++#if BITS_PER_LONG == 64
++/*
++ * The core SipHash round function.  Each line can be executed in
++ * parallel given enough CPU resources.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
++	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
++)
++
++#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
++#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
++
++#elif BITS_PER_LONG == 32
++/*
++ * On 32-bit machines, we use HSipHash, a reduced-width version of SipHash.
++ * This is weaker, but 32-bit machines are not used for high-traffic
++ * applications, so there is less output for an attacker to analyze.
++ */
++#define PRND_SIPROUND(v0, v1, v2, v3) ( \
++	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
++	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
++	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
++	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
++)
++#define PRND_K0 0x6c796765
++#define PRND_K1 0x74656462
++
++#else
++#error Unsupported BITS_PER_LONG
++#endif
++
+ struct rnd_state {
+ 	__u32 s1, s2, s3, s4;
+ };
+ 
+-DECLARE_PER_CPU(struct rnd_state, net_rand_state);
+-
+ u32 prandom_u32_state(struct rnd_state *state);
+ void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1636,13 +1636,6 @@ void update_process_times(int user_tick)
+ #endif
+ 	scheduler_tick();
+ 	run_posix_cpu_timers(p);
+-
+-	/* The current CPU might make use of net randoms without receiving IRQs
+-	 * to renew them often enough. Let's update the net_rand_state from a
+-	 * non-constant value that's not affine to the number of calls to make
+-	 * sure it's updated when there's some activity (we don't care in idle).
+-	 */
+-	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
  }
  
-+static void pcpu_init_value(struct bpf_htab *htab, void __percpu *pptr,
-+			    void *value, bool onallcpus)
-+{
-+	/* When using prealloc and not setting the initial value on all cpus,
-+	 * zero-fill element values for other cpus (just as what happens when
-+	 * not using prealloc). Otherwise, bpf program has no way to ensure
-+	 * known initial values for cpus other than current one
-+	 * (onallcpus=false always when coming from bpf prog).
-+	 */
-+	if (htab_is_prealloc(htab) && !onallcpus) {
-+		u32 size = round_up(htab->map.value_size, 8);
-+		int current_cpu = raw_smp_processor_id();
-+		int cpu;
-+
-+		for_each_possible_cpu(cpu) {
-+			if (cpu == current_cpu)
-+				bpf_long_memcpy(per_cpu_ptr(pptr, cpu), value,
-+						size);
-+			else
-+				memset(per_cpu_ptr(pptr, cpu), 0, size);
-+		}
-+	} else {
-+		pcpu_copy_value(htab, pptr, value, onallcpus);
-+	}
-+}
-+
- static bool fd_htab_map_needs_adjust(const struct bpf_htab *htab)
+ /**
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -39,16 +39,6 @@
+ #include <linux/sched.h>
+ #include <asm/unaligned.h>
+ 
+-#ifdef CONFIG_RANDOM32_SELFTEST
+-static void __init prandom_state_selftest(void);
+-#else
+-static inline void prandom_state_selftest(void)
+-{
+-}
+-#endif
+-
+-DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
+-
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
+  *	@state: pointer to state structure holding seeded state.
+@@ -69,25 +59,6 @@ u32 prandom_u32_state(struct rnd_state *
+ EXPORT_SYMBOL(prandom_u32_state);
+ 
+ /**
+- *	prandom_u32 - pseudo random number generator
+- *
+- *	A 32 bit pseudo-random number is generated using a fast
+- *	algorithm suitable for simulation. This algorithm is NOT
+- *	considered safe for cryptographic use.
+- */
+-u32 prandom_u32(void)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-	u32 res;
+-
+-	res = prandom_u32_state(state);
+-	put_cpu_var(net_rand_state);
+-
+-	return res;
+-}
+-EXPORT_SYMBOL(prandom_u32);
+-
+-/**
+  *	prandom_bytes_state - get the requested number of pseudo-random bytes
+  *
+  *	@state: pointer to state structure holding seeded state.
+@@ -118,20 +89,6 @@ void prandom_bytes_state(struct rnd_stat
+ }
+ EXPORT_SYMBOL(prandom_bytes_state);
+ 
+-/**
+- *	prandom_bytes - get the requested number of pseudo-random bytes
+- *	@buf: where to copy the pseudo-random bytes to
+- *	@bytes: the requested number of bytes
+- */
+-void prandom_bytes(void *buf, size_t bytes)
+-{
+-	struct rnd_state *state = &get_cpu_var(net_rand_state);
+-
+-	prandom_bytes_state(state, buf, bytes);
+-	put_cpu_var(net_rand_state);
+-}
+-EXPORT_SYMBOL(prandom_bytes);
+-
+ static void prandom_warmup(struct rnd_state *state)
  {
- 	return htab->map.map_type == BPF_MAP_TYPE_HASH_OF_MAPS &&
-@@ -779,7 +805,7 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
- 			}
- 		}
+ 	/* Calling RNG ten times to satisfy recurrence condition */
+@@ -147,96 +104,6 @@ static void prandom_warmup(struct rnd_st
+ 	prandom_u32_state(state);
+ }
  
--		pcpu_copy_value(htab, pptr, value, onallcpus);
-+		pcpu_init_value(htab, pptr, value, onallcpus);
+-static u32 __extract_hwseed(void)
+-{
+-	unsigned int val = 0;
+-
+-	(void)(arch_get_random_seed_int(&val) ||
+-	       arch_get_random_int(&val));
+-
+-	return val;
+-}
+-
+-static void prandom_seed_early(struct rnd_state *state, u32 seed,
+-			       bool mix_with_hwseed)
+-{
+-#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
+-#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
+-	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
+-	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
+-	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
+-	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
+-}
+-
+-/**
+- *	prandom_seed - add entropy to pseudo random number generator
+- *	@seed: seed value
+- *
+- *	Add some additional seeding to the prandom pool.
+- */
+-void prandom_seed(u32 entropy)
+-{
+-	int i;
+-	/*
+-	 * No locking on the CPUs, but then somewhat random results are, well,
+-	 * expected.
+-	 */
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-
+-		state->s1 = __seed(state->s1 ^ entropy, 2U);
+-		prandom_warmup(state);
+-	}
+-}
+-EXPORT_SYMBOL(prandom_seed);
+-
+-/*
+- *	Generate some initially weak seeding values to allow
+- *	to start the prandom_u32() engine.
+- */
+-static int __init prandom_init(void)
+-{
+-	int i;
+-
+-	prandom_state_selftest();
+-
+-	for_each_possible_cpu(i) {
+-		struct rnd_state *state = &per_cpu(net_rand_state, i);
+-		u32 weak_seed = (i + jiffies) ^ random_get_entropy();
+-
+-		prandom_seed_early(state, weak_seed, true);
+-		prandom_warmup(state);
+-	}
+-
+-	return 0;
+-}
+-core_initcall(prandom_init);
+-
+-static void __prandom_timer(unsigned long dontcare);
+-
+-static DEFINE_TIMER(seed_timer, __prandom_timer, 0, 0);
+-
+-static void __prandom_timer(unsigned long dontcare)
+-{
+-	u32 entropy;
+-	unsigned long expires;
+-
+-	get_random_bytes(&entropy, sizeof(entropy));
+-	prandom_seed(entropy);
+-
+-	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
+-	expires = 40 + prandom_u32_max(40);
+-	seed_timer.expires = jiffies + msecs_to_jiffies(expires * MSEC_PER_SEC);
+-
+-	add_timer(&seed_timer);
+-}
+-
+-static void __init __prandom_start_seed_timer(void)
+-{
+-	seed_timer.expires = jiffies + msecs_to_jiffies(40 * MSEC_PER_SEC);
+-	add_timer(&seed_timer);
+-}
+-
+ void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
+ {
+ 	int i;
+@@ -256,51 +123,6 @@ void prandom_seed_full_state(struct rnd_
+ }
+ EXPORT_SYMBOL(prandom_seed_full_state);
  
- 		if (!prealloc)
- 			htab_elem_set_ptr(l_new, key_size, pptr);
-@@ -1075,7 +1101,7 @@ static int __htab_lru_percpu_map_update_elem(struct bpf_map *map, void *key,
- 		pcpu_copy_value(htab, htab_elem_get_ptr(l_old, key_size),
- 				value, onallcpus);
- 	} else {
--		pcpu_copy_value(htab, htab_elem_get_ptr(l_new, key_size),
-+		pcpu_init_value(htab, htab_elem_get_ptr(l_new, key_size),
- 				value, onallcpus);
- 		hlist_nulls_add_head_rcu(&l_new->hash_node, head);
- 		l_new = NULL;
-diff --git a/tools/testing/selftests/bpf/prog_tests/map_init.c b/tools/testing/selftests/bpf/prog_tests/map_init.c
-new file mode 100644
-index 0000000000000..14a31109dd0e0
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/map_init.c
-@@ -0,0 +1,214 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/* Copyright (c) 2020 Tessares SA <http://www.tessares.net> */
-+
-+#include <test_progs.h>
-+#include "test_map_init.skel.h"
-+
-+#define TEST_VALUE 0x1234
-+#define FILL_VALUE 0xdeadbeef
-+
-+static int nr_cpus;
-+static int duration;
-+
-+typedef unsigned long long map_key_t;
-+typedef unsigned long long map_value_t;
-+typedef struct {
-+	map_value_t v; /* padding */
-+} __bpf_percpu_val_align pcpu_map_value_t;
-+
-+
-+static int map_populate(int map_fd, int num)
+-/*
+- *	Generate better values after random number generator
+- *	is fully initialized.
+- */
+-static void __prandom_reseed(bool late)
+-{
+-	unsigned long flags;
+-	static bool latch = false;
+-	static DEFINE_SPINLOCK(lock);
+-
+-	/* Asking for random bytes might result in bytes getting
+-	 * moved into the nonblocking pool and thus marking it
+-	 * as initialized. In this case we would double back into
+-	 * this function and attempt to do a late reseed.
+-	 * Ignore the pointless attempt to reseed again if we're
+-	 * already waiting for bytes when the nonblocking pool
+-	 * got initialized.
+-	 */
+-
+-	/* only allow initial seeding (late == false) once */
+-	if (!spin_trylock_irqsave(&lock, flags))
+-		return;
+-
+-	if (latch && !late)
+-		goto out;
+-
+-	latch = true;
+-	prandom_seed_full_state(&net_rand_state);
+-out:
+-	spin_unlock_irqrestore(&lock, flags);
+-}
+-
+-void prandom_reseed_late(void)
+-{
+-	__prandom_reseed(true);
+-}
+-
+-static int __init prandom_reseed(void)
+-{
+-	__prandom_reseed(false);
+-	__prandom_start_seed_timer();
+-	return 0;
+-}
+-late_initcall(prandom_reseed);
+-
+ #ifdef CONFIG_RANDOM32_SELFTEST
+ static struct prandom_test1 {
+ 	u32 seed;
+@@ -420,7 +242,28 @@ static struct prandom_test2 {
+ 	{  407983964U, 921U,  728767059U },
+ };
+ 
+-static void __init prandom_state_selftest(void)
++static u32 __extract_hwseed(void)
 +{
-+	pcpu_map_value_t value[nr_cpus];
-+	int i, err;
-+	map_key_t key;
++	unsigned int val = 0;
 +
-+	for (i = 0; i < nr_cpus; i++)
-+		bpf_percpu(value, i) = FILL_VALUE;
++	(void)(arch_get_random_seed_int(&val) ||
++	       arch_get_random_int(&val));
 +
-+	for (key = 1; key <= num; key++) {
-+		err = bpf_map_update_elem(map_fd, &key, value, BPF_NOEXIST);
-+		if (!ASSERT_OK(err, "bpf_map_update_elem"))
-+			return -1;
++	return val;
++}
++
++static void prandom_seed_early(struct rnd_state *state, u32 seed,
++			       bool mix_with_hwseed)
++{
++#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
++#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
++	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
++	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
++	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
++	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
++}
++
++static int __init prandom_state_selftest(void)
+ {
+ 	int i, j, errors = 0, runs = 0;
+ 	bool error = false;
+@@ -460,5 +303,266 @@ static void __init prandom_state_selftes
+ 		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
+ 	else
+ 		pr_info("prandom: %d self tests passed\n", runs);
++	return 0;
++}
++core_initcall(prandom_state_selftest);
++#endif
++
++/*
++ * The prandom_u32() implementation is now completely separate from the
++ * prandom_state() functions, which are retained (for now) for compatibility.
++ *
++ * Because of (ab)use in the networking code for choosing random TCP/UDP port
++ * numbers, which open DoS possibilities if guessable, we want something
++ * stronger than a standard PRNG.  But the performance requirements of
++ * the network code do not allow robust crypto for this application.
++ *
++ * So this is a homebrew Junior Spaceman implementation, based on the
++ * lowest-latency trustworthy crypto primitive available, SipHash.
++ * (The authors of SipHash have not been consulted about this abuse of
++ * their work.)
++ *
++ * Standard SipHash-2-4 uses 2n+4 rounds to hash n words of input to
++ * one word of output.  This abbreviated version uses 2 rounds per word
++ * of output.
++ */
++
++struct siprand_state {
++	unsigned long v0;
++	unsigned long v1;
++	unsigned long v2;
++	unsigned long v3;
++};
++
++static DEFINE_PER_CPU(struct siprand_state, net_rand_state) __latent_entropy;
++
++/*
++ * This is the core CPRNG function.  As "pseudorandom", this is not used
++ * for truly valuable things, just intended to be a PITA to guess.
++ * For maximum speed, we do just two SipHash rounds per word.  This is
++ * the same rate as 4 rounds per 64 bits that SipHash normally uses,
++ * so hopefully it's reasonably secure.
++ *
++ * There are two changes from the official SipHash finalization:
++ * - We omit some constants XORed with v2 in the SipHash spec as irrelevant;
++ *   they are there only to make the output rounds distinct from the input
++ *   rounds, and this application has no input rounds.
++ * - Rather than returning v0^v1^v2^v3, return v1+v3.
++ *   If you look at the SipHash round, the last operation on v3 is
++ *   "v3 ^= v0", so "v0 ^ v3" just undoes that, a waste of time.
++ *   Likewise "v1 ^= v2".  (The rotate of v2 makes a difference, but
++ *   it still cancels out half of the bits in v2 for no benefit.)
++ *   Second, since the last combining operation was xor, continue the
++ *   pattern of alternating xor/add for a tiny bit of extra non-linearity.
++ */
++static inline u32 siprand_u32(struct siprand_state *s)
++{
++	unsigned long v0 = s->v0, v1 = s->v1, v2 = s->v2, v3 = s->v3;
++
++	PRND_SIPROUND(v0, v1, v2, v3);
++	PRND_SIPROUND(v0, v1, v2, v3);
++	s->v0 = v0;  s->v1 = v1;  s->v2 = v2;  s->v3 = v3;
++	return v1 + v3;
++}
++
++
++/**
++ *	prandom_u32 - pseudo random number generator
++ *
++ *	A 32 bit pseudo-random number is generated using a fast
++ *	algorithm suitable for simulation. This algorithm is NOT
++ *	considered safe for cryptographic use.
++ */
++u32 prandom_u32(void)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u32 res = siprand_u32(state);
++
++	put_cpu_ptr(&net_rand_state);
++	return res;
++}
++EXPORT_SYMBOL(prandom_u32);
++
++/**
++ *	prandom_bytes - get the requested number of pseudo-random bytes
++ *	@buf: where to copy the pseudo-random bytes to
++ *	@bytes: the requested number of bytes
++ */
++void prandom_bytes(void *buf, size_t bytes)
++{
++	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
++	u8 *ptr = buf;
++
++	while (bytes >= sizeof(u32)) {
++		put_unaligned(siprand_u32(state), (u32 *)ptr);
++		ptr += sizeof(u32);
++		bytes -= sizeof(u32);
++	}
++
++	if (bytes > 0) {
++		u32 rem = siprand_u32(state);
++
++		do {
++			*ptr++ = (u8)rem;
++			rem >>= BITS_PER_BYTE;
++		} while (--bytes > 0);
++	}
++	put_cpu_ptr(&net_rand_state);
+ }
++EXPORT_SYMBOL(prandom_bytes);
++
++/**
++ *	prandom_seed - add entropy to pseudo random number generator
++ *	@entropy: entropy value
++ *
++ *	Add some additional seed material to the prandom pool.
++ *	The "entropy" is actually our IP address (the only caller is
++ *	the network code), not for unpredictability, but to ensure that
++ *	different machines are initialized differently.
++ */
++void prandom_seed(u32 entropy)
++{
++	int i;
++
++	add_device_randomness(&entropy, sizeof(entropy));
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state = per_cpu_ptr(&net_rand_state, i);
++		unsigned long v0 = state->v0, v1 = state->v1;
++		unsigned long v2 = state->v2, v3 = state->v3;
++
++		do {
++			v3 ^= entropy;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= entropy;
++		} while (unlikely(!v0 || !v1 || !v2 || !v3));
++
++		WRITE_ONCE(state->v0, v0);
++		WRITE_ONCE(state->v1, v1);
++		WRITE_ONCE(state->v2, v2);
++		WRITE_ONCE(state->v3, v3);
++	}
++}
++EXPORT_SYMBOL(prandom_seed);
++
++/*
++ *	Generate some initially weak seeding values to allow
++ *	the prandom_u32() engine to be started.
++ */
++static int __init prandom_init_early(void)
++{
++	int i;
++	unsigned long v0, v1, v2, v3;
++
++	if (!arch_get_random_long(&v0))
++		v0 = jiffies;
++	if (!arch_get_random_long(&v1))
++		v1 = random_get_entropy();
++	v2 = v0 ^ PRND_K0;
++	v3 = v1 ^ PRND_K1;
++
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++
++		v3 ^= i;
++		PRND_SIPROUND(v0, v1, v2, v3);
++		PRND_SIPROUND(v0, v1, v2, v3);
++		v0 ^= i;
++
++		state = per_cpu_ptr(&net_rand_state, i);
++		state->v0 = v0;  state->v1 = v1;
++		state->v2 = v2;  state->v3 = v3;
 +	}
 +
 +	return 0;
 +}
++core_initcall(prandom_init_early);
 +
-+static struct test_map_init *setup(enum bpf_map_type map_type, int map_sz,
-+			    int *map_fd, int populate)
++
++/* Stronger reseeding when available, and periodically thereafter. */
++static void prandom_reseed(unsigned long dontcare);
++
++static DEFINE_TIMER(seed_timer, prandom_reseed, 0, 0);
++
++static void prandom_reseed(unsigned long dontcare)
 +{
-+	struct test_map_init *skel;
-+	int err;
++	unsigned long expires;
++	int i;
 +
-+	skel = test_map_init__open();
-+	if (!ASSERT_OK_PTR(skel, "skel_open"))
-+		return NULL;
++	/*
++	 * Reinitialize each CPU's PRNG with 128 bits of key.
++	 * No locking on the CPUs, but then somewhat random results are,
++	 * well, expected.
++	 */
++	for_each_possible_cpu(i) {
++		struct siprand_state *state;
++		unsigned long v0 = get_random_long(), v2 = v0 ^ PRND_K0;
++		unsigned long v1 = get_random_long(), v3 = v1 ^ PRND_K1;
++#if BITS_PER_LONG == 32
++		int j;
 +
-+	err = bpf_map__set_type(skel->maps.hashmap1, map_type);
-+	if (!ASSERT_OK(err, "bpf_map__set_type"))
-+		goto error;
++		/*
++		 * On 32-bit machines, hash in two extra words to
++		 * approximate 128-bit key length.  Not that the hash
++		 * has that much security, but this prevents a trivial
++		 * 64-bit brute force.
++		 */
++		for (j = 0; j < 2; j++) {
++			unsigned long m = get_random_long();
 +
-+	err = bpf_map__set_max_entries(skel->maps.hashmap1, map_sz);
-+	if (!ASSERT_OK(err, "bpf_map__set_max_entries"))
-+		goto error;
-+
-+	err = test_map_init__load(skel);
-+	if (!ASSERT_OK(err, "skel_load"))
-+		goto error;
-+
-+	*map_fd = bpf_map__fd(skel->maps.hashmap1);
-+	if (CHECK(*map_fd < 0, "bpf_map__fd", "failed\n"))
-+		goto error;
-+
-+	err = map_populate(*map_fd, populate);
-+	if (!ASSERT_OK(err, "map_populate"))
-+		goto error_map;
-+
-+	return skel;
-+
-+error_map:
-+	close(*map_fd);
-+error:
-+	test_map_init__destroy(skel);
-+	return NULL;
-+}
-+
-+/* executes bpf program that updates map with key, value */
-+static int prog_run_insert_elem(struct test_map_init *skel, map_key_t key,
-+				map_value_t value)
-+{
-+	struct test_map_init__bss *bss;
-+
-+	bss = skel->bss;
-+
-+	bss->inKey = key;
-+	bss->inValue = value;
-+	bss->inPid = getpid();
-+
-+	if (!ASSERT_OK(test_map_init__attach(skel), "skel_attach"))
-+		return -1;
-+
-+	/* Let tracepoint trigger */
-+	syscall(__NR_getpgid);
-+
-+	test_map_init__detach(skel);
-+
-+	return 0;
-+}
-+
-+static int check_values_one_cpu(pcpu_map_value_t *value, map_value_t expected)
-+{
-+	int i, nzCnt = 0;
-+	map_value_t val;
-+
-+	for (i = 0; i < nr_cpus; i++) {
-+		val = bpf_percpu(value, i);
-+		if (val) {
-+			if (CHECK(val != expected, "map value",
-+				  "unexpected for cpu %d: 0x%llx\n", i, val))
-+				return -1;
-+			nzCnt++;
++			v3 ^= m;
++			PRND_SIPROUND(v0, v1, v2, v3);
++			PRND_SIPROUND(v0, v1, v2, v3);
++			v0 ^= m;
 +		}
+ #endif
++		/*
++		 * Probably impossible in practice, but there is a
++		 * theoretical risk that a race between this reseeding
++		 * and the target CPU writing its state back could
++		 * create the all-zero SipHash fixed point.
++		 *
++		 * To ensure that never happens, ensure the state
++		 * we write contains no zero words.
++		 */
++		state = per_cpu_ptr(&net_rand_state, i);
++		WRITE_ONCE(state->v0, v0 ? v0 : -1ul);
++		WRITE_ONCE(state->v1, v1 ? v1 : -1ul);
++		WRITE_ONCE(state->v2, v2 ? v2 : -1ul);
++		WRITE_ONCE(state->v3, v3 ? v3 : -1ul);
 +	}
 +
-+	if (CHECK(nzCnt != 1, "map value", "set for %d CPUs instead of 1!\n",
-+		  nzCnt))
-+		return -1;
-+
-+	return 0;
++	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
++	expires = round_jiffies(jiffies + 40 * HZ + prandom_u32_max(40 * HZ));
++	mod_timer(&seed_timer, expires);
 +}
 +
-+/* Add key=1 elem with values set for all CPUs
-+ * Delete elem key=1
-+ * Run bpf prog that inserts new key=1 elem with value=0x1234
-+ *   (bpf prog can only set value for current CPU)
-+ * Lookup Key=1 and check value is as expected for all CPUs:
-+ *   value set by bpf prog for one CPU, 0 for all others
++/*
++ * The random ready callback can be called from almost any interrupt.
++ * To avoid worrying about whether it's safe to delay that interrupt
++ * long enough to seed all CPUs, just schedule an immediate timer event.
 + */
-+static void test_pcpu_map_init(void)
++static void prandom_timer_start(struct random_ready_callback *unused)
 +{
-+	pcpu_map_value_t value[nr_cpus];
-+	struct test_map_init *skel;
-+	int map_fd, err;
-+	map_key_t key;
-+
-+	/* max 1 elem in map so insertion is forced to reuse freed entry */
-+	skel = setup(BPF_MAP_TYPE_PERCPU_HASH, 1, &map_fd, 1);
-+	if (!ASSERT_OK_PTR(skel, "prog_setup"))
-+		return;
-+
-+	/* delete element so the entry can be re-used*/
-+	key = 1;
-+	err = bpf_map_delete_elem(map_fd, &key);
-+	if (!ASSERT_OK(err, "bpf_map_delete_elem"))
-+		goto cleanup;
-+
-+	/* run bpf prog that inserts new elem, re-using the slot just freed */
-+	err = prog_run_insert_elem(skel, key, TEST_VALUE);
-+	if (!ASSERT_OK(err, "prog_run_insert_elem"))
-+		goto cleanup;
-+
-+	/* check that key=1 was re-created by bpf prog */
-+	err = bpf_map_lookup_elem(map_fd, &key, value);
-+	if (!ASSERT_OK(err, "bpf_map_lookup_elem"))
-+		goto cleanup;
-+
-+	/* and has expected values */
-+	check_values_one_cpu(value, TEST_VALUE);
-+
-+cleanup:
-+	test_map_init__destroy(skel);
++	mod_timer(&seed_timer, jiffies);
 +}
 +
-+/* Add key=1 and key=2 elems with values set for all CPUs
-+ * Run bpf prog that inserts new key=3 elem
-+ *   (only for current cpu; other cpus should have initial value = 0)
-+ * Lookup Key=1 and check value is as expected for all CPUs
++/*
++ * Start periodic full reseeding as soon as strong
++ * random numbers are available.
 + */
-+static void test_pcpu_lru_map_init(void)
++static int __init prandom_init_late(void)
 +{
-+	pcpu_map_value_t value[nr_cpus];
-+	struct test_map_init *skel;
-+	int map_fd, err;
-+	map_key_t key;
++	static struct random_ready_callback random_ready = {
++		.func = prandom_timer_start
++	};
++	int ret = add_random_ready_callback(&random_ready);
 +
-+	/* Set up LRU map with 2 elements, values filled for all CPUs.
-+	 * With these 2 elements, the LRU map is full
-+	 */
-+	skel = setup(BPF_MAP_TYPE_LRU_PERCPU_HASH, 2, &map_fd, 2);
-+	if (!ASSERT_OK_PTR(skel, "prog_setup"))
-+		return;
-+
-+	/* run bpf prog that inserts new key=3 element, re-using LRU slot */
-+	key = 3;
-+	err = prog_run_insert_elem(skel, key, TEST_VALUE);
-+	if (!ASSERT_OK(err, "prog_run_insert_elem"))
-+		goto cleanup;
-+
-+	/* check that key=3 replaced one of earlier elements */
-+	err = bpf_map_lookup_elem(map_fd, &key, value);
-+	if (!ASSERT_OK(err, "bpf_map_lookup_elem"))
-+		goto cleanup;
-+
-+	/* and has expected values */
-+	check_values_one_cpu(value, TEST_VALUE);
-+
-+cleanup:
-+	test_map_init__destroy(skel);
-+}
-+
-+void test_map_init(void)
-+{
-+	nr_cpus = bpf_num_possible_cpus();
-+	if (nr_cpus <= 1) {
-+		printf("%s:SKIP: >1 cpu needed for this test\n", __func__);
-+		test__skip();
-+		return;
++	if (ret == -EALREADY) {
++		prandom_timer_start(&random_ready);
++		ret = 0;
 +	}
-+
-+	if (test__start_subtest("pcpu_map_init"))
-+		test_pcpu_map_init();
-+	if (test__start_subtest("pcpu_lru_map_init"))
-+		test_pcpu_lru_map_init();
++	return ret;
 +}
-diff --git a/tools/testing/selftests/bpf/progs/test_map_init.c b/tools/testing/selftests/bpf/progs/test_map_init.c
-new file mode 100644
-index 0000000000000..c89d28ead6737
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/test_map_init.c
-@@ -0,0 +1,33 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2020 Tessares SA <http://www.tessares.net> */
-+
-+#include "vmlinux.h"
-+#include <bpf/bpf_helpers.h>
-+
-+__u64 inKey = 0;
-+__u64 inValue = 0;
-+__u32 inPid = 0;
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
-+	__uint(max_entries, 2);
-+	__type(key, __u64);
-+	__type(value, __u64);
-+} hashmap1 SEC(".maps");
-+
-+
-+SEC("tp/syscalls/sys_enter_getpgid")
-+int sysenter_getpgid(const void *ctx)
-+{
-+	/* Just do it for once, when called from our own test prog. This
-+	 * ensures the map value is only updated for a single CPU.
-+	 */
-+	int cur_pid = bpf_get_current_pid_tgid() >> 32;
-+
-+	if (cur_pid == inPid)
-+		bpf_map_update_elem(&hashmap1, &inKey, &inValue, BPF_NOEXIST);
-+
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
--- 
-2.27.0
-
++late_initcall(prandom_init_late);
 
 
