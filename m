@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1406E2B6122
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 127B52B60BD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbgKQNQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:16:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
+        id S1729818AbgKQNMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730271AbgKQNQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:05 -0500
+        id S1729351AbgKQNMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11797221EB;
-        Tue, 17 Nov 2020 13:16:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA6C241A5;
+        Tue, 17 Nov 2020 13:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618963;
-        bh=A/k6XTPAawjrrPQ6K5c9pEXpDrHPINnEPp/rjI/B8uo=;
+        s=default; t=1605618737;
+        bh=5pwO4RszZwEylTEY+LpX9We65N5IVLJRKdlPIdtvKC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ptUVmxgWtQ2x7ARuU0eZ072gT13Rsn7mNp1tCOoanT8Y6cGOQdr6b6WpQTQvMqWVx
-         1eYFG8cBfe3azVG7m5Ql0of4cuM3AiXSmxYx9jiKQ8sYv1mJfqCS4e8Tkl/Sc3URT6
-         7LFsmM9US8RXGdno18fkoos6RRrI4MLdCj6sE47I=
+        b=frBY5eyYs7rZKp8xHJF+7imQgUgHz0FJjrJVXaMuWUlRVnO2I+Faoh0p0L9oLFrkO
+         6Z3CkpHh/UWrlniqFnWFjJROhi2owxgo4zYbT0HGnNsJt8tUiHWbYSdSAMzcCtKcsD
+         k9zRU35sT2ggyfecxQR0DHwh1qde8XxkZlLGRnxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 37/85] nbd: fix a block_device refcount leak in nbd_release
+        stable@vger.kernel.org,
+        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 40/78] of/address: Fix of_node memory leak in of_dma_is_coherent
 Date:   Tue, 17 Nov 2020 14:05:06 +0100
-Message-Id: <20201117122112.842203051@linuxfoundation.org>
+Message-Id: <20201117122111.066720881@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-[ Upstream commit 2bd645b2d3f0bacadaa6037f067538e1cd4e42ef ]
+[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
 
-bdget_disk needs to be paired with bdput to not leak a reference
-on the block device inode.
+Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
+powerpc") added a check to of_dma_is_coherent which returns early
+if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
+being skipped causing a memory leak. Moved the of_node_get() below this
+check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
+enabled.
 
-Fixes: 08ba91ee6e2c ("nbd: Add the nbd NBD_DISCONNECT_ON_CLOSE config flag.")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/of/address.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 9a0fb2d52a76c..70ef826af7f8d 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1432,6 +1432,7 @@ static void nbd_release(struct gendisk *disk, fmode_t mode)
- 	if (test_bit(NBD_DISCONNECT_ON_CLOSE, &nbd->config->runtime_flags) &&
- 			bdev->bd_openers == 0)
- 		nbd_disconnect_and_put(nbd);
-+	bdput(bdev);
+diff --git a/drivers/of/address.c b/drivers/of/address.c
+index 37619bb2c97ad..d188eacbd3b80 100644
+--- a/drivers/of/address.c
++++ b/drivers/of/address.c
+@@ -901,11 +901,13 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
+  */
+ bool of_dma_is_coherent(struct device_node *np)
+ {
+-	struct device_node *node = of_node_get(np);
++	struct device_node *node;
  
- 	nbd_config_put(nbd);
- 	nbd_put(nbd);
+ 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
+ 		return true;
+ 
++	node = of_node_get(np);
++
+ 	while (node) {
+ 		if (of_property_read_bool(node, "dma-coherent")) {
+ 			of_node_put(node);
 -- 
 2.27.0
 
