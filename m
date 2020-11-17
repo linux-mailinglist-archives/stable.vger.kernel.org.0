@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A466C2B61BA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41DF72B61BB
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730295AbgKQNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730549AbgKQNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 17 Nov 2020 08:21:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55488 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730956AbgKQNVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:41 -0500
+        id S1730979AbgKQNVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CDE4221FE;
-        Tue, 17 Nov 2020 13:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0F0720781;
+        Tue, 17 Nov 2020 13:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619298;
-        bh=5yhmuQUy2LL0soSo5dbdbYmYnYZysmqF0WzkILdSokI=;
+        s=default; t=1605619301;
+        bh=f9CQlTPVnI5Uv0FczfARKCe/ctgrxXi1oJfV3keQNvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBG/23ff3t+JeOFDFRftZ5l8ClBGG6SRP7y69QvBBQI5tPHTBtZRL/9l5KPqWxfkc
-         kiIvanxQSp1zRz3y4hZircO78XHp+A+oegUZ54F19RGs1GU+X2q5cujq2kGWE47dKQ
-         2ReQNSiyWtUodIsRaAtQJ58285G7S2o6oApNHhXA=
+        b=WjGvvTKzi8SYFdgeDTeh82XkNc/jT3uCMWBXvISiOdAt5sW34fYAe/C80pkbdxipv
+         uBRN6NrYJCWohUWJ1EpG/2CFc0Qq0sC9Fa7SIkvJdp56Xg5wPPZhPS+w6j1bEMCSiX
+         GpWA9dSSvOOXIwXOr0Tpj2tPn8+21hULKtF6gADU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>, tytso@mit.edu,
-        Florian Westphal <fw@strlen.de>,
-        Marc Plumb <lkml.mplumb@gmail.com>,
-        George Spelvin <lkml@sdf.org>
-Subject: [PATCH 4.19 094/101] random32: make prandom_u32() output unpredictable
-Date:   Tue, 17 Nov 2020 14:06:01 +0100
-Message-Id: <20201117122117.715769467@linuxfoundation.org>
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.19 095/101] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
+Date:   Tue, 17 Nov 2020 14:06:02 +0100
+Message-Id: <20201117122117.764437853@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
 References: <20201117122113.128215851@linuxfoundation.org>
@@ -51,649 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Spelvin <lkml@sdf.org>
+From: Anand K Mistry <amistry@google.com>
 
-commit c51f8f88d705e06bd696d7510aff22b33eb8e638 upstream.
+commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
 
-Non-cryptographic PRNGs may have great statistical properties, but
-are usually trivially predictable to someone who knows the algorithm,
-given a small sample of their output.  An LFSR like prandom_u32() is
-particularly simple, even if the sample is widely scattered bits.
+On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
+STIBP is set to on and
 
-It turns out the network stack uses prandom_u32() for some things like
-random port numbers which it would prefer are *not* trivially predictable.
-Predictability led to a practical DNS spoofing attack.  Oops.
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-This patch replaces the LFSR with a homebrew cryptographic PRNG based
-on the SipHash round function, which is in turn seeded with 128 bits
-of strong random key.  (The authors of SipHash have *not* been consulted
-about this abuse of their algorithm.)  Speed is prioritized over security;
-attacks are rare, while performance is always wanted.
+At the same time, IBPB can be set to conditional.
 
-Replacing all callers of prandom_u32() is the quick fix.
-Whether to reinstate a weaker PRNG for uses which can tolerate it
-is an open question.
+However, this leads to the case where it's impossible to turn on IBPB
+for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
 
-Commit f227e3ec3b5c ("random32: update the net random state on interrupt
-and activity") was an earlier attempt at a solution.  This patch replaces
-it.
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: tytso@mit.edu
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Marc Plumb <lkml.mplumb@gmail.com>
-Fixes: f227e3ec3b5c ("random32: update the net random state on interrupt and activity")
-Signed-off-by: George Spelvin <lkml@sdf.org>
-Link: https://lore.kernel.org/netdev/20200808152628.GA27941@SDF.ORG/
-[ willy: partial reversal of f227e3ec3b5c; moved SIPROUND definitions
-  to prandom.h for later use; merged George's prandom_seed() proposal;
-  inlined siprand_u32(); replaced the net_rand_state[] array with 4
-  members to fix a build issue; cosmetic cleanups to make checkpatch
-  happy; fixed RANDOM32_SELFTEST build ]
-[wt: backported to 4.19 -- various context adjustments]
-Signed-off-by: Willy Tarreau <w@1wt.eu>
+condition leads to a return before the task flag is set. Similarly,
+ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
+conditional.
+
+More generally, the following cases are possible:
+
+1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
+2. STIBP = on && IBPB = conditional for AMD CPUs with
+   X86_FEATURE_AMD_STIBP_ALWAYS_ON
+
+The first case functions correctly today, but only because
+spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
+
+At a high level, this change does one thing. If either STIBP or IBPB
+is set to conditional, allow the prctl to change the task flag.
+Also, reflect that capability when querying the state. This isn't
+perfect since it doesn't take into account if only STIBP or IBPB is
+unconditionally on. But it allows the conditional feature to work as
+expected, without affecting the unconditional one.
+
+ [ bp: Massage commit message and comment; space out statements for
+   better readability. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/char/random.c   |    1 
- include/linux/prandom.h |   36 +++
- kernel/time/timer.c     |    7 
- lib/random32.c          |  462 +++++++++++++++++++++++++++++-------------------
- 4 files changed, 317 insertions(+), 189 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1257,7 +1257,6 @@ void add_interrupt_randomness(int irq, i
- 
- 	fast_mix(fast_pool);
- 	add_interrupt_bench(cycles);
--	this_cpu_add(net_rand_state.s1, fast_pool->pool[cycles & 3]);
- 
- 	if (unlikely(crng_init == 0)) {
- 		if ((fast_pool->count >= 64) &&
---- a/include/linux/prandom.h
-+++ b/include/linux/prandom.h
-@@ -16,12 +16,44 @@ void prandom_bytes(void *buf, size_t nby
- void prandom_seed(u32 seed);
- void prandom_reseed_late(void);
- 
-+#if BITS_PER_LONG == 64
-+/*
-+ * The core SipHash round function.  Each line can be executed in
-+ * parallel given enough CPU resources.
-+ */
-+#define PRND_SIPROUND(v0, v1, v2, v3) ( \
-+	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
-+	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
-+	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
-+	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
-+)
-+
-+#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
-+#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
-+
-+#elif BITS_PER_LONG == 32
-+/*
-+ * On 32-bit machines, we use HSipHash, a reduced-width version of SipHash.
-+ * This is weaker, but 32-bit machines are not used for high-traffic
-+ * applications, so there is less output for an attacker to analyze.
-+ */
-+#define PRND_SIPROUND(v0, v1, v2, v3) ( \
-+	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
-+	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
-+	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
-+	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
-+)
-+#define PRND_K0 0x6c796765
-+#define PRND_K1 0x74656462
-+
-+#else
-+#error Unsupported BITS_PER_LONG
-+#endif
-+
- struct rnd_state {
- 	__u32 s1, s2, s3, s4;
- };
- 
--DECLARE_PER_CPU(struct rnd_state, net_rand_state);
--
- u32 prandom_u32_state(struct rnd_state *state);
- void prandom_bytes_state(struct rnd_state *state, void *buf, size_t nbytes);
- void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state);
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1655,13 +1655,6 @@ void update_process_times(int user_tick)
- 	scheduler_tick();
- 	if (IS_ENABLED(CONFIG_POSIX_TIMERS))
- 		run_posix_cpu_timers(p);
--
--	/* The current CPU might make use of net randoms without receiving IRQs
--	 * to renew them often enough. Let's update the net_rand_state from a
--	 * non-constant value that's not affine to the number of calls to make
--	 * sure it's updated when there's some activity (we don't care in idle).
--	 */
--	this_cpu_add(net_rand_state.s1, rol32(jiffies, 24) + user_tick);
+---
+ arch/x86/kernel/cpu/bugs.c |   52 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 19 deletions(-)
+
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1240,6 +1240,14 @@ static int ssb_prctl_set(struct task_str
+ 	return 0;
  }
  
- /**
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -40,16 +40,6 @@
- #include <linux/sched.h>
- #include <asm/unaligned.h>
- 
--#ifdef CONFIG_RANDOM32_SELFTEST
--static void __init prandom_state_selftest(void);
--#else
--static inline void prandom_state_selftest(void)
--{
--}
--#endif
--
--DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
--
- /**
-  *	prandom_u32_state - seeded pseudo-random number generator.
-  *	@state: pointer to state structure holding seeded state.
-@@ -70,25 +60,6 @@ u32 prandom_u32_state(struct rnd_state *
- EXPORT_SYMBOL(prandom_u32_state);
- 
- /**
-- *	prandom_u32 - pseudo random number generator
-- *
-- *	A 32 bit pseudo-random number is generated using a fast
-- *	algorithm suitable for simulation. This algorithm is NOT
-- *	considered safe for cryptographic use.
-- */
--u32 prandom_u32(void)
--{
--	struct rnd_state *state = &get_cpu_var(net_rand_state);
--	u32 res;
--
--	res = prandom_u32_state(state);
--	put_cpu_var(net_rand_state);
--
--	return res;
--}
--EXPORT_SYMBOL(prandom_u32);
--
--/**
-  *	prandom_bytes_state - get the requested number of pseudo-random bytes
-  *
-  *	@state: pointer to state structure holding seeded state.
-@@ -119,20 +90,6 @@ void prandom_bytes_state(struct rnd_stat
- }
- EXPORT_SYMBOL(prandom_bytes_state);
- 
--/**
-- *	prandom_bytes - get the requested number of pseudo-random bytes
-- *	@buf: where to copy the pseudo-random bytes to
-- *	@bytes: the requested number of bytes
-- */
--void prandom_bytes(void *buf, size_t bytes)
--{
--	struct rnd_state *state = &get_cpu_var(net_rand_state);
--
--	prandom_bytes_state(state, buf, bytes);
--	put_cpu_var(net_rand_state);
--}
--EXPORT_SYMBOL(prandom_bytes);
--
- static void prandom_warmup(struct rnd_state *state)
++static bool is_spec_ib_user_controlled(void)
++{
++	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
++}
++
+ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
  {
- 	/* Calling RNG ten times to satisfy recurrence condition */
-@@ -148,96 +105,6 @@ static void prandom_warmup(struct rnd_st
- 	prandom_u32_state(state);
- }
+ 	switch (ctrl) {
+@@ -1247,17 +1255,26 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-		/*
+-		 * Indirect branch speculation is always disabled in strict
+-		 * mode. It can neither be enabled if it was force-disabled
+-		 * by a  previous prctl call.
  
--static u32 __extract_hwseed(void)
--{
--	unsigned int val = 0;
--
--	(void)(arch_get_random_seed_int(&val) ||
--	       arch_get_random_int(&val));
--
--	return val;
--}
--
--static void prandom_seed_early(struct rnd_state *state, u32 seed,
--			       bool mix_with_hwseed)
--{
--#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
--#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
--	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
--	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
--	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
--	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
--}
--
--/**
-- *	prandom_seed - add entropy to pseudo random number generator
-- *	@seed: seed value
-- *
-- *	Add some additional seeding to the prandom pool.
-- */
--void prandom_seed(u32 entropy)
--{
--	int i;
--	/*
--	 * No locking on the CPUs, but then somewhat random results are, well,
--	 * expected.
--	 */
--	for_each_possible_cpu(i) {
--		struct rnd_state *state = &per_cpu(net_rand_state, i);
--
--		state->s1 = __seed(state->s1 ^ entropy, 2U);
--		prandom_warmup(state);
--	}
--}
--EXPORT_SYMBOL(prandom_seed);
--
--/*
-- *	Generate some initially weak seeding values to allow
-- *	to start the prandom_u32() engine.
-- */
--static int __init prandom_init(void)
--{
--	int i;
--
--	prandom_state_selftest();
--
--	for_each_possible_cpu(i) {
--		struct rnd_state *state = &per_cpu(net_rand_state, i);
--		u32 weak_seed = (i + jiffies) ^ random_get_entropy();
--
--		prandom_seed_early(state, weak_seed, true);
--		prandom_warmup(state);
--	}
--
--	return 0;
--}
--core_initcall(prandom_init);
--
--static void __prandom_timer(struct timer_list *unused);
--
--static DEFINE_TIMER(seed_timer, __prandom_timer);
--
--static void __prandom_timer(struct timer_list *unused)
--{
--	u32 entropy;
--	unsigned long expires;
--
--	get_random_bytes(&entropy, sizeof(entropy));
--	prandom_seed(entropy);
--
--	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
--	expires = 40 + prandom_u32_max(40);
--	seed_timer.expires = jiffies + msecs_to_jiffies(expires * MSEC_PER_SEC);
--
--	add_timer(&seed_timer);
--}
--
--static void __init __prandom_start_seed_timer(void)
--{
--	seed_timer.expires = jiffies + msecs_to_jiffies(40 * MSEC_PER_SEC);
--	add_timer(&seed_timer);
--}
--
- void prandom_seed_full_state(struct rnd_state __percpu *pcpu_state)
- {
- 	int i;
-@@ -257,51 +124,6 @@ void prandom_seed_full_state(struct rnd_
- }
- EXPORT_SYMBOL(prandom_seed_full_state);
- 
--/*
-- *	Generate better values after random number generator
-- *	is fully initialized.
-- */
--static void __prandom_reseed(bool late)
--{
--	unsigned long flags;
--	static bool latch = false;
--	static DEFINE_SPINLOCK(lock);
--
--	/* Asking for random bytes might result in bytes getting
--	 * moved into the nonblocking pool and thus marking it
--	 * as initialized. In this case we would double back into
--	 * this function and attempt to do a late reseed.
--	 * Ignore the pointless attempt to reseed again if we're
--	 * already waiting for bytes when the nonblocking pool
--	 * got initialized.
--	 */
--
--	/* only allow initial seeding (late == false) once */
--	if (!spin_trylock_irqsave(&lock, flags))
--		return;
--
--	if (latch && !late)
--		goto out;
--
--	latch = true;
--	prandom_seed_full_state(&net_rand_state);
--out:
--	spin_unlock_irqrestore(&lock, flags);
--}
--
--void prandom_reseed_late(void)
--{
--	__prandom_reseed(true);
--}
--
--static int __init prandom_reseed(void)
--{
--	__prandom_reseed(false);
--	__prandom_start_seed_timer();
--	return 0;
--}
--late_initcall(prandom_reseed);
--
- #ifdef CONFIG_RANDOM32_SELFTEST
- static struct prandom_test1 {
- 	u32 seed;
-@@ -421,7 +243,28 @@ static struct prandom_test2 {
- 	{  407983964U, 921U,  728767059U },
- };
- 
--static void __init prandom_state_selftest(void)
-+static u32 __extract_hwseed(void)
-+{
-+	unsigned int val = 0;
-+
-+	(void)(arch_get_random_seed_int(&val) ||
-+	       arch_get_random_int(&val));
-+
-+	return val;
-+}
-+
-+static void prandom_seed_early(struct rnd_state *state, u32 seed,
-+			       bool mix_with_hwseed)
-+{
-+#define LCG(x)	 ((x) * 69069U)	/* super-duper LCG */
-+#define HWSEED() (mix_with_hwseed ? __extract_hwseed() : 0)
-+	state->s1 = __seed(HWSEED() ^ LCG(seed),        2U);
-+	state->s2 = __seed(HWSEED() ^ LCG(state->s1),   8U);
-+	state->s3 = __seed(HWSEED() ^ LCG(state->s2),  16U);
-+	state->s4 = __seed(HWSEED() ^ LCG(state->s3), 128U);
-+}
-+
-+static int __init prandom_state_selftest(void)
- {
- 	int i, j, errors = 0, runs = 0;
- 	bool error = false;
-@@ -461,5 +304,266 @@ static void __init prandom_state_selftes
- 		pr_warn("prandom: %d/%d self tests failed\n", errors, runs);
- 	else
- 		pr_info("prandom: %d self tests passed\n", runs);
-+	return 0;
-+}
-+core_initcall(prandom_state_selftest);
-+#endif
-+
-+/*
-+ * The prandom_u32() implementation is now completely separate from the
-+ * prandom_state() functions, which are retained (for now) for compatibility.
-+ *
-+ * Because of (ab)use in the networking code for choosing random TCP/UDP port
-+ * numbers, which open DoS possibilities if guessable, we want something
-+ * stronger than a standard PRNG.  But the performance requirements of
-+ * the network code do not allow robust crypto for this application.
-+ *
-+ * So this is a homebrew Junior Spaceman implementation, based on the
-+ * lowest-latency trustworthy crypto primitive available, SipHash.
-+ * (The authors of SipHash have not been consulted about this abuse of
-+ * their work.)
-+ *
-+ * Standard SipHash-2-4 uses 2n+4 rounds to hash n words of input to
-+ * one word of output.  This abbreviated version uses 2 rounds per word
-+ * of output.
-+ */
-+
-+struct siprand_state {
-+	unsigned long v0;
-+	unsigned long v1;
-+	unsigned long v2;
-+	unsigned long v3;
-+};
-+
-+static DEFINE_PER_CPU(struct siprand_state, net_rand_state) __latent_entropy;
-+
-+/*
-+ * This is the core CPRNG function.  As "pseudorandom", this is not used
-+ * for truly valuable things, just intended to be a PITA to guess.
-+ * For maximum speed, we do just two SipHash rounds per word.  This is
-+ * the same rate as 4 rounds per 64 bits that SipHash normally uses,
-+ * so hopefully it's reasonably secure.
-+ *
-+ * There are two changes from the official SipHash finalization:
-+ * - We omit some constants XORed with v2 in the SipHash spec as irrelevant;
-+ *   they are there only to make the output rounds distinct from the input
-+ *   rounds, and this application has no input rounds.
-+ * - Rather than returning v0^v1^v2^v3, return v1+v3.
-+ *   If you look at the SipHash round, the last operation on v3 is
-+ *   "v3 ^= v0", so "v0 ^ v3" just undoes that, a waste of time.
-+ *   Likewise "v1 ^= v2".  (The rotate of v2 makes a difference, but
-+ *   it still cancels out half of the bits in v2 for no benefit.)
-+ *   Second, since the last combining operation was xor, continue the
-+ *   pattern of alternating xor/add for a tiny bit of extra non-linearity.
-+ */
-+static inline u32 siprand_u32(struct siprand_state *s)
-+{
-+	unsigned long v0 = s->v0, v1 = s->v1, v2 = s->v2, v3 = s->v3;
-+
-+	PRND_SIPROUND(v0, v1, v2, v3);
-+	PRND_SIPROUND(v0, v1, v2, v3);
-+	s->v0 = v0;  s->v1 = v1;  s->v2 = v2;  s->v3 = v3;
-+	return v1 + v3;
-+}
-+
-+
-+/**
-+ *	prandom_u32 - pseudo random number generator
-+ *
-+ *	A 32 bit pseudo-random number is generated using a fast
-+ *	algorithm suitable for simulation. This algorithm is NOT
-+ *	considered safe for cryptographic use.
-+ */
-+u32 prandom_u32(void)
-+{
-+	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
-+	u32 res = siprand_u32(state);
-+
-+	put_cpu_ptr(&net_rand_state);
-+	return res;
-+}
-+EXPORT_SYMBOL(prandom_u32);
-+
-+/**
-+ *	prandom_bytes - get the requested number of pseudo-random bytes
-+ *	@buf: where to copy the pseudo-random bytes to
-+ *	@bytes: the requested number of bytes
-+ */
-+void prandom_bytes(void *buf, size_t bytes)
-+{
-+	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
-+	u8 *ptr = buf;
-+
-+	while (bytes >= sizeof(u32)) {
-+		put_unaligned(siprand_u32(state), (u32 *)ptr);
-+		ptr += sizeof(u32);
-+		bytes -= sizeof(u32);
-+	}
-+
-+	if (bytes > 0) {
-+		u32 rem = siprand_u32(state);
-+
-+		do {
-+			*ptr++ = (u8)rem;
-+			rem >>= BITS_PER_BYTE;
-+		} while (--bytes > 0);
-+	}
-+	put_cpu_ptr(&net_rand_state);
- }
-+EXPORT_SYMBOL(prandom_bytes);
-+
-+/**
-+ *	prandom_seed - add entropy to pseudo random number generator
-+ *	@entropy: entropy value
-+ *
-+ *	Add some additional seed material to the prandom pool.
-+ *	The "entropy" is actually our IP address (the only caller is
-+ *	the network code), not for unpredictability, but to ensure that
-+ *	different machines are initialized differently.
-+ */
-+void prandom_seed(u32 entropy)
-+{
-+	int i;
-+
-+	add_device_randomness(&entropy, sizeof(entropy));
-+
-+	for_each_possible_cpu(i) {
-+		struct siprand_state *state = per_cpu_ptr(&net_rand_state, i);
-+		unsigned long v0 = state->v0, v1 = state->v1;
-+		unsigned long v2 = state->v2, v3 = state->v3;
-+
-+		do {
-+			v3 ^= entropy;
-+			PRND_SIPROUND(v0, v1, v2, v3);
-+			PRND_SIPROUND(v0, v1, v2, v3);
-+			v0 ^= entropy;
-+		} while (unlikely(!v0 || !v1 || !v2 || !v3));
-+
-+		WRITE_ONCE(state->v0, v0);
-+		WRITE_ONCE(state->v1, v1);
-+		WRITE_ONCE(state->v2, v2);
-+		WRITE_ONCE(state->v3, v3);
-+	}
-+}
-+EXPORT_SYMBOL(prandom_seed);
-+
-+/*
-+ *	Generate some initially weak seeding values to allow
-+ *	the prandom_u32() engine to be started.
-+ */
-+static int __init prandom_init_early(void)
-+{
-+	int i;
-+	unsigned long v0, v1, v2, v3;
-+
-+	if (!arch_get_random_long(&v0))
-+		v0 = jiffies;
-+	if (!arch_get_random_long(&v1))
-+		v1 = random_get_entropy();
-+	v2 = v0 ^ PRND_K0;
-+	v3 = v1 ^ PRND_K1;
-+
-+	for_each_possible_cpu(i) {
-+		struct siprand_state *state;
-+
-+		v3 ^= i;
-+		PRND_SIPROUND(v0, v1, v2, v3);
-+		PRND_SIPROUND(v0, v1, v2, v3);
-+		v0 ^= i;
-+
-+		state = per_cpu_ptr(&net_rand_state, i);
-+		state->v0 = v0;  state->v1 = v1;
-+		state->v2 = v2;  state->v3 = v3;
-+	}
-+
-+	return 0;
-+}
-+core_initcall(prandom_init_early);
-+
-+
-+/* Stronger reseeding when available, and periodically thereafter. */
-+static void prandom_reseed(struct timer_list *unused);
-+
-+static DEFINE_TIMER(seed_timer, prandom_reseed);
-+
-+static void prandom_reseed(struct timer_list *unused)
-+{
-+	unsigned long expires;
-+	int i;
-+
-+	/*
-+	 * Reinitialize each CPU's PRNG with 128 bits of key.
-+	 * No locking on the CPUs, but then somewhat random results are,
-+	 * well, expected.
-+	 */
-+	for_each_possible_cpu(i) {
-+		struct siprand_state *state;
-+		unsigned long v0 = get_random_long(), v2 = v0 ^ PRND_K0;
-+		unsigned long v1 = get_random_long(), v3 = v1 ^ PRND_K1;
-+#if BITS_PER_LONG == 32
-+		int j;
-+
 +		/*
-+		 * On 32-bit machines, hash in two extra words to
-+		 * approximate 128-bit key length.  Not that the hash
-+		 * has that much security, but this prevents a trivial
-+		 * 64-bit brute force.
-+		 */
-+		for (j = 0; j < 2; j++) {
-+			unsigned long m = get_random_long();
-+
-+			v3 ^= m;
-+			PRND_SIPROUND(v0, v1, v2, v3);
-+			PRND_SIPROUND(v0, v1, v2, v3);
-+			v0 ^= m;
-+		}
- #endif
-+		/*
-+		 * Probably impossible in practice, but there is a
-+		 * theoretical risk that a race between this reseeding
-+		 * and the target CPU writing its state back could
-+		 * create the all-zero SipHash fixed point.
++		 * With strict mode for both IBPB and STIBP, the instruction
++		 * code paths avoid checking this task flag and instead,
++		 * unconditionally run the instruction. However, STIBP and IBPB
++		 * are independent and either can be set to conditionally
++		 * enabled regardless of the mode of the other.
 +		 *
-+		 * To ensure that never happens, ensure the state
-+		 * we write contains no zero words.
-+		 */
-+		state = per_cpu_ptr(&net_rand_state, i);
-+		WRITE_ONCE(state->v0, v0 ? v0 : -1ul);
-+		WRITE_ONCE(state->v1, v1 ? v1 : -1ul);
-+		WRITE_ONCE(state->v2, v2 ? v2 : -1ul);
-+		WRITE_ONCE(state->v3, v3 ? v3 : -1ul);
-+	}
++		 * If either is set to conditional, allow the task flag to be
++		 * updated, unless it was force-disabled by a previous prctl
++		 * call. Currently, this is possible on an AMD CPU which has the
++		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
++		 * kernel is booted with 'spectre_v2_user=seccomp', then
++		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
++		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
+ 		 */
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		if (!is_spec_ib_user_controlled() ||
+ 		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
 +
-+	/* reseed every ~60 seconds, in [40 .. 80) interval with slack */
-+	expires = round_jiffies(jiffies + 40 * HZ + prandom_u32_max(40 * HZ));
-+	mod_timer(&seed_timer, expires);
-+}
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
+ 		break;
+@@ -1270,10 +1287,10 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return -EPERM;
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
 +
-+/*
-+ * The random ready callback can be called from almost any interrupt.
-+ * To avoid worrying about whether it's safe to delay that interrupt
-+ * long enough to seed all CPUs, just schedule an immediate timer event.
-+ */
-+static void prandom_timer_start(struct random_ready_callback *unused)
-+{
-+	mod_timer(&seed_timer, jiffies);
-+}
++		if (!is_spec_ib_user_controlled())
+ 			return 0;
 +
-+/*
-+ * Start periodic full reseeding as soon as strong
-+ * random numbers are available.
-+ */
-+static int __init prandom_init_late(void)
-+{
-+	static struct random_ready_callback random_ready = {
-+		.func = prandom_timer_start
-+	};
-+	int ret = add_random_ready_callback(&random_ready);
-+
-+	if (ret == -EALREADY) {
-+		prandom_timer_start(&random_ready);
-+		ret = 0;
-+	}
-+	return ret;
-+}
-+late_initcall(prandom_init_late);
+ 		task_set_spec_ib_disable(task);
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+ 			task_set_spec_ib_force_disable(task);
+@@ -1336,20 +1353,17 @@ static int ib_prctl_get(struct task_stru
+ 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 		return PR_SPEC_ENABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
+-		return PR_SPEC_DISABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
++	else if (is_spec_ib_user_controlled()) {
+ 		if (task_spec_ib_force_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
+ 		if (task_spec_ib_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+ 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+-	} else
++	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		return PR_SPEC_DISABLE;
++	else
+ 		return PR_SPEC_NOT_AFFECTED;
+ }
+ 
 
 
