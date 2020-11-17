@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F4A2B663A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF9C2B6632
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbgKQNKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40180 "EHLO mail.kernel.org"
+        id S1728778AbgKQNJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:09:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729014AbgKQNKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:50 -0500
+        id S1728549AbgKQNJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E52221EB;
-        Tue, 17 Nov 2020 13:10:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C64F6221EB;
+        Tue, 17 Nov 2020 13:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618649;
-        bh=Z4rXePv0x63YTzLGwnJraoYgo41+e+d8I7w5VGlXFfM=;
+        s=default; t=1605618560;
+        bh=WlzmG+qHL2OfuUUc0EBK53FhRG8eSth/4dH/xUMaf4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hc7xOD5dQYfQuGgTcEEqkQH5Iniou1CBmUngwm3NJOt5azOzWD4tTjDCQZvSCBhiq
-         FSU26g3pgRPXG9sKX0fKuo9+8W9ILDXYV7JHA7o4pmGM3z6mjZALIFOMDggHW/eAbd
-         zWUVjjMiCzMXvIS7hDX+GTFjnLU4GWAcQKvGslHY=
+        b=usCx3rQ2b5A7bIqj+XkjKE2JCx7WKE5wnnXPunHFwusPD3161QvgHvLiA/Pmr325p
+         o7K+BTAXR7EYExOhcMm1u7SzyFgKKaEmzwCwD44e7qg48kDYv2z90RF1ezW3EtPMVw
+         zDNcEayG+GAbTgR6afUFicKcz7q1sAJ30i2ruBVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/78] perf tools: Add missing swap for ino_generation
-Date:   Tue, 17 Nov 2020 14:04:35 +0100
-Message-Id: <20201117122109.554663619@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/78] ALSA: hda: prevent undefined shift in snd_hdac_ext_bus_get_link()
+Date:   Tue, 17 Nov 2020 14:04:36 +0100
+Message-Id: <20201117122109.604077029@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
 References: <20201117122109.116890262@linuxfoundation.org>
@@ -44,34 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fe01adb72356a4e2f8735e4128af85921ca98fa1 ]
+[ Upstream commit 158e1886b6262c1d1c96a18c85fac5219b8bf804 ]
 
-We are missing swap for ino_generation field.
+This is harmless, but the "addr" comes from the user and it could lead
+to a negative shift or to shift wrapping if it's too high.
 
-Fixes: 5c5e854bc760 ("perf tools: Add attr->mmap2 support")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20201101233103.3537427-2-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 0b00a5615dc4 ("ALSA: hdac_ext: add hdac extended controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20201103101807.GC1127762@mwanda
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/hda/ext/hdac_ext_controller.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 7e0573e55a356..89808ab008ad2 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -482,6 +482,7 @@ static void perf_event__mmap2_swap(union perf_event *event,
- 	event->mmap2.maj   = bswap_32(event->mmap2.maj);
- 	event->mmap2.min   = bswap_32(event->mmap2.min);
- 	event->mmap2.ino   = bswap_64(event->mmap2.ino);
-+	event->mmap2.ino_generation = bswap_64(event->mmap2.ino_generation);
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index 261469188566c..49d42971d90da 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -155,6 +155,8 @@ struct hdac_ext_link *snd_hdac_ext_bus_get_link(struct hdac_ext_bus *ebus,
+ 		return NULL;
+ 	if (ebus->idx != bus_idx)
+ 		return NULL;
++	if (addr < 0 || addr > 31)
++		return NULL;
  
- 	if (sample_id_all) {
- 		void *data = &event->mmap2.filename;
+ 	list_for_each_entry(hlink, &ebus->hlink_list, list) {
+ 		for (i = 0; i < HDA_MAX_CODECS; i++) {
 -- 
 2.27.0
 
