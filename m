@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF22C2B60E3
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 703202B6040
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729401AbgKQNNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:13:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
+        id S1729092AbgKQNHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729722AbgKQNNo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:13:44 -0500
+        id S1729084AbgKQNHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08614221EB;
-        Tue, 17 Nov 2020 13:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FD8324698;
+        Tue, 17 Nov 2020 13:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618823;
-        bh=8ob0CyxlvL7lTuw+NAc1Pp9r/zR7825ePp7woDTRSX4=;
+        s=default; t=1605618440;
+        bh=c1RjsYpybytkZYv5J8jzew395hSj7ZM48MZi/yF+9rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0v2YHzDzQ5r+xqnA49G6oibdkCU1/SeqoqFg0q6lzcIWMq+ESUX7eEek4u0IaPP+f
-         aRhgz8zDVvboEnzDeWMPgNL9bLDf9XgLLoC1rEUU9TK8i7idQo5JxIcBcuCAtErup4
-         NIU12WIMRdsCPVQMGE1rVnfJ0OMTpARbbXeliWzE=
+        b=eC8w9cyJ5/MrVqd8NJ3esNthCKF+F7SRye2w3iRuRwa4wEvUMKetVYmhGUDXMblKk
+         u6FyVGE9hrHVeBWdegSTmnKg9sDWhfS+j0lwzurYgqXYmklqwukEbDA9BVsC7uVb3o
+         L031ndPWIMwKjOyHkoIITgR7DcTE+Qy2w7V7t4nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/85] ring-buffer: Fix recursion protection transitions between interrupt context
-Date:   Tue, 17 Nov 2020 14:04:31 +0100
-Message-Id: <20201117122111.139672659@linuxfoundation.org>
+Subject: [PATCH 4.4 09/64] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
+Date:   Tue, 17 Nov 2020 14:04:32 +0100
+Message-Id: <20201117122106.599646315@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit b02414c8f045ab3b9afc816c3735bc98c5c3d262 ]
+[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
 
-The recursion protection of the ring buffer depends on preempt_count() to be
-correct. But it is possible that the ring buffer gets called after an
-interrupt comes in but before it updates the preempt_count(). This will
-trigger a false positive in the recursion code.
+If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
+not always, the case), the 'WARN_ON(in_irq)' in
+net/core/skbuff.c#skb_release_head_state() might be triggered, under network
+congestion circumstances, together with the potential risk of a NULL pointer
+dereference.
 
-Use the same trick from the ftrace function callback recursion code which
-uses a "transition" bit that gets set, to allow for a single recursion for
-to handle transitions between contexts.
+The root cause of this issue is the call to kfree_skb() instead of
+dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
 
-Cc: stable@vger.kernel.org
-Fixes: 567cd4da54ff4 ("ring-buffer: User context bit recursion checking")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+This patch prevents the skb to be freed within the call to netif_rx() by
+incrementing its reference count with skb_get(). The skb is finally freed by
+one of the in-irq-context safe functions: dev_consume_skb_any() or
+dev_kfree_skb_any(). The "any" version is used because some drivers might call
+can_get_echo_skb() in a normal context.
+
+The reason for this issue to occur is that initially, in the core network
+stack, loopback skb were not supposed to be received in hardware IRQ context.
+The CAN stack is an exeption.
+
+This bug was previously reported back in 2017 in [1] but the proposed patch
+never got accepted.
+
+While [1] directly modifies net/core/dev.c, we try to propose here a
+smoother modification local to CAN network stack (the assumption
+behind is that only CAN devices are affected by this issue).
+
+[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
+
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
+Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c | 54 +++++++++++++++++++++++++++++++-------
- 1 file changed, 44 insertions(+), 10 deletions(-)
+ drivers/net/can/dev.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index b9b71e7fb6979..8082328eb01a4 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -416,14 +416,16 @@ struct rb_event_info {
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 9dd968ee792e0..3c0f141262ad5 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -466,7 +466,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
+ 	if (!skb)
+ 		return 0;
  
- /*
-  * Used for which event context the event is in.
-- *  NMI     = 0
-- *  IRQ     = 1
-- *  SOFTIRQ = 2
-- *  NORMAL  = 3
-+ *  TRANSITION = 0
-+ *  NMI     = 1
-+ *  IRQ     = 2
-+ *  SOFTIRQ = 3
-+ *  NORMAL  = 4
-  *
-  * See trace_recursive_lock() comment below for more details.
-  */
- enum {
-+	RB_CTX_TRANSITION,
- 	RB_CTX_NMI,
- 	RB_CTX_IRQ,
- 	RB_CTX_SOFTIRQ,
-@@ -2553,10 +2555,10 @@ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
-  * a bit of overhead in something as critical as function tracing,
-  * we use a bitmask trick.
-  *
-- *  bit 0 =  NMI context
-- *  bit 1 =  IRQ context
-- *  bit 2 =  SoftIRQ context
-- *  bit 3 =  normal context.
-+ *  bit 1 =  NMI context
-+ *  bit 2 =  IRQ context
-+ *  bit 3 =  SoftIRQ context
-+ *  bit 4 =  normal context.
-  *
-  * This works because this is the order of contexts that can
-  * preempt other contexts. A SoftIRQ never preempts an IRQ
-@@ -2579,6 +2581,30 @@ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
-  * The least significant bit can be cleared this way, and it
-  * just so happens that it is the same bit corresponding to
-  * the current context.
-+ *
-+ * Now the TRANSITION bit breaks the above slightly. The TRANSITION bit
-+ * is set when a recursion is detected at the current context, and if
-+ * the TRANSITION bit is already set, it will fail the recursion.
-+ * This is needed because there's a lag between the changing of
-+ * interrupt context and updating the preempt count. In this case,
-+ * a false positive will be found. To handle this, one extra recursion
-+ * is allowed, and this is done by the TRANSITION bit. If the TRANSITION
-+ * bit is already set, then it is considered a recursion and the function
-+ * ends. Otherwise, the TRANSITION bit is set, and that bit is returned.
-+ *
-+ * On the trace_recursive_unlock(), the TRANSITION bit will be the first
-+ * to be cleared. Even if it wasn't the context that set it. That is,
-+ * if an interrupt comes in while NORMAL bit is set and the ring buffer
-+ * is called before preempt_count() is updated, since the check will
-+ * be on the NORMAL bit, the TRANSITION bit will then be set. If an
-+ * NMI then comes in, it will set the NMI bit, but when the NMI code
-+ * does the trace_recursive_unlock() it will clear the TRANSTION bit
-+ * and leave the NMI bit set. But this is fine, because the interrupt
-+ * code that set the TRANSITION bit will then clear the NMI bit when it
-+ * calls trace_recursive_unlock(). If another NMI comes in, it will
-+ * set the TRANSITION bit and continue.
-+ *
-+ * Note: The TRANSITION bit only handles a single transition between context.
-  */
+-	netif_rx(skb);
++	skb_get(skb);
++	if (netif_rx(skb) == NET_RX_SUCCESS)
++		dev_consume_skb_any(skb);
++	else
++		dev_kfree_skb_any(skb);
  
- static __always_inline int
-@@ -2597,8 +2623,16 @@ trace_recursive_lock(struct ring_buffer_per_cpu *cpu_buffer)
- 	} else
- 		bit = RB_CTX_NORMAL;
- 
--	if (unlikely(val & (1 << bit)))
--		return 1;
-+	if (unlikely(val & (1 << bit))) {
-+		/*
-+		 * It is possible that this was called by transitioning
-+		 * between interrupt context, and preempt_count() has not
-+		 * been updated yet. In this case, use the TRANSITION bit.
-+		 */
-+		bit = RB_CTX_TRANSITION;
-+		if (val & (1 << bit))
-+			return 1;
-+	}
- 
- 	val |= (1 << bit);
- 	cpu_buffer->current_context = val;
+ 	return len;
+ }
 -- 
 2.27.0
 
