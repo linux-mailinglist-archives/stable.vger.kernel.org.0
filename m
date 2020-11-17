@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6432B6202
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC422B6078
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729638AbgKQNYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59476 "EHLO mail.kernel.org"
+        id S1728696AbgKQNJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:09:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730421AbgKQNYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:30 -0500
+        id S1728899AbgKQNJe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2484120781;
-        Tue, 17 Nov 2020 13:24:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0A70221EB;
+        Tue, 17 Nov 2020 13:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619470;
-        bh=nu/fqrzXW8Y6fnHt6NEplWxuDJnS8wfMgJbxvGOqIlo=;
+        s=default; t=1605618573;
+        bh=VyhQDvaixnI9319K/RigwWcsnYunskjvzHlZWmfUr9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV7CVm6Pos+tJlnWWHK3LVRfllh82fLrKFkCGoQlVDfSDjkTIqQH3U7pJLvcSkeHv
-         ZOe/F+esKCuspURk9cEe8j2Yg2+z2RtJJAhm4xuWvHvDtHZWMZ+a1hsNOubfHeRx93
-         sFNQYw2eCQPqTKSnyAvzuKTrNWdRzHxtULzzjYws=
+        b=0NigD7rZGc5YSnAHRn+HP1nBSI6TTyXCCA3rmLeoz3IdHEFOT7KJtu0N7p+Bh5Db3
+         QGCua8mWcdZKeQI9Dm7GRmRYM2oX9nlvC9qkpQHCmEluKQN5mbzpHTlSX/t7RXwXg9
+         l/PjxE6nKiGDOYUrq6lunopWK2Z9CO1ZGAI+HAlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Andrianov <andrianov@ispras.ru>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/151] usb: gadget: goku_udc: fix potential crashes in probe
+Subject: [PATCH 4.9 14/78] can: peak_usb: add range checking in decode operations
 Date:   Tue, 17 Nov 2020 14:04:40 +0100
-Message-Id: <20201117122123.864561882@linuxfoundation.org>
+Message-Id: <20201117122109.805847964@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0d66e04875c5aae876cf3d4f4be7978fa2b00523 ]
+[ Upstream commit a6921dd524fe31d1f460c161d3526a407533b6db ]
 
-goku_probe() goes to error label "err" and invokes goku_remove()
-in case of failures of pci_enable_device(), pci_resource_start()
-and ioremap(). goku_remove() gets a device from
-pci_get_drvdata(pdev) and works with it without any checks, in
-particular it dereferences a corresponding pointer. But
-goku_probe() did not set this device yet. So, one can expect
-various crashes. The patch moves setting the device just after
-allocation of memory for it.
+These values come from skb->data so Smatch considers them untrusted.  I
+believe Smatch is correct but I don't have a way to test this.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The usb_if->dev[] array has 2 elements but the index is in the 0-15
+range without checks.  The cfd->len can be up to 255 but the maximum
+valid size is CANFD_MAX_DLEN (64) so that could lead to memory
+corruption.
 
-Reported-by: Pavel Andrianov <andrianov@ispras.ru>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200813140604.GA456946@mwanda
+Acked-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/goku_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 48 +++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/goku_udc.c b/drivers/usb/gadget/udc/goku_udc.c
-index c3721225b61ed..b706ad3034bc1 100644
---- a/drivers/usb/gadget/udc/goku_udc.c
-+++ b/drivers/usb/gadget/udc/goku_udc.c
-@@ -1757,6 +1757,7 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
- 	}
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+index 40647b837b31f..d314e73f3d061 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -475,12 +475,18 @@ static int pcan_usb_fd_decode_canmsg(struct pcan_usb_fd_if *usb_if,
+ 				     struct pucan_msg *rx_msg)
+ {
+ 	struct pucan_rx_msg *rm = (struct pucan_rx_msg *)rx_msg;
+-	struct peak_usb_device *dev = usb_if->dev[pucan_msg_get_channel(rm)];
+-	struct net_device *netdev = dev->netdev;
++	struct peak_usb_device *dev;
++	struct net_device *netdev;
+ 	struct canfd_frame *cfd;
+ 	struct sk_buff *skb;
+ 	const u16 rx_msg_flags = le16_to_cpu(rm->flags);
  
-+	pci_set_drvdata(pdev, dev);
- 	spin_lock_init(&dev->lock);
- 	dev->pdev = pdev;
- 	dev->gadget.ops = &goku_ops;
-@@ -1790,7 +1791,6 @@ static int goku_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	}
- 	dev->regs = (struct goku_udc_regs __iomem *) base;
++	if (pucan_msg_get_channel(rm) >= ARRAY_SIZE(usb_if->dev))
++		return -ENOMEM;
++
++	dev = usb_if->dev[pucan_msg_get_channel(rm)];
++	netdev = dev->netdev;
++
+ 	if (rx_msg_flags & PUCAN_MSG_EXT_DATA_LEN) {
+ 		/* CANFD frame case */
+ 		skb = alloc_canfd_skb(netdev, &cfd);
+@@ -527,15 +533,21 @@ static int pcan_usb_fd_decode_status(struct pcan_usb_fd_if *usb_if,
+ 				     struct pucan_msg *rx_msg)
+ {
+ 	struct pucan_status_msg *sm = (struct pucan_status_msg *)rx_msg;
+-	struct peak_usb_device *dev = usb_if->dev[pucan_stmsg_get_channel(sm)];
+-	struct pcan_usb_fd_device *pdev =
+-			container_of(dev, struct pcan_usb_fd_device, dev);
++	struct pcan_usb_fd_device *pdev;
+ 	enum can_state new_state = CAN_STATE_ERROR_ACTIVE;
+ 	enum can_state rx_state, tx_state;
+-	struct net_device *netdev = dev->netdev;
++	struct peak_usb_device *dev;
++	struct net_device *netdev;
+ 	struct can_frame *cf;
+ 	struct sk_buff *skb;
  
--	pci_set_drvdata(pdev, dev);
- 	INFO(dev, "%s\n", driver_desc);
- 	INFO(dev, "version: " DRIVER_VERSION " %s\n", dmastr());
- 	INFO(dev, "irq %d, pci mem %p\n", pdev->irq, base);
++	if (pucan_stmsg_get_channel(sm) >= ARRAY_SIZE(usb_if->dev))
++		return -ENOMEM;
++
++	dev = usb_if->dev[pucan_stmsg_get_channel(sm)];
++	pdev = container_of(dev, struct pcan_usb_fd_device, dev);
++	netdev = dev->netdev;
++
+ 	/* nothing should be sent while in BUS_OFF state */
+ 	if (dev->can.state == CAN_STATE_BUS_OFF)
+ 		return 0;
+@@ -588,9 +600,14 @@ static int pcan_usb_fd_decode_error(struct pcan_usb_fd_if *usb_if,
+ 				    struct pucan_msg *rx_msg)
+ {
+ 	struct pucan_error_msg *er = (struct pucan_error_msg *)rx_msg;
+-	struct peak_usb_device *dev = usb_if->dev[pucan_ermsg_get_channel(er)];
+-	struct pcan_usb_fd_device *pdev =
+-			container_of(dev, struct pcan_usb_fd_device, dev);
++	struct pcan_usb_fd_device *pdev;
++	struct peak_usb_device *dev;
++
++	if (pucan_ermsg_get_channel(er) >= ARRAY_SIZE(usb_if->dev))
++		return -EINVAL;
++
++	dev = usb_if->dev[pucan_ermsg_get_channel(er)];
++	pdev = container_of(dev, struct pcan_usb_fd_device, dev);
+ 
+ 	/* keep a trace of tx and rx error counters for later use */
+ 	pdev->bec.txerr = er->tx_err_cnt;
+@@ -604,11 +621,17 @@ static int pcan_usb_fd_decode_overrun(struct pcan_usb_fd_if *usb_if,
+ 				      struct pucan_msg *rx_msg)
+ {
+ 	struct pcan_ufd_ovr_msg *ov = (struct pcan_ufd_ovr_msg *)rx_msg;
+-	struct peak_usb_device *dev = usb_if->dev[pufd_omsg_get_channel(ov)];
+-	struct net_device *netdev = dev->netdev;
++	struct peak_usb_device *dev;
++	struct net_device *netdev;
+ 	struct can_frame *cf;
+ 	struct sk_buff *skb;
+ 
++	if (pufd_omsg_get_channel(ov) >= ARRAY_SIZE(usb_if->dev))
++		return -EINVAL;
++
++	dev = usb_if->dev[pufd_omsg_get_channel(ov)];
++	netdev = dev->netdev;
++
+ 	/* allocate an skb to store the error frame */
+ 	skb = alloc_can_err_skb(netdev, &cf);
+ 	if (!skb)
+@@ -726,6 +749,9 @@ static int pcan_usb_fd_encode_msg(struct peak_usb_device *dev,
+ 	u16 tx_msg_size, tx_msg_flags;
+ 	u8 can_dlc;
+ 
++	if (cfd->len > CANFD_MAX_DLEN)
++		return -EINVAL;
++
+ 	tx_msg_size = ALIGN(sizeof(struct pucan_tx_msg) + cfd->len, 4);
+ 	tx_msg->size = cpu_to_le16(tx_msg_size);
+ 	tx_msg->type = cpu_to_le16(PUCAN_MSG_CAN_TX);
 -- 
 2.27.0
 
