@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 535D22B61AA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C547C2B61AD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730824AbgKQNVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54786 "EHLO mail.kernel.org"
+        id S1730843AbgKQNVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730835AbgKQNVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:08 -0500
+        id S1730654AbgKQNVL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91E8A2463D;
-        Tue, 17 Nov 2020 13:21:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68C9224631;
+        Tue, 17 Nov 2020 13:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619268;
-        bh=EToaU/VKICbx+ZOTvHcjhyy5Bx3pOpF9ha4m/ozKKww=;
+        s=default; t=1605619271;
+        bh=/pH3EfrVK2U/e6eMTmDZBuXq5WXy2IelrJJoNSchUTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hotGb/cpHPHBYA3t2CpeKHQKBe57qBmBt9Vg2uiDO7Rdgob+coQaKFiXeOeCwajkS
-         uQYDhUFIwPsbSrwMQNXOcQkMh0f1vshlngrJrug05iTJNulTfCJbpf2u6ZMfQn8IEX
-         BslWinzZeDEnxo2JlqQ2mqnMi54bLlAnHgvu7GC0=
+        b=bkw2wSoNGVxe9ZByz+o4g+mh6debf64GRq3vc7nEM3f76VEHt3sc6ATtoCsYwig35
+         Nx5woAnOneq44qJH8bE8+v0In1D8kc4BQYkrnBE92/1vdI57xx5V6x/bLRICPalvDe
+         xEawgtkr9/KGkEFoLlnSFSonRWWgf+xqQ5kxu0A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, nl6720 <nl6720@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 4.19 085/101] erofs: derive atime instead of leaving it empty
-Date:   Tue, 17 Nov 2020 14:05:52 +0100
-Message-Id: <20201117122117.267551596@linuxfoundation.org>
+        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 4.19 086/101] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
+Date:   Tue, 17 Nov 2020 14:05:53 +0100
+Message-Id: <20201117122117.319836226@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
 References: <20201117122113.128215851@linuxfoundation.org>
@@ -42,79 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-commit d3938ee23e97bfcac2e0eb6b356875da73d700df upstream.
+commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
 
-EROFS has _only one_ ondisk timestamp (ctime is currently
-documented and recorded, we might also record mtime instead
-with a new compat feature if needed) for each extended inode
-since EROFS isn't mainly for archival purposes so no need to
-keep all timestamps on disk especially for Android scenarios
-due to security concerns. Also, romfs/cramfs don't have their
-own on-disk timestamp, and squashfs only records mtime instead.
+kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
+allocate a buffer for the swiotlb. It does so by calling
 
-Let's also derive access time from ondisk timestamp rather than
-leaving it empty, and if mtime/atime for each file are really
-needed for specific scenarios as well, we can also use xattrs
-to record them then.
+  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
 
-Link: https://lore.kernel.org/r/20201031195102.21221-1-hsiangkao@aol.com
-[ Gao Xiang: It'd be better to backport for user-friendly concern. ]
-Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-Cc: stable <stable@vger.kernel.org> # 4.19+
-Reported-by: nl6720 <nl6720@gmail.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-[ Gao Xiang: Manually backport to 4.19.y due to trivial conflicts. ]
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+If the allocation must fail, no_iotlb_memory is set.
+
+Later during initialization swiotlb-xen comes in
+(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
+is != 0, it thinks the memory is ready to use when actually it is not.
+
+When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
+and since no_iotlb_memory is set the kernel panics.
+
+Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
+initialized, it would do the initialization itself, which might still
+succeed.
+
+Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
+failure, and also by setting no_iotlb_memory to false on swiotlb
+initialization success.
+
+Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
+
+Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
+Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/erofs/inode.c |   21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -53,11 +53,9 @@ static int read_inode(struct inode *inod
- 		i_gid_write(inode, le32_to_cpu(v2->i_gid));
- 		set_nlink(inode, le32_to_cpu(v2->i_nlink));
- 
--		/* ns timestamp */
--		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
--			le64_to_cpu(v2->i_ctime);
--		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
--			le32_to_cpu(v2->i_ctime_nsec);
-+		/* extended inode has its own timestamp */
-+		inode->i_ctime.tv_sec = le64_to_cpu(v2->i_ctime);
-+		inode->i_ctime.tv_nsec = le32_to_cpu(v2->i_ctime_nsec);
- 
- 		inode->i_size = le64_to_cpu(v2->i_size);
- 	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
-@@ -83,11 +81,9 @@ static int read_inode(struct inode *inod
- 		i_gid_write(inode, le16_to_cpu(v1->i_gid));
- 		set_nlink(inode, le16_to_cpu(v1->i_nlink));
- 
--		/* use build time to derive all file time */
--		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec =
--			sbi->build_time;
--		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec =
--			sbi->build_time_nsec;
-+		/* use build time for compact inodes */
-+		inode->i_ctime.tv_sec = sbi->build_time;
-+		inode->i_ctime.tv_nsec = sbi->build_time_nsec;
- 
- 		inode->i_size = le32_to_cpu(v1->i_size);
- 	} else {
-@@ -97,6 +93,11 @@ static int read_inode(struct inode *inod
- 		return -EIO;
+---
+ kernel/dma/swiotlb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -239,6 +239,7 @@ int __init swiotlb_init_with_tbl(char *t
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
  	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
  
-+	inode->i_mtime.tv_sec = inode->i_ctime.tv_sec;
-+	inode->i_atime.tv_sec = inode->i_ctime.tv_sec;
-+	inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec;
-+	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec;
-+
- 	/* measure inode.i_blocks as the generic filesystem */
- 	inode->i_blocks = ((inode->i_size - 1) >> 9) + 1;
- 	return 0;
+ 	if (verbose)
+ 		swiotlb_print_info();
+@@ -270,9 +271,11 @@ swiotlb_init(int verbose)
+ 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
+ 		return;
+ 
+-	if (io_tlb_start)
++	if (io_tlb_start) {
+ 		memblock_free_early(io_tlb_start,
+ 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
++		io_tlb_start = 0;
++	}
+ 	pr_warn("Cannot allocate buffer");
+ 	no_iotlb_memory = true;
+ }
+@@ -376,6 +379,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
+ 
+ 	swiotlb_print_info();
+ 
 
 
