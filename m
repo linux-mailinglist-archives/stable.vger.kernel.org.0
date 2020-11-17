@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B872B6012
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9EC2B6098
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725747AbgKQNGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
+        id S1729127AbgKQNKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728453AbgKQNGO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:14 -0500
+        id S1728530AbgKQNKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:10:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08C732225E;
-        Tue, 17 Nov 2020 13:06:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84D1C2468F;
+        Tue, 17 Nov 2020 13:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618373;
-        bh=e/ZA+rSjyNAAwAafilfOd2JPZLcajknEqJZEOpFZyaE=;
+        s=default; t=1605618647;
+        bh=MyyVrVhxxSxMlX0j11555xj4CT/uRjIwpQ6kpo5EBFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3VzHqw8CbBN4PkF00gNaYRraS+vADvQtE+7dtj4qFMR2MngfhCiuzRmKbVKPrsrJ
-         qvi0EEZT1uCRv1/Es4c9+ia+XYd77ictaYtZWiBTewv4wNX4Yxp+O0lnBT8rmbUsVT
-         TnDJfmNL07BdVr8XyngUukckJb/9hDElVU4ug5I4=
+        b=iyogoQY76u4s3q/d7T18eHTot0ZQO+vhmxorKKr1nfoint8+M6yNxKgItUpa8wVtx
+         YqwhajIM2V1fCGNt8+cYvRp/tcJ32CwlvUbz9WLBeCqcMc5AfYqzEojeuqho0t/D9H
+         IXeRUylfu7M4EEAV1B7m0+HfdObSwAeSobDteMsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        zhuoliang zhang <zhuoliang.zhang@mediatek.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/64] can: can_create_echo_skb(): fix echo skb generation: always use skb_clone()
+Subject: [PATCH 4.9 08/78] net: xfrm: fix a race condition during allocing spi
 Date:   Tue, 17 Nov 2020 14:04:34 +0100
-Message-Id: <20201117122106.687931012@linuxfoundation.org>
+Message-Id: <20201117122109.506212727@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
 
-[ Upstream commit 286228d382ba6320f04fa2e7c6fc8d4d92e428f4 ]
+[ Upstream commit a779d91314ca7208b7feb3ad817b62904397c56d ]
 
-All user space generated SKBs are owned by a socket (unless injected into the
-key via AF_PACKET). If a socket is closed, all associated skbs will be cleaned
-up.
+we found that the following race condition exists in
+xfrm_alloc_userspi flow:
 
-This leads to a problem when a CAN driver calls can_put_echo_skb() on a
-unshared SKB. If the socket is closed prior to the TX complete handler,
-can_get_echo_skb() and the subsequent delivering of the echo SKB to all
-registered callbacks, a SKB with a refcount of 0 is delivered.
+user thread                                    state_hash_work thread
+----                                           ----
+xfrm_alloc_userspi()
+ __find_acq_core()
+   /*alloc new xfrm_state:x*/
+   xfrm_state_alloc()
+   /*schedule state_hash_work thread*/
+   xfrm_hash_grow_check()   	               xfrm_hash_resize()
+ xfrm_alloc_spi                                  /*hold lock*/
+      x->id.spi = htonl(spi)                     spin_lock_bh(&net->xfrm.xfrm_state_lock)
+      /*waiting lock release*/                     xfrm_hash_transfer()
+      spin_lock_bh(&net->xfrm.xfrm_state_lock)      /*add x into hlist:net->xfrm.state_byspi*/
+	                                                hlist_add_head_rcu(&x->byspi)
+                                                 spin_unlock_bh(&net->xfrm.xfrm_state_lock)
 
-To avoid the problem, in can_get_echo_skb() the original SKB is now always
-cloned, regardless of shared SKB or not. If the process exists it can now
-safely discard its SKBs, without disturbing the delivery of the echo SKB.
+    /*add x into hlist:net->xfrm.state_byspi 2 times*/
+    hlist_add_head_rcu(&x->byspi)
 
-The problem shows up in the j1939 stack, when it clones the incoming skb, which
-detects the already 0 refcount.
+1. a new state x is alloced in xfrm_state_alloc() and added into the bydst hlist
+in  __find_acq_core() on the LHS;
+2. on the RHS, state_hash_work thread travels the old bydst and tranfers every xfrm_state
+(include x) into the new bydst hlist and new byspi hlist;
+3. user thread on the LHS gets the lock and adds x into the new byspi hlist again.
 
-We can easily reproduce this with following example:
+So the same xfrm_state (x) is added into the same list_hash
+(net->xfrm.state_byspi) 2 times that makes the list_hash become
+an inifite loop.
 
-testj1939 -B -r can0: &
-cansend can0 1823ff40#0123
+To fix the race, x->id.spi = htonl(spi) in the xfrm_alloc_spi() is moved
+to the back of spin_lock_bh, sothat state_hash_work thread no longer add x
+which id.spi is zero into the hash_list.
 
-WARNING: CPU: 0 PID: 293 at lib/refcount.c:25 refcount_warn_saturate+0x108/0x174
-refcount_t: addition on 0; use-after-free.
-Modules linked in: coda_vpu imx_vdoa videobuf2_vmalloc dw_hdmi_ahb_audio vcan
-CPU: 0 PID: 293 Comm: cansend Not tainted 5.5.0-rc6-00376-g9e20dcb7040d #1
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Backtrace:
-[<c010f570>] (dump_backtrace) from [<c010f90c>] (show_stack+0x20/0x24)
-[<c010f8ec>] (show_stack) from [<c0c3e1a4>] (dump_stack+0x8c/0xa0)
-[<c0c3e118>] (dump_stack) from [<c0127fec>] (__warn+0xe0/0x108)
-[<c0127f0c>] (__warn) from [<c01283c8>] (warn_slowpath_fmt+0xa8/0xcc)
-[<c0128324>] (warn_slowpath_fmt) from [<c0539c0c>] (refcount_warn_saturate+0x108/0x174)
-[<c0539b04>] (refcount_warn_saturate) from [<c0ad2cac>] (j1939_can_recv+0x20c/0x210)
-[<c0ad2aa0>] (j1939_can_recv) from [<c0ac9dc8>] (can_rcv_filter+0xb4/0x268)
-[<c0ac9d14>] (can_rcv_filter) from [<c0aca2cc>] (can_receive+0xb0/0xe4)
-[<c0aca21c>] (can_receive) from [<c0aca348>] (can_rcv+0x48/0x98)
-[<c0aca300>] (can_rcv) from [<c09b1fdc>] (__netif_receive_skb_one_core+0x64/0x88)
-[<c09b1f78>] (__netif_receive_skb_one_core) from [<c09b2070>] (__netif_receive_skb+0x38/0x94)
-[<c09b2038>] (__netif_receive_skb) from [<c09b2130>] (netif_receive_skb_internal+0x64/0xf8)
-[<c09b20cc>] (netif_receive_skb_internal) from [<c09b21f8>] (netif_receive_skb+0x34/0x19c)
-[<c09b21c4>] (netif_receive_skb) from [<c0791278>] (can_rx_offload_napi_poll+0x58/0xb4)
-
-Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: http://lore.kernel.org/r/20200124132656.22156-1-o.rempel@pengutronix.de
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: f034b5d4efdf ("[XFRM]: Dynamic xfrm_state hash table sizing.")
+Signed-off-by: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/can/skb.h | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ net/xfrm/xfrm_state.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/can/skb.h b/include/linux/can/skb.h
-index 51bb6532785c3..1a2111c775ae1 100644
---- a/include/linux/can/skb.h
-+++ b/include/linux/can/skb.h
-@@ -60,21 +60,17 @@ static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
-  */
- static inline struct sk_buff *can_create_echo_skb(struct sk_buff *skb)
- {
--	if (skb_shared(skb)) {
--		struct sk_buff *nskb = skb_clone(skb, GFP_ATOMIC);
-+	struct sk_buff *nskb;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 0eb85765d35a1..4d19f2ff6e052 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1591,6 +1591,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 	int err = -ENOENT;
+ 	__be32 minspi = htonl(low);
+ 	__be32 maxspi = htonl(high);
++	__be32 newspi = 0;
+ 	u32 mark = x->mark.v & x->mark.m;
  
--		if (likely(nskb)) {
--			can_skb_set_owner(nskb, skb->sk);
--			consume_skb(skb);
--			return nskb;
--		} else {
--			kfree_skb(skb);
--			return NULL;
--		}
-+	nskb = skb_clone(skb, GFP_ATOMIC);
-+	if (unlikely(!nskb)) {
-+		kfree_skb(skb);
-+		return NULL;
+ 	spin_lock_bh(&x->lock);
+@@ -1609,21 +1610,22 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 			xfrm_state_put(x0);
+ 			goto unlock;
+ 		}
+-		x->id.spi = minspi;
++		newspi = minspi;
+ 	} else {
+ 		u32 spi = 0;
+ 		for (h = 0; h < high-low+1; h++) {
+ 			spi = low + prandom_u32()%(high-low+1);
+ 			x0 = xfrm_state_lookup(net, mark, &x->id.daddr, htonl(spi), x->id.proto, x->props.family);
+ 			if (x0 == NULL) {
+-				x->id.spi = htonl(spi);
++				newspi = htonl(spi);
+ 				break;
+ 			}
+ 			xfrm_state_put(x0);
+ 		}
  	}
- 
--	/* we can assume to have an unshared skb with proper owner */
--	return skb;
-+	can_skb_set_owner(nskb, skb->sk);
-+	consume_skb(skb);
-+	return nskb;
- }
- 
- #endif /* !_CAN_SKB_H */
+-	if (x->id.spi) {
++	if (newspi) {
+ 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
++		x->id.spi = newspi;
+ 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
+ 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
+ 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 -- 
 2.27.0
 
