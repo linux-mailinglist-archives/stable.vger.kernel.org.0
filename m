@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B379D2B6406
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2162B6404
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732699AbgKQNoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:44:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
+        id S1728163AbgKQNoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:44:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733278AbgKQNmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:42:00 -0500
+        id S1732699AbgKQNmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50408207BC;
-        Tue, 17 Nov 2020 13:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 495A120729;
+        Tue, 17 Nov 2020 13:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620519;
-        bh=HZs3sKwY3AUrQ3ZOa3njDFb0VKm4z/ujkF6WC6j/QE8=;
+        s=default; t=1605620521;
+        bh=s0ADoaIuaqKSPMdXHLHeSk4jxNwWX+RpaAvPejzXCTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQv+A9lrQfhqwAbm65XUPUUVQVWT6DvbYha+iUu3b9oeZ2WmHXrWkwz7P0afAT2mR
-         sOtjkQyoe+L41dMC6ZR+v/+/0jRNU5tcQmjt2yi0Ds/wdAYQZCXIkuDzuPq/8F8Xxv
-         mc2shWPpoVvy2V+hiJqOvOSRRd0bYSG6FDnvA8zM=
+        b=Y86gabKoCrmsMxBqDtJcrZ6DyOjQYHVhycrcSfeK89s7S+8DEY6W7YdYNXbSI4wn1
+         5xM3QelZ+MbOvcJkuPaofO4AH4TjqXhEk5sqel2FNQoIAZGsSSNfhm5iKuPWEecK/w
+         ARcwQTuewSEJIUIZhOEs8a1DWkhIFmMoqD/QMb0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 246/255] tipc: fix memory leak in tipc_topsrv_start()
-Date:   Tue, 17 Nov 2020 14:06:26 +0100
-Message-Id: <20201117122150.904992739@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 247/255] devlink: Avoid overwriting port attributes of registered port
+Date:   Tue, 17 Nov 2020 14:06:27 +0100
+Message-Id: <20201117122150.953448390@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -43,64 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit fa6882c63621821f73cc806f291208e1c6ea6187 ]
+[ Upstream commit 9f73bd1c2c4c304b238051fc92b3f807326f0a89 ]
 
-kmemleak report a memory leak as follows:
+Cited commit in fixes tag overwrites the port attributes for the
+registered port.
 
-unreferenced object 0xffff88810a596800 (size 512):
-  comm "ip", pid 21558, jiffies 4297568990 (age 112.120s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 00 83 60 b0 ff ff ff ff  ..........`.....
-  backtrace:
-    [<0000000022bbe21f>] tipc_topsrv_init_net+0x1f3/0xa70
-    [<00000000fe15ddf7>] ops_init+0xa8/0x3c0
-    [<00000000138af6f2>] setup_net+0x2de/0x7e0
-    [<000000008c6807a3>] copy_net_ns+0x27d/0x530
-    [<000000006b21adbd>] create_new_namespaces+0x382/0xa30
-    [<00000000bb169746>] unshare_nsproxy_namespaces+0xa1/0x1d0
-    [<00000000fe2e42bc>] ksys_unshare+0x39c/0x780
-    [<0000000009ba3b19>] __x64_sys_unshare+0x2d/0x40
-    [<00000000614ad866>] do_syscall_64+0x56/0xa0
-    [<00000000a1b5ca3c>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Avoid such error by checking registered flag before setting attributes.
 
-'srv' is malloced in tipc_topsrv_start() but not free before
-leaving from the error handling cases. We need to free it.
-
-Fixes: 5c45ab24ac77 ("tipc: make struct tipc_server private for server.c")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20201109140913.47370-1-wanghai38@huawei.com
+Fixes: 71ad8d55f8e5 ("devlink: Replace devlink_port_attrs_set parameters with a struct")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20201111034744.35554-1-parav@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/topsrv.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/core/devlink.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -665,12 +665,18 @@ static int tipc_topsrv_start(struct net
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -7675,8 +7675,6 @@ static int __devlink_port_attrs_set(stru
+ {
+ 	struct devlink_port_attrs *attrs = &devlink_port->attrs;
  
- 	ret = tipc_topsrv_work_start(srv);
- 	if (ret < 0)
--		return ret;
-+		goto err_start;
+-	if (WARN_ON(devlink_port->registered))
+-		return -EEXIST;
+ 	devlink_port->attrs_set = true;
+ 	attrs->flavour = flavour;
+ 	if (attrs->switch_id.id_len) {
+@@ -7700,6 +7698,8 @@ void devlink_port_attrs_set(struct devli
+ {
+ 	int ret;
  
- 	ret = tipc_topsrv_create_listener(srv);
- 	if (ret < 0)
--		tipc_topsrv_work_stop(srv);
-+		goto err_create;
++	if (WARN_ON(devlink_port->registered))
++		return;
+ 	devlink_port->attrs = *attrs;
+ 	ret = __devlink_port_attrs_set(devlink_port, attrs->flavour);
+ 	if (ret)
+@@ -7719,6 +7719,8 @@ void devlink_port_attrs_pci_pf_set(struc
+ 	struct devlink_port_attrs *attrs = &devlink_port->attrs;
+ 	int ret;
  
-+	return 0;
-+
-+err_create:
-+	tipc_topsrv_work_stop(srv);
-+err_start:
-+	kfree(srv);
- 	return ret;
- }
++	if (WARN_ON(devlink_port->registered))
++		return;
+ 	ret = __devlink_port_attrs_set(devlink_port,
+ 				       DEVLINK_PORT_FLAVOUR_PCI_PF);
+ 	if (ret)
+@@ -7741,6 +7743,8 @@ void devlink_port_attrs_pci_vf_set(struc
+ 	struct devlink_port_attrs *attrs = &devlink_port->attrs;
+ 	int ret;
  
++	if (WARN_ON(devlink_port->registered))
++		return;
+ 	ret = __devlink_port_attrs_set(devlink_port,
+ 				       DEVLINK_PORT_FLAVOUR_PCI_VF);
+ 	if (ret)
 
 
