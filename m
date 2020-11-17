@@ -2,99 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD682B6DEC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 19:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55BF42B6E52
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 20:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727160AbgKQSys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 13:54:48 -0500
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:42166 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726812AbgKQSyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 13:54:47 -0500
-Received: from callcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 0AHIsPvi031521
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Nov 2020 13:54:25 -0500
-Received: by callcc.thunk.org (Postfix, from userid 15806)
-        id 276FF420107; Tue, 17 Nov 2020 13:54:25 -0500 (EST)
-Date:   Tue, 17 Nov 2020 13:54:25 -0500
-From:   "Theodore Y. Ts'o" <tytso@mit.edu>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: [RESEND][PATCH] ima: Set and clear FMODE_CAN_READ in
- ima_calc_file_hash()
-Message-ID: <20201117185425.GG445084@mit.edu>
-References: <20201113080132.16591-1-roberto.sassu@huawei.com>
- <20201114111057.GA16415@infradead.org>
- <0fd0fb3360194d909ba48f13220f9302@huawei.com>
- <20201116162202.GA15010@infradead.org>
- <c556508437ffc10d3873fe25cbbba3484ca574df.camel@linux.ibm.com>
- <CAHk-=wiso=-Fhe2m042CfBNUGhoVB1Pry14DF64uUgztHVOW0g@mail.gmail.com>
- <20201116174127.GA4578@infradead.org>
- <CAHk-=wjd0RNthZQTLVsnK_d9SFYH0rug2tkezLLB0J-YZzVC+Q@mail.gmail.com>
- <3f8cc7c9462353ac2eef58e39beee079bdd9c7b4.camel@linux.ibm.com>
- <CAHk-=wih-ibNUxeiKpuKrw3Rd2=QEAZ8zgRWt_CORAjbZykRWQ@mail.gmail.com>
+        id S1726876AbgKQTSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 14:18:16 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:60581 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726295AbgKQTSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 14:18:16 -0500
+Received: from 3.general.kamal.us.vpn ([10.172.68.53] helo=ascalon)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kamal@canonical.com>)
+        id 1kf6UY-0001EN-CX
+        for stable@vger.kernel.org; Tue, 17 Nov 2020 19:18:14 +0000
+Received: from kamal by ascalon with local (Exim 4.90_1)
+        (envelope-from <kamal@ascalon>)
+        id 1kf6UV-00009Z-9l
+        for stable@vger.kernel.org; Tue, 17 Nov 2020 11:18:11 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wih-ibNUxeiKpuKrw3Rd2=QEAZ8zgRWt_CORAjbZykRWQ@mail.gmail.com>
+Date:   Tue, 17 Nov 2020 10:51:16 -0800
+References: <20201103203232.656475008@linuxfoundation.org>
+        <20201103203239.940977599@linuxfoundation.org>
+        <87361qug5a.fsf@mpe.ellerman.id.au>
+In-Reply-To: <87361qug5a.fsf@mpe.ellerman.id.au>
+Message-ID: <CAEO-eVMZ-qjZfdum=NQCq-hur=KkHvFgJO1maHw7C1S4NFbczw@mail.gmail.com>
+Subject: Same problem for 4.14.y and a concern: Re: [PATCH 4.19 056/191]
+ powerpc: select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+From:   Kamal Mostafa <kamal@canonical.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Content-Type: multipart/alternative; boundary="000000000000ccf01a05b451fae9"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 10:23:58AM -0800, Linus Torvalds wrote:
-> On Mon, Nov 16, 2020 at 10:35 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
+--000000000000ccf01a05b451fae9
+Content-Type: text/plain; charset="UTF-8"
+
+On Tue, Nov 3, 2020 at 4:22 PM Michael Ellerman <mpe@ellerman.id.au> wrote:
+
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
+> > From: Nicholas Piggin <npiggin@gmail.com>
 > >
-> > We need to differentiate between signed files, which by definition are
-> > immutable, and those that are mutable.  Appending to a mutable file,
-> > for example, would result in the file hash not being updated.
-> > Subsequent reads would fail.
-> 
-> Why would that require any reading of the file at all AT WRITE TIME?
-> 
-> Don't do it. Really.
-> 
-> When opening the file write-only, you just invalidate the hash. It
-> doesn't matter anyway - you're only writing.
-> 
-> Later on, when reading, only at that point does the hash matter, and
-> then you can do the verification.
-> 
-> Although honestly, I don't even see the point. You know the hash won't
-> match, if you wrote to the file.
+> > [ Upstream commit 66acd46080bd9e5ad2be4b0eb1d498d5145d058e ]
+> >
+> > powerpc uses IPIs in some situations to switch a kernel thread away
+> > from a lazy tlb mm, which is subject to the TLB flushing race
+> > described in the changelog introducing ARCH_WANT_IRQS_OFF_ACTIVATE_MM.
+> >
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> > Link:
+> https://lore.kernel.org/r/20200914045219.3736466-3-npiggin@gmail.com
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  arch/powerpc/Kconfig                   | 1 +
+> >  arch/powerpc/include/asm/mmu_context.h | 2 +-
+> >  2 files changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> > index f38d153d25861..0bc53f0e37c0f 100644
+> > --- a/arch/powerpc/Kconfig
+> > +++ b/arch/powerpc/Kconfig
+> > @@ -152,6 +152,7 @@ config PPC
+> >       select ARCH_USE_BUILTIN_BSWAP
+> >       select ARCH_USE_CMPXCHG_LOCKREF         if PPC64
+> >       select ARCH_WANT_IPC_PARSE_VERSION
+> > +     select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+>
+> This depends on upstream commit:
+>
+>   d53c3dfb23c4 ("mm: fix exec activate_mm vs TLB shootdown and lazy tlb
+> switching race")
+>
+>
+> Which I don't see in 4.19 stable, or in the email thread here.
+>
+> So this shouldn't be backported to 4.19 unless that commit is also
+> backported.
+>
+> cheers
+>
 
-I think the use case the IMA folks might be thinking about is where
-they want to validate the file at open time, *before* the userspace
-application starts writing to the file, since there might be some
-subtle attacks where Boris changes the first part of the file before
-Alice appends "I agree" to said file.
+Hi-
 
-Of course, Boris will be able to modify the file after Alice has
-modified it, so it's a bit of a moot point, but one could imagine a
-scenario where the file is modified while the system is not running
-(via an evil hotel maid) and then after Alice modifies the file, of
-*course* the hash will be invalid, so no one would notice.  A sane
-application would have read the file to make sure it contained the
-proper contents before appending "I agree" to said file, so it's a bit
-of an esoteric point.
+This glitch has made its way into 4.14.y ...
+    [4.14.y] c2bca8712a19 powerpc: select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+But 4.14.y does not carry the prereq that introduces that config.
 
-The other case I could imagine is if the file is marked execute-only,
-without read access, and IMA wanted to be able to read the file to
-check the hash.  But we already make an execption for allowing the
-file to be read during page faults, so that's probably less
-controversial.
+That said, I have a more general concern about the new config (in mainline
+and the stable backports):
+    [mainline] d53c3dfb23c4 mm: fix exec activate_mm vs TLB shootdown and
+lazy tlb switching race
+It would seem that the intent is that it should be *only* enabled
+(currently at least) for arches that will explicitly select it, but the
+config advice does not make that very clear.  Could that new config get an
+explicit "default n" line?
 
-						- Ted
+ -Kamal
 
+--000000000000ccf01a05b451fae9
+Content-Type: message/external-body; access-type=x-mutt-deleted;
+	expiration="Tue, 17 Nov 2020 11:03:37 -0800"; length=86
+
+Content-Type: message/external-body; access-type=x-mutt-deleted;
+	expiration="Tue, 17 Nov 2020 11:03:06 -0800"; length=3672
+
+
+--000000000000ccf01a05b451fae9--
