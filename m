@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 381BD2B6159
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C30322B60E7
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730673AbgKQNS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:18:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50554 "EHLO mail.kernel.org"
+        id S1729472AbgKQNN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730107AbgKQNSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:18:06 -0500
+        id S1729968AbgKQNNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5523241A5;
-        Tue, 17 Nov 2020 13:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF76F24199;
+        Tue, 17 Nov 2020 13:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619086;
-        bh=++HxS3+p8gG6RTXrNM7OCmaJlpeTrw2wJbrK08BS/PM=;
+        s=default; t=1605618832;
+        bh=xeYpaxuO47D45EWr6Jn+S2bY+bmGk0f0UFnMwkgkJlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2XSJsoNDmtFHWeh+0ZmMCzd//XG78onDMeb8YONNspZg3DK/OdPnQ+sMwFLgdNNr
-         MAUWPK0RC1ickNM+G72TUuoCqL85uih3v8h/YvDyE2c4lvi0DnWJWJwIwet6e9d4/X
-         eRChoXvZX6ijg5uf1niVkQ02HSCvAeQoYYebG5MI=
+        b=qDDz72U/u8Cdfj6JBVZkZykOiXN6fJH1wkpd9pCrW3zeDCKHaVCjEyHNbFRuR1p+e
+         7QKaI/HYIGcP8DND0Xce+8SUBwpsqRpwdnBnm49ABYpV9tYxU9n+gLE2YBf+v1HfYl
+         W/l96TP0OwQ72HZMQm1na3gl3YoHNBKOqj7HuqOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 024/101] xfs: fix scrub flagging rtinherit even if there is no rt device
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Masashi Honma <masashi.honma@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 22/85] ath9k_htc: Use appropriate rs_datalen type
 Date:   Tue, 17 Nov 2020 14:04:51 +0100
-Message-Id: <20201117122114.266213618@linuxfoundation.org>
+Message-Id: <20201117122112.119772978@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-[ Upstream commit c1f6b1ac00756a7108e5fcb849a2f8230c0b62a5 ]
+commit 5024f21c159f8c1668f581fff37140741c0b1ba9 upstream.
 
-The kernel has always allowed directories to have the rtinherit flag
-set, even if there is no rt device, so this check is wrong.
+kernel test robot says:
+drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse: warning: incorrect type in assignment (different base types)
+drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse:    expected restricted __be16 [usertype] rs_datalen
+drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:987:20: sparse:    got unsigned short [usertype]
+drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:988:13: sparse: warning: restricted __be16 degrades to integer
+drivers/net/wireless/ath/ath9k/htc_drv_txrx.c:1001:13: sparse: warning: restricted __be16 degrades to integer
 
-Fixes: 80e4e1268802 ("xfs: scrub inodes")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Indeed rs_datalen has host byte order, so modify it's own type.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200808233258.4596-1-masashi.honma@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/xfs/scrub/inode.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/scrub/inode.c b/fs/xfs/scrub/inode.c
-index e386c9b0b4ab7..8d45d60832db9 100644
---- a/fs/xfs/scrub/inode.c
-+++ b/fs/xfs/scrub/inode.c
-@@ -131,8 +131,7 @@ xchk_inode_flags(
- 		goto bad;
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -973,7 +973,7 @@ static bool ath9k_rx_prepare(struct ath9
+ 	struct ath_htc_rx_status *rxstatus;
+ 	struct ath_rx_status rx_stats;
+ 	bool decrypt_error = false;
+-	__be16 rs_datalen;
++	u16 rs_datalen;
+ 	bool is_phyerr;
  
- 	/* rt flags require rt device */
--	if ((flags & (XFS_DIFLAG_REALTIME | XFS_DIFLAG_RTINHERIT)) &&
--	    !mp->m_rtdev_targp)
-+	if ((flags & XFS_DIFLAG_REALTIME) && !mp->m_rtdev_targp)
- 		goto bad;
- 
- 	/* new rt bitmap flag only valid for rbmino */
--- 
-2.27.0
-
+ 	if (skb->len < HTC_RX_FRAME_HEADER_SIZE) {
 
 
