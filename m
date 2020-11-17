@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B108A2B6561
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4317F2B645C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731655AbgKQNyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:54:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59996 "EHLO mail.kernel.org"
+        id S1732873AbgKQNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:46:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731042AbgKQNYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:52 -0500
+        id S1732980AbgKQNhl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80D2324654;
-        Tue, 17 Nov 2020 13:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E7FA20870;
+        Tue, 17 Nov 2020 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619491;
-        bh=nBUAPjoRaEwFWxkzFj7XDog9tRvrbsoXyFg3ASJmxgQ=;
+        s=default; t=1605620261;
+        bh=RYoJxuGsQ0hEKKi4IpBR0Qi7ppATwZ+UJbY48a3iQRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEarD58o7nKDyWlip/N593dDPCV2D/5UYpCPNQ42D6RRgE9kQzaHQUaUAHYkHvAE4
-         UT6DdqMgvShnXeTcMx+ko2KqfkV+SHTdujWR3CqXUacSQkgqemdW6Duu5ZIbFZnslp
-         pP0lLw1z/pUvjh+AJUVRlCCqNnAf4XrWDj4crtL0=
+        b=aLru8/yijODtjS1+K73KG2n9esvdfXkuVmkKHvb5ciR6T86fHiy64zjArCc0lqZFw
+         3TwXGV77Hcst1mXHAVveVc6NahriQNz29ch7mjfWIfUJsaAJcWaRwq95/ri4FN3ISv
+         RwoA0FEo0UrLosEJJqW+EdQd05RyI2ke8swHkmuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Billy Tsai <billy_tsai@aspeedtech.com>,
+        Tao Ren <rentao.bupt@gmail.com>, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/151] xfs: flush new eof page on truncate to avoid post-eof corruption
-Date:   Tue, 17 Nov 2020 14:04:29 +0100
-Message-Id: <20201117122123.321079352@linuxfoundation.org>
+Subject: [PATCH 5.9 130/255] gpio: aspeed: fix ast2600 bank properties
+Date:   Tue, 17 Nov 2020 14:04:30 +0100
+Message-Id: <20201117122145.261584541@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Billy Tsai <billy_tsai@aspeedtech.com>
 
-[ Upstream commit 869ae85dae64b5540e4362d7fe4cd520e10ec05c ]
+[ Upstream commit 560b6ac37a87fcb78d580437e3e0bc2b6b5b0295 ]
 
-It is possible to expose non-zeroed post-EOF data in XFS if the new
-EOF page is dirty, backed by an unwritten block and the truncate
-happens to race with writeback. iomap_truncate_page() will not zero
-the post-EOF portion of the page if the underlying block is
-unwritten. The subsequent call to truncate_setsize() will, but
-doesn't dirty the page. Therefore, if writeback happens to complete
-after iomap_truncate_page() (so it still sees the unwritten block)
-but before truncate_setsize(), the cached page becomes inconsistent
-with the on-disk block. A mapped read after the associated page is
-reclaimed or invalidated exposes non-zero post-EOF data.
+GPIO_T is mapped to the most significant byte of input/output mask, and
+the byte in "output" mask should be 0 because GPIO_T is input only. All
+the other bits need to be 1 because GPIO_Q/R/S support both input and
+output modes.
 
-For example, consider the following sequence when run on a kernel
-modified to explicitly flush the new EOF page within the race
-window:
-
-$ xfs_io -fc "falloc 0 4k" -c fsync /mnt/file
-$ xfs_io -c "pwrite 0 4k" -c "truncate 1k" /mnt/file
-  ...
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  00 00 00 00 00 00 00 00  ........
-$ umount /mnt/; mount <dev> /mnt/
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  cd cd cd cd cd cd cd cd  ........
-
-Update xfs_setattr_size() to explicitly flush the new EOF page prior
-to the page truncate to ensure iomap has the latest state of the
-underlying block.
-
-Fixes: 68a9f5e7007c ("xfs: implement iomap based buffered write path")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: ab4a85534c3e ("gpio: aspeed: Add in ast2600 details to Aspeed driver")
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_iops.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpio/gpio-aspeed.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index fe285d123d69f..dec511823fcbc 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -885,6 +885,16 @@ xfs_setattr_size(
- 		error = iomap_zero_range(inode, oldsize, newsize - oldsize,
- 				&did_zeroing, &xfs_iomap_ops);
- 	} else {
-+		/*
-+		 * iomap won't detect a dirty page over an unwritten block (or a
-+		 * cow block over a hole) and subsequently skips zeroing the
-+		 * newly post-EOF portion of the page. Flush the new EOF to
-+		 * convert the block before the pagecache truncate.
-+		 */
-+		error = filemap_write_and_wait_range(inode->i_mapping, newsize,
-+						     newsize);
-+		if (error)
-+			return error;
- 		error = iomap_truncate_page(inode, newsize, &did_zeroing,
- 				&xfs_iomap_ops);
- 	}
+diff --git a/drivers/gpio/gpio-aspeed.c b/drivers/gpio/gpio-aspeed.c
+index e44d5de2a1201..b966f5e28ebff 100644
+--- a/drivers/gpio/gpio-aspeed.c
++++ b/drivers/gpio/gpio-aspeed.c
+@@ -1114,6 +1114,7 @@ static const struct aspeed_gpio_config ast2500_config =
+ 
+ static const struct aspeed_bank_props ast2600_bank_props[] = {
+ 	/*     input	  output   */
++	{4, 0xffffffff,  0x00ffffff}, /* Q/R/S/T */
+ 	{5, 0xffffffff,  0xffffff00}, /* U/V/W/X */
+ 	{6, 0x0000ffff,  0x0000ffff}, /* Y/Z */
+ 	{ },
 -- 
 2.27.0
 
