@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D78D22B6091
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A042B60EE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729474AbgKQNKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
+        id S1729985AbgKQNOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:14:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729471AbgKQNK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:27 -0500
+        id S1728810AbgKQNOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B031221EB;
-        Tue, 17 Nov 2020 13:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 524C8246BB;
+        Tue, 17 Nov 2020 13:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618627;
-        bh=GxFu9G1t5AA2ruExj8LWp+aim6E1dmBTw3yNVClJQFw=;
+        s=default; t=1605618850;
+        bh=DKFwifTrSAb+TfOv6Bg6WjffagdiKBxeBbxVXaQ5060=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGObLs85o9hP0X1x8qZUklhqTKZ+fADz9yFRf1y5/tTs51Hm3kK+HmNpKAx4SzAEo
-         JpdzGZ3BvEXC4OQmAmsOuHbnmtB3w2Dzpa4grms52mxliAOHzr29EI0WY23JCz0db8
-         WGON4pOGLfxJdV7QYISYAmUEwX5AT45Y8codG4h0=
+        b=Y/5tSrz29eMl9Dy3CHJATzdmy3p0bLaie/RnW9D1hXndHBlAC9AxW9ejT/ede+Sbg
+         xhIx/Qbm57gP2rJA99IzTYXq9KpwFj3RubrrEM3+RJG8XLxqPkmPFUldJXYBiLsSzE
+         0Mw0l+SsyK1esfm4NxFFYZQJSR6IpRjpx+xTLxNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sandeep Raghuraman <sandy.8925@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 30/78] drm/amdgpu: perform srbm soft reset always on SDMA resume
-Date:   Tue, 17 Nov 2020 14:04:56 +0100
-Message-Id: <20201117122110.571124820@linuxfoundation.org>
+Subject: [PATCH 4.14 28/85] drm/amdgpu: perform srbm soft reset always on SDMA resume
+Date:   Tue, 17 Nov 2020 14:04:57 +0100
+Message-Id: <20201117122112.411499644@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-index cb952acc71339..2934443fbd4dc 100644
+index 11beef7c595f2..d35e5d8e8a058 100644
 --- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
 +++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
-@@ -1053,22 +1053,19 @@ static int cik_sdma_soft_reset(void *handle)
+@@ -1098,22 +1098,19 @@ static int cik_sdma_soft_reset(void *handle)
  {
  	u32 srbm_soft_reset = 0;
  	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
