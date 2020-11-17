@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 462F22B60B9
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 633402B6246
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729786AbgKQNML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:12:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42036 "EHLO mail.kernel.org"
+        id S1731693AbgKQN1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:27:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729193AbgKQNMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:09 -0500
+        id S1731692AbgKQN1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BD2B24199;
-        Tue, 17 Nov 2020 13:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E37F2168B;
+        Tue, 17 Nov 2020 13:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618728;
-        bh=hNBuE05tx2UA5FFxJmgDGikRZUiHpt5WoUd97r9C9ek=;
+        s=default; t=1605619631;
+        bh=kV+qDBtDnP2542WwcfD5iDSQX3OY2/PuyoOpF9RD6+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5ucD5+c//kVrkPIBoYdZ4Gm5iliP5CUPDzlcJWJ9dXooXc9NNa9Gs4R2I21veL+p
-         sY9KL+CKowi6ZVBzHeFlBRWChVV9/rCvXNj92DLyGPfqZnxqUXM4SH0qSX5XCtKVYw
-         dwcEWMnnG3jM+5nRyKLDN7k9eqnfDudjexM3kcJw=
+        b=ppH3/ZOLVfA85OcecF3AU06b/w3whx9nGwas06Vn83GAHs7Tju9ppADN5Ce4JW0cN
+         vbcCPYblK+TiB0+GJyFgYdul5wHAu60ntiVBpFVl1m/DKymTMoVYUC8Qu+fK4U1jQT
+         EERp/MKKIvhFIIzWhoZXIr47XWiTk/sN0isOadIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Chao Leng <lengchao@huawei.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 37/78] xfs: fix flags argument to rmap lookup when converting shared file rmaps
+Subject: [PATCH 5.4 073/151] nvme-tcp: avoid repeated request completion
 Date:   Tue, 17 Nov 2020 14:05:03 +0100
-Message-Id: <20201117122110.917210447@linuxfoundation.org>
+Message-Id: <20201117122124.970481821@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit ea8439899c0b15a176664df62aff928010fad276 ]
+[ Upstream commit 0a8a2c85b83589a5c10bc5564b796836bf4b4984 ]
 
-Pass the same oldext argument (which contains the existing rmapping's
-unwritten state) to xfs_rmap_lookup_le_range at the start of
-xfs_rmap_convert_shared.  At this point in the code, flags is zero,
-which means that we perform lookups using the wrong key.
+The request may be executed asynchronously, and rq->state may be
+changed to IDLE. To avoid repeated request completion, only
+MQ_RQ_COMPLETE of rq->state is checked in nvme_tcp_complete_timed_out.
+It is not safe, so need adding check IDLE for rq->state.
 
-Fixes: 3f165b334e51 ("xfs: convert unwritten status of reverse mappings for shared files")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Chao Leng <lengchao@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap.c | 2 +-
+ drivers/nvme/host/tcp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap.c b/fs/xfs/libxfs/xfs_rmap.c
-index 3a8cc7139912b..89fdcc641715f 100644
---- a/fs/xfs/libxfs/xfs_rmap.c
-+++ b/fs/xfs/libxfs/xfs_rmap.c
-@@ -1318,7 +1318,7 @@ xfs_rmap_convert_shared(
- 	 * record for our insertion point. This will also give us the record for
- 	 * start block contiguity tests.
- 	 */
--	error = xfs_rmap_lookup_le_range(cur, bno, owner, offset, flags,
-+	error = xfs_rmap_lookup_le_range(cur, bno, owner, offset, oldext,
- 			&PREV, &i);
- 	XFS_WANT_CORRUPTED_GOTO(mp, i == 1, done);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 76440f26c1453..a31c6e1f6063a 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -2071,7 +2071,7 @@ static void nvme_tcp_complete_timed_out(struct request *rq)
+ 	struct nvme_ctrl *ctrl = &req->queue->ctrl->ctrl;
  
+ 	nvme_tcp_stop_queue(ctrl, nvme_tcp_queue_id(req->queue));
+-	if (!blk_mq_request_completed(rq)) {
++	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq)) {
+ 		nvme_req(rq)->status = NVME_SC_HOST_ABORTED_CMD;
+ 		blk_mq_complete_request(rq);
+ 	}
 -- 
 2.27.0
 
