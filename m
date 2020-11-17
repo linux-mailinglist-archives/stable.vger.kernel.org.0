@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2C02B6531
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 329222B63C3
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731590AbgKQNwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:52:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
+        id S1732752AbgKQNlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:41:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731529AbgKQN3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:11 -0500
+        id S1733079AbgKQNlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:41:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6AFA20781;
-        Tue, 17 Nov 2020 13:29:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65D41207BC;
+        Tue, 17 Nov 2020 13:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619750;
-        bh=cu0zs86j7xIopRBr5gk/sqGY3Igq1piVnCLL7h2gk1Q=;
+        s=default; t=1605620480;
+        bh=uMt8wEHflXX1QE9Fyc2eI7neZNUuU0xC3YESKQm76W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCro9oZGlWcLKLRyHPcXHq3ujOfF6YksUps9jrIPcyi/ZfdoB7sabtUs4OLmtSbgA
-         RNmRUBvZX4cRP7zpIH+tVxmzS/jRna8eA0ppiEIpvfLkQ2DJvb5rml8JFkjkYVFSof
-         k0xG3DyYpMjMW12nOVne01ietXyU9z5U2eINkbIw=
+        b=1tGke6OvY7gd5Y7GvdLI1OLvTmfeJMuGMSiCMxtojd5dBxRWGcM6Vup66cG0/0Vx4
+         Aasl1PG74xqiE9p+ubt6wiXtDgIkz2dOvX3SLjVc2IRxPNiWzjC91vCbv2g3S+A9bH
+         F3zPGq7KD4LlEqsjPA5vVfcgexkrI55mU13hfKLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 5.4 144/151] r8169: fix potential skb double free in an error path
+        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.9 234/255] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
 Date:   Tue, 17 Nov 2020 14:06:14 +0100
-Message-Id: <20201117122128.431905207@linuxfoundation.org>
+Message-Id: <20201117122150.326264475@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-[ Upstream commit cc6528bc9a0c901c83b8220a2e2617f3354d6dd9 ]
+commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
 
-The caller of rtl8169_tso_csum_v2() frees the skb if false is returned.
-eth_skb_pad() internally frees the skb on error what would result in a
-double free. Therefore use __skb_put_padto() directly and instruct it
-to not free the skb on error.
+kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
+allocate a buffer for the swiotlb. It does so by calling
 
-Fixes: b423e9ae49d7 ("r8169: fix offloaded tx checksum for small packets.")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/f7e68191-acff-9ded-4263-c016428a8762@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
+
+If the allocation must fail, no_iotlb_memory is set.
+
+Later during initialization swiotlb-xen comes in
+(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
+is != 0, it thinks the memory is ready to use when actually it is not.
+
+When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
+and since no_iotlb_memory is set the kernel panics.
+
+Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
+initialized, it would do the initialization itself, which might still
+succeed.
+
+Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
+failure, and also by setting no_iotlb_memory to false on swiotlb
+initialization success.
+
+Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
+
+Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
+Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/realtek/r8169_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -5846,7 +5846,8 @@ static bool rtl8169_tso_csum_v2(struct r
- 		opts[1] |= transport_offset << TCPHO_SHIFT;
- 	} else {
- 		if (unlikely(rtl_test_hw_pad_bug(tp, skb)))
--			return !eth_skb_pad(skb);
-+			/* eth_skb_pad would free the skb on error */
-+			return !__skb_put_padto(skb, ETH_ZLEN, false);
+---
+ kernel/dma/swiotlb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -231,6 +231,7 @@ int __init swiotlb_init_with_tbl(char *t
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
  	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
  
- 	return true;
+ 	if (verbose)
+ 		swiotlb_print_info();
+@@ -262,9 +263,11 @@ swiotlb_init(int verbose)
+ 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
+ 		return;
+ 
+-	if (io_tlb_start)
++	if (io_tlb_start) {
+ 		memblock_free_early(io_tlb_start,
+ 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
++		io_tlb_start = 0;
++	}
+ 	pr_warn("Cannot allocate buffer");
+ 	no_iotlb_memory = true;
+ }
+@@ -362,6 +365,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
++	no_iotlb_memory = false;
+ 
+ 	swiotlb_print_info();
+ 
 
 
