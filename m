@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015832B6362
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B108A2B6561
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732965AbgKQNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
+        id S1731655AbgKQNyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:54:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732466AbgKQNhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:40 -0500
+        id S1731042AbgKQNYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:24:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6478E207BC;
-        Tue, 17 Nov 2020 13:37:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80D2324654;
+        Tue, 17 Nov 2020 13:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620258;
-        bh=aTPvIWSdGl3VNu+IMvu8NQNJp1W9U1nYpkDGppYYOTM=;
+        s=default; t=1605619491;
+        bh=nBUAPjoRaEwFWxkzFj7XDog9tRvrbsoXyFg3ASJmxgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boiD/3luQLfTlONo+giPDgdJ2wl43oP2/pySPOpQc7FvHMtOcs3E5wWP/Fkye+kc2
-         +7vaI9BpnEGbUIQTHTXd3VUy897BfJHwB0OlTVtqdZNopkju2c0Miv3LIjR8bEqQ1L
-         hseQ8AtyME/XZZ5cjpUOyM95PM5CmVZmELIWHuYA=
+        b=MEarD58o7nKDyWlip/N593dDPCV2D/5UYpCPNQ42D6RRgE9kQzaHQUaUAHYkHvAE4
+         UT6DdqMgvShnXeTcMx+ko2KqfkV+SHTdujWR3CqXUacSQkgqemdW6Duu5ZIbFZnslp
+         pP0lLw1z/pUvjh+AJUVRlCCqNnAf4XrWDj4crtL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie McClymont <jamie@kwiius.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 129/255] pinctrl: intel: Set default bias in case no particular value given
+Subject: [PATCH 5.4 039/151] xfs: flush new eof page on truncate to avoid post-eof corruption
 Date:   Tue, 17 Nov 2020 14:04:29 +0100
-Message-Id: <20201117122145.213313363@linuxfoundation.org>
+Message-Id: <20201117122123.321079352@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit f3c75e7a9349d1d33eb53ddc1b31640994969f73 ]
+[ Upstream commit 869ae85dae64b5540e4362d7fe4cd520e10ec05c ]
 
-When GPIO library asks pin control to set the bias, it doesn't pass
-any value of it and argument is considered boolean (and this is true
-for ACPI GpioIo() / GpioInt() resources, by the way). Thus, individual
-drivers must behave well, when they got the resistance value of 1 Ohm,
-i.e. transforming it to sane default.
+It is possible to expose non-zeroed post-EOF data in XFS if the new
+EOF page is dirty, backed by an unwritten block and the truncate
+happens to race with writeback. iomap_truncate_page() will not zero
+the post-EOF portion of the page if the underlying block is
+unwritten. The subsequent call to truncate_setsize() will, but
+doesn't dirty the page. Therefore, if writeback happens to complete
+after iomap_truncate_page() (so it still sees the unwritten block)
+but before truncate_setsize(), the cached page becomes inconsistent
+with the on-disk block. A mapped read after the associated page is
+reclaimed or invalidated exposes non-zero post-EOF data.
 
-In case of Intel pin control hardware the 5 kOhm sounds plausible
-because on one hand it's a minimum of resistors present in all
-hardware generations and at the same time it's high enough to minimize
-leakage current (will be only 200 uA with the above choice).
+For example, consider the following sequence when run on a kernel
+modified to explicitly flush the new EOF page within the race
+window:
 
-Fixes: e57725eabf87 ("pinctrl: intel: Add support for hardware debouncer")
-Reported-by: Jamie McClymont <jamie@kwiius.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+$ xfs_io -fc "falloc 0 4k" -c fsync /mnt/file
+$ xfs_io -c "pwrite 0 4k" -c "truncate 1k" /mnt/file
+  ...
+$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
+00000400:  00 00 00 00 00 00 00 00  ........
+$ umount /mnt/; mount <dev> /mnt/
+$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
+00000400:  cd cd cd cd cd cd cd cd  ........
+
+Update xfs_setattr_size() to explicitly flush the new EOF page prior
+to the page truncate to ensure iomap has the latest state of the
+underlying block.
+
+Fixes: 68a9f5e7007c ("xfs: implement iomap based buffered write path")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/xfs/xfs_iops.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index b738b28239bd4..31e7840bc5e25 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -683,6 +683,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
- 
- 		value |= PADCFG1_TERM_UP;
- 
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 5000;
-+
- 		switch (arg) {
- 		case 20000:
- 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
-@@ -705,6 +709,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
- 	case PIN_CONFIG_BIAS_PULL_DOWN:
- 		value &= ~(PADCFG1_TERM_UP | PADCFG1_TERM_MASK);
- 
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 5000;
-+
- 		switch (arg) {
- 		case 20000:
- 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index fe285d123d69f..dec511823fcbc 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -885,6 +885,16 @@ xfs_setattr_size(
+ 		error = iomap_zero_range(inode, oldsize, newsize - oldsize,
+ 				&did_zeroing, &xfs_iomap_ops);
+ 	} else {
++		/*
++		 * iomap won't detect a dirty page over an unwritten block (or a
++		 * cow block over a hole) and subsequently skips zeroing the
++		 * newly post-EOF portion of the page. Flush the new EOF to
++		 * convert the block before the pagecache truncate.
++		 */
++		error = filemap_write_and_wait_range(inode->i_mapping, newsize,
++						     newsize);
++		if (error)
++			return error;
+ 		error = iomap_truncate_page(inode, newsize, &did_zeroing,
+ 				&xfs_iomap_ops);
+ 	}
 -- 
 2.27.0
 
