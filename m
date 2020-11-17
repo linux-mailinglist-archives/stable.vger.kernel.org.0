@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE0F2B61B0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F292B626B
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729457AbgKQNVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+        id S1730379AbgKQN20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730849AbgKQNVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:22 -0500
+        id S1730893AbgKQN2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:28:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22EE320781;
-        Tue, 17 Nov 2020 13:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29CF72168B;
+        Tue, 17 Nov 2020 13:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619282;
-        bh=V+bMX9bLy9WydEL5j2bY3NL26LEAuj6uPzCzWy+Vkz0=;
+        s=default; t=1605619705;
+        bh=4xqtMbNtomAV5AV4pXEjKfbYcKyIPsbf3GnbHYbKyOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RV31FxDW8DDiH5KvdBl1fs3cavhkJ6MNzKBuHTU7GEtVOrB+fuJDTA/mfpBUS4ssM
-         cHFsGKJ2s3kmrQV1aUAcuBNsuRLoT5RazAmERBi8shsahHa9JTLTRV1fg7JJHCjszr
-         SjIMY92JfJHdY/9bovaLBH+Ho80RUospMXSrWHTE=
+        b=QW0+omr4MkNLsyR2utaqJLjkm+MkCp9LjKUqwuutQpe7c334dSQHW2S97NsvQD5XS
+         IxJltvNUmTgc4GOh2dErGJkpmwJU2NqCTa1GsT/qPp1nbl1uRuojzYbNXvpTLC0tKx
+         BGAO/eFKPdqbZNrVibsn0VEmUCwbOzE5SwpuuXTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 090/101] net/x25: Fix null-ptr-deref in x25_connect
-Date:   Tue, 17 Nov 2020 14:05:57 +0100
-Message-Id: <20201117122117.516605433@linuxfoundation.org>
+        stable@vger.kernel.org, Arnaud de Turckheim <quarium@gmail.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.4 128/151] gpio: pcie-idio-24: Fix irq mask when masking
+Date:   Tue, 17 Nov 2020 14:05:58 +0100
+Message-Id: <20201117122127.652559069@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Arnaud de Turckheim <quarium@gmail.com>
 
-[ Upstream commit 361182308766a265b6c521879b34302617a8c209 ]
+commit d8f270efeac850c569c305dc0baa42ac3d607988 upstream.
 
-This fixes a regression for blocking connects introduced by commit
-4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
+Fix the bitwise operation to remove only the corresponding bit from the
+mask.
 
-The x25->neighbour is already set to "NULL" by x25_disconnect() now,
-while a blocking connect is waiting in
-x25_wait_for_connection_establishment(). Therefore x25->neighbour must
-not be accessed here again and x25->state is also already set to
-X25_STATE_0 by x25_disconnect().
-
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Reviewed-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201109065449.9014-1-ms@dev.tdt.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 585562046628 ("gpio: Add GPIO support for the ACCES PCIe-IDIO-24 family")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnaud de Turckheim <quarium@gmail.com>
+Reviewed-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/x25/af_x25.c |    2 +-
+ drivers/gpio/gpio-pcie-idio-24.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -824,7 +824,7 @@ static int x25_connect(struct socket *so
- 	sock->state = SS_CONNECTED;
- 	rc = 0;
- out_put_neigh:
--	if (rc) {
-+	if (rc && x25->neighbour) {
- 		read_lock_bh(&x25_list_lock);
- 		x25_neigh_put(x25->neighbour);
- 		x25->neighbour = NULL;
+--- a/drivers/gpio/gpio-pcie-idio-24.c
++++ b/drivers/gpio/gpio-pcie-idio-24.c
+@@ -365,7 +365,7 @@ static void idio_24_irq_mask(struct irq_
+ 
+ 	raw_spin_lock_irqsave(&idio24gpio->lock, flags);
+ 
+-	idio24gpio->irq_mask &= BIT(bit_offset);
++	idio24gpio->irq_mask &= ~BIT(bit_offset);
+ 	new_irq_mask = idio24gpio->irq_mask >> bank_offset;
+ 
+ 	if (!new_irq_mask) {
 
 
