@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C547C2B61AD
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB8A2B6263
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730843AbgKQNVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S1731833AbgKQN2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730654AbgKQNVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:11 -0500
+        id S1731823AbgKQN2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:28:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68C9224631;
-        Tue, 17 Nov 2020 13:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F542168B;
+        Tue, 17 Nov 2020 13:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619271;
-        bh=/pH3EfrVK2U/e6eMTmDZBuXq5WXy2IelrJJoNSchUTI=;
+        s=default; t=1605619691;
+        bh=Q+zPvcNTMQ8xL1RFYLfLuAUC7/DAXrSDDaMTwC5n2VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkw2wSoNGVxe9ZByz+o4g+mh6debf64GRq3vc7nEM3f76VEHt3sc6ATtoCsYwig35
-         Nx5woAnOneq44qJH8bE8+v0In1D8kc4BQYkrnBE92/1vdI57xx5V6x/bLRICPalvDe
-         xEawgtkr9/KGkEFoLlnSFSonRWWgf+xqQ5kxu0A0=
+        b=2hN6j7DMTQnzLkScFMigQ1tQ6kHw2P3m+lo61KSK0sNa7yZ+DnKqJqSXVS3n9CctZ
+         HIXUNB3q3GYI5JozPivK8bsLEEO3FIa7KeAVo0lT5kLN2gEJnESuPpB72To7XdFUR2
+         NP4h03wDDj4dks3Ygx2SoyhLUv4JWbdcT4nmUET4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 4.19 086/101] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 123/151] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
 Date:   Tue, 17 Nov 2020 14:05:53 +0100
-Message-Id: <20201117122117.319836226@linuxfoundation.org>
+Message-Id: <20201117122127.407404649@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +50,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
+commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
 
-kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
-allocate a buffer for the swiotlb. It does so by calling
+Patch series "fix parsing of reboot= cmdline", v3.
 
-  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
+The parsing of the reboot= cmdline has two major errors:
 
-If the allocation must fail, no_iotlb_memory is set.
+ - a missing bound check can crash the system on reboot
 
-Later during initialization swiotlb-xen comes in
-(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
-is != 0, it thinks the memory is ready to use when actually it is not.
+ - parsing of the cpu number only works if specified last
 
-When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
-and since no_iotlb_memory is set the kernel panics.
+Fix both.
 
-Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
-initialized, it would do the initialization itself, which might still
-succeed.
+This patch (of 2):
 
-Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
-failure, and also by setting no_iotlb_memory to false on swiotlb
-initialization success.
+This reverts commit 616feab753972b97.
 
-Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
+kstrtoint() and simple_strtoul() have a subtle difference which makes
+them non interchangeable: if a non digit character is found amid the
+parsing, the former will return an error, while the latter will just
+stop parsing, e.g.  simple_strtoul("123xyx") = 123.
 
-Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
-Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+The kernel cmdline reboot= argument allows to specify the CPU used for
+rebooting, with the syntax `s####` among the other flags, e.g.
+"reboot=warm,s31,force", so if this flag is not the last given, it's
+silently ignored as well as the subsequent ones.
+
+Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/dma/swiotlb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/reboot.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -239,6 +239,7 @@ int __init swiotlb_init_with_tbl(char *t
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-+	no_iotlb_memory = false;
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -551,22 +551,15 @@ static int __init reboot_setup(char *str
+ 			break;
  
- 	if (verbose)
- 		swiotlb_print_info();
-@@ -270,9 +271,11 @@ swiotlb_init(int verbose)
- 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
- 		return;
- 
--	if (io_tlb_start)
-+	if (io_tlb_start) {
- 		memblock_free_early(io_tlb_start,
- 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
-+		io_tlb_start = 0;
-+	}
- 	pr_warn("Cannot allocate buffer");
- 	no_iotlb_memory = true;
- }
-@@ -376,6 +379,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-+	no_iotlb_memory = false;
- 
- 	swiotlb_print_info();
- 
+ 		case 's':
+-		{
+-			int rc;
+-
+-			if (isdigit(*(str+1))) {
+-				rc = kstrtoint(str+1, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else if (str[1] == 'm' && str[2] == 'p' &&
+-				   isdigit(*(str+3))) {
+-				rc = kstrtoint(str+3, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else
++			if (isdigit(*(str+1)))
++				reboot_cpu = simple_strtoul(str+1, NULL, 0);
++			else if (str[1] == 'm' && str[2] == 'p' &&
++							isdigit(*(str+3)))
++				reboot_cpu = simple_strtoul(str+3, NULL, 0);
++			else
+ 				*mode = REBOOT_SOFT;
+ 			break;
+-		}
++
+ 		case 'g':
+ 			*mode = REBOOT_GPIO;
+ 			break;
 
 
