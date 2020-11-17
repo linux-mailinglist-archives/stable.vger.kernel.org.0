@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C27F2B65C6
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFC82B65D9
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730164AbgKQNPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:15:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46604 "EHLO mail.kernel.org"
+        id S1730970AbgKQN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:58:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730162AbgKQNPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:15:17 -0500
+        id S1730719AbgKQNSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:18:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAD86246BF;
-        Tue, 17 Nov 2020 13:15:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 599FF241A5;
+        Tue, 17 Nov 2020 13:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618916;
-        bh=EXnd/v92FTeYhAqhSbs36rm6Qfj6+smhBqqNFaS+fqE=;
+        s=default; t=1605619126;
+        bh=SnepZuuxBUTh5IC8cqvisuAQiXYcSoQE1ksk/gIdIa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duwb3jp470+u9N55hah5lphWw6r3yWJyXlBUFiX/g/BrZpPmpltGRgaBsZizIRgQF
-         Erq4LB7gtiEcDM2FfEoe60Vy4tT0BHGHegPreyD8EkOkOJM+L4/Eni0wfTe/Kaxs41
-         o106iv8+P97e0XnnWYy8qELBK61iUBjvrJGwax1w=
+        b=v1yvS4cdh4OvC3dDEdi5eOdJZl/oFbCM/BqiZ5mowtoTqjp+A7FBlmWrDrhEmQ6N5
+         jsT8W9cuCw5cyVuZV2MlS6L6E6pRRmJiUCu9/kIOxqovrW96/+MSWX/YJ8+C16qW6r
+         GJSCil4+JPL80R3U4DdjgPJ8Fgxyvd4FBjR2m5yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie McClymont <jamie@kwiius.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/85] pinctrl: intel: Set default bias in case no particular value given
+Subject: [PATCH 4.19 036/101] drm/amdgpu: perform srbm soft reset always on SDMA resume
 Date:   Tue, 17 Nov 2020 14:05:03 +0100
-Message-Id: <20201117122112.699344401@linuxfoundation.org>
+Message-Id: <20201117122114.847410966@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit f3c75e7a9349d1d33eb53ddc1b31640994969f73 ]
+[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
 
-When GPIO library asks pin control to set the bias, it doesn't pass
-any value of it and argument is considered boolean (and this is true
-for ACPI GpioIo() / GpioInt() resources, by the way). Thus, individual
-drivers must behave well, when they got the resistance value of 1 Ohm,
-i.e. transforming it to sane default.
+This can address the random SDMA hang after pci config reset
+seen on Hawaii.
 
-In case of Intel pin control hardware the 5 kOhm sounds plausible
-because on one hand it's a minimum of resistors present in all
-hardware generations and at the same time it's high enough to minimize
-leakage current (will be only 200 uA with the above choice).
-
-Fixes: e57725eabf87 ("pinctrl: intel: Add support for hardware debouncer")
-Reported-by: Jamie McClymont <jamie@kwiius.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 71df0f70b61f0..45b062b0d4188 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -602,6 +602,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned pin,
+diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+index d0fa2aac23888..ca66c2f797584 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
++++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+@@ -1086,22 +1086,19 @@ static int cik_sdma_soft_reset(void *handle)
+ {
+ 	u32 srbm_soft_reset = 0;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-	u32 tmp = RREG32(mmSRBM_STATUS2);
++	u32 tmp;
  
- 		value |= PADCFG1_TERM_UP;
- 
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 5000;
+-	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
+-		/* sdma0 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
+-	}
+-	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
+-		/* sdma1 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+-	}
++	/* sdma0 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
 +
- 		switch (arg) {
- 		case 20000:
- 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
-@@ -624,6 +628,10 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned pin,
- 	case PIN_CONFIG_BIAS_PULL_DOWN:
- 		value &= ~(PADCFG1_TERM_UP | PADCFG1_TERM_MASK);
++	/* sdma1 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
  
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 5000;
-+
- 		switch (arg) {
- 		case 20000:
- 			value |= PADCFG1_TERM_20K << PADCFG1_TERM_SHIFT;
+ 	if (srbm_soft_reset) {
+ 		tmp = RREG32(mmSRBM_SOFT_RESET);
 -- 
 2.27.0
 
