@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F782B60D4
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 606222B613D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgKQNNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:13:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+        id S1730523AbgKQNRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:17:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728827AbgKQNNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:13:06 -0500
+        id S1730331AbgKQNRL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE78C221EB;
-        Tue, 17 Nov 2020 13:13:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CDA821734;
+        Tue, 17 Nov 2020 13:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618786;
-        bh=7VGnJb/e2JX3WsNJAqASnGnKnnUvJYAr5ZezzCKHD/E=;
+        s=default; t=1605619030;
+        bh=1ei5hvYYh0J7ib1lLGCSVXe659qGcmv8JcTQoiDUDss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMF2PnXUHSSLwKP0heeixyArmfjzaygeBJDmebp6h6uMKmkIcmeL6164nSIhit2hT
-         sVCqIRV9LGkE+PeFA0NsYN6rdkn+Ux3m7lyOCrmeVZ67knx9ZE2p8UHCqW0NmDicKt
-         hQ884Ck0W89+KdGP8yfixVjA8EUWvWom+zWrHQtY=
+        b=j2hsHPD0YmZkLdZ67+NBFCymWuLyg72UQj/se7ChAeAhXQ7ykHcyY/AY+EaYfmG5x
+         FOClJUv2/24XpSBmCTVXE6mDU27rDwr8Wc8ccgpAavUXcioCzm5fbk7/upFYNqy/qJ
+         a5J0q/6e5y2yNdSYAcPkeyeqtdqHAxwuZls2CcVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wade Mealing <wmealing@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 74/78] perf/core: Fix race in the perf_mmap_close() function
-Date:   Tue, 17 Nov 2020 14:05:40 +0100
-Message-Id: <20201117122112.722605910@linuxfoundation.org>
+        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Wei Liu <wl@xen.org>
+Subject: [PATCH 4.14 72/85] xen/events: add a new "late EOI" evtchn framework
+Date:   Tue, 17 Nov 2020 14:05:41 +0100
+Message-Id: <20201117122114.567671512@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +44,342 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f91072ed1b7283b13ca57fcfbece5a3b92726143 upstream.
+commit 54c9de89895e0a36047fcc4ae754ea5b8655fb9d upstream.
 
-There's a possible race in perf_mmap_close() when checking ring buffer's
-mmap_count refcount value. The problem is that the mmap_count check is
-not atomic because we call atomic_dec() and atomic_read() separately.
+In order to avoid tight event channel related IRQ loops add a new
+framework of "late EOI" handling: the IRQ the event channel is bound
+to will be masked until the event has been handled and the related
+driver is capable to handle another event. The driver is responsible
+for unmasking the event channel via the new function xen_irq_lateeoi().
 
-  perf_mmap_close:
-  ...
-   atomic_dec(&rb->mmap_count);
-   ...
-   if (atomic_read(&rb->mmap_count))
-      goto out_put;
+This is similar to binding an event channel to a threaded IRQ, but
+without having to structure the driver accordingly.
 
-   <ring buffer detach>
-   free_uid
+In order to support a future special handling in case a rogue guest
+is sending lots of unsolicited events, add a flag to xen_irq_lateeoi()
+which can be set by the caller to indicate the event was a spurious
+one.
 
-out_put:
-  ring_buffer_put(rb); /* could be last */
+This is part of XSA-332.
 
-The race can happen when we have two (or more) events sharing same ring
-buffer and they go through atomic_dec() and then they both see 0 as refcount
-value later in atomic_read(). Then both will go on and execute code which
-is meant to be run just once.
-
-The code that detaches ring buffer is probably fine to be executed more
-than once, but the problem is in calling free_uid(), which will later on
-demonstrate in related crashes and refcount warnings, like:
-
-  refcount_t: addition on 0; use-after-free.
-  ...
-  RIP: 0010:refcount_warn_saturate+0x6d/0xf
-  ...
-  Call Trace:
-  prepare_creds+0x190/0x1e0
-  copy_creds+0x35/0x172
-  copy_process+0x471/0x1a80
-  _do_fork+0x83/0x3a0
-  __do_sys_wait4+0x83/0x90
-  __do_sys_clone+0x85/0xa0
-  do_syscall_64+0x5b/0x1e0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Using atomic decrease and check instead of separated calls.
-
-Tested-by: Michael Petlan <mpetlan@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Wade Mealing <wmealing@redhat.com>
-Fixes: 9bb5d40cd93c ("perf: Fix mmap() accounting hole");
-Link: https://lore.kernel.org/r/20200916115311.GE2301783@krava
-[sudip: backport to v4.9.y by using ring_buffer]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/xen/events/events_base.c |  151 ++++++++++++++++++++++++++++++++++-----
+ include/xen/events.h             |   29 ++++++-
+ 2 files changed, 159 insertions(+), 21 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5069,11 +5069,11 @@ static void perf_pmu_output_stop(struct
- static void perf_mmap_close(struct vm_area_struct *vma)
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -111,6 +111,7 @@ static bool (*pirq_needs_eoi)(unsigned i
+ static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
+ 
+ static struct irq_chip xen_dynamic_chip;
++static struct irq_chip xen_lateeoi_chip;
+ static struct irq_chip xen_percpu_chip;
+ static struct irq_chip xen_pirq_chip;
+ static void enable_dynirq(struct irq_data *data);
+@@ -395,6 +396,33 @@ void notify_remote_via_irq(int irq)
+ }
+ EXPORT_SYMBOL_GPL(notify_remote_via_irq);
+ 
++static void xen_irq_lateeoi_locked(struct irq_info *info)
++{
++	evtchn_port_t evtchn;
++
++	evtchn = info->evtchn;
++	if (!VALID_EVTCHN(evtchn))
++		return;
++
++	unmask_evtchn(evtchn);
++}
++
++void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags)
++{
++	struct irq_info *info;
++	unsigned long flags;
++
++	read_lock_irqsave(&evtchn_rwlock, flags);
++
++	info = info_for_irq(irq);
++
++	if (info)
++		xen_irq_lateeoi_locked(info);
++
++	read_unlock_irqrestore(&evtchn_rwlock, flags);
++}
++EXPORT_SYMBOL_GPL(xen_irq_lateeoi);
++
+ static void xen_irq_init(unsigned irq)
  {
- 	struct perf_event *event = vma->vm_file->private_data;
--
- 	struct ring_buffer *rb = ring_buffer_get(event);
- 	struct user_struct *mmap_user = rb->mmap_user;
- 	int mmap_locked = rb->mmap_locked;
- 	unsigned long size = perf_data_size(rb);
-+	bool detach_rest = false;
+ 	struct irq_info *info;
+@@ -866,7 +894,7 @@ int xen_pirq_from_irq(unsigned irq)
+ }
+ EXPORT_SYMBOL_GPL(xen_pirq_from_irq);
  
- 	if (event->pmu->event_unmapped)
- 		event->pmu->event_unmapped(event);
-@@ -5104,7 +5104,8 @@ static void perf_mmap_close(struct vm_ar
- 		mutex_unlock(&event->mmap_mutex);
- 	}
+-int bind_evtchn_to_irq(unsigned int evtchn)
++static int bind_evtchn_to_irq_chip(evtchn_port_t evtchn, struct irq_chip *chip)
+ {
+ 	int irq;
+ 	int ret;
+@@ -883,7 +911,7 @@ int bind_evtchn_to_irq(unsigned int evtc
+ 		if (irq < 0)
+ 			goto out;
  
--	atomic_dec(&rb->mmap_count);
-+	if (atomic_dec_and_test(&rb->mmap_count))
-+		detach_rest = true;
+-		irq_set_chip_and_handler_name(irq, &xen_dynamic_chip,
++		irq_set_chip_and_handler_name(irq, chip,
+ 					      handle_edge_irq, "event");
  
- 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
- 		goto out_put;
-@@ -5113,7 +5114,7 @@ static void perf_mmap_close(struct vm_ar
- 	mutex_unlock(&event->mmap_mutex);
+ 		ret = xen_irq_info_evtchn_setup(irq, evtchn);
+@@ -904,8 +932,19 @@ out:
  
- 	/* If there's still other mmap()s of this buffer, we're done. */
--	if (atomic_read(&rb->mmap_count))
-+	if (!detach_rest)
- 		goto out_put;
+ 	return irq;
+ }
++
++int bind_evtchn_to_irq(evtchn_port_t evtchn)
++{
++	return bind_evtchn_to_irq_chip(evtchn, &xen_dynamic_chip);
++}
+ EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
  
- 	/*
++int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn)
++{
++	return bind_evtchn_to_irq_chip(evtchn, &xen_lateeoi_chip);
++}
++EXPORT_SYMBOL_GPL(bind_evtchn_to_irq_lateeoi);
++
+ static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
+ {
+ 	struct evtchn_bind_ipi bind_ipi;
+@@ -947,8 +986,9 @@ static int bind_ipi_to_irq(unsigned int
+ 	return irq;
+ }
+ 
+-int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
+-				   unsigned int remote_port)
++static int bind_interdomain_evtchn_to_irq_chip(unsigned int remote_domain,
++					       evtchn_port_t remote_port,
++					       struct irq_chip *chip)
+ {
+ 	struct evtchn_bind_interdomain bind_interdomain;
+ 	int err;
+@@ -959,10 +999,26 @@ int bind_interdomain_evtchn_to_irq(unsig
+ 	err = HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain,
+ 					  &bind_interdomain);
+ 
+-	return err ? : bind_evtchn_to_irq(bind_interdomain.local_port);
++	return err ? : bind_evtchn_to_irq_chip(bind_interdomain.local_port,
++					       chip);
++}
++
++int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
++				   evtchn_port_t remote_port)
++{
++	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
++						   &xen_dynamic_chip);
+ }
+ EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq);
+ 
++int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
++					   evtchn_port_t remote_port)
++{
++	return bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
++						   &xen_lateeoi_chip);
++}
++EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irq_lateeoi);
++
+ static int find_virq(unsigned int virq, unsigned int cpu)
+ {
+ 	struct evtchn_status status;
+@@ -1058,14 +1114,15 @@ static void unbind_from_irq(unsigned int
+ 	mutex_unlock(&irq_mapping_update_lock);
+ }
+ 
+-int bind_evtchn_to_irqhandler(unsigned int evtchn,
+-			      irq_handler_t handler,
+-			      unsigned long irqflags,
+-			      const char *devname, void *dev_id)
++static int bind_evtchn_to_irqhandler_chip(evtchn_port_t evtchn,
++					  irq_handler_t handler,
++					  unsigned long irqflags,
++					  const char *devname, void *dev_id,
++					  struct irq_chip *chip)
+ {
+ 	int irq, retval;
+ 
+-	irq = bind_evtchn_to_irq(evtchn);
++	irq = bind_evtchn_to_irq_chip(evtchn, chip);
+ 	if (irq < 0)
+ 		return irq;
+ 	retval = request_irq(irq, handler, irqflags, devname, dev_id);
+@@ -1076,18 +1133,38 @@ int bind_evtchn_to_irqhandler(unsigned i
+ 
+ 	return irq;
+ }
++
++int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
++			      irq_handler_t handler,
++			      unsigned long irqflags,
++			      const char *devname, void *dev_id)
++{
++	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
++					      devname, dev_id,
++					      &xen_dynamic_chip);
++}
+ EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler);
+ 
+-int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
+-					  unsigned int remote_port,
+-					  irq_handler_t handler,
+-					  unsigned long irqflags,
+-					  const char *devname,
+-					  void *dev_id)
++int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
++				      irq_handler_t handler,
++				      unsigned long irqflags,
++				      const char *devname, void *dev_id)
++{
++	return bind_evtchn_to_irqhandler_chip(evtchn, handler, irqflags,
++					      devname, dev_id,
++					      &xen_lateeoi_chip);
++}
++EXPORT_SYMBOL_GPL(bind_evtchn_to_irqhandler_lateeoi);
++
++static int bind_interdomain_evtchn_to_irqhandler_chip(
++		unsigned int remote_domain, evtchn_port_t remote_port,
++		irq_handler_t handler, unsigned long irqflags,
++		const char *devname, void *dev_id, struct irq_chip *chip)
+ {
+ 	int irq, retval;
+ 
+-	irq = bind_interdomain_evtchn_to_irq(remote_domain, remote_port);
++	irq = bind_interdomain_evtchn_to_irq_chip(remote_domain, remote_port,
++						  chip);
+ 	if (irq < 0)
+ 		return irq;
+ 
+@@ -1099,8 +1176,33 @@ int bind_interdomain_evtchn_to_irqhandle
+ 
+ 	return irq;
+ }
++
++int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
++					  evtchn_port_t remote_port,
++					  irq_handler_t handler,
++					  unsigned long irqflags,
++					  const char *devname,
++					  void *dev_id)
++{
++	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
++				remote_port, handler, irqflags, devname,
++				dev_id, &xen_dynamic_chip);
++}
+ EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler);
+ 
++int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
++						  evtchn_port_t remote_port,
++						  irq_handler_t handler,
++						  unsigned long irqflags,
++						  const char *devname,
++						  void *dev_id)
++{
++	return bind_interdomain_evtchn_to_irqhandler_chip(remote_domain,
++				remote_port, handler, irqflags, devname,
++				dev_id, &xen_lateeoi_chip);
++}
++EXPORT_SYMBOL_GPL(bind_interdomain_evtchn_to_irqhandler_lateeoi);
++
+ int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
+ 			    irq_handler_t handler,
+ 			    unsigned long irqflags, const char *devname, void *dev_id)
+@@ -1641,6 +1743,21 @@ static struct irq_chip xen_dynamic_chip
+ 	.irq_mask_ack		= mask_ack_dynirq,
+ 
+ 	.irq_set_affinity	= set_affinity_irq,
++	.irq_retrigger		= retrigger_dynirq,
++};
++
++static struct irq_chip xen_lateeoi_chip __read_mostly = {
++	/* The chip name needs to contain "xen-dyn" for irqbalance to work. */
++	.name			= "xen-dyn-lateeoi",
++
++	.irq_disable		= disable_dynirq,
++	.irq_mask		= disable_dynirq,
++	.irq_unmask		= enable_dynirq,
++
++	.irq_ack		= mask_ack_dynirq,
++	.irq_mask_ack		= mask_ack_dynirq,
++
++	.irq_set_affinity	= set_affinity_irq,
+ 	.irq_retrigger		= retrigger_dynirq,
+ };
+ 
+--- a/include/xen/events.h
++++ b/include/xen/events.h
+@@ -14,11 +14,16 @@
+ 
+ unsigned xen_evtchn_nr_channels(void);
+ 
+-int bind_evtchn_to_irq(unsigned int evtchn);
+-int bind_evtchn_to_irqhandler(unsigned int evtchn,
++int bind_evtchn_to_irq(evtchn_port_t evtchn);
++int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn);
++int bind_evtchn_to_irqhandler(evtchn_port_t evtchn,
+ 			      irq_handler_t handler,
+ 			      unsigned long irqflags, const char *devname,
+ 			      void *dev_id);
++int bind_evtchn_to_irqhandler_lateeoi(evtchn_port_t evtchn,
++				      irq_handler_t handler,
++				      unsigned long irqflags, const char *devname,
++				      void *dev_id);
+ int bind_virq_to_irq(unsigned int virq, unsigned int cpu, bool percpu);
+ int bind_virq_to_irqhandler(unsigned int virq, unsigned int cpu,
+ 			    irq_handler_t handler,
+@@ -31,13 +36,21 @@ int bind_ipi_to_irqhandler(enum ipi_vect
+ 			   const char *devname,
+ 			   void *dev_id);
+ int bind_interdomain_evtchn_to_irq(unsigned int remote_domain,
+-				   unsigned int remote_port);
++				   evtchn_port_t remote_port);
++int bind_interdomain_evtchn_to_irq_lateeoi(unsigned int remote_domain,
++					   evtchn_port_t remote_port);
+ int bind_interdomain_evtchn_to_irqhandler(unsigned int remote_domain,
+-					  unsigned int remote_port,
++					  evtchn_port_t remote_port,
+ 					  irq_handler_t handler,
+ 					  unsigned long irqflags,
+ 					  const char *devname,
+ 					  void *dev_id);
++int bind_interdomain_evtchn_to_irqhandler_lateeoi(unsigned int remote_domain,
++						  evtchn_port_t remote_port,
++						  irq_handler_t handler,
++						  unsigned long irqflags,
++						  const char *devname,
++						  void *dev_id);
+ 
+ /*
+  * Common unbind function for all event sources. Takes IRQ to unbind from.
+@@ -46,6 +59,14 @@ int bind_interdomain_evtchn_to_irqhandle
+  */
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id);
+ 
++/*
++ * Send late EOI for an IRQ bound to an event channel via one of the *_lateeoi
++ * functions above.
++ */
++void xen_irq_lateeoi(unsigned int irq, unsigned int eoi_flags);
++/* Signal an event was spurious, i.e. there was no action resulting from it. */
++#define XEN_EOI_FLAG_SPURIOUS	0x00000001
++
+ #define XEN_IRQ_PRIORITY_MAX     EVTCHN_FIFO_PRIORITY_MAX
+ #define XEN_IRQ_PRIORITY_DEFAULT EVTCHN_FIFO_PRIORITY_DEFAULT
+ #define XEN_IRQ_PRIORITY_MIN     EVTCHN_FIFO_PRIORITY_MIN
 
 
