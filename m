@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B56862B6554
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 705C32B637C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgKQNyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:54:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60880 "EHLO mail.kernel.org"
+        id S1732650AbgKQNii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:38:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731325AbgKQNZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:25:32 -0500
+        id S1732556AbgKQNgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:36:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D15BB2467A;
-        Tue, 17 Nov 2020 13:25:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D627A24654;
+        Tue, 17 Nov 2020 13:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619532;
-        bh=HCe0DP9BnJK7T3S+o+8ivohKlRajP+v2pafi63MpJ3I=;
+        s=default; t=1605620173;
+        bh=ZiZ4IgdMoOWjO2OPHzsRuRDLUTgimNHjwbGZFbK4Udg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kQNcC2At+Rl4Ri3GT4hBDZGPyOwChqFra22Ge4uVd04e3C8aIb/Vfk/Zqox26F+S
-         /ThaLo7t7CQsJ8IeV/suGrWkDco3MXBeMYK8hMdocuhblo8pFaP/A1TV4vW6gkGYuE
-         Q0iOBf2WGGotnivTdyYWNSXVK85pNJlgVa8sBU/A=
+        b=eKno5ORHmLNWJbBXqggg5AjPrRzky6qCmxxSaMDCzONWJK3VDbn+vkRYIUQGAG7WF
+         Ku+tkUdalnVc0GwqjI42+reeFDoBT0JTdFZ2JwQWUSSnj/mlz3WV6gS2320Ow9mJs0
+         6QcHs9SSFJo7Ff5uoG3gj9oBFOHx/EDSbO64FmS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Kenneth R. Crudup" <kenny@panix.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Luka Oreskovic <luka.oreskovic@sartura.hr>,
+        Joel Stanley <joel@jms.id.au>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Juraj Vijtiuk <juraj.vijtiuk@sartura.hr>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/151] tpm: efi: Dont create binary_bios_measurements file for an empty log
+Subject: [PATCH 5.9 131/255] ARM: 9019/1: kprobes: Avoid fortify_panic() when copying optprobe template
 Date:   Tue, 17 Nov 2020 14:04:31 +0100
-Message-Id: <20201117122123.421412098@linuxfoundation.org>
+Message-Id: <20201117122145.309777301@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,112 +48,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-[ Upstream commit 8ffd778aff45be760292225049e0141255d4ad6e ]
+[ Upstream commit 9fa2e7af3d53a4b769136eccc32c02e128a4ee51 ]
 
-Mimic the pre-existing ACPI and Device Tree event log behavior by not
-creating the binary_bios_measurements file when the EFI TPM event log is
-empty.
+Setting both CONFIG_KPROBES=y and CONFIG_FORTIFY_SOURCE=y on ARM leads
+to a panic in memcpy() when injecting a kprobe despite the fixes found
+in commit e46daee53bb5 ("ARM: 8806/1: kprobes: Fix false positive with
+FORTIFY_SOURCE") and commit 0ac569bf6a79 ("ARM: 8834/1: Fix: kprobes:
+optimized kprobes illegal instruction").
 
-This fixes the following NULL pointer dereference that can occur when
-reading /sys/kernel/security/tpm0/binary_bios_measurements after the
-kernel received an empty event log from the firmware:
+arch/arm/include/asm/kprobes.h effectively declares
+the target type of the optprobe_template_entry assembly label as a u32
+which leads memcpy()'s __builtin_object_size() call to determine that
+the pointed-to object is of size four. However, the symbol is used as a handle
+for the optimised probe assembly template that is at least 96 bytes in size.
+The symbol's use despite its type blows up the memcpy() in ARM's
+arch_prepare_optimized_kprobe() with a false-positive fortify_panic() when it
+should instead copy the optimised probe template into place:
 
- BUG: kernel NULL pointer dereference, address: 000000000000002c
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] SMP PTI
- CPU: 2 PID: 3932 Comm: fwupdtpmevlog Not tainted 5.9.0-00003-g629990edad62 #17
- Hardware name: LENOVO 20LCS03L00/20LCS03L00, BIOS N27ET38W (1.24 ) 11/28/2019
- RIP: 0010:tpm2_bios_measurements_start+0x3a/0x550
- Code: 54 53 48 83 ec 68 48 8b 57 70 48 8b 1e 65 48 8b 04 25 28 00 00 00 48 89 45 d0 31 c0 48 8b 82 c0 06 00 00 48 8b 8a c8 06 00 00 <44> 8b 60 1c 48 89 4d a0 4c 89 e2 49 83 c4 20 48 83 fb 00 75 2a 49
- RSP: 0018:ffffa9c901203db0 EFLAGS: 00010246
- RAX: 0000000000000010 RBX: 0000000000000000 RCX: 0000000000000010
- RDX: ffff8ba1eb99c000 RSI: ffff8ba1e4ce8280 RDI: ffff8ba1e4ce8258
- RBP: ffffa9c901203e40 R08: ffffa9c901203dd8 R09: ffff8ba1ec443300
- R10: ffffa9c901203e50 R11: 0000000000000000 R12: ffff8ba1e4ce8280
- R13: ffffa9c901203ef0 R14: ffffa9c901203ef0 R15: ffff8ba1e4ce8258
- FS:  00007f6595460880(0000) GS:ffff8ba1ef880000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000000000000002c CR3: 00000007d8d18003 CR4: 00000000003706e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  ? __kmalloc_node+0x113/0x320
-  ? kvmalloc_node+0x31/0x80
-  seq_read+0x94/0x420
-  vfs_read+0xa7/0x190
-  ksys_read+0xa7/0xe0
-  __x64_sys_read+0x1a/0x20
-  do_syscall_64+0x37/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+```
+$ sudo perf probe -a aspeed_g6_pinctrl_probe
+[  158.457252] detected buffer overflow in memcpy
+[  158.458069] ------------[ cut here ]------------
+[  158.458283] kernel BUG at lib/string.c:1153!
+[  158.458436] Internal error: Oops - BUG: 0 [#1] SMP ARM
+[  158.458768] Modules linked in:
+[  158.459043] CPU: 1 PID: 99 Comm: perf Not tainted 5.9.0-rc7-00038-gc53ebf8167e9 #158
+[  158.459296] Hardware name: Generic DT based system
+[  158.459529] PC is at fortify_panic+0x18/0x20
+[  158.459658] LR is at __irq_work_queue_local+0x3c/0x74
+[  158.459831] pc : [<8047451c>]    lr : [<8020ecd4>]    psr: 60000013
+[  158.460032] sp : be2d1d50  ip : be2d1c58  fp : be2d1d5c
+[  158.460174] r10: 00000006  r9 : 00000000  r8 : 00000060
+[  158.460348] r7 : 8011e434  r6 : b9e0b800  r5 : 7f000000  r4 : b9fe4f0c
+[  158.460557] r3 : 80c04cc8  r2 : 00000000  r1 : be7c03cc  r0 : 00000022
+[  158.460801] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[  158.461037] Control: 10c5387d  Table: b9cd806a  DAC: 00000051
+[  158.461251] Process perf (pid: 99, stack limit = 0x81c71a69)
+[  158.461472] Stack: (0xbe2d1d50 to 0xbe2d2000)
+[  158.461757] 1d40:                                     be2d1d84 be2d1d60 8011e724 80474510
+[  158.462104] 1d60: b9e0b800 b9fe4f0c 00000000 b9fe4f14 80c8ec80 be235000 be2d1d9c be2d1d88
+[  158.462436] 1d80: 801cee44 8011e57c b9fe4f0c 00000000 be2d1dc4 be2d1da0 801d0ad0 801cedec
+[  158.462742] 1da0: 00000000 00000000 b9fe4f00 ffffffea 00000000 be235000 be2d1de4 be2d1dc8
+[  158.463087] 1dc0: 80204604 801d0738 00000000 00000000 b9fe4004 ffffffea be2d1e94 be2d1de8
+[  158.463428] 1de0: 80205434 80204570 00385c00 00000000 00000000 00000000 be2d1e14 be2d1e08
+[  158.463880] 1e00: 802ba014 b9fe4f00 b9e718c0 b9fe4f84 b9e71ec8 be2d1e24 00000000 00385c00
+[  158.464365] 1e20: 00000000 626f7270 00000065 802b905c be2d1e94 0000002e 00000000 802b9914
+[  158.464829] 1e40: be2d1e84 be2d1e50 802b9914 8028ff78 804629d0 b9e71ec0 0000002e b9e71ec0
+[  158.465141] 1e60: be2d1ea8 80c04cc8 00000cc0 b9e713c4 00000002 80205834 80205834 0000002e
+[  158.465488] 1e80: be235000 be235000 be2d1ea4 be2d1e98 80205854 80204e94 be2d1ecc be2d1ea8
+[  158.465806] 1ea0: 801ee4a0 80205840 00000002 80c04cc8 00000000 0000002e 0000002e 00000000
+[  158.466110] 1ec0: be2d1f0c be2d1ed0 801ee5c8 801ee428 00000000 be2d0000 006b1fd0 00000051
+[  158.466398] 1ee0: 00000000 b9eedf00 0000002e 80204410 006b1fd0 be2d1f60 00000000 00000004
+[  158.466763] 1f00: be2d1f24 be2d1f10 8020442c 801ee4c4 80205834 802c613c be2d1f5c be2d1f28
+[  158.467102] 1f20: 802c60ac 8020441c be2d1fac be2d1f38 8010c764 802e9888 be2d1f5c b9eedf00
+[  158.467447] 1f40: b9eedf00 006b1fd0 0000002e 00000000 be2d1f94 be2d1f60 802c634c 802c5fec
+[  158.467812] 1f60: 00000000 00000000 00000000 80c04cc8 006b1fd0 00000003 76f7a610 00000004
+[  158.468155] 1f80: 80100284 be2d0000 be2d1fa4 be2d1f98 802c63ec 802c62e8 00000000 be2d1fa8
+[  158.468508] 1fa0: 80100080 802c63e0 006b1fd0 00000003 00000003 006b1fd0 0000002e 00000000
+[  158.468858] 1fc0: 006b1fd0 00000003 76f7a610 00000004 006b1fb0 0026d348 00000017 7ef2738c
+[  158.469202] 1fe0: 76f3431c 7ef272d8 0014ec50 76f34338 60000010 00000003 00000000 00000000
+[  158.469461] Backtrace:
+[  158.469683] [<80474504>] (fortify_panic) from [<8011e724>] (arch_prepare_optimized_kprobe+0x1b4/0x1f8)
+[  158.470021] [<8011e570>] (arch_prepare_optimized_kprobe) from [<801cee44>] (alloc_aggr_kprobe+0x64/0x70)
+[  158.470287]  r9:be235000 r8:80c8ec80 r7:b9fe4f14 r6:00000000 r5:b9fe4f0c r4:b9e0b800
+[  158.470478] [<801cede0>] (alloc_aggr_kprobe) from [<801d0ad0>] (register_kprobe+0x3a4/0x5a0)
+[  158.470685]  r5:00000000 r4:b9fe4f0c
+[  158.470790] [<801d072c>] (register_kprobe) from [<80204604>] (__register_trace_kprobe+0xa0/0xa4)
+[  158.471001]  r9:be235000 r8:00000000 r7:ffffffea r6:b9fe4f00 r5:00000000 r4:00000000
+[  158.471188] [<80204564>] (__register_trace_kprobe) from [<80205434>] (trace_kprobe_create+0x5ac/0x9ac)
+[  158.471408]  r7:ffffffea r6:b9fe4004 r5:00000000 r4:00000000
+[  158.471553] [<80204e88>] (trace_kprobe_create) from [<80205854>] (create_or_delete_trace_kprobe+0x20/0x3c)
+[  158.471766]  r10:be235000 r9:be235000 r8:0000002e r7:80205834 r6:80205834 r5:00000002
+[  158.471949]  r4:b9e713c4
+[  158.472027] [<80205834>] (create_or_delete_trace_kprobe) from [<801ee4a0>] (trace_run_command+0x84/0x9c)
+[  158.472255] [<801ee41c>] (trace_run_command) from [<801ee5c8>] (trace_parse_run_command+0x110/0x1f8)
+[  158.472471]  r6:00000000 r5:0000002e r4:0000002e
+[  158.472594] [<801ee4b8>] (trace_parse_run_command) from [<8020442c>] (probes_write+0x1c/0x28)
+[  158.472800]  r10:00000004 r9:00000000 r8:be2d1f60 r7:006b1fd0 r6:80204410 r5:0000002e
+[  158.472968]  r4:b9eedf00
+[  158.473046] [<80204410>] (probes_write) from [<802c60ac>] (vfs_write+0xcc/0x1e8)
+[  158.473226] [<802c5fe0>] (vfs_write) from [<802c634c>] (ksys_write+0x70/0xf8)
+[  158.473400]  r8:00000000 r7:0000002e r6:006b1fd0 r5:b9eedf00 r4:b9eedf00
+[  158.473567] [<802c62dc>] (ksys_write) from [<802c63ec>] (sys_write+0x18/0x1c)
+[  158.473745]  r9:be2d0000 r8:80100284 r7:00000004 r6:76f7a610 r5:00000003 r4:006b1fd0
+[  158.473932] [<802c63d4>] (sys_write) from [<80100080>] (ret_fast_syscall+0x0/0x54)
+[  158.474126] Exception stack(0xbe2d1fa8 to 0xbe2d1ff0)
+[  158.474305] 1fa0:                   006b1fd0 00000003 00000003 006b1fd0 0000002e 00000000
+[  158.474573] 1fc0: 006b1fd0 00000003 76f7a610 00000004 006b1fb0 0026d348 00000017 7ef2738c
+[  158.474811] 1fe0: 76f3431c 7ef272d8 0014ec50 76f34338
+[  158.475171] Code: e24cb004 e1a01000 e59f0004 ebf40dd3 (e7f001f2)
+[  158.475847] ---[ end trace 55a5b31c08a29f00 ]---
+[  158.476088] Kernel panic - not syncing: Fatal exception
+[  158.476375] CPU0: stopping
+[  158.476709] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G      D           5.9.0-rc7-00038-gc53ebf8167e9 #158
+[  158.477176] Hardware name: Generic DT based system
+[  158.477411] Backtrace:
+[  158.477604] [<8010dd28>] (dump_backtrace) from [<8010dfd4>] (show_stack+0x20/0x24)
+[  158.477990]  r7:00000000 r6:60000193 r5:00000000 r4:80c2f634
+[  158.478323] [<8010dfb4>] (show_stack) from [<8046390c>] (dump_stack+0xcc/0xe8)
+[  158.478686] [<80463840>] (dump_stack) from [<80110750>] (handle_IPI+0x334/0x3a0)
+[  158.479063]  r7:00000000 r6:00000004 r5:80b65cc8 r4:80c78278
+[  158.479352] [<8011041c>] (handle_IPI) from [<801013f8>] (gic_handle_irq+0x88/0x94)
+[  158.479757]  r10:10c5387d r9:80c01ed8 r8:00000000 r7:c0802000 r6:80c0537c r5:000003ff
+[  158.480146]  r4:c080200c r3:fffffff4
+[  158.480364] [<80101370>] (gic_handle_irq) from [<80100b6c>] (__irq_svc+0x6c/0x90)
+[  158.480748] Exception stack(0x80c01ed8 to 0x80c01f20)
+[  158.481031] 1ec0:                                                       000128bc 00000000
+[  158.481499] 1ee0: be7b8174 8011d3a0 80c00000 00000000 80c04cec 80c04d28 80c5d7c2 80a026d4
+[  158.482091] 1f00: 10c5387d 80c01f34 80c01f38 80c01f28 80109554 80109558 60000013 ffffffff
+[  158.482621]  r9:80c00000 r8:80c5d7c2 r7:80c01f0c r6:ffffffff r5:60000013 r4:80109558
+[  158.482983] [<80109518>] (arch_cpu_idle) from [<80818780>] (default_idle_call+0x38/0x120)
+[  158.483360] [<80818748>] (default_idle_call) from [<801585a8>] (do_idle+0xd4/0x158)
+[  158.483945]  r5:00000000 r4:80c00000
+[  158.484237] [<801584d4>] (do_idle) from [<801588f4>] (cpu_startup_entry+0x28/0x2c)
+[  158.484784]  r9:80c78000 r8:00000000 r7:80c78000 r6:80c78040 r5:80c04cc0 r4:000000d6
+[  158.485328] [<801588cc>] (cpu_startup_entry) from [<80810a78>] (rest_init+0x9c/0xbc)
+[  158.485930] [<808109dc>] (rest_init) from [<80b00ae4>] (arch_call_rest_init+0x18/0x1c)
+[  158.486503]  r5:80c04cc0 r4:00000001
+[  158.486857] [<80b00acc>] (arch_call_rest_init) from [<80b00fcc>] (start_kernel+0x46c/0x548)
+[  158.487589] [<80b00b60>] (start_kernel) from [<00000000>] (0x0)
+```
 
-In this situation, the bios_event_log pointer in the tpm_bios_log struct
-was not NULL but was equal to the ZERO_SIZE_PTR (0x10) value. This was
-due to the following kmemdup() in tpm_read_log_efi():
-
-int tpm_read_log_efi(struct tpm_chip *chip)
-{
-...
-	/* malloc EventLog space */
-	log->bios_event_log = kmemdup(log_tbl->log, log_size, GFP_KERNEL);
-	if (!log->bios_event_log) {
-		ret = -ENOMEM;
-		goto out;
-	}
-...
-}
-
-When log_size is zero, due to an empty event log from firmware,
-ZERO_SIZE_PTR is returned from kmemdup(). Upon a read of the
-binary_bios_measurements file, the tpm2_bios_measurements_start()
-function does not perform a ZERO_OR_NULL_PTR() check on the
-bios_event_log pointer before dereferencing it.
-
-Rather than add a ZERO_OR_NULL_PTR() check in functions that make use of
-the bios_event_log pointer, simply avoid creating the
-binary_bios_measurements_file as is done in other event log retrieval
-backends.
-
-Explicitly ignore all of the events in the final event log when the main
-event log is empty. The list of events in the final event log cannot be
-accurately parsed without referring to the first event in the main event
-log (the event log header) so the final event log is useless in such a
-situation.
-
-Fixes: 58cc1e4faf10 ("tpm: parse TPM event logs based on EFI table")
-Link: https://lore.kernel.org/linux-integrity/E1FDCCCB-CA51-4AEE-AC83-9CDE995EAE52@canonical.com/
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reported-by: Kenneth R. Crudup <kenny@panix.com>
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Thiébaud Weksteen <tweek@google.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: e46daee53bb5 ("ARM: 8806/1: kprobes: Fix false positive with FORTIFY_SOURCE")
+Fixes: 0ac569bf6a79 ("ARM: 8834/1: Fix: kprobes: optimized kprobes illegal instruction")
+Suggested-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Tested-by: Luka Oreskovic <luka.oreskovic@sartura.hr>
+Tested-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Luka Oreskovic <luka.oreskovic@sartura.hr>
+Cc: Juraj Vijtiuk <juraj.vijtiuk@sartura.hr>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/eventlog/efi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/include/asm/kprobes.h    | 22 +++++++++++-----------
+ arch/arm/probes/kprobes/opt-arm.c | 18 +++++++++---------
+ 2 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/char/tpm/eventlog/efi.c b/drivers/char/tpm/eventlog/efi.c
-index 6bb023de17f1f..35229e5143cac 100644
---- a/drivers/char/tpm/eventlog/efi.c
-+++ b/drivers/char/tpm/eventlog/efi.c
-@@ -41,6 +41,11 @@ int tpm_read_log_efi(struct tpm_chip *chip)
- 	log_size = log_tbl->size;
- 	memunmap(log_tbl);
+diff --git a/arch/arm/include/asm/kprobes.h b/arch/arm/include/asm/kprobes.h
+index 213607a1f45c1..e26a278d301ab 100644
+--- a/arch/arm/include/asm/kprobes.h
++++ b/arch/arm/include/asm/kprobes.h
+@@ -44,20 +44,20 @@ int kprobe_exceptions_notify(struct notifier_block *self,
+ 			     unsigned long val, void *data);
  
-+	if (!log_size) {
-+		pr_warn("UEFI TPM log area empty\n");
-+		return -EIO;
-+	}
-+
- 	log_tbl = memremap(efi.tpm_log, sizeof(*log_tbl) + log_size,
- 			   MEMREMAP_WB);
- 	if (!log_tbl) {
+ /* optinsn template addresses */
+-extern __visible kprobe_opcode_t optprobe_template_entry;
+-extern __visible kprobe_opcode_t optprobe_template_val;
+-extern __visible kprobe_opcode_t optprobe_template_call;
+-extern __visible kprobe_opcode_t optprobe_template_end;
+-extern __visible kprobe_opcode_t optprobe_template_sub_sp;
+-extern __visible kprobe_opcode_t optprobe_template_add_sp;
+-extern __visible kprobe_opcode_t optprobe_template_restore_begin;
+-extern __visible kprobe_opcode_t optprobe_template_restore_orig_insn;
+-extern __visible kprobe_opcode_t optprobe_template_restore_end;
++extern __visible kprobe_opcode_t optprobe_template_entry[];
++extern __visible kprobe_opcode_t optprobe_template_val[];
++extern __visible kprobe_opcode_t optprobe_template_call[];
++extern __visible kprobe_opcode_t optprobe_template_end[];
++extern __visible kprobe_opcode_t optprobe_template_sub_sp[];
++extern __visible kprobe_opcode_t optprobe_template_add_sp[];
++extern __visible kprobe_opcode_t optprobe_template_restore_begin[];
++extern __visible kprobe_opcode_t optprobe_template_restore_orig_insn[];
++extern __visible kprobe_opcode_t optprobe_template_restore_end[];
+ 
+ #define MAX_OPTIMIZED_LENGTH	4
+ #define MAX_OPTINSN_SIZE				\
+-	((unsigned long)&optprobe_template_end -	\
+-	 (unsigned long)&optprobe_template_entry)
++	((unsigned long)optprobe_template_end -	\
++	 (unsigned long)optprobe_template_entry)
+ #define RELATIVEJUMP_SIZE	4
+ 
+ struct arch_optimized_insn {
+diff --git a/arch/arm/probes/kprobes/opt-arm.c b/arch/arm/probes/kprobes/opt-arm.c
+index 7a449df0b3591..c78180172120f 100644
+--- a/arch/arm/probes/kprobes/opt-arm.c
++++ b/arch/arm/probes/kprobes/opt-arm.c
+@@ -85,21 +85,21 @@ asm (
+ 			"optprobe_template_end:\n");
+ 
+ #define TMPL_VAL_IDX \
+-	((unsigned long *)&optprobe_template_val - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_val - (unsigned long *)optprobe_template_entry)
+ #define TMPL_CALL_IDX \
+-	((unsigned long *)&optprobe_template_call - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_call - (unsigned long *)optprobe_template_entry)
+ #define TMPL_END_IDX \
+-	((unsigned long *)&optprobe_template_end - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_end - (unsigned long *)optprobe_template_entry)
+ #define TMPL_ADD_SP \
+-	((unsigned long *)&optprobe_template_add_sp - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_add_sp - (unsigned long *)optprobe_template_entry)
+ #define TMPL_SUB_SP \
+-	((unsigned long *)&optprobe_template_sub_sp - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_sub_sp - (unsigned long *)optprobe_template_entry)
+ #define TMPL_RESTORE_BEGIN \
+-	((unsigned long *)&optprobe_template_restore_begin - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_restore_begin - (unsigned long *)optprobe_template_entry)
+ #define TMPL_RESTORE_ORIGN_INSN \
+-	((unsigned long *)&optprobe_template_restore_orig_insn - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_restore_orig_insn - (unsigned long *)optprobe_template_entry)
+ #define TMPL_RESTORE_END \
+-	((unsigned long *)&optprobe_template_restore_end - (unsigned long *)&optprobe_template_entry)
++	((unsigned long *)optprobe_template_restore_end - (unsigned long *)optprobe_template_entry)
+ 
+ /*
+  * ARM can always optimize an instruction when using ARM ISA, except
+@@ -234,7 +234,7 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op, struct kprobe *or
+ 	}
+ 
+ 	/* Copy arch-dep-instance from template. */
+-	memcpy(code, (unsigned long *)&optprobe_template_entry,
++	memcpy(code, (unsigned long *)optprobe_template_entry,
+ 			TMPL_END_IDX * sizeof(kprobe_opcode_t));
+ 
+ 	/* Adjust buffer according to instruction. */
 -- 
 2.27.0
 
