@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E392B6506
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 907242B65D1
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730917AbgKQN2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36222 "EHLO mail.kernel.org"
+        id S1730687AbgKQNSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:18:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731287AbgKQN2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:08 -0500
+        id S1730448AbgKQNQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:16:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E494D2078D;
-        Tue, 17 Nov 2020 13:28:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2448621734;
+        Tue, 17 Nov 2020 13:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619687;
-        bh=VUnCPG9XKt9T20v2bo8pj6aPEEz0Ou+/ZXoECj3vIP0=;
+        s=default; t=1605619006;
+        bh=EboRDqWR0ty8njnVhjop7TgETSHaZFTP5a+mimYOoqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5lWdS7sVHLztrwwlSZbiuirtslogPDT1Kcc3qBcP9CkCsrC7cLgOXUXZk2rVSmpD
-         rA7GrPP2A4fkinlgf1FbEok5z3JYwIzUFaiKFJyAaMHlTkJ1iexwEWGKtb6rZAsUzH
-         EevV0XfTrUvXWnyOVwzPYIUSeCp3+R2rE/U9Kdkc=
+        b=YSltLXkdwF7XlgQ3KQXjEy38fCo+WCzXvUNAK+SOc0Irad2/OeFHTkAIGZJFGpvCF
+         lAf7rj7ccs1AK3VFAZw/d+WRN79N0mQ/CnK6gBGp6OWW9uRjReEeZemvl0+0gu1iBq
+         /lkEt8Ip8YdUaoUqxVPJsHi+OwcRxaxd9a3j1QrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Scott Cheloha <cheloha@linux.ibm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 122/151] mm/slub: fix panic in slab_alloc_node()
+        Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 83/85] Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
 Date:   Tue, 17 Nov 2020 14:05:52 +0100
-Message-Id: <20201117122127.357618103@linuxfoundation.org>
+Message-Id: <20201117122115.119788080@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,126 +51,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
+From: Matteo Croce <mcroce@microsoft.com>
 
-commit 22e4663e916321b72972c69ca0c6b962f529bd78 upstream.
+commit 8b92c4ff4423aa9900cf838d3294fcade4dbda35 upstream.
 
-While doing memory hot-unplug operation on a PowerPC VM running 1024 CPUs
-with 11TB of ram, I hit the following panic:
+Patch series "fix parsing of reboot= cmdline", v3.
 
-    BUG: Kernel NULL pointer dereference on read at 0x00000007
-    Faulting instruction address: 0xc000000000456048
-    Oops: Kernel access of bad area, sig: 11 [#2]
-    LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS= 2048 NUMA pSeries
-    Modules linked in: rpadlpar_io rpaphp
-    CPU: 160 PID: 1 Comm: systemd Tainted: G      D           5.9.0 #1
-    NIP:  c000000000456048 LR: c000000000455fd4 CTR: c00000000047b350
-    REGS: c00006028d1b77a0 TRAP: 0300   Tainted: G      D            (5.9.0)
-    MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004228  XER: 00000000
-    CFAR: c00000000000f1b0 DAR: 0000000000000007 DSISR: 40000000 IRQMASK: 0
-    GPR00: c000000000455fd4 c00006028d1b7a30 c000000001bec800 0000000000000000
-    GPR04: 0000000000000dc0 0000000000000000 00000000000374ef c00007c53df99320
-    GPR08: 000007c53c980000 0000000000000000 000007c53c980000 0000000000000000
-    GPR12: 0000000000004400 c00000001e8e4400 0000000000000000 0000000000000f6a
-    GPR16: 0000000000000000 c000000001c25930 c000000001d62528 00000000000000c1
-    GPR20: c000000001d62538 c00006be469e9000 0000000fffffffe0 c0000000003c0ff8
-    GPR24: 0000000000000018 0000000000000000 0000000000000dc0 0000000000000000
-    GPR28: c00007c513755700 c000000001c236a4 c00007bc4001f800 0000000000000001
-    NIP [c000000000456048] __kmalloc_node+0x108/0x790
-    LR [c000000000455fd4] __kmalloc_node+0x94/0x790
-    Call Trace:
-      kvmalloc_node+0x58/0x110
-      mem_cgroup_css_online+0x10c/0x270
-      online_css+0x48/0xd0
-      cgroup_apply_control_enable+0x2c4/0x470
-      cgroup_mkdir+0x408/0x5f0
-      kernfs_iop_mkdir+0x90/0x100
-      vfs_mkdir+0x138/0x250
-      do_mkdirat+0x154/0x1c0
-      system_call_exception+0xf8/0x200
-      system_call_common+0xf0/0x27c
-    Instruction dump:
-    e93e0000 e90d0030 39290008 7cc9402a e94d0030 e93e0000 7ce95214 7f89502a
-    2fbc0000 419e0018 41920230 e9270010 <89290007> 7f994800 419e0220 7ee6bb78
+The parsing of the reboot= cmdline has two major errors:
 
-This pointing to the following code:
+ - a missing bound check can crash the system on reboot
 
-    mm/slub.c:2851
-            if (unlikely(!object || !node_match(page, node))) {
-    c000000000456038:       00 00 bc 2f     cmpdi   cr7,r28,0
-    c00000000045603c:       18 00 9e 41     beq     cr7,c000000000456054 <__kmalloc_node+0x114>
-    node_match():
-    mm/slub.c:2491
-            if (node != NUMA_NO_NODE && page_to_nid(page) != node)
-    c000000000456040:       30 02 92 41     beq     cr4,c000000000456270 <__kmalloc_node+0x330>
-    page_to_nid():
-    include/linux/mm.h:1294
-    c000000000456044:       10 00 27 e9     ld      r9,16(r7)
-    c000000000456048:       07 00 29 89     lbz     r9,7(r9)	<<<< r9 = NULL
-    node_match():
-    mm/slub.c:2491
-    c00000000045604c:       00 48 99 7f     cmpw    cr7,r25,r9
-    c000000000456050:       20 02 9e 41     beq     cr7,c000000000456270 <__kmalloc_node+0x330>
+ - parsing of the cpu number only works if specified last
 
-The panic occurred in slab_alloc_node() when checking for the page's node:
+Fix both.
 
-	object = c->freelist;
-	page = c->page;
-	if (unlikely(!object || !node_match(page, node))) {
-		object = __slab_alloc(s, gfpflags, node, addr, c);
-		stat(s, ALLOC_SLOWPATH);
+This patch (of 2):
 
-The issue is that object is not NULL while page is NULL which is odd but
-may happen if the cache flush happened after loading object but before
-loading page.  Thus checking for the page pointer is required too.
+This reverts commit 616feab753972b97.
 
-The cache flush is done through an inter processor interrupt when a
-piece of memory is off-lined.  That interrupt is triggered when a memory
-hot-unplug operation is initiated and offline_pages() is calling the
-slub's MEM_GOING_OFFLINE callback slab_mem_going_offline_callback()
-which is calling flush_cpu_slab().  If that interrupt is caught between
-the reading of c->freelist and the reading of c->page, this could lead
-to such a situation.  That situation is expected and the later call to
-this_cpu_cmpxchg_double() will detect the change to c->freelist and redo
-the whole operation.
+kstrtoint() and simple_strtoul() have a subtle difference which makes
+them non interchangeable: if a non digit character is found amid the
+parsing, the former will return an error, while the latter will just
+stop parsing, e.g.  simple_strtoul("123xyx") = 123.
 
-In commit 6159d0f5c03e ("mm/slub.c: page is always non-NULL in
-node_match()") check on the page pointer has been removed assuming that
-page is always valid when it is called.  It happens that this is not
-true in that particular case, so check for page before calling
-node_match() here.
+The kernel cmdline reboot= argument allows to specify the CPU used for
+rebooting, with the syntax `s####` among the other flags, e.g.
+"reboot=warm,s31,force", so if this flag is not the last given, it's
+silently ignored as well as the subsequent ones.
 
-Fixes: 6159d0f5c03e ("mm/slub.c: page is always non-NULL in node_match()")
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Christoph Lameter <cl@linux.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Robin Holt <robinmholt@gmail.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201027190406.33283-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20201103214025.116799-2-mcroce@linux.microsoft.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[sudip: use reboot_mode instead of mode]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/reboot.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2763,7 +2763,7 @@ redo:
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -512,22 +512,15 @@ static int __init reboot_setup(char *str
+ 			break;
  
- 	object = c->freelist;
- 	page = c->page;
--	if (unlikely(!object || !node_match(page, node))) {
-+	if (unlikely(!object || !page || !node_match(page, node))) {
- 		object = __slab_alloc(s, gfpflags, node, addr, c);
- 		stat(s, ALLOC_SLOWPATH);
- 	} else {
+ 		case 's':
+-		{
+-			int rc;
+-
+-			if (isdigit(*(str+1))) {
+-				rc = kstrtoint(str+1, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else if (str[1] == 'm' && str[2] == 'p' &&
+-				   isdigit(*(str+3))) {
+-				rc = kstrtoint(str+3, 0, &reboot_cpu);
+-				if (rc)
+-					return rc;
+-			} else
++			if (isdigit(*(str+1)))
++				reboot_cpu = simple_strtoul(str+1, NULL, 0);
++			else if (str[1] == 'm' && str[2] == 'p' &&
++							isdigit(*(str+3)))
++				reboot_cpu = simple_strtoul(str+3, NULL, 0);
++			else
+ 				reboot_mode = REBOOT_SOFT;
+ 			break;
+-		}
++
+ 		case 'g':
+ 			reboot_mode = REBOOT_GPIO;
+ 			break;
 
 
