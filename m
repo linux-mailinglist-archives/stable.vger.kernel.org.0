@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0C82B6643
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AFCF2B66C8
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729796AbgKQNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42210 "EHLO mail.kernel.org"
+        id S1729154AbgKQNHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729755AbgKQNMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:12 -0500
+        id S1729146AbgKQNHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37C81246BE;
-        Tue, 17 Nov 2020 13:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1FF4246B1;
+        Tue, 17 Nov 2020 13:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618731;
-        bh=lizyS5mrYNK43M9hHvR+yVuN3yY1CZ9vOn9/uUKHLHw=;
+        s=default; t=1605618463;
+        bh=AlUa/pbm+bH9N5PoR3Bw8w04rwDYAw9GVosdmUSpTPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKbygzCk0aoi2ityZ7BqI/bkJL+L1YCCUigBylUpNaShT1acPpdaIKm4+498lONat
-         B1o5+FwASQ8SK4VXe3KlvPJzhXocbBtJTapALD9rqMgNCb+taHef7QLmkmakdNtmEE
-         AUixbQ+aE8Q1TWuhHBviF3RaN9JYqMmt1hHZGK98=
+        b=JXTUARg78Ew83AeRd86zN1nOhx4M8U/MLzGGysndV0WMn3EzNXuEkRMQXwPlrf/ys
+         B3Ehh4wVXF0HFoHZEPJpWvU3/GsMZ47Qj2+diDtP9xKLuaq4hFFsq69OUCrsPVf4wR
+         fZfSdBoKUVg4RHh2gJr5+ONKq0oWMWBGXzhGFMSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 38/78] xfs: fix rmap key and record comparison functions
-Date:   Tue, 17 Nov 2020 14:05:04 +0100
-Message-Id: <20201117122110.966400393@linuxfoundation.org>
+        Oliver Herms <oliver.peter.herms@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 42/64] IPv6: Set SIT tunnel hard_header_len to zero
+Date:   Tue, 17 Nov 2020 14:05:05 +0100
+Message-Id: <20201117122108.245226504@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Oliver Herms <oliver.peter.herms@gmail.com>
 
-[ Upstream commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f ]
+[ Upstream commit 8ef9ba4d666614497a057d09b0a6eafc1e34eadf ]
 
-Keys for extent interval records in the reverse mapping btree are
-supposed to be computed as follows:
+Due to the legacy usage of hard_header_len for SIT tunnels while
+already using infrastructure from net/ipv4/ip_tunnel.c the
+calculation of the path MTU in tnl_update_pmtu is incorrect.
+This leads to unnecessary creation of MTU exceptions for any
+flow going over a SIT tunnel.
 
-(physical block, owner, fork, is_btree, is_unwritten, offset)
+As SIT tunnels do not have a header themsevles other than their
+transport (L3, L2) headers we're leaving hard_header_len set to zero
+as tnl_update_pmtu is already taking care of the transport headers
+sizes.
 
-This provides users the ability to look up a reverse mapping from a bmbt
-record -- start with the physical block; then if there are multiple
-records for the same block, move on to the owner; then the inode fork
-type; and so on to the file offset.
+This will also help avoiding unnecessary IPv6 GC runs and spinlock
+contention seen when using SIT tunnels and for more than
+net.ipv6.route.gc_thresh flows.
 
-However, the key comparison functions incorrectly remove the
-fork/btree/unwritten information that's encoded in the on-disk offset.
-This means that lookup comparisons are only done with:
-
-(physical block, owner, offset)
-
-This means that queries can return incorrect results.  On consistent
-filesystems this hasn't been an issue because blocks are never shared
-between forks or with bmbt blocks; and are never unwritten.  However,
-this bug means that online repair cannot always detect corruption in the
-key information in internal rmapbt nodes.
-
-Found by fuzzing keys[1].attrfork = ones on xfs/371.
-
-Fixes: 4b8ed67794fe ("xfs: add rmap btree operations")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: Oliver Herms <oliver.peter.herms@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20201103104133.GA1573211@tws
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/ipv6/sit.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index 33a28efc3085b..c5a24b80c7f72 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1079,7 +1079,6 @@ static void ipip6_tunnel_bind_dev(struct
+ 	if (tdev && !netif_is_l3_master(tdev)) {
+ 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
  
--	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
--	y = rec->rm_offset;
-+	x = be64_to_cpu(kp->rm_offset);
-+	y = xfs_rmap_irec_offset_pack(rec);
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
+-		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
+ 		dev->mtu = tdev->mtu - t_hlen;
+ 		if (dev->mtu < IPV6_MIN_MTU)
+ 			dev->mtu = IPV6_MIN_MTU;
+@@ -1371,7 +1370,6 @@ static void ipip6_tunnel_setup(struct ne
+ 	dev->destructor		= ipip6_dev_free;
  
--	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
--	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
-+	x = be64_to_cpu(kp1->rm_offset);
-+	y = be64_to_cpu(kp2->rm_offset);
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -401,8 +401,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
--	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
-+	a = be64_to_cpu(k1->rmap.rm_offset);
-+	b = be64_to_cpu(k2->rmap.rm_offset);
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -431,8 +431,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
--	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
-+	a = be64_to_cpu(r1->rmap.rm_offset);
-+	b = be64_to_cpu(r2->rmap.rm_offset);
- 	if (a <= b)
- 		return 1;
- 	return 0;
--- 
-2.27.0
-
+ 	dev->type		= ARPHRD_SIT;
+-	dev->hard_header_len	= LL_MAX_HEADER + t_hlen;
+ 	dev->mtu		= ETH_DATA_LEN - t_hlen;
+ 	dev->flags		= IFF_NOARP;
+ 	netif_keep_dst(dev);
 
 
