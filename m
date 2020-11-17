@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D697F2B655D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF4D2B6358
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729254AbgKQNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:54:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60426 "EHLO mail.kernel.org"
+        id S1732948AbgKQNhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730488AbgKQNZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:25:07 -0500
+        id S1732942AbgKQNhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4433820781;
-        Tue, 17 Nov 2020 13:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 765B920870;
+        Tue, 17 Nov 2020 13:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619505;
-        bh=S/qVpmdo/I/WpqoRgF5iVIPW7eamJQGlkGVglSqUJfI=;
+        s=default; t=1605620240;
+        bh=bioZgs54IsJCBS9zI1vVwe+T7Sjn2QpOZL13DAmAX1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCYVT02cyaDbWsjwNtN78Lkqx5N4/5L6Xg6YVOe0YG+MDyqLUtqqg8kLlsukRnKRH
-         I0Iye77e4Mqs7pXjeZsHo9/WBKpYEdI0Mmgv0AgXWcvSomibmWrBIIwXk4/6AmUtWV
-         IKmpJ7GGMQZ1ofQMP74NkLpY25IpsehVqNA+Hz4g=
+        b=KoSuV5g65Wa2sDaSEMiJxJMLGLGmxXE0Z+npHJ4I0f00i/bH1NyqYvjSjyQGRsR+e
+         9aGeFAxNXipNrS5zw2xojkkA4Efn14BOg2A6YT/Q+mxTRYTXCyRRXmQXGHq+KDQwCL
+         eaumcQ0aa9e8Xr8ARx/lrvPIFlb4ks5O6kxWSH4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/151] drm/amd/pm: do not use ixFEATURE_STATUS for checking smc running
+Subject: [PATCH 5.9 151/255] pinctrl: qcom: sm8250: Specify PDC map
 Date:   Tue, 17 Nov 2020 14:04:51 +0100
-Message-Id: <20201117122124.391113660@linuxfoundation.org>
+Message-Id: <20201117122146.313834344@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 786436b453001dafe81025389f96bf9dac1e9690 ]
+[ Upstream commit b41efeed507addecb92e83dd444d86c1fbe38ae0 ]
 
-This reverts commit f87812284172a9809820d10143b573d833cd3f75 ("drm/amdgpu:
-Fix bug where DPM is not enabled after hibernate and resume").
-It was intended to fix Hawaii S4(hibernation) issue but break S3. As
-ixFEATURE_STATUS is filled with garbage data on resume which can be
-only cleared by reloading smc firmware(but that will involve many
-changes). So, we will revert this S4 fix and seek a new way.
+Specify the PDC mapping for SM8250, so that gpio interrupts are
+propertly mapped to the wakeup IRQs of the PDC.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4e3ec9e407ad ("pinctrl: qcom: Add sm8250 pinctrl driver.")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20201028043642.1141723-1-bjorn.andersson@linaro.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/pinctrl/qcom/pinctrl-sm8250.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-index 0f4f27a89020d..42c8f8731a504 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -2725,10 +2725,7 @@ static int ci_initialize_mc_reg_table(struct pp_hwmgr *hwmgr)
+diff --git a/drivers/pinctrl/qcom/pinctrl-sm8250.c b/drivers/pinctrl/qcom/pinctrl-sm8250.c
+index 826df0d637eaa..af144e724bd9c 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sm8250.c
++++ b/drivers/pinctrl/qcom/pinctrl-sm8250.c
+@@ -1313,6 +1313,22 @@ static const struct msm_pingroup sm8250_groups[] = {
+ 	[183] = SDC_PINGROUP(sdc2_data, 0xb7000, 9, 0),
+ };
  
- static bool ci_is_dpm_running(struct pp_hwmgr *hwmgr)
- {
--	return (1 == PHM_READ_INDIRECT_FIELD(hwmgr->device,
--					     CGS_IND_REG__SMC, FEATURE_STATUS,
--					     VOLTAGE_CONTROLLER_ON))
--		? true : false;
-+	return ci_is_smc_ram_running(hwmgr);
- }
++static const struct msm_gpio_wakeirq_map sm8250_pdc_map[] = {
++	{ 0, 79 }, { 1, 84 }, { 2, 80 }, { 3, 82 }, { 4, 107 }, { 7, 43 },
++	{ 11, 42 }, { 14, 44 }, { 15, 52 }, { 19, 67 }, { 23, 68 }, { 24, 105 },
++	{ 27, 92 }, { 28, 106 }, { 31, 69 }, { 35, 70 }, { 39, 37 },
++	{ 40, 108 }, { 43, 71 }, { 45, 72 }, { 47, 83 }, { 51, 74 }, { 55, 77 },
++	{ 59, 78 }, { 63, 75 }, { 64, 81 }, { 65, 87 }, { 66, 88 }, { 67, 89 },
++	{ 68, 54 }, { 70, 85 }, { 77, 46 }, { 80, 90 }, { 81, 91 }, { 83, 97 },
++	{ 84, 98 }, { 86, 99 }, { 87, 100 }, { 88, 101 }, { 89, 102 },
++	{ 92, 103 }, { 93, 104 }, { 100, 53 }, { 103, 47 }, { 104, 48 },
++	{ 108, 49 }, { 109, 94 }, { 110, 95 }, { 111, 96 }, { 112, 55 },
++	{ 113, 56 }, { 118, 50 }, { 121, 51 }, { 122, 57 }, { 123, 58 },
++	{ 124, 45 }, { 126, 59 }, { 128, 76 }, { 129, 86 }, { 132, 93 },
++	{ 133, 65 }, { 134, 66 }, { 136, 62 }, { 137, 63 }, { 138, 64 },
++	{ 142, 60 }, { 143, 61 }
++};
++
+ static const struct msm_pinctrl_soc_data sm8250_pinctrl = {
+ 	.pins = sm8250_pins,
+ 	.npins = ARRAY_SIZE(sm8250_pins),
+@@ -1323,6 +1339,8 @@ static const struct msm_pinctrl_soc_data sm8250_pinctrl = {
+ 	.ngpios = 181,
+ 	.tiles = sm8250_tiles,
+ 	.ntiles = ARRAY_SIZE(sm8250_tiles),
++	.wakeirq_map = sm8250_pdc_map,
++	.nwakeirq_map = ARRAY_SIZE(sm8250_pdc_map),
+ };
  
- static int ci_smu_init(struct pp_hwmgr *hwmgr)
+ static int sm8250_pinctrl_probe(struct platform_device *pdev)
 -- 
 2.27.0
 
