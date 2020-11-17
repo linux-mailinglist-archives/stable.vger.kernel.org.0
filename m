@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 520D12B626D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 367782B61B9
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730886AbgKQN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36634 "EHLO mail.kernel.org"
+        id S1730022AbgKQNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731334AbgKQN22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:28 -0500
+        id S1730903AbgKQNVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FCE620781;
-        Tue, 17 Nov 2020 13:28:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 681382463D;
+        Tue, 17 Nov 2020 13:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619708;
-        bh=VtZqPqHdulf/Dbcc2C0lldB/XlyVF4+MLKNHmpJAyE8=;
+        s=default; t=1605619296;
+        bh=lYCvS8uv3GpQUoX8NeUyQRO0vxZpsmJopGZ9FeAy600=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAy+sdCotpIhCZI4HKoP9rGZH6/rWM6hRMRt+KxsEFoih1WBt4NbHbY1E7A9Y6bZ+
-         6I88+GsyXuWmWDvDhEaGfp5fVsllw4HndWDTcagoKnV9iNQuK40NfGG3wFGxzvEHfb
-         DqIG433uWBokYqBOGlYJfz291e0mC7yrpuYrgK14=
+        b=cVXAeSbo38vWYrCVYcQdCkGNLCgPZfoGccz4Kqxd1DIus4z4k+9VvKYEffStFII63
+         nPqwQPy5oC2aYZ7iuYMGaaWjkYtlGRLV8DDYpsBsslGJluN6DD9UWshnMlUr+GiT46
+         qRz6S4V4cxKRV194pGgln+7csRMK5yLhGzZKQSts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaud de Turckheim <quarium@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.4 129/151] gpio: pcie-idio-24: Fix IRQ Enable Register value
-Date:   Tue, 17 Nov 2020 14:05:59 +0100
-Message-Id: <20201117122127.700920114@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 4.19 093/101] r8169: fix potential skb double free in an error path
+Date:   Tue, 17 Nov 2020 14:06:00 +0100
+Message-Id: <20201117122117.666876711@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud de Turckheim <quarium@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 23a7fdc06ebcc334fa667f0550676b035510b70b upstream.
+[ Upstream commit cc6528bc9a0c901c83b8220a2e2617f3354d6dd9 ]
 
-This fixes the COS Enable Register value for enabling/disabling the
-corresponding IRQs bank.
+The caller of rtl8169_tso_csum_v2() frees the skb if false is returned.
+eth_skb_pad() internally frees the skb on error what would result in a
+double free. Therefore use __skb_put_padto() directly and instruct it
+to not free the skb on error.
 
-Fixes: 585562046628 ("gpio: Add GPIO support for the ACCES PCIe-IDIO-24 family")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnaud de Turckheim <quarium@gmail.com>
-Reviewed-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: b423e9ae49d7 ("r8169: fix offloaded tx checksum for small packets.")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/f7e68191-acff-9ded-4263-c016428a8762@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpio/gpio-pcie-idio-24.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/realtek/r8169.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-pcie-idio-24.c
-+++ b/drivers/gpio/gpio-pcie-idio-24.c
-@@ -360,13 +360,13 @@ static void idio_24_irq_mask(struct irq_
- 	unsigned long flags;
- 	const unsigned long bit_offset = irqd_to_hwirq(data) - 24;
- 	unsigned char new_irq_mask;
--	const unsigned long bank_offset = bit_offset/8 * 8;
-+	const unsigned long bank_offset = bit_offset / 8;
- 	unsigned char cos_enable_state;
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -6274,7 +6274,8 @@ static bool rtl8169_tso_csum_v2(struct r
+ 		opts[1] |= transport_offset << TCPHO_SHIFT;
+ 	} else {
+ 		if (unlikely(rtl_test_hw_pad_bug(tp, skb)))
+-			return !eth_skb_pad(skb);
++			/* eth_skb_pad would free the skb on error */
++			return !__skb_put_padto(skb, ETH_ZLEN, false);
+ 	}
  
- 	raw_spin_lock_irqsave(&idio24gpio->lock, flags);
- 
- 	idio24gpio->irq_mask &= ~BIT(bit_offset);
--	new_irq_mask = idio24gpio->irq_mask >> bank_offset;
-+	new_irq_mask = idio24gpio->irq_mask >> bank_offset * 8;
- 
- 	if (!new_irq_mask) {
- 		cos_enable_state = ioread8(&idio24gpio->reg->cos_enable);
-@@ -389,12 +389,12 @@ static void idio_24_irq_unmask(struct ir
- 	unsigned long flags;
- 	unsigned char prev_irq_mask;
- 	const unsigned long bit_offset = irqd_to_hwirq(data) - 24;
--	const unsigned long bank_offset = bit_offset/8 * 8;
-+	const unsigned long bank_offset = bit_offset / 8;
- 	unsigned char cos_enable_state;
- 
- 	raw_spin_lock_irqsave(&idio24gpio->lock, flags);
- 
--	prev_irq_mask = idio24gpio->irq_mask >> bank_offset;
-+	prev_irq_mask = idio24gpio->irq_mask >> bank_offset * 8;
- 	idio24gpio->irq_mask |= BIT(bit_offset);
- 
- 	if (!prev_irq_mask) {
+ 	return true;
 
 
