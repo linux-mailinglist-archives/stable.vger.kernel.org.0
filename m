@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C452B65F2
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F4A2B663A
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730618AbgKQN7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:59:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49972 "EHLO mail.kernel.org"
+        id S1729523AbgKQNKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:10:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730016AbgKQNRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:44 -0500
+        id S1729014AbgKQNKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:10:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D34D21734;
-        Tue, 17 Nov 2020 13:17:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E52221EB;
+        Tue, 17 Nov 2020 13:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619063;
-        bh=YZmvnOUC23Ga2rGue8Y+m8id7/FGfE6naE3y3o9pAG8=;
+        s=default; t=1605618649;
+        bh=Z4rXePv0x63YTzLGwnJraoYgo41+e+d8I7w5VGlXFfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1QOLoj619JMuOBv5uW9MnmcLW2DUdgXpiVms/Wgp76vroofpxypG8OwiJ6lrZKat
-         TeUCOSPJ3ZjjfmVDbQ1cmwr08TFZRGynwZX2qIlrESikO40/6DggsAWym2s+5Sd7Xr
-         njWM3XiLaWZnKeWrh/Kk4pvZT+0drCcuNkSnnz4k=
+        b=hc7xOD5dQYfQuGgTcEEqkQH5Iniou1CBmUngwm3NJOt5azOzWD4tTjDCQZvSCBhiq
+         FSU26g3pgRPXG9sKX0fKuo9+8W9ILDXYV7JHA7o4pmGM3z6mjZALIFOMDggHW/eAbd
+         zWUVjjMiCzMXvIS7hDX+GTFjnLU4GWAcQKvGslHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 008/101] genirq: Let GENERIC_IRQ_IPI select IRQ_DOMAIN_HIERARCHY
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/78] perf tools: Add missing swap for ino_generation
 Date:   Tue, 17 Nov 2020 14:04:35 +0100
-Message-Id: <20201117122113.506907088@linuxfoundation.org>
+Message-Id: <20201117122109.554663619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 151a535171be6ff824a0a3875553ea38570f4c05 ]
+[ Upstream commit fe01adb72356a4e2f8735e4128af85921ca98fa1 ]
 
-kernel/irq/ipi.c otherwise fails to compile if nothing else
-selects it.
+We are missing swap for ino_generation field.
 
-Fixes: 379b656446a3 ("genirq: Add GENERIC_IRQ_IPI Kconfig symbol")
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20201015101222.GA32747@amd
+Fixes: 5c5e854bc760 ("perf tools: Add attr->mmap2 support")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20201101233103.3537427-2-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/Kconfig | 1 +
+ tools/perf/util/session.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index 5f3e2baefca92..d532bf0c5a672 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -80,6 +80,7 @@ config IRQ_FASTEOI_HIERARCHY_HANDLERS
- # Generic IRQ IPI support
- config GENERIC_IRQ_IPI
- 	bool
-+	select IRQ_DOMAIN_HIERARCHY
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 7e0573e55a356..89808ab008ad2 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -482,6 +482,7 @@ static void perf_event__mmap2_swap(union perf_event *event,
+ 	event->mmap2.maj   = bswap_32(event->mmap2.maj);
+ 	event->mmap2.min   = bswap_32(event->mmap2.min);
+ 	event->mmap2.ino   = bswap_64(event->mmap2.ino);
++	event->mmap2.ino_generation = bswap_64(event->mmap2.ino_generation);
  
- # Generic MSI interrupt support
- config GENERIC_MSI_IRQ
+ 	if (sample_id_all) {
+ 		void *data = &event->mmap2.filename;
 -- 
 2.27.0
 
