@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F2D2B64BA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FCE2B64A1
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732415AbgKQNsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:48:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
+        id S1732396AbgKQNe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:34:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727554AbgKQNew (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:34:52 -0500
+        id S1732389AbgKQNez (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:34:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51B162078E;
-        Tue, 17 Nov 2020 13:34:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 321E32465E;
+        Tue, 17 Nov 2020 13:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620092;
-        bh=7lcMbKOxhN/Le0MESmUbQj5z7nRfEq6LZOAd40/ORv0=;
+        s=default; t=1605620095;
+        bh=stb4IzjJer82EyL8ykEJcgeYA5dN/7TaUve1TQJ+6FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYV9Dd6+H7lqcnC28QBQS6Qm2YGN9NYgIjGhJkkmXOXu0ZJwBdFL8vK2qIXTwGEaX
-         wDMqgSR3HUfT3ZaqJqQPdvLtw4oZc/fnU7qPCgY0aOIQUsVylxHP0SxUlaCprllAiQ
-         fbFfIs/0BMONlOFeGXuh3zfAArvtHN0c5zBeKdUs=
+        b=nqLPtiEmQu7SYaHpgXLniak5GIUx8nXi1TtgrpcTzlzRlwG03FUxrcR6zu+JStirF
+         9DR1vlKh/8EfT85prwcK+QyxP3PApsAvcYpoWHyi7u+U+bRcM6VLmbvTld88N1D4XG
+         0zF2pyZml/EDw9wWkmMvQKytXdlr2DPX2rFczABg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Bunker <brian@purestorage.com>,
-        Jitendra Khasdev <jitendra.khasdev@oracle.com>,
-        Hannes Reinecke <hare@suse.de>,
+        stable@vger.kernel.org, Tomas Henzl <thenzl@redhat.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 105/255] scsi: scsi_dh_alua: Avoid crash during alua_bus_detach()
-Date:   Tue, 17 Nov 2020 14:04:05 +0100
-Message-Id: <20201117122144.069004291@linuxfoundation.org>
+Subject: [PATCH 5.9 106/255] scsi: mpt3sas: Fix timeouts observed while reenabling IRQ
+Date:   Tue, 17 Nov 2020 14:04:06 +0100
+Message-Id: <20201117122144.117352216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,71 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 5faf50e9e9fdc2117c61ff7e20da49cd6a29e0ca ]
+[ Upstream commit 5feed64f9199ff90c4239971733f23f30aeb2484 ]
 
-alua_bus_detach() might be running concurrently with alua_rtpg_work(), so
-we might trip over h->sdev == NULL and call BUG_ON().  The correct way of
-handling it is to not set h->sdev to NULL in alua_bus_detach(), and call
-rcu_synchronize() before the final delete to ensure that all concurrent
-threads have left the critical section.  Then we can get rid of the
-BUG_ON() and replace it with a simple if condition.
+While reenabling the IRQ after irq poll there may be small time window
+where HBA firmware has posted some replies and raise the interrupts but
+driver has not received the interrupts. So we may observe I/O timeouts as
+the driver has not processed the replies as interrupts got missed while
+reenabling the IRQ.
 
-Link: https://lore.kernel.org/r/1600167537-12509-1-git-send-email-jitendra.khasdev@oracle.com
-Link: https://lore.kernel.org/r/20200924104559.26753-1-hare@suse.de
-Cc: Brian Bunker <brian@purestorage.com>
-Acked-by: Brian Bunker <brian@purestorage.com>
-Tested-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Reviewed-by: Jitendra Khasdev <jitendra.khasdev@oracle.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
+To fix this issue the driver has to go for one more round of processing the
+reply descriptors from reply descriptor post queue after enabling the IRQ.
+
+Link: https://lore.kernel.org/r/20201102072746.27410-1-sreekanth.reddy@broadcom.com
+Reported-by: Tomas Henzl <thenzl@redhat.com>
+Reviewed-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index f32da0ca529e0..308bda2e9c000 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -658,8 +658,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 					rcu_read_lock();
- 					list_for_each_entry_rcu(h,
- 						&tmp_pg->dh_list, node) {
--						/* h->sdev should always be valid */
--						BUG_ON(!h->sdev);
-+						if (!h->sdev)
-+							continue;
- 						h->sdev->access_state = desc[0];
- 					}
- 					rcu_read_unlock();
-@@ -705,7 +705,8 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
- 			pg->expiry = 0;
- 			rcu_read_lock();
- 			list_for_each_entry_rcu(h, &pg->dh_list, node) {
--				BUG_ON(!h->sdev);
-+				if (!h->sdev)
-+					continue;
- 				h->sdev->access_state =
- 					(pg->state & SCSI_ACCESS_STATE_MASK);
- 				if (pg->pref)
-@@ -1147,7 +1148,6 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 	spin_lock(&h->pg_lock);
- 	pg = rcu_dereference_protected(h->pg, lockdep_is_held(&h->pg_lock));
- 	rcu_assign_pointer(h->pg, NULL);
--	h->sdev = NULL;
- 	spin_unlock(&h->pg_lock);
- 	if (pg) {
- 		spin_lock_irq(&pg->lock);
-@@ -1156,6 +1156,7 @@ static void alua_bus_detach(struct scsi_device *sdev)
- 		kref_put(&pg->kref, release_port_group);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index e86682dc34eca..87d05c1950870 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -1742,6 +1742,13 @@ _base_irqpoll(struct irq_poll *irqpoll, int budget)
+ 		reply_q->irq_poll_scheduled = false;
+ 		reply_q->irq_line_enable = true;
+ 		enable_irq(reply_q->os_irq);
++		/*
++		 * Go for one more round of processing the
++		 * reply descriptor post queue incase if HBA
++		 * Firmware has posted some reply descriptors
++		 * while reenabling the IRQ.
++		 */
++		_base_process_reply_queue(reply_q);
  	}
- 	sdev->handler_data = NULL;
-+	synchronize_rcu();
- 	kfree(h);
- }
  
+ 	return num_entries;
 -- 
 2.27.0
 
