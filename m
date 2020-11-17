@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C082B658E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 304A62B635C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731755AbgKQN40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:56:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56880 "EHLO mail.kernel.org"
+        id S1732106AbgKQNfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:35:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730684AbgKQNWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:22:37 -0500
+        id S1732518AbgKQNfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:35:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3818E24654;
-        Tue, 17 Nov 2020 13:22:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B13E2078E;
+        Tue, 17 Nov 2020 13:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619355;
-        bh=OE6TXPUCQ1k1btAVrSTPMn085/IQmXSbfPHDe+Htxa4=;
+        s=default; t=1605620151;
+        bh=3XIFQy1igTvJoiMFNy7IC0L1KE+4cWAQr3s3KH9fNcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deroA62modJvnORXnLR4YdDYHGM6PaC2t+jovFNYmI4y+BOb6l1LO4MrG3bTym3fC
-         4HRf9Yna1ueEplDg3vZAyzuRJW1aoZ2tQHrvjFUaZKxmYsoh++eekZ+9VQiM1NjckG
-         dQl1C6MBIIFxg5kstvvJdkJmwo9nfgUXT/zu719Q=
+        b=A/gnNKjga/F+D66aUrrLXWf8lK6GgqWIWb2TvdneOPOi8ojp/EMKUQ2s73vFEX+Bs
+         63rMDs/9vpIwalESUP+fHnqeO+2MaE7Wb9ng5V/O5o4N3InXC/J2NlqL2f+hfkeAdV
+         LhGrEypkurMFPnM1d4ZPJ8BBLiIgGsuSnmcVZp+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lining <lining2020x@163.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 003/151] nbd: dont update block size after device is started
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 093/255] drm/amdgpu: perform srbm soft reset always on SDMA resume
 Date:   Tue, 17 Nov 2020 14:03:53 +0100
-Message-Id: <20201117122121.556211131@linuxfoundation.org>
+Message-Id: <20201117122143.480621387@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit b40813ddcd6bf9f01d020804e4cb8febc480b9e4 ]
+[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
 
-Mounted NBD device can be resized, one use case is rbd-nbd.
+This can address the random SDMA hang after pci config reset
+seen on Hawaii.
 
-Fix the issue by setting up default block size, then not touch it
-in nbd_size_update() any more. This kind of usage is aligned with loop
-which has same use case too.
-
-Cc: stable@vger.kernel.org
-Fixes: c8a83a6b54d0 ("nbd: Use set_blocksize() to set device blocksize")
-Reported-by: lining <lining2020x@163.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Cc: Jan Kara <jack@suse.cz>
-Tested-by: lining <lining2020x@163.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 742f8160b6e28..62a873718b5bb 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -296,7 +296,7 @@ static void nbd_size_clear(struct nbd_device *nbd)
- 	}
- }
- 
--static void nbd_size_update(struct nbd_device *nbd)
-+static void nbd_size_update(struct nbd_device *nbd, bool start)
+diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+index 20f108818b2b9..a3c3fe96515f2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
++++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+@@ -1071,22 +1071,19 @@ static int cik_sdma_soft_reset(void *handle)
  {
- 	struct nbd_config *config = nbd->config;
- 	struct block_device *bdev = bdget_disk(nbd->disk, 0);
-@@ -312,7 +312,8 @@ static void nbd_size_update(struct nbd_device *nbd)
- 	if (bdev) {
- 		if (bdev->bd_disk) {
- 			bd_set_size(bdev, config->bytesize);
--			set_blocksize(bdev, config->blksize);
-+			if (start)
-+				set_blocksize(bdev, config->blksize);
- 		} else
- 			bdev->bd_invalidated = 1;
- 		bdput(bdev);
-@@ -327,7 +328,7 @@ static void nbd_size_set(struct nbd_device *nbd, loff_t blocksize,
- 	config->blksize = blocksize;
- 	config->bytesize = blocksize * nr_blocks;
- 	if (nbd->task_recv != NULL)
--		nbd_size_update(nbd);
-+		nbd_size_update(nbd, false);
- }
+ 	u32 srbm_soft_reset = 0;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-	u32 tmp = RREG32(mmSRBM_STATUS2);
++	u32 tmp;
  
- static void nbd_complete_rq(struct request *req)
-@@ -1293,7 +1294,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		args->index = i;
- 		queue_work(nbd->recv_workq, &args->work);
- 	}
--	nbd_size_update(nbd);
-+	nbd_size_update(nbd, true);
- 	return error;
- }
+-	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
+-		/* sdma0 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
+-	}
+-	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
+-		/* sdma1 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+-	}
++	/* sdma0 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
++
++	/* sdma1 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
  
+ 	if (srbm_soft_reset) {
+ 		tmp = RREG32(mmSRBM_SOFT_RESET);
 -- 
 2.27.0
 
