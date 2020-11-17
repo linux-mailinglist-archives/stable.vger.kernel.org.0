@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E03E82B6086
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F1E2B60E1
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729412AbgKQNKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:10:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39148 "EHLO mail.kernel.org"
+        id S1728652AbgKQNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:13:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgKQNKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:10:01 -0500
+        id S1729715AbgKQNNl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0789B221EB;
-        Tue, 17 Nov 2020 13:09:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D7C12151B;
+        Tue, 17 Nov 2020 13:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618600;
-        bh=T/tTvQfw3hQXAWHMRLCHm4MshaDwFWZB0e7GYNevo/g=;
+        s=default; t=1605618820;
+        bh=P6y/MZJeOHmtfCSicfP14D/aI3qrhisrOfJiC6mnawI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCUL50UunovORQl8STOKi8g3CyNNj3eqLviKgp/2b6XY3e9Zfoj8Ch86uPaGSghFk
-         bu8bCKrA/ecPyj0lvFWlAl4kDnrP5c84oBfUgAJSzjnxqv3i02v6fHbFbiQ7YBwIKg
-         5EIVTWr+nFivPi8jxNuzqarRVvdnTpcMkogbVduY=
+        b=AqrnH31Oo7YwhUcc85FPfNHrUH4o+Df2dnMpp7goqRiQE1cYjuVB+4PYPTVAW2jwQ
+         fqqls2wRvTgQNsGaricHaMvlKG0lmQjjhN4si6aw1whWzkuoj8kz3TwofJeMjn+CwU
+         TIZr9VEKVUIQ/J/79mUDbYFJg0B9m3Z8Iyj051bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martyna Szapar <martyna.szapar@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 22/78] i40e: Fix of memory leak and integer truncation in i40e_virtchnl.c
+Subject: [PATCH 4.14 19/85] can: peak_canfd: pucan_handle_can_rx(): fix echo management when loopback is on
 Date:   Tue, 17 Nov 2020 14:04:48 +0100
-Message-Id: <20201117122110.193860895@linuxfoundation.org>
+Message-Id: <20201117122111.983987766@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martyna Szapar <martyna.szapar@intel.com>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit 24474f2709af6729b9b1da1c5e160ab62e25e3a4 upstream.
+[ Upstream commit 93ef65e5a6357cc7381f85fcec9283fe29970045 ]
 
-Fixed possible memory leak in i40e_vc_add_cloud_filter function:
-cfilter is being allocated and in some error conditions
-the function returns without freeing the memory.
+Echo management is driven by PUCAN_MSG_LOOPED_BACK bit, while loopback
+frames are identified with PUCAN_MSG_SELF_RECEIVE bit. Those bits are set
+for each outgoing frame written to the IP core so that a copy of each one
+will be placed into the rx path. Thus,
 
-Fix of integer truncation from u16 (type of queue_id value) to u8
-when calling i40e_vc_isvalid_queue_id function.
+- when PUCAN_MSG_LOOPED_BACK is set then the rx frame is an echo of a
+  previously sent frame,
+- when PUCAN_MSG_LOOPED_BACK+PUCAN_MSG_SELF_RECEIVE are set, then the rx
+  frame is an echo AND a loopback frame. Therefore, this frame must be
+  put into the socket rx path too.
 
-Signed-off-by: Martyna Szapar <martyna.szapar@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-[bwh: Backported to 4.9: i40e_vc_add_cloud_filter() does not exist
- but the integer truncation is still possible]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+This patch fixes how CAN frames are handled when these are sent while the
+can interface is configured in "loopback on" mode.
+
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Link: https://lore.kernel.org/r/20201013153947.28012-1-s.grosjean@peak-system.com
+Fixes: 8ac8321e4a79 ("can: peak: add support for PEAK PCAN-PCIe FD CAN-FD boards")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/peak_canfd/peak_canfd.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 8499fe7cff3bb..e6798b0d1cae0 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -188,7 +188,7 @@ static inline bool i40e_vc_isvalid_vsi_id(struct i40e_vf *vf, u16 vsi_id)
-  * check for the valid queue id
-  **/
- static inline bool i40e_vc_isvalid_queue_id(struct i40e_vf *vf, u16 vsi_id,
--					    u8 qid)
-+					    u16 qid)
- {
- 	struct i40e_pf *pf = vf->pf;
- 	struct i40e_vsi *vsi = i40e_find_vsi_from_id(pf, vsi_id);
+diff --git a/drivers/net/can/peak_canfd/peak_canfd.c b/drivers/net/can/peak_canfd/peak_canfd.c
+index ed8561d4a90f4..a38dc6d9c9787 100644
+--- a/drivers/net/can/peak_canfd/peak_canfd.c
++++ b/drivers/net/can/peak_canfd/peak_canfd.c
+@@ -256,8 +256,7 @@ static int pucan_handle_can_rx(struct peak_canfd_priv *priv,
+ 		cf_len = get_can_dlc(pucan_msg_get_dlc(msg));
+ 
+ 	/* if this frame is an echo, */
+-	if ((rx_msg_flags & PUCAN_MSG_LOOPED_BACK) &&
+-	    !(rx_msg_flags & PUCAN_MSG_SELF_RECEIVE)) {
++	if (rx_msg_flags & PUCAN_MSG_LOOPED_BACK) {
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&priv->echo_lock, flags);
+@@ -271,7 +270,13 @@ static int pucan_handle_can_rx(struct peak_canfd_priv *priv,
+ 		netif_wake_queue(priv->ndev);
+ 
+ 		spin_unlock_irqrestore(&priv->echo_lock, flags);
+-		return 0;
++
++		/* if this frame is only an echo, stop here. Otherwise,
++		 * continue to push this application self-received frame into
++		 * its own rx queue.
++		 */
++		if (!(rx_msg_flags & PUCAN_MSG_SELF_RECEIVE))
++			return 0;
+ 	}
+ 
+ 	/* otherwise, it should be pushed into rx fifo */
 -- 
 2.27.0
 
