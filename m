@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4153B2B6283
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD482B6285
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731558AbgKQN3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:29:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37876 "EHLO mail.kernel.org"
+        id S1731573AbgKQN3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:29:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731551AbgKQN3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:29:16 -0500
+        id S1731563AbgKQN3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:29:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9396220781;
-        Tue, 17 Nov 2020 13:29:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BEB12078E;
+        Tue, 17 Nov 2020 13:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619756;
-        bh=z9NTU619R+5CEdd4pUp0MofU7lmkDm90S80NkQVZqFo=;
+        s=default; t=1605619759;
+        bh=96sll2MtNT8gau431j6340Qmmpw4xbItvxX7Bvk4ZD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xnu4ScunJTB40gu/ljLL7YzHWyxlOR/voweKkyv2dmrve5GEl1vBfaDo8Z9UMyY3V
-         kxi3C1ppb3bcSfh9XtD2hdWIA+2g30f+43rZZog/E6iHiE60nsiKgdOo3+creiYhmv
-         P/toHLczufvQcPHIqvu+fVgST4VUQP89e+Ew7Bss=
+        b=Xzkt02lvVFV9MTYi1JEacYoWA32GlJorAlNdDMcp12P8I+Y7i1L3x5UmdHAwOySrz
+         TEaVnnLoXWMnnZZ7/jYT3nQQFnJM06kUZ3ikGuggcJa1Sb3Nj9+qLIRhU9aXnWqWi2
+         VCCnVUntWqK+7hs9Igndn/sMDQ8i3HgT2srxXDXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 146/151] powerpc/603: Always fault when _PAGE_ACCESSED is not set
-Date:   Tue, 17 Nov 2020 14:06:16 +0100
-Message-Id: <20201117122128.530783513@linuxfoundation.org>
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.4 147/151] x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
+Date:   Tue, 17 Nov 2020 14:06:17 +0100
+Message-Id: <20201117122128.578986293@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -43,64 +44,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Anand K Mistry <amistry@google.com>
 
-commit 11522448e641e8f1690c9db06e01985e8e19b401 upstream.
+commit 1978b3a53a74e3230cd46932b149c6e62e832e9a upstream.
 
-The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+On AMD CPUs which have the feature X86_FEATURE_AMD_STIBP_ALWAYS_ON,
+STIBP is set to on and
 
-Make sure a minor fault is taken to set _PAGE_ACCESSED when it
-is not already set, regardless of the selection of CONFIG_SWAP.
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
 
-Fixes: 84de6ab0e904 ("powerpc/603: don't handle PAGE_ACCESSED in TLB miss handlers.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a44367744de54e2315b2f1a8cbbd7f88488072e0.1602342806.git.christophe.leroy@csgroup.eu
+At the same time, IBPB can be set to conditional.
+
+However, this leads to the case where it's impossible to turn on IBPB
+for a process because in the PR_SPEC_DISABLE case in ib_prctl_set() the
+
+  spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED
+
+condition leads to a return before the task flag is set. Similarly,
+ib_prctl_get() will return PR_SPEC_DISABLE even though IBPB is set to
+conditional.
+
+More generally, the following cases are possible:
+
+1. STIBP = conditional && IBPB = on for spectre_v2_user=seccomp,ibpb
+2. STIBP = on && IBPB = conditional for AMD CPUs with
+   X86_FEATURE_AMD_STIBP_ALWAYS_ON
+
+The first case functions correctly today, but only because
+spectre_v2_user_ibpb isn't updated to reflect the IBPB mode.
+
+At a high level, this change does one thing. If either STIBP or IBPB
+is set to conditional, allow the prctl to change the task flag.
+Also, reflect that capability when querying the state. This isn't
+perfect since it doesn't take into account if only STIBP or IBPB is
+unconditionally on. But it allows the conditional feature to work as
+expected, without affecting the unconditional one.
+
+ [ bp: Massage commit message and comment; space out statements for
+   better readability. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/20201105163246.v2.1.Ifd7243cd3e2c2206a893ad0a5b9a4f19549e22c6@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 ---
- arch/powerpc/kernel/head_32.S |   12 ------------
- 1 file changed, 12 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   52 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 19 deletions(-)
 
---- a/arch/powerpc/kernel/head_32.S
-+++ b/arch/powerpc/kernel/head_32.S
-@@ -418,11 +418,7 @@ InstructionTLBMiss:
- 	cmplw	0,r1,r3
- #endif
- 	mfspr	r2, SPRN_SPRG_PGDIR
--#ifdef CONFIG_SWAP
- 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
--#else
--	li	r1,_PAGE_PRESENT | _PAGE_EXEC
--#endif
- #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
- 	bge-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
-@@ -484,11 +480,7 @@ DataLoadTLBMiss:
- 	lis	r1,PAGE_OFFSET@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- 	mfspr	r2, SPRN_SPRG_PGDIR
--#ifdef CONFIG_SWAP
- 	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
--#else
--	li	r1, _PAGE_PRESENT
--#endif
- 	bge-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
- 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
-@@ -564,11 +556,7 @@ DataStoreTLBMiss:
- 	lis	r1,PAGE_OFFSET@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- 	mfspr	r2, SPRN_SPRG_PGDIR
--#ifdef CONFIG_SWAP
- 	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
--#else
--	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
--#endif
- 	bge-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
- 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1252,6 +1252,14 @@ static int ssb_prctl_set(struct task_str
+ 	return 0;
+ }
+ 
++static bool is_spec_ib_user_controlled(void)
++{
++	return spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
++		spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP;
++}
++
+ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ {
+ 	switch (ctrl) {
+@@ -1259,17 +1267,26 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return 0;
+-		/*
+-		 * Indirect branch speculation is always disabled in strict
+-		 * mode. It can neither be enabled if it was force-disabled
+-		 * by a  previous prctl call.
+ 
++		/*
++		 * With strict mode for both IBPB and STIBP, the instruction
++		 * code paths avoid checking this task flag and instead,
++		 * unconditionally run the instruction. However, STIBP and IBPB
++		 * are independent and either can be set to conditionally
++		 * enabled regardless of the mode of the other.
++		 *
++		 * If either is set to conditional, allow the task flag to be
++		 * updated, unless it was force-disabled by a previous prctl
++		 * call. Currently, this is possible on an AMD CPU which has the
++		 * feature X86_FEATURE_AMD_STIBP_ALWAYS_ON. In this case, if the
++		 * kernel is booted with 'spectre_v2_user=seccomp', then
++		 * spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP and
++		 * spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED.
+ 		 */
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		if (!is_spec_ib_user_controlled() ||
+ 		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
++
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
+ 		break;
+@@ -1282,10 +1299,10 @@ static int ib_prctl_set(struct task_stru
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 			return -EPERM;
+-		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++
++		if (!is_spec_ib_user_controlled())
+ 			return 0;
++
+ 		task_set_spec_ib_disable(task);
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+ 			task_set_spec_ib_force_disable(task);
+@@ -1350,20 +1367,17 @@ static int ib_prctl_get(struct task_stru
+ 	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
+ 	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
+ 		return PR_SPEC_ENABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
+-		return PR_SPEC_DISABLE;
+-	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
+-	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
++	else if (is_spec_ib_user_controlled()) {
+ 		if (task_spec_ib_force_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
+ 		if (task_spec_ib_disable(task))
+ 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+ 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+-	} else
++	} else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		return PR_SPEC_DISABLE;
++	else
+ 		return PR_SPEC_NOT_AFFECTED;
+ }
+ 
 
 
