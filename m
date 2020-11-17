@@ -2,112 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 157152B5B88
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 10:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 635CF2B5B89
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 10:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725792AbgKQJLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 04:11:18 -0500
-Received: from sonic311-23.consmr.mail.ne1.yahoo.com ([66.163.188.204]:40745
-        "EHLO sonic311-23.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725355AbgKQJLS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 04:11:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605604275; bh=BazygYmAt3ABLsH4Xc0uFLR4LeQFSSclO+yXC1I2MNA=; h=Date:From:Reply-To:Subject:References:From:Subject; b=F9SwJ5L26xiMRqRP3VBYx+HZ3t+SXm8P/sltVZjCQkGhrNzUm5G3KBvQ2sNyoxMChUNiocRBdedD7h5ggnqFZzCTns5Rh4bT4h++CRYTlr8XHHVuoNBYk4NrpkAHqJnAlAYOJiqHqHGuPeEgu4fBRWrNW1+F8KYos15EwT6uljke47cwiucqFFWc+hy1DiBC/2kV7Sthqz58PmiFUhUpJF6xzEqlmVeRJNCwVWwEDiC0OybmSEHr1neY6XWrtzKMB75M8HYXvMux0UfF6Q3u4dbHwPEtCwH8CG4fIkrqqeBwIlQNrd3V31f1f/jVbN7yzvjvYyc1d1ZI4XskzYL14g==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1605604275; bh=DgILiuwWj+Y9uKPTIO0qOm0aCRNTqZ/P2NUtRfIhaqL=; h=Date:From:Subject:From:Subject; b=nFt8+8g9ab1gUOXCVOyXuYes6od1McaAYQu264CvfL74ra66WswFwhZ1YmJa+EHY/edJYqQTdhMhGnEpOOxAGlgos7/c5x/qWehGFYJAk3kbxTSxy7jxsIsHkEHMPrTk/NXxRH87K3j9EIQDIc8FQEZQxFmKCKEBHB+y1V+ksO1kWKu5VZfLPCSG3tBmck0j/dqBPD0mFj9ppyypc5jifbBUxI8sDoXSgA+fw6PhsyfCtzd4JGlWFxXLOK8LY+6fUZ8YJ5DgioO87mZU0nP1ICfFdWZYACVmxvta1jGhG6FChaN+j8QI/JWQAfGY809doqLCaMFLsjb+NPzK95OW0A==
-X-YMail-OSG: XwJyJcEVM1lC0bJSwASWaPa7O.8OsoPZJX1zD7YThMtm.NhakVfVodjtZshCxf3
- _JnWvZuebouk9ik7UH6Duk054AbAzOgqCRpewG3Nvc9nwcMwCdMtakmtybhLiH4lf8P2iEavQsGs
- Jp73c7n770aVralebCkIl34zbe.qC9xb9q9Oh9T6aLowL8HJm1v.DVmTwrTjjZoCVZVuzzKv2Bg_
- 4eU1Zh7d4TzN8Whus1egyUdgkRfkc_n4g6qR6w6LSTO2kDNHPKK_tnzDTXbow9M_kYYdqH44GdRq
- 5XiI1vyJ67Ft01_4UTzSyrTPeRSJ4qnB_AufRGGiDtCSNXHyCTnbkawMAAArRM3svNMkb2Iykm0g
- pZlpXlFegOEhBSIzPr8GlUAT0jO6Zwn.jYgXhIRBe2uNwviTN6wg6NGKgbt1n3u2tjaOKBJXaGZZ
- Qr_pFLijmXLSgS2nR0FUDdKsVbQ97lTj9Syf.M4DPSDVRqpUduLgRYrT0QiD2kb2lNU2_gDNnj5J
- v5IOxN97GrH7TjEIzEu_3kr2nnmtTeZY9mAS7ohz1PIpeo9EX1cD5ngqbgj8ZLu2LJ4KW_6VWd4Y
- dsx6O16EkR9xXI.MwaTlTtNCpiNP1x_5csoALpFDXuX_KMsr35mGRy4h2nxnFBBIzrEKCvsvwvaV
- _PcltEXRSGf9dDYj9NvNENznNR1vviRBg81wgJcOBH4iDZNYEJvE96TYIOGaWtZ6jkx7QmqY_nIZ
- Oae9Tr.rIHPbPyNj1hqfz7RKPJwLJt1oVHHtUlJZxFYX6wePEICl_nu4hWWemI6BcZvGQI2_9RSB
- lPAYyhrdqRqaOA7U_3.4qHJHXYKeSlkF9kvO1WVQ2z1niKy6aVROE2OTrCmz5uGIYe2QvS1RCrjw
- .dnbMBxbc0iP1S_MWGbQ7qhgVD37GZEPzrcbXg82oEvgAMHtt3RjvD61l9rCpDsLL8NDGujuOVzC
- EE7pjaKJurAt6tJorjdClHVieA7DIOwcYV45k8eW6E4U34htBR8lcvl8__N6RWhcYlkV4qu3OqYu
- AeGkQosGGcRfsmMoXUlzQYy3k2X9LDtErZ4Q9OoBrg8wm9lM29mFjCbzEUwz07FHD311KBNXqF5U
- YbdcFjVFfckHcIcGCvnPv6ADugMrw9Rz6bhvFljNzRlEvwVghTJiS9st8k.Pa6LhhbWY2FgWZcQS
- dLC10yS6SUTFe0.77UCjHQktMLDjaBzSzB5qq2WB3vfcGlWeW7QZByD7cM2GtWutQT0EUqnF.6tV
- .WSZnhxvgVQx6JEB2V6lyNcu_5.wRk1B38rgr3yop.NKtY39FFEXsuBZRZRB3l9T7VcmfmKoH52r
- T7DftWugyASVYcG1H8_ah2Z3nCVnGXwVsGktAxjzWtzLyuAWFa9OvNqqE.tVYDRHKuNpkpVIbfBf
- cf6M0wYYHkO.3RO06pDvt.9T2y6_NMbvAMwjK1XH3IyfGhqGgnqRaKwe1huQAiSBRi.dxMJ8hlPu
- aITHuuKmlH4AEZIgnIs.cQNH0lVF_eR_wywYS9wpGSHoDtXF5ZI1f966W_b.V.VxKRcPyMHLecl0
- Y1Bzvrw_qmPAMf39XMQCM1Gpz0RjrF9vwwUQ0fsS1aspbzG0UcKiF0yCpuIeX.X1PmKqrIcgHlZa
- iF2y9g20VMKNnf_cstEzurJ.eOqVtGj.NRhG5KD6k68krbgymOpmv7ULaoe1C9CWos8y.AM_om3F
- 7.5Vdsrx.Ku4AqNu2JRvBqV8zfqlyNYJ0fYrYhO6nWwySxLpH7J.6P6pSwQ43qlzw5g3wMc4W68u
- vGWHERHxyLTh4O3jyOZ_deZWAxpCTkkT84YDGaPvkbmcY3bDDIzOKzTJVsOqHBhhQGxVwZv_OeKj
- VtzuFjoEUcFOiIVJH34eysDl.ccY4kPIhe0pfXg5Soe73KH_PMWk9WcvdBn9JEd2x.zZ5uVbTFJc
- qUnyXlJr01dzctDnYd.Fslkq7xejljLURJWsykbbUgcOq2PZeCzJh.hW0BzldOVC0JfVTpahJ_jP
- wTBQT1VKE.rTOCc74I2ZvNGuPFejI6kEZoakhm.ZL6zID1WgHOIeUlh6iJh3wpTm7hGT8U0V55zF
- 92LbO6AljYTWJIUO_Hqs4qqgLv61H4B9iwPOFQ0v.Mwa.ziiN0V15qtDxSz6EEclH7.vE2MDCBvw
- rAWuflqJtBXqKxwhtMHlNB2nRT60n5BbzXGSTVmFdIW5jDrEYrPYXsc3kSwmCeehjKsdUpAnLiaB
- pGXY4RmwI4_UPSSW1Us8mVYAsaf_zVX3Wck5qKXZOa21XKAVfg2vAttoQeuBRbnJ37aMTublMmgr
- 4WQD0F9YRwCNp_EW6jPJ1h0iUZFsHuPDEpluV.PWgNYBtP0IqetMOlw5DxnVkOXSjo4dubzQyoF5
- pi85vXiixaxL_0k2nuCB7KAN6mKndXxNDtZVwZPBcZpCUQUlf2c9LqNb0af78LuvoGFvkhCG2crW
- uabKvhI36oQwmffXAiibjLRmN.beWcuK4.HFUkxDSc0FhypU67XCeOMuwnB9W0mt8gRgAqL5X1Rw
- Jpzu2rDJWlsVg7i2BqYOgHRwsurCO.2qA5YxkOBgRd_Udy56trYsjnp9EBrUOSq159O0Bb.i7Wz.
- ANt9uf2wamMrxQn.h4BGUeZr7pBANFA735OUx.brHcK1M6cTBAmyh8ynapcTUwhNKXvpWDRNXU3W
- Dqyk_hZHgAHBTikUXcT2aRJTxG2JQNN1CJciPI25P6LwkpO1Ym7UKVMGVJ9lCLcc8LzZpKykSCFh
- QA3fBybK7xRXqyUGqieGnuuKwnlEkAduAbfXu7oES3YpH7iQXfmxfIn7lJvtwY5UT6fYaB.EiRM3
- tVXNZYWJXr5JcuEW4wbzjVNfMPKZmcAr772iGQ9UO0guPQnF8dP5dM9dOMmyizuW84KGhgom3cvW
- Z3RHFs8FFUQWJhmx7JSE9wOb1H7di0X.clGssPLN6KRkH4Pk1VhAln7QwPugw_OUrVDyHaa6BHiP
- HLPoyeqhbv_8Pfz4qO8rBP1ngzj5GXuG_MwdHeLp2OHYRpItI4KOq_uHv7zPyvY6SGh7Rfz1Hg6Q
- iLOMZ2ivE9abqsF14zU3y.13sCJMS.GjgexaneGrFIB_1mvwXBKHpzynbqUuMGhZAZLbAbIXMapy
- IfxsuZq.WaDhwwchtqKF67C..fK0fLMR74UR7QmV5dreM2CKl0kcKc5nZGIh7d5mlBc.5HXBUIek
- zccJHCYQD5m15owu_QDTcG5ONCZc6SYKjvgR3Q5EOjGuY8529anC6YyPgddNg4iV2FTgbJI06988
- YaEvL3D4tHOwi3wkQv6P4CkhoiAQFhg9vnZE.4Y7vAZVVIOdix_xiT.FE6_ZTk4jgPQaaidPVBCR
- XmATcjRMZlyE8yEhK6YcQiFBrp5QKPaLvpi8RHeDDgFbyXcyaGzKJE06kjH7eo_dCzoDmxdo8V6M
- YgRR8kB5iFfvupwfEvYCYp3L0W1.te7O_s.wmiro325iwalfyoTL5Vsc_LOjdAF4Th5F2DVbmzLp
- XGNATH5IVVpr7OYile1ovp77FwyeXwG4LMr9XUhBxWeCqXU8zPipeHGwPL6gQdP6.UrLzOJMnxU.
- nv2D9cXmPtyOOSJYM1MNFlDQMWlmuxmICSrN64GvJwmq7SllkXwrknblXjLF0EQCMouqzwfDMdl.
- 1NKo9obQ.2qapxkFAgCWJx8EJ2tJ9SMqFNYhlXoRBXGtHmftOX0H5LWaNVT_.PfRTqp42dLY1gnu
- 766yEDgBTsSiTBvUt5aecpzlo.Kvmdf7LQDJuNXQ2wyiefrET6m_DRz7OI6t_AHxfJ0uVPxUfflw
- zCWSgl.6ohd_f.240aPOTtIKXt3MM1TOZvG.Bj8fnJVnljRvtiMm9VexZXOLLyzgb85WhM6GaSlP
- ASk0nivzNT3dO.fpeqKhdyPJW0wmKSj31zjN0si2bSvcl0MY8JSDHOkU9pQVTroKEXv321uZ4tMe
- MNIfpk5eLT_Wfvqbn3wYi44oi0RWY0n5EG1lumtVtzaVSkaD7KdmOeNUrusFRuP1iJRdhpZinmgI
- X0gK2wh489GYnlPPdoRpSamYjWm3oWXUhIWTo9cN6OCDnTVefi3txjWVvu1iGwx6SbwKbfLuR9fP
- I7XVSRNNxZMTNyQLGUseyS8hHafJc3aTYpZ78p1zBJ_yrGQo47q1JtGxzOdw3ggdpJQLizeWH9M1
- 64B_73nGx0pA_GvjQ2F7EXjIKs4DyOLFYwt7ozLc._M0A1AIJ6h7HkmunbijY3slRLvcqofQzlAX
- MIRKaliXimZGo6RLCvqiSbr12Efxdz.BUQzAeb0rvuRYg7Ox36deGhD8fKAuRXKqWa6yhR2BxQaB
- JMfwsHAH3_aFvC3cLg7bRNr0oqYY9JgW2zIdXUgBOx3MdlP8QeGMHsXKU0xNzeODxX9t4KAIF0G7
- bXBYDjVghiAHyAb2s6rpEOB4wzB_3Mp4X4c.LjZSRpHW3igp9VSrpkT1YK8a0IZXL610qgm7qovi
- .DmtNXwz9LnhcgLWWn2brXWHX4RvlaB8uLyAJ8naiP4a8QuroIBVYPhHtIhFexbEuegNPCKYqEtT
- XojgReaEswTUG_bHQIqheSdoQYKNgOPAjb4YIx9reRtY7ISMUlFiMM58si_WcSTrpf4j7gOoBDTM
- el1VkWErbQw0.USQ4nAF.m07iF0s7fTGzQDlJMxWS9qaahSQtod8d9wSN9Vogr_sJb4.lwUBQAnN
- ZZrRa61HVIcGwzjOYABJBQAr0r6KsAgTpNc1GX0KKp6iJtn6kaTnlzhg6lacw_I1uV_nVD14mwyf
- ccRc6saa2tbkBW4ktel31n8Mz3if1gQEfEwyy6s_jsHWUFg9wigJdbUMZBOOO6AvaWp5m8ubDJaT
- Z5ElO.G1_9j9gPa5X2AZMOTA5btAuFkt3apuyqUntpEdHPF10UpzLBqeODeAV_Gv_HlO9EJFG6Ku
- 0zajkXzlJEe91PgxgwOzK.BtJZYE11L4SqOcv8JHVJGZJNN5_8v3MA78Kga8hkv4iicDt3MiZP2t
- DfDtCo2J8iOEDpvbPcf5myF_.FeR7BTeR59GfzkAA._csdcl0GOF6ncpyTGJkCVu9bZ1ma53xKdk
- TfFwHkkVyfg7q3yW_kuV7sAmq3ztQs5.WqpGUCKnFevhgsGakPFoGt6yfexju7MoQ8MdNrCPLSNI
- 6PoSD2W9UZFs5jRATJvXoeUxeVS_svd1mI4GkQdCkOvq.5stjkX6qrVwtRoup5EbiOKiOvs3ThN4
- kCDeJhxhY.LChq6q15RYHySI8WD4vOMXS21KWBS9r1kJMMwgrhk2tockAGD.4fruml56nWkL6Dsj
- evPZexqzqUlANanXOjy8LsHaMRDxnmmVArPipf3qhPA7yWKrp3UHbC1HejNCoDw2BlDtwkkOsC3g
- EFy3MnzDt
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 17 Nov 2020 09:11:15 +0000
-Date:   Tue, 17 Nov 2020 09:11:12 +0000 (UTC)
-From:   Paul Wagner <pw9076424@gmail.com>
-Reply-To: paulwagne7@gmail.com
-Message-ID: <627328340.6420289.1605604272969@mail.yahoo.com>
-Subject: Hallo,
+        id S1726196AbgKQJLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 04:11:45 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:41153 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725779AbgKQJLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 04:11:45 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id B16515C014F;
+        Tue, 17 Nov 2020 04:11:43 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 17 Nov 2020 04:11:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=IVEiwUxXqMt1oyhEyl4UBJexyAn
+        5tXLqbFTD/YW55YY=; b=Dy6JrmAaDMb28LuAAg5d3oX+n4UWRvYP84Y73XSD4DY
+        pvxUhR2wpmY2iyzyfroGSo78kt68goiJD3UHfUTPj+OB0QANjPkG2mToTkFJ0f2W
+        YkIaiI7YtEL4FCIpxl3JohTkqPJjmA5nNakuIXFXPwregcuZXg+YBadTJufOu6sw
+        YFBXPXgU81kTvuQX066fZPYYw/QfVGeqbm7syC/ioar7mdrcBWS/LItSwGEaExxM
+        qblUjXYTamxGs56OfUVGuDxWSOCwbXO9rq4GxbZgmH+yju5+GwHlQY7dPD8zeaKE
+        xkzc4wKyQp7oruAjWlm5Y7kBZC45mMOF3j3BpBWIbXA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=IVEiwU
+        xXqMt1oyhEyl4UBJexyAn5tXLqbFTD/YW55YY=; b=lyJWBTms4xk6BUInogyJXU
+        yLUKDlUX8NA0G358ZpiSYuprR6Y5qUdqtmBQJzytf6IMroCHY+sUn4t6/BuEBpxg
+        VexS5fA2A6bHFPGg8mrMiEWfxFPB1MClFozhFt0ULD6SZDcb7802CQXCZjYoLDqP
+        R+qecKwLa2x0eYxsCw9wqeXbQHWyhocDjR0zQUhlNBAjwoKP4UGy3aK3ffPh2mma
+        pKoR8QLVHQA4C/4FwNMUMwytg+KN+as9nfb46jPBv/KispYTO5o1sshW3ZW9eNaO
+        pTibmFJ9MT65b0ch1sdtiYnS1jrEwDdeGeuIHDP3Zf0GUpj/zbOVEeEFGp/I7cAQ
+        ==
+X-ME-Sender: <xms:zpOzX3zhH3Pl1N8fASBsOtcc5Lf_nt87OMcQunlAOrVSXHxD-rI9Zg>
+    <xme:zpOzX_SFbldKZrdK77xRvQhCbqRM85_-HxfdrggvO-ED1M7uwJtRwE_tGSAPaZ4RF
+    hYroLdu0AzbLg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeffecutefuodetggdotefrodftvfcurf
+    hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehttdertddttd
+    dvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucgg
+    tffrrghtthgvrhhnpeetgfeiiefhkefgleehfedvfeekgeejkeeijeegvdefleeigfeuvd
+    ekleefjefhvdenucffohhmrghinheplhgruhhntghhphgrugdrnhgvthdpghhithhhuhgs
+    rdgtohhmpdgrshhkuhgsuhhnthhurdgtohhmpdhlihhnuhigmhhinhhtrdgtohhmpdhkvg
+    hrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhi
+    iigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:zpOzXxWZuJI2h-Lo0yGlyeJzYlyKtaxK8WF0Y-pjWpXgXA1KuKsWPQ>
+    <xmx:zpOzXxh4Yeyegn3PAvGNg7NuecmO11S2Fk2x4WIS8xpM4f7pnNfOTA>
+    <xmx:zpOzX5B2yflXJBi-vPTf9IdPyjP22g0IBEofKLum8Z_12g-495RLkg>
+    <xmx:z5OzX87tEu9DkPMbmvAZtIiNzAv6pik_9NfnbTyHKPrRzhrQIKmBSg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 552B23064AA6;
+        Tue, 17 Nov 2020 04:11:42 -0500 (EST)
+Date:   Tue, 17 Nov 2020 10:12:30 +0100
+From:   Greg KH <greg@kroah.com>
+To:     siarhei.liakh@concurrent-rt.com
+Cc:     linux-kernel@vger.kernel.org, initramfs@vger.kernel.org,
+        stable@vger.kernel.org, kyungsik.lee@lge.com, yinghai@kernel.org,
+        4sschmid@informatik.uni-hamburg.de, JBeulich@suse.com
+Subject: Re: [PATCH] unlz4: Handle 0-size chunks, discard trailing
+ padding/garbage
+Message-ID: <X7OT/pQmlas2cJK5@kroah.com>
+References: <20201116220959.16593-1-siarhei.liakh@concurrent-rt.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <627328340.6420289.1605604272969.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16944 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201116220959.16593-1-siarhei.liakh@concurrent-rt.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo,
+On Mon, Nov 16, 2020 at 05:09:59PM -0500, siarhei.liakh@concurrent-rt.com wrote:
+> From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> 
+> TL;DR:
+> 
+> There are two places in unlz4() function where reads beyond the end of a buffer
+> might happen under certain conditions which had been observed in real life on
+> stock Ubuntu 20.04 x86_64 with several vanilla mainline kernels, including 5.10.
+> As a result of this issue, the kernel fails to decompress LZ4-compressed
+> initramfs with following message showing up in the logs:
+> 
+> initramfs unpacking failed: Decoding failed
+> 
+> Note that in most cases the affected system is still able to proceed with the
+> boot process to completion.
+> 
+> LONG STORY:
+> 
+> Background.
+> 
+> Not so long ago we've noticed that some of our Ubuntu 20.04 x86_64 test systems
+> often fail to boot newly generated initramfs image. After extensive
+> investigation we determined that a failure required the following combination
+> for our 5.4.66-rt38 kernel with some additional custom patches:
+> 
+> Real x86_64 hardware or QEMU
+> UEFI boot
+> Ubunutu 20.04 (or 20.04.1) x86_64
+> CONFIG_BLK_DEV_RAM=y in .config
+> COMPRESS=lz4 in initramfs.conf
+> Freshly compiled and installed kernel
+> Freshly generated and installed initramfs image
+> 
+> In our testing, such a combination would often produce a non-bootable system. It
+> is important to note that [un]bootability of the system was later tracked down
+> to particular instances of initramfs images, and would follow them if they were
+> to be switched around/transferred to other systems. What is even more important
+> is that consecutive re-generations of initramfs images from the same source and
+> binary materials would yield about 75% of "bad" images. Further, once the image
+> is identified as "bad",it always stays "bad"; once one is "good" it always stays
+> "good". Reverting CONFIG_BLK_DEV_RAM to "m" (default in Ubuntu), or changing
+> COMPRESS to "gzip" yields a 100% bootable system. Decompressing "bad" initramfs
+> image with "unmkinitramfs" yields *exactly* the same set of binaries, as
+> verified by matching MD5 sums to those from "good" image.
+> 
+> Speculation.
+> 
+> Based on general observations, it appears that Ubuntu's userland toolchain
+> cannot consistently generate exactly the same compressed initramfs image, likely
+> due to some variations in timestamps between the runs. This causes variations in
+> compressed lz4 data stream. Further, either initramfs tools or lz4 libraries
+> appear to pad compressed lz4 output to closest 4-byte boundary. lz4 v1.9.2 that
+> ships with Ubuntu 20.04 appears to be able to handle such padding just fine,
+> while lz4 (supposedly v1.8.3) within Linux kernel cannot.
+> Several reports of somewhat similar behavior had been recently circulation
+> through different bug tracking systems and discussion forums [1-4].
+> I also suspect only that systems which can mount permanent root directly (or
+> with help of modules contained in first, supposedly uncompressed, part of
+> initramfs, or the ones with statically linked modules) can actually complete the
+> boot when LZ4 decompression fails. This would certainly explain why most of
+> Ubuntu systems still manage to boot even after failing to decompress the image.
+> 
+> The facts.
+> 
+> Regardless of whether Ubuntu 20.04 toolchain produces a valid lz4-compressed
+> initramfs image or not, current version of unlz4() function in kernel has two
+> code paths which had been observed attempting to read beyond the buffer end when
+> presented with one of the "padded"/"bad" initramfs images generated by stock
+> Ubuntu 20.04 toolchain. Some configurations of some 5.4 kernels are known to
+> fail to boot in such cases. This behavior also becomes evident on vanilla
+> 5.10.0-rc3 and 5.10.0-rc4 kernels with addition of two logging statements for
+> corresponding edge cases, even though it does not prevent system from booting in
+> most generic configurations.
+> 
+> Further investigation is likely warranted to confirm whether userland toolchain
+> contains any bugs and/or whether any of these cases constitute violation of LZ4
+> and/or initramfs specification.
+> 
+> References
+> 
+> [1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1835660
+> [2] https://github.com/linuxmint/mint20-beta/issues/90
+> [3] https://askubuntu.com/questions/1245458/getting-the-message-0-283078-initramfs-unpacking-failed-decoding-failed-wh
+> [4] https://forums.linuxmint.com/viewtopic.php?t=323152
+> 
+> Signed-off-by: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> 
+> ---
+> 
+> Please CC: me directly on all replies.
+> 
+>  lib/decompress_unlz4.c | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
 
-Mein Name ist Paul Wagner, ein Familienanwalt des verstorbenen Herrn Thomas=
-. Ich habe einen Vorschlag f=C3=BCr Sie bez=C3=BCglich meines verstorbenen =
-Mandanten Thomas . Bitte schreiben Sie mir f=C3=BCr weitere Einzelheiten zu=
-r=C3=BCck.
+<formletter>
 
-Gr=C3=BC=C3=9Fe
-Paul Wagner
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
