@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409C72B64E4
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B032B64E3
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731609AbgKQNcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732272AbgKQNcV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 17 Nov 2020 08:32:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732260AbgKQNcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:19 -0500
+        id S1732266AbgKQNcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:32:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 624FD21534;
-        Tue, 17 Nov 2020 13:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59CCF2078E;
+        Tue, 17 Nov 2020 13:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619938;
-        bh=1HVJRvTvpuQHJfABxjzcGObmSmsEQgdT3HqP0Qd0p74=;
+        s=default; t=1605619941;
+        bh=+WADrUy5UpjLhJkC1SaS6aQ6KJWeP90Ig6r1nmV5nT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HB0vEYRg2yVc9jVop06eETiZDCy6cBhAMyLd7l2vEKB7ZnKezUAqLVtjA3VkJuDmo
-         zFnLvaDJOYj7+0OIQDXqxDsJfoXjy7nihKzTGtFC9sPI+5hR95R0P1bRB1blp+tp3+
-         JLWpsmtrnFHOToH1NPlJg4m8mWlSlqDaBP7eK0ow=
+        b=syAdQxKpC9xN22nX3lOZ1+4eGguJmqSqZ9HBGoQvLrm4RPUnscq+CfxOfrDh3Gy7+
+         C85eQV6MOxvUf1Eg8+ggM7ZI/uovDUJjRsylgnLVcd4BILN+gKBNAUTLOZ3dLk5Woz
+         gjaEUmzcrVimv6fVH/htOfqpHML3vwUiB+PV9GZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        Fabian Inostroza <fabianinostrozap@gmail.com>,
         Stephane Grosjean <s.grosjean@peak-system.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 053/255] can: peak_usb: add range checking in decode operations
-Date:   Tue, 17 Nov 2020 14:03:13 +0100
-Message-Id: <20201117122141.533718958@linuxfoundation.org>
+Subject: [PATCH 5.9 054/255] can: peak_usb: peak_usb_get_ts_time(): fix timestamp wrapping
+Date:   Tue, 17 Nov 2020 14:03:14 +0100
+Message-Id: <20201117122141.582283576@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,127 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-[ Upstream commit a6921dd524fe31d1f460c161d3526a407533b6db ]
+[ Upstream commit ecc7b4187dd388549544195fb13a11b4ea8e6a84 ]
 
-These values come from skb->data so Smatch considers them untrusted.  I
-believe Smatch is correct but I don't have a way to test this.
+Fabian Inostroza <fabianinostrozap@gmail.com> has discovered a potential
+problem in the hardware timestamp reporting from the PCAN-USB USB CAN interface
+(only), related to the fact that a timestamp of an event may precede the
+timestamp used for synchronization when both records are part of the same USB
+packet. However, this case was used to detect the wrapping of the time counter.
 
-The usb_if->dev[] array has 2 elements but the index is in the 0-15
-range without checks.  The cfd->len can be up to 255 but the maximum
-valid size is CANFD_MAX_DLEN (64) so that could lead to memory
-corruption.
+This patch details and fixes the two identified cases where this problem can
+occur.
 
-Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200813140604.GA456946@mwanda
-Acked-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Reported-by: Fabian Inostroza <fabianinostrozap@gmail.com>
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Link: https://lore.kernel.org/r/20201014085631.15128-1-s.grosjean@peak-system.com
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c | 48 +++++++++++++++++-----
- 1 file changed, 37 insertions(+), 11 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 51 ++++++++++++++++++--
+ 1 file changed, 46 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-index 47cc1ff5b88e8..dee3e689b54da 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -468,12 +468,18 @@ static int pcan_usb_fd_decode_canmsg(struct pcan_usb_fd_if *usb_if,
- 				     struct pucan_msg *rx_msg)
- {
- 	struct pucan_rx_msg *rm = (struct pucan_rx_msg *)rx_msg;
--	struct peak_usb_device *dev = usb_if->dev[pucan_msg_get_channel(rm)];
--	struct net_device *netdev = dev->netdev;
-+	struct peak_usb_device *dev;
-+	struct net_device *netdev;
- 	struct canfd_frame *cfd;
- 	struct sk_buff *skb;
- 	const u16 rx_msg_flags = le16_to_cpu(rm->flags);
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index d91df34e7fa88..c2764799f9efb 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -130,14 +130,55 @@ void peak_usb_get_ts_time(struct peak_time_ref *time_ref, u32 ts, ktime_t *time)
+ 	/* protect from getting time before setting now */
+ 	if (ktime_to_ns(time_ref->tv_host)) {
+ 		u64 delta_us;
++		s64 delta_ts = 0;
++
++		/* General case: dev_ts_1 < dev_ts_2 < ts, with:
++		 *
++		 * - dev_ts_1 = previous sync timestamp
++		 * - dev_ts_2 = last sync timestamp
++		 * - ts = event timestamp
++		 * - ts_period = known sync period (theoretical)
++		 *             ~ dev_ts2 - dev_ts1
++		 * *but*:
++		 *
++		 * - time counters wrap (see adapter->ts_used_bits)
++		 * - sometimes, dev_ts_1 < ts < dev_ts2
++		 *
++		 * "normal" case (sync time counters increase):
++		 * must take into account case when ts wraps (tsw)
++		 *
++		 *      < ts_period > <          >
++		 *     |             |            |
++		 *  ---+--------+----+-------0-+--+-->
++		 *     ts_dev_1 |    ts_dev_2  |
++		 *              ts             tsw
++		 */
++		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
++			/* case when event time (tsw) wraps */
++			if (ts < time_ref->ts_dev_1)
++				delta_ts = 1 << time_ref->adapter->ts_used_bits;
++
++		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
++		 * handle case when event time (tsn) hasn't.
++		 *
++		 *      < ts_period > <          >
++		 *     |             |            |
++		 *  ---+--------+--0-+---------+--+-->
++		 *     ts_dev_1 |    ts_dev_2  |
++		 *              tsn            ts
++		 */
++		} else if (time_ref->ts_dev_1 < ts) {
++			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
++		}
  
-+	if (pucan_msg_get_channel(rm) >= ARRAY_SIZE(usb_if->dev))
-+		return -ENOMEM;
-+
-+	dev = usb_if->dev[pucan_msg_get_channel(rm)];
-+	netdev = dev->netdev;
-+
- 	if (rx_msg_flags & PUCAN_MSG_EXT_DATA_LEN) {
- 		/* CANFD frame case */
- 		skb = alloc_canfd_skb(netdev, &cfd);
-@@ -519,15 +525,21 @@ static int pcan_usb_fd_decode_status(struct pcan_usb_fd_if *usb_if,
- 				     struct pucan_msg *rx_msg)
- {
- 	struct pucan_status_msg *sm = (struct pucan_status_msg *)rx_msg;
--	struct peak_usb_device *dev = usb_if->dev[pucan_stmsg_get_channel(sm)];
--	struct pcan_usb_fd_device *pdev =
--			container_of(dev, struct pcan_usb_fd_device, dev);
-+	struct pcan_usb_fd_device *pdev;
- 	enum can_state new_state = CAN_STATE_ERROR_ACTIVE;
- 	enum can_state rx_state, tx_state;
--	struct net_device *netdev = dev->netdev;
-+	struct peak_usb_device *dev;
-+	struct net_device *netdev;
- 	struct can_frame *cf;
- 	struct sk_buff *skb;
+-		delta_us = ts - time_ref->ts_dev_2;
+-		if (ts < time_ref->ts_dev_2)
+-			delta_us &= (1 << time_ref->adapter->ts_used_bits) - 1;
++		/* add delay between last sync and event timestamps */
++		delta_ts += (signed int)(ts - time_ref->ts_dev_2);
  
-+	if (pucan_stmsg_get_channel(sm) >= ARRAY_SIZE(usb_if->dev))
-+		return -ENOMEM;
-+
-+	dev = usb_if->dev[pucan_stmsg_get_channel(sm)];
-+	pdev = container_of(dev, struct pcan_usb_fd_device, dev);
-+	netdev = dev->netdev;
-+
- 	/* nothing should be sent while in BUS_OFF state */
- 	if (dev->can.state == CAN_STATE_BUS_OFF)
- 		return 0;
-@@ -579,9 +591,14 @@ static int pcan_usb_fd_decode_error(struct pcan_usb_fd_if *usb_if,
- 				    struct pucan_msg *rx_msg)
- {
- 	struct pucan_error_msg *er = (struct pucan_error_msg *)rx_msg;
--	struct peak_usb_device *dev = usb_if->dev[pucan_ermsg_get_channel(er)];
--	struct pcan_usb_fd_device *pdev =
--			container_of(dev, struct pcan_usb_fd_device, dev);
-+	struct pcan_usb_fd_device *pdev;
-+	struct peak_usb_device *dev;
-+
-+	if (pucan_ermsg_get_channel(er) >= ARRAY_SIZE(usb_if->dev))
-+		return -EINVAL;
-+
-+	dev = usb_if->dev[pucan_ermsg_get_channel(er)];
-+	pdev = container_of(dev, struct pcan_usb_fd_device, dev);
+-		delta_us += time_ref->ts_total;
++		/* add time from beginning to last sync */
++		delta_ts += time_ref->ts_total;
  
- 	/* keep a trace of tx and rx error counters for later use */
- 	pdev->bec.txerr = er->tx_err_cnt;
-@@ -595,11 +612,17 @@ static int pcan_usb_fd_decode_overrun(struct pcan_usb_fd_if *usb_if,
- 				      struct pucan_msg *rx_msg)
- {
- 	struct pcan_ufd_ovr_msg *ov = (struct pcan_ufd_ovr_msg *)rx_msg;
--	struct peak_usb_device *dev = usb_if->dev[pufd_omsg_get_channel(ov)];
--	struct net_device *netdev = dev->netdev;
-+	struct peak_usb_device *dev;
-+	struct net_device *netdev;
- 	struct can_frame *cf;
- 	struct sk_buff *skb;
+-		delta_us *= time_ref->adapter->us_per_ts_scale;
++		/* convert ticks number into microseconds */
++		delta_us = delta_ts * time_ref->adapter->us_per_ts_scale;
+ 		delta_us >>= time_ref->adapter->us_per_ts_shift;
  
-+	if (pufd_omsg_get_channel(ov) >= ARRAY_SIZE(usb_if->dev))
-+		return -EINVAL;
-+
-+	dev = usb_if->dev[pufd_omsg_get_channel(ov)];
-+	netdev = dev->netdev;
-+
- 	/* allocate an skb to store the error frame */
- 	skb = alloc_can_err_skb(netdev, &cf);
- 	if (!skb)
-@@ -716,6 +739,9 @@ static int pcan_usb_fd_encode_msg(struct peak_usb_device *dev,
- 	u16 tx_msg_size, tx_msg_flags;
- 	u8 can_dlc;
- 
-+	if (cfd->len > CANFD_MAX_DLEN)
-+		return -EINVAL;
-+
- 	tx_msg_size = ALIGN(sizeof(struct pucan_tx_msg) + cfd->len, 4);
- 	tx_msg->size = cpu_to_le16(tx_msg_size);
- 	tx_msg->type = cpu_to_le16(PUCAN_MSG_CAN_TX);
+ 		*time = ktime_add_us(time_ref->tv_host_0, delta_us);
 -- 
 2.27.0
 
