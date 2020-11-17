@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B8942B6461
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A642B6560
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732843AbgKQNq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:46:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
+        id S1731318AbgKQNym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:54:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732465AbgKQNhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:11 -0500
+        id S1731067AbgKQNZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:25:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF410207BC;
-        Tue, 17 Nov 2020 13:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BEA82463D;
+        Tue, 17 Nov 2020 13:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620231;
-        bh=Bo6lZWNbdN0XvnUOgMmstIab24GXFOSeNseYs0p7vpk=;
+        s=default; t=1605619500;
+        bh=rUc+BVflGJsD1pz07uVY2tGI4476FfBtZJhQNw/cxvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJ2horVWYjQT4SramI7tcktxj0BCWwqpnZKg//j9/kmhGe1ylOmlQQk9CABhtTUJ7
-         ZF2O/2XVxsrPYHiNjp1pZDP6bJerd0LJ3lcJHRY5Vw00YcWc+xD6FrA8BZ/w2hAkWW
-         67ZXWnDVMCkcWjD+OOGmR2J+VRoQFiq+WPrtzkY4=
+        b=dryhW6AN67qmUh7ARNNcbKLBAdg1NvmYZQG4mDCZfVJ16bev6O9tkJZtBxLErN7DK
+         lTptehqf03XV4gQnX9xqe9S+l/ejesVEHmDrV7xeuKuLvYUKv1sAuLAOz7NFBPV2LA
+         z7Q1PYNWOqrDUybux8TxDbrSYh5rrVztgg6pwj7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 149/255] r8169: disable hw csum for short packets on all chip versions
+Subject: [PATCH 5.4 059/151] drm/amdgpu: perform srbm soft reset always on SDMA resume
 Date:   Tue, 17 Nov 2020 14:04:49 +0100
-Message-Id: <20201117122146.216001243@linuxfoundation.org>
+Message-Id: <20201117122124.301093982@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 847f0a2bfd2fe16d6afa537816b313b71f32e139 ]
+[ Upstream commit 253475c455eb5f8da34faa1af92709e7bb414624 ]
 
-RTL8125B has same or similar short packet hw padding bug as RTL8168evl.
-The main workaround has been extended accordingly, however we have to
-disable also hw checksumming for short packets on affected new chip
-versions. Instead of checking for an affected chip version let's
-simply disable hw checksumming for short packets in general.
+This can address the random SDMA hang after pci config reset
+seen on Hawaii.
 
-v2:
-- remove the version checks and disable short packet hw csum in general
-- reflect this in commit title and message
-
-Fixes: 0439297be951 ("r8169: add support for RTL8125B")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/7fbb35f0-e244-ef65-aa55-3872d7d38698@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Tested-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/cik_sdma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index ed918c12bc5e9..515d9116dfadf 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4325,18 +4325,9 @@ static netdev_features_t rtl8169_features_check(struct sk_buff *skb,
- 		    rtl_chip_supports_csum_v2(tp))
- 			features &= ~NETIF_F_ALL_TSO;
- 	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
--		if (skb->len < ETH_ZLEN) {
--			switch (tp->mac_version) {
--			case RTL_GIGA_MAC_VER_11:
--			case RTL_GIGA_MAC_VER_12:
--			case RTL_GIGA_MAC_VER_17:
--			case RTL_GIGA_MAC_VER_34:
--				features &= ~NETIF_F_CSUM_MASK;
--				break;
--			default:
--				break;
--			}
--		}
-+		/* work around hw bug on some chip versions */
-+		if (skb->len < ETH_ZLEN)
-+			features &= ~NETIF_F_CSUM_MASK;
+diff --git a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+index 4af9acc2dc4f9..450ad7d5e21a0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
++++ b/drivers/gpu/drm/amd/amdgpu/cik_sdma.c
+@@ -1071,22 +1071,19 @@ static int cik_sdma_soft_reset(void *handle)
+ {
+ 	u32 srbm_soft_reset = 0;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-	u32 tmp = RREG32(mmSRBM_STATUS2);
++	u32 tmp;
  
- 		if (transport_offset > TCPHO_MAX &&
- 		    rtl_chip_supports_csum_v2(tp))
+-	if (tmp & SRBM_STATUS2__SDMA_BUSY_MASK) {
+-		/* sdma0 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
+-	}
+-	if (tmp & SRBM_STATUS2__SDMA1_BUSY_MASK) {
+-		/* sdma1 */
+-		tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
+-		tmp |= SDMA0_F32_CNTL__HALT_MASK;
+-		WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
+-		srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+-	}
++	/* sdma0 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA0_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA_MASK;
++
++	/* sdma1 */
++	tmp = RREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET);
++	tmp |= SDMA0_F32_CNTL__HALT_MASK;
++	WREG32(mmSDMA0_F32_CNTL + SDMA1_REGISTER_OFFSET, tmp);
++	srbm_soft_reset |= SRBM_SOFT_RESET__SOFT_RESET_SDMA1_MASK;
+ 
+ 	if (srbm_soft_reset) {
+ 		tmp = RREG32(mmSRBM_SOFT_RESET);
 -- 
 2.27.0
 
