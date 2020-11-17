@@ -2,48 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1806B2B60C6
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33FCE2B6141
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729857AbgKQNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:12:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
+        id S1730547AbgKQNRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:17:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729852AbgKQNMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:35 -0500
+        id S1730537AbgKQNRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29CA224199;
-        Tue, 17 Nov 2020 13:12:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 315322465E;
+        Tue, 17 Nov 2020 13:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618754;
-        bh=Erzmw6T1KHPpYXvP6UTHaqQVh+xzUZeFxd3OXrj3tkM=;
+        s=default; t=1605619037;
+        bh=C+EvT7fxFxOeSrM/Klq3HDu2Jh2gPcJhGtSTo0Z83+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRkrWlDpmspUJSXrmO/fLlYBEy3YvmaMteu7b/YgFN4S+Mw4O9PqavqNFwSZZ0w0z
-         2hW2qeaiqXY/wyAaB0XwnbRaXXIsUYs1e5zqUbiZXagzSwOi0VZsvxu4BNEoqQX2Gr
-         Bw5lNAsVLoFvzWu1AIJs/sr7FxcVhDfa6BnVnyNw=
+        b=uqlQP94uR5PMq2FGbVTZTuYsJEbC486lOFkLshriApjWpksM7kkstXk8hp8Zy2Hlb
+         F4cIlDw+WRWgsSymuhchQBPSBNStfXhsYq+ThmxL9XspnVk7ikfBoG0hHIXSZKPK1i
+         kVIJABevlZ2Ocfz8zj4bj2ElJn0SmZkNzHHzIJFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Fabian Frederick <fabf@skynet.be>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 76/78] reboot: fix overflow parsing reboot cpu number
-Date:   Tue, 17 Nov 2020 14:05:42 +0100
-Message-Id: <20201117122112.811466407@linuxfoundation.org>
+        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
+Subject: [PATCH 4.14 74/85] xen/netback: use lateeoi irq binding
+Date:   Tue, 17 Nov 2020 14:05:43 +0100
+Message-Id: <20201117122114.670995477@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,75 +42,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit df5b0ab3e08a156701b537809914b339b0daa526 upstream.
+commit 23025393dbeb3b8b3b60ebfa724cdae384992e27 upstream.
 
-Limit the CPU number to num_possible_cpus(), because setting it to a
-value lower than INT_MAX but higher than NR_CPUS produces the following
-error on reboot and shutdown:
+In order to reduce the chance for the system becoming unresponsive due
+to event storms triggered by a misbehaving netfront use the lateeoi
+irq binding for netback and unmask the event channel only just before
+going to sleep waiting for new events.
 
-    BUG: unable to handle page fault for address: ffffffff90ab1bb0
-    #PF: supervisor read access in kernel mode
-    #PF: error_code(0x0000) - not-present page
-    PGD 1c09067 P4D 1c09067 PUD 1c0a063 PMD 0
-    Oops: 0000 [#1] SMP
-    CPU: 1 PID: 1 Comm: systemd-shutdow Not tainted 5.9.0-rc8-kvm #110
-    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-    RIP: 0010:migrate_to_reboot_cpu+0xe/0x60
-    Code: ea ea 00 48 89 fa 48 c7 c7 30 57 f1 81 e9 fa ef ff ff 66 2e 0f 1f 84 00 00 00 00 00 53 8b 1d d5 ea ea 00 e8 14 33 fe ff 89 da <48> 0f a3 15 ea fc bd 00 48 89 d0 73 29 89 c2 c1 e8 06 65 48 8b 3c
-    RSP: 0018:ffffc90000013e08 EFLAGS: 00010246
-    RAX: ffff88801f0a0000 RBX: 0000000077359400 RCX: 0000000000000000
-    RDX: 0000000077359400 RSI: 0000000000000002 RDI: ffffffff81c199e0
-    RBP: ffffffff81c1e3c0 R08: ffff88801f41f000 R09: ffffffff81c1e348
-    R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-    R13: 00007f32bedf8830 R14: 00000000fee1dead R15: 0000000000000000
-    FS:  00007f32bedf8980(0000) GS:ffff88801f480000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: ffffffff90ab1bb0 CR3: 000000001d057000 CR4: 00000000000006a0
-    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-    Call Trace:
-      __do_sys_reboot.cold+0x34/0x5b
-      do_syscall_64+0x2d/0x40
+Make sure not to issue an EOI when none is pending by introducing an
+eoi_pending element to struct xenvif_queue.
 
-Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Robin Holt <robinmholt@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201103214025.116799-3-mcroce@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[sudip: use reboot_mode instead of mode]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+When no request has been consumed set the spurious flag when sending
+the EOI for an interrupt.
+
+This is part of XSA-332.
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/reboot.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/xen-netback/common.h    |   15 ++++++++
+ drivers/net/xen-netback/interface.c |   61 ++++++++++++++++++++++++++++++------
+ drivers/net/xen-netback/netback.c   |   11 +++++-
+ drivers/net/xen-netback/rx.c        |   13 +++++--
+ 4 files changed, 86 insertions(+), 14 deletions(-)
 
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -519,6 +519,13 @@ static int __init reboot_setup(char *str
- 				reboot_cpu = simple_strtoul(str+3, NULL, 0);
- 			else
- 				reboot_mode = REBOOT_SOFT;
-+			if (reboot_cpu >= num_possible_cpus()) {
-+				pr_err("Ignoring the CPU number in reboot= option. "
-+				       "CPU %d exceeds possible cpu number %d\n",
-+				       reboot_cpu, num_possible_cpus());
-+				reboot_cpu = 0;
-+				break;
-+			}
- 			break;
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -140,6 +140,20 @@ struct xenvif_queue { /* Per-queue data
+ 	char name[QUEUE_NAME_SIZE]; /* DEVNAME-qN */
+ 	struct xenvif *vif; /* Parent VIF */
  
- 		case 'g':
++	/*
++	 * TX/RX common EOI handling.
++	 * When feature-split-event-channels = 0, interrupt handler sets
++	 * NETBK_COMMON_EOI, otherwise NETBK_RX_EOI and NETBK_TX_EOI are set
++	 * by the RX and TX interrupt handlers.
++	 * RX and TX handler threads will issue an EOI when either
++	 * NETBK_COMMON_EOI or their specific bits (NETBK_RX_EOI or
++	 * NETBK_TX_EOI) are set and they will reset those bits.
++	 */
++	atomic_t eoi_pending;
++#define NETBK_RX_EOI		0x01
++#define NETBK_TX_EOI		0x02
++#define NETBK_COMMON_EOI	0x04
++
+ 	/* Use NAPI for guest TX */
+ 	struct napi_struct napi;
+ 	/* When feature-split-event-channels = 0, tx_irq = rx_irq. */
+@@ -356,6 +370,7 @@ int xenvif_dealloc_kthread(void *data);
+ 
+ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
+ 
++bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
+ void xenvif_rx_action(struct xenvif_queue *queue);
+ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
+ 
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -77,12 +77,28 @@ int xenvif_schedulable(struct xenvif *vi
+ 		!vif->disabled;
+ }
+ 
++static bool xenvif_handle_tx_interrupt(struct xenvif_queue *queue)
++{
++	bool rc;
++
++	rc = RING_HAS_UNCONSUMED_REQUESTS(&queue->tx);
++	if (rc)
++		napi_schedule(&queue->napi);
++	return rc;
++}
++
+ static irqreturn_t xenvif_tx_interrupt(int irq, void *dev_id)
+ {
+ 	struct xenvif_queue *queue = dev_id;
++	int old;
+ 
+-	if (RING_HAS_UNCONSUMED_REQUESTS(&queue->tx))
+-		napi_schedule(&queue->napi);
++	old = atomic_fetch_or(NETBK_TX_EOI, &queue->eoi_pending);
++	WARN(old & NETBK_TX_EOI, "Interrupt while EOI pending\n");
++
++	if (!xenvif_handle_tx_interrupt(queue)) {
++		atomic_andnot(NETBK_TX_EOI, &queue->eoi_pending);
++		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -116,19 +132,46 @@ static int xenvif_poll(struct napi_struc
+ 	return work_done;
+ }
+ 
++static bool xenvif_handle_rx_interrupt(struct xenvif_queue *queue)
++{
++	bool rc;
++
++	rc = xenvif_have_rx_work(queue, false);
++	if (rc)
++		xenvif_kick_thread(queue);
++	return rc;
++}
++
+ static irqreturn_t xenvif_rx_interrupt(int irq, void *dev_id)
+ {
+ 	struct xenvif_queue *queue = dev_id;
++	int old;
+ 
+-	xenvif_kick_thread(queue);
++	old = atomic_fetch_or(NETBK_RX_EOI, &queue->eoi_pending);
++	WARN(old & NETBK_RX_EOI, "Interrupt while EOI pending\n");
++
++	if (!xenvif_handle_rx_interrupt(queue)) {
++		atomic_andnot(NETBK_RX_EOI, &queue->eoi_pending);
++		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
+ irqreturn_t xenvif_interrupt(int irq, void *dev_id)
+ {
+-	xenvif_tx_interrupt(irq, dev_id);
+-	xenvif_rx_interrupt(irq, dev_id);
++	struct xenvif_queue *queue = dev_id;
++	int old;
++
++	old = atomic_fetch_or(NETBK_COMMON_EOI, &queue->eoi_pending);
++	WARN(old, "Interrupt while EOI pending\n");
++
++	/* Use bitwise or as we need to call both functions. */
++	if ((!xenvif_handle_tx_interrupt(queue) |
++	     !xenvif_handle_rx_interrupt(queue))) {
++		atomic_andnot(NETBK_COMMON_EOI, &queue->eoi_pending);
++		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -595,7 +638,7 @@ int xenvif_connect_ctrl(struct xenvif *v
+ 	shared = (struct xen_netif_ctrl_sring *)addr;
+ 	BACK_RING_INIT(&vif->ctrl, shared, XEN_PAGE_SIZE);
+ 
+-	err = bind_interdomain_evtchn_to_irq(vif->domid, evtchn);
++	err = bind_interdomain_evtchn_to_irq_lateeoi(vif->domid, evtchn);
+ 	if (err < 0)
+ 		goto err_unmap;
+ 
+@@ -653,7 +696,7 @@ int xenvif_connect_data(struct xenvif_qu
+ 
+ 	if (tx_evtchn == rx_evtchn) {
+ 		/* feature-split-event-channels == 0 */
+-		err = bind_interdomain_evtchn_to_irqhandler(
++		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+ 			queue->vif->domid, tx_evtchn, xenvif_interrupt, 0,
+ 			queue->name, queue);
+ 		if (err < 0)
+@@ -664,7 +707,7 @@ int xenvif_connect_data(struct xenvif_qu
+ 		/* feature-split-event-channels == 1 */
+ 		snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
+ 			 "%s-tx", queue->name);
+-		err = bind_interdomain_evtchn_to_irqhandler(
++		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+ 			queue->vif->domid, tx_evtchn, xenvif_tx_interrupt, 0,
+ 			queue->tx_irq_name, queue);
+ 		if (err < 0)
+@@ -674,7 +717,7 @@ int xenvif_connect_data(struct xenvif_qu
+ 
+ 		snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
+ 			 "%s-rx", queue->name);
+-		err = bind_interdomain_evtchn_to_irqhandler(
++		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+ 			queue->vif->domid, rx_evtchn, xenvif_rx_interrupt, 0,
+ 			queue->rx_irq_name, queue);
+ 		if (err < 0)
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -162,6 +162,10 @@ void xenvif_napi_schedule_or_enable_even
+ 
+ 	if (more_to_do)
+ 		napi_schedule(&queue->napi);
++	else if (atomic_fetch_andnot(NETBK_TX_EOI | NETBK_COMMON_EOI,
++				     &queue->eoi_pending) &
++		 (NETBK_TX_EOI | NETBK_COMMON_EOI))
++		xen_irq_lateeoi(queue->tx_irq, 0);
+ }
+ 
+ static void tx_add_credit(struct xenvif_queue *queue)
+@@ -1615,9 +1619,14 @@ static bool xenvif_ctrl_work_todo(struct
+ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data)
+ {
+ 	struct xenvif *vif = data;
++	unsigned int eoi_flag = XEN_EOI_FLAG_SPURIOUS;
+ 
+-	while (xenvif_ctrl_work_todo(vif))
++	while (xenvif_ctrl_work_todo(vif)) {
+ 		xenvif_ctrl_action(vif);
++		eoi_flag = 0;
++	}
++
++	xen_irq_lateeoi(irq, eoi_flag);
+ 
+ 	return IRQ_HANDLED;
+ }
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -490,13 +490,13 @@ static bool xenvif_rx_queue_ready(struct
+ 	return queue->stalled && prod - cons >= 1;
+ }
+ 
+-static bool xenvif_have_rx_work(struct xenvif_queue *queue)
++bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
+ {
+ 	return xenvif_rx_ring_slots_available(queue) ||
+ 		(queue->vif->stall_timeout &&
+ 		 (xenvif_rx_queue_stalled(queue) ||
+ 		  xenvif_rx_queue_ready(queue))) ||
+-		kthread_should_stop() ||
++		(test_kthread && kthread_should_stop()) ||
+ 		queue->vif->disabled;
+ }
+ 
+@@ -527,15 +527,20 @@ static void xenvif_wait_for_rx_work(stru
+ {
+ 	DEFINE_WAIT(wait);
+ 
+-	if (xenvif_have_rx_work(queue))
++	if (xenvif_have_rx_work(queue, true))
+ 		return;
+ 
+ 	for (;;) {
+ 		long ret;
+ 
+ 		prepare_to_wait(&queue->wq, &wait, TASK_INTERRUPTIBLE);
+-		if (xenvif_have_rx_work(queue))
++		if (xenvif_have_rx_work(queue, true))
+ 			break;
++		if (atomic_fetch_andnot(NETBK_RX_EOI | NETBK_COMMON_EOI,
++					&queue->eoi_pending) &
++		    (NETBK_RX_EOI | NETBK_COMMON_EOI))
++			xen_irq_lateeoi(queue->rx_irq, 0);
++
+ 		ret = schedule_timeout(xenvif_rx_queue_timeout(queue));
+ 		if (!ret)
+ 			break;
 
 
