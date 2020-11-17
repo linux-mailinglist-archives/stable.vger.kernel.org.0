@@ -2,66 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 104B52B5E8E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 12:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7345C2B5E96
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 12:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbgKQLpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 06:45:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60902 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725355AbgKQLpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 06:45:02 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195EA2225E;
-        Tue, 17 Nov 2020 11:44:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605613500;
-        bh=g3FrPe6ISc02vImdBTiS+mvG58uMY5V4dTCjnspecJk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mee9PQ4/FDFYAt729VwZNcrenVuknK33Ams6axiyOFY20otOy9UQZnHwyHm08lXG/
-         9VrruDPrZi6Zh+IL2/glAjj1QMWcnKW6vbxmOj1fg5CdNvHzAVPu08/HsmTsoDZL/u
-         XLn88t4ldOrRLlYN39ij3tdvh3ir2v7xDBLuHNP0=
-Date:   Tue, 17 Nov 2020 12:45:48 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Linu Cherian <lcherian@marvell.com>
-Cc:     stable@vger.kernel.org, mathieu.poirier@linaro.org,
-        suzuki.poulose@arm.com, mike.leach@linaro.org,
-        linux-arm-kernel@lists.infradead.org, coresight@lists.linaro.org,
-        linuc.decode@gmail.com, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH stable-5.9 1/2] coresight: etm: perf: Sink selection
- using sysfs is deprecated
-Message-ID: <X7O37HSQE4nFqWMh@kroah.com>
-References: <20201116123510.28980-1-lcherian@marvell.com>
+        id S1727919AbgKQLrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 06:47:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727792AbgKQLrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 06:47:52 -0500
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80696C0613CF
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 03:47:50 -0800 (PST)
+Received: by mail-yb1-xb41.google.com with SMTP id i193so18674428yba.1
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 03:47:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ygoOCND1uteBbX6OuvT0PDLFD+vd1u8WBqWcrayFaj8=;
+        b=r13MarwZI7MzbaKXKU+pf5+8JzLCzYLnsgiaC2CXsNFF/+wpflHtjYNeSxRkqeWC4o
+         hFBu1pmXZQVnjE9Ppz2xQL3vUq03oivGg7k9VvSKy86WhZwJEiPMNmIYpL27cGnQGZpj
+         kXo8zJDPuPj8u4X6KOBjTU6Hk/JSvcZ1tMlkI/zkMYRYf61mmhAA9FGXiCAfYpHW65lS
+         Y9v85UMiy/H+vloFIKx0zi7deRacA6b7rUdkoLghJ7Rrl0AQs0JdxjX3jZMzIqXCTSZN
+         oJJeafJGTv2G2ykzFmnCAuwigpUORRFRqVfqSHRKeYNhWIrIQltOT1X7GmCpr8b5P/o+
+         YY4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ygoOCND1uteBbX6OuvT0PDLFD+vd1u8WBqWcrayFaj8=;
+        b=YoQnWIvazjx1avg+PRQlBAtN9gJj2w5qFhk2If+wCZxHCZnG4KTOB3Rx1C3skkh8/j
+         seRZmLTMZMS6sLlolDUeNkNLx7jFcVU76MoT5WKiN5ymLLaF0URCXv4VUcUpxxMN14fH
+         fBLZ7SH4nlQAju7xodDo79uqkkMmcoWX3fzEYmzk7O1AeNI3xBnNKFRLCs2j8Vnl9xVH
+         c+7+WM3gTcJ9qmO2oW56vAx53AdcNdGsmJgSlg3toleC/pjjnzapVfzZ9Lt35oD2aCyY
+         qunbiakFQ/q3ZWwUHON9eejw08fhNWcgWax9yX/kOamkrYEO6LCHDWgJ9NW1uqnYu3Xk
+         MypQ==
+X-Gm-Message-State: AOAM531HfYHy5SMsQ2Zgjs9xTctIid+RXqKHUk01NVW9v8rp/gv0jh7H
+        IETYVVPJie9hikazKtieiW4EMMcKdZi+QD2iAm0=
+X-Google-Smtp-Source: ABdhPJxpl6V4pWHGqOmxmn/z2DwEI1W2uerprPwl79Bifo2lFpybdD/NTlgzPpATsn+nW+s3lkz2H3i5kgx6vZB8Q40=
+X-Received: by 2002:a25:209:: with SMTP id 9mr33472705ybc.127.1605613669731;
+ Tue, 17 Nov 2020 03:47:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201116123510.28980-1-lcherian@marvell.com>
+References: <20201112133112.w3z6vyq5m5p7aowx@debian> <X7OynckqadusPjk2@kroah.com>
+In-Reply-To: <X7OynckqadusPjk2@kroah.com>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Tue, 17 Nov 2020 11:47:13 +0000
+Message-ID: <CADVatmM6nQuKJ4c2nx4iQjwy8aQAYCW3YnfCy43GgFkgcV=-+A@mail.gmail.com>
+Subject: Re: [v4.9.y] backport of few missed perf fixes
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <Alexander.Levin@microsoft.com>,
+        stable <stable@vger.kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        kiyin@tencent.com, Dan Carpenter <dan.carpenter@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 16, 2020 at 06:05:09PM +0530, Linu Cherian wrote:
-> commit bb1860efc817c18fce4112f25f51043e44346d1b upstream.
-> 
-> When commit 6d578258b955 ("coresight: Make sysfs functional on
-> topologies with per core sink") 
-> was merged to stable, this patch was a pre-requisite and got
-> missed out leading to build breakages.
-> 
-> When using the perf interface, sink selection using sysfs is
-> deprecated.
-> 
-> Signed-off-by: Linu Cherian <lcherian@marvell.com>
-> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Link: https://lore.kernel.org/r/20200916191737.4001561-14-mathieu.poirier@linaro.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Reported-by: kernel test robot <lkp@intel.com>
-> ---
->  drivers/hwtracing/coresight/coresight-etm-perf.c | 2 --
->  1 file changed, 2 deletions(-)
+Hi Greg,
 
-Both now queued up, thanks.
+On Tue, Nov 17, 2020 at 11:22 AM Greg KH <gregkh@linuxfoundation.org> wrote=
+:
+>
+> On Thu, Nov 12, 2020 at 01:31:12PM +0000, Sudip Mukherjee wrote:
+> > Hi Greg, Sasha,
+> >
+> > These are few missing commits for stable v4.9.y branch.
+>
+> <snip>
+>
+> >
+> > Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
+> > Signed-off-by: "kiyin(=E5=B0=B9=E4=BA=AE)" <kiyin@tencent.com>
+> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+> > Cc: Anthony Liguori <aliguori@amazon.com>
+> > --
+> >  kernel/events/core.c | 12 +++++-------
+> >  1 file changed, 5 insertions(+), 7 deletions(-)
+> >
+> > [sudip: Backported to 4.9: adjust context]
+> > Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+> > ---
+> >  kernel/events/core.c | 10 ++++------
+> >  1 file changed, 4 insertions(+), 6 deletions(-)
+>
+> Odd way to add your s-o-b :)
 
-greg k-h
+Yeah, I know. :(
+
+But the file changed line before my s-o-b was part of the original
+commit message, and so I had to add the s-o-b after that to preserve
+the original message.
+
+
+--
+Regards
+Sudip
