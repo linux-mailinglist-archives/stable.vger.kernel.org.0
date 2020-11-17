@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFBC2B653C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D53BF2B6402
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732417AbgKQNw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:52:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
+        id S1732711AbgKQNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:43:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731469AbgKQN2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:43 -0500
+        id S1733307AbgKQNmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:42:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A372221534;
-        Tue, 17 Nov 2020 13:28:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCA2820729;
+        Tue, 17 Nov 2020 13:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619723;
-        bh=6t+JfQ7rCPpuceoPF3HB9IZHNu4+9nvCMlWFSYzw6nI=;
+        s=default; t=1605620539;
+        bh=V6LGZmNS+SesxQuKzm2a/vPmzgkePS/fpKl5IJ0fWJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ybod059/n5KMPO9ovhSHOM6zFp7qvJiBynv6RpjfU3/UE1cKYyjHGFXb9uEUwWOsp
-         kqN0XtB9hYcszqUaeOKSD/AiJSqgDzTUbq2tbMILC8BNjV7tnzekEO7YXPxw47WQNV
-         /w0XIDvpoR880C69ghkOIUQIC+VC4w9SP2YJ3eW8=
+        b=qEqRAEc7fcBownCOzxQtNbmLoDg0hhCLFTYJH7PvHYmhE+TYFACoQnJ5cJJ01alEi
+         a2AmnjoKtFOGIzA152j8dRkU4i1adClnjpMPLH/Qp2OfqMQuuWOZa2HkrLflKRUa7g
+         IdsVXP4lU1134/8gcPEgPkVRH6p0E4SlEvSBIolg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.4 133/151] dont dump the threads that had been already exiting when zapped.
-Date:   Tue, 17 Nov 2020 14:06:03 +0100
-Message-Id: <20201117122127.897871524@linuxfoundation.org>
+        stable@vger.kernel.org, Arnaud de Turckheim <quarium@gmail.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.9 224/255] gpio: pcie-idio-24: Enable PEX8311 interrupts
+Date:   Tue, 17 Nov 2020 14:06:04 +0100
+Message-Id: <20201117122149.838643784@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Arnaud de Turckheim <quarium@gmail.com>
 
-commit 77f6ab8b7768cf5e6bdd0e72499270a0671506ee upstream.
+commit 10a2f11d3c9e48363c729419e0f0530dea76e4fe upstream.
 
-Coredump logics needs to report not only the registers of the dumping
-thread, but (since 2.5.43) those of other threads getting killed.
+This enables the PEX8311 internal PCI wire interrupt and the PEX8311
+local interrupt input so the local interrupts are forwarded to the PCI.
 
-Doing that might require extra state saved on the stack in asm glue at
-kernel entry; signal delivery logics does that (we need to be able to
-save sigcontext there, at the very least) and so does seccomp.
-
-That covers all callers of do_coredump().  Secondary threads get hit with
-SIGKILL and caught as soon as they reach exit_mm(), which normally happens
-in signal delivery, so those are also fine most of the time.  Unfortunately,
-it is possible to end up with secondary zapped when it has already entered
-exit(2) (or, worse yet, is oopsing).  In those cases we reach exit_mm()
-when mm->core_state is already set, but the stack contents is not what
-we would have in signal delivery.
-
-At least on two architectures (alpha and m68k) it leads to infoleaks - we
-end up with a chunk of kernel stack written into coredump, with the contents
-consisting of normal C stack frames of the call chain leading to exit_mm()
-instead of the expected copy of userland registers.  In case of alpha we
-leak 312 bytes of stack.  Other architectures (including the regset-using
-ones) might have similar problems - the normal user of regsets is ptrace
-and the state of tracee at the time of such calls is special in the same
-way signal delivery is.
-
-Note that had the zapper gotten to the exiting thread slightly later,
-it wouldn't have been included into coredump anyway - we skip the threads
-that have already cleared their ->mm.  So let's pretend that zapper always
-loses the race.  IOW, have exit_mm() only insert into the dumper list if
-we'd gotten there from handling a fatal signal[*]
-
-As the result, the callers of do_exit() that have *not* gone through get_signal()
-are not seen by coredump logics as secondary threads.  Which excludes voluntary
-exit()/oopsen/traps/etc.  The dumper thread itself is unaffected by that,
-so seccomp is fine.
-
-[*] originally I intended to add a new flag in tsk->flags, but ebiederman pointed
-out that PF_SIGNALED is already doing just what we need.
-
+Fixes: 585562046628 ("gpio: Add GPIO support for the ACCES PCIe-IDIO-24 family")
 Cc: stable@vger.kernel.org
-Fixes: d89f3847def4 ("[PATCH] thread-aware coredumps, 2.5.43-C3")
-History-tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Arnaud de Turckheim <quarium@gmail.com>
+Reviewed-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/exit.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-pcie-idio-24.c |   52 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
 
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -456,7 +456,10 @@ static void exit_mm(void)
- 		up_read(&mm->mmap_sem);
+--- a/drivers/gpio/gpio-pcie-idio-24.c
++++ b/drivers/gpio/gpio-pcie-idio-24.c
+@@ -28,6 +28,47 @@
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
  
- 		self.task = current;
--		self.next = xchg(&core_state->dumper.next, &self);
-+		if (self.task->flags & PF_SIGNALED)
-+			self.next = xchg(&core_state->dumper.next, &self);
-+		else
-+			self.task = NULL;
- 		/*
- 		 * Implies mb(), the result of xchg() must be visible
- 		 * to core_state->dumper.
++/*
++ * PLX PEX8311 PCI LCS_INTCSR Interrupt Control/Status
++ *
++ * Bit: Description
++ *   0: Enable Interrupt Sources (Bit 0)
++ *   1: Enable Interrupt Sources (Bit 1)
++ *   2: Generate Internal PCI Bus Internal SERR# Interrupt
++ *   3: Mailbox Interrupt Enable
++ *   4: Power Management Interrupt Enable
++ *   5: Power Management Interrupt
++ *   6: Slave Read Local Data Parity Check Error Enable
++ *   7: Slave Read Local Data Parity Check Error Status
++ *   8: Internal PCI Wire Interrupt Enable
++ *   9: PCI Express Doorbell Interrupt Enable
++ *  10: PCI Abort Interrupt Enable
++ *  11: Local Interrupt Input Enable
++ *  12: Retry Abort Enable
++ *  13: PCI Express Doorbell Interrupt Active
++ *  14: PCI Abort Interrupt Active
++ *  15: Local Interrupt Input Active
++ *  16: Local Interrupt Output Enable
++ *  17: Local Doorbell Interrupt Enable
++ *  18: DMA Channel 0 Interrupt Enable
++ *  19: DMA Channel 1 Interrupt Enable
++ *  20: Local Doorbell Interrupt Active
++ *  21: DMA Channel 0 Interrupt Active
++ *  22: DMA Channel 1 Interrupt Active
++ *  23: Built-In Self-Test (BIST) Interrupt Active
++ *  24: Direct Master was the Bus Master during a Master or Target Abort
++ *  25: DMA Channel 0 was the Bus Master during a Master or Target Abort
++ *  26: DMA Channel 1 was the Bus Master during a Master or Target Abort
++ *  27: Target Abort after internal 256 consecutive Master Retrys
++ *  28: PCI Bus wrote data to LCS_MBOX0
++ *  29: PCI Bus wrote data to LCS_MBOX1
++ *  30: PCI Bus wrote data to LCS_MBOX2
++ *  31: PCI Bus wrote data to LCS_MBOX3
++ */
++#define PLX_PEX8311_PCI_LCS_INTCSR  0x68
++#define INTCSR_INTERNAL_PCI_WIRE    BIT(8)
++#define INTCSR_LOCAL_INPUT          BIT(11)
++
+ /**
+  * struct idio_24_gpio_reg - GPIO device registers structure
+  * @out0_7:	Read: FET Outputs 0-7
+@@ -92,6 +133,7 @@ struct idio_24_gpio_reg {
+ struct idio_24_gpio {
+ 	struct gpio_chip chip;
+ 	raw_spinlock_t lock;
++	__u8 __iomem *plx;
+ 	struct idio_24_gpio_reg __iomem *reg;
+ 	unsigned long irq_mask;
+ };
+@@ -455,6 +497,7 @@ static int idio_24_probe(struct pci_dev
+ 	struct device *const dev = &pdev->dev;
+ 	struct idio_24_gpio *idio24gpio;
+ 	int err;
++	const size_t pci_plx_bar_index = 1;
+ 	const size_t pci_bar_index = 2;
+ 	const char *const name = pci_name(pdev);
+ 	struct gpio_irq_chip *girq;
+@@ -469,12 +512,13 @@ static int idio_24_probe(struct pci_dev
+ 		return err;
+ 	}
+ 
+-	err = pcim_iomap_regions(pdev, BIT(pci_bar_index), name);
++	err = pcim_iomap_regions(pdev, BIT(pci_plx_bar_index) | BIT(pci_bar_index), name);
+ 	if (err) {
+ 		dev_err(dev, "Unable to map PCI I/O addresses (%d)\n", err);
+ 		return err;
+ 	}
+ 
++	idio24gpio->plx = pcim_iomap_table(pdev)[pci_plx_bar_index];
+ 	idio24gpio->reg = pcim_iomap_table(pdev)[pci_bar_index];
+ 
+ 	idio24gpio->chip.label = name;
+@@ -504,6 +548,12 @@ static int idio_24_probe(struct pci_dev
+ 
+ 	/* Software board reset */
+ 	iowrite8(0, &idio24gpio->reg->soft_reset);
++	/*
++	 * enable PLX PEX8311 internal PCI wire interrupt and local interrupt
++	 * input
++	 */
++	iowrite8((INTCSR_INTERNAL_PCI_WIRE | INTCSR_LOCAL_INPUT) >> 8,
++		 idio24gpio->plx + PLX_PEX8311_PCI_LCS_INTCSR + 1);
+ 
+ 	err = devm_gpiochip_add_data(dev, &idio24gpio->chip, idio24gpio);
+ 	if (err) {
 
 
