@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10DD32B64AF
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:50:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E725D2B6579
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:57:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732418AbgKQNsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:48:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45688 "EHLO mail.kernel.org"
+        id S1731152AbgKQNWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732417AbgKQNfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:35:01 -0500
+        id S1731161AbgKQNWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:22:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B1A42466D;
-        Tue, 17 Nov 2020 13:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E55AE2464E;
+        Tue, 17 Nov 2020 13:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620101;
-        bh=l/R39NH+cYIQunjDxIMvnDq5/M+iw4c1kzWui+l4/yo=;
+        s=default; t=1605619350;
+        bh=xjhdHuJ0Paq8gtsXiv5Yho0nQBVHBBt8VfS/npQfWSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WyduY8W7dSP5OWquXNhnne5MY5mFb+5yX4sf/UH7fCcDjR8klZYmKXNdlQpr2GkL
-         08SOSxrIqVL1aCOmrR8ebqgAcsbXUYc3CJ5KF933B860l+z7EiiHnfv1DdC9jhQI9O
-         WCI9ks05ogHGh+W/S4ZBO9vNIUfFeQoJIZoMvJbw=
+        b=wAEmdtSa8Qt7D6beT2+VWDoH2bpFcnG9cckUQQE24pZLtSJoKo+fM3XY7APH6yokn
+         NFvAxFACcXs8oe9jLu+3xagP8Yh/UaHSV34rse+EPeXZXgMVoJ3/zk6jGVceaPqZDl
+         +ni72nheZuYnlW/1qa3+JZkA0pISpXEvMtRe1HDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zbigniew=20Kempczy=C5=84ski?= 
+        <zbigniew.kempczynski@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 090/255] gfs2: Add missing truncate_inode_pages_final for sd_aspace
-Date:   Tue, 17 Nov 2020 14:03:50 +0100
-Message-Id: <20201117122143.335147886@linuxfoundation.org>
+Subject: [PATCH 5.4 001/151] drm/i915/gem: Flush coherency domains on first set-domain-ioctl
+Date:   Tue, 17 Nov 2020 14:03:51 +0100
+Message-Id: <20201117122121.459286658@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,37 +51,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit a9dd945ccef07a904e412f208f8de708a3d7159e ]
+[ Upstream commit 59dd13ad310793757e34afa489dd6fc8544fc3da ]
 
-Gfs2 creates an address space for its rgrps called sd_aspace, but it never
-called truncate_inode_pages_final on it. This confused vfs greatly which
-tried to reference the address space after gfs2 had freed the superblock
-that contained it.
+Avoid skipping what appears to be a no-op set-domain-ioctl if the cache
+coherency state is inconsistent with our target domain. This also has
+the utility of using the population of the pages to validate the backing
+store.
 
-This patch adds a call to truncate_inode_pages_final for sd_aspace, thus
-avoiding the use-after-free.
+The danger in skipping the first set-domain is leaving the cache
+inconsistent and submitting stale data, or worse leaving the clean data
+in the cache and not flushing it to the GPU. The impact should be small
+as it requires a no-op set-domain as the very first ioctl in a
+particular sequence not found in typical userspace.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Fixes: 754a25442705 ("drm/i915: Skip object locking around a no-op set-domain ioctl")
+Testcase: igt/gem_mmap_offset/blt-coherency
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: Zbigniew Kempczyński <zbigniew.kempczynski@intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201019203825.10966-1-chris@chris-wilson.co.uk
+(cherry picked from commit 44c2200afcd59f441b43f27829b4003397cc495d)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c | 28 ++++++++++------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 32ae1a7cdaed8..831f6e31d6821 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -732,6 +732,7 @@ restart:
- 	gfs2_jindex_free(sdp);
- 	/*  Take apart glock structures and buffer lists  */
- 	gfs2_gl_hash_clear(sdp);
-+	truncate_inode_pages_final(&sdp->sd_aspace);
- 	gfs2_delete_debugfs_file(sdp);
- 	/*  Unmount the locking protocol  */
- 	gfs2_lm_unmount(sdp);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 9c58e8fac1d97..a4b48c9abeacd 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -605,21 +605,6 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (!obj)
+ 		return -ENOENT;
+ 
+-	/*
+-	 * Already in the desired write domain? Nothing for us to do!
+-	 *
+-	 * We apply a little bit of cunning here to catch a broader set of
+-	 * no-ops. If obj->write_domain is set, we must be in the same
+-	 * obj->read_domains, and only that domain. Therefore, if that
+-	 * obj->write_domain matches the request read_domains, we are
+-	 * already in the same read/write domain and can skip the operation,
+-	 * without having to further check the requested write_domain.
+-	 */
+-	if (READ_ONCE(obj->write_domain) == read_domains) {
+-		err = 0;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * Try to flush the object off the GPU without holding the lock.
+ 	 * We will repeat the flush holding the lock in the normal manner
+@@ -657,6 +642,19 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	if (err)
+ 		goto out;
+ 
++	/*
++	 * Already in the desired write domain? Nothing for us to do!
++	 *
++	 * We apply a little bit of cunning here to catch a broader set of
++	 * no-ops. If obj->write_domain is set, we must be in the same
++	 * obj->read_domains, and only that domain. Therefore, if that
++	 * obj->write_domain matches the request read_domains, we are
++	 * already in the same read/write domain and can skip the operation,
++	 * without having to further check the requested write_domain.
++	 */
++	if (READ_ONCE(obj->write_domain) == read_domains)
++		goto out_unpin;
++
+ 	err = i915_gem_object_lock_interruptible(obj);
+ 	if (err)
+ 		goto out_unpin;
 -- 
 2.27.0
 
