@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F572B615D
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB02F2B61C5
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730304AbgKQNSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:18:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48360 "EHLO mail.kernel.org"
+        id S1730301AbgKQNWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:22:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729505AbgKQNQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:31 -0500
+        id S1729649AbgKQNWS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:22:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DE622468E;
-        Tue, 17 Nov 2020 13:16:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01CF920781;
+        Tue, 17 Nov 2020 13:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618989;
-        bh=/+yzIRx5dM6aKIhdY9m8CbdPZ7G5G9ThmBxcfnYf+fs=;
+        s=default; t=1605619337;
+        bh=3X/amyWukI/RU6rYYv8FQh95lYcw6srlsikoMepcCiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lFWpd1XSv4/YthRbvAtQszKCdUjH7oOZ9gEJJ3G1iM11+GcJxOYfKtpSuArCAwFU
-         RhQw2GV719tuHA+3G6rNLa5jPa84P7Nyo0qi/zJW4cJfNYgbkmEL+QFcBjXUY9EM+J
-         u0W1Jpj6RVN5ZY1/5TL1MBKVrmI67u6/3fkisGcM=
+        b=FY3mJc9bto2Ny1BGNbpJvw+MkbQAjb4zQX7gy86eeNBNFZ9fU8MdDtT2np1T3roHY
+         iOytC6C2ufrPMRK6AtnXydaLoKdE4c3CIojNCNtIe/7AYiESQxBiQtKECuwi619wnw
+         b60kH3l5BBNRmMx8cxbnxGBxaaPGuyaIj9q/BPh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 4.14 77/85] xen/pciback: use lateeoi irq binding
+        stable@vger.kernel.org, Arnaud de Turckheim <quarium@gmail.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.19 079/101] gpio: pcie-idio-24: Enable PEX8311 interrupts
 Date:   Tue, 17 Nov 2020 14:05:46 +0100
-Message-Id: <20201117122114.824384380@linuxfoundation.org>
+Message-Id: <20201117122116.971190438@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,225 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Arnaud de Turckheim <quarium@gmail.com>
 
-commit c2711441bc961b37bba0615dd7135857d189035f upstream.
+commit 10a2f11d3c9e48363c729419e0f0530dea76e4fe upstream.
 
-In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving pcifront use the lateeoi irq
-binding for pciback and unmask the event channel only just before
-leaving the event handling function.
+This enables the PEX8311 internal PCI wire interrupt and the PEX8311
+local interrupt input so the local interrupts are forwarded to the PCI.
 
-Restructure the handling to support that scheme. Basically an event can
-come in for two reasons: either a normal request for a pciback action,
-which is handled in a worker, or in case the guest has finished an AER
-request which was requested by pciback.
-
-When an AER request is issued to the guest and a normal pciback action
-is currently active issue an EOI early in order to be able to receive
-another event when the AER request has been finished by the guest.
-
-Let the worker processing the normal requests run until no further
-request is pending, instead of starting a new worker ion that case.
-Issue the EOI only just before leaving the worker.
-
-This scheme allows to drop calling the generic function
-xen_pcibk_test_and_schedule_op() after processing of any request as
-the handling of both request types is now separated more cleanly.
-
-This is part of XSA-332.
-
+Fixes: 585562046628 ("gpio: Add GPIO support for the ACCES PCIe-IDIO-24 family")
 Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
+Signed-off-by: Arnaud de Turckheim <quarium@gmail.com>
+Reviewed-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/xen-pciback/pci_stub.c    |   14 ++++-----
- drivers/xen/xen-pciback/pciback.h     |   12 +++++++-
- drivers/xen/xen-pciback/pciback_ops.c |   48 ++++++++++++++++++++++++++--------
- drivers/xen/xen-pciback/xenbus.c      |    2 -
- 4 files changed, 56 insertions(+), 20 deletions(-)
 
---- a/drivers/xen/xen-pciback/pci_stub.c
-+++ b/drivers/xen/xen-pciback/pci_stub.c
-@@ -733,10 +733,17 @@ static pci_ers_result_t common_process(s
- 	wmb();
- 	notify_remote_via_irq(pdev->evtchn_irq);
- 
-+	/* Enable IRQ to signal "request done". */
-+	xen_pcibk_lateeoi(pdev, 0);
-+
- 	ret = wait_event_timeout(xen_pcibk_aer_wait_queue,
- 				 !(test_bit(_XEN_PCIB_active, (unsigned long *)
- 				 &sh_info->flags)), 300*HZ);
- 
-+	/* Enable IRQ for pcifront request if not already active. */
-+	if (!test_bit(_PDEVF_op_active, &pdev->flags))
-+		xen_pcibk_lateeoi(pdev, 0);
-+
- 	if (!ret) {
- 		if (test_bit(_XEN_PCIB_active,
- 			(unsigned long *)&sh_info->flags)) {
-@@ -750,13 +757,6 @@ static pci_ers_result_t common_process(s
- 	}
- 	clear_bit(_PCIB_op_pending, (unsigned long *)&pdev->flags);
- 
--	if (test_bit(_XEN_PCIF_active,
--		(unsigned long *)&sh_info->flags)) {
--		dev_dbg(&psdev->dev->dev,
--			"schedule pci_conf service in " DRV_NAME "\n");
--		xen_pcibk_test_and_schedule_op(psdev->pdev);
--	}
--
- 	res = (pci_ers_result_t)aer_op->err;
- 	return res;
- }
---- a/drivers/xen/xen-pciback/pciback.h
-+++ b/drivers/xen/xen-pciback/pciback.h
-@@ -14,6 +14,7 @@
+---
+ drivers/gpio/gpio-pcie-idio-24.c |   52 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
+
+--- a/drivers/gpio/gpio-pcie-idio-24.c
++++ b/drivers/gpio/gpio-pcie-idio-24.c
+@@ -28,6 +28,47 @@
  #include <linux/spinlock.h>
- #include <linux/workqueue.h>
- #include <linux/atomic.h>
-+#include <xen/events.h>
- #include <xen/interface/io/pciif.h>
+ #include <linux/types.h>
  
- #define DRV_NAME	"xen-pciback"
-@@ -27,6 +28,8 @@ struct pci_dev_entry {
- #define PDEVF_op_active		(1<<(_PDEVF_op_active))
- #define _PCIB_op_pending	(1)
- #define PCIB_op_pending		(1<<(_PCIB_op_pending))
-+#define _EOI_pending		(2)
-+#define EOI_pending		(1<<(_EOI_pending))
- 
- struct xen_pcibk_device {
- 	void *pci_dev_data;
-@@ -182,12 +185,17 @@ static inline void xen_pcibk_release_dev
- irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id);
- void xen_pcibk_do_op(struct work_struct *data);
- 
-+static inline void xen_pcibk_lateeoi(struct xen_pcibk_device *pdev,
-+				     unsigned int eoi_flag)
-+{
-+	if (test_and_clear_bit(_EOI_pending, &pdev->flags))
-+		xen_irq_lateeoi(pdev->evtchn_irq, eoi_flag);
-+}
++/*
++ * PLX PEX8311 PCI LCS_INTCSR Interrupt Control/Status
++ *
++ * Bit: Description
++ *   0: Enable Interrupt Sources (Bit 0)
++ *   1: Enable Interrupt Sources (Bit 1)
++ *   2: Generate Internal PCI Bus Internal SERR# Interrupt
++ *   3: Mailbox Interrupt Enable
++ *   4: Power Management Interrupt Enable
++ *   5: Power Management Interrupt
++ *   6: Slave Read Local Data Parity Check Error Enable
++ *   7: Slave Read Local Data Parity Check Error Status
++ *   8: Internal PCI Wire Interrupt Enable
++ *   9: PCI Express Doorbell Interrupt Enable
++ *  10: PCI Abort Interrupt Enable
++ *  11: Local Interrupt Input Enable
++ *  12: Retry Abort Enable
++ *  13: PCI Express Doorbell Interrupt Active
++ *  14: PCI Abort Interrupt Active
++ *  15: Local Interrupt Input Active
++ *  16: Local Interrupt Output Enable
++ *  17: Local Doorbell Interrupt Enable
++ *  18: DMA Channel 0 Interrupt Enable
++ *  19: DMA Channel 1 Interrupt Enable
++ *  20: Local Doorbell Interrupt Active
++ *  21: DMA Channel 0 Interrupt Active
++ *  22: DMA Channel 1 Interrupt Active
++ *  23: Built-In Self-Test (BIST) Interrupt Active
++ *  24: Direct Master was the Bus Master during a Master or Target Abort
++ *  25: DMA Channel 0 was the Bus Master during a Master or Target Abort
++ *  26: DMA Channel 1 was the Bus Master during a Master or Target Abort
++ *  27: Target Abort after internal 256 consecutive Master Retrys
++ *  28: PCI Bus wrote data to LCS_MBOX0
++ *  29: PCI Bus wrote data to LCS_MBOX1
++ *  30: PCI Bus wrote data to LCS_MBOX2
++ *  31: PCI Bus wrote data to LCS_MBOX3
++ */
++#define PLX_PEX8311_PCI_LCS_INTCSR  0x68
++#define INTCSR_INTERNAL_PCI_WIRE    BIT(8)
++#define INTCSR_LOCAL_INPUT          BIT(11)
 +
- int xen_pcibk_xenbus_register(void);
- void xen_pcibk_xenbus_unregister(void);
+ /**
+  * struct idio_24_gpio_reg - GPIO device registers structure
+  * @out0_7:	Read: FET Outputs 0-7
+@@ -92,6 +133,7 @@ struct idio_24_gpio_reg {
+ struct idio_24_gpio {
+ 	struct gpio_chip chip;
+ 	raw_spinlock_t lock;
++	__u8 __iomem *plx;
+ 	struct idio_24_gpio_reg __iomem *reg;
+ 	unsigned long irq_mask;
+ };
+@@ -481,6 +523,7 @@ static int idio_24_probe(struct pci_dev
+ 	struct device *const dev = &pdev->dev;
+ 	struct idio_24_gpio *idio24gpio;
+ 	int err;
++	const size_t pci_plx_bar_index = 1;
+ 	const size_t pci_bar_index = 2;
+ 	const char *const name = pci_name(pdev);
  
- extern int verbose_request;
--
--void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev);
- #endif
- 
- /* Handles shared IRQs that can to device domain and control domain. */
---- a/drivers/xen/xen-pciback/pciback_ops.c
-+++ b/drivers/xen/xen-pciback/pciback_ops.c
-@@ -297,26 +297,41 @@ int xen_pcibk_disable_msix(struct xen_pc
- 	return 0;
- }
- #endif
-+
-+static inline bool xen_pcibk_test_op_pending(struct xen_pcibk_device *pdev)
-+{
-+	return test_bit(_XEN_PCIF_active,
-+			(unsigned long *)&pdev->sh_info->flags) &&
-+	       !test_and_set_bit(_PDEVF_op_active, &pdev->flags);
-+}
-+
- /*
- * Now the same evtchn is used for both pcifront conf_read_write request
- * as well as pcie aer front end ack. We use a new work_queue to schedule
- * xen_pcibk conf_read_write service for avoiding confict with aer_core
- * do_recovery job which also use the system default work_queue
- */
--void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
-+static void xen_pcibk_test_and_schedule_op(struct xen_pcibk_device *pdev)
- {
-+	bool eoi = true;
-+
- 	/* Check that frontend is requesting an operation and that we are not
- 	 * already processing a request */
--	if (test_bit(_XEN_PCIF_active, (unsigned long *)&pdev->sh_info->flags)
--	    && !test_and_set_bit(_PDEVF_op_active, &pdev->flags)) {
-+	if (xen_pcibk_test_op_pending(pdev)) {
- 		schedule_work(&pdev->op_work);
-+		eoi = false;
+@@ -494,12 +537,13 @@ static int idio_24_probe(struct pci_dev
+ 		return err;
  	}
- 	/*_XEN_PCIB_active should have been cleared by pcifront. And also make
- 	sure xen_pcibk is waiting for ack by checking _PCIB_op_pending*/
- 	if (!test_bit(_XEN_PCIB_active, (unsigned long *)&pdev->sh_info->flags)
- 	    && test_bit(_PCIB_op_pending, &pdev->flags)) {
- 		wake_up(&xen_pcibk_aer_wait_queue);
-+		eoi = false;
+ 
+-	err = pcim_iomap_regions(pdev, BIT(pci_bar_index), name);
++	err = pcim_iomap_regions(pdev, BIT(pci_plx_bar_index) | BIT(pci_bar_index), name);
+ 	if (err) {
+ 		dev_err(dev, "Unable to map PCI I/O addresses (%d)\n", err);
+ 		return err;
  	}
-+
-+	/* EOI if there was nothing to do. */
-+	if (eoi)
-+		xen_pcibk_lateeoi(pdev, XEN_EOI_FLAG_SPURIOUS);
- }
  
- /* Performing the configuration space reads/writes must not be done in atomic
-@@ -324,10 +339,8 @@ void xen_pcibk_test_and_schedule_op(stru
-  * use of semaphores). This function is intended to be called from a work
-  * queue in process context taking a struct xen_pcibk_device as a parameter */
++	idio24gpio->plx = pcim_iomap_table(pdev)[pci_plx_bar_index];
+ 	idio24gpio->reg = pcim_iomap_table(pdev)[pci_bar_index];
  
--void xen_pcibk_do_op(struct work_struct *data)
-+static void xen_pcibk_do_one_op(struct xen_pcibk_device *pdev)
- {
--	struct xen_pcibk_device *pdev =
--		container_of(data, struct xen_pcibk_device, op_work);
- 	struct pci_dev *dev;
- 	struct xen_pcibk_dev_data *dev_data = NULL;
- 	struct xen_pci_op *op = &pdev->op;
-@@ -400,16 +413,31 @@ void xen_pcibk_do_op(struct work_struct
- 	smp_mb__before_atomic(); /* /after/ clearing PCIF_active */
- 	clear_bit(_PDEVF_op_active, &pdev->flags);
- 	smp_mb__after_atomic(); /* /before/ final check for work */
-+}
+ 	idio24gpio->chip.label = name;
+@@ -520,6 +564,12 @@ static int idio_24_probe(struct pci_dev
  
--	/* Check to see if the driver domain tried to start another request in
--	 * between clearing _XEN_PCIF_active and clearing _PDEVF_op_active.
--	*/
--	xen_pcibk_test_and_schedule_op(pdev);
-+void xen_pcibk_do_op(struct work_struct *data)
-+{
-+	struct xen_pcibk_device *pdev =
-+		container_of(data, struct xen_pcibk_device, op_work);
-+
-+	do {
-+		xen_pcibk_do_one_op(pdev);
-+	} while (xen_pcibk_test_op_pending(pdev));
-+
-+	xen_pcibk_lateeoi(pdev, 0);
- }
+ 	/* Software board reset */
+ 	iowrite8(0, &idio24gpio->reg->soft_reset);
++	/*
++	 * enable PLX PEX8311 internal PCI wire interrupt and local interrupt
++	 * input
++	 */
++	iowrite8((INTCSR_INTERNAL_PCI_WIRE | INTCSR_LOCAL_INPUT) >> 8,
++		 idio24gpio->plx + PLX_PEX8311_PCI_LCS_INTCSR + 1);
  
- irqreturn_t xen_pcibk_handle_event(int irq, void *dev_id)
- {
- 	struct xen_pcibk_device *pdev = dev_id;
-+	bool eoi;
-+
-+	/* IRQs might come in before pdev->evtchn_irq is written. */
-+	if (unlikely(pdev->evtchn_irq != irq))
-+		pdev->evtchn_irq = irq;
-+
-+	eoi = test_and_set_bit(_EOI_pending, &pdev->flags);
-+	WARN(eoi, "IRQ while EOI pending\n");
- 
- 	xen_pcibk_test_and_schedule_op(pdev);
- 
---- a/drivers/xen/xen-pciback/xenbus.c
-+++ b/drivers/xen/xen-pciback/xenbus.c
-@@ -123,7 +123,7 @@ static int xen_pcibk_do_attach(struct xe
- 
- 	pdev->sh_info = vaddr;
- 
--	err = bind_interdomain_evtchn_to_irqhandler(
-+	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
- 		pdev->xdev->otherend_id, remote_evtchn, xen_pcibk_handle_event,
- 		0, DRV_NAME, pdev);
- 	if (err < 0) {
+ 	err = devm_gpiochip_add_data(dev, &idio24gpio->chip, idio24gpio);
+ 	if (err) {
 
 
