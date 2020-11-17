@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B12E2B6179
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA38F2B6208
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730394AbgKQNTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:19:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
+        id S1731034AbgKQNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:24:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730382AbgKQNTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:17 -0500
+        id S1731027AbgKQNYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:24:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A04D7206D5;
-        Tue, 17 Nov 2020 13:19:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C91052463D;
+        Tue, 17 Nov 2020 13:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619155;
-        bh=MZk2mRD1qjys7a2I8jirLXucMTlVvT1r3XsMOo29Jjc=;
+        s=default; t=1605619482;
+        bh=hLy+1ve4a8qy/eR6Y7LdHOCpynzkhTeff1KZEgcNzD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COdd6PQTSrmQnPaAKS4tIvLtWC75pWMAnNXklR+FAci4+gdALVDoUkRSIwD54Hv3/
-         bjNsYrlUSvAi2do52cgwZUM9m3CstKU6fG3UwR48K4web5rN2+S4Xpo8fKWEgcyn6Y
-         3rIPV5+SaHQ72KlnynGEr9GoRKRLEGltzqKUBva4=
+        b=iSDStWE/YFCuzsGQl2Ay5JNDzMaNTMynmF8Pr3pVGyzPZIUce4/kbxS98szVTbPv4
+         pGez+sri0Xy4lAD0K+fLzmvWS1sbvDxaYVKHV5jj+3Ci9Gxja0IjqxbbzE1jEM89lH
+         l5Lx9tZ2Yjwl3elvNxppkaL6dq5eIS0MdODave0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 016/101] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
-Date:   Tue, 17 Nov 2020 14:04:43 +0100
-Message-Id: <20201117122113.885320075@linuxfoundation.org>
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 054/151] ALSA: hda: Reinstate runtime_allow() for all hda controllers
+Date:   Tue, 17 Nov 2020 14:04:44 +0100
+Message-Id: <20201117122124.063614351@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
+[ Upstream commit 9fc149c3bce7bdbb94948a8e6bd025e3b3538603 ]
 
-If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
-not always, the case), the 'WARN_ON(in_irq)' in
-net/core/skbuff.c#skb_release_head_state() might be triggered, under network
-congestion circumstances, together with the potential risk of a NULL pointer
-dereference.
+The broken jack detection should be fixed by commit a6e7d0a4bdb0 ("ALSA:
+hda: fix jack detection with Realtek codecs when in D3"), let's try
+enabling runtime PM by default again.
 
-The root cause of this issue is the call to kfree_skb() instead of
-dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
-
-This patch prevents the skb to be freed within the call to netif_rx() by
-incrementing its reference count with skb_get(). The skb is finally freed by
-one of the in-irq-context safe functions: dev_consume_skb_any() or
-dev_kfree_skb_any(). The "any" version is used because some drivers might call
-can_get_echo_skb() in a normal context.
-
-The reason for this issue to occur is that initially, in the core network
-stack, loopback skb were not supposed to be received in hardware IRQ context.
-The CAN stack is an exeption.
-
-This bug was previously reported back in 2017 in [1] but the proposed patch
-never got accepted.
-
-While [1] directly modifies net/core/dev.c, we try to propose here a
-smoother modification local to CAN network stack (the assumption
-behind is that only CAN devices are affected by this issue).
-
-[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
-
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
-Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20201027130038.16463-4-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 1545f2b299d06..be532eb64baa2 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -520,7 +520,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
- 	if (!skb)
- 		return 0;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index ab32d4811c9ef..192e580561efd 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2328,6 +2328,7 @@ static int azx_probe_continue(struct azx *chip)
  
--	netif_rx(skb);
-+	skb_get(skb);
-+	if (netif_rx(skb) == NET_RX_SUCCESS)
-+		dev_consume_skb_any(skb);
-+	else
-+		dev_kfree_skb_any(skb);
+ 	if (azx_has_pm_runtime(chip)) {
+ 		pm_runtime_use_autosuspend(&pci->dev);
++		pm_runtime_allow(&pci->dev);
+ 		pm_runtime_put_autosuspend(&pci->dev);
+ 	}
  
- 	return len;
- }
 -- 
 2.27.0
 
