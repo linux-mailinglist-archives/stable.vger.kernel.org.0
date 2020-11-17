@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 534C02B633B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2202B634D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732555AbgKQNgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:36:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47134 "EHLO mail.kernel.org"
+        id S1732192AbgKQNhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732551AbgKQNgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:36:12 -0500
+        id S1732651AbgKQNgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:36:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54590207BC;
-        Tue, 17 Nov 2020 13:36:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20571207BC;
+        Tue, 17 Nov 2020 13:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620170;
-        bh=HJPSa0KmKV95ZybTLaMu/IKpYZrY18GvP37V/Fllc/A=;
+        s=default; t=1605620203;
+        bh=UUm7ZRBD3wqBUSjjgBLp7IAVuFPn4r1LeIH++zy3xtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWHaxgKQSsZMmdPz+R5zKQcnZOHGGPsRuz5UDdZ+AzBUfx43fXjZYFS4ztuQMLV/n
-         yTlHDeGXua79P5hvWU3cFm0DqFQaSqwR/09mAoY/0+nP6LoV0mdDhPG3yHq+6iWQBl
-         WaDSbD2+tZ77cV1EJJonQrJHiITwnM+7knh1Gn5Y=
+        b=yod9E3GAhThFM+VkmnR8lnps9rxv+tV4L7miJixsXsGFeIgfSL6ER7udZ1HxNPY4w
+         eMJEmN3WG9M+2MIePNR5xRAg0gdW/DbOExjJT9FiBoKt3zB+4Gi6qHjjDXdKhHxYl6
+         5mv+0LDQXaZh7kNXfQwmv5+SLmac/SeFOcilk+1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulrich Hecht <uli+renesas@fpond.eu>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Michael Wu <michael.wu@vatics.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 122/255] i2c: sh_mobile: implement atomic transfers
-Date:   Tue, 17 Nov 2020 14:04:22 +0100
-Message-Id: <20201117122144.879152511@linuxfoundation.org>
+Subject: [PATCH 5.9 123/255] i2c: designware: call i2c_dw_read_clear_intrbits_slave() once
+Date:   Tue, 17 Nov 2020 14:04:23 +0100
+Message-Id: <20201117122144.929255726@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,176 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulrich Hecht <uli+renesas@fpond.eu>
+From: Michael Wu <michael.wu@vatics.com>
 
-[ Upstream commit a49cc1fe9d64a2dc4e19b599204f403e5d25f44b ]
+[ Upstream commit 66b92313e2ca9208b5f3ebf5d86e9a818299d8fa ]
 
-Implements atomic transfers to fix reboot/shutdown on r8a7790 Lager and
-similar boards.
+If some bits were cleared by i2c_dw_read_clear_intrbits_slave() in
+i2c_dw_isr_slave() and not handled immediately, those cleared bits would
+not be shown again by later i2c_dw_read_clear_intrbits_slave(). They
+therefore were forgotten to be handled.
 
-Signed-off-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-[wsa: some whitespace fixing]
+i2c_dw_read_clear_intrbits_slave() should be called once in an ISR and take
+its returned state for all later handlings.
+
+Signed-off-by: Michael Wu <michael.wu@vatics.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 86 +++++++++++++++++++++++-------
- 1 file changed, 66 insertions(+), 20 deletions(-)
+ drivers/i2c/busses/i2c-designware-slave.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index cab7255599991..bdd60770779ad 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -129,6 +129,7 @@ struct sh_mobile_i2c_data {
- 	int sr;
- 	bool send_stop;
- 	bool stop_after_dma;
-+	bool atomic_xfer;
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index 44974b53a6268..13de01a0f75f0 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -159,7 +159,6 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 	u32 raw_stat, stat, enabled, tmp;
+ 	u8 val = 0, slave_activity;
  
- 	struct resource *res;
- 	struct dma_chan *dma_tx;
-@@ -330,13 +331,15 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd, enum sh_mobile_i2c_op
- 		ret = iic_rd(pd, ICDR);
- 		break;
- 	case OP_RX_STOP: /* enable DTE interrupt, issue stop */
--		iic_wr(pd, ICIC,
--		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
-+		if (!pd->atomic_xfer)
-+			iic_wr(pd, ICIC,
-+			       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
- 		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
- 	case OP_RX_STOP_DATA: /* enable DTE interrupt, read data, issue stop */
--		iic_wr(pd, ICIC,
--		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
-+		if (!pd->atomic_xfer)
-+			iic_wr(pd, ICIC,
-+			       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
- 		ret = iic_rd(pd, ICDR);
- 		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
-@@ -429,7 +432,8 @@ static irqreturn_t sh_mobile_i2c_isr(int irq, void *dev_id)
+-	regmap_read(dev->map, DW_IC_INTR_STAT, &stat);
+ 	regmap_read(dev->map, DW_IC_ENABLE, &enabled);
+ 	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &raw_stat);
+ 	regmap_read(dev->map, DW_IC_STATUS, &tmp);
+@@ -168,6 +167,7 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 	if (!enabled || !(raw_stat & ~DW_IC_INTR_ACTIVITY) || !dev->slave)
+ 		return 0;
  
- 	if (wakeup) {
- 		pd->sr |= SW_DONE;
--		wake_up(&pd->wait);
-+		if (!pd->atomic_xfer)
-+			wake_up(&pd->wait);
++	stat = i2c_dw_read_clear_intrbits_slave(dev);
+ 	dev_dbg(dev->dev,
+ 		"%#x STATUS SLAVE_ACTIVITY=%#x : RAW_INTR_STAT=%#x : INTR_STAT=%#x\n",
+ 		enabled, slave_activity, raw_stat, stat);
+@@ -188,11 +188,9 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 						 val);
+ 				}
+ 				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
+-				stat = i2c_dw_read_clear_intrbits_slave(dev);
+ 			} else {
+ 				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
+ 				regmap_read(dev->map, DW_IC_CLR_RX_UNDER, &tmp);
+-				stat = i2c_dw_read_clear_intrbits_slave(dev);
+ 			}
+ 			if (!i2c_slave_event(dev->slave,
+ 					     I2C_SLAVE_READ_REQUESTED,
+@@ -207,7 +205,6 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 			regmap_read(dev->map, DW_IC_CLR_RX_DONE, &tmp);
+ 
+ 		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
+-		stat = i2c_dw_read_clear_intrbits_slave(dev);
+ 		return 1;
  	}
  
- 	/* defeat write posting to avoid spurious WAIT interrupts */
-@@ -581,6 +585,9 @@ static void start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
- 	pd->pos = -1;
- 	pd->sr = 0;
+@@ -219,7 +216,6 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 			dev_vdbg(dev->dev, "Byte %X acked!", val);
+ 	} else {
+ 		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
+-		stat = i2c_dw_read_clear_intrbits_slave(dev);
+ 	}
  
-+	if (pd->atomic_xfer)
-+		return;
-+
- 	pd->dma_buf = i2c_get_dma_safe_msg_buf(pd->msg, 8);
- 	if (pd->dma_buf)
- 		sh_mobile_i2c_xfer_dma(pd);
-@@ -637,15 +644,13 @@ static int poll_busy(struct sh_mobile_i2c_data *pd)
- 	return i ? 0 : -ETIMEDOUT;
- }
+ 	return 1;
+@@ -230,7 +226,6 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
+ 	struct dw_i2c_dev *dev = dev_id;
+ 	int ret;
  
--static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
--			      struct i2c_msg *msgs,
--			      int num)
-+static int sh_mobile_xfer(struct sh_mobile_i2c_data *pd,
-+			 struct i2c_msg *msgs, int num)
- {
--	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
- 	struct i2c_msg	*msg;
- 	int err = 0;
- 	int i;
--	long timeout;
-+	long time_left;
- 
- 	/* Wake up device and enable clock */
- 	pm_runtime_get_sync(pd->dev);
-@@ -662,15 +667,35 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 		if (do_start)
- 			i2c_op(pd, OP_START);
- 
--		/* The interrupt handler takes care of the rest... */
--		timeout = wait_event_timeout(pd->wait,
--				       pd->sr & (ICSR_TACK | SW_DONE),
--				       adapter->timeout);
--
--		/* 'stop_after_dma' tells if DMA transfer was complete */
--		i2c_put_dma_safe_msg_buf(pd->dma_buf, pd->msg, pd->stop_after_dma);
-+		if (pd->atomic_xfer) {
-+			unsigned long j = jiffies + pd->adap.timeout;
-+
-+			time_left = time_before_eq(jiffies, j);
-+			while (time_left &&
-+			       !(pd->sr & (ICSR_TACK | SW_DONE))) {
-+				unsigned char sr = iic_rd(pd, ICSR);
-+
-+				if (sr & (ICSR_AL   | ICSR_TACK |
-+					  ICSR_WAIT | ICSR_DTE)) {
-+					sh_mobile_i2c_isr(0, pd);
-+					udelay(150);
-+				} else {
-+					cpu_relax();
-+				}
-+				time_left = time_before_eq(jiffies, j);
-+			}
-+		} else {
-+			/* The interrupt handler takes care of the rest... */
-+			time_left = wait_event_timeout(pd->wait,
-+					pd->sr & (ICSR_TACK | SW_DONE),
-+					pd->adap.timeout);
-+
-+			/* 'stop_after_dma' tells if DMA xfer was complete */
-+			i2c_put_dma_safe_msg_buf(pd->dma_buf, pd->msg,
-+						 pd->stop_after_dma);
-+		}
- 
--		if (!timeout) {
-+		if (!time_left) {
- 			dev_err(pd->dev, "Transfer request timed out\n");
- 			if (pd->dma_direction != DMA_NONE)
- 				sh_mobile_i2c_cleanup_dma(pd);
-@@ -696,14 +721,35 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 	return err ?: num;
- }
- 
-+static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
-+			      struct i2c_msg *msgs,
-+			      int num)
-+{
-+	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
-+
-+	pd->atomic_xfer = false;
-+	return sh_mobile_xfer(pd, msgs, num);
-+}
-+
-+static int sh_mobile_i2c_xfer_atomic(struct i2c_adapter *adapter,
-+				     struct i2c_msg *msgs,
-+				     int num)
-+{
-+	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
-+
-+	pd->atomic_xfer = true;
-+	return sh_mobile_xfer(pd, msgs, num);
-+}
-+
- static u32 sh_mobile_i2c_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- static const struct i2c_algorithm sh_mobile_i2c_algorithm = {
--	.functionality	= sh_mobile_i2c_func,
--	.master_xfer	= sh_mobile_i2c_xfer,
-+	.functionality = sh_mobile_i2c_func,
-+	.master_xfer = sh_mobile_i2c_xfer,
-+	.master_xfer_atomic = sh_mobile_i2c_xfer_atomic,
- };
- 
- static const struct i2c_adapter_quirks sh_mobile_i2c_quirks = {
+-	i2c_dw_read_clear_intrbits_slave(dev);
+ 	ret = i2c_dw_irq_handler_slave(dev);
+ 	if (ret > 0)
+ 		complete(&dev->cmd_complete);
 -- 
 2.27.0
 
