@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED07A2B6231
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7059F2B61CD
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731419AbgKQN0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:26:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33780 "EHLO mail.kernel.org"
+        id S1730911AbgKQNWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:22:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731414AbgKQN0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:26:17 -0500
+        id S1730806AbgKQNUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 859C024654;
-        Tue, 17 Nov 2020 13:26:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACBB6246A5;
+        Tue, 17 Nov 2020 13:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619577;
-        bh=/zWkAoy1F+06/UarYZYDomBQVYCfgnTC2KtlXKRvQVQ=;
+        s=default; t=1605619251;
+        bh=QgUQ5NcIl8C+hQrGgM2TC+BjeOwK1xrU9BSHfieixZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Av/eD9FNbbyyeiRg57fZ/GSk+R2c6oJhd9EDF/x1vMPt7xsdlVvYbShaFelcMiXMl
-         cf/R3UXNlGLRp6N52bOPbsTvBefk08v2sBBlLD7hcrOB4A7gIHJFQqfI7s1Y4/0V+j
-         ijO0+qNy6CroNUwlXzPfteUljzrHzqa5NDM4W4fU=
+        b=GOat90344d9reRyhJPhm2ccB9UV+7sjBNtDGxq2GnMv/L8ltE4DfSAjh+MgzTfX4B
+         h+ehyQs1RYRtQaPieuxCPdRtmbVv/pDo4hd9GcutCyfjq0YLesseIXVsTrYeMj+T7p
+         IIKXQB7xU4VLdEZMuTE0IKLZPUeS7mjwjY8Zfgto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Baolin Wang <baolin.wang7@gmail.com>,
         Chunyan Zhang <chunyan.zhang@unisoc.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.4 086/151] mfd: sprd: Add wakeup capability for PMIC IRQ
+Subject: [PATCH 4.19 049/101] mfd: sprd: Add wakeup capability for PMIC IRQ
 Date:   Tue, 17 Nov 2020 14:05:16 +0100
-Message-Id: <20201117122125.600271317@linuxfoundation.org>
+Message-Id: <20201117122115.483287415@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,7 +67,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mfd/sprd-sc27xx-spi.c
 +++ b/drivers/mfd/sprd-sc27xx-spi.c
-@@ -204,7 +204,7 @@ static int sprd_pmic_probe(struct spi_de
+@@ -212,7 +212,7 @@ static int sprd_pmic_probe(struct spi_de
  	}
  
  	ret = devm_regmap_add_irq_chip(&spi->dev, ddata->regmap, ddata->irq,
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				       &ddata->irq_chip, &ddata->irq_data);
  	if (ret) {
  		dev_err(&spi->dev, "Failed to add PMIC irq chip %d\n", ret);
-@@ -220,9 +220,34 @@ static int sprd_pmic_probe(struct spi_de
+@@ -228,9 +228,34 @@ static int sprd_pmic_probe(struct spi_de
  		return ret;
  	}
  
@@ -111,7 +111,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static const struct of_device_id sprd_pmic_match[] = {
  	{ .compatible = "sprd,sc2731", .data = &sc2731_data },
  	{},
-@@ -234,6 +259,7 @@ static struct spi_driver sprd_pmic_drive
+@@ -242,6 +267,7 @@ static struct spi_driver sprd_pmic_drive
  		.name = "sc27xx-pmic",
  		.bus = &spi_bus_type,
  		.of_match_table = sprd_pmic_match,
