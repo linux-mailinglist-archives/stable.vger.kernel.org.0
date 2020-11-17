@@ -2,43 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C4C2B6993
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 808932B6B76
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 18:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726977AbgKQQLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 11:11:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727261AbgKQQLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 11:11:39 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DC292417E;
-        Tue, 17 Nov 2020 16:11:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605629498;
-        bh=Fk1eo6iNHwJ1CiFxU3whdxNYrOjtSVYGGXNBFsGI28g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2jfcer2s9oxO2FvjYqYixdokq/05Puvkr27pQt9yP1/IsMGAG6GvN8vcgrETTtnA
-         Zp0ZlhYQGu3Mv90L2Jp8sggJ7//yqa+ZqGJ9xfq+ETWJ+6JVexLWjRD4OFltwxel7e
-         qDMc7vNcXr9zvk3RVf764rP9EtI1RNoMWVpeSGkU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Alan Cox <alan@linux.intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.9 230/255] drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
-Date:   Tue, 17 Nov 2020 14:06:10 +0100
-Message-Id: <20201117122150.132434620@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728889AbgKQROR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 12:14:17 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:63606 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728890AbgKQROR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 12:14:17 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23021599-1500050 
+        for multiple; Tue, 17 Nov 2020 17:14:09 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Clinton A Taylor <clinton.a.taylor@intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/phy: Quieten state loss across suspend
+Date:   Tue, 17 Nov 2020 17:14:11 +0000
+Message-Id: <20201117171411.10030-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,120 +34,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+When the HW is powered down, the register state and links are lost. This
+may be an issue in the firmware, or in the code expectations; whatever
+it is, it is expected behaviour now for Tigerlake; stop warning!
 
-commit 06ad8d339524bf94b89859047822c31df6ace239 upstream.
-
-The gma500 driver expects 3 pipelines in several it's IRQ functions.
-Accessing struct drm_device.vblank[], this fails with devices that only
-have 2 pipelines. An example KASAN report is shown below.
-
-  [   62.267688] ==================================================================
-  [   62.268856] BUG: KASAN: slab-out-of-bounds in psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.269450] Read of size 1 at addr ffff8880012bc6d0 by task systemd-udevd/285
-  [   62.269949]
-  [   62.270192] CPU: 0 PID: 285 Comm: systemd-udevd Tainted: G            E     5.10.0-rc1-1-default+ #572
-  [   62.270807] Hardware name:  /DN2800MT, BIOS MTCDT10N.86A.0164.2012.1213.1024 12/13/2012
-  [   62.271366] Call Trace:
-  [   62.271705]  dump_stack+0xae/0xe5
-  [   62.272180]  print_address_description.constprop.0+0x17/0xf0
-  [   62.272987]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.273474]  __kasan_report.cold+0x20/0x38
-  [   62.273989]  ? psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.274460]  kasan_report+0x3a/0x50
-  [   62.274891]  psb_irq_postinstall+0x250/0x3c0 [gma500_gfx]
-  [   62.275380]  drm_irq_install+0x131/0x1f0
-  <...>
-  [   62.300751] Allocated by task 285:
-  [   62.301223]  kasan_save_stack+0x1b/0x40
-  [   62.301731]  __kasan_kmalloc.constprop.0+0xbf/0xd0
-  [   62.302293]  drmm_kmalloc+0x55/0x100
-  [   62.302773]  drm_vblank_init+0x77/0x210
-
-Resolve the issue by only handling vblank entries up to the number of
-CRTCs.
-
-I'm adding a Fixes tag for reference, although the bug has been present
-since the driver's initial commit.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Fixes: 5c49fd3aa0ab ("gma500: Add the core DRM files and headers")
-Cc: Alan Cox <alan@linux.intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: stable@vger.kernel.org#v3.3+
-Link: https://patchwork.freedesktop.org/patch/msgid/20201105190256.3893-1-tzimmermann@suse.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/2411
+Fixes: 239bef676d8e ("drm/i915/display: Implement new combo phy initialization step")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Clinton A Taylor <clinton.a.taylor@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: <stable@vger.kernel.org> # v5.9+
 ---
- drivers/gpu/drm/gma500/psb_irq.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/i915/display/intel_combo_phy.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/gma500/psb_irq.c
-+++ b/drivers/gpu/drm/gma500/psb_irq.c
-@@ -347,6 +347,7 @@ int psb_irq_postinstall(struct drm_devic
- {
- 	struct drm_psb_private *dev_priv = dev->dev_private;
- 	unsigned long irqflags;
-+	unsigned int i;
+diff --git a/drivers/gpu/drm/i915/display/intel_combo_phy.c b/drivers/gpu/drm/i915/display/intel_combo_phy.c
+index d5ad61e4083e..9a87df982af8 100644
+--- a/drivers/gpu/drm/i915/display/intel_combo_phy.c
++++ b/drivers/gpu/drm/i915/display/intel_combo_phy.c
+@@ -428,9 +428,9 @@ static void icl_combo_phys_uninit(struct drm_i915_private *dev_priv)
  
- 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
+ 		if (phy == PHY_A &&
+ 		    !icl_combo_phy_verify_state(dev_priv, phy))
+-			drm_warn(&dev_priv->drm,
+-				 "Combo PHY %c HW state changed unexpectedly\n",
+-				 phy_name(phy));
++			drm_dbg_kms(&dev_priv->drm,
++				    "Combo PHY %c HW state changed unexpectedly\n",
++				    phy_name(phy));
  
-@@ -359,20 +360,12 @@ int psb_irq_postinstall(struct drm_devic
- 	PSB_WVDC32(dev_priv->vdc_irq_mask, PSB_INT_ENABLE_R);
- 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
- 
--	if (dev->vblank[0].enabled)
--		psb_enable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[1].enabled)
--		psb_enable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[2].enabled)
--		psb_enable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
--	else
--		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	for (i = 0; i < dev->num_crtcs; ++i) {
-+		if (dev->vblank[i].enabled)
-+			psb_enable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+		else
-+			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	}
- 
- 	if (dev_priv->ops->hotplug_enable)
- 		dev_priv->ops->hotplug_enable(dev, true);
-@@ -385,6 +378,7 @@ void psb_irq_uninstall(struct drm_device
- {
- 	struct drm_psb_private *dev_priv = dev->dev_private;
- 	unsigned long irqflags;
-+	unsigned int i;
- 
- 	spin_lock_irqsave(&dev_priv->irqmask_lock, irqflags);
- 
-@@ -393,14 +387,10 @@ void psb_irq_uninstall(struct drm_device
- 
- 	PSB_WVDC32(0xFFFFFFFF, PSB_HWSTAM);
- 
--	if (dev->vblank[0].enabled)
--		psb_disable_pipestat(dev_priv, 0, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[1].enabled)
--		psb_disable_pipestat(dev_priv, 1, PIPE_VBLANK_INTERRUPT_ENABLE);
--
--	if (dev->vblank[2].enabled)
--		psb_disable_pipestat(dev_priv, 2, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	for (i = 0; i < dev->num_crtcs; ++i) {
-+		if (dev->vblank[i].enabled)
-+			psb_disable_pipestat(dev_priv, i, PIPE_VBLANK_INTERRUPT_ENABLE);
-+	}
- 
- 	dev_priv->vdc_irq_mask &= _PSB_IRQ_SGX_FLAG |
- 				  _PSB_IRQ_MSVDX_FLAG |
-
+ 		if (!has_phy_misc(dev_priv, phy))
+ 			goto skip_phy_misc;
+-- 
+2.20.1
 
