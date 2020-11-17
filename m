@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D84A2B652C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D062B62AE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbgKQNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:51:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39494 "EHLO mail.kernel.org"
+        id S1731910AbgKQNac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:30:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731863AbgKQNa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:30:26 -0500
+        id S1731907AbgKQNa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:30:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89B7220781;
-        Tue, 17 Nov 2020 13:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68C9621534;
+        Tue, 17 Nov 2020 13:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619825;
-        bh=6eHn8nAKJXsNr4WwN8ijIbmWwkssilstN9Be98vSXbw=;
+        s=default; t=1605619828;
+        bh=JkKHH3T7F7wPKsUnBxJhjsNXKIhHvhpdq6u4oezFD4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPRLbM5Zhv+qtr83tbron4SbNDBkKCsqcEc8mqkKQOrYzfflsMhwXypEDH9gBjB0/
-         9bjMLBXvq28k0Oi4rU7Ttk1vWWL3UjARB2GLTvOUqEvVWxcc7x+izyAhRoJbm/8Tl5
-         Kawc1ujX1wnzCalqK7A/k1PrOJZ6Ke7ud/LEiLxY=
+        b=QAWpQ3V4UwInCa7m5f2oy5fnBlGewlsnVbPZz8WK3gflxmq4SSqIGfTrPxNiUYw0D
+         M5wxJoGz0g8DpQ/RDY1Eb3HRu/eebp2ZQEfQa2CBUKiGKMbY8Wx8ibVFPu+GGYJ9gP
+         GyA5YwyJNyyylCSQllHj4gxgUZqeNFE2bP4D4Y4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Kees Cook <keescook@chromium.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 017/255] selftests: filter kselftest headers from command in lib.mk
-Date:   Tue, 17 Nov 2020 14:02:37 +0100
-Message-Id: <20201117122139.781377971@linuxfoundation.org>
+Subject: [PATCH 5.9 018/255] ASoC: codecs: wcd934x: Set digital gain range correctly
+Date:   Tue, 17 Nov 2020 14:02:38 +0100
+Message-Id: <20201117122139.829842712@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -45,58 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit f825d3f7ed9305e7dd0a3e0a74673a4257d0cc53 ]
+[ Upstream commit fc0522bbe02fa4beb95c0514ace66b585616f111 ]
 
-Commit 1056d3d2c97e ("selftests: enforce local header dependency in
-lib.mk") added header dependency to the rule, but as the rule uses $^,
-the headers are added to the compiler command line.
+digital gain range is -84dB min to 40dB max, however this was not
+correctly specified in the range.
 
-This can cause unexpected precompiled header files being generated when
-compilation fails:
+Fix this by with correct range!
 
-  $ echo { >> openat2_test.c
-
-  $ make
-  gcc -Wall -O2 -g -fsanitize=address -fsanitize=undefined  openat2_test.c
-    tools/testing/selftests/kselftest_harness.h tools/testing/selftests/kselftest.h helpers.c
-    -o tools/testing/selftests/openat2/openat2_test
-  openat2_test.c:313:1: error: expected identifier or ‘(’ before ‘{’ token
-    313 | {
-        | ^
-  make: *** [../lib.mk:140: tools/testing/selftests/openat2/openat2_test] Error 1
-
-  $ file openat2_test*
-  openat2_test:   GCC precompiled header (version 014) for C
-  openat2_test.c: C source, ASCII text
-
-Fix it by filtering out the headers, so that we'll only pass the actual
-*.c files in the compiler command line.
-
-Fixes: 1056d3d2c97e ("selftests: enforce local header dependency in lib.mk")
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1cde8b822332 ("ASoC: wcd934x: add basic controls")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20201028154340.17090-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 2 +-
+ sound/soc/codecs/wcd934x.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index 7a17ea8157367..66f3317dc3654 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -137,7 +137,7 @@ endif
- ifeq ($(OVERRIDE_TARGETS),)
- LOCAL_HDRS := $(selfdir)/kselftest_harness.h $(selfdir)/kselftest.h
- $(OUTPUT)/%:%.c $(LOCAL_HDRS)
--	$(LINK.c) $^ $(LDLIBS) -o $@
-+	$(LINK.c) $(filter-out $(LOCAL_HDRS),$^) $(LDLIBS) -o $@
+diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
+index 35697b072367a..40f682f5dab8b 100644
+--- a/sound/soc/codecs/wcd934x.c
++++ b/sound/soc/codecs/wcd934x.c
+@@ -551,7 +551,7 @@ struct wcd_iir_filter_ctl {
+ 	struct soc_bytes_ext bytes_ext;
+ };
  
- $(OUTPUT)/%.o:%.S
- 	$(COMPILE.S) $^ -o $@
+-static const DECLARE_TLV_DB_SCALE(digital_gain, 0, 1, 0);
++static const DECLARE_TLV_DB_SCALE(digital_gain, -8400, 100, -8400);
+ static const DECLARE_TLV_DB_SCALE(line_gain, 0, 7, 1);
+ static const DECLARE_TLV_DB_SCALE(analog_gain, 0, 25, 1);
+ static const DECLARE_TLV_DB_SCALE(ear_pa_gain, 0, 150, 0);
 -- 
 2.27.0
 
