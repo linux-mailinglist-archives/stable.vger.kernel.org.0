@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5252B63B2
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 595A02B6501
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732890AbgKQNko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:40:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
+        id S1731676AbgKQN1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:27:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732867AbgKQNkl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:40:41 -0500
+        id S1731068AbgKQN1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41AFA2467A;
-        Tue, 17 Nov 2020 13:40:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F26821534;
+        Tue, 17 Nov 2020 13:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620439;
-        bh=4lrcF6ydvbchNyBo9t4miFAAH7Ucf42zswJvz6ah/Zw=;
+        s=default; t=1605619626;
+        bh=qwdpYe9dQvbElnJFGEYTs27gqFA8bL7Z7XqD5aqNAf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07zpFJ85NXRiHTzVuDDYPLsiuehCQhi1rcAoOD42Tama30g9vJube4dPdElhzCTPw
-         o+bzfq+ZUhEbM35NJeQGLSDX5gkOjhy6iJgBuDEa0nDPtwvriYbEUJJMzw5txFYA2p
-         HKMFzk33xw2s+IzBVad+GV/bRDV9L46Fv3jPyB7U=
+        b=LMJHC/Ir8Uf0dakl2SD8eDXt6u9+Z9G7n+TkYyj1U61atfOPuqnmcMCvVi7zU8Bse
+         NY+RjLwmsEIChthI/1gvdgiI9aUMtYQX1zoFMeeeQtsPM5V+M80VFwzvLmsWL5VW8z
+         jN2Hzutnc1UVIkRIgdyEYfWJrJs1c3J9IYyrcsq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4cfe71a4da060be47502@syzkaller.appspotmail.com,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.9 190/255] btrfs: dev-replace: fail mount if we dont have replace item with target device
+        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 100/151] lan743x: fix "BUG: invalid wait context" when setting rx mode
 Date:   Tue, 17 Nov 2020 14:05:30 +0100
-Message-Id: <20201117122148.176595405@linuxfoundation.org>
+Message-Id: <20201117122126.275599872@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,146 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-commit cf89af146b7e62af55470cf5f3ec3c56ec144a5e upstream.
+[ Upstream commit 2b52a4b65bc8f14520fe6e996ea7fb3f7e400761 ]
 
-If there is a device BTRFS_DEV_REPLACE_DEVID without the device replace
-item, then it means the filesystem is inconsistent state. This is either
-corruption or a crafted image.  Fail the mount as this needs a closer
-look what is actually wrong.
+In the net core, the struct net_device_ops -> ndo_set_rx_mode()
+callback is called with the dev->addr_list_lock spinlock held.
 
-As of now if BTRFS_DEV_REPLACE_DEVID is present without the replace
-item, in __btrfs_free_extra_devids() we determine that there is an
-extra device, and free those extra devices but continue to mount the
-device.
-However, we were wrong in keeping tack of the rw_devices so the syzbot
-testcase failed:
+However, this driver's ndo_set_rx_mode callback eventually calls
+lan743x_dp_write(), which acquires a mutex. Mutex acquisition
+may sleep, and this is not allowed when holding a spinlock.
 
-  WARNING: CPU: 1 PID: 3612 at fs/btrfs/volumes.c:1166 close_fs_devices.part.0+0x607/0x800 fs/btrfs/volumes.c:1166
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 1 PID: 3612 Comm: syz-executor.2 Not tainted 5.9.0-rc4-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x198/0x1fd lib/dump_stack.c:118
-   panic+0x347/0x7c0 kernel/panic.c:231
-   __warn.cold+0x20/0x46 kernel/panic.c:600
-   report_bug+0x1bd/0x210 lib/bug.c:198
-   handle_bug+0x38/0x90 arch/x86/kernel/traps.c:234
-   exc_invalid_op+0x14/0x40 arch/x86/kernel/traps.c:254
-   asm_exc_invalid_op+0x12/0x20 arch/x86/include/asm/idtentry.h:536
-  RIP: 0010:close_fs_devices.part.0+0x607/0x800 fs/btrfs/volumes.c:1166
-  RSP: 0018:ffffc900091777e0 EFLAGS: 00010246
-  RAX: 0000000000040000 RBX: ffffffffffffffff RCX: ffffc9000c8b7000
-  RDX: 0000000000040000 RSI: ffffffff83097f47 RDI: 0000000000000007
-  RBP: dffffc0000000000 R08: 0000000000000001 R09: ffff8880988a187f
-  R10: 0000000000000000 R11: 0000000000000001 R12: ffff88809593a130
-  R13: ffff88809593a1ec R14: ffff8880988a1908 R15: ffff88809593a050
-   close_fs_devices fs/btrfs/volumes.c:1193 [inline]
-   btrfs_close_devices+0x95/0x1f0 fs/btrfs/volumes.c:1179
-   open_ctree+0x4984/0x4a2d fs/btrfs/disk-io.c:3434
-   btrfs_fill_super fs/btrfs/super.c:1316 [inline]
-   btrfs_mount_root.cold+0x14/0x165 fs/btrfs/super.c:1672
+Fix by removing the dp_lock mutex entirely. Its purpose is to
+prevent concurrent accesses to the data port. No concurrent
+accesses are possible, because the dev->addr_list_lock
+spinlock in the core only lets through one thread at a time.
 
-The fix here is, when we determine that there isn't a replace item
-then fail the mount if there is a replace target device (devid 0).
-
-CC: stable@vger.kernel.org # 4.19+
-Reported-by: syzbot+4cfe71a4da060be47502@syzkaller.appspotmail.com
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
+Link: https://lore.kernel.org/r/20201109203828.5115-1-TheSven73@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/dev-replace.c |   26 ++++++++++++++++++++++++--
- fs/btrfs/volumes.c     |   26 +++++++-------------------
- 2 files changed, 31 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_main.c | 12 +++---------
+ drivers/net/ethernet/microchip/lan743x_main.h |  3 ---
+ 2 files changed, 3 insertions(+), 12 deletions(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -95,6 +95,17 @@ int btrfs_init_dev_replace(struct btrfs_
- 	ret = btrfs_search_slot(NULL, dev_root, &key, path, 0, 0);
- 	if (ret) {
- no_valid_dev_replace_entry_found:
-+		/*
-+		 * We don't have a replace item or it's corrupted.  If there is
-+		 * a replace target, fail the mount.
-+		 */
-+		if (btrfs_find_device(fs_info->fs_devices,
-+				      BTRFS_DEV_REPLACE_DEVID, NULL, NULL, false)) {
-+			btrfs_err(fs_info,
-+			"found replace target device without a valid replace item");
-+			ret = -EUCLEAN;
-+			goto out;
-+		}
- 		ret = 0;
- 		dev_replace->replace_state =
- 			BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED;
-@@ -147,8 +158,19 @@ no_valid_dev_replace_entry_found:
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_NEVER_STARTED:
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_FINISHED:
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED:
--		dev_replace->srcdev = NULL;
--		dev_replace->tgtdev = NULL;
-+		/*
-+		 * We don't have an active replace item but if there is a
-+		 * replace target, fail the mount.
-+		 */
-+		if (btrfs_find_device(fs_info->fs_devices,
-+				      BTRFS_DEV_REPLACE_DEVID, NULL, NULL, false)) {
-+			btrfs_err(fs_info,
-+			"replace devid present without an active replace item");
-+			ret = -EUCLEAN;
-+		} else {
-+			dev_replace->srcdev = NULL;
-+			dev_replace->tgtdev = NULL;
-+		}
- 		break;
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1064,22 +1064,13 @@ again:
- 			continue;
- 		}
+diff --git a/drivers/net/ethernet/microchip/lan743x_main.c b/drivers/net/ethernet/microchip/lan743x_main.c
+index a43140f7b5eb8..b8e0e08b79de2 100644
+--- a/drivers/net/ethernet/microchip/lan743x_main.c
++++ b/drivers/net/ethernet/microchip/lan743x_main.c
+@@ -672,14 +672,12 @@ clean_up:
+ static int lan743x_dp_write(struct lan743x_adapter *adapter,
+ 			    u32 select, u32 addr, u32 length, u32 *buf)
+ {
+-	int ret = -EIO;
+ 	u32 dp_sel;
+ 	int i;
  
--		if (device->devid == BTRFS_DEV_REPLACE_DEVID) {
--			/*
--			 * In the first step, keep the device which has
--			 * the correct fsid and the devid that is used
--			 * for the dev_replace procedure.
--			 * In the second step, the dev_replace state is
--			 * read from the device tree and it is known
--			 * whether the procedure is really active or
--			 * not, which means whether this device is
--			 * used or whether it should be removed.
--			 */
--			if (step == 0 || test_bit(BTRFS_DEV_STATE_REPLACE_TGT,
--						  &device->dev_state)) {
--				continue;
--			}
--		}
-+		/*
-+		 * We have already validated the presence of BTRFS_DEV_REPLACE_DEVID,
-+		 * in btrfs_init_dev_replace() so just continue.
-+		 */
-+		if (device->devid == BTRFS_DEV_REPLACE_DEVID)
-+			continue;
-+
- 		if (device->bdev) {
- 			blkdev_put(device->bdev, device->mode);
- 			device->bdev = NULL;
-@@ -1088,9 +1079,6 @@ again:
- 		if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
- 			list_del_init(&device->dev_alloc_list);
- 			clear_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state);
--			if (!test_bit(BTRFS_DEV_STATE_REPLACE_TGT,
--				      &device->dev_state))
--				fs_devices->rw_devices--;
- 		}
- 		list_del_init(&device->dev_list);
- 		fs_devices->num_devices--;
+-	mutex_lock(&adapter->dp_lock);
+ 	if (lan743x_csr_wait_for_bit(adapter, DP_SEL, DP_SEL_DPRDY_,
+ 				     1, 40, 100, 100))
+-		goto unlock;
++		return -EIO;
+ 	dp_sel = lan743x_csr_read(adapter, DP_SEL);
+ 	dp_sel &= ~DP_SEL_MASK_;
+ 	dp_sel |= select;
+@@ -691,13 +689,10 @@ static int lan743x_dp_write(struct lan743x_adapter *adapter,
+ 		lan743x_csr_write(adapter, DP_CMD, DP_CMD_WRITE_);
+ 		if (lan743x_csr_wait_for_bit(adapter, DP_SEL, DP_SEL_DPRDY_,
+ 					     1, 40, 100, 100))
+-			goto unlock;
++			return -EIO;
+ 	}
+-	ret = 0;
+ 
+-unlock:
+-	mutex_unlock(&adapter->dp_lock);
+-	return ret;
++	return 0;
+ }
+ 
+ static u32 lan743x_mac_mii_access(u16 id, u16 index, int read)
+@@ -2674,7 +2669,6 @@ static int lan743x_hardware_init(struct lan743x_adapter *adapter,
+ 
+ 	adapter->intr.irq = adapter->pdev->irq;
+ 	lan743x_csr_write(adapter, INT_EN_CLR, 0xFFFFFFFF);
+-	mutex_init(&adapter->dp_lock);
+ 
+ 	ret = lan743x_gpio_init(adapter);
+ 	if (ret)
+diff --git a/drivers/net/ethernet/microchip/lan743x_main.h b/drivers/net/ethernet/microchip/lan743x_main.h
+index 3b02eeae5f45d..1fbcef3910989 100644
+--- a/drivers/net/ethernet/microchip/lan743x_main.h
++++ b/drivers/net/ethernet/microchip/lan743x_main.h
+@@ -706,9 +706,6 @@ struct lan743x_adapter {
+ 	struct lan743x_csr      csr;
+ 	struct lan743x_intr     intr;
+ 
+-	/* lock, used to prevent concurrent access to data port */
+-	struct mutex		dp_lock;
+-
+ 	struct lan743x_gpio	gpio;
+ 	struct lan743x_ptp	ptp;
+ 
+-- 
+2.27.0
+
 
 
