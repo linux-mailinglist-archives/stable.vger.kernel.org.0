@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B07F2B636C
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 470C72B6503
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731721AbgKQNiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:38:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
+        id S1731713AbgKQN12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:27:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731634AbgKQNiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:38:02 -0500
+        id S1731711AbgKQN11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E463207BC;
-        Tue, 17 Nov 2020 13:38:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9D1C20781;
+        Tue, 17 Nov 2020 13:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620281;
-        bh=44psANdJZ6eKFGyNAl909sTOVlCBmeks5lqbgUd6buI=;
+        s=default; t=1605619647;
+        bh=HTJPBbTXiaezYSYUFt1vEApllh2IIbW2iUeRUSn41C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hX/F+/Oz640gchItvNXghkSawbvaqOMLNYNHN28HWUXGKs4xdHITVefnXgzD+1fTZ
-         xiSdHWBpZjC5K2HmUzNLCUf05lNTgsc+pD0p0UaLTH+lmA2uAI7bAP+r3RCtiqjxPP
-         XvGHS4tEnXlOlZkay9MTAbeDXzTnH5IuQy4mXF7g=
+        b=cUD/TB6X6Z3OX2uUFLg6RYvPMLVslOz6EIFl14CDDMgaV/sndxct351YIqJq0Fr2B
+         wMuV1sg8dwvG9BxzqciHoV+YYNjV8mLH6CU5pnG0994cXAIF45Z+ILZLWXScPt5TQk
+         K3HRL0qHqetrv1o0rBx1lrgC+vDlhO2UOxkTqlkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        =?UTF-8?q?Jan=20 Yenya =20Kasprzak?= <kas@fi.muni.cz>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 167/255] cosa: Add missing kfree in error path of cosa_write
-Date:   Tue, 17 Nov 2020 14:05:07 +0100
-Message-Id: <20201117122147.064949702@linuxfoundation.org>
+        stable@vger.kernel.org, Qii Wang <qii.wang@mediatek.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 078/151] i2c: mediatek: move dma reset before i2c reset
+Date:   Tue, 17 Nov 2020 14:05:08 +0100
+Message-Id: <20201117122125.216296019@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Qii Wang <qii.wang@mediatek.com>
 
-[ Upstream commit 52755b66ddcef2e897778fac5656df18817b59ab ]
+[ Upstream commit aafced673c06b7c77040c1df42e2e965be5d0376 ]
 
-If memory allocation for 'kbuf' succeed, cosa_write() doesn't have a
-corresponding kfree() in exception handling. Thus add kfree() for this
-function implementation.
+The i2c driver default do dma reset after i2c reset, but sometimes
+i2c reset will trigger dma tx2rx, then apdma write data to dram
+which has been i2c_put_dma_safe_msg_buf(kfree). Move dma reset
+before i2c reset in mtk_i2c_init_hw to fix it.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Jan "Yenya" Kasprzak <kas@fi.muni.cz>
-Link: https://lore.kernel.org/r/20201110144614.43194-1-wanghai38@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/cosa.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-mt65xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wan/cosa.c b/drivers/net/wan/cosa.c
-index f8aed0696d775..2369ca250cd65 100644
---- a/drivers/net/wan/cosa.c
-+++ b/drivers/net/wan/cosa.c
-@@ -889,6 +889,7 @@ static ssize_t cosa_write(struct file *file,
- 			chan->tx_status = 1;
- 			spin_unlock_irqrestore(&cosa->lock, flags);
- 			up(&chan->wsem);
-+			kfree(kbuf);
- 			return -ERESTARTSYS;
- 		}
- 	}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 2152ec5f535c1..5a9f0d17f52c8 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -389,6 +389,10 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+ {
+ 	u16 control_reg;
+ 
++	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
++	udelay(50);
++	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
++
+ 	mtk_i2c_writew(i2c, I2C_SOFT_RST, OFFSET_SOFTRESET);
+ 
+ 	/* Set ioconfig */
+@@ -419,10 +423,6 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+ 
+ 	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
+ 	mtk_i2c_writew(i2c, I2C_DELAY_LEN, OFFSET_DELAY_LEN);
+-
+-	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
+-	udelay(50);
+-	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
+ }
+ 
+ /*
 -- 
 2.27.0
 
