@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9A02B6417
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:44:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6D02B654A
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732829AbgKQNkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:40:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51924 "EHLO mail.kernel.org"
+        id S1731766AbgKQNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:53:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732819AbgKQNkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:40:03 -0500
+        id S1731764AbgKQN1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4250F2468E;
-        Tue, 17 Nov 2020 13:40:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB6B221734;
+        Tue, 17 Nov 2020 13:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620403;
-        bh=6StpXMnzuR+PpT0rHQ5gz801jV5mFDucVuKoLoedTr8=;
+        s=default; t=1605619667;
+        bh=F3WBYawSvvlaiQDojSO1eihsAUwTfwai1T7Nm0lmlTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARlGmgg6UdRkT2gFtTMH0Kmz4cCWuh5Qu/TCCUlGf1vl66oxlMFKi6xigsrhI0UXV
-         ZrzpNIIEAhK0QPKNV1veVHlYtARVD0+qvPrkPq/KpjEH0ylnYdC/E1lT2wgk9EaDmz
-         nQInEd1kW1ZU9RS1QNdqtHWFn+9IlbOSyWtac4bw=
+        b=JpLRMs+KgVEQGR69msBe4yeOofuv+/Hejsv+k4bVGQ0IMxAD7aoLBuy766f3mepUO
+         y/OisFUBrGa9hmxE0pIdON/MNR6IaUfs3WPMYNisvnvcJk859Jvor2QJgjT8JS3SLE
+         xL6fc0ep6WBj9Au9jEHUOQZkpZj0twCFFo2+MsHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.9 206/255] futex: Dont enable IRQs unconditionally in put_pi_state()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH 5.4 116/151] usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
 Date:   Tue, 17 Nov 2020 14:05:46 +0100
-Message-Id: <20201117122148.957759591@linuxfoundation.org>
+Message-Id: <20201117122127.073623534@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chris Brandt <chris.brandt@renesas.com>
 
-commit 1e106aa3509b86738769775969822ffc1ec21bf4 upstream.
+commit 6d853c9e4104b4fc8d55dc9cd3b99712aa347174 upstream.
 
-The exit_pi_state_list() function calls put_pi_state() with IRQs disabled
-and is not expecting that IRQs will be enabled inside the function.
+Renesas R-Car and RZ/G SoCs have a firmware download mode over USB.
+However, on reset a banner string is transmitted out which is not expected
+to be echoed back and will corrupt the protocol.
 
-Use the _irqsave() variant so that IRQs are restored to the original state
-instead of being enabled unconditionally.
-
-Fixes: 153fbd1226fb ("futex: Fix more put_pi_state() vs. exit_pi_state_list() races")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201106085205.GA1159983@mwanda
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Link: https://lore.kernel.org/r/20201111131209.3977903-1-chris.brandt@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/futex.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -788,8 +788,9 @@ static void put_pi_state(struct futex_pi
- 	 */
- 	if (pi_state->owner) {
- 		struct task_struct *owner;
-+		unsigned long flags;
- 
--		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
-+		raw_spin_lock_irqsave(&pi_state->pi_mutex.wait_lock, flags);
- 		owner = pi_state->owner;
- 		if (owner) {
- 			raw_spin_lock(&owner->pi_lock);
-@@ -797,7 +798,7 @@ static void put_pi_state(struct futex_pi
- 			raw_spin_unlock(&owner->pi_lock);
- 		}
- 		rt_mutex_proxy_unlock(&pi_state->pi_mutex, owner);
--		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
-+		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
- 	}
- 
- 	if (current->pi_state_cache) {
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1706,6 +1706,15 @@ static const struct usb_device_id acm_id
+ 	{ USB_DEVICE(0x0870, 0x0001), /* Metricom GS Modem */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
++	{ USB_DEVICE(0x045b, 0x023c),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x0248),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
++	{ USB_DEVICE(0x045b, 0x024D),	/* Renesas USB Download mode */
++	.driver_info = DISABLE_ECHO,	/* Don't echo banner */
++	},
+ 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
+ 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+ 	},
 
 
