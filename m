@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 543032B60A9
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F23E92B610C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgKQNLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:11:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
+        id S1729747AbgKQNPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:15:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729632AbgKQNLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:11:33 -0500
+        id S1729619AbgKQNPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:15:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C7B924199;
-        Tue, 17 Nov 2020 13:11:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51A5D2151B;
+        Tue, 17 Nov 2020 13:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618691;
-        bh=Bp4rcyCde0pKjllPFoIuPXalKtfRoGOYBLS0j1NhJPM=;
+        s=default; t=1605618911;
+        bh=OtI9tf6XW0TUEG9IyE0w34zCVQ3hCGoM5zEvrZjH3es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pY8qW0QP7XkhEm0PIJJ3xNxd4igSOejBIuF0Q/jzLWyEPPTflBkP13b2LE/AGZ9Uc
-         7ZORQrOKx7HMVVHQxjonTpUUFuMW8utJja+waiuBb6lrTYzkCPuJpxXUVdkou7Ntlj
-         txBf5dg8j2SNUBA7v0lslMgn4FxUZ0e70bGO19j0=
+        b=Dcz1FW8CRK+J/I+BZ+8ivdWCfJyqagQDKQodfp4yJwVXkmDc59jZR0dY1a/npUZ0O
+         nGy5+f3ciDFmDbI5MiKU7JPf0b8WAKL2dN06deZPo5nbIc6oKoQc6sAX+SzloG8hbr
+         FhS9T2hqt+YJ2iPS1xlDeFRi14HH+9nLV1wlcp2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Herms <oliver.peter.herms@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 53/78] IPv6: Set SIT tunnel hard_header_len to zero
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.14 50/85] futex: Dont enable IRQs unconditionally in put_pi_state()
 Date:   Tue, 17 Nov 2020 14:05:19 +0100
-Message-Id: <20201117122111.710207490@linuxfoundation.org>
+Message-Id: <20201117122113.485126150@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Herms <oliver.peter.herms@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8ef9ba4d666614497a057d09b0a6eafc1e34eadf ]
+commit 1e106aa3509b86738769775969822ffc1ec21bf4 upstream.
 
-Due to the legacy usage of hard_header_len for SIT tunnels while
-already using infrastructure from net/ipv4/ip_tunnel.c the
-calculation of the path MTU in tnl_update_pmtu is incorrect.
-This leads to unnecessary creation of MTU exceptions for any
-flow going over a SIT tunnel.
+The exit_pi_state_list() function calls put_pi_state() with IRQs disabled
+and is not expecting that IRQs will be enabled inside the function.
 
-As SIT tunnels do not have a header themsevles other than their
-transport (L3, L2) headers we're leaving hard_header_len set to zero
-as tnl_update_pmtu is already taking care of the transport headers
-sizes.
+Use the _irqsave() variant so that IRQs are restored to the original state
+instead of being enabled unconditionally.
 
-This will also help avoiding unnecessary IPv6 GC runs and spinlock
-contention seen when using SIT tunnels and for more than
-net.ipv6.route.gc_thresh flows.
-
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Oliver Herms <oliver.peter.herms@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20201103104133.GA1573211@tws
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 153fbd1226fb ("futex: Fix more put_pi_state() vs. exit_pi_state_list() races")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201106085205.GA1159983@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/sit.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1072,7 +1072,6 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+---
+ kernel/futex.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -862,8 +862,9 @@ static void put_pi_state(struct futex_pi
+ 	 */
+ 	if (pi_state->owner) {
+ 		struct task_struct *owner;
++		unsigned long flags;
  
--		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
- 		dev->mtu = tdev->mtu - t_hlen;
- 		if (dev->mtu < IPV6_MIN_MTU)
- 			dev->mtu = IPV6_MIN_MTU;
-@@ -1372,7 +1371,6 @@ static void ipip6_tunnel_setup(struct ne
- 	dev->destructor		= ipip6_dev_free;
+-		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
++		raw_spin_lock_irqsave(&pi_state->pi_mutex.wait_lock, flags);
+ 		owner = pi_state->owner;
+ 		if (owner) {
+ 			raw_spin_lock(&owner->pi_lock);
+@@ -871,7 +872,7 @@ static void put_pi_state(struct futex_pi
+ 			raw_spin_unlock(&owner->pi_lock);
+ 		}
+ 		rt_mutex_proxy_unlock(&pi_state->pi_mutex, owner);
+-		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
++		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
+ 	}
  
- 	dev->type		= ARPHRD_SIT;
--	dev->hard_header_len	= LL_MAX_HEADER + t_hlen;
- 	dev->mtu		= ETH_DATA_LEN - t_hlen;
- 	dev->flags		= IFF_NOARP;
- 	netif_keep_dst(dev);
+ 	if (current->pi_state_cache) {
 
 
