@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 619DE2B669A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 537CD2B669C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729693AbgKQOFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:05:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37954 "EHLO mail.kernel.org"
+        id S1728832AbgKQOFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:05:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729397AbgKQNJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:09:09 -0500
+        id S1729396AbgKQNJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:09:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08336246BB;
-        Tue, 17 Nov 2020 13:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE741246C0;
+        Tue, 17 Nov 2020 13:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618548;
-        bh=Y2DaeqbYpBoxbz9wwQxrvNwDl9ts4N0917dnWzVbMq4=;
+        s=default; t=1605618551;
+        bh=9k1GzaQskuGl5Gm1SQOBqk+VcyKLvXW2BgKdbA76bUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXIX6uK3PtyfSMN0Gqj+7CaV0pOWFh/3Bna6Qh1a2U3VyCQwQBEs7zGsz9PARQYDW
-         3VgcMElvK5L6lLwWK4Q7b9d5nGopig13CcDULUUR7Gtp1TyrQ57A8crnNakQRkrPF9
-         7ljkhYR6zt1k4kWVweESNDhWrXpxj+o0MRaHcvk4=
+        b=hNIcb1xfd1MAw4djjNs6JIPlMdtGXmCFDo+9lFTTLk4SoSdfzU+/r8duTrfxG75wh
+         kLnn5WDl68BPyuk0navJ5+pT4jCFbYsVWLEDte3v7Yetirh/7la1Q7WsL72hsnSQYs
+         M/K8lx4dL00xEMRou3YDrqYu5VAwo5/QGilv8dQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9f864abad79fae7c17e1@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 63/64] ext4: fix leaking sysfs kobject after failed mount
-Date:   Tue, 17 Nov 2020 14:05:26 +0100
-Message-Id: <20201117122109.291080896@linuxfoundation.org>
+        stable@vger.kernel.org, Boris Protopopov <pboris@amazon.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 64/64] Convert trailing spaces and periods in path components
+Date:   Tue, 17 Nov 2020 14:05:27 +0100
+Message-Id: <20201117122109.332079931@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
 References: <20201117122106.144800239@linuxfoundation.org>
@@ -45,40 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Boris Protopopov <pboris@amazon.com>
 
-commit cb8d53d2c97369029cc638c9274ac7be0a316c75 upstream.
+commit 57c176074057531b249cf522d90c22313fa74b0b upstream.
 
-ext4_unregister_sysfs() only deletes the kobject.  The reference to it
-needs to be put separately, like ext4_put_super() does.
+When converting trailing spaces and periods in paths, do so
+for every component of the path, not just the last component.
+If the conversion is not done for every path component, then
+subsequent operations in directories with trailing spaces or
+periods (e.g. create(), mkdir()) will fail with ENOENT. This
+is because on the server, the directory will have a special
+symbol in its name, and the client needs to provide the same.
 
-This addresses the syzbot report
-"memory leak in kobject_set_name_vargs (3)"
-(https://syzkaller.appspot.com/bug?extid=9f864abad79fae7c17e1).
-
-Reported-by: syzbot+9f864abad79fae7c17e1@syzkaller.appspotmail.com
-Fixes: 72ba74508b28 ("ext4: release sysfs kobject when failing to enable quotas on mount")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200922162456.93657-1-ebiggers@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Boris Protopopov <pboris@amazon.com>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4168,6 +4168,7 @@ cantfind_ext4:
- #ifdef CONFIG_QUOTA
- failed_mount8:
- 	ext4_unregister_sysfs(sb);
-+	kobject_put(&sbi->s_kobj);
- #endif
- failed_mount7:
- 	ext4_unregister_li_request(sb);
+---
+ fs/cifs/cifs_unicode.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -493,7 +493,13 @@ cifsConvertToUTF16(__le16 *target, const
+ 		else if (map_chars == SFM_MAP_UNI_RSVD) {
+ 			bool end_of_string;
+ 
+-			if (i == srclen - 1)
++			/**
++			 * Remap spaces and periods found at the end of every
++			 * component of the path. The special cases of '.' and
++			 * '..' do not need to be dealt with explicitly because
++			 * they are addressed in namei.c:link_path_walk().
++			 **/
++			if ((i == srclen - 1) || (source[i+1] == '\\'))
+ 				end_of_string = true;
+ 			else
+ 				end_of_string = false;
 
 
