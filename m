@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 098892B6268
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE0F2B61B0
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731413AbgKQN2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36484 "EHLO mail.kernel.org"
+        id S1729457AbgKQNVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:21:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731850AbgKQN2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:20 -0500
+        id S1730849AbgKQNVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:21:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5053C2078E;
-        Tue, 17 Nov 2020 13:28:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22EE320781;
+        Tue, 17 Nov 2020 13:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619699;
-        bh=TL2lcS7b5kDRO51BH6LpDeRhcUyOpSZFkFAQLct8zrU=;
+        s=default; t=1605619282;
+        bh=V+bMX9bLy9WydEL5j2bY3NL26LEAuj6uPzCzWy+Vkz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyBSEodIltpe6EyTTGuGSQEs1B1leXwzwlZ02i78TnCJAweEM3k4IIAcW9MEC1mCA
-         gVXQuOX64R/3ZiEM1OG4sdNpvfUubclP6klsZbfmvzgx695KuZHDhf0Lr887fL1hV9
-         7i7j2VFvj9q8hTxY138WT/ZfRTnBhKzyXOTbjouY=
+        b=RV31FxDW8DDiH5KvdBl1fs3cavhkJ6MNzKBuHTU7GEtVOrB+fuJDTA/mfpBUS4ssM
+         cHFsGKJ2s3kmrQV1aUAcuBNsuRLoT5RazAmERBi8shsahHa9JTLTRV1fg7JJHCjszr
+         SjIMY92JfJHdY/9bovaLBH+Ho80RUospMXSrWHTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 126/151] btrfs: fix potential overflow in cluster_pages_for_defrag on 32bit arch
-Date:   Tue, 17 Nov 2020 14:05:56 +0100
-Message-Id: <20201117122127.552114456@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 090/101] net/x25: Fix null-ptr-deref in x25_connect
+Date:   Tue, 17 Nov 2020 14:05:57 +0100
+Message-Id: <20201117122117.516605433@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Martin Schiller <ms@dev.tdt.de>
 
-commit a1fbc6750e212c5675a4e48d7f51d44607eb8756 upstream.
+[ Upstream commit 361182308766a265b6c521879b34302617a8c209 ]
 
-On 32-bit systems, this shift will overflow for files larger than 4GB as
-start_index is unsigned long while the calls to btrfs_delalloc_*_space
-expect u64.
+This fixes a regression for blocking connects introduced by commit
+4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect").
 
-CC: stable@vger.kernel.org # 4.4+
-Fixes: df480633b891 ("btrfs: extent-tree: Switch to new delalloc space reserve and release")
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ define the variable instead of repeating the shift ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+The x25->neighbour is already set to "NULL" by x25_disconnect() now,
+while a blocking connect is waiting in
+x25_wait_for_connection_establishment(). Therefore x25->neighbour must
+not be accessed here again and x25->state is also already set to
+X25_STATE_0 by x25_disconnect().
+
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Reviewed-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201109065449.9014-1-ms@dev.tdt.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
-
 ---
- fs/btrfs/ioctl.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/x25/af_x25.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1255,6 +1255,7 @@ static int cluster_pages_for_defrag(stru
- 	u64 page_start;
- 	u64 page_end;
- 	u64 page_cnt;
-+	u64 start = (u64)start_index << PAGE_SHIFT;
- 	int ret;
- 	int i;
- 	int i_done;
-@@ -1271,8 +1272,7 @@ static int cluster_pages_for_defrag(stru
- 	page_cnt = min_t(u64, (u64)num_pages, (u64)file_end - start_index + 1);
- 
- 	ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
--			start_index << PAGE_SHIFT,
--			page_cnt << PAGE_SHIFT);
-+			start, page_cnt << PAGE_SHIFT);
- 	if (ret)
- 		return ret;
- 	i_done = 0;
-@@ -1361,8 +1361,7 @@ again:
- 		btrfs_mod_outstanding_extents(BTRFS_I(inode), 1);
- 		spin_unlock(&BTRFS_I(inode)->lock);
- 		btrfs_delalloc_release_space(inode, data_reserved,
--				start_index << PAGE_SHIFT,
--				(page_cnt - i_done) << PAGE_SHIFT, true);
-+				start, (page_cnt - i_done) << PAGE_SHIFT, true);
- 	}
- 
- 
-@@ -1389,8 +1388,7 @@ out:
- 		put_page(pages[i]);
- 	}
- 	btrfs_delalloc_release_space(inode, data_reserved,
--			start_index << PAGE_SHIFT,
--			page_cnt << PAGE_SHIFT, true);
-+			start, page_cnt << PAGE_SHIFT, true);
- 	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
- 	extent_changeset_free(data_reserved);
- 	return ret;
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -824,7 +824,7 @@ static int x25_connect(struct socket *so
+ 	sock->state = SS_CONNECTED;
+ 	rc = 0;
+ out_put_neigh:
+-	if (rc) {
++	if (rc && x25->neighbour) {
+ 		read_lock_bh(&x25_list_lock);
+ 		x25_neigh_put(x25->neighbour);
+ 		x25->neighbour = NULL;
 
 
