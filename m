@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB432B697B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9411D2B697D
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 17:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbgKQQKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 11:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41528 "EHLO mail.kernel.org"
+        id S1725767AbgKQQKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 11:10:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725767AbgKQQKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 11:10:18 -0500
+        id S1726982AbgKQQKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 11:10:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C73F02463D;
-        Tue, 17 Nov 2020 16:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6F8524655;
+        Tue, 17 Nov 2020 16:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605629417;
+        s=default; t=1605629420;
         bh=j+J6Q8PPenbpavlCvu7NOpHFFTaf7EUG4Fhp6AZtewY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faqokhqVsc5zPWnFPAYdCWJmJrqI9nflE7IoywhulEG7h7XymzrP4g+NSPZvfbV+A
-         4vxPcRuDFc4EB9QpbVruqwyIKTXaplrdkpWWgySSwMotlB9MojuBjbEu3MJs6AMy8n
-         ZSSpbTK2jakbsK8vNfBN/kyw+4pBO5h8DVQqGrsM=
+        b=D6dBL6+0+NgnTLKnJdhbBDx1Mgq55gAWsAXffAF1Mc6sRoHSGs0Zx6FiW9LRhjsow
+         QMkvJiJDbdcMxWzP5I6Cqvv/nF+kV1S2fllDRet4AyXpv+ZgLs/pvgfrtpAho93OZW
+         AqIzEvTgYIgd0OxVSFnE/ZuKBnWDLdWAb1romrgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,13 +31,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alan Cox <alan@linux.intel.com>,
         Dave Airlie <airlied@redhat.com>,
         Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: [PATCH 4.4 38/64] drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
-Date:   Tue, 17 Nov 2020 14:05:01 +0100
-Message-Id: <20201117122108.042293389@linuxfoundation.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 4.9 49/78] drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
+Date:   Tue, 17 Nov 2020 14:05:15 +0100
+Message-Id: <20201117122111.510118976@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
