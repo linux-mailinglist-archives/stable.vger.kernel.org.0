@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBE02B61FE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8592B6018
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730991AbgKQNYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:24:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
+        id S1728548AbgKQNGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:06:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730386AbgKQNYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:24:20 -0500
+        id S1728524AbgKQNGW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:06:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F4FB2463D;
-        Tue, 17 Nov 2020 13:24:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3899221EB;
+        Tue, 17 Nov 2020 13:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619460;
-        bh=lCSQVerc+jJ4Piycr3n5lNXAN1aByZZN2bWhfq7Vax4=;
+        s=default; t=1605618382;
+        bh=Am6Fb1ha9CqL6Ygoc8p8yH7JyPN9dzWPlHGqqaIAKbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cl/6LlzEFPPexY0rETDLm0n0UESKBNsweui693MREW+SpMWx6Yx1DlmAF6Ui1lHBW
-         OJ71ufnLi34nm+osYR54ym16hdojkapdzafIM1BUSNvfoI3oksf8JMTz+f/QkuOL4r
-         nsXxn3NPFn/zQVm/SaPe/EtBUzOA2FHMzdQYEZSc=
+        b=N+aJkmLjecXjym0VpyTlQFZAhNTaLO8kQMy5oSZkDaNZwe3VA34xAy2TslJLc2qf1
+         5fc6hWFjpS5T0XROKlHOibJE1qhXOLYK+Q/El6bWqGyGmD8sLYoJ72UpXTbTTNN/aO
+         0KJ9v17l4rzRDFpSruD3vyNWmH+cLT97CeIggyfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/151] ASoC: cs42l51: manage mclk shutdown delay
+Subject: [PATCH 4.4 14/64] Btrfs: fix missing error return if writeback for extent buffer never started
 Date:   Tue, 17 Nov 2020 14:04:37 +0100
-Message-Id: <20201117122123.717745008@linuxfoundation.org>
+Message-Id: <20201117122106.835732234@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 20afe581c9b980848ad097c4d54dde9bec7593ef ]
+[ Upstream commit 0607eb1d452d45c5ac4c745a9e9e0d95152ea9d0 ]
 
-A delay must be introduced before the shutdown down of the mclk,
-as stated in CS42L51 datasheet. Otherwise the codec may
-produce some noise after the end of DAPM power down sequence.
-The delay between DAC and CLOCK_SUPPLY widgets is too short.
-Add a delay in mclk shutdown request to manage the shutdown delay
-explicitly. From experiments, at least 10ms delay is necessary.
-Set delay to 20ms as recommended in Documentation/timers/timers-howto.rst
-when using msleep().
+If lock_extent_buffer_for_io() fails, it returns a negative value, but its
+caller btree_write_cache_pages() ignores such error. This means that a
+call to flush_write_bio(), from lock_extent_buffer_for_io(), might have
+failed. We should make btree_write_cache_pages() notice such error values
+and stop immediatelly, making sure filemap_fdatawrite_range() returns an
+error to the transaction commit path. A failure from flush_write_bio()
+should also result in the endio callback end_bio_extent_buffer_writepage()
+being invoked, which sets the BTRFS_FS_*_ERR bits appropriately, so that
+there's no risk a transaction or log commit doesn't catch a writeback
+failure.
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Link: https://lore.kernel.org/r/20201020150109.482-1-olivier.moysan@st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l51.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ fs/btrfs/extent_io.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/codecs/cs42l51.c b/sound/soc/codecs/cs42l51.c
-index 55408c8fcb4e3..cdd7ae90c2b59 100644
---- a/sound/soc/codecs/cs42l51.c
-+++ b/sound/soc/codecs/cs42l51.c
-@@ -247,8 +247,28 @@ static const struct snd_soc_dapm_widget cs42l51_dapm_widgets[] = {
- 		&cs42l51_adcr_mux_controls),
- };
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 97a80238fdee3..b28bc7690d4b3 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4000,6 +4000,10 @@ int btree_write_cache_pages(struct address_space *mapping,
+ 			if (!ret) {
+ 				free_extent_buffer(eb);
+ 				continue;
++			} else if (ret < 0) {
++				done = 1;
++				free_extent_buffer(eb);
++				break;
+ 			}
  
-+static int mclk_event(struct snd_soc_dapm_widget *w,
-+		      struct snd_kcontrol *kcontrol, int event)
-+{
-+	struct snd_soc_component *comp = snd_soc_dapm_to_component(w->dapm);
-+	struct cs42l51_private *cs42l51 = snd_soc_component_get_drvdata(comp);
-+
-+	switch (event) {
-+	case SND_SOC_DAPM_PRE_PMU:
-+		return clk_prepare_enable(cs42l51->mclk_handle);
-+	case SND_SOC_DAPM_POST_PMD:
-+		/* Delay mclk shutdown to fulfill power-down sequence requirements */
-+		msleep(20);
-+		clk_disable_unprepare(cs42l51->mclk_handle);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct snd_soc_dapm_widget cs42l51_dapm_mclk_widgets[] = {
--	SND_SOC_DAPM_CLOCK_SUPPLY("MCLK")
-+	SND_SOC_DAPM_SUPPLY("MCLK", SND_SOC_NOPM, 0, 0, mclk_event,
-+			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
- };
- 
- static const struct snd_soc_dapm_route cs42l51_routes[] = {
+ 			ret = write_one_eb(eb, fs_info, wbc, &epd);
 -- 
 2.27.0
 
