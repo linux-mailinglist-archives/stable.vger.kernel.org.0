@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBE82B642A
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 172202B6360
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:39:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732964AbgKQNhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:37:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
+        id S1732974AbgKQNhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:37:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732464AbgKQNhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:37:32 -0500
+        id S1732969AbgKQNhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:37:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 835712468E;
-        Tue, 17 Nov 2020 13:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 844072469D;
+        Tue, 17 Nov 2020 13:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620252;
-        bh=wBCGJoC6DRausSoyvfuzZK2ihaMc0VAMnRmBzhpIhmo=;
+        s=default; t=1605620255;
+        bh=6ApJEoX/IvjqEPCeHzJNnAXX3VgpsxxHxzsC58U8le0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByMdVORj+H147NSHjVB/XpZDq7B47E727xQFlF27MiNo59bDeYjPhbo+5Rs1+t0o2
-         53nTYakHSig1p/eZbW4YsxuwFGxZnN4xMfFYr/wr8GeCzQJPavTRcRLx6ts+0p+gYM
-         qItF9zLliLXYQOsqVxI+9YgDek2/+Uc+ZoLWXu2w=
+        b=Sl7ke0ccRQ9XZYiNUzsz95EJ7JeS3trxmz0dHbeZ1MMOjvDnsDJPHPXW+p5ps5pDY
+         JkIGqZ5jPiHRPsS4hfe3MUT/nrlX9VWz4twr/7zpBrY5DOnsK6i/8ka+ZiTntmsgOA
+         VSDDxZqqJ+mIbY5mI58FxDZKvOwEBmP76FDmyypw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <zhang.lyra@gmail.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.9 127/255] mfd: sprd: Add wakeup capability for PMIC IRQ
-Date:   Tue, 17 Nov 2020 14:04:27 +0100
-Message-Id: <20201117122145.114280552@linuxfoundation.org>
+        stable@vger.kernel.org, Jamie McClymont <jamie@kwiius.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 128/255] pinctrl: intel: Fix 2 kOhm bias which is 833 Ohm
+Date:   Tue, 17 Nov 2020 14:04:28 +0100
+Message-Id: <20201117122145.162352736@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,80 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang7@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit a75bfc824a2d33f57ebdc003bfe6b7a9e11e9cb9 upstream.
+[ Upstream commit dd26209bc56886cacdbd828571e54a6bca251e55 ]
 
-When changing to use suspend-to-idle to save power, the PMIC irq can not
-wakeup the system due to lack of wakeup capability, which will cause
-the sub-irqs (such as power key) of the PMIC can not wake up the system.
-Thus we can add the wakeup capability for PMIC irq to solve this issue,
-as well as removing the IRQF_NO_SUSPEND flag to allow PMIC irq to be
-a wakeup source.
+2 kOhm bias was never an option in Intel GPIO hardware, the available
+matrix is:
 
-Reported-by: Chunyan Zhang <zhang.lyra@gmail.com>
-Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
-Tested-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	000	none
+	001	1 kOhm (if available)
+	010	5 kOhm
+	100	20 kOhm
 
+As easy to get the 3 resistors are gated separately and according to
+parallel circuits calculations we may get combinations of the above where
+the result is always strictly less than minimal resistance. Hence,
+additional values can be:
+
+	011	~833.3 Ohm
+	101	~952.4 Ohm
+	110	~4 kOhm
+	111	~800 Ohm
+
+That said, convert TERM definitions to be the bit masks to reflect the above.
+
+While at it, enable the same setting for pull down case.
+
+Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
+Cc: Jamie McClymont <jamie@kwiius.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/sprd-sc27xx-spi.c |   28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ drivers/pinctrl/intel/pinctrl-intel.c | 32 ++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
---- a/drivers/mfd/sprd-sc27xx-spi.c
-+++ b/drivers/mfd/sprd-sc27xx-spi.c
-@@ -189,7 +189,7 @@ static int sprd_pmic_probe(struct spi_de
- 		ddata->irqs[i].mask = BIT(i);
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index b64997b303e0c..b738b28239bd4 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -62,10 +62,10 @@
+ #define PADCFG1_TERM_UP			BIT(13)
+ #define PADCFG1_TERM_SHIFT		10
+ #define PADCFG1_TERM_MASK		GENMASK(12, 10)
+-#define PADCFG1_TERM_20K		4
+-#define PADCFG1_TERM_2K			3
+-#define PADCFG1_TERM_5K			2
+-#define PADCFG1_TERM_1K			1
++#define PADCFG1_TERM_20K		BIT(2)
++#define PADCFG1_TERM_5K			BIT(1)
++#define PADCFG1_TERM_1K			BIT(0)
++#define PADCFG1_TERM_833		(BIT(1) | BIT(0))
  
- 	ret = devm_regmap_add_irq_chip(&spi->dev, ddata->regmap, ddata->irq,
--				       IRQF_ONESHOT | IRQF_NO_SUSPEND, 0,
-+				       IRQF_ONESHOT, 0,
- 				       &ddata->irq_chip, &ddata->irq_data);
- 	if (ret) {
- 		dev_err(&spi->dev, "Failed to add PMIC irq chip %d\n", ret);
-@@ -202,9 +202,34 @@ static int sprd_pmic_probe(struct spi_de
- 		return ret;
- 	}
+ #define PADCFG2				0x008
+ #define PADCFG2_DEBEN			BIT(0)
+@@ -549,12 +549,12 @@ static int intel_config_get_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 			return -EINVAL;
  
-+	device_init_wakeup(&spi->dev, true);
- 	return 0;
- }
+ 		switch (term) {
++		case PADCFG1_TERM_833:
++			*arg = 833;
++			break;
+ 		case PADCFG1_TERM_1K:
+ 			*arg = 1000;
+ 			break;
+-		case PADCFG1_TERM_2K:
+-			*arg = 2000;
+-			break;
+ 		case PADCFG1_TERM_5K:
+ 			*arg = 5000;
+ 			break;
+@@ -570,6 +570,11 @@ static int intel_config_get_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 			return -EINVAL;
  
-+#ifdef CONFIG_PM_SLEEP
-+static int sprd_pmic_suspend(struct device *dev)
-+{
-+	struct sprd_pmic *ddata = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(ddata->irq);
-+
-+	return 0;
-+}
-+
-+static int sprd_pmic_resume(struct device *dev)
-+{
-+	struct sprd_pmic *ddata = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(ddata->irq);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(sprd_pmic_pm_ops, sprd_pmic_suspend, sprd_pmic_resume);
-+
- static const struct of_device_id sprd_pmic_match[] = {
- 	{ .compatible = "sprd,sc2731", .data = &sc2731_data },
- 	{},
-@@ -215,6 +240,7 @@ static struct spi_driver sprd_pmic_drive
- 	.driver = {
- 		.name = "sc27xx-pmic",
- 		.of_match_table = sprd_pmic_match,
-+		.pm = &sprd_pmic_pm_ops,
- 	},
- 	.probe = sprd_pmic_probe,
- };
+ 		switch (term) {
++		case PADCFG1_TERM_833:
++			if (!(community->features & PINCTRL_FEATURE_1K_PD))
++				return -EINVAL;
++			*arg = 833;
++			break;
+ 		case PADCFG1_TERM_1K:
+ 			if (!(community->features & PINCTRL_FEATURE_1K_PD))
+ 				return -EINVAL;
+@@ -685,12 +690,12 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 		case 5000:
+ 			value |= PADCFG1_TERM_5K << PADCFG1_TERM_SHIFT;
+ 			break;
+-		case 2000:
+-			value |= PADCFG1_TERM_2K << PADCFG1_TERM_SHIFT;
+-			break;
+ 		case 1000:
+ 			value |= PADCFG1_TERM_1K << PADCFG1_TERM_SHIFT;
+ 			break;
++		case 833:
++			value |= PADCFG1_TERM_833 << PADCFG1_TERM_SHIFT;
++			break;
+ 		default:
+ 			ret = -EINVAL;
+ 		}
+@@ -714,6 +719,13 @@ static int intel_config_set_pull(struct intel_pinctrl *pctrl, unsigned int pin,
+ 			}
+ 			value |= PADCFG1_TERM_1K << PADCFG1_TERM_SHIFT;
+ 			break;
++		case 833:
++			if (!(community->features & PINCTRL_FEATURE_1K_PD)) {
++				ret = -EINVAL;
++				break;
++			}
++			value |= PADCFG1_TERM_833 << PADCFG1_TERM_SHIFT;
++			break;
+ 		default:
+ 			ret = -EINVAL;
+ 		}
+-- 
+2.27.0
+
 
 
