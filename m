@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B0C2B617E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3AEF2B6235
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730288AbgKQNTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:19:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52460 "EHLO mail.kernel.org"
+        id S1730793AbgKQN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:26:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730410AbgKQNT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:28 -0500
+        id S1730959AbgKQN0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:26:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 580852225B;
-        Tue, 17 Nov 2020 13:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E0DC206D5;
+        Tue, 17 Nov 2020 13:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619167;
-        bh=0+4Gtq0gNsWkDRyxNOxCza59DIFNVcsnM5Gp3BHKyek=;
+        s=default; t=1605619583;
+        bh=ZiZ4IgdMoOWjO2OPHzsRuRDLUTgimNHjwbGZFbK4Udg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRkradwkNTouuWqT/pcerNWU26aht38vzDcexTe+vlCOhygx3/G4paONzvpSG6nMX
-         DPYLCLB02AQ6fODvSQpaLjpSpRN/o4lDHE2Y06ud88SVGE6LQeY7nERI1xVG793xNB
-         6SCs52EexXGQQJ5XBLgA9YnCsFImMVanaTkVGwFo=
+        b=eVD/ANB+ndh/X7vhvq1TKMr4bqqrzjBDDe4VUNhN/LMQ/1FFfu4pEhe14BfIGrUT3
+         zfHNQQtFmC0ot6lSSuvWcvD7rn4MVkrR5OG5OKv7+2CkNE+wjRuROgr2z0nCtjHYTH
+         QqtXZr26EjZtjUL9onXDqBJoO/jOAgojsepXTGjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +34,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Juraj Vijtiuk <juraj.vijtiuk@sartura.hr>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/101] ARM: 9019/1: kprobes: Avoid fortify_panic() when copying optprobe template
+Subject: [PATCH 5.4 088/151] ARM: 9019/1: kprobes: Avoid fortify_panic() when copying optprobe template
 Date:   Tue, 17 Nov 2020 14:05:18 +0100
-Message-Id: <20201117122115.582592806@linuxfoundation.org>
+Message-Id: <20201117122125.696799502@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -189,10 +189,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 20 insertions(+), 20 deletions(-)
 
 diff --git a/arch/arm/include/asm/kprobes.h b/arch/arm/include/asm/kprobes.h
-index 82290f212d8e7..e1eb662e0f9e0 100644
+index 213607a1f45c1..e26a278d301ab 100644
 --- a/arch/arm/include/asm/kprobes.h
 +++ b/arch/arm/include/asm/kprobes.h
-@@ -52,20 +52,20 @@ int kprobe_exceptions_notify(struct notifier_block *self,
+@@ -44,20 +44,20 @@ int kprobe_exceptions_notify(struct notifier_block *self,
  			     unsigned long val, void *data);
  
  /* optinsn template addresses */
@@ -225,10 +225,10 @@ index 82290f212d8e7..e1eb662e0f9e0 100644
  
  struct arch_optimized_insn {
 diff --git a/arch/arm/probes/kprobes/opt-arm.c b/arch/arm/probes/kprobes/opt-arm.c
-index 0dc23fc227ed2..cf08cb7267670 100644
+index 7a449df0b3591..c78180172120f 100644
 --- a/arch/arm/probes/kprobes/opt-arm.c
 +++ b/arch/arm/probes/kprobes/opt-arm.c
-@@ -98,21 +98,21 @@ asm (
+@@ -85,21 +85,21 @@ asm (
  			"optprobe_template_end:\n");
  
  #define TMPL_VAL_IDX \
@@ -258,7 +258,7 @@ index 0dc23fc227ed2..cf08cb7267670 100644
  
  /*
   * ARM can always optimize an instruction when using ARM ISA, except
-@@ -247,7 +247,7 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op, struct kprobe *or
+@@ -234,7 +234,7 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op, struct kprobe *or
  	}
  
  	/* Copy arch-dep-instance from template. */
