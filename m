@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739112B5FBA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E99A2B5FBC
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbgKQM55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:57:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55068 "EHLO mail.kernel.org"
+        id S1728792AbgKQM57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:57:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbgKQM54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:56 -0500
+        id S1728790AbgKQM56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0426D2225E;
-        Tue, 17 Nov 2020 12:57:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A922124654;
+        Tue, 17 Nov 2020 12:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617876;
-        bh=R4LWO04Ts5s9UfBFE1ucirvhHuqqdNVcbzsVK+aoODw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FNzNK5gwpwEX5Q+5PEm01pR7gVqg/K99W2KuVMIOiUIiwe9s4SlX3DjZBj7Iqdcp7
-         PfJqaVvnOd5WG4rjaq4RxbobWvtaTd58WcAX4bjmqU3iFQYmCnbTyGzGCwObhQuTpU
-         6nslcXjJnMS5BVByB8INcCrinH6M8aOt+z1/mdZY=
+        s=default; t=1605617877;
+        bh=0A66eNDJ2aZU+lf9L5muAqnCOkTKeAP0usRGZ3A0xHs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ddibk3dXNmY4Nj6u/Kh3p4V+EiNkUKAdB1hWmK4KP7WQXlF6plnGkVJXWWKp7l/mV
+         wqB2/IhSFsgssdiPpOUoCdyRvJPeWF4mTVhdv3yUGxg5doEF0XA6+4PaDh7dBi0yid
+         tSD1ka/sGcMcMh17PIjGaDhFQl2p6pB6iBXXaaLY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Kever Yang <kever.yang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 1/3] pinctrl: rockchip: enable gpio pclk for rockchip_gpio_to_irq
-Date:   Tue, 17 Nov 2020 07:57:51 -0500
-Message-Id: <20201117125753.600073-1-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Qian Cai <cai@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 2/3] arm64: psci: Avoid printing in cpu_psci_cpu_die()
+Date:   Tue, 17 Nov 2020 07:57:52 -0500
+Message-Id: <20201117125753.600073-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201117125753.600073-1-sashal@kernel.org>
+References: <20201117125753.600073-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,37 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianqun Xu <jay.xu@rock-chips.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 63fbf8013b2f6430754526ef9594f229c7219b1f ]
+[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
 
-There need to enable pclk_gpio when do irq_create_mapping, since it will
-do access to gpio controller.
+cpu_psci_cpu_die() is called in the context of the dying CPU, which
+will no longer be online or tracked by RCU. It is therefore not generally
+safe to call printk() if the PSCI "cpu off" request fails, so remove the
+pr_crit() invocation.
 
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Kever Yang<kever.yang@rock-chips.com>
-Link: https://lore.kernel.org/r/20201013063731.3618-3-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Qian Cai <cai@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/psci.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 5d6cf024ee9c8..26974973ecdde 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2547,7 +2547,9 @@ static int rockchip_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
- 	if (!bank->domain)
- 		return -ENXIO;
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index 3856d51c645b5..3ebb2a56e5f7b 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -69,7 +69,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
  
-+	clk_enable(bank->clk);
- 	virq = irq_create_mapping(bank->domain, offset);
-+	clk_disable(bank->clk);
+ static void cpu_psci_cpu_die(unsigned int cpu)
+ {
+-	int ret;
+ 	/*
+ 	 * There are no known implementations of PSCI actually using the
+ 	 * power state field, pass a sensible default for now.
+@@ -77,9 +76,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
+ 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
  
- 	return (virq) ? : -ENXIO;
+-	ret = psci_ops.cpu_off(state);
+-
+-	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++	psci_ops.cpu_off(state);
  }
+ 
+ static int cpu_psci_cpu_kill(unsigned int cpu)
 -- 
 2.27.0
 
