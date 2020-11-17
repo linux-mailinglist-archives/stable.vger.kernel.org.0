@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 056E42B6010
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA312B60F6
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbgKQNGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:06:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
+        id S1728955AbgKQNOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:14:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725747AbgKQNGK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:06:10 -0500
+        id S1730049AbgKQNOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:14:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22E96223C7;
-        Tue, 17 Nov 2020 13:06:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5C2124199;
+        Tue, 17 Nov 2020 13:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618369;
-        bh=46gzMgkM/rMhCRHomVeMogv0BDioIGD8e1ucSlOFFSw=;
+        s=default; t=1605618864;
+        bh=nDLzIC3PMwi5RFCptIFIID9du6F4ViMDbe2cyj0h2FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qjMuhaGPD0599rlXrf/1CLL2JLfj5qzY7kOVCakCuMtQ9HiDuF7MOvGQMQMcuuGe
-         mnH68s9lNpL1C3+XlmaL+bWzLuM2HZhvXVmUZHSqSv1Y0q45+6B3wUNKjKkv1zHiLw
-         ZgY2EOiM+uMFQay2/1ZFSSJQiVeIDwvjiGMqzyrU=
+        b=fE5NMp3W6PY9GqpjaKrIDI7LkKLIlTsow4zzjyODSYmK0KdAUH8osaqGl+Bhg6vpB
+         //M9wuJ9Vy7tPTu/kQKzKq9dm8Zc+A6MMmttZmCTDV+29VxVhmC9KZWRTo8fZAGAXd
+         TfXyEqKVS1c1rQMA9s4TlaWqPG65cVQ6+mYOnbSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/64] can: dev: __can_get_echo_skb(): fix real payload length return value for RTR frames
+        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 04/85] time: Prevent undefined behaviour in timespec64_to_ns()
 Date:   Tue, 17 Nov 2020 14:04:33 +0100
-Message-Id: <20201117122106.648247143@linuxfoundation.org>
+Message-Id: <20201117122111.239433205@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Zeng Tao <prime.zeng@hisilicon.com>
 
-[ Upstream commit ed3320cec279407a86bc4c72edc4a39eb49165ec ]
+[ Upstream commit cb47755725da7b90fecbb2aa82ac3b24a7adb89b ]
 
-The can_get_echo_skb() function returns the number of received bytes to
-be used for netdev statistics. In the case of RTR frames we get a valid
-(potential non-zero) data length value which has to be passed for further
-operations. But on the wire RTR frames have no payload length. Therefore
-the value to be used in the statistics has to be zero for RTR frames.
+UBSAN reports:
 
-Reported-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/r/20201020064443.80164-1-socketcan@hartkopp.net
-Fixes: cf5046b309b3 ("can: dev: let can_get_echo_skb() return dlc of CAN frame")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Undefined behaviour in ./include/linux/time64.h:127:27
+signed integer overflow:
+17179869187 * 1000000000 cannot be represented in type 'long long int'
+Call Trace:
+ timespec64_to_ns include/linux/time64.h:127 [inline]
+ set_cpu_itimer+0x65c/0x880 kernel/time/itimer.c:180
+ do_setitimer+0x8e/0x740 kernel/time/itimer.c:245
+ __x64_sys_setitimer+0x14c/0x2c0 kernel/time/itimer.c:336
+ do_syscall_64+0xa1/0x540 arch/x86/entry/common.c:295
+
+Commit bd40a175769d ("y2038: itimer: change implementation to timespec64")
+replaced the original conversion which handled time clamping correctly with
+timespec64_to_ns() which has no overflow protection.
+
+Fix it in timespec64_to_ns() as this is not necessarily limited to the
+usage in itimers.
+
+[ tglx: Added comment and adjusted the fixes tag ]
+
+Fixes: 361a3bf00582 ("time64: Add time64.h header and define struct timespec64")
+Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1598952616-6416-1-git-send-email-prime.zeng@hisilicon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/linux/time64.h | 4 ++++
+ kernel/time/itimer.c   | 4 ----
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 3c0f141262ad5..9579dae54af29 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -439,9 +439,13 @@ struct sk_buff *__can_get_echo_skb(struct net_device *dev, unsigned int idx, u8
- 		 */
- 		struct sk_buff *skb = priv->echo_skb[idx];
- 		struct canfd_frame *cf = (struct canfd_frame *)skb->data;
--		u8 len = cf->len;
- 
--		*len_ptr = len;
-+		/* get the real payload length for netdev statistics */
-+		if (cf->can_id & CAN_RTR_FLAG)
-+			*len_ptr = 0;
-+		else
-+			*len_ptr = cf->len;
+diff --git a/include/linux/time64.h b/include/linux/time64.h
+index ad33260618f76..99ab4a686c301 100644
+--- a/include/linux/time64.h
++++ b/include/linux/time64.h
+@@ -189,6 +189,10 @@ static inline bool timespec64_valid_strict(const struct timespec64 *ts)
+  */
+ static inline s64 timespec64_to_ns(const struct timespec64 *ts)
+ {
++	/* Prevent multiplication overflow */
++	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
++		return KTIME_MAX;
 +
- 		priv->echo_skb[idx] = NULL;
+ 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+ }
  
- 		return skb;
+diff --git a/kernel/time/itimer.c b/kernel/time/itimer.c
+index f26acef5d7b48..7f718565507b5 100644
+--- a/kernel/time/itimer.c
++++ b/kernel/time/itimer.c
+@@ -153,10 +153,6 @@ static void set_cpu_itimer(struct task_struct *tsk, unsigned int clock_id,
+ 	u64 oval, nval, ointerval, ninterval;
+ 	struct cpu_itimer *it = &tsk->signal->it[clock_id];
+ 
+-	/*
+-	 * Use the to_ktime conversion because that clamps the maximum
+-	 * value to KTIME_MAX and avoid multiplication overflows.
+-	 */
+ 	nval = ktime_to_ns(timeval_to_ktime(value->it_value));
+ 	ninterval = ktime_to_ns(timeval_to_ktime(value->it_interval));
+ 
 -- 
 2.27.0
 
