@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436F82B6130
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3715B2B604C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbgKQNQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:16:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S1729194AbgKQNH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730258AbgKQNQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:11 -0500
+        id S1729184AbgKQNHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF448221EB;
-        Tue, 17 Nov 2020 13:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 879DD246B7;
+        Tue, 17 Nov 2020 13:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618969;
-        bh=QYyaOXSd0eKMFSKWkG83c+g8K5KcFa/XwJ/YmR8wgiQ=;
+        s=default; t=1605618472;
+        bh=eWNWn+AGuG8OTjv+VXmOQg1wbrEteXh2hLk5bsjqabE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hnz+oliqHZ/ksY5mDkp48zV5Osmcv9CR4ma99JDQ76WNq/owsSCuraAwp+iHzM6/k
-         zhS9tPvFCfI6xr6pwpmxcX2LJ79SAeriJ9U4e16TdjmaY9rWv8vBhPnCDMtZ79b7YT
-         qRaPolMQpNHBmA/6k8Yr2mUD+kqbvFUW4WFO/cmw=
+        b=N0+MQYHPW3DzekwR9iCaDN1X9VKQM4CrqFbQ5J9+e1CqUjL2+bBhu1z29ktB9rFWz
+         jWS+VpH9xOYpDS/UPrshvk174j1WCAW0VUDgmmHChKyEpm8QoUArU9MWDPzumxWwjR
+         OSCfootjX78e5VqSbRcsBJTrQ6/ZgbkrWfS5ewhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/85] xfs: fix rmap key and record comparison functions
+        stable@vger.kernel.org, Mao Wenan <wenan.mao@linux.alibaba.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 45/64] net: Update window_clamp if SOCK_RCVBUF is set
 Date:   Tue, 17 Nov 2020 14:05:08 +0100
-Message-Id: <20201117122112.940725240@linuxfoundation.org>
+Message-Id: <20201117122108.388301388@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Mao Wenan <wenan.mao@linux.alibaba.com>
 
-[ Upstream commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f ]
+[ Upstream commit 909172a149749242990a6e64cb55d55460d4e417 ]
 
-Keys for extent interval records in the reverse mapping btree are
-supposed to be computed as follows:
+When net.ipv4.tcp_syncookies=1 and syn flood is happened,
+cookie_v4_check or cookie_v6_check tries to redo what
+tcp_v4_send_synack or tcp_v6_send_synack did,
+rsk_window_clamp will be changed if SOCK_RCVBUF is set,
+which will make rcv_wscale is different, the client
+still operates with initial window scale and can overshot
+granted window, the client use the initial scale but local
+server use new scale to advertise window value, and session
+work abnormally.
 
-(physical block, owner, fork, is_btree, is_unwritten, offset)
-
-This provides users the ability to look up a reverse mapping from a bmbt
-record -- start with the physical block; then if there are multiple
-records for the same block, move on to the owner; then the inode fork
-type; and so on to the file offset.
-
-However, the key comparison functions incorrectly remove the
-fork/btree/unwritten information that's encoded in the on-disk offset.
-This means that lookup comparisons are only done with:
-
-(physical block, owner, offset)
-
-This means that queries can return incorrect results.  On consistent
-filesystems this hasn't been an issue because blocks are never shared
-between forks or with bmbt blocks; and are never unwritten.  However,
-this bug means that online repair cannot always detect corruption in the
-key information in internal rmapbt nodes.
-
-Found by fuzzing keys[1].attrfork = ones on xfs/371.
-
-Fixes: 4b8ed67794fe ("xfs: add rmap btree operations")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e88c64f0a425 ("tcp: allow effective reduction of TCP's rcv-buffer via setsockopt")
+Signed-off-by: Mao Wenan <wenan.mao@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1604967391-123737-1-git-send-email-wenan.mao@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/ipv4/syncookies.c |    9 +++++++--
+ net/ipv6/syncookies.c |   10 ++++++++--
+ 2 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index 9d9c9192584c9..cd689d21d3af8 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -307,7 +307,7 @@ struct sock *cookie_v4_check(struct sock
+ 	__u32 cookie = ntohl(th->ack_seq) - 1;
+ 	struct sock *ret = sk;
+ 	struct request_sock *req;
+-	int mss;
++	int full_space, mss;
+ 	struct rtable *rt;
+ 	__u8 rcv_wscale;
+ 	struct flowi4 fl4;
+@@ -391,8 +391,13 @@ struct sock *cookie_v4_check(struct sock
  
--	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
--	y = rec->rm_offset;
-+	x = be64_to_cpu(kp->rm_offset);
-+	y = xfs_rmap_irec_offset_pack(rec);
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
+ 	/* Try to redo what tcp_v4_send_synack did. */
+ 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(&rt->dst, RTAX_WINDOW);
++	/* limit the window selection if the user enforce a smaller rx buffer */
++	full_space = tcp_full_space(sk);
++	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
++	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
++		req->rsk_window_clamp = full_space;
  
--	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
--	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
-+	x = be64_to_cpu(kp1->rm_offset);
-+	y = be64_to_cpu(kp2->rm_offset);
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -400,8 +400,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
--	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
-+	a = be64_to_cpu(k1->rmap.rm_offset);
-+	b = be64_to_cpu(k2->rmap.rm_offset);
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -430,8 +430,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
--	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
-+	a = be64_to_cpu(r1->rmap.rm_offset);
-+	b = be64_to_cpu(r2->rmap.rm_offset);
- 	if (a <= b)
- 		return 1;
- 	return 0;
--- 
-2.27.0
-
+-	tcp_select_initial_window(tcp_full_space(sk), req->mss,
++	tcp_select_initial_window(full_space, req->mss,
+ 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
+ 				  ireq->wscale_ok, &rcv_wscale,
+ 				  dst_metric(&rt->dst, RTAX_INITRWND));
+--- a/net/ipv6/syncookies.c
++++ b/net/ipv6/syncookies.c
+@@ -144,7 +144,7 @@ struct sock *cookie_v6_check(struct sock
+ 	__u32 cookie = ntohl(th->ack_seq) - 1;
+ 	struct sock *ret = sk;
+ 	struct request_sock *req;
+-	int mss;
++	int full_space, mss;
+ 	struct dst_entry *dst;
+ 	__u8 rcv_wscale;
+ 
+@@ -237,7 +237,13 @@ struct sock *cookie_v6_check(struct sock
+ 	}
+ 
+ 	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(dst, RTAX_WINDOW);
+-	tcp_select_initial_window(tcp_full_space(sk), req->mss,
++	/* limit the window selection if the user enforce a smaller rx buffer */
++	full_space = tcp_full_space(sk);
++	if (sk->sk_userlocks & SOCK_RCVBUF_LOCK &&
++	    (req->rsk_window_clamp > full_space || req->rsk_window_clamp == 0))
++		req->rsk_window_clamp = full_space;
++
++	tcp_select_initial_window(full_space, req->mss,
+ 				  &req->rsk_rcv_wnd, &req->rsk_window_clamp,
+ 				  ireq->wscale_ok, &rcv_wscale,
+ 				  dst_metric(dst, RTAX_INITRWND));
 
 
