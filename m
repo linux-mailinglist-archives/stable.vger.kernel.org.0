@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 322662B62BA
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D39BB2B651F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731758AbgKQNbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:31:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
+        id S1731992AbgKQNbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:31:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731985AbgKQNbB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:31:01 -0500
+        id S1731826AbgKQNbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:31:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93F4421534;
-        Tue, 17 Nov 2020 13:31:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 689E920781;
+        Tue, 17 Nov 2020 13:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619861;
-        bh=Qv1GtnLYsRs/mI8BegfDuJo+o+QaxNyOsF9ifAxrlXE=;
+        s=default; t=1605619864;
+        bh=6iPDGywv2BdeJXCuQXGiKLHy/KWmsTl3yxjvIAgIiTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kH68gCeCpFXOfXxqx7XLdoZAOjqFnges9WLWtwiQXVmjEPRqvbC63sD0OZr+ZnDMj
-         SpizWQS38lmed31lks2tcqny9WyVheOMkoClPC93bgS1sl6vbZjlop5pLZt10ZiIk/
-         1nE0CAsTO2qr/Y1nr7K1awA8SjlvM7ai8O6WGYUo=
+        b=an/o1ajrehJGbToV6JYSF1Qb7YZ7sagPnaRQ1vwMxGgoop0FY4pX0J8AlUXt2BHSZ
+         WvcARKjC35hMDWGBCM+jw8iDNTW5vZ2RADN3RbnMu/24BogZT9CLep1cnnRMJh3+6g
+         sog5FZDcH5zRgBXCmswQufuvzLAdPkj4gbvKWk64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 008/255] genirq: Let GENERIC_IRQ_IPI select IRQ_DOMAIN_HIERARCHY
-Date:   Tue, 17 Nov 2020 14:02:28 +0100
-Message-Id: <20201117122139.340794579@linuxfoundation.org>
+        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 009/255] hv_balloon: disable warning when floor reached
+Date:   Tue, 17 Nov 2020 14:02:29 +0100
+Message-Id: <20201117122139.389275270@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -42,35 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Olaf Hering <olaf@aepfle.de>
 
-[ Upstream commit 151a535171be6ff824a0a3875553ea38570f4c05 ]
+[ Upstream commit 2c3bd2a5c86fe744e8377733c5e511a5ca1e14f5 ]
 
-kernel/irq/ipi.c otherwise fails to compile if nothing else
-selects it.
+It is not an error if the host requests to balloon down, but the VM
+refuses to do so. Without this change a warning is logged in dmesg
+every five minutes.
 
-Fixes: 379b656446a3 ("genirq: Add GENERIC_IRQ_IPI Kconfig symbol")
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20201015101222.GA32747@amd
+Fixes:  b3bb97b8a49f3 ("Drivers: hv: balloon: Add logging for dynamic memory operations")
+
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20201008071216.16554-1-olaf@aepfle.de
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hv/hv_balloon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index 10a5aff4eecc8..164a031cfdb66 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -82,6 +82,7 @@ config IRQ_FASTEOI_HIERARCHY_HANDLERS
- # Generic IRQ IPI support
- config GENERIC_IRQ_IPI
- 	bool
-+	select IRQ_DOMAIN_HIERARCHY
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 32e3bc0aa665a..0f50295d02149 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -1275,7 +1275,7 @@ static void balloon_up(struct work_struct *dummy)
  
- # Generic MSI interrupt support
- config GENERIC_MSI_IRQ
+ 	/* Refuse to balloon below the floor. */
+ 	if (avail_pages < num_pages || avail_pages - num_pages < floor) {
+-		pr_warn("Balloon request will be partially fulfilled. %s\n",
++		pr_info("Balloon request will be partially fulfilled. %s\n",
+ 			avail_pages < num_pages ? "Not enough memory." :
+ 			"Balloon floor reached.");
+ 
 -- 
 2.27.0
 
