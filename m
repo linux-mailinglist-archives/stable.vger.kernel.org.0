@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D79332B61B6
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA632B613F
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730279AbgKQNVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55170 "EHLO mail.kernel.org"
+        id S1729782AbgKQNRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:17:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729547AbgKQNV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:29 -0500
+        id S1730529AbgKQNRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:17:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F804246AA;
-        Tue, 17 Nov 2020 13:21:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ABBF241A5;
+        Tue, 17 Nov 2020 13:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619289;
-        bh=dbXJ0Zy+kmRpVXWfClIgbeagYJ/fXBJ+8uR2hhV8kV4=;
+        s=default; t=1605619034;
+        bh=MMnO4sjRiKkTxWezw4rX+lA7iqfPOga9KpZqGnhN6KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+tHc/ckMPTO5D35W0rO606ALIMTglIuV0d1fq9srhhkFTEnBI80NvJ4uez3eCG7I
-         7emfmlwA2iAr5Tc3tCejOyTsvZvT3+A2E83iqC4NhqijbS63bOpXJPLVlZ1TSEN6G0
-         fiBUpjVtTGDMJuEKVUBp9MUQZYt6RVGCWvpOjKd4=
+        b=1ewpEWFTJ+bnQSKkDwmBTmY0J+rnas9whQb04OjJb7dbfW/7a2DFC7ioYpJPfjogr
+         L6q6jI2Mr6PQ+IwEkP8s63uIYcaqvPcsy2Wi6JUhuKdZQ5YeDuHQ7rvMeLYPWwCPUe
+         zTuUmNWjLHpSY32/PmZgIpjGe2DDTtWI21TA3a84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 074/101] ocfs2: initialize ip_next_orphan
-Date:   Tue, 17 Nov 2020 14:05:41 +0100
-Message-Id: <20201117122116.721172863@linuxfoundation.org>
+        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
+Subject: [PATCH 4.14 73/85] xen/blkback: use lateeoi irq binding
+Date:   Tue, 17 Nov 2020 14:05:42 +0100
+Message-Id: <20201117122114.618028230@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,93 +42,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wengang Wang <wen.gang.wang@oracle.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f5785283dd64867a711ca1fb1f5bb172f252ecdf upstream.
+commit 01263a1fabe30b4d542f34c7e2364a22587ddaf2 upstream.
 
-Though problem if found on a lower 4.1.12 kernel, I think upstream has
-same issue.
+In order to reduce the chance for the system becoming unresponsive due
+to event storms triggered by a misbehaving blkfront use the lateeoi
+irq binding for blkback and unmask the event channel only after
+processing all pending requests.
 
-In one node in the cluster, there is the following callback trace:
+As the thread processing requests is used to do purging work in regular
+intervals an EOI may be sent only after having received an event. If
+there was no pending I/O request flag the EOI as spurious.
 
-   # cat /proc/21473/stack
-   __ocfs2_cluster_lock.isra.36+0x336/0x9e0 [ocfs2]
-   ocfs2_inode_lock_full_nested+0x121/0x520 [ocfs2]
-   ocfs2_evict_inode+0x152/0x820 [ocfs2]
-   evict+0xae/0x1a0
-   iput+0x1c6/0x230
-   ocfs2_orphan_filldir+0x5d/0x100 [ocfs2]
-   ocfs2_dir_foreach_blk+0x490/0x4f0 [ocfs2]
-   ocfs2_dir_foreach+0x29/0x30 [ocfs2]
-   ocfs2_recover_orphans+0x1b6/0x9a0 [ocfs2]
-   ocfs2_complete_recovery+0x1de/0x5c0 [ocfs2]
-   process_one_work+0x169/0x4a0
-   worker_thread+0x5b/0x560
-   kthread+0xcb/0xf0
-   ret_from_fork+0x61/0x90
+This is part of XSA-332.
 
-The above stack is not reasonable, the final iput shouldn't happen in
-ocfs2_orphan_filldir() function.  Looking at the code,
-
-  2067         /* Skip inodes which are already added to recover list, since dio may
-  2068          * happen concurrently with unlink/rename */
-  2069         if (OCFS2_I(iter)->ip_next_orphan) {
-  2070                 iput(iter);
-  2071                 return 0;
-  2072         }
-  2073
-
-The logic thinks the inode is already in recover list on seeing
-ip_next_orphan is non-NULL, so it skip this inode after dropping a
-reference which incremented in ocfs2_iget().
-
-While, if the inode is already in recover list, it should have another
-reference and the iput() at line 2070 should not be the final iput
-(dropping the last reference).  So I don't think the inode is really in
-the recover list (no vmcore to confirm).
-
-Note that ocfs2_queue_orphans(), though not shown up in the call back
-trace, is holding cluster lock on the orphan directory when looking up
-for unlinked inodes.  The on disk inode eviction could involve a lot of
-IOs which may need long time to finish.  That means this node could hold
-the cluster lock for very long time, that can lead to the lock requests
-(from other nodes) to the orhpan directory hang for long time.
-
-Looking at more on ip_next_orphan, I found it's not initialized when
-allocating a new ocfs2_inode_info structure.
-
-This causes te reflink operations from some nodes hang for very long
-time waiting for the cluster lock on the orphan directory.
-
-Fix: initialize ip_next_orphan as NULL.
-
-Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201109171746.27884-1-wen.gang.wang@oracle.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/ocfs2/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/xen-blkback/blkback.c |   22 +++++++++++++++++-----
+ drivers/block/xen-blkback/xenbus.c  |    5 ++---
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -1747,6 +1747,7 @@ static void ocfs2_inode_init_once(void *
+--- a/drivers/block/xen-blkback/blkback.c
++++ b/drivers/block/xen-blkback/blkback.c
+@@ -183,7 +183,7 @@ static inline void shrink_free_pagepool(
  
- 	oi->ip_blkno = 0ULL;
- 	oi->ip_clusters = 0;
-+	oi->ip_next_orphan = NULL;
+ #define vaddr(page) ((unsigned long)pfn_to_kaddr(page_to_pfn(page)))
  
- 	ocfs2_resv_init_once(&oi->ip_la_data_resv);
+-static int do_block_io_op(struct xen_blkif_ring *ring);
++static int do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags);
+ static int dispatch_rw_block_io(struct xen_blkif_ring *ring,
+ 				struct blkif_request *req,
+ 				struct pending_req *pending_req);
+@@ -608,6 +608,8 @@ int xen_blkif_schedule(void *arg)
+ 	struct xen_vbd *vbd = &blkif->vbd;
+ 	unsigned long timeout;
+ 	int ret;
++	bool do_eoi;
++	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
  
+ 	set_freezable();
+ 	while (!kthread_should_stop()) {
+@@ -632,16 +634,23 @@ int xen_blkif_schedule(void *arg)
+ 		if (timeout == 0)
+ 			goto purge_gnt_list;
+ 
++		do_eoi = ring->waiting_reqs;
++
+ 		ring->waiting_reqs = 0;
+ 		smp_mb(); /* clear flag *before* checking for work */
+ 
+-		ret = do_block_io_op(ring);
++		ret = do_block_io_op(ring, &eoi_flags);
+ 		if (ret > 0)
+ 			ring->waiting_reqs = 1;
+ 		if (ret == -EACCES)
+ 			wait_event_interruptible(ring->shutdown_wq,
+ 						 kthread_should_stop());
+ 
++		if (do_eoi && !ring->waiting_reqs) {
++			xen_irq_lateeoi(ring->irq, eoi_flags);
++			eoi_flags |= XEN_EOI_FLAG_SPURIOUS;
++		}
++
+ purge_gnt_list:
+ 		if (blkif->vbd.feature_gnt_persistent &&
+ 		    time_after(jiffies, ring->next_lru)) {
+@@ -1114,7 +1123,7 @@ static void end_block_io_op(struct bio *
+  * and transmute  it to the block API to hand it over to the proper block disk.
+  */
+ static int
+-__do_block_io_op(struct xen_blkif_ring *ring)
++__do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
+ {
+ 	union blkif_back_rings *blk_rings = &ring->blk_rings;
+ 	struct blkif_request req;
+@@ -1137,6 +1146,9 @@ __do_block_io_op(struct xen_blkif_ring *
+ 		if (RING_REQUEST_CONS_OVERFLOW(&blk_rings->common, rc))
+ 			break;
+ 
++		/* We've seen a request, so clear spurious eoi flag. */
++		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
++
+ 		if (kthread_should_stop()) {
+ 			more_to_do = 1;
+ 			break;
+@@ -1195,13 +1207,13 @@ done:
+ }
+ 
+ static int
+-do_block_io_op(struct xen_blkif_ring *ring)
++do_block_io_op(struct xen_blkif_ring *ring, unsigned int *eoi_flags)
+ {
+ 	union blkif_back_rings *blk_rings = &ring->blk_rings;
+ 	int more_to_do;
+ 
+ 	do {
+-		more_to_do = __do_block_io_op(ring);
++		more_to_do = __do_block_io_op(ring, eoi_flags);
+ 		if (more_to_do)
+ 			break;
+ 
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -236,9 +236,8 @@ static int xen_blkif_map(struct xen_blki
+ 		BUG();
+ 	}
+ 
+-	err = bind_interdomain_evtchn_to_irqhandler(blkif->domid, evtchn,
+-						    xen_blkif_be_int, 0,
+-						    "blkif-backend", ring);
++	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(blkif->domid,
++			evtchn, xen_blkif_be_int, 0, "blkif-backend", ring);
+ 	if (err < 0) {
+ 		xenbus_unmap_ring_vfree(blkif->be->dev, ring->blk_ring);
+ 		ring->blk_rings.common.sring = NULL;
 
 
