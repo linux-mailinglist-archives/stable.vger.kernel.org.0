@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9BC2B60C0
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436F82B6130
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729835AbgKQNMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:12:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42494 "EHLO mail.kernel.org"
+        id S1729639AbgKQNQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:16:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729831AbgKQNMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:12:23 -0500
+        id S1730258AbgKQNQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:16:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78543241A5;
-        Tue, 17 Nov 2020 13:12:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF448221EB;
+        Tue, 17 Nov 2020 13:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618743;
-        bh=3eBINsAxBUz7D1g8ELnA1CBADrPi9le66HwZhBPZRHM=;
+        s=default; t=1605618969;
+        bh=QYyaOXSd0eKMFSKWkG83c+g8K5KcFa/XwJ/YmR8wgiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z75S9chjrlQXGxIyAobBUihC68pbMi8NJXRXIticnJKARnZOGSClawOr02Gn+Xrn3
-         UcRZ6OArh3PDwEm9wBXMjFStiTm/KJIZbp12IAuDlk2I8V5N6rtIRspn74oNzh/B/v
-         W3KpQkjU1xtDn1cCwFVPNg9OjAWzZwfqzPo67MpU=
+        b=Hnz+oliqHZ/ksY5mDkp48zV5Osmcv9CR4ma99JDQ76WNq/owsSCuraAwp+iHzM6/k
+         zhS9tPvFCfI6xr6pwpmxcX2LJ79SAeriJ9U4e16TdjmaY9rWv8vBhPnCDMtZ79b7YT
+         qRaPolMQpNHBmA/6k8Yr2mUD+kqbvFUW4WFO/cmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/78] perf: Fix get_recursion_context()
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/85] xfs: fix rmap key and record comparison functions
 Date:   Tue, 17 Nov 2020 14:05:08 +0100
-Message-Id: <20201117122111.167866630@linuxfoundation.org>
+Message-Id: <20201117122112.940725240@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit ce0f17fc93f63ee91428af10b7b2ddef38cd19e5 ]
+[ Upstream commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f ]
 
-One should use in_serving_softirq() to detect SoftIRQ context.
+Keys for extent interval records in the reverse mapping btree are
+supposed to be computed as follows:
 
-Fixes: 96f6d4444302 ("perf_counter: avoid recursion")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201030151955.120572175@infradead.org
+(physical block, owner, fork, is_btree, is_unwritten, offset)
+
+This provides users the ability to look up a reverse mapping from a bmbt
+record -- start with the physical block; then if there are multiple
+records for the same block, move on to the owner; then the inode fork
+type; and so on to the file offset.
+
+However, the key comparison functions incorrectly remove the
+fork/btree/unwritten information that's encoded in the on-disk offset.
+This means that lookup comparisons are only done with:
+
+(physical block, owner, offset)
+
+This means that queries can return incorrect results.  On consistent
+filesystems this hasn't been an issue because blocks are never shared
+between forks or with bmbt blocks; and are never unwritten.  However,
+this bug means that online repair cannot always detect corruption in the
+key information in internal rmapbt nodes.
+
+Found by fuzzing keys[1].attrfork = ones on xfs/371.
+
+Fixes: 4b8ed67794fe ("xfs: add rmap btree operations")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/internal.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/events/internal.h b/kernel/events/internal.h
-index 486fd78eb8d5e..c8c1c3db5d065 100644
---- a/kernel/events/internal.h
-+++ b/kernel/events/internal.h
-@@ -212,7 +212,7 @@ static inline int get_recursion_context(int *recursion)
- 		rctx = 3;
- 	else if (in_irq())
- 		rctx = 2;
--	else if (in_softirq())
-+	else if (in_serving_softirq())
- 		rctx = 1;
- 	else
- 		rctx = 0;
+diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
+index 9d9c9192584c9..cd689d21d3af8 100644
+--- a/fs/xfs/libxfs/xfs_rmap_btree.c
++++ b/fs/xfs/libxfs/xfs_rmap_btree.c
+@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
+ 	else if (y > x)
+ 		return -1;
+ 
+-	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
+-	y = rec->rm_offset;
++	x = be64_to_cpu(kp->rm_offset);
++	y = xfs_rmap_irec_offset_pack(rec);
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
+ 	else if (y > x)
+ 		return -1;
+ 
+-	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
+-	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
++	x = be64_to_cpu(kp1->rm_offset);
++	y = be64_to_cpu(kp2->rm_offset);
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -400,8 +400,8 @@ xfs_rmapbt_keys_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
+-	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
++	a = be64_to_cpu(k1->rmap.rm_offset);
++	b = be64_to_cpu(k2->rmap.rm_offset);
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+@@ -430,8 +430,8 @@ xfs_rmapbt_recs_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
+-	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
++	a = be64_to_cpu(r1->rmap.rm_offset);
++	b = be64_to_cpu(r2->rmap.rm_offset);
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
 -- 
 2.27.0
 
