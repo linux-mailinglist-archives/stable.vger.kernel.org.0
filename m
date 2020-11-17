@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C0E2B66C9
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A0C82B6643
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727202AbgKQOGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:06:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
+        id S1729796AbgKQNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbgKQNHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:42 -0500
+        id S1729755AbgKQNMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD25B246BE;
-        Tue, 17 Nov 2020 13:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37C81246BE;
+        Tue, 17 Nov 2020 13:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618460;
-        bh=BgUU6vuA4mdDWxDbHnZ3Iq/uuzNoZaKCqquELStN1Os=;
+        s=default; t=1605618731;
+        bh=lizyS5mrYNK43M9hHvR+yVuN3yY1CZ9vOn9/uUKHLHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbbJ/oljRrSjdkrWZ5RHFMx+x7dTCwiRaMZMI6NeDmwLblEGrburGwuFvEkUCIon3
-         LZaXsKhGZtHsWxBzrP1RNHaelyc0YXyG1n4muNkpl0ynELW4NQPsSWRCIJpS9vmyy5
-         gOhVU1yZNoc1QSgZtaE/7yWJcjRWzUKFrkoa57hw=
+        b=ZKbygzCk0aoi2ityZ7BqI/bkJL+L1YCCUigBylUpNaShT1acPpdaIKm4+498lONat
+         B1o5+FwASQ8SK4VXe3KlvPJzhXocbBtJTapALD9rqMgNCb+taHef7QLmkmakdNtmEE
+         AUixbQ+aE8Q1TWuhHBviF3RaN9JYqMmt1hHZGK98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliott Mitchell <ehem+xen@m5p.com>,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 4.4 41/64] swiotlb: fix "x86: Dont panic if can not alloc buffer for swiotlb"
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 38/78] xfs: fix rmap key and record comparison functions
 Date:   Tue, 17 Nov 2020 14:05:04 +0100
-Message-Id: <20201117122108.191850580@linuxfoundation.org>
+Message-Id: <20201117122110.966400393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit e9696d259d0fb5d239e8c28ca41089838ea76d13 upstream.
+[ Upstream commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f ]
 
-kernel/dma/swiotlb.c:swiotlb_init gets called first and tries to
-allocate a buffer for the swiotlb. It does so by calling
+Keys for extent interval records in the reverse mapping btree are
+supposed to be computed as follows:
 
-  memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
+(physical block, owner, fork, is_btree, is_unwritten, offset)
 
-If the allocation must fail, no_iotlb_memory is set.
+This provides users the ability to look up a reverse mapping from a bmbt
+record -- start with the physical block; then if there are multiple
+records for the same block, move on to the owner; then the inode fork
+type; and so on to the file offset.
 
-Later during initialization swiotlb-xen comes in
-(drivers/xen/swiotlb-xen.c:xen_swiotlb_init) and given that io_tlb_start
-is != 0, it thinks the memory is ready to use when actually it is not.
+However, the key comparison functions incorrectly remove the
+fork/btree/unwritten information that's encoded in the on-disk offset.
+This means that lookup comparisons are only done with:
 
-When the swiotlb is actually needed, swiotlb_tbl_map_single gets called
-and since no_iotlb_memory is set the kernel panics.
+(physical block, owner, offset)
 
-Instead, if swiotlb-xen.c:xen_swiotlb_init knew the swiotlb hadn't been
-initialized, it would do the initialization itself, which might still
-succeed.
+This means that queries can return incorrect results.  On consistent
+filesystems this hasn't been an issue because blocks are never shared
+between forks or with bmbt blocks; and are never unwritten.  However,
+this bug means that online repair cannot always detect corruption in the
+key information in internal rmapbt nodes.
 
-Fix the panic by setting io_tlb_start to 0 on swiotlb initialization
-failure, and also by setting no_iotlb_memory to false on swiotlb
-initialization success.
+Found by fuzzing keys[1].attrfork = ones on xfs/371.
 
-Fixes: ac2cbab21f31 ("x86: Don't panic if can not alloc buffer for swiotlb")
-
-Reported-by: Elliott Mitchell <ehem+xen@m5p.com>
-Tested-by: Elliott Mitchell <ehem+xen@m5p.com>
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Fixes: 4b8ed67794fe ("xfs: add rmap btree operations")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/swiotlb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -195,6 +195,7 @@ int __init swiotlb_init_with_tbl(char *t
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-+	no_iotlb_memory = false;
+diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
+index 33a28efc3085b..c5a24b80c7f72 100644
+--- a/fs/xfs/libxfs/xfs_rmap_btree.c
++++ b/fs/xfs/libxfs/xfs_rmap_btree.c
+@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
+ 	else if (y > x)
+ 		return -1;
  
- 	if (verbose)
- 		swiotlb_print_info();
-@@ -225,9 +226,11 @@ swiotlb_init(int verbose)
- 	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
- 		return;
+-	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
+-	y = rec->rm_offset;
++	x = be64_to_cpu(kp->rm_offset);
++	y = xfs_rmap_irec_offset_pack(rec);
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
+ 	else if (y > x)
+ 		return -1;
  
--	if (io_tlb_start)
-+	if (io_tlb_start) {
- 		memblock_free_early(io_tlb_start,
- 				    PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
-+		io_tlb_start = 0;
-+	}
- 	pr_warn("Cannot allocate buffer");
- 	no_iotlb_memory = true;
- }
-@@ -326,6 +329,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-+	no_iotlb_memory = false;
- 
- 	swiotlb_print_info();
- 
+-	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
+-	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
++	x = be64_to_cpu(kp1->rm_offset);
++	y = be64_to_cpu(kp2->rm_offset);
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -401,8 +401,8 @@ xfs_rmapbt_keys_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
+-	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
++	a = be64_to_cpu(k1->rmap.rm_offset);
++	b = be64_to_cpu(k2->rmap.rm_offset);
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+@@ -431,8 +431,8 @@ xfs_rmapbt_recs_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
+-	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
++	a = be64_to_cpu(r1->rmap.rm_offset);
++	b = be64_to_cpu(r2->rmap.rm_offset);
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+-- 
+2.27.0
+
 
 
