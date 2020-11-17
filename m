@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B78F2B6508
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:54:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5728B2B63AC
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731836AbgKQN2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:28:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
+        id S1732440AbgKQNkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:40:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731363AbgKQN2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:28:14 -0500
+        id S1732865AbgKQNk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:40:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3A8A20867;
-        Tue, 17 Nov 2020 13:28:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9227C2465E;
+        Tue, 17 Nov 2020 13:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619694;
+        s=default; t=1605620428;
         bh=OGgY/kIWvDjIWT+DURNWDYh9dKovl9W4SOXdaheQ+08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qheJwEJRPr/BUTl7zkG3feafE2dRCPNgaOhjEsN+J2gDnXhK3flpiDVzLSs12O+BH
-         D9YiLNXywKRHdJTgZ8MeR8pAhnmE5UXAgB/E+kjaMQQa/bbcAIxR1AI8T2e7e/QYWf
-         PMDnjzYKsPEye5dVN3ieGN61wZaFwAqYPunSXMT8=
+        b=rpcxYJiUFeiozOZOf197OavgJUu4+ox1r+XHB04QvouRQ9nlr2sQfAnni5A4r9dKM
+         fgw88c9CRZfJyZECfY49jBOOB0ThwyaHl1h/cEgozpR3wO2l75NKRBleg/GoE6td7b
+         uF7bcaQvKXO+taOJUjIdG3K87hTDDjAmP9ayz3dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Petr Mladek <pmladek@suse.com>,
         Robin Holt <robinmholt@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 124/151] reboot: fix overflow parsing reboot cpu number
-Date:   Tue, 17 Nov 2020 14:05:54 +0100
-Message-Id: <20201117122127.454716690@linuxfoundation.org>
+Subject: [PATCH 5.9 215/255] reboot: fix overflow parsing reboot cpu number
+Date:   Tue, 17 Nov 2020 14:05:55 +0100
+Message-Id: <20201117122149.401700929@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
-References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
