@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AFCF2B66C8
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1292B6644
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729154AbgKQNHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:07:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
+        id S1729807AbgKQNMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:12:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729146AbgKQNHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:44 -0500
+        id S1729764AbgKQNMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:12:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1FF4246B1;
-        Tue, 17 Nov 2020 13:07:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 171952225B;
+        Tue, 17 Nov 2020 13:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618463;
-        bh=AlUa/pbm+bH9N5PoR3Bw8w04rwDYAw9GVosdmUSpTPg=;
+        s=default; t=1605618734;
+        bh=ZBKmoD7p8Ctjgsx5ii8ldW5ckDqH58kbTErlQC9YB0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXTUARg78Ew83AeRd86zN1nOhx4M8U/MLzGGysndV0WMn3EzNXuEkRMQXwPlrf/ys
-         B3Ehh4wVXF0HFoHZEPJpWvU3/GsMZ47Qj2+diDtP9xKLuaq4hFFsq69OUCrsPVf4wR
-         fZfSdBoKUVg4RHh2gJr5+ONKq0oWMWBGXzhGFMSo=
+        b=fp9ZhINJJyNxruEU1X266NagZ2NnIe972csB2PBiyF22t8YL36XD2rmxPR6lEtpJC
+         lXz5bmAUSRkXqC8lq/Cb3updIDAHrAs2gc9jJfyNObQaxAoDSvVt35vwUg+PCmOtZi
+         EAg5884vqhzOBA0w/ANWOR+HKXTaPj/eTbfX8lD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Herms <oliver.peter.herms@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 42/64] IPv6: Set SIT tunnel hard_header_len to zero
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 39/78] xfs: fix a missing unlock on error in xfs_fs_map_blocks
 Date:   Tue, 17 Nov 2020 14:05:05 +0100
-Message-Id: <20201117122108.245226504@linuxfoundation.org>
+Message-Id: <20201117122111.016541568@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
+References: <20201117122109.116890262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Herms <oliver.peter.herms@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 8ef9ba4d666614497a057d09b0a6eafc1e34eadf ]
+[ Upstream commit 2bd3fa793aaa7e98b74e3653fdcc72fa753913b5 ]
 
-Due to the legacy usage of hard_header_len for SIT tunnels while
-already using infrastructure from net/ipv4/ip_tunnel.c the
-calculation of the path MTU in tnl_update_pmtu is incorrect.
-This leads to unnecessary creation of MTU exceptions for any
-flow going over a SIT tunnel.
+We also need to drop the iolock when invalidate_inode_pages2 fails, not
+only on all other error or successful cases.
 
-As SIT tunnels do not have a header themsevles other than their
-transport (L3, L2) headers we're leaving hard_header_len set to zero
-as tnl_update_pmtu is already taking care of the transport headers
-sizes.
-
-This will also help avoiding unnecessary IPv6 GC runs and spinlock
-contention seen when using SIT tunnels and for more than
-net.ipv6.route.gc_thresh flows.
-
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Oliver Herms <oliver.peter.herms@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20201103104133.GA1573211@tws
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 527851124d10 ("xfs: implement pNFS export operations")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/sit.c |    2 --
- 1 file changed, 2 deletions(-)
+ fs/xfs/xfs_pnfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1079,7 +1079,6 @@ static void ipip6_tunnel_bind_dev(struct
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
+index cecd37569ddb3..353bfe9c5cdd9 100644
+--- a/fs/xfs/xfs_pnfs.c
++++ b/fs/xfs/xfs_pnfs.c
+@@ -144,7 +144,7 @@ xfs_fs_map_blocks(
+ 		goto out_unlock;
+ 	error = invalidate_inode_pages2(inode->i_mapping);
+ 	if (WARN_ON_ONCE(error))
+-		return error;
++		goto out_unlock;
  
--		dev->hard_header_len = tdev->hard_header_len + sizeof(struct iphdr);
- 		dev->mtu = tdev->mtu - t_hlen;
- 		if (dev->mtu < IPV6_MIN_MTU)
- 			dev->mtu = IPV6_MIN_MTU;
-@@ -1371,7 +1370,6 @@ static void ipip6_tunnel_setup(struct ne
- 	dev->destructor		= ipip6_dev_free;
- 
- 	dev->type		= ARPHRD_SIT;
--	dev->hard_header_len	= LL_MAX_HEADER + t_hlen;
- 	dev->mtu		= ETH_DATA_LEN - t_hlen;
- 	dev->flags		= IFF_NOARP;
- 	netif_keep_dst(dev);
+ 	end_fsb = XFS_B_TO_FSB(mp, (xfs_ufsize_t)offset + length);
+ 	offset_fsb = XFS_B_TO_FSBT(mp, offset);
+-- 
+2.27.0
+
 
 
