@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE152B65AC
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D6C2B6452
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729891AbgKQNTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:19:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52530 "EHLO mail.kernel.org"
+        id S1732581AbgKQNpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:45:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730089AbgKQNTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:19:31 -0500
+        id S1732463AbgKQNim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:38:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23546241A6;
-        Tue, 17 Nov 2020 13:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31E0E2467D;
+        Tue, 17 Nov 2020 13:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619170;
-        bh=otGF3tFWRZuxgNpNpyVXE9oMqbgHk+Af2ftSH8muxbw=;
+        s=default; t=1605620321;
+        bh=6jaVK7/XoudamzTGUIujKzbiF0gIgM+0MvtYseH/cGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKtvbpaA8Ov02J8oEqWd1W/Z97AfMZ7VTUNfFTjLqZlywYgm+tQSvbiRMDdtYhiac
-         im9uUr9PHSrwglVMzvb5iEG3O2AHtUBBGjrBcHMEscxI75AnI0iQJ1X+yj+cynox2M
-         A5fZJziDSFttHfpaRKaafnf7iFGXLieMAQZ8QYpU=
+        b=OOzNmyE2kcrIE/hJKaC44ktBCEBllQnECVdQ1i5/cWbksbZK5klyM5ABrWsnQW3E1
+         muc4gxgDdPjPgLHDkqmpf4Zv2XmUSc0Us2pMlnVmkORCKZePk91X1bJXbluwSm41AZ
+         vne4m8DeK88pnKLhhXDlIwwRRSaMAJHUZyWtQ3Qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Billy Tsai <billy_tsai@aspeedtech.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/101] pinctrl: aspeed: Fix GPI only function problem.
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 179/255] nvme: fix incorrect behavior when BLKROSET is called by the user
 Date:   Tue, 17 Nov 2020 14:05:19 +0100
-Message-Id: <20201117122115.629811440@linuxfoundation.org>
+Message-Id: <20201117122147.640259511@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+References: <20201117122138.925150709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Billy Tsai <billy_tsai@aspeedtech.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 9b92f5c51e9a41352d665f6f956bd95085a56a83 ]
+[ Upstream commit 65c5a055b0d567b7e7639d942c0605da9cc54c5e ]
 
-Some gpio pin at aspeed soc is input only and the prefix name of these
-pin is "GPI" only.
-This patch fine-tune the condition of GPIO check from "GPIO" to "GPI"
-and it will fix the usage error of banks D and E in the AST2400/AST2500
-and banks T and U in the AST2600.
+The offending commit breaks BLKROSET ioctl because a device
+revalidation will blindly override BLKROSET setting. Hence,
+we remove the disk rw setting in case NVME_NS_ATTR_RO is cleared
+from by the controller.
 
-Fixes: 4d3d0e4272d8 ("pinctrl: Add core support for Aspeed SoCs")
-Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20201030055450.29613-1-billy_tsai@aspeedtech.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 1293477f4f32 ("nvme: set gendisk read only based on nsattr")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/aspeed/pinctrl-aspeed.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed.c b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-index aefe3c33dffd8..8dec302dc067a 100644
---- a/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-+++ b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-@@ -458,13 +458,14 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
- static bool aspeed_expr_is_gpio(const struct aspeed_sig_expr *expr)
- {
- 	/*
--	 * The signal type is GPIO if the signal name has "GPIO" as a prefix.
-+	 * The signal type is GPIO if the signal name has "GPI" as a prefix.
- 	 * strncmp (rather than strcmp) is used to implement the prefix
- 	 * requirement.
- 	 *
--	 * expr->signal might look like "GPIOT3" in the GPIO case.
-+	 * expr->signal might look like "GPIOB1" in the GPIO case.
-+	 * expr->signal might look like "GPIT0" in the GPI case.
- 	 */
--	return strncmp(expr->signal, "GPIO", 4) == 0;
-+	return strncmp(expr->signal, "GPI", 3) == 0;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index b130696b00592..349fba056cb65 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2064,8 +2064,6 @@ static void nvme_update_disk_info(struct gendisk *disk,
+ 
+ 	if (id->nsattr & NVME_NS_ATTR_RO)
+ 		set_disk_ro(disk, true);
+-	else
+-		set_disk_ro(disk, false);
  }
  
- static bool aspeed_gpio_in_exprs(const struct aspeed_sig_expr **exprs)
+ static inline bool nvme_first_scan(struct gendisk *disk)
 -- 
 2.27.0
 
