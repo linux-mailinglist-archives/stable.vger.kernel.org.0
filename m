@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D39792B6054
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F72A2B622E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729244AbgKQNIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:08:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36684 "EHLO mail.kernel.org"
+        id S1730177AbgKQN0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:26:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729242AbgKQNIL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:08:11 -0500
+        id S1731407AbgKQN0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:26:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15414238E6;
-        Tue, 17 Nov 2020 13:08:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E662B2464E;
+        Tue, 17 Nov 2020 13:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618490;
-        bh=cFm+X33idwFBFy3k9VmCTbLnVijn82oAwo+YDVz0Upk=;
+        s=default; t=1605619568;
+        bh=wEyukaOv6IIkdkpz+Z6uNIT4pecAvMCdfZeRtCH3gIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VoZkGbASsPu2rkn5bWMJ8LhQfgBjzSjoX0AFfUUiefoGdxaDsEDNHKkYPwiToD9Ko
-         dgvh3q/EGBPA1ukHEtIyKigHoi1LFHhz+WIq/glpiLvm+cxsJgdFkvq8GPThEIBbzg
-         aKmD+0WB9qLoROmrqJVnbHxdP3NE4BR4NdOtsduY=
+        b=jeynDCBQsisD0323SWw0ihIVRHsiTpW4t+P0/EWufFtbUsPk+F4FhRTy/2kW80NSn
+         +ysMC7jspzQ9uqZ9SyF1jvTMXWGgsH7Nm48uP+IiNlOp1G9o+yzqy0C48hY23Y4DlK
+         1aINGX5cevWIqa3ZaTzUiMp+kd5bUe7SuUMWGRBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.4 50/64] xen/events: fix race in evtchn_fifo_unmask()
+        stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 083/151] tpm_tis: Disable interrupts on ThinkPad T490s
 Date:   Tue, 17 Nov 2020 14:05:13 +0100
-Message-Id: <20201117122108.636669729@linuxfoundation.org>
+Message-Id: <20201117122125.458844797@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +47,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
 
-commit f01337197419b7e8a492e83089552b77d3b5fb90 upstream.
+[ Upstream commit b154ce11ead925de6a94feb3b0317fafeefa0ebc ]
 
-Unmasking a fifo event channel can result in unmasking it twice, once
-directly in the kernel and once via a hypercall in case the event was
-pending.
+There is a misconfiguration in the bios of the gpio pin used for the
+interrupt in the T490s. When interrupts are enabled in the tpm_tis
+driver code this results in an interrupt storm. This was initially
+reported when we attempted to enable the interrupt code in the tpm_tis
+driver, which previously wasn't setting a flag to enable it. Due to
+the reports of the interrupt storm that code was reverted and we went back
+to polling instead of using interrupts. Now that we know the T490s problem
+is a firmware issue, add code to check if the system is a T490s and
+disable interrupts if that is the case. This will allow us to enable
+interrupts for everyone else. If the user has a fixed bios they can
+force the enabling of interrupts with tpm_tis.interrupts=1 on the
+kernel command line.
 
-Fix that by doing the local unmask only if the event is not pending.
-
-This is part of XSA-332.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Peter Huewe <peterhuewe@gmx.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_fifo.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/char/tpm/tpm_tis.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/events/events_fifo.c
-+++ b/drivers/xen/events/events_fifo.c
-@@ -227,19 +227,25 @@ static bool evtchn_fifo_is_masked(unsign
- 	return sync_test_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
+diff --git a/drivers/char/tpm/tpm_tis.c b/drivers/char/tpm/tpm_tis.c
+index e7df342a317d6..c722e3b3121a8 100644
+--- a/drivers/char/tpm/tpm_tis.c
++++ b/drivers/char/tpm/tpm_tis.c
+@@ -27,6 +27,7 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/kernel.h>
++#include <linux/dmi.h>
+ #include "tpm.h"
+ #include "tpm_tis_core.h"
+ 
+@@ -49,8 +50,8 @@ static inline struct tpm_tis_tcg_phy *to_tpm_tis_tcg_phy(struct tpm_tis_data *da
+ 	return container_of(data, struct tpm_tis_tcg_phy, priv);
  }
- /*
-- * Clear MASKED, spinning if BUSY is set.
-+ * Clear MASKED if not PENDING, spinning if BUSY is set.
-+ * Return true if mask was cleared.
-  */
--static void clear_masked(volatile event_word_t *word)
-+static bool clear_masked_cond(volatile event_word_t *word)
+ 
+-static bool interrupts = true;
+-module_param(interrupts, bool, 0444);
++static int interrupts = -1;
++module_param(interrupts, int, 0444);
+ MODULE_PARM_DESC(interrupts, "Enable interrupts");
+ 
+ static bool itpm;
+@@ -63,6 +64,28 @@ module_param(force, bool, 0444);
+ MODULE_PARM_DESC(force, "Force device probe rather than using ACPI entry");
+ #endif
+ 
++static int tpm_tis_disable_irq(const struct dmi_system_id *d)
++{
++	if (interrupts == -1) {
++		pr_notice("tpm_tis: %s detected: disabling interrupts.\n", d->ident);
++		interrupts = 0;
++	}
++
++	return 0;
++}
++
++static const struct dmi_system_id tpm_tis_dmi_table[] = {
++	{
++		.callback = tpm_tis_disable_irq,
++		.ident = "ThinkPad T490s",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T490s"),
++		},
++	},
++	{}
++};
++
+ #if defined(CONFIG_PNP) && defined(CONFIG_ACPI)
+ static int has_hid(struct acpi_device *dev, const char *hid)
  {
- 	event_word_t new, old, w;
+@@ -192,6 +215,8 @@ static int tpm_tis_init(struct device *dev, struct tpm_info *tpm_info)
+ 	int irq = -1;
+ 	int rc;
  
- 	w = *word;
- 
- 	do {
-+		if (w & (1 << EVTCHN_FIFO_PENDING))
-+			return false;
++	dmi_check_system(tpm_tis_dmi_table);
 +
- 		old = w & ~(1 << EVTCHN_FIFO_BUSY);
- 		new = old & ~(1 << EVTCHN_FIFO_MASKED);
- 		w = sync_cmpxchg(word, old, new);
- 	} while (w != old);
-+
-+	return true;
- }
- 
- static void evtchn_fifo_unmask(unsigned port)
-@@ -248,8 +254,7 @@ static void evtchn_fifo_unmask(unsigned
- 
- 	BUG_ON(!irqs_disabled());
- 
--	clear_masked(word);
--	if (evtchn_fifo_is_pending(port)) {
-+	if (!clear_masked_cond(word)) {
- 		struct evtchn_unmask unmask = { .port = port };
- 		(void)HYPERVISOR_event_channel_op(EVTCHNOP_unmask, &unmask);
- 	}
+ 	rc = check_acpi_tpm2(dev);
+ 	if (rc)
+ 		return rc;
+-- 
+2.27.0
+
 
 
