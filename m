@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 843002B61CB
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D84A2B625C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730109AbgKQNVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:21:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
+        id S1731802AbgKQN2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730818AbgKQNVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:21:03 -0500
+        id S1731805AbgKQN17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:27:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDF12463D;
-        Tue, 17 Nov 2020 13:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5079A21534;
+        Tue, 17 Nov 2020 13:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619262;
-        bh=7TJI9x1N6grVWGoy/8MQdKRzW6ebTc/YANR99Xd3fSo=;
+        s=default; t=1605619679;
+        bh=VcNHHqSaJYmNCQPDLco1EsR+sXavt35C0hlamicYWlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gV8cEsZhkCplWunAlqd54wOKndbxVSLzIWUVy0Mhg5dQWr/OdY47iRiCP0rcdwXOO
-         2yt9+7eXZKgUeAhZfC8q5ZMWbU4BI2gsw30JS3vJeaqmSpyt1++C6gcjjf13rlO0U3
-         WIMX+HafX20Fnggig0Utv/iqkK3oLxAuZLuTLXhI=
+        b=k/WSLBCLeaywgVHZBiZM+FSTo1Ei1KFrRdSvpTrSt/53AchMbnvqngzFq1n5U4AvP
+         u7kYWCZG+sCM/u1qiOHAKRLHJcJ8rV3jwKT2Hu6Tu21p150WiZT2MMRyoLPL9pC725
+         O2KIUwbCRhSFWpDJCxK0fmd4IwwBXgcL5PFdTSv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Coiby Xu <coiby.xu@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 083/101] pinctrl: amd: use higher precision for 512 RtcClk
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 120/151] futex: Dont enable IRQs unconditionally in put_pi_state()
 Date:   Tue, 17 Nov 2020 14:05:50 +0100
-Message-Id: <20201117122117.168880432@linuxfoundation.org>
+Message-Id: <20201117122127.259865139@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c64a6a0d4a928c63e5bc3b485552a8903a506c36 upstream.
+commit 1e106aa3509b86738769775969822ffc1ec21bf4 upstream.
 
-RTC is 32.768kHz thus 512 RtcClk equals 15625 usec. The documentation
-likely has dropped precision and that's why the driver mistakenly took
-the slightly deviated value.
+The exit_pi_state_list() function calls put_pi_state() with IRQs disabled
+and is not expecting that IRQs will be enabled inside the function.
 
+Use the _irqsave() variant so that IRQs are restored to the original state
+instead of being enabled unconditionally.
+
+Fixes: 153fbd1226fb ("futex: Fix more put_pi_state() vs. exit_pi_state_list() races")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Reported-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/linux-gpio/2f4706a1-502f-75f0-9596-cc25b4933b6c@redhat.com/
-Link: https://lore.kernel.org/r/20201105231912.69527-3-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20201106085205.GA1159983@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/futex.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -157,7 +157,7 @@ static int amd_gpio_set_debounce(struct
- 			pin_reg |= BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg &= ~BIT(DB_TMR_LARGE_OFF);
- 		} else if (debounce < 250000) {
--			time = debounce / 15600;
-+			time = debounce / 15625;
- 			pin_reg |= time & DB_TMR_OUT_MASK;
- 			pin_reg &= ~BIT(DB_TMR_OUT_UNIT_OFF);
- 			pin_reg |= BIT(DB_TMR_LARGE_OFF);
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -880,8 +880,9 @@ static void put_pi_state(struct futex_pi
+ 	 */
+ 	if (pi_state->owner) {
+ 		struct task_struct *owner;
++		unsigned long flags;
+ 
+-		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
++		raw_spin_lock_irqsave(&pi_state->pi_mutex.wait_lock, flags);
+ 		owner = pi_state->owner;
+ 		if (owner) {
+ 			raw_spin_lock(&owner->pi_lock);
+@@ -889,7 +890,7 @@ static void put_pi_state(struct futex_pi
+ 			raw_spin_unlock(&owner->pi_lock);
+ 		}
+ 		rt_mutex_proxy_unlock(&pi_state->pi_mutex, owner);
+-		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
++		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
+ 	}
+ 
+ 	if (current->pi_state_cache) {
 
 
