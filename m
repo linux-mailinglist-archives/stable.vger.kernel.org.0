@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BEC12B6128
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1213C2B6195
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730290AbgKQNQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:16:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
+        id S1730762AbgKQNU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:20:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729505AbgKQNQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:15 -0500
+        id S1730745AbgKQNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B457C2151B;
-        Tue, 17 Nov 2020 13:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E7AC206D5;
+        Tue, 17 Nov 2020 13:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618975;
-        bh=i1ldFHBKYHtg3JHHz1Tz+b5dbxYVY1DiiT30kpGx7PI=;
+        s=default; t=1605619228;
+        bh=Ejy93RLnNmUphyjzU+ljQMEPhyJJaHefgobGx91pGyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ym0a9jDGHgvV59gT7NcdYRHn8G8FHgPRfMH9NsxKn7pF0gtNXzT+o8IwhBHNxCDlk
-         GFIy1lpLLEV0gyF0aTNFl9WFP63HBPFrwscfEr42PokxEtgfOcGt2Hwy5ZKy3/QwAU
-         7feup8qJqNoNpngpk5+rnXzEou7pGCfVuWTuHslQ=
+        b=1MoptByzGaCdUxAZXEPG9pA0Tmg1h6Q+MCHvc4vl4PkQU2qDDACqPYpptQiiLcOVq
+         CRISpVgtNCDnD32BUEtqs8BevsyRnnBi8Y3BnkZ6JHFatOKneuJe+Hp20LQ+L34WTa
+         NvhmZJdbVcN/AI9E1N8+EWzNLgJrahfWa2jyK7UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/85] of/address: Fix of_node memory leak in of_dma_is_coherent
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 043/101] iommu/amd: Increase interrupt remapping table limit to 512 entries
 Date:   Tue, 17 Nov 2020 14:05:10 +0100
-Message-Id: <20201117122113.030990829@linuxfoundation.org>
+Message-Id: <20201117122115.191217891@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit a5bea04fcc0b3c0aec71ee1fd58fd4ff7ee36177 ]
+[ Upstream commit 73db2fc595f358460ce32bcaa3be1f0cce4a2db1 ]
 
-Commit dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on
-powerpc") added a check to of_dma_is_coherent which returns early
-if OF_DMA_DEFAULT_COHERENT is enabled. This results in the of_node_put()
-being skipped causing a memory leak. Moved the of_node_get() below this
-check so we now we only get the node if OF_DMA_DEFAULT_COHERENT is not
-enabled.
+Certain device drivers allocate IO queues on a per-cpu basis.
+On AMD EPYC platform, which can support up-to 256 cpu threads,
+this can exceed the current MAX_IRQ_PER_TABLE limit of 256,
+and result in the error message:
 
-Fixes: dabf6b36b83a ("of: Add OF_DMA_DEFAULT_COHERENT & select it on powerpc")
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20201110022825.30895-1-evan.nimmo@alliedtelesis.co.nz
-Signed-off-by: Rob Herring <robh@kernel.org>
+    AMD-Vi: Failed to allocate IRTE
+
+This has been observed with certain NVME devices.
+
+AMD IOMMU hardware can actually support upto 512 interrupt
+remapping table entries. Therefore, update the driver to
+match the hardware limit.
+
+Please note that this also increases the size of interrupt remapping
+table to 8KB per device when using the 128-bit IRTE format.
+
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20201015025002.87997-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/address.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_types.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/address.c b/drivers/of/address.c
-index 456339c19aed7..94f4ff22044f6 100644
---- a/drivers/of/address.c
-+++ b/drivers/of/address.c
-@@ -899,11 +899,13 @@ EXPORT_SYMBOL_GPL(of_dma_get_range);
-  */
- bool of_dma_is_coherent(struct device_node *np)
- {
--	struct device_node *node = of_node_get(np);
-+	struct device_node *node;
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index 859b06424e5c4..df6f3cc958e5e 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -410,7 +410,11 @@ extern bool amd_iommu_np_cache;
+ /* Only true if all IOMMUs support device IOTLBs */
+ extern bool amd_iommu_iotlb_sup;
  
- 	if (IS_ENABLED(CONFIG_OF_DMA_DEFAULT_COHERENT))
- 		return true;
+-#define MAX_IRQS_PER_TABLE	256
++/*
++ * AMD IOMMU hardware only support 512 IRTEs despite
++ * the architectural limitation of 2048 entries.
++ */
++#define MAX_IRQS_PER_TABLE	512
+ #define IRQ_TABLE_ALIGNMENT	128
  
-+	node = of_node_get(np);
-+
- 	while (node) {
- 		if (of_property_read_bool(node, "dma-coherent")) {
- 			of_node_put(node);
+ struct irq_remap_table {
 -- 
 2.27.0
 
