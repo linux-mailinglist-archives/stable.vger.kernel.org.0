@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0227B2B6138
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 808E42B6278
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:29:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbgKQNRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:17:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49138 "EHLO mail.kernel.org"
+        id S1731505AbgKQN2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729782AbgKQNQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:16:58 -0500
+        id S1731490AbgKQN2t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:28:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85C13206D5;
-        Tue, 17 Nov 2020 13:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6268A246A7;
+        Tue, 17 Nov 2020 13:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619018;
-        bh=Ath5HiLb+Ur+ryUqN182/0Y5RZXzARERCr1b6+NLivk=;
+        s=default; t=1605619729;
+        bh=in0yQTyKBoC2KCTG+bgnuMIlQl8ZnK7UvkNW33axBss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVzFVRAg3v5gRWCpAVfA0S1Gza/3UZYHhwFUGTvhyQnBJhx0kjRDsYyFmwOOOSsvA
-         KIr8xerQNPMi27RKXThzTVg2y34qeJoax+rna2AyNZgVR2MWA22vbwqy5XNOZqpBLu
-         2GezHcfR4c1H3l5kLhSdcp3kJMFThkLND+KMqfRs=
+        b=NNdKgH9+jpTEtPYghVPRITkpKjvhBKkpO/n7JNGeJ9NHK6bl4Fk7drbcediF8QAUX
+         anQQr7jiKxU+Un8BGyWgbbA81zPAFduvSkillrlIpAbbEyIxZ8AfAQlWArnfaVzlPj
+         3B1x/R6tpQboX9a8FNvkdA5nsFkzd7oQy11kXsjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
-        Anthony Liguori <aliguori@amazon.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 68/85] perf/core: Fix a memory leak in perf_event_parse_addr_filter()
+        stable@vger.kernel.org, Kaixu Xia <kaixuxia@tencent.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 107/151] ext4: correctly report "not supported" for {usr,grp}jquota when !CONFIG_QUOTA
 Date:   Tue, 17 Nov 2020 14:05:37 +0100
-Message-Id: <20201117122114.364908010@linuxfoundation.org>
+Message-Id: <20201117122126.627951265@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
-References: <20201117122111.018425544@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
+References: <20201117122121.381905960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "kiyin(尹亮)" <kiyin@tencent.com>
+From: Kaixu Xia <kaixuxia@tencent.com>
 
-commit 7bdb157cdebbf95a1cd94ed2e01b338714075d00 upstream
+commit 174fe5ba2d1ea0d6c5ab2a7d4aa058d6d497ae4d upstream.
 
-As shown through runtime testing, the "filename" allocation is not
-always freed in perf_event_parse_addr_filter().
+The macro MOPT_Q is used to indicates the mount option is related to
+quota stuff and is defined to be MOPT_NOSUPPORT when CONFIG_QUOTA is
+disabled.  Normally the quota options are handled explicitly, so it
+didn't matter that the MOPT_STRING flag was missing, even though the
+usrjquota and grpjquota mount options take a string argument.  It's
+important that's present in the !CONFIG_QUOTA case, since without
+MOPT_STRING, the mount option matcher will match usrjquota= followed
+by an integer, and will otherwise skip the table entry, and so "mount
+option not supported" error message is never reported.
 
-There are three possible ways that this could happen:
+[ Fixed up the commit description to better explain why the fix
+  works. --TYT ]
 
- - It could be allocated twice on subsequent iterations through the loop,
- - or leaked on the success path,
- - or on the failure path.
-
-Clean up the code flow to make it obvious that 'filename' is always
-freed in the reallocation path and in the two return paths as well.
-
-We rely on the fact that kfree(NULL) is NOP and filename is initialized
-with NULL.
-
-This fixes the leak. No other side effects expected.
-
-[ Dan Carpenter: cleaned up the code flow & added a changelog. ]
-[ Ingo Molnar: updated the changelog some more. ]
-
-Fixes: 375637bc5249 ("perf/core: Introduce address range filtering")
-Signed-off-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Cc: Anthony Liguori <aliguori@amazon.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 26092bf52478 ("ext4: use a table-driven handler for mount options")
+Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
+Link: https://lore.kernel.org/r/1603986396-28917-1-git-send-email-kaixuxia@tencent.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/events/core.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -8581,6 +8581,7 @@ perf_event_parse_addr_filter(struct perf
- 			if (token == IF_SRC_FILE || token == IF_SRC_FILEADDR) {
- 				int fpos = filter->range ? 2 : 1;
- 
-+				kfree(filename);
- 				filename = match_strdup(&args[fpos]);
- 				if (!filename) {
- 					ret = -ENOMEM;
-@@ -8619,16 +8620,13 @@ perf_event_parse_addr_filter(struct perf
- 				 */
- 				ret = -EOPNOTSUPP;
- 				if (!event->ctx->task)
--					goto fail_free_name;
-+					goto fail;
- 
- 				/* look up the path and grab its inode */
- 				ret = kern_path(filename, LOOKUP_FOLLOW,
- 						&filter->path);
- 				if (ret)
--					goto fail_free_name;
--
--				kfree(filename);
--				filename = NULL;
-+					goto fail;
- 
- 				ret = -EINVAL;
- 				if (!filter->path.dentry ||
-@@ -8648,13 +8646,13 @@ perf_event_parse_addr_filter(struct perf
- 	if (state != IF_STATE_ACTION)
- 		goto fail;
- 
-+	kfree(filename);
- 	kfree(orig);
- 
- 	return 0;
- 
--fail_free_name:
--	kfree(filename);
- fail:
-+	kfree(filename);
- 	free_filters_list(filters);
- 	kfree(orig);
- 
+---
+ fs/ext4/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1756,8 +1756,8 @@ static const struct mount_opts {
+ 	{Opt_noquota, (EXT4_MOUNT_QUOTA | EXT4_MOUNT_USRQUOTA |
+ 		       EXT4_MOUNT_GRPQUOTA | EXT4_MOUNT_PRJQUOTA),
+ 							MOPT_CLEAR | MOPT_Q},
+-	{Opt_usrjquota, 0, MOPT_Q},
+-	{Opt_grpjquota, 0, MOPT_Q},
++	{Opt_usrjquota, 0, MOPT_Q | MOPT_STRING},
++	{Opt_grpjquota, 0, MOPT_Q | MOPT_STRING},
+ 	{Opt_offusrjquota, 0, MOPT_Q},
+ 	{Opt_offgrpjquota, 0, MOPT_Q},
+ 	{Opt_jqfmt_vfsold, QFMT_VFS_OLD, MOPT_QFMT},
 
 
