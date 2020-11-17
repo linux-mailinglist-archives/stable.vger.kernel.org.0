@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04692B6430
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 656222B65DF
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733051AbgKQNiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
+        id S1730615AbgKQN6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:58:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733045AbgKQNiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:38:17 -0500
+        id S1730785AbgKQNUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:20:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23484246AB;
-        Tue, 17 Nov 2020 13:38:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32EB9241A5;
+        Tue, 17 Nov 2020 13:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605620296;
-        bh=050kAai3rGkvt0932R2moPRhv1QradTBEV+TlPQtElA=;
+        s=default; t=1605619242;
+        bh=PcodkDpP7V/CMTki9gtGulfrSYLM8ULRbc0zlvUMfq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jNLsVseTVv2Bvv/WmJBtp4rgE354jndcxtvGSl9pzpvN8cuVzYMdBgEJvd7E7VhO
-         3WkZ3jnSH64aoIJ4keS04T/rzRNp2wab+QmWWiu47XgPxJVfVVkhcklCwY730Tvdzq
-         vZsJPRh1nZx/85EryWC+FDWemH0JIQBmNbl/vob4=
+        b=X0kRbkSEHIz16Pp9GbkxiVwg1oqg+0qxUFU+bdVfYMTbNL129+Nr+CVa0fr9yZgRQ
+         Yppc5Z9u3lUCgfjPc8+J/sfGUhCKxq9V6UEeM1orBB4V2Wvan2e+WkqptZhr9b5xII
+         S0JAmg8yB5wQH/1DYhBkFcqeTjuRvt5TN8bXbtBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Steven Price <steven.price@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 172/255] arm64/mm: Validate hotplug range before creating linear mapping
-Date:   Tue, 17 Nov 2020 14:05:12 +0100
-Message-Id: <20201117122147.296989748@linuxfoundation.org>
+Subject: [PATCH 4.19 046/101] selftests: proc: fix warning: _GNU_SOURCE redefined
+Date:   Tue, 17 Nov 2020 14:05:13 +0100
+Message-Id: <20201117122115.341648973@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
-References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
+References: <20201117122113.128215851@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,75 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Tommi Rantala <tommi.t.rantala@nokia.com>
 
-[ Upstream commit 58284a901b426e6130672e9f14c30dfd5a9dbde0 ]
+[ Upstream commit f3ae6c6e8a3ea49076d826c64e63ea78fbf9db43 ]
 
-During memory hotplug process, the linear mapping should not be created for
-a given memory range if that would fall outside the maximum allowed linear
-range. Else it might cause memory corruption in the kernel virtual space.
+Makefile already contains -D_GNU_SOURCE, so we can remove it from the
+*.c files.
 
-Maximum linear mapping region is [PAGE_OFFSET..(PAGE_END -1)] accommodating
-both its ends but excluding PAGE_END. Max physical range that can be mapped
-inside this linear mapping range, must also be derived from its end points.
-
-This ensures that arch_add_memory() validates memory hot add range for its
-potential linear mapping requirements, before creating it with
-__create_pgd_mapping().
-
-Fixes: 4ab215061554 ("arm64: Add memory hotplug support")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Steven Price <steven.price@arm.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/1605252614-761-1-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ tools/testing/selftests/proc/proc-loadavg-001.c  | 1 -
+ tools/testing/selftests/proc/proc-self-syscall.c | 1 -
+ tools/testing/selftests/proc/proc-uptime-002.c   | 1 -
+ 3 files changed, 3 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 75df62fea1b68..a834e7fb0e250 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1433,11 +1433,28 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
- }
- 
-+static bool inside_linear_region(u64 start, u64 size)
-+{
-+	/*
-+	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
-+	 * accommodating both its ends but excluding PAGE_END. Max physical
-+	 * range which can be mapped inside this linear mapping range, must
-+	 * also be derived from its end points.
-+	 */
-+	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
-+	       (start + size - 1) <= __pa(PAGE_END - 1);
-+}
-+
- int arch_add_memory(int nid, u64 start, u64 size,
- 		    struct mhp_params *params)
- {
- 	int ret, flags = 0;
- 
-+	if (!inside_linear_region(start, size)) {
-+		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
-+		return -EINVAL;
-+	}
-+
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
+diff --git a/tools/testing/selftests/proc/proc-loadavg-001.c b/tools/testing/selftests/proc/proc-loadavg-001.c
+index fcff7047000da..8edaafc2b92fd 100644
+--- a/tools/testing/selftests/proc/proc-loadavg-001.c
++++ b/tools/testing/selftests/proc/proc-loadavg-001.c
+@@ -14,7 +14,6 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ /* Test that /proc/loadavg correctly reports last pid in pid namespace. */
+-#define _GNU_SOURCE
+ #include <errno.h>
+ #include <sched.h>
+ #include <sys/types.h>
+diff --git a/tools/testing/selftests/proc/proc-self-syscall.c b/tools/testing/selftests/proc/proc-self-syscall.c
+index 5ab5f4810e43a..7b9018fad092a 100644
+--- a/tools/testing/selftests/proc/proc-self-syscall.c
++++ b/tools/testing/selftests/proc/proc-self-syscall.c
+@@ -13,7 +13,6 @@
+  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+-#define _GNU_SOURCE
+ #include <unistd.h>
+ #include <sys/syscall.h>
+ #include <sys/types.h>
+diff --git a/tools/testing/selftests/proc/proc-uptime-002.c b/tools/testing/selftests/proc/proc-uptime-002.c
+index 30e2b78490898..e7ceabed7f51f 100644
+--- a/tools/testing/selftests/proc/proc-uptime-002.c
++++ b/tools/testing/selftests/proc/proc-uptime-002.c
+@@ -15,7 +15,6 @@
+  */
+ // Test that values in /proc/uptime increment monotonically
+ // while shifting across CPUs.
+-#define _GNU_SOURCE
+ #undef NDEBUG
+ #include <assert.h>
+ #include <unistd.h>
 -- 
 2.27.0
 
