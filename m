@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 593242B6714
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A812B66BE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbgKQOIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:08:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33972 "EHLO mail.kernel.org"
+        id S1729064AbgKQNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729040AbgKQNHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:07:09 -0500
+        id S1729049AbgKQNHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6922324699;
-        Tue, 17 Nov 2020 13:07:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51857238E6;
+        Tue, 17 Nov 2020 13:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618429;
-        bh=JHNdDcUV7C1fSr2AwcaX6HSFVrEmQGBcn2lpYiArMUM=;
+        s=default; t=1605618432;
+        bh=p9hJcTdvbLBKqRSXaDGEvRcj6/IL7wt9LyUGpGxH4Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+yK1rUqmFqMzSbPnvK0VtygNByBBhqFVHzBq5xoU3DoGhxnZR1qzfTvDPEAGtWX5
-         kv1lc307iWvAVpPbxfp4StJ4/Z+W+6NAkFEGouC1iIsfryQbWupKMTXXKn7E6s7U33
-         YV+JRqXFsNYB3xx7XTbDumA0Y3XwRPmUDb0XaOqA=
+        b=UxMkFUzd1msAYFowQ00zptxF6mytFhZN8YC7rqrNHXMkQACZPBxjf8nC4Lk7cdLqJ
+         pq7usfyzUWUAtLZxl+UImgRkFvH7O8qgOW8xzTTCCZPJkEW/gkDGQyJ1dSnQYnerva
+         HvpNfmiT3EzCd90sqADguPwEPiXiYnlgzctU+1xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        zhuoliang zhang <zhuoliang.zhang@mediatek.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/64] btrfs: reschedule when cloning lots of extents
-Date:   Tue, 17 Nov 2020 14:04:28 +0100
-Message-Id: <20201117122106.395791491@linuxfoundation.org>
+Subject: [PATCH 4.4 06/64] net: xfrm: fix a race condition during allocing spi
+Date:   Tue, 17 Nov 2020 14:04:29 +0100
+Message-Id: <20201117122106.446458267@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
 References: <20201117122106.144800239@linuxfoundation.org>
@@ -44,96 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
 
-[ Upstream commit 6b613cc97f0ace77f92f7bc112b8f6ad3f52baf8 ]
+[ Upstream commit a779d91314ca7208b7feb3ad817b62904397c56d ]
 
-We have several occurrences of a soft lockup from fstest's generic/175
-testcase, which look more or less like this one:
+we found that the following race condition exists in
+xfrm_alloc_userspi flow:
 
-  watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [xfs_io:10030]
-  Kernel panic - not syncing: softlockup: hung tasks
-  CPU: 0 PID: 10030 Comm: xfs_io Tainted: G             L    5.9.0-rc5+ #768
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
-  Call Trace:
-   <IRQ>
-   dump_stack+0x77/0xa0
-   panic+0xfa/0x2cb
-   watchdog_timer_fn.cold+0x85/0xa5
-   ? lockup_detector_update_enable+0x50/0x50
-   __hrtimer_run_queues+0x99/0x4c0
-   ? recalibrate_cpu_khz+0x10/0x10
-   hrtimer_run_queues+0x9f/0xb0
-   update_process_times+0x28/0x80
-   tick_handle_periodic+0x1b/0x60
-   __sysvec_apic_timer_interrupt+0x76/0x210
-   asm_call_on_stack+0x12/0x20
-   </IRQ>
-   sysvec_apic_timer_interrupt+0x7f/0x90
-   asm_sysvec_apic_timer_interrupt+0x12/0x20
-  RIP: 0010:btrfs_tree_unlock+0x91/0x1a0 [btrfs]
-  RSP: 0018:ffffc90007123a58 EFLAGS: 00000282
-  RAX: ffff8881cea2fbe0 RBX: ffff8881cea2fbe0 RCX: 0000000000000000
-  RDX: ffff8881d23fd200 RSI: ffffffff82045220 RDI: ffff8881cea2fba0
-  RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000032
-  R10: 0000160000000000 R11: 0000000000001000 R12: 0000000000001000
-  R13: ffff8882357fd5b0 R14: ffff88816fa76e70 R15: ffff8881cea2fad0
-   ? btrfs_tree_unlock+0x15b/0x1a0 [btrfs]
-   btrfs_release_path+0x67/0x80 [btrfs]
-   btrfs_insert_replace_extent+0x177/0x2c0 [btrfs]
-   btrfs_replace_file_extents+0x472/0x7c0 [btrfs]
-   btrfs_clone+0x9ba/0xbd0 [btrfs]
-   btrfs_clone_files.isra.0+0xeb/0x140 [btrfs]
-   ? file_update_time+0xcd/0x120
-   btrfs_remap_file_range+0x322/0x3b0 [btrfs]
-   do_clone_file_range+0xb7/0x1e0
-   vfs_clone_file_range+0x30/0xa0
-   ioctl_file_clone+0x8a/0xc0
-   do_vfs_ioctl+0x5b2/0x6f0
-   __x64_sys_ioctl+0x37/0xa0
-   do_syscall_64+0x33/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f87977fc247
-  RSP: 002b:00007ffd51a2f6d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f87977fc247
-  RDX: 00007ffd51a2f710 RSI: 000000004020940d RDI: 0000000000000003
-  RBP: 0000000000000004 R08: 00007ffd51a79080 R09: 0000000000000000
-  R10: 00005621f11352f2 R11: 0000000000000206 R12: 0000000000000000
-  R13: 0000000000000000 R14: 00005621f128b958 R15: 0000000080000000
-  Kernel Offset: disabled
-  ---[ end Kernel panic - not syncing: softlockup: hung tasks ]---
+user thread                                    state_hash_work thread
+----                                           ----
+xfrm_alloc_userspi()
+ __find_acq_core()
+   /*alloc new xfrm_state:x*/
+   xfrm_state_alloc()
+   /*schedule state_hash_work thread*/
+   xfrm_hash_grow_check()   	               xfrm_hash_resize()
+ xfrm_alloc_spi                                  /*hold lock*/
+      x->id.spi = htonl(spi)                     spin_lock_bh(&net->xfrm.xfrm_state_lock)
+      /*waiting lock release*/                     xfrm_hash_transfer()
+      spin_lock_bh(&net->xfrm.xfrm_state_lock)      /*add x into hlist:net->xfrm.state_byspi*/
+	                                                hlist_add_head_rcu(&x->byspi)
+                                                 spin_unlock_bh(&net->xfrm.xfrm_state_lock)
 
-All of these lockup reports have the call chain btrfs_clone_files() ->
-btrfs_clone() in common. btrfs_clone_files() calls btrfs_clone() with
-both source and destination extents locked and loops over the source
-extent to create the clones.
+    /*add x into hlist:net->xfrm.state_byspi 2 times*/
+    hlist_add_head_rcu(&x->byspi)
 
-Conditionally reschedule in the btrfs_clone() loop, to give some time back
-to other processes.
+1. a new state x is alloced in xfrm_state_alloc() and added into the bydst hlist
+in  __find_acq_core() on the LHS;
+2. on the RHS, state_hash_work thread travels the old bydst and tranfers every xfrm_state
+(include x) into the new bydst hlist and new byspi hlist;
+3. user thread on the LHS gets the lock and adds x into the new byspi hlist again.
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+So the same xfrm_state (x) is added into the same list_hash
+(net->xfrm.state_byspi) 2 times that makes the list_hash become
+an inifite loop.
+
+To fix the race, x->id.spi = htonl(spi) in the xfrm_alloc_spi() is moved
+to the back of spin_lock_bh, sothat state_hash_work thread no longer add x
+which id.spi is zero into the hash_list.
+
+Fixes: f034b5d4efdf ("[XFRM]: Dynamic xfrm_state hash table sizing.")
+Signed-off-by: zhuoliang zhang <zhuoliang.zhang@mediatek.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/xfrm/xfrm_state.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 67366515a29d2..f35e18e76f160 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3856,6 +3856,8 @@ process_slot:
- 			ret = -EINTR;
- 			goto out;
- 		}
-+
-+		cond_resched();
- 	}
- 	ret = 0;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 5bb5950d6276b..ed05cd7a4ef2c 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1554,6 +1554,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 	int err = -ENOENT;
+ 	__be32 minspi = htonl(low);
+ 	__be32 maxspi = htonl(high);
++	__be32 newspi = 0;
+ 	u32 mark = x->mark.v & x->mark.m;
  
+ 	spin_lock_bh(&x->lock);
+@@ -1572,21 +1573,22 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
+ 			xfrm_state_put(x0);
+ 			goto unlock;
+ 		}
+-		x->id.spi = minspi;
++		newspi = minspi;
+ 	} else {
+ 		u32 spi = 0;
+ 		for (h = 0; h < high-low+1; h++) {
+ 			spi = low + prandom_u32()%(high-low+1);
+ 			x0 = xfrm_state_lookup(net, mark, &x->id.daddr, htonl(spi), x->id.proto, x->props.family);
+ 			if (x0 == NULL) {
+-				x->id.spi = htonl(spi);
++				newspi = htonl(spi);
+ 				break;
+ 			}
+ 			xfrm_state_put(x0);
+ 		}
+ 	}
+-	if (x->id.spi) {
++	if (newspi) {
+ 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
++		x->id.spi = newspi;
+ 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
+ 		hlist_add_head(&x->byspi, net->xfrm.state_byspi+h);
+ 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 -- 
 2.27.0
 
