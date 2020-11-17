@@ -2,120 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2342B554F
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 00:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 100CA2B5584
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 01:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730963AbgKPXlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Nov 2020 18:41:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730945AbgKPXly (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Nov 2020 18:41:54 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FEC8C0613D3
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:41:54 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id i8so1961505pfk.10
-        for <stable@vger.kernel.org>; Mon, 16 Nov 2020 15:41:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=q6oT/iaJpuUzbJsO3ZOoSLXJmJdPmOezInw0gF4IJ28=;
-        b=DaGY52y2S53RfC36H5AiJH5A419IlvPKioPWUhj1fz1ee9KTimKZDJrmWgb9v776ET
-         /gwm9XOeX0BJZikJIRY2/UxXgYgquVvhQpNrFV9XiB3qeL7RefN2AprNWMpLRtxOxzh/
-         cEls2g7rxSNDVIvusRCwaQNeTXxi720q64jwxbjjYoBdqrs14vxzI0lX+DaArhZWJvkT
-         WUQOjJO9Sx2tTPiyKzbVFjdPpaXTpnQN+CsR7FFBk1TEPMkBAqU6nHxQ/P0Zl6adCwuQ
-         iWqm5vwTuaud25e3h4ZXeTqdYz5ypSBmKJ2FlwNnr1RTathlitsBCuYUyGKuRDxrr+HC
-         AKwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q6oT/iaJpuUzbJsO3ZOoSLXJmJdPmOezInw0gF4IJ28=;
-        b=PioRt/aLHHTL32AP/fr0LrfUxwah9fC9b0Qn6sGBHxtdnQ8IuOf6C7IxzfQ0W/9shV
-         YD0faCzRRcxUq46Fa6JR8y3Yy93EDMV7hiK1F9D/Wn1P21uG9cOpgme0If6hT85VgFtM
-         HOaOap7Wv51SmOHhYVM1G9sAbEMvLhh5Dr6Op7ItBFN1x60kj2LpUkQtpP/bv8b+GPPv
-         CApd1dQqHz0JQE43B+dYZPQOwYizK+JaWMWoZgr0q72jBUlsTw2Pj278uG7SNbozgUKP
-         kNK4UDZw3lcQMUMX8acpqjbe7wUzMRypCtQxG95c39wb9rgTpH3wJQOCvqde7a6YIO83
-         eHXw==
-X-Gm-Message-State: AOAM533KtfhYgbGjHhILGn7APyVhk3M8h8I1AEoNGnuuUhm6nw+4DsgU
-        e3oxVBmt5psFdKpMFwvOXj7cJTz/vYI4LrECRdeO8w==
-X-Google-Smtp-Source: ABdhPJwVHouTg7EVX4W0i+4378wI412Q2tEtRHUYdk7lrZpa4Bigm1LcPNbScK1zq4PEp4tG+BUF6n3Mdrpfjn0WHQs=
-X-Received: by 2002:a17:90b:d91:: with SMTP id bg17mr1379665pjb.25.1605570113934;
- Mon, 16 Nov 2020 15:41:53 -0800 (PST)
+        id S1730202AbgKQAFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Nov 2020 19:05:18 -0500
+Received: from mga06.intel.com ([134.134.136.31]:48709 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726310AbgKQAFR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Nov 2020 19:05:17 -0500
+IronPort-SDR: kBLgURNCrPSvO2ZP6nHS3ET//eidKyII5NetlLJfCWd8Ot8DCBgY+w1xmp+JLGOadEh3Iuyrh/
+ nWxY1EQ5c+hw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9807"; a="232451984"
+X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
+   d="scan'208";a="232451984"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2020 16:05:09 -0800
+IronPort-SDR: L/qgnClaPDOFC1NTqEl0Uj8EsRzZXv98B+7t1ylBNA+uiKEdV+DBlmWL6fVJGJYLLG2WZJgtJx
+ q6sKOMFVAGpg==
+X-IronPort-AV: E=Sophos;i="5.77,483,1596524400"; 
+   d="scan'208";a="310555891"
+Received: from dceraolo-linux.fm.intel.com ([10.1.27.145])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2020 16:05:07 -0800
+From:   Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+To:     stable@vger.kernel.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH stable-5.4] drm/i915: Correctly set SFC capability for video engines
+Date:   Mon, 16 Nov 2020 16:03:26 -0800
+Message-Id: <20201117000326.3138-1-daniele.ceraolospurio@intel.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-References: <CAKwvOd=9iqLgdtAWe2h-9n=KUWm_rjCCJJYeop8PS6F+AA0VtA@mail.gmail.com>
- <20201109183528.1391885-1-ndesaulniers@google.com>
-In-Reply-To: <20201109183528.1391885-1-ndesaulniers@google.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 16 Nov 2020 15:41:42 -0800
-Message-ID: <CAKwvOdnxAr7UdjUiuttj=bz1_voK1qUvpOvSY35qOZ60+E8LBA@mail.gmail.com>
-Subject: Re: [PATCH v3] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-toolchains@vger.kernel.org,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Fangrui Song <maskray@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Dmitry Golovin <dima@golovin.in>,
-        Alistair Delva <adelva@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Masahiro, have you had time to review v3 of this patch?
+From: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
 
-On Mon, Nov 9, 2020 at 10:35 AM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
->
-> Clang's integrated assembler produces the warning for assembly files:
->
-> warning: DWARF2 only supports one section per compilation unit
->
-> If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
-> assembly sources (it is still emitted for C sources).  This will be
-> re-enabled for newer DWARF versions in a follow up patch.
->
-> Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
-> LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
->
-> Cc: <stable@vger.kernel.org>
-> Link: https://github.com/ClangBuiltLinux/linux/issues/716
-> Reported-by: Dmitry Golovin <dima@golovin.in>
-> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-> Suggested-by: Dmitry Golovin <dima@golovin.in>
-> Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-> Reviewed-by: Fangrui Song <maskray@google.com>
-> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
->  Makefile | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/Makefile b/Makefile
-> index f353886dbf44..7e899d356902 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -826,7 +826,9 @@ else
->  DEBUG_CFLAGS   += -g
->  endif
->
-> +ifneq ($(LLVM_IAS),1)
->  KBUILD_AFLAGS  += -Wa,-gdwarf-2
-> +endif
->
->  ifdef CONFIG_DEBUG_INFO_DWARF4
->  DEBUG_CFLAGS   += -gdwarf-4
-> --
-> 2.29.2.222.g5d2a92d10f8-goog
->
+Commit 5ce6861d36ed5207aff9e5eead4c7cc38a986586 upstream.
 
+This backport targets stable version 5.4, since the original patch fails
+to apply there, due to a variable having moved from one struct to another.
+The only change required for the patch to apply to 5.4 is to use the
+correct structure:
 
+ -	(engine->gt->info.vdbox_sfc_access &
+++	(RUNTIME_INFO(i915)->vdbox_sfc_access &
+
+Original commit message below.
+
+SFC capability of video engines is not set correctly because i915
+is testing for incorrect bits.
+
+Fixes: c5d3e39caa45 ("drm/i915: Engine discovery query")
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Venkata Sandeep Dhanalakota <venkata.s.dhanalakota@intel.com>
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.3+
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201106011842.36203-1-daniele.ceraolospurio@intel.com
+(cherry picked from commit ad18fa0f5f052046cad96fee762b5c64f42dd86a)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+---
+ drivers/gpu/drm/i915/gt/intel_engine_cs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+index 4ce8626b140e..8073758d1036 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+@@ -354,7 +354,8 @@ static void __setup_engine_capabilities(struct intel_engine_cs *engine)
+ 		 * instances.
+ 		 */
+ 		if ((INTEL_GEN(i915) >= 11 &&
+-		     RUNTIME_INFO(i915)->vdbox_sfc_access & engine->mask) ||
++		     (RUNTIME_INFO(i915)->vdbox_sfc_access &
++		      BIT(engine->instance))) ||
+ 		    (INTEL_GEN(i915) >= 9 && engine->instance == 0))
+ 			engine->uabi_capabilities |=
+ 				I915_VIDEO_AND_ENHANCE_CLASS_CAPABILITY_SFC;
 -- 
-Thanks,
-~Nick Desaulniers
+2.29.2
+
