@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 358BD2B62DE
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F2B2B64DE
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731886AbgKQNce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:32:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42286 "EHLO mail.kernel.org"
+        id S1733268AbgKQNu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:50:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732309AbgKQNcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:32:33 -0500
+        id S1731849AbgKQNch (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:32:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF18E2078E;
-        Tue, 17 Nov 2020 13:32:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE3E621534;
+        Tue, 17 Nov 2020 13:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619953;
-        bh=8rYnH8nIj5RsHFfoO7A7+jZnzmRVEIBRQGnSz3oEm7Q=;
+        s=default; t=1605619956;
+        bh=TtG8PTcSMbodycPdWFhTPm49W+ZPjFYcro/5mLaoErk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfJikF6ihqlGLkOZ39mibPpgWPd34Yz2EcC6kzGfUVbUcms4KPla4oZDQEjVpXhsZ
-         bbWjtaeYJS3TxTf3dZ+UEp9JprjOQFYEwl5W3c/WKcR97LXODfwDM+XDujo2zFkvpe
-         qRekWzqjU1WhZ4+WjtlJAXNlJAzPgrwDEzTM3U2k=
+        b=duAjtj5rAqf2ZOxHyQiG12xb/jh5OJoLtRIkn4VNC8MCPMBTIm8FiztbaT/gIpqKa
+         HoUpjBTvfkl6TxWq7YjptZKwcWwzFhgV/QEHFwd0fMXiLK4tEy01+oxbrqUu1TiDZ3
+         /aks2EXftDTRHkHSwullOQ+6qF8IiQRovzZt53Zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 029/255] powerpc/eeh_cache: Fix a possible debugfs deadlock
-Date:   Tue, 17 Nov 2020 14:02:49 +0100
-Message-Id: <20201117122140.362795722@linuxfoundation.org>
+Subject: [PATCH 5.9 030/255] drm/vc4: bo: Add a managed action to cleanup the cache
+Date:   Tue, 17 Nov 2020 14:02:50 +0100
+Message-Id: <20201117122140.411872312@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
 References: <20201117122138.925150709@linuxfoundation.org>
@@ -44,84 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@redhat.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit fd552e0542b4532483289cce48fdbd27b692984b ]
+[ Upstream commit 1c80be48c70a2198f7cf04a546b3805b92293ac6 ]
 
-Lockdep complains that a possible deadlock below in
-eeh_addr_cache_show() because it is acquiring a lock with IRQ enabled,
-but eeh_addr_cache_insert_dev() needs to acquire the same lock with IRQ
-disabled. Let's just make eeh_addr_cache_show() acquire the lock with
-IRQ disabled as well.
+The BO cache needs to be cleaned up using vc4_bo_cache_destroy, but it's
+not used consistently (vc4_drv's bind calls it in its error path, but
+doesn't in unbind), and we can make that automatic through a managed
+action. Let's remove the requirement to call vc4_bo_cache_destroy.
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&pci_io_addr_cache_root.piar_lock);
-                                local_irq_disable();
-                                lock(&tp->lock);
-                                lock(&pci_io_addr_cache_root.piar_lock);
-   <Interrupt>
-     lock(&tp->lock);
-
-  *** DEADLOCK ***
-
-  lock_acquire+0x140/0x5f0
-  _raw_spin_lock_irqsave+0x64/0xb0
-  eeh_addr_cache_insert_dev+0x48/0x390
-  eeh_probe_device+0xb8/0x1a0
-  pnv_pcibios_bus_add_device+0x3c/0x80
-  pcibios_bus_add_device+0x118/0x290
-  pci_bus_add_device+0x28/0xe0
-  pci_bus_add_devices+0x54/0xb0
-  pcibios_init+0xc4/0x124
-  do_one_initcall+0xac/0x528
-  kernel_init_freeable+0x35c/0x3fc
-  kernel_init+0x24/0x148
-  ret_from_kernel_thread+0x5c/0x80
-
-  lock_acquire+0x140/0x5f0
-  _raw_spin_lock+0x4c/0x70
-  eeh_addr_cache_show+0x38/0x110
-  seq_read+0x1a0/0x660
-  vfs_read+0xc8/0x1f0
-  ksys_read+0x74/0x130
-  system_call_exception+0xf8/0x1d0
-  system_call_common+0xe8/0x218
-
-Fixes: 5ca85ae6318d ("powerpc/eeh_cache: Add a way to dump the EEH address cache")
-Signed-off-by: Qian Cai <cai@redhat.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201028152717.8967-1-cai@redhat.com
+Fixes: c826a6e10644 ("drm/vc4: Add a BO cache.")
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201029190104.2181730-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_cache.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_bo.c  | 5 +++--
+ drivers/gpu/drm/vc4/vc4_drv.c | 1 -
+ drivers/gpu/drm/vc4/vc4_drv.h | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/eeh_cache.c b/arch/powerpc/kernel/eeh_cache.c
-index 6b50bf15d8c19..bf3270426d82d 100644
---- a/arch/powerpc/kernel/eeh_cache.c
-+++ b/arch/powerpc/kernel/eeh_cache.c
-@@ -264,8 +264,9 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
- {
- 	struct pci_io_addr_range *piar;
- 	struct rb_node *n;
-+	unsigned long flags;
- 
--	spin_lock(&pci_io_addr_cache_root.piar_lock);
-+	spin_lock_irqsave(&pci_io_addr_cache_root.piar_lock, flags);
- 	for (n = rb_first(&pci_io_addr_cache_root.rb_root); n; n = rb_next(n)) {
- 		piar = rb_entry(n, struct pci_io_addr_range, rb_node);
- 
-@@ -273,7 +274,7 @@ static int eeh_addr_cache_show(struct seq_file *s, void *v)
- 		       (piar->flags & IORESOURCE_IO) ? "i/o" : "mem",
- 		       &piar->addr_lo, &piar->addr_hi, pci_name(piar->pcidev));
- 	}
--	spin_unlock(&pci_io_addr_cache_root.piar_lock);
-+	spin_unlock_irqrestore(&pci_io_addr_cache_root.piar_lock, flags);
- 
+diff --git a/drivers/gpu/drm/vc4/vc4_bo.c b/drivers/gpu/drm/vc4/vc4_bo.c
+index 74ceebd62fbce..073b528f33337 100644
+--- a/drivers/gpu/drm/vc4/vc4_bo.c
++++ b/drivers/gpu/drm/vc4/vc4_bo.c
+@@ -1005,6 +1005,7 @@ int vc4_get_tiling_ioctl(struct drm_device *dev, void *data,
  	return 0;
  }
+ 
++static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused);
+ int vc4_bo_cache_init(struct drm_device *dev)
+ {
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+@@ -1033,10 +1034,10 @@ int vc4_bo_cache_init(struct drm_device *dev)
+ 	INIT_WORK(&vc4->bo_cache.time_work, vc4_bo_cache_time_work);
+ 	timer_setup(&vc4->bo_cache.time_timer, vc4_bo_cache_time_timer, 0);
+ 
+-	return 0;
++	return drmm_add_action_or_reset(dev, vc4_bo_cache_destroy, NULL);
+ }
+ 
+-void vc4_bo_cache_destroy(struct drm_device *dev)
++static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused)
+ {
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+ 	int i;
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index f6995e7f6eb6e..c7aeaba3fabe8 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -311,7 +311,6 @@ unbind_all:
+ gem_destroy:
+ 	vc4_gem_destroy(drm);
+ 	drm_mode_config_cleanup(drm);
+-	vc4_bo_cache_destroy(drm);
+ dev_put:
+ 	drm_dev_put(drm);
+ 	return ret;
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
+index fa19160c801f8..528c28895a8e0 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.h
++++ b/drivers/gpu/drm/vc4/vc4_drv.h
+@@ -14,6 +14,7 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_gem_cma_helper.h>
++#include <drm/drm_managed.h>
+ #include <drm/drm_mm.h>
+ #include <drm/drm_modeset_lock.h>
+ 
+@@ -786,7 +787,6 @@ struct drm_gem_object *vc4_prime_import_sg_table(struct drm_device *dev,
+ 						 struct sg_table *sgt);
+ void *vc4_prime_vmap(struct drm_gem_object *obj);
+ int vc4_bo_cache_init(struct drm_device *dev);
+-void vc4_bo_cache_destroy(struct drm_device *dev);
+ int vc4_bo_inc_usecnt(struct vc4_bo *bo);
+ void vc4_bo_dec_usecnt(struct vc4_bo *bo);
+ void vc4_bo_add_to_purgeable_pool(struct vc4_bo *bo);
 -- 
 2.27.0
 
