@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 697CE2B5FD8
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 081C12B5F95
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 13:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728638AbgKQM53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 07:57:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54652 "EHLO mail.kernel.org"
+        id S1728650AbgKQM5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 07:57:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728625AbgKQM52 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 07:57:28 -0500
+        id S1728625AbgKQM5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 07:57:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD543246B3;
-        Tue, 17 Nov 2020 12:57:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CC2D2225E;
+        Tue, 17 Nov 2020 12:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605617847;
-        bh=nSlSpaDNHRKZweh1WkMRoomRVitUFX3MT3jYGTWMGM4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rgDIMhm6074hLDUJIfG65tksW4Vu2NkHSRL2SoViR527pQkMFHkKfQFXLqC3VLNsH
-         +rf8mEMMbaddJblprkVHAM6ACtVWTCg1gd2L3g/lV7ipjoRwMydla78KUITV08mRx1
-         X/SmcBxP6bLq8f8H8FhmLyqxNy3XSvTGyGJ3g1NE=
+        s=default; t=1605617849;
+        bh=rZhCcoxyzUhsV6+Tfjb0wBJ4sLCM3axaR3A755iBjDg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YUE1kVOo6VipaWSHkAYE60ksbIsgSjrADNGIRrmqIkAAS48oxrcgWHCQ2iDMF5nVo
+         O0J8TZotu+732GBByDXWELm8ePqN1dgzLFd5qY8eFs1P5ZHUmn5ybuAuXg5TizHKWR
+         /cTtQEP3iMb5x8xK4ks3zo1cW7T4xmdmur6f2HFw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Kever Yang <kever.yang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+Cc:     Can Guo <cang@codeaurora.org>, Hongwu Su <hongwus@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 01/11] pinctrl: rockchip: enable gpio pclk for rockchip_gpio_to_irq
-Date:   Tue, 17 Nov 2020 07:57:15 -0500
-Message-Id: <20201117125725.599833-1-sashal@kernel.org>
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 02/11] scsi: ufs: Fix unbalanced scsi_block_reqs_cnt caused by ufshcd_hold()
+Date:   Tue, 17 Nov 2020 07:57:16 -0500
+Message-Id: <20201117125725.599833-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201117125725.599833-1-sashal@kernel.org>
+References: <20201117125725.599833-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,37 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianqun Xu <jay.xu@rock-chips.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 63fbf8013b2f6430754526ef9594f229c7219b1f ]
+[ Upstream commit da3fecb0040324c08f1587e5bff1f15f36be1872 ]
 
-There need to enable pclk_gpio when do irq_create_mapping, since it will
-do access to gpio controller.
+The scsi_block_reqs_cnt increased in ufshcd_hold() is supposed to be
+decreased back in ufshcd_ungate_work() in a paired way. However, if
+specific ufshcd_hold/release sequences are met, it is possible that
+scsi_block_reqs_cnt is increased twice but only one ungate work is
+queued. To make sure scsi_block_reqs_cnt is handled by ufshcd_hold() and
+ufshcd_ungate_work() in a paired way, increase it only if queue_work()
+returns true.
 
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Kever Yang<kever.yang@rock-chips.com>
-Link: https://lore.kernel.org/r/20201013063731.3618-3-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1604384682-15837-2-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 1bd8840e11a6e..930edfc32f597 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2811,7 +2811,9 @@ static int rockchip_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
- 	if (!bank->domain)
- 		return -ENXIO;
- 
-+	clk_enable(bank->clk);
- 	virq = irq_create_mapping(bank->domain, offset);
-+	clk_disable(bank->clk);
- 
- 	return (virq) ? : -ENXIO;
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index d538b3d4f74a5..0772327f87d93 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1569,12 +1569,12 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 		 */
+ 		/* fallthrough */
+ 	case CLKS_OFF:
+-		ufshcd_scsi_block_requests(hba);
+ 		hba->clk_gating.state = REQ_CLKS_ON;
+ 		trace_ufshcd_clk_gating(dev_name(hba->dev),
+ 					hba->clk_gating.state);
+-		queue_work(hba->clk_gating.clk_gating_workq,
+-			   &hba->clk_gating.ungate_work);
++		if (queue_work(hba->clk_gating.clk_gating_workq,
++			       &hba->clk_gating.ungate_work))
++			ufshcd_scsi_block_requests(hba);
+ 		/*
+ 		 * fall through to check if we should wait for this
+ 		 * work to be done or not.
 -- 
 2.27.0
 
