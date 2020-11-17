@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 048E52B6145
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:18:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0EED2B603E
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729993AbgKQNRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:17:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49760 "EHLO mail.kernel.org"
+        id S1729075AbgKQNHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:07:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728534AbgKQNRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:17:30 -0500
+        id S1729071AbgKQNHS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:07:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF95721734;
-        Tue, 17 Nov 2020 13:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15BF024699;
+        Tue, 17 Nov 2020 13:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619049;
-        bh=xZPzoopCaItned10T96lNiFu375H5EO0HDd3vezoKEQ=;
+        s=default; t=1605618437;
+        bh=XIty7VzwezHwWmMmxLNHSnMMIojTImj0Axn482Y+CK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBFsHzYnNXvTdwoU2ihKRRV9bPY87+Pvg+t4fk2VLo8sCrNat8EXSXNHkD1Eiojbk
-         7eW/4RXwh6Cmazi6n+1PWyvJiOzfHc2oNfPpkTAFPemibpKAL4asuyZukpcTt5/Ybb
-         5LCmJypofo5jk9HKpRIuDkt61jIGzenjWiuy650M=
+        b=EVV1AjsenAVVTWktqVt3p33xbDCJXRbvVwNkhusEEX+NrJIhyIOswm20j6YaJP5qk
+         wTFAzn44sW00TO1DC1JzYEB53va3iMq7MF9QF2jZzEjUWGsY6/5J7ggOkfkJYVsqN+
+         StvmHFQ3zK4VS8J9vTe+hxLDkKow30ELv0zhkYJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lining <lining2020x@163.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 003/101] nbd: dont update block size after device is started
-Date:   Tue, 17 Nov 2020 14:04:30 +0100
-Message-Id: <20201117122113.283475129@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/64] ALSA: hda: prevent undefined shift in snd_hdac_ext_bus_get_link()
+Date:   Tue, 17 Nov 2020 14:04:31 +0100
+Message-Id: <20201117122106.548075540@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-References: <20201117122113.128215851@linuxfoundation.org>
+In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
+References: <20201117122106.144800239@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b40813ddcd6bf9f01d020804e4cb8febc480b9e4 ]
+[ Upstream commit 158e1886b6262c1d1c96a18c85fac5219b8bf804 ]
 
-Mounted NBD device can be resized, one use case is rbd-nbd.
+This is harmless, but the "addr" comes from the user and it could lead
+to a negative shift or to shift wrapping if it's too high.
 
-Fix the issue by setting up default block size, then not touch it
-in nbd_size_update() any more. This kind of usage is aligned with loop
-which has same use case too.
-
-Cc: stable@vger.kernel.org
-Fixes: c8a83a6b54d0 ("nbd: Use set_blocksize() to set device blocksize")
-Reported-by: lining <lining2020x@163.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Cc: Jan Kara <jack@suse.cz>
-Tested-by: lining <lining2020x@163.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0b00a5615dc4 ("ALSA: hdac_ext: add hdac extended controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20201103101807.GC1127762@mwanda
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ sound/hda/ext/hdac_ext_controller.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 52e1e71e81241..706115ecd9bee 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -276,7 +276,7 @@ static void nbd_size_clear(struct nbd_device *nbd)
- 	}
- }
+diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
+index 63215b17247c8..379250dd0668e 100644
+--- a/sound/hda/ext/hdac_ext_controller.c
++++ b/sound/hda/ext/hdac_ext_controller.c
+@@ -221,6 +221,8 @@ struct hdac_ext_link *snd_hdac_ext_bus_get_link(struct hdac_ext_bus *ebus,
+ 		return NULL;
+ 	if (ebus->idx != bus_idx)
+ 		return NULL;
++	if (addr < 0 || addr > 31)
++		return NULL;
  
--static void nbd_size_update(struct nbd_device *nbd)
-+static void nbd_size_update(struct nbd_device *nbd, bool start)
- {
- 	struct nbd_config *config = nbd->config;
- 	struct block_device *bdev = bdget_disk(nbd->disk, 0);
-@@ -292,7 +292,8 @@ static void nbd_size_update(struct nbd_device *nbd)
- 	if (bdev) {
- 		if (bdev->bd_disk) {
- 			bd_set_size(bdev, config->bytesize);
--			set_blocksize(bdev, config->blksize);
-+			if (start)
-+				set_blocksize(bdev, config->blksize);
- 		} else
- 			bdev->bd_invalidated = 1;
- 		bdput(bdev);
-@@ -307,7 +308,7 @@ static void nbd_size_set(struct nbd_device *nbd, loff_t blocksize,
- 	config->blksize = blocksize;
- 	config->bytesize = blocksize * nr_blocks;
- 	if (nbd->task_recv != NULL)
--		nbd_size_update(nbd);
-+		nbd_size_update(nbd, false);
- }
- 
- static void nbd_complete_rq(struct request *req)
-@@ -1244,7 +1245,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		args->index = i;
- 		queue_work(nbd->recv_workq, &args->work);
- 	}
--	nbd_size_update(nbd);
-+	nbd_size_update(nbd, true);
- 	return error;
- }
- 
+ 	list_for_each_entry(hlink, &ebus->hlink_list, list) {
+ 		for (i = 0; i < HDA_MAX_CODECS; i++) {
 -- 
 2.27.0
 
