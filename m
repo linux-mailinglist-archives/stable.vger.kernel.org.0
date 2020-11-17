@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FFA2B668E
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:06:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 604992B665C
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 15:05:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730459AbgKQOEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 09:04:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
+        id S1729352AbgKQOC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 09:02:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbgKQNJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:09:40 -0500
+        id S1729166AbgKQNNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:13:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B93002468F;
-        Tue, 17 Nov 2020 13:09:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34715241A5;
+        Tue, 17 Nov 2020 13:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618579;
-        bh=t3JGyHdjsXTbb079SDqrfbvWVGSqp45TnabyFe6Jzq0=;
+        s=default; t=1605618803;
+        bh=swamKQXvfcuItgFMcbc4tmaBxEfvSIf4UvCTlha/W0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQESJTiW1GFZxTBZSgMw7fyVKG85YyKgkRUePyzXQWG/ik5DFFcbOSwHS700HCxye
-         npBxjO70tD/HIO3LX+kBQ9FWrSM7iN1sfpu2lg/5AWznPohd0eeE4wQhvSKjXxpEhx
-         2MPmNWD6jMSd6m+RndwbghlI9eJwc9oehTh3kah8=
+        b=RMR4MrZ8OunPV2zhmcWMJfTilEK/kyesUEPtl22E/dg0RvfHDDKuFNaQ4fBND3dwG
+         GzeZGrlvUt9tl8dxG0PVQs+76ArGTjGIZjyKt1f40rTOZv6YrWuq9z3TJwMaxMVtXk
+         SVX/+jqspyusMPjE6izvFE/T/96bBHA9fB6M3imk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/78] xfs: flush new eof page on truncate to avoid post-eof corruption
+Subject: [PATCH 4.14 13/85] can: rx-offload: dont call kfree_skb() from IRQ context
 Date:   Tue, 17 Nov 2020 14:04:42 +0100
-Message-Id: <20201117122109.897877304@linuxfoundation.org>
+Message-Id: <20201117122111.691178728@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122109.116890262@linuxfoundation.org>
-References: <20201117122109.116890262@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 869ae85dae64b5540e4362d7fe4cd520e10ec05c ]
+[ Upstream commit 2ddd6bfe7bdbb6c661835c3ff9cab8e0769940a6 ]
 
-It is possible to expose non-zeroed post-EOF data in XFS if the new
-EOF page is dirty, backed by an unwritten block and the truncate
-happens to race with writeback. iomap_truncate_page() will not zero
-the post-EOF portion of the page if the underlying block is
-unwritten. The subsequent call to truncate_setsize() will, but
-doesn't dirty the page. Therefore, if writeback happens to complete
-after iomap_truncate_page() (so it still sees the unwritten block)
-but before truncate_setsize(), the cached page becomes inconsistent
-with the on-disk block. A mapped read after the associated page is
-reclaimed or invalidated exposes non-zero post-EOF data.
+A CAN driver, using the rx-offload infrastructure, is reading CAN frames
+(usually in IRQ context) from the hardware and placing it into the rx-offload
+queue to be delivered to the networking stack via NAPI.
 
-For example, consider the following sequence when run on a kernel
-modified to explicitly flush the new EOF page within the race
-window:
+In case the rx-offload queue is full, trying to add more skbs results in the
+skbs being dropped using kfree_skb(). If done from hard-IRQ context this
+results in the following warning:
 
-$ xfs_io -fc "falloc 0 4k" -c fsync /mnt/file
-$ xfs_io -c "pwrite 0 4k" -c "truncate 1k" /mnt/file
-  ...
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  00 00 00 00 00 00 00 00  ........
-$ umount /mnt/; mount <dev> /mnt/
-$ xfs_io -c "mmap 0 4k" -c "mread -v 1k 8" /mnt/file
-00000400:  cd cd cd cd cd cd cd cd  ........
+[  682.552693] ------------[ cut here ]------------
+[  682.557360] WARNING: CPU: 0 PID: 3057 at net/core/skbuff.c:650 skb_release_head_state+0x74/0x84
+[  682.566075] Modules linked in: can_raw can coda_vpu flexcan dw_hdmi_ahb_audio v4l2_jpeg imx_vdoa can_dev
+[  682.575597] CPU: 0 PID: 3057 Comm: cansend Tainted: G        W         5.7.0+ #18
+[  682.583098] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[  682.589657] [<c0112628>] (unwind_backtrace) from [<c010c1c4>] (show_stack+0x10/0x14)
+[  682.597423] [<c010c1c4>] (show_stack) from [<c06c481c>] (dump_stack+0xe0/0x114)
+[  682.604759] [<c06c481c>] (dump_stack) from [<c0128f10>] (__warn+0xc0/0x10c)
+[  682.611742] [<c0128f10>] (__warn) from [<c0129314>] (warn_slowpath_fmt+0x5c/0xc0)
+[  682.619248] [<c0129314>] (warn_slowpath_fmt) from [<c0b95dec>] (skb_release_head_state+0x74/0x84)
+[  682.628143] [<c0b95dec>] (skb_release_head_state) from [<c0b95e08>] (skb_release_all+0xc/0x24)
+[  682.636774] [<c0b95e08>] (skb_release_all) from [<c0b95eac>] (kfree_skb+0x74/0x1c8)
+[  682.644479] [<c0b95eac>] (kfree_skb) from [<bf001d1c>] (can_rx_offload_queue_sorted+0xe0/0xe8 [can_dev])
+[  682.654051] [<bf001d1c>] (can_rx_offload_queue_sorted [can_dev]) from [<bf001d6c>] (can_rx_offload_get_echo_skb+0x48/0x94 [can_dev])
+[  682.666007] [<bf001d6c>] (can_rx_offload_get_echo_skb [can_dev]) from [<bf01efe4>] (flexcan_irq+0x194/0x5dc [flexcan])
+[  682.676734] [<bf01efe4>] (flexcan_irq [flexcan]) from [<c019c1ec>] (__handle_irq_event_percpu+0x4c/0x3ec)
+[  682.686322] [<c019c1ec>] (__handle_irq_event_percpu) from [<c019c5b8>] (handle_irq_event_percpu+0x2c/0x88)
+[  682.695993] [<c019c5b8>] (handle_irq_event_percpu) from [<c019c64c>] (handle_irq_event+0x38/0x5c)
+[  682.704887] [<c019c64c>] (handle_irq_event) from [<c01a1058>] (handle_fasteoi_irq+0xc8/0x180)
+[  682.713432] [<c01a1058>] (handle_fasteoi_irq) from [<c019b2c0>] (generic_handle_irq+0x30/0x44)
+[  682.722063] [<c019b2c0>] (generic_handle_irq) from [<c019b8f8>] (__handle_domain_irq+0x64/0xdc)
+[  682.730783] [<c019b8f8>] (__handle_domain_irq) from [<c06df4a4>] (gic_handle_irq+0x48/0x9c)
+[  682.739158] [<c06df4a4>] (gic_handle_irq) from [<c0100b30>] (__irq_svc+0x70/0x98)
+[  682.746656] Exception stack(0xe80e9dd8 to 0xe80e9e20)
+[  682.751725] 9dc0:                                                       00000001 e80e8000
+[  682.759922] 9de0: e820cf80 00000000 ffffe000 00000000 eaf08fe4 00000000 600d0013 00000000
+[  682.768117] 9e00: c1732e3c c16093a8 e820d4c0 e80e9e28 c018a57c c018b870 600d0013 ffffffff
+[  682.776315] [<c0100b30>] (__irq_svc) from [<c018b870>] (lock_acquire+0x108/0x4e8)
+[  682.783821] [<c018b870>] (lock_acquire) from [<c0e938e4>] (down_write+0x48/0xa8)
+[  682.791242] [<c0e938e4>] (down_write) from [<c02818dc>] (unlink_file_vma+0x24/0x40)
+[  682.798922] [<c02818dc>] (unlink_file_vma) from [<c027a258>] (free_pgtables+0x34/0xb8)
+[  682.806858] [<c027a258>] (free_pgtables) from [<c02835a4>] (exit_mmap+0xe4/0x170)
+[  682.814361] [<c02835a4>] (exit_mmap) from [<c01248e0>] (mmput+0x5c/0x110)
+[  682.821171] [<c01248e0>] (mmput) from [<c012e910>] (do_exit+0x374/0xbe4)
+[  682.827892] [<c012e910>] (do_exit) from [<c0130888>] (do_group_exit+0x38/0xb4)
+[  682.835132] [<c0130888>] (do_group_exit) from [<c0130914>] (__wake_up_parent+0x0/0x14)
+[  682.843063] irq event stamp: 1936
+[  682.846399] hardirqs last  enabled at (1935): [<c02938b0>] rmqueue+0xf4/0xc64
+[  682.853553] hardirqs last disabled at (1936): [<c0100b20>] __irq_svc+0x60/0x98
+[  682.860799] softirqs last  enabled at (1878): [<bf04cdcc>] raw_release+0x108/0x1f0 [can_raw]
+[  682.869256] softirqs last disabled at (1876): [<c0b8f478>] release_sock+0x18/0x98
+[  682.876753] ---[ end trace 7bca4751ce44c444 ]---
 
-Update xfs_setattr_size() to explicitly flush the new EOF page prior
-to the page truncate to ensure iomap has the latest state of the
-underlying block.
+This patch fixes the problem by replacing the kfree_skb() by
+dev_kfree_skb_any(), as rx-offload might be called from threaded IRQ handlers
+as well.
 
-Fixes: 68a9f5e7007c ("xfs: implement iomap based buffered write path")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: ca913f1ac024 ("can: rx-offload: can_rx_offload_queue_sorted(): fix error handling, avoid skb mem leak")
+Fixes: 6caf8a6d6586 ("can: rx-offload: can_rx_offload_queue_tail(): fix error handling, avoid skb mem leak")
+Link: http://lore.kernel.org/r/20201019190524.1285319-3-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_iops.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/can/rx-offload.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index 7bfddcd32d73e..0d587657056d8 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -864,6 +864,16 @@ xfs_setattr_size(
- 	if (newsize > oldsize) {
- 		error = xfs_zero_eof(ip, newsize, oldsize, &did_zeroing);
- 	} else {
-+		/*
-+		 * iomap won't detect a dirty page over an unwritten block (or a
-+		 * cow block over a hole) and subsequently skips zeroing the
-+		 * newly post-EOF portion of the page. Flush the new EOF to
-+		 * convert the block before the pagecache truncate.
-+		 */
-+		error = filemap_write_and_wait_range(inode->i_mapping, newsize,
-+						     newsize);
-+		if (error)
-+			return error;
- 		error = iomap_truncate_page(inode, newsize, &did_zeroing,
- 				&xfs_iomap_ops);
+diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
+index 54ffd1e91a693..a046801830660 100644
+--- a/drivers/net/can/rx-offload.c
++++ b/drivers/net/can/rx-offload.c
+@@ -281,7 +281,7 @@ int can_rx_offload_queue_sorted(struct can_rx_offload *offload,
+ 
+ 	if (skb_queue_len(&offload->skb_queue) >
+ 	    offload->skb_queue_len_max) {
+-		kfree_skb(skb);
++		dev_kfree_skb_any(skb);
+ 		return -ENOBUFS;
  	}
+ 
+@@ -326,7 +326,7 @@ int can_rx_offload_queue_tail(struct can_rx_offload *offload,
+ {
+ 	if (skb_queue_len(&offload->skb_queue) >
+ 	    offload->skb_queue_len_max) {
+-		kfree_skb(skb);
++		dev_kfree_skb_any(skb);
+ 		return -ENOBUFS;
+ 	}
+ 
 -- 
 2.27.0
 
