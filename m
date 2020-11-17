@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EB12B605B
-	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:09:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0CDF2B6107
+	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729280AbgKQNI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:08:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36848 "EHLO mail.kernel.org"
+        id S1730138AbgKQNPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:15:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729272AbgKQNIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:08:24 -0500
+        id S1730131AbgKQNPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:15:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C69F4221EB;
-        Tue, 17 Nov 2020 13:08:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89343246BB;
+        Tue, 17 Nov 2020 13:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605618502;
-        bh=8AI+wv/0W4+FExRGgwH8qDs9IV9XEX+dQkaWQqLRWMA=;
+        s=default; t=1605618908;
+        bh=+rgwgfGorZpGwIOPV5zY/fKHJ4P2fVNO+fpHvwOEpZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+XFc2dS0dWIpUTxl1eic84KMfvxSp+0FGUu/Pg4WI9I6C9Z5A4jdQWkkvTZDQiMk
-         9RQAlSZ0kLwwy5ERAdwx6eLW1C7sOcmOXP3GPdPM0Y0bDcBJvjSSR8m3fXiNrya9dn
-         ey67/6so5U6EQ3KvdMkrt0EMac79qET5XqGnaqyU=
+        b=jdn9haYs1la3d3BI6pXL/8cqALudYZnwQSvPOtJN8/yk2LmXPD+vtrpxDWtxRVQ3O
+         uUBorG7m79wFTR43ZPWmIhjhM6GxaQf3mn8SyEsU/qBV+z80kGgMbMmLNX9l0Pb2YK
+         WhPPw5hRwYpLe0VQzfT8Rx0ZZfalD2Wdolt8jI8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Julien Grall <julien@xen.org>, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>, Wei Liu <wl@xen.org>
-Subject: [PATCH 4.4 54/64] xen/scsiback: use lateeoi irq binding
-Date:   Tue, 17 Nov 2020 14:05:17 +0100
-Message-Id: <20201117122108.834543616@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.14 49/85] mei: protect mei_cl_mtu from null dereference
+Date:   Tue, 17 Nov 2020 14:05:18 +0100
+Message-Id: <20201117122113.434485262@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201117122106.144800239@linuxfoundation.org>
-References: <20201117122106.144800239@linuxfoundation.org>
+In-Reply-To: <20201117122111.018425544@linuxfoundation.org>
+References: <20201117122111.018425544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,105 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 86991b6e7ea6c613b7692f65106076943449b6b7 upstream.
+commit bcbc0b2e275f0a797de11a10eff495b4571863fc upstream.
 
-In order to reduce the chance for the system becoming unresponsive due
-to event storms triggered by a misbehaving scsifront use the lateeoi
-irq binding for scsiback and unmask the event channel only just before
-leaving the event handling function.
+A receive callback is queued while the client is still connected
+but can still be called after the client was disconnected. Upon
+disconnect cl->me_cl is set to NULL, hence we need to check
+that ME client is not-NULL in mei_cl_mtu to avoid
+null dereference.
 
-In case of a ring protocol error don't issue an EOI in order to avoid
-the possibility to use that for producing an event storm. This at once
-will result in no further call of scsiback_irq_fn(), so the ring_error
-struct member can be dropped and scsiback_do_cmd_fn() can signal the
-protocol error via a negative return value.
-
-This is part of XSA-332.
-
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20201029095444.957924-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/xen-scsiback.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/xen/xen-scsiback.c
-+++ b/drivers/xen/xen-scsiback.c
-@@ -91,7 +91,6 @@ struct vscsibk_info {
- 	unsigned int irq;
- 
- 	struct vscsiif_back_ring ring;
--	int ring_error;
- 
- 	spinlock_t ring_lock;
- 	atomic_t nr_unreplied_reqs;
-@@ -698,7 +697,8 @@ static int prepare_pending_reqs(struct v
- 	return 0;
+---
+ drivers/misc/mei/client.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/misc/mei/client.h
++++ b/drivers/misc/mei/client.h
+@@ -138,11 +138,11 @@ static inline u8 mei_cl_me_id(const stru
+  *
+  * @cl: host client
+  *
+- * Return: mtu
++ * Return: mtu or 0 if client is not connected
+  */
+ static inline size_t mei_cl_mtu(const struct mei_cl *cl)
+ {
+-	return cl->me_cl->props.max_msg_length;
++	return cl->me_cl ? cl->me_cl->props.max_msg_length : 0;
  }
  
--static int scsiback_do_cmd_fn(struct vscsibk_info *info)
-+static int scsiback_do_cmd_fn(struct vscsibk_info *info,
-+			      unsigned int *eoi_flags)
- {
- 	struct vscsiif_back_ring *ring = &info->ring;
- 	struct vscsiif_request ring_req;
-@@ -715,11 +715,12 @@ static int scsiback_do_cmd_fn(struct vsc
- 		rc = ring->rsp_prod_pvt;
- 		pr_warn("Dom%d provided bogus ring requests (%#x - %#x = %u). Halting ring processing\n",
- 			   info->domid, rp, rc, rp - rc);
--		info->ring_error = 1;
--		return 0;
-+		return -EINVAL;
- 	}
- 
- 	while ((rc != rp)) {
-+		*eoi_flags &= ~XEN_EOI_FLAG_SPURIOUS;
-+
- 		if (RING_REQUEST_CONS_OVERFLOW(ring, rc))
- 			break;
- 		pending_req = kmem_cache_alloc(scsiback_cachep, GFP_KERNEL);
-@@ -782,13 +783,16 @@ static int scsiback_do_cmd_fn(struct vsc
- static irqreturn_t scsiback_irq_fn(int irq, void *dev_id)
- {
- 	struct vscsibk_info *info = dev_id;
-+	int rc;
-+	unsigned int eoi_flags = XEN_EOI_FLAG_SPURIOUS;
- 
--	if (info->ring_error)
--		return IRQ_HANDLED;
--
--	while (scsiback_do_cmd_fn(info))
-+	while ((rc = scsiback_do_cmd_fn(info, &eoi_flags)) > 0)
- 		cond_resched();
- 
-+	/* In case of a ring error we keep the event channel masked. */
-+	if (!rc)
-+		xen_irq_lateeoi(irq, eoi_flags);
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -809,7 +813,7 @@ static int scsiback_init_sring(struct vs
- 	sring = (struct vscsiif_sring *)area;
- 	BACK_RING_INIT(&info->ring, sring, PAGE_SIZE);
- 
--	err = bind_interdomain_evtchn_to_irq(info->domid, evtchn);
-+	err = bind_interdomain_evtchn_to_irq_lateeoi(info->domid, evtchn);
- 	if (err < 0)
- 		goto unmap_page;
- 
-@@ -1210,7 +1214,6 @@ static int scsiback_probe(struct xenbus_
- 
- 	info->domid = dev->otherend_id;
- 	spin_lock_init(&info->ring_lock);
--	info->ring_error = 0;
- 	atomic_set(&info->nr_unreplied_reqs, 0);
- 	init_waitqueue_head(&info->waiting_to_free);
- 	info->dev = dev;
+ /**
 
 
