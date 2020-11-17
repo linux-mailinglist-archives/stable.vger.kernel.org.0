@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DF52B61E6
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6412B61E5
 	for <lists+stable@lfdr.de>; Tue, 17 Nov 2020 14:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730678AbgKQNX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 08:23:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57882 "EHLO mail.kernel.org"
+        id S1731286AbgKQNXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 08:23:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731280AbgKQNXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Nov 2020 08:23:21 -0500
+        id S1730392AbgKQNXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Nov 2020 08:23:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 760272464E;
-        Tue, 17 Nov 2020 13:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 291B12463D;
+        Tue, 17 Nov 2020 13:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605619401;
-        bh=6VLVd0f1gWCyAUXO0rXiHgnvw485s8POdCH1KgnfBgA=;
+        s=default; t=1605619403;
+        bh=1dSLNybP+1p4t8Iy39GcyoTRpQcgD+38ElgBOkUA4PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgZH+Jih/dVjoE/cqjhHSEJBMka43bntm4EBvChwVtgdUj9rF141huF8Jzkqsl4EK
-         NUKSM4DEOqtJNBaNaa1+EhyeRctvDoaSw9x2T1je/Z+w/ct/IJ/E6hAts7eeAK4t0t
-         jjPr9ewTGWtcBgvy2CU3Z0gCURX23fJ72ZdxuHPg=
+        b=LL222Y2vOSPv1Xg0cIq8C8eXFaE1D/nXP727C5YmbkLIv4Hi90t3sJusPpuVyJQva
+         zobcBYEpoS1qLmkfL3abDdq2Y0lImlODBl4VL9ztyxwRl1LLom/6104XGF3CaLP8Vc
+         RLCGjV9vHXsrAM+cEhWoO8B3hs+ZDrJhZPxr/5CA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/151] can: rx-offload: dont call kfree_skb() from IRQ context
-Date:   Tue, 17 Nov 2020 14:04:16 +0100
-Message-Id: <20201117122122.684771487@linuxfoundation.org>
+Subject: [PATCH 5.4 027/151] can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
+Date:   Tue, 17 Nov 2020 14:04:17 +0100
+Message-Id: <20201117122122.736275256@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 References: <20201117122121.381905960@linuxfoundation.org>
@@ -42,96 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 2ddd6bfe7bdbb6c661835c3ff9cab8e0769940a6 ]
+[ Upstream commit 2283f79b22684d2812e5c76fc2280aae00390365 ]
 
-A CAN driver, using the rx-offload infrastructure, is reading CAN frames
-(usually in IRQ context) from the hardware and placing it into the rx-offload
-queue to be delivered to the networking stack via NAPI.
+If a driver calls can_get_echo_skb() during a hardware IRQ (which is often, but
+not always, the case), the 'WARN_ON(in_irq)' in
+net/core/skbuff.c#skb_release_head_state() might be triggered, under network
+congestion circumstances, together with the potential risk of a NULL pointer
+dereference.
 
-In case the rx-offload queue is full, trying to add more skbs results in the
-skbs being dropped using kfree_skb(). If done from hard-IRQ context this
-results in the following warning:
+The root cause of this issue is the call to kfree_skb() instead of
+dev_kfree_skb_irq() in net/core/dev.c#enqueue_to_backlog().
 
-[  682.552693] ------------[ cut here ]------------
-[  682.557360] WARNING: CPU: 0 PID: 3057 at net/core/skbuff.c:650 skb_release_head_state+0x74/0x84
-[  682.566075] Modules linked in: can_raw can coda_vpu flexcan dw_hdmi_ahb_audio v4l2_jpeg imx_vdoa can_dev
-[  682.575597] CPU: 0 PID: 3057 Comm: cansend Tainted: G        W         5.7.0+ #18
-[  682.583098] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-[  682.589657] [<c0112628>] (unwind_backtrace) from [<c010c1c4>] (show_stack+0x10/0x14)
-[  682.597423] [<c010c1c4>] (show_stack) from [<c06c481c>] (dump_stack+0xe0/0x114)
-[  682.604759] [<c06c481c>] (dump_stack) from [<c0128f10>] (__warn+0xc0/0x10c)
-[  682.611742] [<c0128f10>] (__warn) from [<c0129314>] (warn_slowpath_fmt+0x5c/0xc0)
-[  682.619248] [<c0129314>] (warn_slowpath_fmt) from [<c0b95dec>] (skb_release_head_state+0x74/0x84)
-[  682.628143] [<c0b95dec>] (skb_release_head_state) from [<c0b95e08>] (skb_release_all+0xc/0x24)
-[  682.636774] [<c0b95e08>] (skb_release_all) from [<c0b95eac>] (kfree_skb+0x74/0x1c8)
-[  682.644479] [<c0b95eac>] (kfree_skb) from [<bf001d1c>] (can_rx_offload_queue_sorted+0xe0/0xe8 [can_dev])
-[  682.654051] [<bf001d1c>] (can_rx_offload_queue_sorted [can_dev]) from [<bf001d6c>] (can_rx_offload_get_echo_skb+0x48/0x94 [can_dev])
-[  682.666007] [<bf001d6c>] (can_rx_offload_get_echo_skb [can_dev]) from [<bf01efe4>] (flexcan_irq+0x194/0x5dc [flexcan])
-[  682.676734] [<bf01efe4>] (flexcan_irq [flexcan]) from [<c019c1ec>] (__handle_irq_event_percpu+0x4c/0x3ec)
-[  682.686322] [<c019c1ec>] (__handle_irq_event_percpu) from [<c019c5b8>] (handle_irq_event_percpu+0x2c/0x88)
-[  682.695993] [<c019c5b8>] (handle_irq_event_percpu) from [<c019c64c>] (handle_irq_event+0x38/0x5c)
-[  682.704887] [<c019c64c>] (handle_irq_event) from [<c01a1058>] (handle_fasteoi_irq+0xc8/0x180)
-[  682.713432] [<c01a1058>] (handle_fasteoi_irq) from [<c019b2c0>] (generic_handle_irq+0x30/0x44)
-[  682.722063] [<c019b2c0>] (generic_handle_irq) from [<c019b8f8>] (__handle_domain_irq+0x64/0xdc)
-[  682.730783] [<c019b8f8>] (__handle_domain_irq) from [<c06df4a4>] (gic_handle_irq+0x48/0x9c)
-[  682.739158] [<c06df4a4>] (gic_handle_irq) from [<c0100b30>] (__irq_svc+0x70/0x98)
-[  682.746656] Exception stack(0xe80e9dd8 to 0xe80e9e20)
-[  682.751725] 9dc0:                                                       00000001 e80e8000
-[  682.759922] 9de0: e820cf80 00000000 ffffe000 00000000 eaf08fe4 00000000 600d0013 00000000
-[  682.768117] 9e00: c1732e3c c16093a8 e820d4c0 e80e9e28 c018a57c c018b870 600d0013 ffffffff
-[  682.776315] [<c0100b30>] (__irq_svc) from [<c018b870>] (lock_acquire+0x108/0x4e8)
-[  682.783821] [<c018b870>] (lock_acquire) from [<c0e938e4>] (down_write+0x48/0xa8)
-[  682.791242] [<c0e938e4>] (down_write) from [<c02818dc>] (unlink_file_vma+0x24/0x40)
-[  682.798922] [<c02818dc>] (unlink_file_vma) from [<c027a258>] (free_pgtables+0x34/0xb8)
-[  682.806858] [<c027a258>] (free_pgtables) from [<c02835a4>] (exit_mmap+0xe4/0x170)
-[  682.814361] [<c02835a4>] (exit_mmap) from [<c01248e0>] (mmput+0x5c/0x110)
-[  682.821171] [<c01248e0>] (mmput) from [<c012e910>] (do_exit+0x374/0xbe4)
-[  682.827892] [<c012e910>] (do_exit) from [<c0130888>] (do_group_exit+0x38/0xb4)
-[  682.835132] [<c0130888>] (do_group_exit) from [<c0130914>] (__wake_up_parent+0x0/0x14)
-[  682.843063] irq event stamp: 1936
-[  682.846399] hardirqs last  enabled at (1935): [<c02938b0>] rmqueue+0xf4/0xc64
-[  682.853553] hardirqs last disabled at (1936): [<c0100b20>] __irq_svc+0x60/0x98
-[  682.860799] softirqs last  enabled at (1878): [<bf04cdcc>] raw_release+0x108/0x1f0 [can_raw]
-[  682.869256] softirqs last disabled at (1876): [<c0b8f478>] release_sock+0x18/0x98
-[  682.876753] ---[ end trace 7bca4751ce44c444 ]---
+This patch prevents the skb to be freed within the call to netif_rx() by
+incrementing its reference count with skb_get(). The skb is finally freed by
+one of the in-irq-context safe functions: dev_consume_skb_any() or
+dev_kfree_skb_any(). The "any" version is used because some drivers might call
+can_get_echo_skb() in a normal context.
 
-This patch fixes the problem by replacing the kfree_skb() by
-dev_kfree_skb_any(), as rx-offload might be called from threaded IRQ handlers
-as well.
+The reason for this issue to occur is that initially, in the core network
+stack, loopback skb were not supposed to be received in hardware IRQ context.
+The CAN stack is an exeption.
 
-Fixes: ca913f1ac024 ("can: rx-offload: can_rx_offload_queue_sorted(): fix error handling, avoid skb mem leak")
-Fixes: 6caf8a6d6586 ("can: rx-offload: can_rx_offload_queue_tail(): fix error handling, avoid skb mem leak")
-Link: http://lore.kernel.org/r/20201019190524.1285319-3-mkl@pengutronix.de
+This bug was previously reported back in 2017 in [1] but the proposed patch
+never got accepted.
+
+While [1] directly modifies net/core/dev.c, we try to propose here a
+smoother modification local to CAN network stack (the assumption
+behind is that only CAN devices are affected by this issue).
+
+[1] http://lore.kernel.org/r/57a3ffb6-3309-3ad5-5a34-e93c3fe3614d@cetitec.com
+
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201002154219.4887-2-mailhol.vincent@wanadoo.fr
+Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rx-offload.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/dev.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
-index 84cae167e42f6..7e75a87a8a6a9 100644
---- a/drivers/net/can/rx-offload.c
-+++ b/drivers/net/can/rx-offload.c
-@@ -272,7 +272,7 @@ int can_rx_offload_queue_sorted(struct can_rx_offload *offload,
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 3a33fb5034005..de3c589b1ae0e 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -512,7 +512,11 @@ unsigned int can_get_echo_skb(struct net_device *dev, unsigned int idx)
+ 	if (!skb)
+ 		return 0;
  
- 	if (skb_queue_len(&offload->skb_queue) >
- 	    offload->skb_queue_len_max) {
--		kfree_skb(skb);
+-	netif_rx(skb);
++	skb_get(skb);
++	if (netif_rx(skb) == NET_RX_SUCCESS)
++		dev_consume_skb_any(skb);
++	else
 +		dev_kfree_skb_any(skb);
- 		return -ENOBUFS;
- 	}
  
-@@ -317,7 +317,7 @@ int can_rx_offload_queue_tail(struct can_rx_offload *offload,
- {
- 	if (skb_queue_len(&offload->skb_queue) >
- 	    offload->skb_queue_len_max) {
--		kfree_skb(skb);
-+		dev_kfree_skb_any(skb);
- 		return -ENOBUFS;
- 	}
- 
+ 	return len;
+ }
 -- 
 2.27.0
 
