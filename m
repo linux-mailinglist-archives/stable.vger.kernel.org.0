@@ -2,126 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB832B8245
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 17:54:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0B22B826F
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 17:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgKRQtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 11:49:19 -0500
-Received: from de-smtp-delivery-52.mimecast.com ([62.140.7.52]:38895 "EHLO
-        de-smtp-delivery-52.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726612AbgKRQtS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 11:49:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=mimecast20200619;
-        t=1605718156;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sFAZ2glMe4fb0ZZ/IpT7cU/87KXmO1qMUmV5wr2JiGo=;
-        b=JjH6C5tge/L4pH+R9YWpUBBzCQ6O89ikU2Aht7d+QdHNqI+A26x5v6ggWZVkO65fOoeis8
-        zlqFzE9dxAYyq5d+QAlryo1kS2GebratlyQCmPa4yz/bSOFvqwKNnwEvKZN+4qmPDGAW6l
-        8UNC5M/RjaNJEfX2vWoZZtXfPYc3Wik=
-Received: from EUR03-DB5-obe.outbound.protection.outlook.com
- (mail-db5eur03lp2051.outbound.protection.outlook.com [104.47.10.51]) (Using
- TLS) by relay.mimecast.com with ESMTP id de-mta-2-KhHlFzPXOd-0LP6DinC0lA-1;
- Wed, 18 Nov 2020 17:49:14 +0100
-X-MC-Unique: KhHlFzPXOd-0LP6DinC0lA-1
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SIXp8mowr9YCHxVxT/PGJrP5rRF4ur0R95ByKIg0uu6rJ2AN6l++WwypamU4QBrouOALBntdBtIbbNbN9ISPyKZE+CSkhBHlxoZUSLhOktcgqC1Jl5GA9uw9HXFmpUGUbkw6Cxp0ZO3CkpsYtu+Re6s9WI/3mCfQq6zO2unjleqZAkKPkVhByi0ajhso+lhUeX0LkugtXth2IPtiLbUCc5fWDh/B7E+m6L8hy7W0bV1VVhHn1yq8dDtTBh58qgSNEcMMVuvFehqELKyrBjVzfVQeGCVT458sojaPWrwhYv0/fycVYkkvTlM3T9ZznSKanGVyl3JvpVlpCjpH7DU9dg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=sFAZ2glMe4fb0ZZ/IpT7cU/87KXmO1qMUmV5wr2JiGo=;
- b=a++XMGann7FSD+FMg6xOl5OUrYxZK2kJSxJlPJffDt8cN0/q+0kq/1BbSAgEAKY1B5WiJPDrnpOAnHd1dqtKDR9h69habMrmgKqA4tBXUJX6+NdRtmXa/bJ5529buwSP33CYXY263ax2YSjjysv2c0kP20pyHHtq2/6SdSLDQMMJWvATUQvlj1XutP5tm5ZkHazK3uCOQBf343fQ0SRhkywD16lf1wW/gbXpd7+sKthmNcxUDlKsWR0vXhdNiojFspFoxMByokpoK7C9aX3MZjWgGp/amsAlVQXmqg63ZgWueetq/aOi1nuoqwQ1/B0w74ys2yA3uGvbOtXQsVaw7g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
- dkim=pass header.d=suse.com; arc=none
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=suse.com;
-Received: from DB7PR04MB4666.eurprd04.prod.outlook.com (2603:10a6:5:2b::14) by
- DB6PR0401MB2280.eurprd04.prod.outlook.com (2603:10a6:4:48::11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3589.20; Wed, 18 Nov 2020 16:49:12 +0000
-Received: from DB7PR04MB4666.eurprd04.prod.outlook.com
- ([fe80::1c22:83d3:bc1e:6383]) by DB7PR04MB4666.eurprd04.prod.outlook.com
- ([fe80::1c22:83d3:bc1e:6383%4]) with mapi id 15.20.3564.028; Wed, 18 Nov 2020
- 16:49:12 +0000
-Subject: Re: [PATCH v4 2/2] md/cluster: fix deadlock when node is doing resync
- job
-To:     linux-raid@vger.kernel.org, song@kernel.org,
-        guoqing.jiang@cloud.ionos.com, xni@redhat.com
-Cc:     lidong.zhong@suse.com, neilb@suse.de, colyli@suse.de,
-        stable@vger.kernel.org
-References: <1605717954-20173-1-git-send-email-heming.zhao@suse.com>
- <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
-From:   "heming.zhao@suse.com" <heming.zhao@suse.com>
-Message-ID: <4b617cc2-e06d-9221-f3e8-6dad9f0fc94f@suse.com>
-Date:   Thu, 19 Nov 2020 00:49:00 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
-In-Reply-To: <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [123.123.135.93]
-X-ClientProxiedBy: HKAPR03CA0011.apcprd03.prod.outlook.com
- (2603:1096:203:c8::16) To DB7PR04MB4666.eurprd04.prod.outlook.com
- (2603:10a6:5:2b::14)
+        id S1726328AbgKRQ52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 11:57:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726209AbgKRQ51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 11:57:27 -0500
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D2BC0613D6
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 08:57:27 -0800 (PST)
+Received: by mail-ej1-x62d.google.com with SMTP id w13so3702958eju.13
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 08:57:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Q+vAmgbhUhID2bejoiR+0/7u4a1jtXsFIW6HxVMmr8A=;
+        b=iZaUW8MT5xQy74L6uUoR2FwpX8lXivPOd6a9rdVhPjJHOyo93uLRsbar6dxive1ugX
+         +eLsJLqtuIDKabE8vYQFTpVeVXRLvmmZRFvw2kGF2NGp+2CIS1pOKiLTN6EWHPZ1Mjmb
+         UDP1E1FnMe3JzNIV3Bv9dr8PTu+RsXQ87sAQcztN7BinBRERrhz4IV5YuZtGES9E0b0o
+         321eejdpTiBRvHG+QBaT1FNTXBID/QMJ4lSqCF5wjI+1n1Um/L12ixk/4v34kpofRpGK
+         Cf6SKc9z9QllPicy2QtIpDBEFgt/rV0r01sWqNR8XLSpRb86szqVr8zcQXAcWwZ+uvOf
+         B1TA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Q+vAmgbhUhID2bejoiR+0/7u4a1jtXsFIW6HxVMmr8A=;
+        b=ib7vFa7Xx3eiZD6vz1MEk6nrojPSud5L/9xiJUjJb+v+XHWThDQ8G6kzhs5itEsXtE
+         pINfTsW0dfYjMcQQz1RCjyFQ9aACkyneeS14lImei9Xhh/labfzVHUR6RekXZeNm3qwG
+         QqxE8wV+DCwaV+qZYq1YL+9pnSX4G1cdftRMGVjSrjkdKzqly9+bdG44oayIL8RctMia
+         hknn1wBe1yZZGgFBXoQpRqqEIc7wmE46S/crh3xAb0HLXSKbm9aLwMK+OMm4lxo3Imza
+         kTQy8tLHI1ENOb7TGR9XKX8enlcpQGgFufsWCCVdTbvE8h0gI3cUWZyVPt7IIfmxHavZ
+         ozvw==
+X-Gm-Message-State: AOAM531eazw2AZi2LZBWBtdQEbx/Dps0d6giKc1PyH/svkLtDhLFtb+w
+        QSZHJsE/hPDmTY5C1l9NfX1DIdlkLTs/hraZU6BLNQ==
+X-Google-Smtp-Source: ABdhPJxJoP3L5WNu3Z7jlfY3e3j46TddEIxW9w2f2ym2HmJuwWmtEmvsNOXCCl52DhbMKKaexvDcOPLp2IyiMadNmlM=
+X-Received: by 2002:a17:906:5fd0:: with SMTP id k16mr25467183ejv.133.1605718645682;
+ Wed, 18 Nov 2020 08:57:25 -0800 (PST)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from c73.home (123.123.135.93) by HKAPR03CA0011.apcprd03.prod.outlook.com (2603:1096:203:c8::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3589.15 via Frontend Transport; Wed, 18 Nov 2020 16:49:09 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 090a5ce5-5ba8-4429-d7a7-08d88be1e055
-X-MS-TrafficTypeDiagnostic: DB6PR0401MB2280:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DB6PR0401MB2280668AE61C255AEAD57BF497E10@DB6PR0401MB2280.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:227;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cgO+RPWywGG8DF4V4qMl+Fq4qYcY4spTmLCdr+OcSg4VjtuX8YGJ+85oiUwoFhcKx7C+PPvFvttg/FWMLGuFAD0dKO8UuZ/yqsMIahQxK2uvhoYiyLwFQR7kKWqdndkOcsmCAwqH7mqBbEGk8jo70MUczj0qWRv23PCAs8OS7CSl9QRJ+RUMncEej8jTJHaeSArPITsgS1g1Ei8h55H/W+VltGCNrm7e0RB8BcVF0TFyozuTgbnERQsSfyIGYMPMDiAZYPcm1FMVdsJadIBJ6UjCgDZNF9ij9+ZcIiOf54FhpIiBtq8HLHu7KvoC8U1Q0r4hSLbOwkLHeHVwUG5ndRD4guATciIFLUAq6cpNjGidiVo5gLtIS3V1EVJZqqvQ5EvJRDbxugCL8hDhk0fWcg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB7PR04MB4666.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(396003)(376002)(136003)(366004)(39860400002)(8936002)(6486002)(6512007)(4326008)(36756003)(66556008)(66476007)(8676002)(2906002)(83380400001)(4744005)(5660300002)(31686004)(8886007)(6666004)(66946007)(6506007)(52116002)(31696002)(186003)(2616005)(53546011)(16526019)(956004)(86362001)(478600001)(316002)(26005)(9126006)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: LCM/zxQt4zZrZGli3XGGWEpe7Cu4yxYCrynPILhaedgpDkTN8doJuU2+NhljPo++oTY+mNEOKwP+H1xNk9ytMNNHPjW0rEM9m+kntA0DxzMzq6nsVPWh3qga4TeILTp61Iq7/ih7yBLWn/h7qe4LD6DCZYAbqcjBECnACEUAVmBO2KVH2YaFkW9MC+MWkqivv0QUohEiYyfOfdUsyUVXGA6rigC53vTnS8cevPS9LwZblutBnKWGpMKKGljYwy0aEyyxakllgQL5wNGVB+XEJ6wuJcGHw2AIsAJdW2cKL62JuudlqVKgvDSvlyntKb9i5pugq7qHwQTtD6bcR2Xo06/XIGw6jGGq1lX7cny7V7HkgNST+idICqS8jpiZ4kr4voy07kUUpMhmx5e/UJhFaji03uIgZMhGZ09aWR+vuG7iJlJigq/BeOJVY+Y8HvdLJQPvkmW4i7aqh+FiiWnA86bOVtJzz7zFXnW7S9IQAbT59KCjeZXlFEzQn71jIVfhlFzsZuYYoah+X8m7SEvbm5BHYpA7CcTGZtNqTgjKhzIKpClHZyIZozD6X7U1gM2v02R4wBVVtAzg/maUerkwXv9NiTxTcRv5/CSY/NVbERFmVY4FMOTaae3joAGzKlCHX4EQWLFcvwEgwQZ9pYCTpQ==
-X-OriginatorOrg: suse.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 090a5ce5-5ba8-4429-d7a7-08d88be1e055
-X-MS-Exchange-CrossTenant-AuthSource: DB7PR04MB4666.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2020 16:49:12.1819
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9CNKAyqVgTI8Laff1gs+ou2EjYdvzTlGpkkjkgtrn8Tf8hwC6ucFK3oGciHXc7CldgMnlL5m7rkwh6EOlxIbBA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB6PR0401MB2280
+References: <CA+G9fYtwycbC+Hf9aP5Br8wq7cKWVqjhcGusn2DbJaNauGC3Og@mail.gmail.com>
+ <CA+G9fYsfEVK86ask=fL=M5juerbz+BwbFGcAZ_UxWrPHXYpA1Q@mail.gmail.com> <0256a0a0139c56db75cffa4fe14079ad@kernel.org>
+In-Reply-To: <0256a0a0139c56db75cffa4fe14079ad@kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 18 Nov 2020 22:27:13 +0530
+Message-ID: <CA+G9fYvBtp-qh07yBMxEyPY4DXfp_vSC8ox0gkcEeFjsmOWSKg@mail.gmail.com>
+Subject: Re: WARNING: kernel/irq/chip.c:242 __irq_startup+0xa8/0xb0
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/19/20 12:45 AM, Zhao Heming wrote:
-> md-cluster uses MD_CLUSTER_SEND_LOCK to make node can exclusively send msg.
-> During sending msg, node can concurrently receive msg from another node.
-> [... ...]
-> 
-> Repro steps (I only triggered 3 times with hundreds tests):
+On Wed, 18 Nov 2020 at 14:38, Marc Zyngier <maz@kernel.org> wrote:
+>
+> Naresh,
+>
+> On 2020-11-18 06:11, Naresh Kamboju wrote:
+> > On Tue, 13 Oct 2020 at 11:09, Naresh Kamboju
+> > <naresh.kamboju@linaro.org> wrote:
+> >>
+> >> On stable rc  5.8.15 the following kernel warning was noticed once
+> >> while boot and this is hard to reproduce.
+> >
+> > This is now reproduciable on arm64 NXP ls2088 device
+>
+> How reproducible? On demand? Once in a while?
 
-sorry to send v4 patch so late.
-I spent more than 2 days to run test script to trigger the deadlock.
-The result is I failed.
-So I wrote "I only triggered 3 times with hundreds tests" in commit log.
+Once in a while.
 
-> 
-> two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB.
-> ```
-> ssh root@node2 "mdadm -S --scan"
-> [... ...]
-> 
-> At last, thanks for Xiao's solution.
-> 
-> Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-> Suggested-by: Xiao Ni <xni@redhat.com>
-> Reviewed-by: Xiao Ni <xni@redhat.com>
-> ---
->   drivers/md/md-cluster.c | 69 +++++++++++++++++++++++------------------
->   drivers/md/md.c         |  6 ++--
->   2 files changed, 43 insertions(+), 32 deletions(-)
-> 
+>
+> >
+> > [   19.980839] ------------[ cut here ]------------
+> > [   19.985468] WARNING: CPU: 1 PID: 441 at kernel/irq/chip.c:242
+> > __irq_startup+0x9c/0xa8
+> > [   19.985472] Modules linked in: rfkill lm90 ina2xx crct10dif_ce
+> > qoriq_thermal fuse
+> > [   20.000773] CPU: 1 PID: 441 Comm: (agetty) Not tainted 5.4.78-rc1 #2
+>
+> Can you please try and reproduce this on mainline?
 
+yes on mainline kernel.
+
+[   18.284440] ------------[ cut here ]------------
+[   18.289063] WARNING: CPU: 3 PID: 441 at kernel/irq/chip.c:242
+__irq_startup+0xa8/0xb0
+[   18.296891] Modules linked in: rfkill caam crct10dif_ce error lm90
+ina2xx qoriq_thermal fuse
+[   18.296914] CPU: 3 PID: 441 Comm: (agetty) Not tainted 5.10.0-rc3 #2
+[   18.311693] Hardware name: Freescale Layerscape 2088A RDB Board (DT)
+[   18.311697] pstate: 60000085 (nZCv daIf -PAN -UAO -TCO BTYPE=--)
+[   18.311700] pc : __irq_startup+0xa8/0xb0
+[   18.311702] lr : irq_startup+0x64/0x140
+[   18.311708] sp : ffff800011b2f8f0
+[   18.335095] x29: ffff800011b2f8f0 x28: ffff724881a03800
+[   18.335100] x27: ffffa9adf65ff200 x26: 0000000000020902
+[   18.335104] x25: ffffa9adf522bb40 x24: ffffa9adf522b7f8
+[   18.351023] x23: 0000000000000000 x22: 0000000000000001
+[   18.351027] x21: 0000000000000001 x20: ffff724883dbc940
+[   18.351030] x19: ffff7248812a0800 x18: 0000000000000010
+[   18.351035] x17: 0000000000000000 x16: 0000000000000000
+[   18.366952] x15: ffff724883dbcdc0 x14: ffffffffffffffff
+[   18.366956] x13: ffff800011de0000 x12: ffff800011de0000
+[   18.366959] x11: 0000000000000040 x10: ffffa9adf63c64e0
+[   18.388178] x9 : ffffa9adf3f90c3c x8 : ffff7248a0000270
+[   18.388181] x7 : 0000000000000000 x6 : ffffa9adf6334aa8
+[   18.388185] x5 : ffffa9adf6334000 x4 : 0000000000000504
+[   18.388189] x3 : ffff7248812a0800 x2 : 0000000013032004
+[   18.404106] x1 : 0000000013032004 x0 : ffff7248812a0860
+[   18.404111] Call trace:
+[   18.404114]  __irq_startup+0xa8/0xb0
+[   18.404116]  irq_startup+0x64/0x140
+[   18.404123]  __enable_irq+0x78/0x88
+[   18.427685]  enable_irq+0x54/0xa8
+[   18.427689]  serial8250_do_startup+0x670/0x718
+[   18.427692]  serial8250_startup+0x30/0x40
+[   18.427696]  uart_startup.part.0+0x12c/0x2e0
+[   18.427701]  uart_port_activate+0x68/0xa0
+[   18.447701]  tty_port_open+0x98/0x250
+[   18.447704]  uart_open+0x24/0x38
+[   18.447707]  tty_open+0x120/0x518
+[   18.447712]  chrdev_open+0xac/0x1a8
+[   18.447718]  do_dentry_open+0x134/0x3a0
+[   18.465200]  vfs_open+0x34/0x40
+[   18.465203]  path_openat+0x85c/0xde0
+[   18.465207]  do_filp_open+0x80/0x108
+[   18.465209]  do_sys_openat2+0x1ec/0x2a0
+[   18.465215]  do_sys_open+0x60/0xa8
+[   18.482695]  __arm64_sys_openat+0x2c/0x38
+[   18.482699]  do_el0_svc+0xe0/0x210
+[   18.482702]  el0_sync_handler+0x180/0x18c
+[   18.482705]  el0_sync+0x174/0x180
+[   18.482710] ---[ end trace 12c4809389e4277f ]---
+
+>
+> Looking at the DT:
+>
+>                  serial0: serial@21c0500 {
+>                          interrupts = <0 32 0x4>; /* Level high type */
+>
+>                  serial1: serial@21c0600 {
+>                          interrupts = <0 32 0x4>; /* Level high type */
+>
+>                  serial2: serial@21d0500 {
+>                          interrupts = <0 33 0x4>; /* Level high type */
+>
+>                  serial3: serial@21d0600 {
+>                          interrupts = <0 33 0x4>; /* Level high type */
+>
+>
+> The UART interrupt lines are shared. Braindead, 1980 style.
+>
+> Which UART is agetty trying to use? Is there any other process using
+> another UART concurrently? We could have a race between the line being
+> shut down on one device, and activated from the other, but I can't
+> spot it right away.
+
+From the boot log,
+
+  Created slice system-getty.slice.
+  Created slice system-serial\x2dgetty.slice.
+<>
+  Found device /dev/ttyS0.
+  Found device /dev/ttyS1.
+<>
+  Started Getty on tty1.
+  Started Serial Getty on ttyS1.
+  Started Serial Getty on ttyS0.
+  Started Authorization Manager.
+
+And the warning triggered.
+
+>
+> If you can reproduce it easily enough, it shouldn't be too hard to trace
+> what happens around the activation of the shared interrupt (assuming
+> that
+> this is where the problem is).
+
+We do not find easy steps to reproduce it.
+This warning was noticed while booting once in 20 runs.
+
+ref:
+https://qa-reports.linaro.org/lkft/linux-mainline-master/build/v5.10-rc3-391-g9cfd9c45994b/testrun/3443291/suite/linux-log-parser/test/check-kernel-warning-138789/log
+
+- Naresh
