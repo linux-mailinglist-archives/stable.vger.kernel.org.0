@@ -2,74 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D66D42B82BD
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 18:14:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2F52B82C0
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 18:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbgKRRNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 12:13:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
+        id S1727010AbgKRRNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 12:13:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725943AbgKRRNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Nov 2020 12:13:35 -0500
+        id S1725943AbgKRRNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 12:13:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3677A21D7E;
-        Wed, 18 Nov 2020 17:13:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFB6D248A1;
+        Wed, 18 Nov 2020 17:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605719613;
-        bh=zytBjFH2SuYYq9ueFmUnghxbqFnu7S45ZhSIcILInBg=;
+        s=korg; t=1605719626;
+        bh=IlZAznblZt4xT3tGNdphNfI2m8V2aWGbgxAGUPHRwrc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nyd+gCMg87bVUMCM1uDvb6NXhHLs/zGeNm/umWbdMCr6JWAM8rhaUyh+24PCN/mWd
-         MRybLIV4eqClWZKRGXGylGq0ArVTB8k+C8ybR2nQ9VzG2o8BoAfQmJxnIcpxmHYTTR
-         jYPkJpRxPSPEFeBJpC5wAMCnUmFDmeU2rBiK04uQ=
-Date:   Wed, 18 Nov 2020 18:14:19 +0100
+        b=OrrQu24UmIDGrpvyk3RYg+b8Nrabmyj46/jEM67PIMqLMuvfkiPjDY1cXaV6avMrr
+         e3sB6fXXT+OzU5ZYHJU1TIQqzDXei/AQ8Kwr9rftp4oXAVEtVlgroRC3uZFhchAGIT
+         ZcPnufTgLUJWBdbylciYMct2jd+9PntTt3LJ1uf8=
+Date:   Wed, 18 Nov 2020 18:14:32 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Zhao Heming <heming.zhao@suse.com>
 Cc:     linux-raid@vger.kernel.org, song@kernel.org,
         guoqing.jiang@cloud.ionos.com, xni@redhat.com,
         lidong.zhong@suse.com, neilb@suse.de, colyli@suse.de,
         stable@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] md/cluster: block reshape with remote resync job
-Message-ID: <X7VWa+6KnqNq9Ian@kroah.com>
+Subject: Re: [PATCH v4 2/2] md/cluster: fix deadlock when node is doing
+ resync job
+Message-ID: <X7VWeJfr3Jh7N2KP@kroah.com>
 References: <1605717954-20173-1-git-send-email-heming.zhao@suse.com>
- <1605717954-20173-2-git-send-email-heming.zhao@suse.com>
+ <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1605717954-20173-2-git-send-email-heming.zhao@suse.com>
+In-Reply-To: <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 12:45:53AM +0800, Zhao Heming wrote:
-> Reshape request should be blocked with ongoing resync job. In cluster
-> env, a node can start resync job even if the resync cmd isn't executed
-> on it, e.g., user executes "mdadm --grow" on node A, sometimes node B
-> will start resync job. However, current update_raid_disks() only check
-> local recovery status, which is incomplete. As a result, we see user will
-> execute "mdadm --grow" successfully on local, while the remote node deny
-> to do reshape job when it doing resync job. The inconsistent handling
-> cause array enter unexpected status. If user doesn't observe this issue
-> and continue executing mdadm cmd, the array doesn't work at last.
-> 
-> Fix this issue by blocking reshape request. When node executes "--grow"
-> and detects ongoing resync, it should stop and report error to user.
-> 
-> The following script reproduces the issue with ~100% probability.
-> (two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB)
+On Thu, Nov 19, 2020 at 12:45:54AM +0800, Zhao Heming wrote:
+> md-cluster uses MD_CLUSTER_SEND_LOCK to make node can exclusively send msg.
+> During sending msg, node can concurrently receive msg from another node.
+> When node does resync job, grab token_lockres:EX may trigger a deadlock:
 > ```
->  # on node1, node2 is the remote node.
+> nodeA                       nodeB
+> --------------------     --------------------
+> a.
+> send METADATA_UPDATED
+> held token_lockres:EX
+>                          b.
+>                          md_do_sync
+>                           resync_info_update
+>                             send RESYNCING
+>                              + set MD_CLUSTER_SEND_LOCK
+>                              + wait for holding token_lockres:EX
+> 
+>                          c.
+>                          mdadm /dev/md0 --remove /dev/sdg
+>                           + held reconfig_mutex
+>                           + send REMOVE
+>                              + wait_event(MD_CLUSTER_SEND_LOCK)
+> 
+>                          d.
+>                          recv_daemon //METADATA_UPDATED from A
+>                           process_metadata_update
+>                            + (mddev_trylock(mddev) ||
+>                               MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD)
+>                              //this time, both return false forever
+> ```
+> Explaination:
+> a. A send METADATA_UPDATED
+>    This will block another node to send msg
+> 
+> b. B does sync jobs, which will send RESYNCING at intervals.
+>    This will be block for holding token_lockres:EX lock.
+> 
+> c. B do "mdadm --remove", which will send REMOVE.
+>    This will be blocked by step <b>: MD_CLUSTER_SEND_LOCK is 1.
+> 
+> d. B recv METADATA_UPDATED msg, which send from A in step <a>.
+>    This will be blocked by step <c>: holding mddev lock, it makes
+>    wait_event can't hold mddev lock. (btw,
+>    MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD keep ZERO in this scenario.)
+> 
+> There is a similar deadlock in commit 0ba959774e93
+> ("md-cluster: use sync way to handle METADATA_UPDATED msg")
+> In that commit, step c is "update sb". This patch step c is
+> "mdadm --remove".
+> 
+> For fixing this issue, we can refer the solution of function:
+> metadata_update_start. Which does the same grab lock_token action.
+> lock_comm can use the same steps to avoid deadlock. By moving
+> MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD from lock_token to lock_comm.
+> It enlarge a little bit window of MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
+> but it is safe & can break deadlock.
+> 
+> Repro steps (I only triggered 3 times with hundreds tests):
+> 
+> two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB.
+> ```
 > ssh root@node2 "mdadm -S --scan"
 > mdadm -S --scan
 > for i in {g,h,i};do dd if=/dev/zero of=/dev/sd$i oflag=direct bs=1M \
 > count=20; done
 > 
-> mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh
+> mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh \
+>  --bitmap-chunk=1M
 > ssh root@node2 "mdadm -A /dev/md0 /dev/sdg /dev/sdh"
 > 
 > sleep 5
 > 
+> mkfs.xfs /dev/md0
 > mdadm --manage --add /dev/md0 /dev/sdi
 > mdadm --wait /dev/md0
 > mdadm --grow --raid-devices=3 /dev/md0
@@ -79,10 +125,70 @@ On Thu, Nov 19, 2020 at 12:45:53AM +0800, Zhao Heming wrote:
 > mdadm --grow --raid-devices=2 /dev/md0
 > ```
 > 
+> test script will hung when executing "mdadm --remove".
+> 
+> ```
+>  # dump stacks by "echo t > /proc/sysrq-trigger"
+> md0_cluster_rec D    0  5329      2 0x80004000
+> Call Trace:
+>  __schedule+0x1f6/0x560
+>  ? _cond_resched+0x2d/0x40
+>  ? schedule+0x4a/0xb0
+>  ? process_metadata_update.isra.0+0xdb/0x140 [md_cluster]
+>  ? wait_woken+0x80/0x80
+>  ? process_recvd_msg+0x113/0x1d0 [md_cluster]
+>  ? recv_daemon+0x9e/0x120 [md_cluster]
+>  ? md_thread+0x94/0x160 [md_mod]
+>  ? wait_woken+0x80/0x80
+>  ? md_congested+0x30/0x30 [md_mod]
+>  ? kthread+0x115/0x140
+>  ? __kthread_bind_mask+0x60/0x60
+>  ? ret_from_fork+0x1f/0x40
+> 
+> mdadm           D    0  5423      1 0x00004004
+> Call Trace:
+>  __schedule+0x1f6/0x560
+>  ? __schedule+0x1fe/0x560
+>  ? schedule+0x4a/0xb0
+>  ? lock_comm.isra.0+0x7b/0xb0 [md_cluster]
+>  ? wait_woken+0x80/0x80
+>  ? remove_disk+0x4f/0x90 [md_cluster]
+>  ? hot_remove_disk+0xb1/0x1b0 [md_mod]
+>  ? md_ioctl+0x50c/0xba0 [md_mod]
+>  ? wait_woken+0x80/0x80
+>  ? blkdev_ioctl+0xa2/0x2a0
+>  ? block_ioctl+0x39/0x40
+>  ? ksys_ioctl+0x82/0xc0
+>  ? __x64_sys_ioctl+0x16/0x20
+>  ? do_syscall_64+0x5f/0x150
+>  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+> md0_resync      D    0  5425      2 0x80004000
+> Call Trace:
+>  __schedule+0x1f6/0x560
+>  ? schedule+0x4a/0xb0
+>  ? dlm_lock_sync+0xa1/0xd0 [md_cluster]
+>  ? wait_woken+0x80/0x80
+>  ? lock_token+0x2d/0x90 [md_cluster]
+>  ? resync_info_update+0x95/0x100 [md_cluster]
+>  ? raid1_sync_request+0x7d3/0xa40 [raid1]
+>  ? md_do_sync.cold+0x737/0xc8f [md_mod]
+>  ? md_thread+0x94/0x160 [md_mod]
+>  ? md_congested+0x30/0x30 [md_mod]
+>  ? kthread+0x115/0x140
+>  ? __kthread_bind_mask+0x60/0x60
+>  ? ret_from_fork+0x1f/0x40
+> ```
+> 
+> At last, thanks for Xiao's solution.
+> 
 > Signed-off-by: Zhao Heming <heming.zhao@suse.com>
+> Suggested-by: Xiao Ni <xni@redhat.com>
+> Reviewed-by: Xiao Ni <xni@redhat.com>
 > ---
->  drivers/md/md.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+>  drivers/md/md-cluster.c | 69 +++++++++++++++++++++++------------------
+>  drivers/md/md.c         |  6 ++--
+>  2 files changed, 43 insertions(+), 32 deletions(-)
 
 <formletter>
 
