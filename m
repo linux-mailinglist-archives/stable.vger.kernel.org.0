@@ -2,105 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21BFC2B86F0
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:42:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D48EF2B871F
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 23:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727008AbgKRVlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 16:41:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49688 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbgKRVlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 16:41:51 -0500
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A12C0613D4;
-        Wed, 18 Nov 2020 13:41:50 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id c17so3640722wrc.11;
-        Wed, 18 Nov 2020 13:41:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=gjo4l7jEqfgUaEJTViB3FcmDbvAZcSujHdYlxEFDeHw=;
-        b=V58gjjNxTRjOOuSvM8oz4SRLNgcz4ELwhVa98lKi2j3r85iTchKqAqJ7jjMxZ41ghU
-         x+bNr55IxJVzPNY/MNtidNvHFZ0m0/YkoKT2o2tNXXOgaeytt9Bt4E37pnGchcEZo5jB
-         C0X2qxWBM2CqNwXITyXH+I/c5Ohnu/XcYDewKkgfi6884iBxsZX64DaNDf9EpQosqGU1
-         nqyElaNhkBToPJUpS8HOOs6uyESJZR0cbyTQrN5fOEVvaT0znpW5DYQypXJWOg6jzOBZ
-         gg7/XBGdyPYCzyG6gWFq9iCCUg4RJ9xmvo36VftyP2LbgmcPAb+8pg9M+ap5jcTqElfe
-         Tr/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=gjo4l7jEqfgUaEJTViB3FcmDbvAZcSujHdYlxEFDeHw=;
-        b=TYu1f03C17HlAGTxcqZcWJPl4YcbFkMAuJsnmrRrjDrIPo9nF53MwDMh1zpfjk9eGm
-         d+Gg7rR+G360PYwPeby+S9zWlG6q79qW9YHafUxLJ1edoHY6/D1V3TJ8LmimASv30PA3
-         p/KQpWsdZ4rkXiDU3uoXshrDfZRDTFUHB4oZJZoD5IeADwR9AYnAMx1vDVWyhEqq2iU3
-         fl/J+BOE57CPWqEMIFIpqz1/6D0OwvesVnN+iLHqhD6YGz4d5E4zurY7BZe9R4LsiWjn
-         wVuO1nfp89KOM3FU6IruKBwEJst3iCCOi6gPVSFrLdg/9T8Pho0H/ZFZt/A6ug8zsezX
-         wtBQ==
-X-Gm-Message-State: AOAM533TFvQV6v2DpzJ/VgmPP98u832ynb/uZmpFfmZmySplIpwngmBf
-        KFqbiQDXrsZ+F3DdfTbtZpc=
-X-Google-Smtp-Source: ABdhPJy9ee/dgg3f2T9n0yWRJmyR6W8Gb0KA8VeUzMnlnShqSnAd5OFBZpApYyKOM58j9YFclFZQbA==
-X-Received: by 2002:adf:eb47:: with SMTP id u7mr6678174wrn.163.1605735709702;
-        Wed, 18 Nov 2020 13:41:49 -0800 (PST)
-Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id o197sm5480589wme.17.2020.11.18.13.41.48
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 18 Nov 2020 13:41:49 -0800 (PST)
-Date:   Wed, 18 Nov 2020 21:41:47 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+        id S1725879AbgKRWFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 17:05:50 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:34414 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725822AbgKRWFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 17:05:49 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 3FAC71C0B87; Wed, 18 Nov 2020 23:05:46 +0100 (CET)
+Date:   Wed, 18 Nov 2020 23:05:45 +0100
+From:   Pavel Machek <pavel@ucw.cz>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
-Subject: Re: [PATCH 5.4 140/203] MIPS: PCI: remember nasid changed by set
- interrupt affinity
-Message-ID: <20201118214147.5ghn6gtzu3jlksre@debian>
-References: <20200116231745.218684830@linuxfoundation.org>
- <20200116231757.243032912@linuxfoundation.org>
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 019/101] can: peak_usb: add range checking in decode
+ operations
+Message-ID: <20201118220545.GB23840@amd>
+References: <20201117122113.128215851@linuxfoundation.org>
+ <20201117122114.030656831@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Y7xTucakfITjPcLV"
 Content-Disposition: inline
-In-Reply-To: <20200116231757.243032912@linuxfoundation.org>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20201117122114.030656831@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On Fri, Jan 17, 2020 at 12:17:37AM +0100, Greg Kroah-Hartman wrote:
-> From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-> 
-> commit 37640adbefd66491cb8083a438f7bf366ac09bc7 upstream.
-> 
+--Y7xTucakfITjPcLV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<snip>
+HI!
 
-> 
-> ---
->  arch/mips/pci/pci-xtalk-bridge.c |    5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> --- a/arch/mips/pci/pci-xtalk-bridge.c
-> +++ b/arch/mips/pci/pci-xtalk-bridge.c
-> @@ -279,16 +279,15 @@ static int bridge_set_affinity(struct ir
->  	struct bridge_irq_chip_data *data = d->chip_data;
->  	int bit = d->parent_data->hwirq;
->  	int pin = d->hwirq;
-> -	nasid_t nasid;
->  	int ret, cpu;
->  
->  	ret = irq_chip_set_affinity_parent(d, mask, force);
->  	if (ret >= 0) {
->  		cpu = cpumask_first_and(mask, cpu_online_mask);
-> -		nasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
-> +		data->nnasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
+> From: Dan Carpenter <dan.carpenter@oracle.com>
+>=20
+> [ Upstream commit a6921dd524fe31d1f460c161d3526a407533b6db ]
+>=20
+> These values come from skb->data so Smatch considers them untrusted.  I
+> believe Smatch is correct but I don't have a way to test this.
+>=20
+> The usb_if->dev[] array has 2 elements but the index is in the 0-15
+> range without checks.  The cfd->len can be up to 255 but the maximum
+> valid size is CANFD_MAX_DLEN (64) so that could lead to memory
+> corruption.
 
-This will be 'data->nasid' and its causing mips builds to fail.
+If this is untrusted, does it need to use _nospec() variants?
 
--- 
-Regards
-Sudip
+> index 41988358f63c8..19600d35aac55 100644
+> --- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+> +++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+> @@ -476,12 +476,18 @@ static int pcan_usb_fd_decode_canmsg(struct pcan_us=
+b_fd_if *usb_if,
+>  				     struct pucan_msg *rx_msg)
+>  {
+=2E..
+>  	const u16 rx_msg_flags =3D le16_to_cpu(rm->flags);
+> =20
+> +	if (pucan_msg_get_channel(rm) >=3D ARRAY_SIZE(usb_if->dev))
+> +		return -ENOMEM;
+
+Furthermore, should it use -EINVAL here
+
+> +	if (pucan_stmsg_get_channel(sm) >=3D ARRAY_SIZE(usb_if->dev))
+> +		return -ENOMEM;
+
+and here, and perhaps use a helper function?
+
+Best regards,
+								Pavel
+
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--Y7xTucakfITjPcLV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl+1mrkACgkQMOfwapXb+vIKvwCePWcS9J0JMSVUbaioUvBR68C5
+R6UAoKGNGoTw/A6Pf/o/+7F3X63wATXW
+=AI7I
+-----END PGP SIGNATURE-----
+
+--Y7xTucakfITjPcLV--
