@@ -2,121 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D79A2B762B
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 07:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 681EA2B765C
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 07:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725787AbgKRGMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 01:12:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S1726131AbgKRGhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 01:37:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgKRGMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 01:12:02 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1859FC0613D4
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 22:12:01 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id w13so1039069eju.13
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 22:12:01 -0800 (PST)
+        with ESMTP id S1725794AbgKRGhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 01:37:14 -0500
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE2CC0613D4
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 22:37:14 -0800 (PST)
+Received: by mail-ed1-x543.google.com with SMTP id q3so744493edr.12
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 22:37:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gJ6Vhuy+iXRZiJNmZErzY7JnP8xPIvyRkVGtF53N6s8=;
-        b=lf3bo8vJQQkAXT4raPezDGDIQLQWVRKOHAv0Di1iRBl5nAmkC9YOboQY+PTlB8J7wT
-         TKBu74Xez0J03TDxUXi3Fthn0S10A+/j9ibTzO68k3IXIBTTGgW2u7mzhL4/pcGUG3uJ
-         sdAAZpl5hxFhKxzf1HqPAwT5kGHJ0mv3nS7STDlw92u+qlRqlaTpLfWipaDUpNewEKpE
-         3Xpq1i4C1z64OjlGVq62nxpiGV4NS4UpL9KuIh8s3PY7PT1eb5Yaz4yuWCOKqLaaYNPz
-         w5/WLaDyWRj7WvrUEjPIiYf2UHrxPcUB052pi6Ap+tSLWPEvZpjKYfOLYZxh7OuXczvx
-         1IqQ==
+         :cc:content-transfer-encoding;
+        bh=pI61Nd6GBPHCLI78RmRCtnCqtxJQnNHXGrGEOXgmrNU=;
+        b=bOdO+jYI5+kNnk5c5jZlqFhUbG2BRBeNHSywOEei60Bcq+HjULM1by8HR/DKHCHIk2
+         f0njjM5ZKsY9udhHypXji5lZtrEmr1fs1cXNA4F7z/ea2CPESU22mgcfoPh4zMQSOrkA
+         8qyfsxVSkY4+ZTRJzMVWsB74Xg1j5C4aSzZpCvElXqNWkW48A08FHiSt3VFv0sNnlqNX
+         XWn/rpc7g3PTacZy6xG4i32J2W9ZYUkykWrXRHZbMSEnOnoczFSpJz0rnCqTydVzGSHA
+         gjfnh207Sz6Lsatq7Bfy8GeyByOjlH0eyMHx4qKvWL3vVhCORvQPMiBQ324N274LwDLz
+         ftcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gJ6Vhuy+iXRZiJNmZErzY7JnP8xPIvyRkVGtF53N6s8=;
-        b=G/ipvLxV0TNd3tDSE4d/T+h7yQO+PFGJyP/9Zhg1IRbOxbNKAz1IOn5dlzkr5Nv00n
-         Jjt6jraURYohIwBK4RpBSznRzxjwH2PR8yDPs+cTd7NYcFGO9cSB0uvmf6diABeU0vh/
-         uFIiwkonjHJD3III4pcDhXARp48CU/Ir8WGrmQ9H7iX6/sZKQvsbnu28rxIPtBRtf22q
-         JvpZmECp2skFI3bTyK63p+d7N9hOaT3OwZZf3akIaSweMda4SZ5PuFdejO4e54x5cooB
-         2yjVwrRdcmqVOcjnUr02b2ratEMvzb4KxdZaTsYhDFyF6h7jyUuJHQ99MB99aBvJd2Zu
-         2xSw==
-X-Gm-Message-State: AOAM532orQej2Ks2l6cUlRfA+eilU/MXZ0UMi7lHZKL7ty99srIZ/0h5
-        1HohdHRcMTv+6O6OMPkMJX/KtbZn1PSI8sPh4hxpjN4sv0qTBquT
-X-Google-Smtp-Source: ABdhPJzxPS3/BmwqqokOzxQFyGx/yp9qLjwisVYjO1DPNIAXMOkMER7XlYY/gbH3NVKWvYAmpOx1m93rJFhdL3DuMeg=
-X-Received: by 2002:a17:906:6987:: with SMTP id i7mr24210882ejr.18.1605679919620;
- Tue, 17 Nov 2020 22:11:59 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=pI61Nd6GBPHCLI78RmRCtnCqtxJQnNHXGrGEOXgmrNU=;
+        b=T2b3nAW4iWS/O3DO5xS7iu8xFldQ1p+S6BTVgTCj86/zU8/SJ2Ytb7lIV+iokK1iVd
+         UL4h4+N+263Fc4a8TTxn23UgThfPaDrsPGAHcAt2uTs/2zjSx/5VD2W9RtS38HVC/RfG
+         EQDMFxwpQwrQ49wJUBeXKM+w6U1s8GILMULhpwpteJFrpPALNvckwmn4SwnPPTG0DeXk
+         0P3SHuZh4c3DmlzTjfjTb1/AqHfp3oQlrgHguDEkYLcPjA3d12xAI0MZQCroygKtbAnK
+         fS0rNSW4qz4yqZ1Rd60p8EaFTw1xVFe08XI9aP7gn4+WOmDwMGAocx5e3FJD76B3xpzm
+         RFcw==
+X-Gm-Message-State: AOAM530YtFB6/1T8STSdRNYyzUOpUnVMgUucRht35VK7pUgolK4qjlxs
+        PJn+2fW7SwgPKPF51I/VPlj1+ia+dKZLUxwEy86TCZqIZvqfXlfa
+X-Google-Smtp-Source: ABdhPJw/I6WWtYg2c89Ok8CKXNPpAhdF7WSNYTPlFt0UoYoRDuEt+4DuyEbJiKzA1XuVU9EJ42uC35cv+1qSp3eCxs0=
+X-Received: by 2002:a05:6402:1644:: with SMTP id s4mr6954834edx.221.1605681432613;
+ Tue, 17 Nov 2020 22:37:12 -0800 (PST)
 MIME-Version: 1.0
-References: <CA+G9fYtwycbC+Hf9aP5Br8wq7cKWVqjhcGusn2DbJaNauGC3Og@mail.gmail.com>
-In-Reply-To: <CA+G9fYtwycbC+Hf9aP5Br8wq7cKWVqjhcGusn2DbJaNauGC3Og@mail.gmail.com>
+References: <20201117122121.381905960@linuxfoundation.org>
+In-Reply-To: <20201117122121.381905960@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 18 Nov 2020 11:41:48 +0530
-Message-ID: <CA+G9fYsfEVK86ask=fL=M5juerbz+BwbFGcAZ_UxWrPHXYpA1Q@mail.gmail.com>
-Subject: Re: WARNING: kernel/irq/chip.c:242 __irq_startup+0xa8/0xb0
-To:     open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Marc Zyngier <maz@kernel.org>
+Date:   Wed, 18 Nov 2020 12:07:01 +0530
+Message-ID: <CA+G9fYu7TcV0KwZA-OTTTzEO3xEo-S6N8g2Ko1j3XVcv2P6oxw@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/151] 5.4.78-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 13 Oct 2020 at 11:09, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+On Tue, 17 Nov 2020 at 18:55, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On stable rc  5.8.15 the following kernel warning was noticed once
-> while boot and this is hard to reproduce.
+> This is the start of the stable review cycle for the 5.4.78 release.
+> There are 151 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.78-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This is now reproduciable on arm64 NXP ls2088 device
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-[   19.980839] ------------[ cut here ]------------
-[   19.985468] WARNING: CPU: 1 PID: 441 at kernel/irq/chip.c:242
-__irq_startup+0x9c/0xa8
-[   19.985472] Modules linked in: rfkill lm90 ina2xx crct10dif_ce
-qoriq_thermal fuse
-[   20.000773] CPU: 1 PID: 441 Comm: (agetty) Not tainted 5.4.78-rc1 #2
-[   20.000775] Hardware name: Freescale Layerscape 2088A RDB Board (DT)
-[   20.000779] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[   20.018253] pc : __irq_startup+0x9c/0xa8
-[   20.018256] lr : irq_startup+0x64/0x130
-[   20.018259] sp : ffff80001122f8e0
-[   20.029303] x29: ffff80001122f8e0 x28: ffff0082c242d400
-[   20.029306] x27: ffffdd0f47234768 x26: 0000000000020902
-[   20.029309] x25: ffffdd0f461a6f10 x24: ffffdd0f461a6bc8
-[   20.029311] x23: 0000000000000000 x22: 0000000000000001
-[   20.029314] x21: 0000000000000001 x20: ffff0082c22f8780
-[   20.029316] x19: ffff0082c1060800 x18: 0000000000000001
-[   20.029318] x17: 0000000000000000 x16: ffff8000114a0000
-[   20.029321] x15: 0000000000000000 x14: ffff0082c0e92f90
-[   20.071738] x13: ffff0082c0e93080 x12: ffff800011460000
-[   20.071741] x11: dead000000000100 x10: 0000000000000040
-[   20.071743] x9 : ffffdd0f47093ba8 x8 : ffffdd0f47093ba0
-[   20.087653] x7 : ffff0082a00002b0 x6 : ffffdd0f47074958
-[   20.087655] x5 : ffffdd0f47074000 x4 : ffff800011230000
-[   20.087657] x3 : 0000000000000504 x2 : 0000000000000001
-[   20.103567] x1 : 0000000003032004 x0 : ffff0082c1060858
-[   20.103570] Call trace:
-[   20.103573]  __irq_startup+0x9c/0xa8
-[   20.103577]  irq_startup+0x64/0x130
-[   20.118359]  __enable_irq+0x7c/0x88
-[   20.118362]  enable_irq+0x54/0xa8
-[   20.118367]  serial8250_do_startup+0x658/0x718
-[   20.118371]  serial8250_startup+0x38/0x48
-[   20.133589]  uart_startup.part.0+0x12c/0x2b8
-[   20.133592]  uart_port_activate+0x64/0x98
-[   20.133595]  tty_port_open+0x94/0x200
-[   20.133599]  uart_open+0x2c/0x40
-[   20.148730]  tty_open+0x108/0x438
-[   20.148734]  chrdev_open+0xa8/0x1a0
-[   20.148737]  do_dentry_open+0x118/0x3b8
-[   20.159348]  vfs_open+0x38/0x48
-[   20.159350]  path_openat+0x4c8/0x1290
-[   20.159353]  do_filp_open+0x84/0x108
-[   20.159357]  do_sys_open+0x180/0x228
-[   20.173271]  __arm64_sys_openat+0x2c/0x38
-[   20.173274]  el0_svc_handler+0x88/0x1c8
-[   20.173278]  el0_svc+0x8/0x1bc
-[   20.184148] ---[ end trace 736144791ac25035 ]---
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+NOTE:
+This intermittent kernel warning was noticed on arm64 NXP ls2088 while boot=
+ing
+which was reported on stable-rc 5.8 and stable-rc 5.4.
+WARNING: CPU: 1 PID: 441 at kernel/irq/chip.c:242 __irq_startup+0x9c/0xa8
+https://lore.kernel.org/stable/CA+G9fYsfEVK86ask=3DfL=3DM5juerbz+BwbFGcAZ_U=
+xWrPHXYpA1Q@mail.gmail.com/T/#t
 
+Summary
+------------------------------------------------------------------------
 
-ref:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.77-152-ga3746663c347/testrun/3452654/suite/linux-log-parser/test/check-kernel-warning-139363/log
+kernel: 5.4.78-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: a3746663c34792114dfa71148be3dcc3f3f089ea
+git describe: v5.4.77-152-ga3746663c347
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.77-152-ga3746663c347
+
+No regressions (compared to build v5.4.77)
+
+No fixes (compared to build v5.4.77)
+
+Ran 49989 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* linux-log-parser
+* ltp-containers-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-math-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* ltp-tracing-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
