@@ -2,189 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 172872B87E2
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 23:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B802B87FF
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 00:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbgKRWmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 17:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
+        id S1726163AbgKRW7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 17:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbgKRWmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 17:42:40 -0500
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED851C0613D4
-        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 14:42:38 -0800 (PST)
-Received: by mail-pg1-x52e.google.com with SMTP id j19so2352855pgg.5
-        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 14:42:38 -0800 (PST)
+        with ESMTP id S1726086AbgKRW7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 17:59:25 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB6FC0613D4
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 14:59:42 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id d142so5017040wmd.4
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 14:59:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FXZhDcNfdLdEjT802xwVn5DFrArf5guq73PhcN31fik=;
-        b=0+6zhkZ3A7ckRxTtugqkhYk6wS8vHj8k6Bjwfoj8F7t1JBpyN3xoQ4YlG3B/m2B7e0
-         UDDTxMr7I1jp2OzjFFm3RGiM6hgSNMnR8+0O5/bd7doFtMFvdBJs2OpQRPzEeqvcV/Bk
-         qv/K4BGFnCuszQ1caaim46UdECzbWG3IZJjcw2mhBZ8vI2ZKoIBOCvC1jrEju6HSfV0y
-         FrX60lPuAQtwNPNAV3uTk0/z64+Vrh/wmBXt17SwlABy9NPUo1MTCUrJHDMiuwbZQrtm
-         kPP+FQ+35GwD5aSSPGDHkYA+CEI8DpNVFBivCGw2ZAsRwiukEwk8a7dPhbr8kfkPln0N
-         ve9w==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=sNpwScfO3Y0odblfUrCk4hNby4XeGQMrWrWkh9Hjmlc=;
+        b=T6y1ZpgFXBbct9bvpA0ku9CUq8jBTyYWnpr6mSQuBsHboef+z/kTk2A2Hjnm3KBvds
+         j5YlCDKm/bxc5YLl59H4sLTKwwxJTnfuBNq2JxVardhaPv6r/dmBOKiaC2b/2Lkq+7jq
+         kP54a3GQj7Sgd3NTn39G31/4RD0sR9FLFc9hqaO62BWsavgwnRlKV98GrP7+6z+CdZmB
+         cHO964hY4h09WmXKX9x2rJ9zyf3/xn4bruRgKrjToHxhkU4Fy7JIgmdvIUv/L4DzHOD/
+         0OCxUH5UEHE9+k8SDlAysT73fpPVXSgpqHg+yyUK1ViFBPdU4dD96MZqBMnoWtUQgD8S
+         C2Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FXZhDcNfdLdEjT802xwVn5DFrArf5guq73PhcN31fik=;
-        b=J51ra1gB909lq9nVHrccvemxIwPw5tB4h/ngckoEFEE6rOZ2ANlNGva/EoB3onHlNK
-         Nu/8/KVs58n52rXrVUZFJOGLf5FORgQmV1HhJxuR9dL204J8hweQ3Fs5izybbFUmelbJ
-         /HJkQYXuUBEoNGkN4XJpNJR9RrqfLR7/uSH7TCizeFI7IQPGXJM6GhiuRnaq9GwXensu
-         Is915fBFeQwHv64OiyQ2pjB9z+5OBtkO/dxJuy6O49gRnPOyExfmKuTp/B7Z71MhU8P9
-         pCgJg/+wCnjm126ItJgu7NFTmo6Wbq35EbPZjhW1OVnAW3tVEjsb51VdgOmFr43zfopE
-         HksA==
-X-Gm-Message-State: AOAM533rSV3jsmrMiluNuXwvZaaqCI5VkBsg47l7zclg8kAbnDdQcRfm
-        JGiQRkO3piHWL+dU1gslwi6t7exyJ/CGCQ==
-X-Google-Smtp-Source: ABdhPJwHC4wIwnc4zzagMPixs92U/EOumapiMz6Ei/brt485uAc9RCKK2RKMSYU/Yc8q6sX5Ew5keQ==
-X-Received: by 2002:a63:f91d:: with SMTP id h29mr9820626pgi.82.1605739358043;
-        Wed, 18 Nov 2020 14:42:38 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t6sm5456606pfb.45.2020.11.18.14.42.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2020 14:42:37 -0800 (PST)
-Message-ID: <5fb5a35d.1c69fb81.d4f24.a9af@mx.google.com>
-Date:   Wed, 18 Nov 2020 14:42:37 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=sNpwScfO3Y0odblfUrCk4hNby4XeGQMrWrWkh9Hjmlc=;
+        b=JnuqNOKuu9z/8zZOCMIyQIaPEOu8UFPJaRUB0DzmBFawAxa/RjL0GM6AFVkfhpQN9T
+         qIkwMnT5z7omFAaSl6tNonvzsc4sKALWhR75Wk64/tqGc6wLGvWi7/o1Lkqmlyujlrhq
+         zM7dcZtTjKE5XUGOnyIdq5CN2Yph0FEsSJewlVGYKVStM74XW3a4Z1Bk1pZqBzgk4vne
+         2VsDgys3SjaWt/TPt97ax17Q3YyjA9JwJdynKrO81BVEtMfsEt93G1/dFA+Grs57+Qk+
+         t7fqKXHh/YvWuorIw6DrlevIQVtHUJ/jzaeF16dDW14zN09pFGzDYfmCwEzP7dwnF/jN
+         mcZg==
+X-Gm-Message-State: AOAM5310HZmN5E+x876hFwp6AgK1HKdvp5LgojcAbMrwzWo8l3ZtCI+S
+        9ihPepjr6Wm06Tfeb4nIT9U=
+X-Google-Smtp-Source: ABdhPJwMBVZRxCGh08pdAVUZaDI71ufKnh+lf4zuMiYm4vPPHWdyTf+BjxiGlY+udIiqvyX7LUv9tQ==
+X-Received: by 2002:a1c:7f90:: with SMTP id a138mr1394417wmd.61.1605740380616;
+        Wed, 18 Nov 2020 14:59:40 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id 36sm19212488wrf.94.2020.11.18.14.59.39
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 18 Nov 2020 14:59:39 -0800 (PST)
+Date:   Wed, 18 Nov 2020 22:59:38 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     ultracoolguy@tutanota.com, pavel@ucw.cz, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] leds: lm3697: Fix out-of-bound access"
+ failed to apply to 5.9-stable tree
+Message-ID: <20201118225938.5nvkjdhc4st2zs57@debian>
+References: <160440470667193@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.244
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable/linux-4.4.y baseline: 64 runs, 3 regressions (v4.4.244)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/mixed; boundary="wi7653cylwlgecbf"
+Content-Disposition: inline
+In-Reply-To: <160440470667193@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y baseline: 64 runs, 3 regressions (v4.4.244)
 
-Regressions Summary
--------------------
+--wi7653cylwlgecbf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_i386        | i386   | lab-baylibre | gcc-8    | i386_defconfig   | 1 =
-         =
+Hi Greg,
 
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
+On Tue, Nov 03, 2020 at 12:58:26PM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
+Here is the backport. Please consider for 5.9-stable.
 
+--
+Regards
+Sudip
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.4.y/kernel/=
-v4.4.244/plan/baseline/
+--wi7653cylwlgecbf
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-leds-lm3697-Fix-out-of-bound-access.patch"
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.4.y
-  Describe: v4.4.244
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      b71e57af961fc0cc69998a13dea631ba2229333e =
+From cbaecee1e0a2aee549ecbe7f2f66a767794faef8 Mon Sep 17 00:00:00 2001
+From: Gabriel David <ultracoolguy@tutanota.com>
+Date: Fri, 2 Oct 2020 18:27:00 -0400
+Subject: [PATCH] leds: lm3697: Fix out-of-bound access
 
+commit 98d278ca00bd8f62c8bc98bd9e65372d16eb6956 upstream
 
+If both LED banks aren't used in device tree, an out-of-bounds
+condition in lm3697_init occurs because of the for loop assuming that
+all the banks are used.  Fix it by adding a variable that contains the
+number of used banks.
 
-Test Regressions
----------------- =
+Signed-off-by: Gabriel David <ultracoolguy@tutanota.com>
+[removed extra rename, minor tweaks]
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Cc: stable@kernel.org
+[sudip: use client->dev]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/leds/leds-lm3697.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_i386        | i386   | lab-baylibre | gcc-8    | i386_defconfig   | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb56c6b00e0d60ff9d8d918
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/i3=
-86/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/i3=
-86/i386_defconfig/gcc-8/lab-baylibre/baseline-qemu_i386.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb56c6b00e0d60ff9d8d=
-919
-        new failure (last pass: v4.4.243) =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_x86_64      | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb56c816de3ffe91cd8d904
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/x8=
-6_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/x8=
-6_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb56c816de3ffe91cd8d=
-905
-        new failure (last pass: v4.4.243) =
-
- =
+diff --git a/drivers/leds/leds-lm3697.c b/drivers/leds/leds-lm3697.c
+index 024983088d59..31f5ed486839 100644
+--- a/drivers/leds/leds-lm3697.c
++++ b/drivers/leds/leds-lm3697.c
+@@ -78,6 +78,7 @@ struct lm3697 {
+ 	struct mutex lock;
+ 
+ 	int bank_cfg;
++	int num_banks;
+ 
+ 	struct lm3697_led leds[];
+ };
+@@ -180,7 +181,7 @@ static int lm3697_init(struct lm3697 *priv)
+ 	if (ret)
+ 		dev_err(&priv->client->dev, "Cannot write OUTPUT config\n");
+ 
+-	for (i = 0; i < LM3697_MAX_CONTROL_BANKS; i++) {
++	for (i = 0; i < priv->num_banks; i++) {
+ 		led = &priv->leds[i];
+ 		ret = ti_lmu_common_set_ramp(&led->lmu_data);
+ 		if (ret)
+@@ -307,8 +308,8 @@ static int lm3697_probe(struct i2c_client *client,
+ 	int ret;
+ 
+ 	count = device_get_child_node_count(&client->dev);
+-	if (!count) {
+-		dev_err(&client->dev, "LEDs are not defined in device tree!");
++	if (!count || count > LM3697_MAX_CONTROL_BANKS) {
++		dev_err(&client->dev, "Strange device tree!");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -322,6 +323,7 @@ static int lm3697_probe(struct i2c_client *client,
+ 
+ 	led->client = client;
+ 	led->dev = &client->dev;
++	led->num_banks = count;
+ 	led->regmap = devm_regmap_init_i2c(client, &lm3697_regmap_config);
+ 	if (IS_ERR(led->regmap)) {
+ 		ret = PTR_ERR(led->regmap);
+-- 
+2.11.0
 
 
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_x86_64-uefi | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb56c886b9157ac84d8d8ff
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/x8=
-6_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.244/x8=
-6_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb56c886b9157ac84d8d=
-900
-        failing since 8 days (last pass: v4.4.241, first fail: v4.4.242) =
-
- =20
+--wi7653cylwlgecbf--
