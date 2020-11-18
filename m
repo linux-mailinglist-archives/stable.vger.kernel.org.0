@@ -2,107 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE21C2B7B0A
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 11:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5AA92B7B2C
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 11:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725772AbgKRKQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 05:16:26 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55003 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725613AbgKRKQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 05:16:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1605694584;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Yed5/d7vK7YdqC5lhdZVNcPCr3eQRtrjIPPe/s03Tno=;
-        b=GswmCO5fFCyhwJqg5yIO+mnYY5WCzFMAeurmgZjWbb7lb46Q0vPhAU7bhV9g8CqkeMOoPM
-        lxq1c1hbJLPglUXz/D+jHMlm+X51NFiQAY6yxeMkV6G3Fm/AM8djAc4Tapv42XAXVFgJrk
-        lc3Av2VAeQxQW8knr7fMeF5GKsYnzrE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-141-m8aWPb5fMVWFYSSX3s6g3A-1; Wed, 18 Nov 2020 05:16:22 -0500
-X-MC-Unique: m8aWPb5fMVWFYSSX3s6g3A-1
-Received: by mail-wr1-f69.google.com with SMTP id w5so708634wrm.22
-        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 02:16:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Yed5/d7vK7YdqC5lhdZVNcPCr3eQRtrjIPPe/s03Tno=;
-        b=tfMbdKWm/rCARjfduKJNhFpQJ1MjPKPMs+gZyp0jD4ujMXU87XzBBFn/NCzElqyrG9
-         xWC+ekB63y0eB0zSOpButYcTGz7q4C24n0es1l7UbeUkh1qcBoF22mqSWEvwHgXSqIwL
-         SceV2FuRLl8fWoMXSs+VHHo3nMNc4LP38oegZ5i6LymT/Rk6oH+89ZYZ9UjUQtbpbRJF
-         SxX1EjrEZWGYNsE9vKUDSoXRPbIfuQNQFkK12KSMzzT+LiSPhJXluaQ0FVJWYfrYScwW
-         H3hRFYaHSk17QVIgO2q+AiY4zKOBglxGVelEGHssX4U93DKKaNI4bpXudueQNXNEweaX
-         0ahw==
-X-Gm-Message-State: AOAM530wU95h7VdO9pBWggyfiSLJcKUPz3J67W6M7SijJRUbR7kyCiUU
-        LMMo2RLbdVoIDf0Cg9KosnZ7I9scRikh8MV6dQyUTiEAc847V1CAP4OGADEk3u6UluLziQ+5d0F
-        CnrsxnXu1DNG5wZ8R
-X-Received: by 2002:a1c:3c04:: with SMTP id j4mr3793820wma.105.1605694581817;
-        Wed, 18 Nov 2020 02:16:21 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz8gTvwJsFF5o43oH2YetHhRlLDl2RZsi15AIAqwyAVp6G3xTEHw8/0j0DSSSEDTs/utrvImA==
-X-Received: by 2002:a1c:3c04:: with SMTP id j4mr3793798wma.105.1605694581613;
-        Wed, 18 Nov 2020 02:16:21 -0800 (PST)
-Received: from redhat.com (bzq-109-67-54-78.red.bezeqint.net. [109.67.54.78])
-        by smtp.gmail.com with ESMTPSA id b4sm2360517wmc.1.2020.11.18.02.16.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2020 02:16:20 -0800 (PST)
-Date:   Wed, 18 Nov 2020 05:16:15 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Arnaud POULIQUEN <arnaud.pouliquen@st.com>,
-        Alexander Lobakin <alobakin@pm.me>,
-        Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Suman Anna <s-anna@ti.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
- for rproc serial
-Message-ID: <20201118042039-mutt-send-email-mst@kernel.org>
-References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
- <20201116091950.GA30524@infradead.org>
- <ca183081-5a9f-0104-bf79-5fea544c9271@st.com>
- <20201116162844.GB16619@infradead.org>
- <20201116163907.GA19209@infradead.org>
- <79d2eb78-caad-9c0d-e130-51e628cedaaa@st.com>
- <20201117140230.GA30567@infradead.org>
+        id S1727304AbgKRKXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 05:23:09 -0500
+Received: from mail-eopbgr40115.outbound.protection.outlook.com ([40.107.4.115]:20206
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725874AbgKRKXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 05:23:09 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mV9FKGc5WfbxSR4Z9daSB4p57FFFtryYdUuXs7KNuFbAGyPUFNMW8SSFkg+ea4CoaGlnyLklWIamGDBZypS6xMGkFEMzSZBf3VVEV/hyjA+yaG41XUdL3DFEyeyqe2lEb2/+F0LvyxseLOIL65fqTWDUnbvPSDVzf3onQInOdE4EnZhI8YFuo9wMjKLEiJLthRAooB1AH/hcBaGTGcsXaPHAEH9DUyw6stpkFjthRgrcoR7wvLseuwvAnF8AWw890N7SOSsO74aE2ZlgYsnMirRiJqb5v2L6ne2pdzEAbzQvnhuhJgKRJAg17YgG76YH9vytVXY0Gz44V48i40Wstw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eSsV819DNqQzp+F9TppxxBQm4eHaojNh9XMGJntbbno=;
+ b=DzyqpGR+izrncrIscV1OXcpO1QOq4iysliUMc3W6d8to+jlLPeNaxmlg6erKSo9Pq4kLBbiKTgITwesPQzJEsA+YIr8yh44q2Xxqxq67RudlnSNO1p9TjUcAr/bwsIqkWNuJ9ZUiSJYC4R3I3JYEitZTi2Q8jOO99p6jTAbPZRag5XPFWXOt8ARkv3FmlfcayR6ErPcvB7z2hGVw5txv0t1MkLX24yxfooRZVS+t5SFRkGRN89ByIs08yC/KrW/00EmTwilOCAXWPpqEN3ssK9WNGvxXdWxpMcA4CO4VnebPxcwNWg3ZkOo2vIWADFIwH+yxCk7xhFqL/vz23WgWzQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eSsV819DNqQzp+F9TppxxBQm4eHaojNh9XMGJntbbno=;
+ b=AyRqRtQV5TDKatfqraVh50F3HxnT4yrTvvnbIJTDX/aMQeZEz3/Km0mSyG+VzDSOo5qo+2SVX4IATkcxFhGuQ/InTjlRNkMiFfsHz6y002huU+bQlGlFDYYCEdKISBlkAtf9lbAYpeo+Rxq6+Cxukq51f+sAtBT8jysJPcdJ8cg=
+Received: from AM7PR07MB6707.eurprd07.prod.outlook.com (2603:10a6:20b:1af::11)
+ by AM6PR07MB3942.eurprd07.prod.outlook.com (2603:10a6:209:35::29) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3589.16; Wed, 18 Nov
+ 2020 10:23:02 +0000
+Received: from AM7PR07MB6707.eurprd07.prod.outlook.com
+ ([fe80::f5d7:501f:102d:60c3]) by AM7PR07MB6707.eurprd07.prod.outlook.com
+ ([fe80::f5d7:501f:102d:60c3%9]) with mapi id 15.20.3589.017; Wed, 18 Nov 2020
+ 10:23:02 +0000
+From:   "Wiebe, Wladislav (Nokia - DE/Ulm)" <wladislav.wiebe@nokia.com>
+To:     "mturquette@baylibre.com" <mturquette@baylibre.com>,
+        "sboyd@kernel.org" <sboyd@kernel.org>,
+        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Wiebe, Wladislav (Nokia - DE/Ulm)" <wladislav.wiebe@nokia.com>
+Subject: [PATCH] clk: move orphan_list back to DEBUG_FS section
+Thread-Topic: [PATCH] clk: move orphan_list back to DEBUG_FS section
+Thread-Index: Ada9k+6gKWQKOxMWRaK2973BbyOELw==
+Date:   Wed, 18 Nov 2020 10:23:02 +0000
+Message-ID: <AM7PR07MB67076EAED784F061D17AC015FAE10@AM7PR07MB6707.eurprd07.prod.outlook.com>
+Accept-Language: de-DE, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: baylibre.com; dkim=none (message not signed)
+ header.d=none;baylibre.com; dmarc=none action=none header.from=nokia.com;
+x-originating-ip: [109.192.217.238]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 19ca8b69-2668-46da-3224-08d88babee4c
+x-ms-traffictypediagnostic: AM6PR07MB3942:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <AM6PR07MB3942547394822F71BD526317FAE10@AM6PR07MB3942.eurprd07.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:229;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: xgicYTxIEsEUr8sVieyISRvqXdVG9+Noa+1hzAF+aeygkE4WnZ9SEZjEREHJoRJrYbdXlbgBDjeXVG138we/UkmMUz7UQ5alT6ZPZb9iz8P6XrmMMI+HO64PhMKavFlDSyxwW94hTusfGZtddyGYzpRicaet1xg9+ndmev7QUONQkbDSlx7ip8wKs/sWnduVH2YfUkczWCb5AcauE6K8GUkJEb7cCT9/02pXVKXNiYaC7/okZySVh75HVAFghxz3HcYVM/rHMX7q39VsmKtRc8G8o6XRGFaxcXqOjkIxDAOEsD8zGIf/wJAdQmhtB4GOTcB5iVJkfSPuLW9HsERtmA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM7PR07MB6707.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(346002)(366004)(396003)(376002)(136003)(186003)(316002)(478600001)(54906003)(26005)(4326008)(76116006)(6506007)(110136005)(2906002)(55016002)(107886003)(8676002)(7696005)(8936002)(86362001)(33656002)(66446008)(52536014)(71200400001)(9686003)(66946007)(5660300002)(64756008)(66476007)(66556008)(83380400001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: IjRijlDJBTrMZ7nvnhvU3uEhq4JggLCGQ2bJh4CmgzgWy+O2qC4Pr8sDyTN1EbQNlsKSje7G8/XijSCuTNEe7CZM3MT2TrNPU/QwHwy/NZs5Fa5fW4OOY4XUx/a1YDjZ7qS9yW1WF/+9IEnwRGB6C4OUaT+at7BvndND1zVWvbn8I0KnD6FV9qStV82cD+TFAda6ITeMCRwQlKpLiGnLtXFtmKuIRJ8C3sy6NPr9CGUVAl/JNuoCSoXt526E0EuZEyroUMGGrLudl9Rv494DvM5OFohKr2zEtOqQzAY0wtCV/QFDUc4A+bf5S49WNAaT+v/qSdBvVHAG52dmMyA9+ftSnot4w+wfIzExWQSElmBfyVTh+zZ2icZqmqHY06+YhgpLvGV5uRxJw1k9zOPzLgGD6PcJyenQrIGrbXuDSTn6y5Fj/vdihe458RnEZdVM+uGmffe63KzjpqOFZ3QSkuogy6sbgfzhou3fTBR4SZAizjpuQUFkV3AsdbwGqgVXgBJtaoIvvjDNpqPRX687YI+o1zbdwGGOL3HQMHv9PITwcC0kfhB+s4bL3F1mT1Myzt1md+7AsFH64CUZQRNHLtxbeUUJgp5xPc7apYjm7jOjcTS+2tKxt67m8HFxWiF6NRnv1oHqZZGckb+gV/VYOcvy/8Dl4+fqe4m13p6UpSkOs34l/v5rl7bgXckktv/jDpTjLH8K5Bf1G39x/cnUQtUM8z8SkWdiNCxHtwy8WqZ/jz/5qAXmD1Bh4c+lKGd9ZzlRzm8yp3YPcIj3aJAhPSiw9UHyhmHTdBFs2JG+c4Dcne9/uW4Li3B0LZr60oLn3JwUKSZS0QcRa4yr7njzqbzFsWTM95LWIrkSNySRM/w+ZLK7rXDKRgoTRxh6ODrzSogwO8TDQIG1DtyNbRgJog==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201117140230.GA30567@infradead.org>
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM7PR07MB6707.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 19ca8b69-2668-46da-3224-08d88babee4c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Nov 2020 10:23:02.6086
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: FklsNaNApjKVWtNZqArbsNloOvvhTS2krzIFvFeWhXl6Waf0fsxxeRf1XylUedOoNlDjnZoSx3pDtFhUX3cvlM5f5SPF52JFcDOAdXuh3aU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR07MB3942
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 02:02:30PM +0000, Christoph Hellwig wrote:
-> On Tue, Nov 17, 2020 at 03:00:32PM +0100, Arnaud POULIQUEN wrote:
-> > The dma_declare_coherent_memory allows to associate vdev0buffer memory region
-> > to the remoteproc virtio device (vdev parent). This region is used to allocated
-> > the rpmsg buffers.
-> > The memory for the rpmsg buffer is allocated by the rpmsg_virtio device in
-> > rpmsg_virtio_bus[1]. The size depends on the total size needed for the rpmsg
-> > buffers.
-> > 
-> > The vrings are allocated directly by the remoteproc device.
-> 
-> Weird.  I thought virtio was pretty strict in not allowing diret DMA
-> API usage in drivers to support the legacy no-mapping case.
+commit 903c6bd937ca ("clk: Evict unregistered clks from parent caches")
+in v4.19.142 moves orphan_list to global section which is not used when
+CONFIG_DEBUG_FS is disabled.
 
-Well remoteproc is weird in that it's use of DMA API precedes
-standartization efforts, and it was never standardized in the virtio
-spec ..
+Fixes:
+drivers/clk/clk.c:49:27: error: 'orphan_list' defined but not used
+[-Werror=3Dunused-variable]
+ static struct hlist_head *orphan_list[] =3D {
+                           ^~~~~~~~~~~
 
-> Either way, the point stands:  if you want these magic buffers handed
-> out to specific rpmsg instances I think not having to detour through the
-> DMA API is going to make everyones life easier.
+Fixes: 903c6bd937ca ("clk: Evict unregistered clks from parent caches")
 
+Signed-off-by: Wladislav Wiebe <wladislav.wiebe@nokia.com>
+
+---
+ drivers/clk/clk.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index c5cf9e77fe86..925dd84293f4 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -46,11 +46,6 @@ static struct hlist_head *all_lists[] =3D {
+ 	NULL,
+ };
+=20
+-static struct hlist_head *orphan_list[] =3D {
+-	&clk_orphan_list,
+-	NULL,
+-};
+-
+ /***    private data structures    ***/
+=20
+ struct clk_core {
+@@ -2629,6 +2624,11 @@ static int inited =3D 0;
+ static DEFINE_MUTEX(clk_debug_lock);
+ static HLIST_HEAD(clk_debug_list);
+=20
++static struct hlist_head *orphan_list[] =3D {
++	&clk_orphan_list,
++	NULL,
++};
++
+ static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
+ 				 int level)
+ {
+--=20
+2.29.2
