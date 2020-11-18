@@ -2,177 +2,1510 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A56E2B77C1
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 09:00:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB942B77C3
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 09:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727244AbgKRH6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 02:58:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35100 "EHLO
+        id S1726751AbgKRH6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 02:58:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727241AbgKRH6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 02:58:07 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED673C061A4D
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 23:58:06 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id ay21so989906edb.2
-        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 23:58:06 -0800 (PST)
+        with ESMTP id S1726189AbgKRH6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 02:58:40 -0500
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 800F5C0613D4
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 23:58:40 -0800 (PST)
+Received: by mail-pj1-x1042.google.com with SMTP id ms7so76677pjb.4
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 23:58:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=50/FF29WsDwR5/RG+05kKUZBR7OcboOye2gIPXSPEgc=;
-        b=aOXl/RzAd0O5oVpR/gWsu2rcGApSOJOUN7A+147nL5JHLy7AUBvKU+n9Zp65lxapd1
-         8gE25zr98eGSupFqddCxc+IHSeEbIpsxs1+Fq2N0VKQWDxbDMZO8qEf/rcEaeAPMSGaG
-         UKcbylxi8juhRtxh+JDMokMhxxgA6JILDTazQ2dKTTjhwnmwXDOjgpCUY2fbJLCORbUa
-         XU2PC8WfIWM0JSIhHQq1FBYs9fN/v0NJnHgIHd/HXW2JbNcKpKYtbbFUJHMod9Mq4mo/
-         Taz+LzphQspq+cyG6dpOFMvyMs0bAaEf7KlGXJMPvetUPlNy3wOwMiHxAA51A/SgxV8c
-         /0VQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Vx1lGjac879n4a2JCV9zCIwJPeuAAeJ/KfcTQo/ea7k=;
+        b=UORaXB4eH1ZhAAtyTnzX/EWEduxqh8SkVotRwordPP7LFoqCvqm0V5iUyNASzAogb1
+         prZMj/OX0zcESDLOr3d05qYwad/Cfmq0OXY0nFe615O8z2U4Y9PaLsaoep8vLicbetyf
+         SCkHPrK/SLC0PgFfjZ4cBNhJ6rwX/1nnKXx4mKaIUPMR8S5rS0PYFU5c4YlP34hFXFbH
+         Chh8mjub4ie6+/PsrK/c59pxu1e/6VSG35Uuwj4pYnHE2rhynmlwObAxn/UJ3YwZA6sn
+         P/spgAoJOXkWMn057agscJe6hEoMCG4U4S2vgU7Y1DHAcwz5V7yW4RzJjA5PmgXcIL/v
+         b7Jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=50/FF29WsDwR5/RG+05kKUZBR7OcboOye2gIPXSPEgc=;
-        b=fAChvxEfUCOnoWxPiZTj5ERz50ZCb+4TPQUhH02fJOpfJv/1Yz/4kqqLR1QKaAjGS0
-         6zNPnsmWdge63Zo1KcoqqHWqz6EQEr04hPuGvnQ+SOBXaxyv4hhaFC6EDOhEAloF0ibg
-         LVs44NSD9drdNkUHkNxmh00pKd1Pclkmn2tpbEjmX1XVogo0VUzHlnA9g9tYvT7LF7Fk
-         ohdOlA9bLSM6+7YjbP1gNKCv0Z9r+yGgCV/buIIn0Idv7SdZZzMpEj//Lg0UwdjsAoRS
-         98/mf2wdiYUFR454QhPL8JfOv6tK7KjVCZ/FcIHMWyhPaZVpGb+b5tlNIDyqCB/SDBRT
-         xibQ==
-X-Gm-Message-State: AOAM5304H9L/VXSuGsVHuN3muqnP1/4JPqfgu4kabUaOhwquo/s6/6v6
-        w+V1143qV/v6EA3tk5uMxFiK9rMsj29JhOmr5KcXTg==
-X-Google-Smtp-Source: ABdhPJxn+dVsOOTyn/S8VRLx909iKLZpEz06uL98sOV7q47tpfm6LyHBSrqD950XGRNtEAM93MtKLr50G0okKkStJHw=
-X-Received: by 2002:aa7:df81:: with SMTP id b1mr24035894edy.365.1605686285400;
- Tue, 17 Nov 2020 23:58:05 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Vx1lGjac879n4a2JCV9zCIwJPeuAAeJ/KfcTQo/ea7k=;
+        b=YOO4y2n+uD14aSvY6eJmM/yFdKq7xHE6IQKYypiCANIZoL5k+dk4jQ5V1LTT2WF6Bm
+         LgFN27sa6bXI/6QLg0mqGvzkQxVyrcU/rb1i5LJJ28qK/Nk8wM/Ox83Shd0NV7KgBsRX
+         BhKaAXk1r1dnBWhTsZn30s/LScoNuEdtgduLl5Kpxz1OeyrtXRg9xW6tov5rLapEUZoc
+         i2exiYjiT5ubSkYhT3M0q7Bou51NQ9YnoJsPdrkmIus3jqO1+xHFIiVw0vHbx5JBDD1K
+         ysS4mWWyspkZdqQdyl6DQc2poXwampoRVGXt0CYqnxdOcEdzxVpYricvm+Mnbq45Vbea
+         Tk6Q==
+X-Gm-Message-State: AOAM532crYoqiSEDrjyhjcK9rQnMqB2G+6x1n7+8K3fivpiSAo5p1znw
+        kNlrsMJh6Y+iwBWCctck8y+S14bsX+MFAA==
+X-Google-Smtp-Source: ABdhPJxFVod7JA9Tm4+2P2Ex96SVOz5EDSktARIYVe7sgUE0EQ+59pFlz5+t4Sb+7t/7k4tVRAyDHw==
+X-Received: by 2002:a17:90a:e615:: with SMTP id j21mr3020250pjy.74.1605686318711;
+        Tue, 17 Nov 2020 23:58:38 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v7sm22700550pfu.39.2020.11.17.23.58.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2020 23:58:38 -0800 (PST)
+Message-ID: <5fb4d42e.1c69fb81.ad9a5.24bf@mx.google.com>
+Date:   Tue, 17 Nov 2020 23:58:38 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20201117122113.128215851@linuxfoundation.org>
-In-Reply-To: <20201117122113.128215851@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 18 Nov 2020 13:27:53 +0530
-Message-ID: <CA+G9fYugEFjs4PqwqvKjwdO1QZ5bjKuLMm==G6PX-HfZZ7jEeg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/101] 4.19.158-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v5.4.77-152-ga3746663c3479
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y build: 192 builds: 1 failed, 191 passed, 1 error,
+ 106 warnings (v5.4.77-152-ga3746663c3479)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 17 Nov 2020 at 18:48, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.158 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.158-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-5.4.y build: 192 builds: 1 failed, 191 passed, 1 error, 106=
+ warnings (v5.4.77-152-ga3746663c3479)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.77-152-ga3746663c3479/
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.77-152-ga3746663c3479
+Git Commit: a3746663c34792114dfa71148be3dcc3f3f089ea
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Summary
-------------------------------------------------------------------------
+Build Failure Detected:
 
-kernel: 4.19.158-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 1d674327c1b7a5243fc8f01e52e226736f6f987f
-git describe: v4.19.157-102-g1d674327c1b7
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.157-102-g1d674327c1b7
+mips:
+    ip27_defconfig: (gcc-8) FAIL
 
-No regressions (compared to build v4.19.157)
+Errors and Warnings Detected:
 
-No fixes (compared to build v4.19.157)
+arc:
+    allnoconfig (gcc-8): 1 warning
+    axs103_defconfig (gcc-8): 2 warnings
+    axs103_smp_defconfig (gcc-8): 2 warnings
+    haps_hs_defconfig (gcc-8): 2 warnings
+    haps_hs_smp_defconfig (gcc-8): 2 warnings
+    hsdk_defconfig (gcc-8): 2 warnings
+    nsim_hs_defconfig (gcc-8): 2 warnings
+    nsim_hs_smp_defconfig (gcc-8): 2 warnings
+    nsimosci_hs_defconfig (gcc-8): 2 warnings
+    tinyconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
 
-Ran 46869 total tests in the following environments and test suites.
+arm64:
+    defconfig (gcc-8): 14 warnings
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- x15 - arm
-- x86_64
-- x86-kasan
+arm:
+    am200epdkit_defconfig (gcc-8): 1 warning
+    assabet_defconfig (gcc-8): 1 warning
+    at91_dt_defconfig (gcc-8): 1 warning
+    axm55xx_defconfig (gcc-8): 1 warning
+    cm_x2xx_defconfig (gcc-8): 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    cns3420vb_defconfig (gcc-8): 1 warning
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    dove_defconfig (gcc-8): 1 warning
+    em_x270_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    exynos_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 1 warning
+    h3600_defconfig (gcc-8): 1 warning
+    h5000_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v4_v5_defconfig (gcc-8): 1 warning
+    imx_v6_v7_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    ixp4xx_defconfig (gcc-8): 1 warning
+    keystone_defconfig (gcc-8): 1 warning
+    lpc32xx_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    milbeaut_m10v_defconfig (gcc-8): 1 warning
+    mini2440_defconfig (gcc-8): 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
+    mv78xx0_defconfig (gcc-8): 1 warning
+    mvebu_v5_defconfig (gcc-8): 1 warning
+    mvebu_v7_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 1 warning
+    omap2plus_defconfig (gcc-8): 1 warning
+    orion5x_defconfig (gcc-8): 1 warning
+    oxnas_v6_defconfig (gcc-8): 1 warning
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    qcom_defconfig (gcc-8): 1 warning
+    realview_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    spear13xx_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 warning
+    u300_defconfig (gcc-8): 1 warning
+    u8500_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* v4l2-compliance
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fs-tests
-* network-basic-tests
-* perf
-* ltp-open-posix-tests
-* kvm-unit-tests
-* ltp-tracing-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+i386:
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+mips:
+    ip27_defconfig (gcc-8): 1 error
+
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+
+Errors summary:
+
+    1    /scratch/linux/arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=
+=80=98struct bridge_irq_chip_data=E2=80=99 has no member named =E2=80=98nna=
+sid=E2=80=99; did you mean =E2=80=98nasid=E2=80=99?
+
+Warnings summary:
+
+    61   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    22   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    4    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=
+=80=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-funct=
+ion]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    2    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: ca=
+st from pointer to integer of different size [-Wpointer-to-int-cast]
+    2    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29=
+: Warning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 b=
+ytes) (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
+ce_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
+e_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
+_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    /scratch/linux/arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Wa=
+rning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes=
+) (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    1    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+Section mismatches summary:
+
+    1    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: cast fr=
+om pointer to integer of different size [-Wpointer-to-int-cast]
+    /scratch/linux/arch/arm64/include/asm/memory.h:239:15: warning: cast fr=
+om pointer to integer of different size [-Wpointer-to-int-cast]
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: War=
+ning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)=
+ (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device_bus_=
+num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg): F=
+ailed prerequisite 'reg_format'
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: War=
+ning (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes)=
+ (#address-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_device_bus=
+_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg): =
+Failed prerequisite 'reg_format'
+    /scratch/linux/arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning=
+ (reg_format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#a=
+ddress-cells =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_device_bu=
+s_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_reg):=
+ Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
+ Failed prerequisite 'reg_format'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    /scratch/linux/arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=80=98=
+struct bridge_irq_chip_data=E2=80=99 has no member named =E2=80=98nnasid=E2=
+=80=99; did you mean =E2=80=98nasid=E2=80=99?
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
