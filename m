@@ -2,181 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 552002B73BC
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 02:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FE542B7418
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 03:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727013AbgKRB0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Nov 2020 20:26:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S1726172AbgKRCGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Nov 2020 21:06:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726982AbgKRB0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 20:26:55 -0500
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FE1C061A48;
-        Tue, 17 Nov 2020 17:26:55 -0800 (PST)
-Received: by mail-qt1-x844.google.com with SMTP id p12so482679qtp.7;
-        Tue, 17 Nov 2020 17:26:55 -0800 (PST)
+        with ESMTP id S1725771AbgKRCGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Nov 2020 21:06:53 -0500
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20347C061A48;
+        Tue, 17 Nov 2020 18:06:53 -0800 (PST)
+Received: by mail-pj1-x1041.google.com with SMTP id h12so230207pjv.2;
+        Tue, 17 Nov 2020 18:06:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=+siBgeigTKwgqdEodZxPcEagNIOErMs+YIxpJIhQK+A=;
-        b=Q4vXCLZE0FH5W+mM/S9FBKFN/h/p/b++zSG9LBW01PsX76cVZmOsXACYsGeTQLBzsa
-         Kv3yvUJ7wICXYQT517nE081xalHJ6Y9q3pQ7230iWpvrK/9J6lMjHJptYqjGR5oCCakU
-         7/zV3/nCTtMng8oYIPRu6O1MqxyfEQTkq3OqlH/eDMeEBcC4sNc+kZV79KOV0gJe8tpR
-         CNhfBxjitKbbV6CbC2Rjz+Lnpm7JWg51rKQyyxlRKlE9Bv0wZchoZX6DO13TLOyoDcXZ
-         pmRXRdKidA0F4Iw9IAitHzbBb2EN+gd6RXtq2/l47/UKGwrU0YMgL8yuLOBR3CZi59hk
-         y8VQ==
+        bh=HZKGduzqBReBfRr08X8V7IvE/bDB3pEOMc9tQAotIvE=;
+        b=mQSoM3tpBbs+SzuUQGWHjGluu1bhAz1/FEFkGbOZbZUz11uBEsqFbvKtimMU/um87B
+         916uaICDWLpwmbwaL+iBpNwswSh4oxWRUDr4iSLIJGbZLWpb5aa/zm2w9mFDIsrWkT+2
+         na8sjo0zllRPiibdAXQ3KhdbQkQWfmGb/XK/fSWQWBZiOACmbHLP2A5KhId6nN2EcSwA
+         jSaWSPcy6dUuuu+5L2Y9TRiuBtXTek84eWL+9TyLGc/9E3HZtjDljXX19eO2EZEYRYzO
+         szcc6AElGtvMPd9pCw49aa4/Sb9bZkPNgqelMw0k4gtb980X4UBx32AtQoFHH8DFilsp
+         d9vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=+siBgeigTKwgqdEodZxPcEagNIOErMs+YIxpJIhQK+A=;
-        b=sSfmJnvU8LQsYVOqlYxgcVWN9FyUzal7Et+YfiADfkRNPzmFSCFQN+B+gQQaACXNxJ
-         RCrFO7J7t55GCmfHU6sYS7VZ9onn8C96y1/NMJDwMqYmobylozGnPQpUmOi59AWQj+mT
-         nb8gOeaiKCKGFlbvBkmko5jNUFO5cKJLI4VB9TPdXW+vWDYW9qC0QbAy2G4Z/tJp4L/3
-         HxNnmO/yvZYON2HXzzhJUIfmX0pHnI1K+SMljfLHENQouNzdnGkEX8ig+5W+xq0brCCR
-         bUiW4d3rkuOOa9C1CCQr/cE5P5OyQw+i+b5x2d8l43x2VoJChXJG8BcPdfcwcAVqwPNb
-         1vxw==
-X-Gm-Message-State: AOAM532Vi8Ao1jkvOTcHWlXc6hxAmb1YmZAQ7cAmjpNFpl27xHdq5JVz
-        765MMi4ap/iLHcwjJFUKyR0=
-X-Google-Smtp-Source: ABdhPJyzWuEpVf76Vk7KR2aXHB0bdZgvmt/rN0dpaGHYSKvETbq/rL5dCfTLzmWWka/bM3DUVGjGxA==
-X-Received: by 2002:ac8:6f42:: with SMTP id n2mr2650380qtv.17.1605662814175;
-        Tue, 17 Nov 2020 17:26:54 -0800 (PST)
-Received: from auth1-smtp.messagingengine.com (auth1-smtp.messagingengine.com. [66.111.4.227])
-        by smtp.gmail.com with ESMTPSA id k4sm6689552qtp.5.2020.11.17.17.26.53
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 17 Nov 2020 17:26:53 -0800 (PST)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailauth.nyi.internal (Postfix) with ESMTP id 98E8A27C005B;
-        Tue, 17 Nov 2020 20:26:52 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Tue, 17 Nov 2020 20:26:52 -0500
-X-ME-Sender: <xms:XHi0Xw6LSJg0S2CLMijYGNXBt_o9Eca2CM_xoNLn-WbDdleTTik9ZA>
-    <xme:XHi0Xx7lr6AzjQemi8eLGYMInZuMLwPTQqPF265ZZNs2GWdZg4X53AUes5NtJXMEL
-    feIiHSUxPKUFDV8dA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudefgedgfeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhquhhn
-    ucfhvghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrfgrth
-    htvghrnhepveeijedthfeijeefudehhedvveegudegteehgffgtddvuedtveegtedvvdef
-    gedtnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepudeijedrvddvtddrvd
-    druddvieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhm
-    pegsohhquhhnodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdeiledvgeehtd
-    eigedqudejjeekheehhedvqdgsohhquhhnrdhfvghngheppehgmhgrihhlrdgtohhmsehf
-    ihigmhgvrdhnrghmvg
-X-ME-Proxy: <xmx:XHi0X_fZxaVmDhDqm3FV_ylKnULwCgYmKAICkI5rqvVfpClGcRsbsQ>
-    <xmx:XHi0X1Ikqb3rrK7BetWEUduOpHsBXyTW21Wv-0cgXPUZUXeun7IV7w>
-    <xmx:XHi0X0LngYtTtiL699hGqafz6wfztAXzBzAGhAFtHdOc1WmVQ8tSag>
-    <xmx:XHi0X43Gx1CtpvCuA9W5vh09AIUt1zfhgkc6r67zdvumhuUojugqyw>
-Received: from localhost (unknown [167.220.2.126])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CA02F3280064;
-        Tue, 17 Nov 2020 20:26:51 -0500 (EST)
-Date:   Wed, 18 Nov 2020 09:26:34 +0800
-From:   Boqun Feng <boqun.feng@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH AUTOSEL 5.9 13/21] lockdep: Avoid to modify chain keys in
- validate_chain()
-Message-ID: <20201118012634.GF286534@boqun-archlinux>
-References: <20201117125652.599614-1-sashal@kernel.org>
- <20201117125652.599614-13-sashal@kernel.org>
+        bh=HZKGduzqBReBfRr08X8V7IvE/bDB3pEOMc9tQAotIvE=;
+        b=QdvY+VN7oS4jzKOAKo+2jUBmWYLfJ9pinpNw270GCHW2kXgbBYWB2VqW7I5Q04dvDn
+         B0o7CSOJMvpKQCa9oio1T0NruQyI2kLV4/xR7AhX5xpOGEFm+bCplbIxzWCOTakD1LI+
+         mg228MPr6QBWXKiC5oNtE4+PtJ3bTpZPrWG3p9vN2l6Yz6X25yt4JCwUnE/taDocQ1/E
+         +XwWLUyULrsR01HRh5/9OXMOHtOJ0fyNf6sSzSLUNOMumfbfTOdmjjPD4vscx01TfKTB
+         R9QTAsArFJGvJVtJI7yhtakG4+E649c8dkHsoRikU/s0yJFFpmeTigWNflxa4/Q+7CJs
+         ctnQ==
+X-Gm-Message-State: AOAM530kyA/2WKeg1kfb2Uw9ATf/RA389g798vnLOzOJq2S9T990M2at
+        yGJRVx6o95EVvonuAQqoY14=
+X-Google-Smtp-Source: ABdhPJzsOC1ruRnZumF1K8gm+9+QrU+lBpFYmyxlNYeWCcTFjgmk3F/6fFht7pWy24OfEAuO4KUfTg==
+X-Received: by 2002:a17:902:b196:b029:d5:a8fd:9a1c with SMTP id s22-20020a170902b196b02900d5a8fd9a1cmr2372153plr.44.1605665212605;
+        Tue, 17 Nov 2020 18:06:52 -0800 (PST)
+Received: from localhost ([2409:10:2e40:5100:6e29:95ff:fe2d:8f34])
+        by smtp.gmail.com with ESMTPSA id s145sm22886088pfs.187.2020.11.17.18.06.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2020 18:06:51 -0800 (PST)
+Date:   Wed, 18 Nov 2020 11:06:49 +0900
+From:   Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+To:     Minchan Kim <minchan@kernel.org>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        sergey.senozhatsky.work@gmail.com, tony@atomide.com,
+        linux-arm-kernel@lists.infradead.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Harish Sriram <harish@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "mm/vunmap: add cond_resched() in
+ vunmap_pmd_range"
+Message-ID: <X7SBufr4GftKY9pB@jagdpanzerIV.localdomain>
+References: <20201105170249.387069-1-minchan@kernel.org>
+ <20201106175933.90e4c8851010c9ce4dd732b6@linux-foundation.org>
+ <20201107083939.GA1633068@google.com>
+ <20201112200101.GC123036@google.com>
+ <20201112144919.5f6b36876f4e59ebb4a99d6d@linux-foundation.org>
+ <20201113162529.GA2378542@google.com>
+ <20201116175323.GB3805951@google.com>
+ <20201117135632.GA27763@infradead.org>
+ <20201117202916.GA3856507@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201117125652.599614-13-sashal@kernel.org>
+In-Reply-To: <20201117202916.GA3856507@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On (20/11/17 12:29), Minchan Kim wrote:
+> Yub, I remeber the discussion. 
+> https://lore.kernel.org/linux-mm/20200416203736.GB50092@google.com/
+> 
+> I wanted to remove it but 30% gain made me think again before
+> deciding to drop it.
+> Since it continue to make problems and Linux is approaching to
+> deprecate the 32bit machines, I think it would be better to drop it
+> rather than inventing weird workaround.
+> 
+> Ccing Tony since omap2plus have used it by default for just in case.
+> 
+> From fc1b17a120991fd86b9e1153ab22d0b0bdadd8d0 Mon Sep 17 00:00:00 2001
+> From: Minchan Kim <minchan@kernel.org>
+> Date: Tue, 17 Nov 2020 11:58:51 -0800
+> Subject: [PATCH] mm/zsmalloc.c: drop ZSMALLOC_PGTABLE_MAPPING
+> 
+> Even though this option showed some amount improvement(e.g., 30%)
+> in some arm32 platforms, it has been headache to maintain since it
+> have abused APIs[1](e.g., unmap_kernel_range in atomic context).
+> 
+> Since we are approaching to deprecate 32bit machines and already made
+> the config option available for only builtin build since v5.8, lastly
+> it has been not default option in zsmalloc, it's time to drop the
+> option for better maintainance.
+> 
+> [1] http://lore.kernel.org/linux-mm/20201105170249.387069-1-minchan@kernel.org
+> 
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> Cc: <stable@vger.kernel.org>
+> Fixes: e47110e90584 ("mm/vunmap: add cond_resched() in vunmap_pmd_range")
+> Signed-off-by: Minchan Kim <minchan@kernel.org>
 
-I don't think this commit should be picked by stable, since the problem
-it fixes is caused by commit f611e8cf98ec ("lockdep: Take read/write
-status in consideration when generate chainkey"), which just got merged
-in the merge window of 5.10. So 5.9 and 5.4 don't have the problem.
+Looks good to me.
 
-Regards,
-Boqun
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
-On Tue, Nov 17, 2020 at 07:56:44AM -0500, Sasha Levin wrote:
-> From: Boqun Feng <boqun.feng@gmail.com>
-> 
-> [ Upstream commit d61fc96a37603384cd531622c1e89de1096b5123 ]
-> 
-> Chris Wilson reported a problem spotted by check_chain_key(): a chain
-> key got changed in validate_chain() because we modify the ->read in
-> validate_chain() to skip checks for dependency adding, and ->read is
-> taken into calculation for chain key since commit f611e8cf98ec
-> ("lockdep: Take read/write status in consideration when generate
-> chainkey").
-> 
-> Fix this by avoiding to modify ->read in validate_chain() based on two
-> facts: a) since we now support recursive read lock detection, there is
-> no need to skip checks for dependency adding for recursive readers, b)
-> since we have a), there is only one case left (nest_lock) where we want
-> to skip checks in validate_chain(), we simply remove the modification
-> for ->read and rely on the return value of check_deadlock() to skip the
-> dependency adding.
-> 
-> Reported-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Link: https://lkml.kernel.org/r/20201102053743.450459-1-boqun.feng@gmail.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  kernel/locking/lockdep.c | 19 +++++++++----------
->  1 file changed, 9 insertions(+), 10 deletions(-)
-> 
-> diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-> index 3eb35ad1b5241..f3a4302a1251f 100644
-> --- a/kernel/locking/lockdep.c
-> +++ b/kernel/locking/lockdep.c
-> @@ -2421,7 +2421,9 @@ print_deadlock_bug(struct task_struct *curr, struct held_lock *prev,
->   * (Note that this has to be done separately, because the graph cannot
->   * detect such classes of deadlocks.)
->   *
-> - * Returns: 0 on deadlock detected, 1 on OK, 2 on recursive read
-> + * Returns: 0 on deadlock detected, 1 on OK, 2 if another lock with the same
-> + * lock class is held but nest_lock is also held, i.e. we rely on the
-> + * nest_lock to avoid the deadlock.
->   */
->  static int
->  check_deadlock(struct task_struct *curr, struct held_lock *next)
-> @@ -2444,7 +2446,7 @@ check_deadlock(struct task_struct *curr, struct held_lock *next)
->  		 * lock class (i.e. read_lock(lock)+read_lock(lock)):
->  		 */
->  		if ((next->read == 2) && prev->read)
-> -			return 2;
-> +			continue;
->  
->  		/*
->  		 * We're holding the nest_lock, which serializes this lock's
-> @@ -3227,16 +3229,13 @@ static int validate_chain(struct task_struct *curr,
->  
->  		if (!ret)
->  			return 0;
-> -		/*
-> -		 * Mark recursive read, as we jump over it when
-> -		 * building dependencies (just like we jump over
-> -		 * trylock entries):
-> -		 */
-> -		if (ret == 2)
-> -			hlock->read = 2;
->  		/*
->  		 * Add dependency only if this lock is not the head
-> -		 * of the chain, and if it's not a secondary read-lock:
-> +		 * of the chain, and if the new lock introduces no more
-> +		 * lock dependency (because we already hold a lock with the
-> +		 * same lock class) nor deadlock (because the nest_lock
-> +		 * serializes nesting locks), see the comments for
-> +		 * check_deadlock().
->  		 */
->  		if (!chain_head && ret != 2) {
->  			if (!check_prevs_add(curr, hlock))
-> -- 
-> 2.27.0
-> 
+	-ss
