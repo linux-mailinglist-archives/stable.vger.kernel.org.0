@@ -2,97 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C532B75E5
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 06:28:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FC22B75F6
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 06:35:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726019AbgKRF0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 00:26:13 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:55535 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725446AbgKRF0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 00:26:12 -0500
-X-UUID: dff173429cf944bf885c6e4eb8117996-20201118
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=feaWGkTA0pDN4xL1xb59wAcryyZv9HU/J1oPsDG2QIk=;
-        b=Wz8NRaFhXXrYtiAhdjwOe8ysvLqJwGDbbo7+uUyk23LOv22VH9Y0qWseR1WOmF1tghWMAScC0eFlYuJhY+jwZLXWM8NVQ7g26jzl/VKZCy4qiIdZRa0ZP4ihsAfiH6buMj6OJXwxtJ8EunYd65MTu3DGs83Us3XQ7RwXJqs06FY=;
-X-UUID: dff173429cf944bf885c6e4eb8117996-20201118
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1957854605; Wed, 18 Nov 2020 13:26:08 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs05n1.mediatek.inc (172.21.101.15) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 18 Nov 2020 13:26:07 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 18 Nov 2020 13:26:07 +0800
-Message-ID: <1605677166.23663.4.camel@mtkswgap22>
-Subject: Re: [PATCH v3] ALSA: usb-audio: disable 96khz support for HUAWEI
- USB-C HEADSET
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Takashi Iwai <tiwai@suse.com>
-CC:     Jaroslav Kysela <perex@perex.cz>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Alexander Tsoy <alexander@tsoy.me>,
-        "Nicola Lunghi" <nick83ola@gmail.com>,
-        Christopher Swenson <swenson@swenson.io>,
-        Nick Kossifidis <mickflemm@gmail.com>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Ainge Hsu =?UTF-8?Q?=28=E5=BE=90=E5=B7=A7=E5=AE=9C=29?= 
-        <ainge.hsu@mediatek.com>,
-        Eddie Hung =?UTF-8?Q?=28=E6=B4=AA=E6=AD=A3=E9=91=AB=29?= 
-        <Eddie.Hung@mediatek.com>,
-        Chunfeng Yun =?UTF-8?Q?=28=E4=BA=91=E6=98=A5=E5=B3=B0=29?= 
-        <Chunfeng.Yun@mediatek.com>,
-        wsd_upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Wed, 18 Nov 2020 13:26:06 +0800
-In-Reply-To: <1604999048-20294-1-git-send-email-macpaul.lin@mediatek.com>
-References: <1604996266.2817.1.camel@mtkswgap22>
-         <1604999048-20294-1-git-send-email-macpaul.lin@mediatek.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1725782AbgKRFeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 00:34:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726077AbgKRFeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 00:34:09 -0500
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F012FC061A52
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 21:34:08 -0800 (PST)
+Received: by mail-ej1-x643.google.com with SMTP id s25so989032ejy.6
+        for <stable@vger.kernel.org>; Tue, 17 Nov 2020 21:34:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=BopsKmSar3n4P2J12Sr3SxLSSPQixGWTU7etCFUvEQ0=;
+        b=CugPd5MD9jNugwhqO/Gr9MkjMcbb6CXIe/YBJ6yWCBjU5fr3YpbYt4AZzxNba/bSYl
+         uyDHBGpm4uVezOQh7dKVM83R0kZ0IlQvAbA2PN+lNfsIoadedA4zFWuhVkRA1gYbxIyD
+         Xm3as8ORxmOYFMdHgqBb4FkvJgHMHGu4ToX8hECpJACyOPamikY/1/UQHszQLjnJPhQ7
+         ebIlRScaG0El2TITFAhbsoeURuVy0UEm4iEaqnsPyHE3UjvEiQA3nOZkrq6d2WzVBVfl
+         F+q1amVs1YcZsOVix0qmYlgKOBbaBbP5i+Ul8Y6SMKKYzy7Xtq4pCHAAHoH6UcGMqR6s
+         cfvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=BopsKmSar3n4P2J12Sr3SxLSSPQixGWTU7etCFUvEQ0=;
+        b=J/FveyTbrjE1AsL6vioKaj6vHBj3jfkdC/l6m8oUWwc/DMVxaFmL37rlwNQW6BJT62
+         wFvddNpS/9aAi31ohF8duk602ETk8blGa85MH4jfcS1dEGrezvOVcoTuwuVn9plUJ+ky
+         65lkghqHqJpA8X4XZ9Y4c/2OJsERj0YNoo9rYIimDPtEGNHPci4wa1c605YfBWjoOddg
+         YVSoflAmDczE4BvaqziMM1HkZXCb+j9ApstGhgym2OF/HicHLHLJYaO2M0qHIAuc7urr
+         2HmnXj2iC1SsVrGf286xRsLFWzgWmy+OkO25PKMctmGPKwOdZnkVVA7aIaGNrhpAbTMM
+         MmiQ==
+X-Gm-Message-State: AOAM532aFKBQcRi9Ui/V7OrOE0jhyahbxqUPJ5Df63heSCPOkh2h+r6D
+        2TYMSKcY2sJxh1Khq2JVa+XlnMBZiGw4YUku+kVVUIAEIRgXE0LU
+X-Google-Smtp-Source: ABdhPJwogktE2pJm2xh3pNFBobna/9Th5ECROtOqF+Zx+ceiLF964yBgqeJMX0OYZPoDfFT6pYfrw/wIJCLy66utgj8=
+X-Received: by 2002:a17:906:3087:: with SMTP id 7mr21857605ejv.375.1605677647248;
+ Tue, 17 Nov 2020 21:34:07 -0800 (PST)
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+References: <20201117122138.925150709@linuxfoundation.org>
+In-Reply-To: <20201117122138.925150709@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 18 Nov 2020 11:03:55 +0530
+Message-ID: <CA+G9fYt+YNy=34HLHpDrc6=73Nhu14NEf7AP+woyZryny+b-2Q@mail.gmail.com>
+Subject: Re: [PATCH 5.9 000/255] 5.9.9-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, Netdev <netdev@vger.kernel.org>,
+        netfilter-devel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTExLTEwIGF0IDE3OjA0ICswODAwLCBNYWNwYXVsIExpbiB3cm90ZToNCj4g
-VGhlIEhVQVdFSSBVU0ItQyBoZWFkc2V0IChWSUQ6MHgxMmQxLCBQSUQ6MHgzYTA3KSByZXBvcnRl
-ZCBpdCBzdXBwb3J0cw0KPiA5Nmtoei4gSG93ZXZlciB0aGVyZSB3aWxsIGJlIHNvbWUgcmFuZG9t
-IGlzc3VlIHVuZGVyIDk2a2h6Lg0KPiBOb3Qgc3VyZSBpZiB0aGVyZSBpcyBhbnkgYWx0ZXJuYXRl
-IHNldHRpbmcgY291bGQgYmUgYXBwbGllZC4NCj4gSGVuY2UgNDhraHogaXMgc3VnZ2VzdGVkIHRv
-IGJlIGFwcGxpZWQgYXQgdGhpcyBtb21lbnQuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBNYWNwYXVs
-IExpbiA8bWFjcGF1bC5saW5AbWVkaWF0ZWsuY29tPg0KPiBTaWduZWQtb2ZmLWJ5OiBFZGRpZSBI
-dW5nIDxlZGRpZS5odW5nQG1lZGlhdGVrLmNvbT4NCj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5v
-cmcNCj4gLS0tDQo+IENoYW5nZXMgZm9yIHYyOg0KPiAgIC0gRml4IGJ1aWxkIGVycm9yLg0KPiAg
-IC0gQWRkIENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IENoYW5nZXMgZm9yIHYzOg0KPiAg
-IC0gUmVwbGFjZSAidWRldiIgd2l0aCAiY2hpcC0+ZGV2IiBhY2NvcmRpbmcgdG8gVGFrYXNoaSdz
-IHN1Z2dlc3Rpb24uIFRoYW5rcy4NCj4gDQo+ICBzb3VuZC91c2IvZm9ybWF0LmMgfCAgICA1ICsr
-KysrDQo+ICAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0
-IGEvc291bmQvdXNiL2Zvcm1hdC5jIGIvc291bmQvdXNiL2Zvcm1hdC5jDQo+IGluZGV4IDFiMjhk
-MDEuLjBhZmY3NzQgMTAwNjQ0DQo+IC0tLSBhL3NvdW5kL3VzYi9mb3JtYXQuYw0KPiArKysgYi9z
-b3VuZC91c2IvZm9ybWF0LmMNCj4gQEAgLTIxNyw2ICsyMTcsMTEgQEAgc3RhdGljIGludCBwYXJz
-ZV9hdWRpb19mb3JtYXRfcmF0ZXNfdjEoc3RydWN0IHNuZF91c2JfYXVkaW8gKmNoaXAsIHN0cnVj
-dCBhdWRpb2YNCj4gIAkJCSAgICAoY2hpcC0+dXNiX2lkID09IFVTQl9JRCgweDA0MWUsIDB4NDA2
-NCkgfHwNCj4gIAkJCSAgICAgY2hpcC0+dXNiX2lkID09IFVTQl9JRCgweDA0MWUsIDB4NDA2OCkp
-KQ0KPiAgCQkJCXJhdGUgPSA4MDAwOw0KPiArCQkJLyogSHVhd2VpIGhlYWRzZXQgY2FuJ3Qgc3Vw
-cG9ydCA5NmtIeiBmdWxseSAqLw0KPiArCQkJaWYgKHJhdGUgPT0gOTYwMDAgJiYNCj4gKwkJCSAg
-ICBjaGlwLT51c2JfaWQgPT0gVVNCX0lEKDB4MTJkMSwgMHgzYTA3KSAmJg0KPiArCQkJICAgIGxl
-MTZfdG9fY3B1KGNoaXAtPmRldi0+ZGVzY3JpcHRvci5iY2REZXZpY2UpID09IDB4NDkpDQo+ICsJ
-CQkJY29udGludWU7DQo+ICANCj4gIAkJCWZwLT5yYXRlX3RhYmxlW2ZwLT5ucl9yYXRlc10gPSBy
-YXRlOw0KPiAgCQkJaWYgKCFmcC0+cmF0ZV9taW4gfHwgcmF0ZSA8IGZwLT5yYXRlX21pbikNCg0K
-U29ycnkgZm9yIGJvdGhlcmluZyBhZ2FpbiwgcGxlYXNlIGhvbGQtb24gdGhpcyBwYXRjaC4NCkkn
-bSBzdGlsbCB0cnlpbmcgdG8gY2xhcmlmeSBpZiB0aGVyZSBpcyBhbm90aGVyIGFwcHJvYWNoIGZv
-ciB0aGlzDQppbnRlcm9wZXJhYmlsaXR5IGlzc3VlLg0KSSdsbCB1cGRhdGUgdGhpcyB0aHJlYWQg
-b25jZSB0aGUgcmVzdWx0IGhhcyBjYW1lIG91dC4NCg0KVGhhbmtzDQpNYWNwYXVsIExpbg0K
+On Tue, 17 Nov 2020 at 19:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.9.9 release.
+> There are 255 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.9.9-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+NOTE:
+1)
+BUG: Invalid wait context on arm64 db410c device while booting.
+This issue has not reproduced after several testing loops.
+https://lore.kernel.org/stable/CA+G9fYsk54r9Re4E9BWpqsoxLjpCvxRKFWRgdiKVcPo=
+YE5z0Hw@mail.gmail.com/T/#u
+
+2)
+kselftest test suite version upgrade to v5.9
+
+3)
+While running kselftest netfilter on x86, i386, arm64 and arm devices
+the following kernel warning was noticed.
+WARNING: at net/netfilter/nf_tables_api.c:622
+lockdep_nfnl_nft_mutex_not_held+0x19/0x20 [nf_tables]
+https://lore.kernel.org/linux-kselftest/CA+G9fYvFUpODs+NkSYcnwKnXm62tmP=3Dk=
+sLeBPmB+KFrB2rvCtQ@mail.gmail.com/
+
+4)
+From this release we have started building kernels with clang-10 toolchain
+and testing LTP testsuite on qemu_arm64, qemu_arm, qemu_x86_64 and qemu_i38=
+6.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.9.9-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.9.y
+git commit: fb1622495321923cbb1ae2c6cf2da1e9ca286800
+git describe: v5.9.8-256-gfb1622495321
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.=
+y/build/v5.9.8-256-gfb1622495321
+
+No regressions (compared to build v5.9.8)
+
+No fixes (compared to build v5.9.8)
+
+Ran 52946 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-controllers-tests
+* ltp-cve-tests
+* network-basic-tests
+* kselftest
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kunit
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
