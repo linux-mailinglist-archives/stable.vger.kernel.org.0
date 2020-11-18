@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D216C2B86B6
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21BFC2B86F0
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726714AbgKRVee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 16:34:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52676 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726433AbgKRVea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Nov 2020 16:34:30 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7321BB01E;
-        Wed, 18 Nov 2020 21:34:24 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id D8FEB1E1334; Wed, 18 Nov 2020 15:58:38 +0100 (CET)
-Date:   Wed, 18 Nov 2020 15:58:38 +0100
-From:   Jan Kara <jack@suse.cz>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: Fix checksum errors with indexed dirs
-Message-ID: <20201118145838.GP1981@quack2.suse.cz>
-References: <20200205173025.12221-1-jack@suse.cz>
- <X7NRcBMnsR3w1K7X@sol.localdomain>
+        id S1727008AbgKRVlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 16:41:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726136AbgKRVlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 16:41:51 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A12C0613D4;
+        Wed, 18 Nov 2020 13:41:50 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id c17so3640722wrc.11;
+        Wed, 18 Nov 2020 13:41:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=gjo4l7jEqfgUaEJTViB3FcmDbvAZcSujHdYlxEFDeHw=;
+        b=V58gjjNxTRjOOuSvM8oz4SRLNgcz4ELwhVa98lKi2j3r85iTchKqAqJ7jjMxZ41ghU
+         x+bNr55IxJVzPNY/MNtidNvHFZ0m0/YkoKT2o2tNXXOgaeytt9Bt4E37pnGchcEZo5jB
+         C0X2qxWBM2CqNwXITyXH+I/c5Ohnu/XcYDewKkgfi6884iBxsZX64DaNDf9EpQosqGU1
+         nqyElaNhkBToPJUpS8HOOs6uyESJZR0cbyTQrN5fOEVvaT0znpW5DYQypXJWOg6jzOBZ
+         gg7/XBGdyPYCzyG6gWFq9iCCUg4RJ9xmvo36VftyP2LbgmcPAb+8pg9M+ap5jcTqElfe
+         Tr/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=gjo4l7jEqfgUaEJTViB3FcmDbvAZcSujHdYlxEFDeHw=;
+        b=TYu1f03C17HlAGTxcqZcWJPl4YcbFkMAuJsnmrRrjDrIPo9nF53MwDMh1zpfjk9eGm
+         d+Gg7rR+G360PYwPeby+S9zWlG6q79qW9YHafUxLJ1edoHY6/D1V3TJ8LmimASv30PA3
+         p/KQpWsdZ4rkXiDU3uoXshrDfZRDTFUHB4oZJZoD5IeADwR9AYnAMx1vDVWyhEqq2iU3
+         fl/J+BOE57CPWqEMIFIpqz1/6D0OwvesVnN+iLHqhD6YGz4d5E4zurY7BZe9R4LsiWjn
+         wVuO1nfp89KOM3FU6IruKBwEJst3iCCOi6gPVSFrLdg/9T8Pho0H/ZFZt/A6ug8zsezX
+         wtBQ==
+X-Gm-Message-State: AOAM533TFvQV6v2DpzJ/VgmPP98u832ynb/uZmpFfmZmySplIpwngmBf
+        KFqbiQDXrsZ+F3DdfTbtZpc=
+X-Google-Smtp-Source: ABdhPJy9ee/dgg3f2T9n0yWRJmyR6W8Gb0KA8VeUzMnlnShqSnAd5OFBZpApYyKOM58j9YFclFZQbA==
+X-Received: by 2002:adf:eb47:: with SMTP id u7mr6678174wrn.163.1605735709702;
+        Wed, 18 Nov 2020 13:41:49 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id o197sm5480589wme.17.2020.11.18.13.41.48
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 18 Nov 2020 13:41:49 -0800 (PST)
+Date:   Wed, 18 Nov 2020 21:41:47 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
+Subject: Re: [PATCH 5.4 140/203] MIPS: PCI: remember nasid changed by set
+ interrupt affinity
+Message-ID: <20201118214147.5ghn6gtzu3jlksre@debian>
+References: <20200116231745.218684830@linuxfoundation.org>
+ <20200116231757.243032912@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <X7NRcBMnsR3w1K7X@sol.localdomain>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200116231757.243032912@linuxfoundation.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Eric!
+Hi Greg,
 
-On Mon 16-11-20 20:28:32, Eric Biggers wrote:
-> On Wed, Feb 05, 2020 at 06:30:25PM +0100, Jan Kara wrote:
-> > DIR_INDEX has been introduced as a compat ext4 feature. That means that
-> > even kernels / tools that don't understand the feature may modify the
-> > filesystem. This works because for kernels not understanding indexed dir
-> > format, internal htree nodes appear just as empty directory entries.
-> > Index dir aware kernels then check the htree structure is still
-> > consistent before using the data. This all worked reasonably well until
-> > metadata checksums were introduced. The problem is that these
-> > effectively made DIR_INDEX only ro-compatible because internal htree
-> > nodes store checksums in a different place than normal directory blocks.
-> > Thus any modification ignorant to DIR_INDEX (or just clearing
-> > EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
-> > and trigger kernel errors. So we have to be more careful when dealing
-> > with indexed directories on filesystems with checksumming enabled.
-> > 
-> > 1) We just disallow loading and directory inodes with EXT4_INDEX_FL when
-> > DIR_INDEX is not enabled. This is harsh but it should be very rare (it
-> > means someone disabled DIR_INDEX on existing filesystem and didn't run
-> > e2fsck), e2fsck can fix the problem, and we don't want to answer the
-> > difficult question: "Should we rather corrupt the directory more or
-> > should we ignore that DIR_INDEX feature is not set?"
-> > 
-> > 2) When we find out htree structure is corrupted (but the filesystem and
-> > the directory should in support htrees), we continue just ignoring htree
-> > information for reading but we refuse to add new entries to the
-> > directory to avoid corrupting it more.
-> > 
-> > CC: stable@vger.kernel.org
-> > Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> > ---
-> >  fs/ext4/dir.c   | 14 ++++++++------
-> >  fs/ext4/ext4.h  |  5 ++++-
-> >  fs/ext4/inode.c | 13 +++++++++++++
-> >  fs/ext4/namei.c |  7 +++++++
-> >  4 files changed, 32 insertions(+), 7 deletions(-)
-
-...
-
-> > diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-> > index f8578caba40d..1fd6c1e2ce2a 100644
-> > --- a/fs/ext4/ext4.h
-> > +++ b/fs/ext4/ext4.h
-> > @@ -2482,8 +2482,11 @@ void ext4_insert_dentry(struct inode *inode,
-> >  			struct ext4_filename *fname);
-> >  static inline void ext4_update_dx_flag(struct inode *inode)
-> >  {
-> > -	if (!ext4_has_feature_dir_index(inode->i_sb))
-> > +	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-> > +		/* ext4_iget() should have caught this... */
-> > +		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
-> >  		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
-> > +	}
-> >  }
+On Fri, Jan 17, 2020 at 12:17:37AM +0100, Greg Kroah-Hartman wrote:
+> From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 > 
-> This new WARN_ON_ONCE() gets triggered by the following commands:
+> commit 37640adbefd66491cb8083a438f7bf366ac09bc7 upstream.
 > 
-> 	mkfs.ext4 -O ^dir_index /dev/vdc
-> 	mount /dev/vdc /vdc
-> 	mkdir /vdc/dir
-> 
-> WARNING: CPU: 1 PID: 305 at fs/ext4/ext4.h:2700 add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2039
-> CPU: 1 PID: 305 Comm: mkdir Not tainted 5.10.0-rc4 #14
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
-> RIP: 0010:ext4_update_dx_flag fs/ext4/ext4.h:2700 [inline]
-> RIP: 0010:add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2038
-> [...]
-> Call Trace:
->  ext4_add_entry+0x179/0x4d0 fs/ext4/namei.c:2248
->  ext4_mkdir+0x1c0/0x320 fs/ext4/namei.c:2814
->  vfs_mkdir+0xcc/0x130 fs/namei.c:3650
->  do_mkdirat+0x81/0x120 fs/namei.c:3673
->  __do_sys_mkdir fs/namei.c:3689 [inline]
-> 
-> What is intended here?  metadata_csum && ^dir_index is a weird combination,
-> but it's technically valid, right?
 
-Indeed the WARN_ON_ONCE() is wrong. It should also check that
-EXT4_INODE_INDEX is set. The idea of the warning is that when we just clear
-EXT4_INODE_INDEX flag, checksums will become invalid so generally that's
-not desirable... I'll send a fix. Thanks for report!
+<snip>
 
-									Honza
+> 
+> ---
+>  arch/mips/pci/pci-xtalk-bridge.c |    5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> --- a/arch/mips/pci/pci-xtalk-bridge.c
+> +++ b/arch/mips/pci/pci-xtalk-bridge.c
+> @@ -279,16 +279,15 @@ static int bridge_set_affinity(struct ir
+>  	struct bridge_irq_chip_data *data = d->chip_data;
+>  	int bit = d->parent_data->hwirq;
+>  	int pin = d->hwirq;
+> -	nasid_t nasid;
+>  	int ret, cpu;
+>  
+>  	ret = irq_chip_set_affinity_parent(d, mask, force);
+>  	if (ret >= 0) {
+>  		cpu = cpumask_first_and(mask, cpu_online_mask);
+> -		nasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
+> +		data->nnasid = COMPACT_TO_NASID_NODEID(cpu_to_node(cpu));
+
+This will be 'data->nasid' and its causing mips builds to fail.
+
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Regards
+Sudip
