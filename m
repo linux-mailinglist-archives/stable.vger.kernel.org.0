@@ -2,199 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2F52B82C0
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 18:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 670932B838B
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 19:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727010AbgKRRNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 12:13:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S1726392AbgKRSC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 13:02:28 -0500
+Received: from mout.gmx.net ([212.227.17.21]:53653 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725943AbgKRRNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Nov 2020 12:13:47 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFB6D248A1;
-        Wed, 18 Nov 2020 17:13:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605719626;
-        bh=IlZAznblZt4xT3tGNdphNfI2m8V2aWGbgxAGUPHRwrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OrrQu24UmIDGrpvyk3RYg+b8Nrabmyj46/jEM67PIMqLMuvfkiPjDY1cXaV6avMrr
-         e3sB6fXXT+OzU5ZYHJU1TIQqzDXei/AQ8Kwr9rftp4oXAVEtVlgroRC3uZFhchAGIT
-         ZcPnufTgLUJWBdbylciYMct2jd+9PntTt3LJ1uf8=
-Date:   Wed, 18 Nov 2020 18:14:32 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Zhao Heming <heming.zhao@suse.com>
-Cc:     linux-raid@vger.kernel.org, song@kernel.org,
-        guoqing.jiang@cloud.ionos.com, xni@redhat.com,
-        lidong.zhong@suse.com, neilb@suse.de, colyli@suse.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] md/cluster: fix deadlock when node is doing
- resync job
-Message-ID: <X7VWeJfr3Jh7N2KP@kroah.com>
-References: <1605717954-20173-1-git-send-email-heming.zhao@suse.com>
- <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
+        id S1726304AbgKRSC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 13:02:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1605722541;
+        bh=LyRhEQVedkvIGAQvW7hQnEopjq0o5ZQLyqMwf6FTgGg=;
+        h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
+        b=jtbYzmMLHFuCF7R0vV3JYskp+NwaHkApk+0QbX72X+sT/HwlVl6rHYxIgLs1CatDA
+         mLHEybzxfucxqlm9A8bykKgeaZJY4ZXK3u/MY2rfP/fuzqKL6E4TMcpaZdZk451kNT
+         AxPGH81ZgkOov55YDt0cgYMr3mpCK/G96/7gmQAY=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.1.100] ([185.6.148.133]) by mail.gmx.com (mrgmx105
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1Mdvqg-1k5qJf0z6U-00b0Fy; Wed, 18
+ Nov 2020 19:02:21 +0100
+Message-ID: <b50f0ee318cbedcd9bca95a1af00b520c4b3126b.camel@gmx.com>
+Subject: Re: Suggestion: Lengthen the review period for stable releases from
+ 48 hours to 7 days.
+From:   Hussam Al-Tayeb <ht990332@gmx.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+Cc:     stable@vger.kernel.org
+Date:   Wed, 18 Nov 2020 20:02:16 +0200
+In-Reply-To: <20201118140953.GC629656@sasha-vm>
+References: <17c526d0c5f8ed8584f7bee9afe1b73753d1c70b.camel@gmx.com>
+         <20201117080141.GA6275@amd>
+         <f4cb8d3de515e97d409fa5accca4e9965036bdb5.camel@gmx.com>
+         <1605651898@msgid.manchmal.in-ulm.de> <20201118140953.GC629656@sasha-vm>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1605717954-20173-3-git-send-email-heming.zhao@suse.com>
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:yo3jUzkyFMSyo1lFbh2wfKFezPTK128RMznICPrEe/NN6lbBDnr
+ 6T8zlnvg5rfqvP9Eu6W9gAvIu4WdSkA0680yZVSO/gDFfLyrETI1uEmioHaNcORLftVqEkd
+ N8w3BWCUPfJ83/3L+0wuRlM7C8qm4edRmqBkRJ+3efpPMbldHbHkJS+yx5tSFdY0AP+Pgpb
+ NqWzVrxdalbe78NaqxpXA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:H7yznUboWdg=:8tZCCQf1zRHWReE+lrovKf
+ e2rZlr//2lGy8zVGs1De5Yd5PdxY6Dvzv/QqZK9QpKewTa6r4yJBCeRhuVOXIq8a4Hlz1/2nn
+ fZUtWywm9o6TFF7sjaJQdWAwKlouHcshjx9Eanlw2jpAospcl1pvus5wgJjmfWjfMt/1qI26G
+ B6d6rR2Ar5roo9XvxXoUQNlB9W8kbidGwDiEHK41aEQ7YgSEH1q0iCEx2qnxUGXabsxCzNI0U
+ BY90txb3M+rCxln6mPs51wcQtJQFA6sGEpo1XdWSiJqykFABkpQo/7Nn6P4MT8OvRKxrZy9de
+ DAVaYwjwEjD8bLpK7cXMEuZVmLJuAoJajUIk3h924oRgCDbQWVldlQocMLIYuxwCn7G1WBrY9
+ 6g2lnP1E7LQwAAijBh6YcPFfco2F2SC1YdNrisW1yW66dOQFXWDNOHsXc5jUQhQVyLTt0syYt
+ RPCEjiPZxyA5rBjMGEXPSGVSp9QsjF5xpurCaO4qOejYhtjwOTNGf4rZbFh3xl23DFnp62bYN
+ fJHRwGI9yjsq0eT60KsDfrGv2AjlHpNj9eCc5da+UYmJH3wJ1mQk+RcGa0JpLCUTuCqFCJMT9
+ 7W22kSpXU+eWERIIHJWsm2UgELXqHeLmMjpsLTEjgByjBCoZvMA23V0O+dZmWdsjhF0u/vljy
+ mzQfQqozsqzt7WasT32Fq/4K3LTvSYtSOgotZZz5+uJlgQg/PxnChYouah9LPS6pNeL836Gny
+ 5WGnGu0w43DjCkdiLYxupCLTTXQenX7l23N/ct8fiBwFSA5ybC5EEGcPo1mVEN9hWf6rCBrbH
+ AZjEAYiGMMAUpwEvctt904kJsQKPci9rGfKP6R5hiy2b95Ncv5SB+BQ/i3bL3SnXb0LvBWxVX
+ F1TogZfOC01of0xrKv9fTnzCLHRE0zBWvyVhGY6ls=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 12:45:54AM +0800, Zhao Heming wrote:
-> md-cluster uses MD_CLUSTER_SEND_LOCK to make node can exclusively send msg.
-> During sending msg, node can concurrently receive msg from another node.
-> When node does resync job, grab token_lockres:EX may trigger a deadlock:
-> ```
-> nodeA                       nodeB
-> --------------------     --------------------
-> a.
-> send METADATA_UPDATED
-> held token_lockres:EX
->                          b.
->                          md_do_sync
->                           resync_info_update
->                             send RESYNCING
->                              + set MD_CLUSTER_SEND_LOCK
->                              + wait for holding token_lockres:EX
-> 
->                          c.
->                          mdadm /dev/md0 --remove /dev/sdg
->                           + held reconfig_mutex
->                           + send REMOVE
->                              + wait_event(MD_CLUSTER_SEND_LOCK)
-> 
->                          d.
->                          recv_daemon //METADATA_UPDATED from A
->                           process_metadata_update
->                            + (mddev_trylock(mddev) ||
->                               MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD)
->                              //this time, both return false forever
-> ```
-> Explaination:
-> a. A send METADATA_UPDATED
->    This will block another node to send msg
-> 
-> b. B does sync jobs, which will send RESYNCING at intervals.
->    This will be block for holding token_lockres:EX lock.
-> 
-> c. B do "mdadm --remove", which will send REMOVE.
->    This will be blocked by step <b>: MD_CLUSTER_SEND_LOCK is 1.
-> 
-> d. B recv METADATA_UPDATED msg, which send from A in step <a>.
->    This will be blocked by step <c>: holding mddev lock, it makes
->    wait_event can't hold mddev lock. (btw,
->    MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD keep ZERO in this scenario.)
-> 
-> There is a similar deadlock in commit 0ba959774e93
-> ("md-cluster: use sync way to handle METADATA_UPDATED msg")
-> In that commit, step c is "update sb". This patch step c is
-> "mdadm --remove".
-> 
-> For fixing this issue, we can refer the solution of function:
-> metadata_update_start. Which does the same grab lock_token action.
-> lock_comm can use the same steps to avoid deadlock. By moving
-> MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD from lock_token to lock_comm.
-> It enlarge a little bit window of MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
-> but it is safe & can break deadlock.
-> 
-> Repro steps (I only triggered 3 times with hundreds tests):
-> 
-> two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB.
-> ```
-> ssh root@node2 "mdadm -S --scan"
-> mdadm -S --scan
-> for i in {g,h,i};do dd if=/dev/zero of=/dev/sd$i oflag=direct bs=1M \
-> count=20; done
-> 
-> mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh \
->  --bitmap-chunk=1M
-> ssh root@node2 "mdadm -A /dev/md0 /dev/sdg /dev/sdh"
-> 
-> sleep 5
-> 
-> mkfs.xfs /dev/md0
-> mdadm --manage --add /dev/md0 /dev/sdi
-> mdadm --wait /dev/md0
-> mdadm --grow --raid-devices=3 /dev/md0
-> 
-> mdadm /dev/md0 --fail /dev/sdg
-> mdadm /dev/md0 --remove /dev/sdg
-> mdadm --grow --raid-devices=2 /dev/md0
-> ```
-> 
-> test script will hung when executing "mdadm --remove".
-> 
-> ```
->  # dump stacks by "echo t > /proc/sysrq-trigger"
-> md0_cluster_rec D    0  5329      2 0x80004000
-> Call Trace:
->  __schedule+0x1f6/0x560
->  ? _cond_resched+0x2d/0x40
->  ? schedule+0x4a/0xb0
->  ? process_metadata_update.isra.0+0xdb/0x140 [md_cluster]
->  ? wait_woken+0x80/0x80
->  ? process_recvd_msg+0x113/0x1d0 [md_cluster]
->  ? recv_daemon+0x9e/0x120 [md_cluster]
->  ? md_thread+0x94/0x160 [md_mod]
->  ? wait_woken+0x80/0x80
->  ? md_congested+0x30/0x30 [md_mod]
->  ? kthread+0x115/0x140
->  ? __kthread_bind_mask+0x60/0x60
->  ? ret_from_fork+0x1f/0x40
-> 
-> mdadm           D    0  5423      1 0x00004004
-> Call Trace:
->  __schedule+0x1f6/0x560
->  ? __schedule+0x1fe/0x560
->  ? schedule+0x4a/0xb0
->  ? lock_comm.isra.0+0x7b/0xb0 [md_cluster]
->  ? wait_woken+0x80/0x80
->  ? remove_disk+0x4f/0x90 [md_cluster]
->  ? hot_remove_disk+0xb1/0x1b0 [md_mod]
->  ? md_ioctl+0x50c/0xba0 [md_mod]
->  ? wait_woken+0x80/0x80
->  ? blkdev_ioctl+0xa2/0x2a0
->  ? block_ioctl+0x39/0x40
->  ? ksys_ioctl+0x82/0xc0
->  ? __x64_sys_ioctl+0x16/0x20
->  ? do_syscall_64+0x5f/0x150
->  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> md0_resync      D    0  5425      2 0x80004000
-> Call Trace:
->  __schedule+0x1f6/0x560
->  ? schedule+0x4a/0xb0
->  ? dlm_lock_sync+0xa1/0xd0 [md_cluster]
->  ? wait_woken+0x80/0x80
->  ? lock_token+0x2d/0x90 [md_cluster]
->  ? resync_info_update+0x95/0x100 [md_cluster]
->  ? raid1_sync_request+0x7d3/0xa40 [raid1]
->  ? md_do_sync.cold+0x737/0xc8f [md_mod]
->  ? md_thread+0x94/0x160 [md_mod]
->  ? md_congested+0x30/0x30 [md_mod]
->  ? kthread+0x115/0x140
->  ? __kthread_bind_mask+0x60/0x60
->  ? ret_from_fork+0x1f/0x40
-> ```
-> 
-> At last, thanks for Xiao's solution.
-> 
-> Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-> Suggested-by: Xiao Ni <xni@redhat.com>
-> Reviewed-by: Xiao Ni <xni@redhat.com>
-> ---
->  drivers/md/md-cluster.c | 69 +++++++++++++++++++++++------------------
->  drivers/md/md.c         |  6 ++--
->  2 files changed, 43 insertions(+), 32 deletions(-)
+On Wed, 2020-11-18 at 09:09 -0500, Sasha Levin wrote:
+> On Tue, Nov 17, 2020 at 11:29:16PM +0100, Christoph Biedl wrote:
+> > On the other hand the pace of the stable patches became fairly
+> > high=C2=B9, so
+> > during a week of -rc review a *lot* of them will queue up and I
+> > predict
+> > we'll see requests for fast-laning some of them. Also, a release
+> > would
+> > immediately be followed by the next -rc review period, a procedure
+> > that
+> > gives me a bad feeling.
+>
+> Keep in mind that the stable tree derives itself from Linus's tree -
+> it's not a development tree on it's own and we don't control how many
+> fixes flow into Linus's tree (and as a result into the stable tree).
+>
+> This means that it doesn't matter how long the review window is open
+> for, you'll be getting the same time to review a single patch -
+> whether
+> we do 200 patches twice a week or 400 patches once a week. We can't
+> create time by moving review windows around.
+>
 
-<formletter>
+How long does it take for patches reaching Linux's tree to propagate
+down to the stable trees and is there is mechanism for identifying
+followup patches?
+For instance, patch A fixes bug X but we eventually find out that this
+patch did not fix all occurrences of the bug or caused a regression and
+hence the author immediately sent patch B for inclusion in mainline
+(Linux's tree).
+Is patch B automatically identified for inclusion in stable as well?
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+In short, is there a guarantee that stable trees are as stable or
+better than mainline through the current SOP?
 
-</formletter>
+Regards,
+Hussam.
+
