@@ -2,73 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0030B2B8661
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D216C2B86B6
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726255AbgKRVNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 16:13:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
+        id S1726714AbgKRVee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 16:34:34 -0500
+Received: from mx2.suse.de ([195.135.220.15]:52676 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725948AbgKRVNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Nov 2020 16:13:37 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E33EA207D3;
-        Wed, 18 Nov 2020 21:13:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1605734016;
-        bh=+8//0K5UnMNFTVC4OTQS6tajK8TIdT39V94cceNEt5o=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=DxQLDkJc7dR/Owjkxqg6kuft3IOF4f8GMCFk42XTrdXQn+utjhQHzyLVGCYFXgxKw
-         yM1anhZN0FFirIqmnTXx7WuJZhmVUlBq53WYkjinDycCJIbBRT9/6qbnZEXr8AoXrU
-         t4+32GFD2aalCBjNdWef+wGF/2qnkBG9m3Ewr96I=
-Date:   Wed, 18 Nov 2020 13:13:35 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Dongli Zhang <dongli.zhang@oracle.com>, linux-mm@kvack.org,
-        netdev@vger.kernel.org, willy@infradead.org,
-        aruna.ramakrishna@oracle.com, bert.barbe@oracle.com,
-        rama.nichanamatlu@oracle.com, venkat.x.venkatsubra@oracle.com,
-        manjunath.b.patil@oracle.com, joe.jin@oracle.com,
-        srinivas.eeda@oracle.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, davem@davemloft.net,
-        edumazet@google.com, vbabka@suse.cz
-Subject: Re: [PATCH v3 1/1] page_frag: Recover from memory pressure
-Message-Id: <20201118131335.738bdade4f3dfcee190ea8c1@linux-foundation.org>
-In-Reply-To: <20201118114654.3435f76c@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-References: <20201115201029.11903-1-dongli.zhang@oracle.com>
-        <20201118114654.3435f76c@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1726433AbgKRVea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 16:34:30 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 7321BB01E;
+        Wed, 18 Nov 2020 21:34:24 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id D8FEB1E1334; Wed, 18 Nov 2020 15:58:38 +0100 (CET)
+Date:   Wed, 18 Nov 2020 15:58:38 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Ted Tso <tytso@mit.edu>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ext4: Fix checksum errors with indexed dirs
+Message-ID: <20201118145838.GP1981@quack2.suse.cz>
+References: <20200205173025.12221-1-jack@suse.cz>
+ <X7NRcBMnsR3w1K7X@sol.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X7NRcBMnsR3w1K7X@sol.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 18 Nov 2020 11:46:54 -0800 Jakub Kicinski <kuba@kernel.org> wrote:
+Hi Eric!
 
-> > 1. The kernel is under memory pressure and allocation of
-> > PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. Instead,
-> > the pfmemalloc page is allocated for page_frag_cache->va.
+On Mon 16-11-20 20:28:32, Eric Biggers wrote:
+> On Wed, Feb 05, 2020 at 06:30:25PM +0100, Jan Kara wrote:
+> > DIR_INDEX has been introduced as a compat ext4 feature. That means that
+> > even kernels / tools that don't understand the feature may modify the
+> > filesystem. This works because for kernels not understanding indexed dir
+> > format, internal htree nodes appear just as empty directory entries.
+> > Index dir aware kernels then check the htree structure is still
+> > consistent before using the data. This all worked reasonably well until
+> > metadata checksums were introduced. The problem is that these
+> > effectively made DIR_INDEX only ro-compatible because internal htree
+> > nodes store checksums in a different place than normal directory blocks.
+> > Thus any modification ignorant to DIR_INDEX (or just clearing
+> > EXT4_INDEX_FL from the inode) will effectively cause checksum mismatch
+> > and trigger kernel errors. So we have to be more careful when dealing
+> > with indexed directories on filesystems with checksumming enabled.
 > > 
-> > 2: All skb->data from page_frag_cache->va (pfmemalloc) will have
-> > skb->pfmemalloc=true. The skb will always be dropped by sock without
-> > SOCK_MEMALLOC. This is an expected behaviour.
+> > 1) We just disallow loading and directory inodes with EXT4_INDEX_FL when
+> > DIR_INDEX is not enabled. This is harsh but it should be very rare (it
+> > means someone disabled DIR_INDEX on existing filesystem and didn't run
+> > e2fsck), e2fsck can fix the problem, and we don't want to answer the
+> > difficult question: "Should we rather corrupt the directory more or
+> > should we ignore that DIR_INDEX feature is not set?"
 > > 
-> > 3. Suppose a large amount of pages are reclaimed and kernel is not under
-> > memory pressure any longer. We expect skb->pfmemalloc drop will not happen.
+> > 2) When we find out htree structure is corrupted (but the filesystem and
+> > the directory should in support htrees), we continue just ignoring htree
+> > information for reading but we refuse to add new entries to the
+> > directory to avoid corrupting it more.
 > > 
-> > 4. Unfortunately, page_frag_alloc() does not proactively re-allocate
-> > page_frag_alloc->va and will always re-use the prior pfmemalloc page. The
-> > skb->pfmemalloc is always true even kernel is not under memory pressure any
-> > longer.
-> > 
-> > Fix this by freeing and re-allocating the page instead of recycling it.
+> > CC: stable@vger.kernel.org
+> > Fixes: dbe89444042a ("ext4: Calculate and verify checksums for htree nodes")
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> > ---
+> >  fs/ext4/dir.c   | 14 ++++++++------
+> >  fs/ext4/ext4.h  |  5 ++++-
+> >  fs/ext4/inode.c | 13 +++++++++++++
+> >  fs/ext4/namei.c |  7 +++++++
+> >  4 files changed, 32 insertions(+), 7 deletions(-)
+
+...
+
+> > diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+> > index f8578caba40d..1fd6c1e2ce2a 100644
+> > --- a/fs/ext4/ext4.h
+> > +++ b/fs/ext4/ext4.h
+> > @@ -2482,8 +2482,11 @@ void ext4_insert_dentry(struct inode *inode,
+> >  			struct ext4_filename *fname);
+> >  static inline void ext4_update_dx_flag(struct inode *inode)
+> >  {
+> > -	if (!ext4_has_feature_dir_index(inode->i_sb))
+> > +	if (!ext4_has_feature_dir_index(inode->i_sb)) {
+> > +		/* ext4_iget() should have caught this... */
+> > +		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
+> >  		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
+> > +	}
+> >  }
 > 
-> Andrew, are you taking this via -mm or should I put it in net? 
-> I'm sending a PR to Linus tomorrow.
+> This new WARN_ON_ONCE() gets triggered by the following commands:
+> 
+> 	mkfs.ext4 -O ^dir_index /dev/vdc
+> 	mount /dev/vdc /vdc
+> 	mkdir /vdc/dir
+> 
+> WARNING: CPU: 1 PID: 305 at fs/ext4/ext4.h:2700 add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2039
+> CPU: 1 PID: 305 Comm: mkdir Not tainted 5.10.0-rc4 #14
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.14.0-1 04/01/2014
+> RIP: 0010:ext4_update_dx_flag fs/ext4/ext4.h:2700 [inline]
+> RIP: 0010:add_dirent_to_buf+0x1d0/0x1e0 fs/ext4/namei.c:2038
+> [...]
+> Call Trace:
+>  ext4_add_entry+0x179/0x4d0 fs/ext4/namei.c:2248
+>  ext4_mkdir+0x1c0/0x320 fs/ext4/namei.c:2814
+>  vfs_mkdir+0xcc/0x130 fs/namei.c:3650
+>  do_mkdirat+0x81/0x120 fs/namei.c:3673
+>  __do_sys_mkdir fs/namei.c:3689 [inline]
+> 
+> What is intended here?  metadata_csum && ^dir_index is a weird combination,
+> but it's technically valid, right?
 
-Please go ahead - if/when it appears in mainline or linux-next, I'll
-drop the -mm copy.  
+Indeed the WARN_ON_ONCE() is wrong. It should also check that
+EXT4_INODE_INDEX is set. The idea of the warning is that when we just clear
+EXT4_INODE_INDEX flag, checksums will become invalid so generally that's
+not desirable... I'll send a fix. Thanks for report!
+
+									Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
