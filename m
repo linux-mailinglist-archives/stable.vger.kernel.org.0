@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 652DC2B860F
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 21:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3877F2B8631
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 22:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726086AbgKRU5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 15:57:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42802 "EHLO
+        id S1726584AbgKRVAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 16:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgKRU5W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 15:57:22 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F36DC0613D4
-        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 12:57:20 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id a186so1576614wme.1
-        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 12:57:20 -0800 (PST)
+        with ESMTP id S1725822AbgKRVAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 16:00:11 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37922C0613D4
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 13:00:11 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id p8so3567541wrx.5
+        for <stable@vger.kernel.org>; Wed, 18 Nov 2020 13:00:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:mime-version:content-disposition
          :user-agent;
-        bh=FAIndFe0uZwmA715NUnnpL0WEuWqC3awQTR5JgHY8O8=;
-        b=apzttABaddjCVxxoABe+ESMBdRcewoiof9VkwJxzHTgLkXkqTpk65i9poqyF0PfllU
-         WuLD7/KvOjVCbk8bdzYGWQc9ieBoBWpRiMXQlTDqj+9rI7dPGdbKfkQ5xdkPDXvcfbaf
-         Ri/bAr1DZvoIIWcfH11spIMgT0h5irozXy4OHVtvPoLVsu8AkKpE6AYGAal1VyW+QdiE
-         LlbGRegrVtUqouGEjRXfJb3I0Nfv7lJ1FRwurIpsn7f/Kbc2tnF1XjAZ9famFo5iwWlk
-         EHova4NPIzoVI7Xm+1Z5OxytpWeVud24WMsLH8Mvrfwrd94hP5gTEcMbzG6a5yXAtzmf
-         d5KA==
+        bh=DaGSJIj/CMAHKrCkcdUdCIylUvnGysksYqI71yTmJYc=;
+        b=ATvASiPhA0AFkEC3m2m9IPZ2sS6QM+KTrKRivgU3MLBKhke+bBQ+xWNdThhLN+ZvWm
+         uXWYodjaFgYodfQM1M6WxNO7OFFyP9A65FqC9yXoMhCgiKB6z+zFTXVk9LfdIFcEPJnu
+         HaCUC0io1CPOOCL8EqgPrlbSFf91V4jOCN9rECSW502W+Qu5mVhXoKw3f83kaaFK3WcY
+         e4wD814R0RkikNZWacD9uU4EFg9NSa1PtHkIV80/HemmAHmbCcv1XsTsW2+/mI+ksTSo
+         eYUWbShVZWcOZ/8voDQMq5Yehwb1k3Cb3FZiUbkW0pVAR/Qe2CCYWeOp+LMpvsWIdaKu
+         VmVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
          :content-disposition:user-agent;
-        bh=FAIndFe0uZwmA715NUnnpL0WEuWqC3awQTR5JgHY8O8=;
-        b=gXzZmZFcGUAappbDlYdWuLSjHpvYfCA1JpdKr1fNtY5YcDyfxXDCfeCXvSCPhfNh9w
-         QPckujw+CA4hWiXpgXw68+MQDjqgBONmkG9f/N0ew2go9FjrFwN1JkEtc8VOT8Bl2wjP
-         EvdFthbrbuAF5Pld25UV1BH+GxsczwO6JVrHGbVt8VqkdorkDPi7+B2pZAd3suLNzl4Z
-         DMC0xLrztlvTIXLUKgqdumLkLJIyhUcA3izWSXu3LRtdZwcROprNfmYfGnD9bcY96wVs
-         OSGJGqSFkKeIIzogm/BF59R1UX2kXfVs27ACDqQpRqLfyVnn0W1SDchcZFJPAwjUvhXS
-         LQbw==
-X-Gm-Message-State: AOAM5326DjFd+mnFHiRjF6a+3zHNMJlET5RquPFmd5PhzdeFidP6ozKA
-        eL9u26xxtFkgjXq3UgzGQaR1oiHCbxM9hw==
-X-Google-Smtp-Source: ABdhPJxRHFf6fHaMSByRErOOSZrlXbP0hu0mdtH/ijgm8TSWbgA7MaKnCx2t1ta/0jj1dT3z7il9Yw==
-X-Received: by 2002:a05:600c:22d7:: with SMTP id 23mr988887wmg.67.1605733039290;
-        Wed, 18 Nov 2020 12:57:19 -0800 (PST)
+        bh=DaGSJIj/CMAHKrCkcdUdCIylUvnGysksYqI71yTmJYc=;
+        b=ULE0tVXEW9BglF/WeBNdZc08ntmwZXtpNn4/0y1jsEIEdb85INiPy0ybpelnnJt8pe
+         L4rPzqo63ieieCitKe9c7eN4wlTDdgORjr0JTqhcTwtqM+LdSBnF2JFToe9T88GNqcFK
+         W6cjjYJX7qZgorzDFN6F4HxKPxu6Bz+RZeq8uGwS/vqKDIdyn9K7V3tWD763HWwGEEBV
+         f1NkzKJKKBxZbxK2z/8cBDQKSOUgDlnZ+XlJDMyOFVFuLT5aYlHSjeoDK8HE7qkWRvVS
+         O65uxzwXfRefr7uZ0U6lKoUcCsrlNV8c4zd8r5UFMX5u9UHE0GBCGv8P0FJ1/HmmaJZ6
+         soww==
+X-Gm-Message-State: AOAM530IEQ8F5Ml80IBbfBz84syl0unSUYVMo0fBExXuRyfquIr+oC28
+        V1uSFMcFiixeRITgBFDXUpw=
+X-Google-Smtp-Source: ABdhPJwRhN7HFDfjKrJkVcdVFsGiwRXl0fxV70I4sf+4HP8VNhkEHHD2BVlGl3i63j3rQr0r5d2dPg==
+X-Received: by 2002:adf:d4c6:: with SMTP id w6mr7071974wrk.71.1605733209991;
+        Wed, 18 Nov 2020 13:00:09 -0800 (PST)
 Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id 6sm32410299wrn.72.2020.11.18.12.57.18
+        by smtp.gmail.com with ESMTPSA id s133sm5812338wmf.30.2020.11.18.13.00.08
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 18 Nov 2020 12:57:18 -0800 (PST)
-Date:   Wed, 18 Nov 2020 20:57:16 +0000
+        Wed, 18 Nov 2020 13:00:09 -0800 (PST)
+Date:   Wed, 18 Nov 2020 21:00:07 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
 Cc:     stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
@@ -56,10 +56,10 @@ Cc:     stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Philipp Zabel <p.zabel@pengutronix.de>,
         Wolfram Sang <wsa@the-dreams.de>
 Subject: backport of e50e4f0b85be ("i2c: imx: Fix external abort on interrupt
- in exit paths") for v4.14.y
-Message-ID: <20201118205716.yv36spexfy5v452x@debian>
+ in exit paths") for v4.9.y
+Message-ID: <20201118210007.4ebmydwhz3x527ib@debian>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="xxvqzfczffuqdoxy"
+Content-Type: multipart/mixed; boundary="d7clniiiawyxkjn7"
 Content-Disposition: inline
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
@@ -67,13 +67,13 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---xxvqzfczffuqdoxy
+--d7clniiiawyxkjn7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg, Sasha,
 
-This was missing in 4.14-stable. First patch is only needed so that
+This was missing in 4.9-stable. First patch is only needed so that
 applying the second patch becomes easy. If its not accepted I can manually
 backport it. Please add it to your queue.
 
@@ -82,11 +82,11 @@ backport it. Please add it to your queue.
 Regards
 Sudip
 
---xxvqzfczffuqdoxy
+--d7clniiiawyxkjn7
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-i2c-imx-use-clk-notifier-for-rate-changes.patch"
 
-From 46a682fddb93b514557815493c317cd641984532 Mon Sep 17 00:00:00 2001
+From 266dbff06e2ded50e18e1a3edfbc171ec11235ca Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
 Date: Thu, 8 Mar 2018 14:25:17 +0100
 Subject: [PATCH 1/2] i2c: imx: use clk notifier for rate changes
@@ -106,7 +106,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 25 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 26f83029f64a..70eafab5f6b7 100644
+index 9c1be9378dfd..4fc8f506e9f1 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
 @@ -194,6 +194,7 @@ struct imx_i2c_dma {
@@ -211,11 +211,11 @@ index 26f83029f64a..70eafab5f6b7 100644
 2.11.0
 
 
---xxvqzfczffuqdoxy
+--d7clniiiawyxkjn7
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0002-i2c-imx-Fix-external-abort-on-interrupt-in-exit-path.patch"
 
-From 9af0a648252a96cb9428101fed0e225cef7b1c09 Mon Sep 17 00:00:00 2001
+From 886cadc1c0b701c56e63dcc64080e361a4f6cf13 Mon Sep 17 00:00:00 2001
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Date: Sun, 20 Sep 2020 23:12:38 +0200
 Subject: [PATCH 2/2] i2c: imx: Fix external abort on interrupt in exit paths
@@ -259,13 +259,14 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
  drivers/i2c/busses/i2c-imx.c | 24 +++++++++++++-----------
  1 file changed, 13 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 70eafab5f6b7..ce7a2bfd1dd8 100644
+index 4fc8f506e9f1..5a148b515f3d 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
 @@ -1111,14 +1111,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
@@ -273,7 +274,7 @@ index 70eafab5f6b7..ce7a2bfd1dd8 100644
  	}
  
 -	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+-	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
 -				pdev->name, i2c_imx);
 -	if (ret) {
 -		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
@@ -336,4 +337,4 @@ index 70eafab5f6b7..ce7a2bfd1dd8 100644
 2.11.0
 
 
---xxvqzfczffuqdoxy--
+--d7clniiiawyxkjn7--
