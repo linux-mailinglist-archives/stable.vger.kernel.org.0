@@ -2,114 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EA32B838C
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 19:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F472B83A5
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 19:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726398AbgKRSC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 13:02:29 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:39430 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726304AbgKRSC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Nov 2020 13:02:29 -0500
-Received: from 3.general.kamal.us.vpn ([10.172.68.53] helo=ascalon)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kamal@canonical.com>)
-        id 1kfRmi-0007Yv-6o; Wed, 18 Nov 2020 18:02:24 +0000
-Received: from kamal by ascalon with local (Exim 4.90_1)
-        (envelope-from <kamal@ascalon>)
-        id 1kfRmd-00038H-Er; Wed, 18 Nov 2020 10:02:19 -0800
-Date:   Wed, 18 Nov 2020 10:02:17 -0800
-From:   Kamal Mostafa <kamal@canonical.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: Re: Same problem for 4.14.y and a concern: Re: [PATCH 4.19 056/191]
- powerpc: select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
-Message-ID: <20201118180216.GA31560@ascalon>
-References: <20201103203232.656475008@linuxfoundation.org>
- <20201103203239.940977599@linuxfoundation.org>
- <87361qug5a.fsf@mpe.ellerman.id.au>
- <CAEO-eVMZ-qjZfdum=NQCq-hur=KkHvFgJO1maHw7C1S4NFbczw@mail.gmail.com>
- <20201118004528.GA629656@sasha-vm>
+        id S1726571AbgKRSLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 13:11:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726299AbgKRSLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 13:11:49 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C526420872;
+        Wed, 18 Nov 2020 18:11:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1605723108;
+        bh=GDncWy8ESSBN1pabOMAXmhhQzWiSEvD97hTR7E9XGjg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nq00NpBRbLX9enCO6BETJ3kdWGkPV5ZA76yaAEA6r2GJGR6kkw1J8WNvDfLuUklMV
+         e5LCtZT1tPyeDRDdr3LTmGF/5FePW95OtFqa1PpIffj9Y1Q2qsWbo5/qIDRYZ8bJXd
+         MfU7hDCronfc++DneFxps3WTYxHKfF+1ZX0GZKyE=
+Date:   Wed, 18 Nov 2020 19:12:34 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Hussam Al-Tayeb <ht990332@gmx.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>,
+        stable@vger.kernel.org
+Subject: Re: Suggestion: Lengthen the review period for stable releases from
+ 48 hours to 7 days.
+Message-ID: <X7VkEheJv7mUtXGo@kroah.com>
+References: <17c526d0c5f8ed8584f7bee9afe1b73753d1c70b.camel@gmx.com>
+ <20201117080141.GA6275@amd>
+ <f4cb8d3de515e97d409fa5accca4e9965036bdb5.camel@gmx.com>
+ <1605651898@msgid.manchmal.in-ulm.de>
+ <20201118140953.GC629656@sasha-vm>
+ <b50f0ee318cbedcd9bca95a1af00b520c4b3126b.camel@gmx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20201118004528.GA629656@sasha-vm>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b50f0ee318cbedcd9bca95a1af00b520c4b3126b.camel@gmx.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 07:45:28PM -0500, Sasha Levin wrote:
-> On Tue, Nov 17, 2020 at 10:51:16AM -0800, Kamal Mostafa wrote:
-> > On Tue, Nov 3, 2020 at 4:22 PM Michael Ellerman <mpe@ellerman.id.au> wrote:
-> > 
-> > > Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> > > > From: Nicholas Piggin <npiggin@gmail.com>
-> > > >
-> > > > [ Upstream commit 66acd46080bd9e5ad2be4b0eb1d498d5145d058e ]
-> > > >
-> > > > powerpc uses IPIs in some situations to switch a kernel thread away
-> > > > from a lazy tlb mm, which is subject to the TLB flushing race
-> > > > described in the changelog introducing ARCH_WANT_IRQS_OFF_ACTIVATE_MM.
-> > > >
-> > > > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> > > > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> > > > Link:
-> > > https://lore.kernel.org/r/20200914045219.3736466-3-npiggin@gmail.com
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > > ---
-> > > >  arch/powerpc/Kconfig                   | 1 +
-> > > >  arch/powerpc/include/asm/mmu_context.h | 2 +-
-> > > >  2 files changed, 2 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> > > > index f38d153d25861..0bc53f0e37c0f 100644
-> > > > --- a/arch/powerpc/Kconfig
-> > > > +++ b/arch/powerpc/Kconfig
-> > > > @@ -152,6 +152,7 @@ config PPC
-> > > >       select ARCH_USE_BUILTIN_BSWAP
-> > > >       select ARCH_USE_CMPXCHG_LOCKREF         if PPC64
-> > > >       select ARCH_WANT_IPC_PARSE_VERSION
-> > > > +     select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
-> > > 
-> > > This depends on upstream commit:
-> > > 
-> > >   d53c3dfb23c4 ("mm: fix exec activate_mm vs TLB shootdown and lazy tlb
-> > > switching race")
-> > > 
-> > > 
-> > > Which I don't see in 4.19 stable, or in the email thread here.
-> > > 
-> > > So this shouldn't be backported to 4.19 unless that commit is also
-> > > backported.
-> > > 
-> > > cheers
-> > > 
-> > 
-> > Hi-
-> > 
-> > This glitch has made its way into 4.14.y ...
-> >    [4.14.y] c2bca8712a19 powerpc: select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
-> > But 4.14.y does not carry the prereq that introduces that config.
+On Wed, Nov 18, 2020 at 08:02:16PM +0200, Hussam Al-Tayeb wrote:
+> On Wed, 2020-11-18 at 09:09 -0500, Sasha Levin wrote:
+> > On Tue, Nov 17, 2020 at 11:29:16PM +0100, Christoph Biedl wrote:
+> > > On the other hand the pace of the stable patches became fairly
+> > > high¹, so
+> > > during a week of -rc review a *lot* of them will queue up and I
+> > > predict
+> > > we'll see requests for fast-laning some of them. Also, a release
+> > > would
+> > > immediately be followed by the next -rc review period, a procedure
+> > > that
+> > > gives me a bad feeling.
+> >
+> > Keep in mind that the stable tree derives itself from Linus's tree -
+> > it's not a development tree on it's own and we don't control how many
+> > fixes flow into Linus's tree (and as a result into the stable tree).
+> >
+> > This means that it doesn't matter how long the review window is open
+> > for, you'll be getting the same time to review a single patch -
+> > whether
+> > we do 200 patches twice a week or 400 patches once a week. We can't
+> > create time by moving review windows around.
+> >
 > 
-> I'll queue up the 4.19 backport for 4.14 too, thanks!
-> 
+> How long does it take for patches reaching Linux's tree to propagate
+> down to the stable trees
 
-Thanks Sasha.
+It depends from a week, to a day, sometimes if it's important, an hour,
+and sometimes months.
 
-And nevermind my other concern ...
+> and is there is mechanism for identifying
+> followup patches?
 
-> > It would seem that the intent is that it should be *only* enabled
-> > (currently at least) for arches that will explicitly select it, but the
-> > config advice does not make that very clear.  Could that new config get
-> > an explicit "default n" line?
+Yes, happens all the time, don't you see this?  If we have missed any
+fixes for fixes, please let us know, but our tools usually catch these
+pretty well these days.
 
-... I see now that a 'default' isn't necessary; the config only appears
-for arches which explicitly select it, as intended.
+> In short, is there a guarantee that stable trees are as stable or
+> better than mainline through the current SOP?
 
- -Kamal
+There's no guarantees in life, especially for free software :)
+
+thanks,
+
+greg k-h
