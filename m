@@ -2,65 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFF82B7E74
-	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 14:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E87102B7F28
+	for <lists+stable@lfdr.de>; Wed, 18 Nov 2020 15:10:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725782AbgKRNlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Nov 2020 08:41:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
+        id S1726086AbgKROJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Nov 2020 09:09:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725613AbgKRNk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Nov 2020 08:40:59 -0500
+        id S1725947AbgKROJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Nov 2020 09:09:56 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5C4C221FC;
-        Wed, 18 Nov 2020 13:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AF6921D40;
+        Wed, 18 Nov 2020 14:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605706859;
-        bh=Q8EnKLbZ+KP3QY4ay3tjDNACIR9hufECfy9ZeRD8YqE=;
+        s=default; t=1605708595;
+        bh=XaoMyPznMWDK/EOZjQkHKMaMWhsHDD9HrZoAO1RXHcc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AaVb+CKT2uj+ILKfcwOFTFFZl8fAQml4P1+x0Oc7QJ4RO+TzHmTNgKeeTyBsEfFvR
-         0U9i1LOmlBY1IwU/IJVNV8cZVzIG/LwS+rQ3gRfcAEQWM0wwwci/QBW56AO9P7h9qE
-         MNh6PRR5qb/904G5r00T+5yjIv2XKC1z5El5F2Yk=
-Date:   Wed, 18 Nov 2020 08:40:57 -0500
+        b=LkO+4DRsdaGssHF+IYYUU2YB5Dt17B/tEK0BzfLw3jQiwj6CXu5l7QYSsn8/ShKfO
+         bBk0U3yBqqoZqCUDHuEuoqXEHjbuQEG/nYFCJ+m67Hg+MFhbqjrtqrAJFLIY13B+DH
+         hB0CgpCVf23uF2F8S48GGG+mf9GGKKN3Z1T42HGk=
+Date:   Wed, 18 Nov 2020 09:09:53 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH 4.19 031/101] ALSA: hda: Reinstate runtime_allow() for
- all hda controllers
-Message-ID: <20201118134057.GB629656@sasha-vm>
-References: <20201117122113.128215851@linuxfoundation.org>
- <20201117122114.605040102@linuxfoundation.org>
- <20201118104316.GA8364@duo.ucw.cz>
+To:     Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+Cc:     Hussam Al-Tayeb <ht990332@gmx.com>, stable@vger.kernel.org
+Subject: Re: Suggestion: Lengthen the review period for stable releases from
+ 48 hours to 7 days.
+Message-ID: <20201118140953.GC629656@sasha-vm>
+References: <17c526d0c5f8ed8584f7bee9afe1b73753d1c70b.camel@gmx.com>
+ <20201117080141.GA6275@amd>
+ <f4cb8d3de515e97d409fa5accca4e9965036bdb5.camel@gmx.com>
+ <1605651898@msgid.manchmal.in-ulm.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20201118104316.GA8364@duo.ucw.cz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1605651898@msgid.manchmal.in-ulm.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 18, 2020 at 11:43:16AM +0100, Pavel Machek wrote:
->Hi!
->
->> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
->>
->> [ Upstream commit 9fc149c3bce7bdbb94948a8e6bd025e3b3538603 ]
->>
->> The broken jack detection should be fixed by commit a6e7d0a4bdb0 ("ALSA:
->> hda: fix jack detection with Realtek codecs when in D3"), let's try
->> enabling runtime PM by default again.
->
->I believe experiments should be done in mainline, not in stable.
->
->Worse problem is that a6e7d0a4bdb0 is not in 4.19-stable, so this will
->likely break jack detection.
+On Tue, Nov 17, 2020 at 11:29:16PM +0100, Christoph Biedl wrote:
+>On the other hand the pace of the stable patches became fairly high¹, so
+>during a week of -rc review a *lot* of them will queue up and I predict
+>we'll see requests for fast-laning some of them. Also, a release would
+>immediately be followed by the next -rc review period, a procedure that
+>gives me a bad feeling.
 
-I've dropped it from 4.19, thanks!
+Keep in mind that the stable tree derives itself from Linus's tree -
+it's not a development tree on it's own and we don't control how many
+fixes flow into Linus's tree (and as a result into the stable tree).
+
+This means that it doesn't matter how long the review window is open
+for, you'll be getting the same time to review a single patch - whether
+we do 200 patches twice a week or 400 patches once a week. We can't
+create time by moving review windows around.
 
 -- 
 Thanks,
