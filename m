@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 046802B9E68
+	by mail.lfdr.de (Postfix) with ESMTP id 74D492B9E69
 	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 00:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726355AbgKSXfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 18:35:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35322 "EHLO
+        id S1726381AbgKSXfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 18:35:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726281AbgKSXfg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 18:35:36 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9445C0613CF
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:35:36 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id w4so5649185pgg.13
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:35:36 -0800 (PST)
+        with ESMTP id S1726281AbgKSXfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 18:35:42 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E826AC0613CF
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:35:40 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id j19so5666133pgg.5
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:35:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=le6bfl2MFnr+y+rh+hRNzSCQkeZEnm3XPO8gVGY5TaU=;
-        b=nwJ7JRnQrQ25jM97SMK/MFcLGkhcO6teD0PumxqMl5PIXOa5TZab6jYUW3QFXaYJ9z
-         dG8rZTI+CE73mRn3ZDjSs+N5nbSXOUIPfvDDOOEe7JCGpwgD+H3I+xPWlWYmdZ+IYsVf
-         vDkEEp9WZzdsJLwYvq0I1szPnnu25He6NVKPI=
+        bh=NzLmuaWBBSGqdynJ/WMcHo2n85ckhzIiZHy2AoiLkE8=;
+        b=ISIAcg3eAW3SuRMhNh+IkPNlXkLmqto5Mokk3kXFZtpeAphKxrrVpkYsiWK12WZJ9m
+         bbkgZcrSGXS90Rx5AobyhJ9gRy8YnhgYbhFCDCAlRLrhx1gJXevo1ujEchEZxuzSLYcb
+         TaHqvHXgyoceDB59oE9s7Y6pDh9BRPm7tPQLc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=le6bfl2MFnr+y+rh+hRNzSCQkeZEnm3XPO8gVGY5TaU=;
-        b=FNs2BvqQYU35b8h6wt5Q+zY2rjrfoilbB0qO4SD+4rQJSa2C2Xc3Or5jydJciYdatC
-         /HNSirGmr0/x4oCjSGbeLKzeSWIt6DnGNWcKEDE2sL7eeNYrLBdBhqWvuWajFdysWsjn
-         gWyJkKRQCxqPjWdu+eBmHQ3JkjVij2ntC0XOqRJFZN2wSFAtfP9BuMhqL/n4ZSZ6f5h1
-         x8qccUDpQnYMM//NSxtlhOFFaCQ7EcLO3lVt+p0cUvI7zI20N/uiVaMKgsiUa/fv9VYc
-         MQTT2HHlUMI6ElqFXENxwws6hOwEwjHizJanZP3vj4QOYNGv2XY3uCI5GP3EQjwDpzem
-         KbNg==
-X-Gm-Message-State: AOAM533XF7uyyRQyAqMkxtp8V+BNlxo3wtUWZN5/c5SqBEM0lJVWJKuf
-        z/DfypMkuTld+aTeOGFx8K3Lp4gdx8z9Gw==
-X-Google-Smtp-Source: ABdhPJwDF8biK9zytPZeE8/+k9AvD2N/ven8bxV0/Nu5a8wHdTOG++KAAswNKlZ5nkZzgQSASkthgA==
-X-Received: by 2002:a17:90a:1b41:: with SMTP id q59mr6871286pjq.17.1605828936135;
-        Thu, 19 Nov 2020 15:35:36 -0800 (PST)
+        bh=NzLmuaWBBSGqdynJ/WMcHo2n85ckhzIiZHy2AoiLkE8=;
+        b=bY4hNmm/bNl3UrnzGx9LBngP8EtVtF9x9xB7fQ/iUWzTO9u1RTLq7Z7i80hPo1UuCU
+         jz3DG4GSA0WPRHKtYCr5zvMrETDPocqHtHsRv5DnPRCQ8O70szH6iqmkSXPwrkwcTFev
+         spfJ4XNQ0vhxGPZBuCsKKuzQ5quG11imfcJCkWwYVOsmCkwoGNa60GJFiFL34bMVNk7l
+         oEb8JGuM/0DqqZOJD/+i9/PMhf4N5ny64hPqkTmLuWy40kez9t5QnWeZOqwv4UozHHsP
+         lcUf835ek99bEWR50ncVAArV5OgqLelVophpVs46t2m68tZ5F0/Ys38N+JaPDD7U/GDu
+         aeyw==
+X-Gm-Message-State: AOAM533LvTmO6C2hQFloYsyNaQAwB5YX47/GUg7NR+LrAP0r/CV7l2eK
+        sdPe1cAiATU+dR7Fx8B7MMH5JXKM0XhaSQ==
+X-Google-Smtp-Source: ABdhPJxyY28mxqXsnzcjJEf0VyfuPX9UuCfcC2CgOFNfI2SZzmBbyscHM3S0w3Ji6ZmIsu/2AoZv2A==
+X-Received: by 2002:a17:90a:a891:: with SMTP id h17mr7196289pjq.149.1605828940174;
+        Thu, 19 Nov 2020 15:35:40 -0800 (PST)
 Received: from localhost (2001-44b8-1113-6700-4d44-522c-3789-8f33.static.ipv6.internode.on.net. [2001:44b8:1113:6700:4d44:522c:3789:8f33])
-        by smtp.gmail.com with ESMTPSA id fz5sm890456pjb.49.2020.11.19.15.35.35
+        by smtp.gmail.com with ESMTPSA id j19sm1054574pfd.189.2020.11.19.15.35.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 15:35:35 -0800 (PST)
+        Thu, 19 Nov 2020 15:35:39 -0800 (PST)
 From:   Daniel Axtens <dja@axtens.net>
 To:     stable@vger.kernel.org
 Cc:     dja@axtens.net
-Subject: [PATCH 5.4 4/5] powerpc: Only include kup-radix.h for 64-bit Book3S
-Date:   Fri, 20 Nov 2020 10:35:15 +1100
-Message-Id: <20201119233516.368194-5-dja@axtens.net>
+Subject: [PATCH 5.4 5/5] selftests/powerpc: entry flush test
+Date:   Fri, 20 Nov 2020 10:35:16 +1100
+Message-Id: <20201119233516.368194-6-dja@axtens.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201119233516.368194-1-dja@axtens.net>
 References: <20201119233516.368194-1-dja@axtens.net>
@@ -59,114 +59,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+commit 89a83a0c69c81a25ce91002b90ca27ed86132a0a upstream.
 
-commit 178d52c6e89c38d0553b0ac8b99927b11eb995b0 upstream.
+Add a test modelled on the RFI flush test which counts the number
+of L1D misses doing a simple syscall with the entry flush on and off.
 
-In kup.h we currently include kup-radix.h for all 64-bit builds, which
-includes Book3S and Book3E. The latter doesn't make sense, Book3E
-never uses the Radix MMU.
+For simplicity of backporting, this test duplicates a lot of code from
+the upstream rfi_flush. This is cleaned up upstream, but we don't clean
+it up here because it would involve bringing in even more commits.
 
-This has worked up until now, but almost by accident, and the recent
-uaccess flush changes introduced a build breakage on Book3E because of
-the bad structure of the code.
-
-So disentangle things so that we only use kup-radix.h for Book3S. This
-requires some more stubs in kup.h.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Daniel Axtens <dja@axtens.net>
 ---
- arch/powerpc/include/asm/book3s/64/kup-radix.h |  5 +++--
- arch/powerpc/include/asm/kup.h                 | 14 +++++++++++---
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/setup_64.c                |   2 +-
+ arch/powerpc/platforms/powernv/setup.c        |   6 +-
+ .../selftests/powerpc/security/.gitignore     |   1 +
+ .../selftests/powerpc/security/Makefile       |   2 +-
+ .../selftests/powerpc/security/entry_flush.c  | 163 ++++++++++++++++++
+ 5 files changed, 170 insertions(+), 4 deletions(-)
+ create mode 100644 tools/testing/selftests/powerpc/security/entry_flush.c
 
-diff --git a/arch/powerpc/include/asm/book3s/64/kup-radix.h b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-index 394931798550..c1e45f510591 100644
---- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-@@ -11,13 +11,12 @@
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index a6b72dd431a4..480c236724da 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -1025,7 +1025,7 @@ void setup_uaccess_flush(bool enable)
+ 		return;
  
- #ifdef __ASSEMBLY__
- 
--.macro kuap_restore_amr	gpr
- #ifdef CONFIG_PPC_KUAP
-+.macro kuap_restore_amr	gpr
- 	BEGIN_MMU_FTR_SECTION_NESTED(67)
- 	ld	\gpr, STACK_REGS_KUAP(r1)
- 	mtspr	SPRN_AMR, \gpr
- 	END_MMU_FTR_SECTION_NESTED_IFSET(MMU_FTR_RADIX_KUAP, 67)
--#endif
- .endm
- 
- .macro kuap_check_amr gpr1, gpr2
-@@ -31,6 +30,7 @@
- 	END_MMU_FTR_SECTION_NESTED_IFSET(MMU_FTR_RADIX_KUAP, 67)
- #endif
- .endm
-+#endif
- 
- .macro kuap_save_amr_and_lock gpr1, gpr2, use_cr, msr_pr_cr
- #ifdef CONFIG_PPC_KUAP
-@@ -87,6 +87,7 @@ bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
- 		    "Bug: %s fault blocked by AMR!", is_write ? "Write" : "Read");
- }
- #else /* CONFIG_PPC_KUAP */
-+static inline void kuap_restore_amr(struct pt_regs *regs, unsigned long amr) { }
- static inline void set_kuap(unsigned long value) { }
- #endif /* !CONFIG_PPC_KUAP */
- 
-diff --git a/arch/powerpc/include/asm/kup.h b/arch/powerpc/include/asm/kup.h
-index 8f4d27980003..ed4f5f536fc1 100644
---- a/arch/powerpc/include/asm/kup.h
-+++ b/arch/powerpc/include/asm/kup.h
-@@ -6,7 +6,7 @@
- #define KUAP_WRITE	2
- #define KUAP_READ_WRITE	(KUAP_READ | KUAP_WRITE)
- 
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- #include <asm/book3s/64/kup-radix.h>
- #endif
- #ifdef CONFIG_PPC_8xx
-@@ -24,9 +24,15 @@
- .macro kuap_restore	sp, current, gpr1, gpr2, gpr3
- .endm
- 
-+.macro kuap_restore_amr gpr
-+.endm
-+
- .macro kuap_check	current, gpr
- .endm
- 
-+.macro kuap_check_amr	gpr1, gpr2
-+.endm
-+
- #endif
- 
- #else /* !__ASSEMBLY__ */
-@@ -52,17 +58,19 @@ bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
- 	return false;
+ 	if (!no_uaccess_flush)
+-		uaccess_flush_enable(true);
++		uaccess_flush_enable(enable);
  }
  
-+static inline void kuap_check_amr(void) { }
-+
- /*
-  * book3s/64/kup-radix.h defines these functions for the !KUAP case to flush
-  * the L1D cache after user accesses. Only include the empty stubs for other
-  * platforms.
-  */
--#ifndef CONFIG_PPC64
-+#ifndef CONFIG_PPC_BOOK3S_64
- static inline void allow_user_access(void __user *to, const void __user *from,
- 				     unsigned long size, unsigned long dir) { }
- static inline void prevent_user_access(void __user *to, const void __user *from,
- 				       unsigned long size, unsigned long dir) { }
--#endif /* CONFIG_PPC64 */
-+#endif /* CONFIG_PPC_BOOK3S_64 */
- #endif /* CONFIG_PPC_KUAP */
+ #ifdef CONFIG_DEBUG_FS
+diff --git a/arch/powerpc/platforms/powernv/setup.c b/arch/powerpc/platforms/powernv/setup.c
+index ef7b4c09e7d6..3a9f79d18f6b 100644
+--- a/arch/powerpc/platforms/powernv/setup.c
++++ b/arch/powerpc/platforms/powernv/setup.c
+@@ -124,10 +124,12 @@ static void pnv_setup_rfi_flush(void)
  
- static inline void allow_read_from_user(const void __user *from, unsigned long size)
+ 	/*
+ 	 * If we are non-Power9 bare metal, we don't need to flush on kernel
+-	 * entry: it fixes a P9 specific vulnerability.
++	 * entry or after user access: they fix a P9 specific vulnerability.
+ 	 */
+-	if (!pvr_version_is(PVR_POWER9))
++	if (!pvr_version_is(PVR_POWER9)) {
+ 		security_ftr_clear(SEC_FTR_L1D_FLUSH_ENTRY);
++		security_ftr_clear(SEC_FTR_L1D_FLUSH_UACCESS);
++	}
+ 
+ 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) && \
+ 		 (security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR)   || \
+diff --git a/tools/testing/selftests/powerpc/security/.gitignore b/tools/testing/selftests/powerpc/security/.gitignore
+index 0b969fba3beb..b8afb4f2481e 100644
+--- a/tools/testing/selftests/powerpc/security/.gitignore
++++ b/tools/testing/selftests/powerpc/security/.gitignore
+@@ -1 +1,2 @@
+ rfi_flush
++entry_flush
+diff --git a/tools/testing/selftests/powerpc/security/Makefile b/tools/testing/selftests/powerpc/security/Makefile
+index 85861c46b445..e550a287768f 100644
+--- a/tools/testing/selftests/powerpc/security/Makefile
++++ b/tools/testing/selftests/powerpc/security/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+-TEST_GEN_PROGS := rfi_flush
++TEST_GEN_PROGS := rfi_flush entry_flush
+ top_srcdir = ../../../../..
+ 
+ CFLAGS += -I../../../../../usr/include
+diff --git a/tools/testing/selftests/powerpc/security/entry_flush.c b/tools/testing/selftests/powerpc/security/entry_flush.c
+new file mode 100644
+index 000000000000..dae8c99a8ebc
+--- /dev/null
++++ b/tools/testing/selftests/powerpc/security/entry_flush.c
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++/*
++ * Copyright 2018 IBM Corporation.
++ */
++
++#define __SANE_USERSPACE_TYPES__
++
++#include <sys/types.h>
++#include <stdint.h>
++#include <malloc.h>
++#include <unistd.h>
++#include <signal.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdio.h>
++#include "utils.h"
++
++#define CACHELINE_SIZE 128
++
++struct perf_event_read {
++	__u64 nr;
++	__u64 l1d_misses;
++};
++
++static inline __u64 load(void *addr)
++{
++	__u64 tmp;
++
++	asm volatile("ld %0,0(%1)" : "=r"(tmp) : "b"(addr));
++
++	return tmp;
++}
++
++static void syscall_loop(char *p, unsigned long iterations,
++		  unsigned long zero_size)
++{
++	for (unsigned long i = 0; i < iterations; i++) {
++		for (unsigned long j = 0; j < zero_size; j += CACHELINE_SIZE)
++			load(p + j);
++		getppid();
++	}
++}
++
++int entry_flush_test(void)
++{
++	char *p;
++	int repetitions = 10;
++	int fd, passes = 0, iter, rc = 0;
++	struct perf_event_read v;
++	__u64 l1d_misses_total = 0;
++	unsigned long iterations = 100000, zero_size = 24 * 1024;
++	unsigned long l1d_misses_expected;
++	int rfi_flush_orig;
++	int entry_flush, entry_flush_orig;
++
++	SKIP_IF(geteuid() != 0);
++
++	// The PMU event we use only works on Power7 or later
++	SKIP_IF(!have_hwcap(PPC_FEATURE_ARCH_2_06));
++
++	if (read_debugfs_file("powerpc/rfi_flush", &rfi_flush_orig) < 0) {
++		perror("Unable to read powerpc/rfi_flush debugfs file");
++		SKIP_IF(1);
++	}
++
++	if (read_debugfs_file("powerpc/entry_flush", &entry_flush_orig) < 0) {
++		perror("Unable to read powerpc/entry_flush debugfs file");
++		SKIP_IF(1);
++	}
++	
++	if (rfi_flush_orig != 0) {
++		if (write_debugfs_file("powerpc/rfi_flush", 0) < 0) {
++			perror("error writing to powerpc/rfi_flush debugfs file");
++			FAIL_IF(1);
++		}
++	}
++
++	entry_flush = entry_flush_orig;
++
++	fd = perf_event_open_counter(PERF_TYPE_RAW, /* L1d miss */ 0x400f0, -1);
++	FAIL_IF(fd < 0);
++
++	p = (char *)memalign(zero_size, CACHELINE_SIZE);
++
++	FAIL_IF(perf_event_enable(fd));
++
++	// disable L1 prefetching
++	set_dscr(1);
++
++	iter = repetitions;
++
++	/*
++	 * We expect to see l1d miss for each cacheline access when entry_flush
++	 * is set. Allow a small variation on this.
++	 */
++	l1d_misses_expected = iterations * (zero_size / CACHELINE_SIZE - 2);
++
++again:
++	FAIL_IF(perf_event_reset(fd));
++
++	syscall_loop(p, iterations, zero_size);
++
++	FAIL_IF(read(fd, &v, sizeof(v)) != sizeof(v));
++
++	if (entry_flush && v.l1d_misses >= l1d_misses_expected)
++		passes++;
++	else if (!entry_flush && v.l1d_misses < (l1d_misses_expected / 2))
++		passes++;
++
++	l1d_misses_total += v.l1d_misses;
++
++	while (--iter)
++		goto again;
++
++	if (passes < repetitions) {
++		printf("FAIL (L1D misses with entry_flush=%d: %llu %c %lu) [%d/%d failures]\n",
++		       entry_flush, l1d_misses_total, entry_flush ? '<' : '>',
++		       entry_flush ? repetitions * l1d_misses_expected :
++		       repetitions * l1d_misses_expected / 2,
++		       repetitions - passes, repetitions);
++		rc = 1;
++	} else
++		printf("PASS (L1D misses with entry_flush=%d: %llu %c %lu) [%d/%d pass]\n",
++		       entry_flush, l1d_misses_total, entry_flush ? '>' : '<',
++		       entry_flush ? repetitions * l1d_misses_expected :
++		       repetitions * l1d_misses_expected / 2,
++		       passes, repetitions);
++
++	if (entry_flush == entry_flush_orig) {
++		entry_flush = !entry_flush_orig;
++		if (write_debugfs_file("powerpc/entry_flush", entry_flush) < 0) {
++			perror("error writing to powerpc/entry_flush debugfs file");
++			return 1;
++		}
++		iter = repetitions;
++		l1d_misses_total = 0;
++		passes = 0;
++		goto again;
++	}
++
++	perf_event_disable(fd);
++	close(fd);
++
++	set_dscr(0);
++
++	if (write_debugfs_file("powerpc/rfi_flush", rfi_flush_orig) < 0) {
++		perror("unable to restore original value of powerpc/rfi_flush debugfs file");
++		return 1;
++	}
++
++	if (write_debugfs_file("powerpc/entry_flush", entry_flush_orig) < 0) {
++		perror("unable to restore original value of powerpc/entry_flush debugfs file");
++		return 1;
++	}
++
++	return rc;
++}
++
++int main(int argc, char *argv[])
++{
++	return test_harness(entry_flush_test, "entry_flush_test");
++}
 -- 
 2.25.1
 
