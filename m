@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6202B9E1F
+	by mail.lfdr.de (Postfix) with ESMTP id C3BC82B9E20
 	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 00:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726662AbgKSXXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 18:23:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33400 "EHLO
+        id S1726674AbgKSXXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 18:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726554AbgKSXXI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 18:23:08 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1101C0613CF
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:23:06 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id q34so5629443pgb.11
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:23:06 -0800 (PST)
+        with ESMTP id S1726554AbgKSXXK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 18:23:10 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D5CC0613CF
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:23:10 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id y7so5999925pfq.11
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 15:23:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=kxiA7FtBplaVV8oTFqqMtUIl6xmJ7WR49JKyB6x/S8k=;
-        b=PbpTWpcQz29k5rM790BMx/6d6TYSz96LD7OZH52Hqj6tuLb+a25XYVIP10EbHCdYIV
-         6UCd+B9KVJ3TX/JZvqU47J87WXoa12yOdYCyCRDu1wHA7qH8VZBEvPoHcsl6QPyrS81x
-         D3MMteNUF1YKHQKvninzEx7oJKciBD6vP5s+E=
+        bh=bWcrbRU/HbDDlHLo1Ta7Xw/sbAYdfyto9pMsbv7Sjvo=;
+        b=SPTMdpCGDnY0vrebt9WYBWY8giwQpezS3rJoxVDxjDY1TFhfCpI2tso1QUCtMIsNWb
+         khxrC9yh1/6nPXVEOsIIGwzM3izDqZfPrfyuPnCCO0VERSMInUs1JjW+kXceXz9RUN2H
+         fjLeU/TkkSAE7xfKMUtMZEbqaKm2wq+HA1Grg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kxiA7FtBplaVV8oTFqqMtUIl6xmJ7WR49JKyB6x/S8k=;
-        b=AO4SJA0OKEc4t7gL9LT81cRJNo6ioAM+HGY67ivAdk7Df0WeU+TIQfL67/Xz4atKya
-         cbvtfVs5aKpKGQHZUxkjWgVJDUwqbbzag4PML5W/7xghqf+HjCIXAxyLnErTkWyQzhTp
-         rq28P/eH97FZnfM47dDuc3CuaHLT8w+Vwb74GwQu9oNcEjeLOlj2W2/9yQDQpFtgMDC6
-         z3KDEA60VBBZGl/XsZ0BvUbEdoNUVMlB8iTkoQcCk77z2ebr0GN+VKcjOtA5neoZah+L
-         pEmX0MyV/dMPBU8PUp7MFTfbVRQ24vCoChbWGIzzjtJuHaygQytc6+VfHKjKcSRaqhiz
-         zkRw==
-X-Gm-Message-State: AOAM5318qyEQw11v/i3BrzaMzGJbr8Avko/UmceUg0oMY8WTA8EoWNJP
-        H7ns/wv619kvNvJPXbp01g3o11peL4cuNA==
-X-Google-Smtp-Source: ABdhPJzAxX+4sNKyPMqWpkB4BinAbEQ2/a3b3t/wPqR6Inyagxg5hpMH41aKSlTAHYgGX8lhok8H+A==
-X-Received: by 2002:a63:1346:: with SMTP id 6mr14451477pgt.330.1605828185929;
-        Thu, 19 Nov 2020 15:23:05 -0800 (PST)
+        bh=bWcrbRU/HbDDlHLo1Ta7Xw/sbAYdfyto9pMsbv7Sjvo=;
+        b=GOPDSNFMZBUilljyvdgaDHuXdL60ZEVX3JyWKR2Xl9RcpashZNHRtFuwDJGHuvoSjV
+         Vo1wU5MHmsT9d91nwOYhejcwMEvflNiNqHBc1p1X6WIkMoxPBhaFJxNuFocaRMzj8z3v
+         aC3tSvSwhbK09vhunbdikHuCy+ILASjtk1DAfPDj5ha0wHC3rXtKLGaL/x/WuiaJ24t1
+         kIxfiFCaeoLaEnIqCCdDjOFqB3DFxZViKSU2QSoakST/Lsa8Vp91FTEYa5O5UAF6TG1O
+         YPSEMDWDTrwAzFIaHvdsimfcz/5zRG/m7m+MeB93emclP/Qnmqf1iEY5K7fPCjSNJRQy
+         JF7w==
+X-Gm-Message-State: AOAM5339AQDan1z8b/8QixS67uDPFExmPIOPb9jhfVmMzdwjq5o7f9/1
+        x8Tw5sgoxsjxm1uvUk864F14w3FQHTGRIQ==
+X-Google-Smtp-Source: ABdhPJyPnWA6z2irdFOjFPiTdW41u3H9B1lN7fD1TYsPFncgpf32ZUfsLi23mfpMS2wKEw8rKsOCPg==
+X-Received: by 2002:a17:90a:c254:: with SMTP id d20mr6896855pjx.112.1605828189500;
+        Thu, 19 Nov 2020 15:23:09 -0800 (PST)
 Received: from localhost (2001-44b8-1113-6700-4d44-522c-3789-8f33.static.ipv6.internode.on.net. [2001:44b8:1113:6700:4d44:522c:3789:8f33])
-        by smtp.gmail.com with ESMTPSA id i6sm845970pjt.49.2020.11.19.15.23.04
+        by smtp.gmail.com with ESMTPSA id n127sm1126805pfd.143.2020.11.19.15.23.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 15:23:05 -0800 (PST)
+        Thu, 19 Nov 2020 15:23:09 -0800 (PST)
 From:   Daniel Axtens <dja@axtens.net>
 To:     stable@vger.kernel.org
 Cc:     dja@axtens.net
-Subject: [PATCH 5.9 3/5] powerpc/64s: flush L1D after user accesses
-Date:   Fri, 20 Nov 2020 10:22:48 +1100
-Message-Id: <20201119232250.365304-4-dja@axtens.net>
+Subject: [PATCH 5.9 4/5] powerpc: Only include kup-radix.h for 64-bit Book3S
+Date:   Fri, 20 Nov 2020 10:22:49 +1100
+Message-Id: <20201119232250.365304-5-dja@axtens.net>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201119232250.365304-1-dja@axtens.net>
 References: <20201119232250.365304-1-dja@axtens.net>
@@ -59,651 +59,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 9a32a7e78bd0cd9a9b6332cbdc345ee5ffd0c5de upstream.
+commit 178d52c6e89c38d0553b0ac8b99927b11eb995b0 upstream.
 
-IBM Power9 processors can speculatively operate on data in the L1 cache
-before it has been completely validated, via a way-prediction mechanism. It
-is not possible for an attacker to determine the contents of impermissible
-memory using this method, since these systems implement a combination of
-hardware and software security measures to prevent scenarios where
-protected data could be leaked.
+In kup.h we currently include kup-radix.h for all 64-bit builds, which
+includes Book3S and Book3E. The latter doesn't make sense, Book3E
+never uses the Radix MMU.
 
-However these measures don't address the scenario where an attacker induces
-the operating system to speculatively execute instructions using data that
-the attacker controls. This can be used for example to speculatively bypass
-"kernel user access prevention" techniques, as discovered by Anthony
-Steinhauser of Google's Safeside Project. This is not an attack by itself,
-but there is a possibility it could be used in conjunction with
-side-channels or other weaknesses in the privileged code to construct an
-attack.
+This has worked up until now, but almost by accident, and the recent
+uaccess flush changes introduced a build breakage on Book3E because of
+the bad structure of the code.
 
-This issue can be mitigated by flushing the L1 cache between privilege
-boundaries of concern. This patch flushes the L1 cache after user accesses.
+So disentangle things so that we only use kup-radix.h for Book3S. This
+requires some more stubs in kup.h and fixing an include in
+syscall_64.c.
 
-This is part of the fix for CVE-2020-4788.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 ---
- .../admin-guide/kernel-parameters.txt         |  4 +
- .../powerpc/include/asm/book3s/64/kup-radix.h | 66 ++++++++------
- arch/powerpc/include/asm/exception-64s.h      |  3 +
- arch/powerpc/include/asm/feature-fixups.h     |  9 ++
- arch/powerpc/include/asm/kup.h                | 19 +++--
- arch/powerpc/include/asm/security_features.h  |  3 +
- arch/powerpc/include/asm/setup.h              |  1 +
- arch/powerpc/kernel/exceptions-64s.S          | 85 ++++++-------------
- arch/powerpc/kernel/setup_64.c                | 62 ++++++++++++++
- arch/powerpc/kernel/vmlinux.lds.S             |  7 ++
- arch/powerpc/lib/feature-fixups.c             | 50 +++++++++++
- arch/powerpc/platforms/powernv/setup.c        | 10 ++-
- arch/powerpc/platforms/pseries/setup.c        |  4 +
- 13 files changed, 233 insertions(+), 90 deletions(-)
+ arch/powerpc/include/asm/book3s/64/kup-radix.h |  4 ++--
+ arch/powerpc/include/asm/kup.h                 | 11 ++++++++---
+ arch/powerpc/kernel/syscall_64.c               |  2 +-
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 0c6fd71a1f7d..12ff6ac67457 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2834,6 +2834,7 @@
- 					       tsx_async_abort=off [X86]
- 					       kvm.nx_huge_pages=off [X86]
- 					       no_entry_flush [PPC]
-+					       no_uaccess_flush [PPC]
- 
- 				Exceptions:
- 					       This does not have any effect on
-@@ -3209,6 +3210,9 @@
- 	nospec_store_bypass_disable
- 			[HW] Disable all mitigations for the Speculative Store Bypass vulnerability
- 
-+	no_uaccess_flush
-+	                [PPC] Don't flush the L1-D cache after accessing user data.
-+
- 	noxsave		[BUGS=X86] Disables x86 extended register state save
- 			and restore using xsave. The kernel will fallback to
- 			enabling legacy floating-point and sse state.
 diff --git a/arch/powerpc/include/asm/book3s/64/kup-radix.h b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-index 3ee1ec60be84..97c2394e7dea 100644
+index 97c2394e7dea..28716e2f13e3 100644
 --- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
 +++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-@@ -61,6 +61,8 @@
+@@ -27,6 +27,7 @@
+ #endif
+ .endm
  
- #else /* !__ASSEMBLY__ */
++#ifdef CONFIG_PPC_KUAP
+ .macro kuap_check_amr gpr1, gpr2
+ #ifdef CONFIG_PPC_KUAP_DEBUG
+ 	BEGIN_MMU_FTR_SECTION_NESTED(67)
+@@ -38,6 +39,7 @@
+ 	END_MMU_FTR_SECTION_NESTED_IFSET(MMU_FTR_RADIX_KUAP, 67)
+ #endif
+ .endm
++#endif
  
-+DECLARE_STATIC_KEY_FALSE(uaccess_flush_key);
-+
+ .macro kuap_save_amr_and_lock gpr1, gpr2, use_cr, msr_pr_cr
  #ifdef CONFIG_PPC_KUAP
+@@ -148,8 +150,6 @@ static inline unsigned long kuap_get_and_check_amr(void)
+ 	return 0UL;
+ }
  
- #include <asm/mmu.h>
-@@ -103,8 +105,16 @@ static inline void kuap_check_amr(void)
- 
+-static inline void kuap_check_amr(void) { }
+-
  static inline unsigned long get_kuap(void)
  {
-+	/*
-+	 * We return AMR_KUAP_BLOCKED when we don't support KUAP because
-+	 * prevent_user_access_return needs to return AMR_KUAP_BLOCKED to
-+	 * cause restore_user_access to do a flush.
-+	 *
-+	 * This has no effect in terms of actually blocking things on hash,
-+	 * so it doesn't break anything.
-+	 */
- 	if (!early_mmu_has_feature(MMU_FTR_RADIX_KUAP))
--		return 0;
-+		return AMR_KUAP_BLOCKED;
- 
- 	return mfspr(SPRN_AMR);
- }
-@@ -123,6 +133,31 @@ static inline void set_kuap(unsigned long value)
- 	isync();
- }
- 
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
-+{
-+	return WARN(mmu_has_feature(MMU_FTR_RADIX_KUAP) &&
-+		    (regs->kuap & (is_write ? AMR_KUAP_BLOCK_WRITE : AMR_KUAP_BLOCK_READ)),
-+		    "Bug: %s fault blocked by AMR!", is_write ? "Write" : "Read");
-+}
-+#else /* CONFIG_PPC_KUAP */
-+static inline void kuap_restore_amr(struct pt_regs *regs, unsigned long amr) { }
-+
-+static inline unsigned long kuap_get_and_check_amr(void)
-+{
-+	return 0UL;
-+}
-+
-+static inline void kuap_check_amr(void) { }
-+
-+static inline unsigned long get_kuap(void)
-+{
-+	return AMR_KUAP_BLOCKED;
-+}
-+
-+static inline void set_kuap(unsigned long value) { }
-+#endif /* !CONFIG_PPC_KUAP */
-+
- static __always_inline void allow_user_access(void __user *to, const void __user *from,
- 					      unsigned long size, unsigned long dir)
- {
-@@ -142,6 +177,8 @@ static inline void prevent_user_access(void __user *to, const void __user *from,
- 				       unsigned long size, unsigned long dir)
- {
- 	set_kuap(AMR_KUAP_BLOCKED);
-+	if (static_branch_unlikely(&uaccess_flush_key))
-+		do_uaccess_flush();
- }
- 
- static inline unsigned long prevent_user_access_return(void)
-@@ -149,6 +186,8 @@ static inline unsigned long prevent_user_access_return(void)
- 	unsigned long flags = get_kuap();
- 
- 	set_kuap(AMR_KUAP_BLOCKED);
-+	if (static_branch_unlikely(&uaccess_flush_key))
-+		do_uaccess_flush();
- 
- 	return flags;
- }
-@@ -156,30 +195,9 @@ static inline unsigned long prevent_user_access_return(void)
- static inline void restore_user_access(unsigned long flags)
- {
- 	set_kuap(flags);
-+	if (static_branch_unlikely(&uaccess_flush_key) && flags == AMR_KUAP_BLOCKED)
-+		do_uaccess_flush();
- }
--
--static inline bool
--bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
--{
--	return WARN(mmu_has_feature(MMU_FTR_RADIX_KUAP) &&
--		    (regs->kuap & (is_write ? AMR_KUAP_BLOCK_WRITE : AMR_KUAP_BLOCK_READ)),
--		    "Bug: %s fault blocked by AMR!", is_write ? "Write" : "Read");
--}
--#else /* CONFIG_PPC_KUAP */
--static inline void kuap_restore_amr(struct pt_regs *regs, unsigned long amr)
--{
--}
--
--static inline void kuap_check_amr(void)
--{
--}
--
--static inline unsigned long kuap_get_and_check_amr(void)
--{
--	return 0;
--}
--#endif /* CONFIG_PPC_KUAP */
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* _ASM_POWERPC_BOOK3S_64_KUP_RADIX_H */
-diff --git a/arch/powerpc/include/asm/exception-64s.h b/arch/powerpc/include/asm/exception-64s.h
-index 83fa88bc9935..1d32b174ab6a 100644
---- a/arch/powerpc/include/asm/exception-64s.h
-+++ b/arch/powerpc/include/asm/exception-64s.h
-@@ -144,6 +144,9 @@
- 	RFSCV;								\
- 	b	rfscv_flush_fallback
- 
-+#else /* __ASSEMBLY__ */
-+/* Prototype for function defined in exceptions-64s.S */
-+void do_uaccess_flush(void);
- #endif /* __ASSEMBLY__ */
- 
- #endif	/* _ASM_POWERPC_EXCEPTION_H */
-diff --git a/arch/powerpc/include/asm/feature-fixups.h b/arch/powerpc/include/asm/feature-fixups.h
-index 06a48219bbf2..fbd406cd6916 100644
---- a/arch/powerpc/include/asm/feature-fixups.h
-+++ b/arch/powerpc/include/asm/feature-fixups.h
-@@ -205,6 +205,14 @@ label##3:					       	\
- 	FTR_ENTRY_OFFSET 955b-956b;			\
- 	.popsection;
- 
-+#define UACCESS_FLUSH_FIXUP_SECTION			\
-+959:							\
-+	.pushsection __uaccess_flush_fixup,"a";		\
-+	.align 2;					\
-+960:							\
-+	FTR_ENTRY_OFFSET 959b-960b;			\
-+	.popsection;
-+
- #define ENTRY_FLUSH_FIXUP_SECTION			\
- 957:							\
- 	.pushsection __entry_flush_fixup,"a";		\
-@@ -248,6 +256,7 @@ extern long stf_barrier_fallback;
- extern long entry_flush_fallback;
- extern long __start___stf_entry_barrier_fixup, __stop___stf_entry_barrier_fixup;
- extern long __start___stf_exit_barrier_fixup, __stop___stf_exit_barrier_fixup;
-+extern long __start___uaccess_flush_fixup, __stop___uaccess_flush_fixup;
- extern long __start___entry_flush_fixup, __stop___entry_flush_fixup;
- extern long __start___rfi_flush_fixup, __stop___rfi_flush_fixup;
- extern long __start___barrier_nospec_fixup, __stop___barrier_nospec_fixup;
+ 	return AMR_KUAP_BLOCKED;
 diff --git a/arch/powerpc/include/asm/kup.h b/arch/powerpc/include/asm/kup.h
-index 1d0f7d838b2e..0f5c606ae057 100644
+index 0f5c606ae057..0d93331d0fab 100644
 --- a/arch/powerpc/include/asm/kup.h
 +++ b/arch/powerpc/include/asm/kup.h
-@@ -53,17 +53,26 @@ static inline void setup_kuep(bool disabled) { }
- void setup_kuap(bool disabled);
- #else
- static inline void setup_kuap(bool disabled) { }
+@@ -14,7 +14,7 @@
+ #define KUAP_CURRENT_WRITE	8
+ #define KUAP_CURRENT		(KUAP_CURRENT_READ | KUAP_CURRENT_WRITE)
+ 
+-#ifdef CONFIG_PPC64
++#ifdef CONFIG_PPC_BOOK3S_64
+ #include <asm/book3s/64/kup-radix.h>
+ #endif
+ #ifdef CONFIG_PPC_8xx
+@@ -35,6 +35,9 @@
+ .macro kuap_check	current, gpr
+ .endm
+ 
++.macro kuap_check_amr	gpr1, gpr2
++.endm
 +
-+static inline bool
-+bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
-+{
-+	return false;
-+}
+ #endif
+ 
+ #else /* !__ASSEMBLY__ */
+@@ -60,19 +63,21 @@ bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
+ 	return false;
+ }
+ 
++static inline void kuap_check_amr(void) { }
 +
-+/*
-+ * book3s/64/kup-radix.h defines these functions for the !KUAP case to flush
-+ * the L1D cache after user accesses. Only include the empty stubs for other
-+ * platforms.
-+ */
-+#ifndef CONFIG_PPC64
+ /*
+  * book3s/64/kup-radix.h defines these functions for the !KUAP case to flush
+  * the L1D cache after user accesses. Only include the empty stubs for other
+  * platforms.
+  */
+-#ifndef CONFIG_PPC64
++#ifndef CONFIG_PPC_BOOK3S_64
  static inline void allow_user_access(void __user *to, const void __user *from,
  				     unsigned long size, unsigned long dir) { }
  static inline void prevent_user_access(void __user *to, const void __user *from,
  				       unsigned long size, unsigned long dir) { }
  static inline unsigned long prevent_user_access_return(void) { return 0UL; }
  static inline void restore_user_access(unsigned long flags) { }
--static inline bool
--bad_kuap_fault(struct pt_regs *regs, unsigned long address, bool is_write)
--{
--	return false;
--}
-+#endif /* CONFIG_PPC64 */
+-#endif /* CONFIG_PPC64 */
++#endif /* CONFIG_PPC_BOOK3S_64 */
  #endif /* CONFIG_PPC_KUAP */
  
  static inline void allow_read_from_user(const void __user *from, unsigned long size)
-diff --git a/arch/powerpc/include/asm/security_features.h b/arch/powerpc/include/asm/security_features.h
-index 9e7459d2edca..b774a4477d5f 100644
---- a/arch/powerpc/include/asm/security_features.h
-+++ b/arch/powerpc/include/asm/security_features.h
-@@ -89,6 +89,8 @@ static inline bool security_ftr_enabled(u64 feature)
- // The L1-D cache should be flushed when entering the kernel
- #define SEC_FTR_L1D_FLUSH_ENTRY		0x0000000000004000ull
+diff --git a/arch/powerpc/kernel/syscall_64.c b/arch/powerpc/kernel/syscall_64.c
+index 8e50818aa50b..310bcd768cd5 100644
+--- a/arch/powerpc/kernel/syscall_64.c
++++ b/arch/powerpc/kernel/syscall_64.c
+@@ -2,7 +2,7 @@
  
-+// The L1-D cache should be flushed after user accesses from the kernel
-+#define SEC_FTR_L1D_FLUSH_UACCESS	0x0000000000008000ull
- 
- // Features enabled by default
- #define SEC_FTR_DEFAULT \
-@@ -96,6 +98,7 @@ static inline bool security_ftr_enabled(u64 feature)
- 	 SEC_FTR_L1D_FLUSH_PR | \
- 	 SEC_FTR_BNDS_CHK_SPEC_BAR | \
- 	 SEC_FTR_L1D_FLUSH_ENTRY | \
-+	 SEC_FTR_L1D_FLUSH_UACCESS | \
- 	 SEC_FTR_FAVOUR_SECURITY)
- 
- #endif /* _ASM_POWERPC_SECURITY_FEATURES_H */
-diff --git a/arch/powerpc/include/asm/setup.h b/arch/powerpc/include/asm/setup.h
-index e2fcd3e874f8..a466749703f1 100644
---- a/arch/powerpc/include/asm/setup.h
-+++ b/arch/powerpc/include/asm/setup.h
-@@ -60,6 +60,7 @@ void setup_barrier_nospec(void);
- #else
- static inline void setup_barrier_nospec(void) { };
- #endif
-+void do_uaccess_flush_fixups(enum l1d_flush_type types);
- void do_entry_flush_fixups(enum l1d_flush_type types);
- void do_barrier_nospec_fixups(bool enable);
- extern bool barrier_nospec_enabled;
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 5577dd887d37..f63a3d3bca3d 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -2951,11 +2951,8 @@ TRAMP_REAL_BEGIN(stf_barrier_fallback)
- 	.endr
- 	blr
- 
--TRAMP_REAL_BEGIN(entry_flush_fallback)
--	std	r9,PACA_EXRFI+EX_R9(r13)
--	std	r10,PACA_EXRFI+EX_R10(r13)
--	std	r11,PACA_EXRFI+EX_R11(r13)
--	mfctr	r9
-+/* Clobbers r10, r11, ctr */
-+.macro L1D_DISPLACEMENT_FLUSH
- 	ld	r10,PACA_RFI_FLUSH_FALLBACK_AREA(r13)
- 	ld	r11,PACA_L1D_FLUSH_SIZE(r13)
- 	srdi	r11,r11,(7 + 3) /* 128 byte lines, unrolled 8x */
-@@ -2981,7 +2978,14 @@ TRAMP_REAL_BEGIN(entry_flush_fallback)
- 	ld	r11,(0x80 + 8)*7(r10)
- 	addi	r10,r10,0x80*8
- 	bdnz	1b
-+.endm
- 
-+TRAMP_REAL_BEGIN(entry_flush_fallback)
-+	std	r9,PACA_EXRFI+EX_R9(r13)
-+	std	r10,PACA_EXRFI+EX_R10(r13)
-+	std	r11,PACA_EXRFI+EX_R11(r13)
-+	mfctr	r9
-+	L1D_DISPLACEMENT_FLUSH
- 	mtctr	r9
- 	ld	r9,PACA_EXRFI+EX_R9(r13)
- 	ld	r10,PACA_EXRFI+EX_R10(r13)
-@@ -2997,32 +3001,7 @@ TRAMP_REAL_BEGIN(rfi_flush_fallback)
- 	std	r10,PACA_EXRFI+EX_R10(r13)
- 	std	r11,PACA_EXRFI+EX_R11(r13)
- 	mfctr	r9
--	ld	r10,PACA_RFI_FLUSH_FALLBACK_AREA(r13)
--	ld	r11,PACA_L1D_FLUSH_SIZE(r13)
--	srdi	r11,r11,(7 + 3) /* 128 byte lines, unrolled 8x */
--	mtctr	r11
--	DCBT_BOOK3S_STOP_ALL_STREAM_IDS(r11) /* Stop prefetch streams */
--
--	/* order ld/st prior to dcbt stop all streams with flushing */
--	sync
--
--	/*
--	 * The load adresses are at staggered offsets within cachelines,
--	 * which suits some pipelines better (on others it should not
--	 * hurt).
--	 */
--1:
--	ld	r11,(0x80 + 8)*0(r10)
--	ld	r11,(0x80 + 8)*1(r10)
--	ld	r11,(0x80 + 8)*2(r10)
--	ld	r11,(0x80 + 8)*3(r10)
--	ld	r11,(0x80 + 8)*4(r10)
--	ld	r11,(0x80 + 8)*5(r10)
--	ld	r11,(0x80 + 8)*6(r10)
--	ld	r11,(0x80 + 8)*7(r10)
--	addi	r10,r10,0x80*8
--	bdnz	1b
--
-+	L1D_DISPLACEMENT_FLUSH
- 	mtctr	r9
- 	ld	r9,PACA_EXRFI+EX_R9(r13)
- 	ld	r10,PACA_EXRFI+EX_R10(r13)
-@@ -3040,32 +3019,7 @@ TRAMP_REAL_BEGIN(hrfi_flush_fallback)
- 	std	r10,PACA_EXRFI+EX_R10(r13)
- 	std	r11,PACA_EXRFI+EX_R11(r13)
- 	mfctr	r9
--	ld	r10,PACA_RFI_FLUSH_FALLBACK_AREA(r13)
--	ld	r11,PACA_L1D_FLUSH_SIZE(r13)
--	srdi	r11,r11,(7 + 3) /* 128 byte lines, unrolled 8x */
--	mtctr	r11
--	DCBT_BOOK3S_STOP_ALL_STREAM_IDS(r11) /* Stop prefetch streams */
--
--	/* order ld/st prior to dcbt stop all streams with flushing */
--	sync
--
--	/*
--	 * The load adresses are at staggered offsets within cachelines,
--	 * which suits some pipelines better (on others it should not
--	 * hurt).
--	 */
--1:
--	ld	r11,(0x80 + 8)*0(r10)
--	ld	r11,(0x80 + 8)*1(r10)
--	ld	r11,(0x80 + 8)*2(r10)
--	ld	r11,(0x80 + 8)*3(r10)
--	ld	r11,(0x80 + 8)*4(r10)
--	ld	r11,(0x80 + 8)*5(r10)
--	ld	r11,(0x80 + 8)*6(r10)
--	ld	r11,(0x80 + 8)*7(r10)
--	addi	r10,r10,0x80*8
--	bdnz	1b
--
-+	L1D_DISPLACEMENT_FLUSH
- 	mtctr	r9
- 	ld	r9,PACA_EXRFI+EX_R9(r13)
- 	ld	r10,PACA_EXRFI+EX_R10(r13)
-@@ -3116,8 +3070,21 @@ TRAMP_REAL_BEGIN(rfscv_flush_fallback)
- 	RFSCV
- 
- USE_TEXT_SECTION()
--	MASKED_INTERRUPT
--	MASKED_INTERRUPT hsrr=1
-+
-+_GLOBAL(do_uaccess_flush)
-+	UACCESS_FLUSH_FIXUP_SECTION
-+	nop
-+	nop
-+	nop
-+	blr
-+	L1D_DISPLACEMENT_FLUSH
-+	blr
-+_ASM_NOKPROBE_SYMBOL(do_uaccess_flush)
-+EXPORT_SYMBOL(do_uaccess_flush)
-+
-+
-+MASKED_INTERRUPT
-+MASKED_INTERRUPT hsrr=1
- 
- #ifdef CONFIG_KVM_BOOK3S_64_HANDLER
- kvmppc_skip_interrupt:
-diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
-index aa42ca825487..3a38b0f804bf 100644
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -861,8 +861,12 @@ static enum l1d_flush_type enabled_flush_types;
- static void *l1d_flush_fallback_area;
- static bool no_rfi_flush;
- static bool no_entry_flush;
-+static bool no_uaccess_flush;
- bool rfi_flush;
- bool entry_flush;
-+bool uaccess_flush;
-+DEFINE_STATIC_KEY_FALSE(uaccess_flush_key);
-+EXPORT_SYMBOL(uaccess_flush_key);
- 
- static int __init handle_no_rfi_flush(char *p)
- {
-@@ -880,6 +884,14 @@ static int __init handle_no_entry_flush(char *p)
- }
- early_param("no_entry_flush", handle_no_entry_flush);
- 
-+static int __init handle_no_uaccess_flush(char *p)
-+{
-+	pr_info("uaccess-flush: disabled on command line.");
-+	no_uaccess_flush = true;
-+	return 0;
-+}
-+early_param("no_uaccess_flush", handle_no_uaccess_flush);
-+
- /*
-  * The RFI flush is not KPTI, but because users will see doco that says to use
-  * nopti we hijack that option here to also disable the RFI flush.
-@@ -923,6 +935,20 @@ void entry_flush_enable(bool enable)
- 	entry_flush = enable;
- }
- 
-+void uaccess_flush_enable(bool enable)
-+{
-+	if (enable) {
-+		do_uaccess_flush_fixups(enabled_flush_types);
-+		static_branch_enable(&uaccess_flush_key);
-+		on_each_cpu(do_nothing, NULL, 1);
-+	} else {
-+		static_branch_disable(&uaccess_flush_key);
-+		do_uaccess_flush_fixups(L1D_FLUSH_NONE);
-+	}
-+
-+	uaccess_flush = enable;
-+}
-+
- static void __ref init_fallback_flush(void)
- {
- 	u64 l1d_size, limit;
-@@ -994,6 +1020,15 @@ void setup_entry_flush(bool enable)
- 		entry_flush_enable(enable);
- }
- 
-+void setup_uaccess_flush(bool enable)
-+{
-+	if (cpu_mitigations_off())
-+		return;
-+
-+	if (!no_uaccess_flush)
-+		uaccess_flush_enable(enable);
-+}
-+
- #ifdef CONFIG_DEBUG_FS
- static int rfi_flush_set(void *data, u64 val)
- {
-@@ -1047,10 +1082,37 @@ static int entry_flush_get(void *data, u64 *val)
- 
- DEFINE_SIMPLE_ATTRIBUTE(fops_entry_flush, entry_flush_get, entry_flush_set, "%llu\n");
- 
-+static int uaccess_flush_set(void *data, u64 val)
-+{
-+	bool enable;
-+
-+	if (val == 1)
-+		enable = true;
-+	else if (val == 0)
-+		enable = false;
-+	else
-+		return -EINVAL;
-+
-+	/* Only do anything if we're changing state */
-+	if (enable != uaccess_flush)
-+		uaccess_flush_enable(enable);
-+
-+	return 0;
-+}
-+
-+static int uaccess_flush_get(void *data, u64 *val)
-+{
-+	*val = uaccess_flush ? 1 : 0;
-+	return 0;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_uaccess_flush, uaccess_flush_get, uaccess_flush_set, "%llu\n");
-+
- static __init int rfi_flush_debugfs_init(void)
- {
- 	debugfs_create_file("rfi_flush", 0600, powerpc_debugfs_root, NULL, &fops_rfi_flush);
- 	debugfs_create_file("entry_flush", 0600, powerpc_debugfs_root, NULL, &fops_entry_flush);
-+	debugfs_create_file("uaccess_flush", 0600, powerpc_debugfs_root, NULL, &fops_uaccess_flush);
- 	return 0;
- }
- device_initcall(rfi_flush_debugfs_init);
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index b0272e0bea53..0447e0478691 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -131,6 +131,13 @@ SECTIONS
- 		__stop___stf_entry_barrier_fixup = .;
- 	}
- 
-+	. = ALIGN(8);
-+	__uaccess_flush_fixup : AT(ADDR(__uaccess_flush_fixup) - LOAD_OFFSET) {
-+		__start___uaccess_flush_fixup = .;
-+		*(__uaccess_flush_fixup)
-+		__stop___uaccess_flush_fixup = .;
-+	}
-+
- 	. = ALIGN(8);
- 	__entry_flush_fixup : AT(ADDR(__entry_flush_fixup) - LOAD_OFFSET) {
- 		__start___entry_flush_fixup = .;
-diff --git a/arch/powerpc/lib/feature-fixups.c b/arch/powerpc/lib/feature-fixups.c
-index 70e83cfd74aa..321c12a9ef6b 100644
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -234,6 +234,56 @@ void do_stf_barrier_fixups(enum stf_barrier_type types)
- 	do_stf_exit_barrier_fixups(types);
- }
- 
-+void do_uaccess_flush_fixups(enum l1d_flush_type types)
-+{
-+	unsigned int instrs[4], *dest;
-+	long *start, *end;
-+	int i;
-+
-+	start = PTRRELOC(&__start___uaccess_flush_fixup);
-+	end = PTRRELOC(&__stop___uaccess_flush_fixup);
-+
-+	instrs[0] = 0x60000000; /* nop */
-+	instrs[1] = 0x60000000; /* nop */
-+	instrs[2] = 0x60000000; /* nop */
-+	instrs[3] = 0x4e800020; /* blr */
-+
-+	i = 0;
-+	if (types == L1D_FLUSH_FALLBACK) {
-+		instrs[3] = 0x60000000; /* nop */
-+		/* fallthrough to fallback flush */
-+	}
-+
-+	if (types & L1D_FLUSH_ORI) {
-+		instrs[i++] = 0x63ff0000; /* ori 31,31,0 speculation barrier */
-+		instrs[i++] = 0x63de0000; /* ori 30,30,0 L1d flush*/
-+	}
-+
-+	if (types & L1D_FLUSH_MTTRIG)
-+		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
-+
-+	for (i = 0; start < end; start++, i++) {
-+		dest = (void *)start + *start;
-+
-+		pr_devel("patching dest %lx\n", (unsigned long)dest);
-+
-+		patch_instruction((struct ppc_inst *)dest, ppc_inst(instrs[0]));
-+
-+		patch_instruction((struct ppc_inst *)(dest + 1), ppc_inst(instrs[1]));
-+		patch_instruction((struct ppc_inst *)(dest + 2), ppc_inst(instrs[2]));
-+		patch_instruction((struct ppc_inst *)(dest + 3), ppc_inst(instrs[3]));
-+	}
-+
-+	printk(KERN_DEBUG "uaccess-flush: patched %d locations (%s flush)\n", i,
-+		(types == L1D_FLUSH_NONE)       ? "no" :
-+		(types == L1D_FLUSH_FALLBACK)   ? "fallback displacement" :
-+		(types &  L1D_FLUSH_ORI)        ? (types & L1D_FLUSH_MTTRIG)
-+							? "ori+mttrig type"
-+							: "ori type" :
-+		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
-+						: "unknown");
-+}
-+
- void do_entry_flush_fixups(enum l1d_flush_type types)
- {
- 	unsigned int instrs[3], *dest;
-diff --git a/arch/powerpc/platforms/powernv/setup.c b/arch/powerpc/platforms/powernv/setup.c
-index 65a6bc50a225..0b4f72e002c2 100644
---- a/arch/powerpc/platforms/powernv/setup.c
-+++ b/arch/powerpc/platforms/powernv/setup.c
-@@ -124,10 +124,12 @@ static void pnv_setup_rfi_flush(void)
- 
- 	/*
- 	 * If we are non-Power9 bare metal, we don't need to flush on kernel
--	 * entry: it fixes a P9 specific vulnerability.
-+	 * entry or after user access: they fix a P9 specific vulnerability.
- 	 */
--	if (!pvr_version_is(PVR_POWER9))
-+	if (!pvr_version_is(PVR_POWER9)) {
- 		security_ftr_clear(SEC_FTR_L1D_FLUSH_ENTRY);
-+		security_ftr_clear(SEC_FTR_L1D_FLUSH_UACCESS);
-+	}
- 
- 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) && \
- 		 (security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR)   || \
-@@ -139,6 +141,10 @@ static void pnv_setup_rfi_flush(void)
- 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
- 		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
- 	setup_entry_flush(enable);
-+
-+	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
-+		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_UACCESS);
-+	setup_uaccess_flush(enable);
- }
- 
- static void __init pnv_setup_arch(void)
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 39848adb97d7..9f47b492a90f 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -577,6 +577,10 @@ void pseries_setup_rfi_flush(void)
- 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
- 		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
- 	setup_entry_flush(enable);
-+
-+	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
-+		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_UACCESS);
-+	setup_uaccess_flush(enable);
- }
- 
- #ifdef CONFIG_PCI_IOV
+ #include <linux/err.h>
+ #include <asm/asm-prototypes.h>
+-#include <asm/book3s/64/kup-radix.h>
++#include <asm/kup.h>
+ #include <asm/cputime.h>
+ #include <asm/hw_irq.h>
+ #include <asm/kprobes.h>
 -- 
 2.25.1
 
