@@ -2,81 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3232B9256
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC232B9257
 	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 13:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727335AbgKSMNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 07:13:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
+        id S1727126AbgKSMNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 07:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727126AbgKSMNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 07:13:31 -0500
+        id S1727160AbgKSMNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Nov 2020 07:13:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3F38206CA;
-        Thu, 19 Nov 2020 12:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A72D8206D5;
+        Thu, 19 Nov 2020 12:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605788011;
-        bh=M5kHR2h6piAEAHlOrw6L95h5sj0hsTe1AfQhSSsseF4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GatbDLrLye9HBlUeHlvyiRexfTeXyTBKE9JqbhMhdsUZnda6ULyNbsPd8qMWau8VC
-         QSfmTpHSMclIq40YW/3vYcluTELDSZSPW+V/pR4gh3hQkpFzlmiEBJYfCJDxMwBXbd
-         glMj+aqyQ6BJhZH0pgxI8Pycf5Qj4SeO8x/eSMsc=
-Date:   Thu, 19 Nov 2020 13:14:15 +0100
+        s=korg; t=1605788032;
+        bh=zlqiIYkeQ9eyssA3Ex3+aZq1HX2VZgRxLxmKpqaePWM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=F0nzowM7dlXCIRwwz9bx6c/7Qyk6Oaz0ZUgpz+B6VUm9zzkK42brwg+OKuA+XWskb
+         VPwpN3RTEqqmX4SuNb7+TwFUR9t0XIJ0qwR3B2/+dYKN5c8dHsPhG7mMWEs72M/Jv1
+         P3oCRG8mQkNbulwJFMQKL3fDgyCPAn4ffZIuIK2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.9 000/255] 5.9.9-rc1 review
-Message-ID: <X7Zhl+k7UY4WxpUt@kroah.com>
-References: <20201117122138.925150709@linuxfoundation.org>
- <f75bf0e521f0445dbe73fa5c5174b883@HQMAIL107.nvidia.com>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.244
+Date:   Thu, 19 Nov 2020 13:14:35 +0100
+Message-Id: <160578807551208@kroah.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f75bf0e521f0445dbe73fa5c5174b883@HQMAIL107.nvidia.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 07:09:30PM +0000, Jon Hunter wrote:
-> On Tue, 17 Nov 2020 14:02:20 +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.9.9 release.
-> > There are 255 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 19 Nov 2020 12:20:51 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.9-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> All tests passing for Tegra ...
-> 
-> Test results for stable-v5.9:
->     15 builds:	15 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     64 tests:	64 pass, 0 fail
-> 
-> Linux version:	5.9.9-rc1-gfb1622495321
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+I'm announcing the release of the 4.4.244 kernel.
 
-Thanks for testing all of them and letting me know.
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
 
 greg k-h
+
+------------
+
+ Documentation/kernel-parameters.txt                |    8 
+ Makefile                                           |    2 
+ arch/x86/kernel/cpu/bugs.c                         |   52 +-
+ drivers/block/xen-blkback/blkback.c                |   22 
+ drivers/block/xen-blkback/xenbus.c                 |    5 
+ drivers/char/random.c                              |    2 
+ drivers/gpu/drm/amd/amdgpu/cik_sdma.c              |   27 -
+ drivers/gpu/drm/gma500/psb_irq.c                   |   34 -
+ drivers/iommu/amd_iommu_types.h                    |    6 
+ drivers/misc/mei/client.h                          |    4 
+ drivers/net/can/dev.c                              |   14 
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c       |   51 ++
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c         |   48 +-
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    4 
+ drivers/net/geneve.c                               |   36 +
+ drivers/net/wan/cosa.c                             |    1 
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c      |    2 
+ drivers/net/xen-netback/common.h                   |   39 +
+ drivers/net/xen-netback/interface.c                |   59 ++
+ drivers/net/xen-netback/netback.c                  |   17 
+ drivers/of/address.c                               |    4 
+ drivers/pinctrl/devicetree.c                       |   26 -
+ drivers/pinctrl/pinctrl-amd.c                      |    6 
+ drivers/usb/class/cdc-acm.c                        |    9 
+ drivers/usb/gadget/udc/goku_udc.c                  |    2 
+ drivers/xen/events/events_2l.c                     |    9 
+ drivers/xen/events/events_base.c                   |  444 ++++++++++++++++++--
+ drivers/xen/events/events_fifo.c                   |  102 +---
+ drivers/xen/events/events_internal.h               |   20 
+ drivers/xen/evtchn.c                               |    7 
+ drivers/xen/xen-pciback/pci_stub.c                 |   14 
+ drivers/xen/xen-pciback/pciback.h                  |   12 
+ drivers/xen/xen-pciback/pciback_ops.c              |   48 +-
+ drivers/xen/xen-pciback/xenbus.c                   |    2 
+ drivers/xen/xen-scsiback.c                         |   23 -
+ fs/btrfs/extent_io.c                               |    4 
+ fs/btrfs/ioctl.c                                   |    2 
+ fs/cifs/cifs_unicode.c                             |    8 
+ fs/ext4/inline.c                                   |    1 
+ fs/ext4/super.c                                    |    5 
+ fs/gfs2/glock.c                                    |    3 
+ fs/gfs2/rgrp.c                                     |    5 
+ fs/ocfs2/super.c                                   |    1 
+ fs/xfs/xfs_pnfs.c                                  |    2 
+ include/linux/can/skb.h                            |   20 
+ include/linux/prandom.h                            |   36 +
+ include/linux/time64.h                             |    4 
+ include/xen/events.h                               |   29 +
+ kernel/events/core.c                               |    7 
+ kernel/events/internal.h                           |    2 
+ kernel/exit.c                                      |    5 
+ kernel/reboot.c                                    |   28 -
+ kernel/time/timer.c                                |    7 
+ kernel/trace/ring_buffer.c                         |   54 +-
+ lib/random32.c                                     |  463 ++++++++++++---------
+ lib/swiotlb.c                                      |    6 
+ mm/mempolicy.c                                     |    6 
+ net/ipv4/syncookies.c                              |    9 
+ net/ipv6/sit.c                                     |    2 
+ net/ipv6/syncookies.c                              |   10 
+ net/iucv/af_iucv.c                                 |    3 
+ net/mac80211/tx.c                                  |   35 +
+ net/wireless/reg.c                                 |    2 
+ net/x25/af_x25.c                                   |    2 
+ net/xfrm/xfrm_state.c                              |    8 
+ sound/hda/ext/hdac_ext_controller.c                |    2 
+ tools/perf/util/session.c                          |    1 
+ 67 files changed, 1412 insertions(+), 521 deletions(-)
+
+Al Viro (1):
+      don't dump the threads that had been already exiting when zapped.
+
+Alexander Aring (1):
+      gfs2: Wake up when sd_glock_disposal becomes zero
+
+Alexander Usyskin (1):
+      mei: protect mei_cl_mtu from null dereference
+
+Anand K Mistry (1):
+      x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP
+
+Bob Peterson (2):
+      gfs2: Free rd_bits later in gfs2_clear_rgrpd to fix use-after-free
+      gfs2: check for live vs. read-only file system in gfs2_fitrim
+
+Boris Protopopov (1):
+      Convert trailing spaces and periods in path components
+
+Chris Brandt (1):
+      usb: cdc-acm: Add DISABLE_ECHO for Renesas USB Download mode
+
+Christoph Hellwig (1):
+      xfs: fix a missing unlock on error in xfs_fs_map_blocks
+
+Coiby Xu (2):
+      pinctrl: amd: use higher precision for 512 RtcClk
+      pinctrl: amd: fix incorrect way to disable debounce filter
+
+Dan Carpenter (2):
+      ALSA: hda: prevent undefined shift in snd_hdac_ext_bus_get_link()
+      can: peak_usb: add range checking in decode operations
+
+Eric Biggers (1):
+      ext4: fix leaking sysfs kobject after failed mount
+
+Evan Nimmo (1):
+      of/address: Fix of_node memory leak in of_dma_is_coherent
+
+Evan Quan (1):
+      drm/amdgpu: perform srbm soft reset always on SDMA resume
+
+Evgeny Novikov (1):
+      usb: gadget: goku_udc: fix potential crashes in probe
+
+Filipe Manana (1):
+      Btrfs: fix missing error return if writeback for extent buffer never started
+
+George Spelvin (1):
+      random32: make prandom_u32() output unpredictable
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.244
+
+Grzegorz Siwik (1):
+      i40e: Wrong truncation from u16 to u8
+
+Jiri Olsa (2):
+      perf tools: Add missing swap for ino_generation
+      perf/core: Fix race in the perf_mmap_close() function
+
+Johannes Berg (1):
+      mac80211: fix use of skb payload instead of header
+
+Johannes Thumshirn (1):
+      btrfs: reschedule when cloning lots of extents
+
+Joseph Qi (1):
+      ext4: unlock xattr_sem properly in ext4_inline_data_truncate()
+
+Juergen Gross (12):
+      xen/events: avoid removing an event channel while handling it
+      xen/events: add a proper barrier to 2-level uevent unmasking
+      xen/events: fix race in evtchn_fifo_unmask()
+      xen/events: add a new "late EOI" evtchn framework
+      xen/blkback: use lateeoi irq binding
+      xen/netback: use lateeoi irq binding
+      xen/scsiback: use lateeoi irq binding
+      xen/pciback: use lateeoi irq binding
+      xen/events: switch user event channels to lateeoi model
+      xen/events: use a common cpu hotplug hook for event channels
+      xen/events: defer eoi in case of excessive number of events
+      xen/events: block rogue events for some time
+
+Kaixu Xia (1):
+      ext4: correctly report "not supported" for {usr,grp}jquota when !CONFIG_QUOTA
+
+Mao Wenan (1):
+      net: Update window_clamp if SOCK_RCVBUF is set
+
+Mark Gray (1):
+      geneve: add transport ports in route lookup for geneve
+
+Martin Schiller (1):
+      net/x25: Fix null-ptr-deref in x25_connect
+
+Martyna Szapar (1):
+      i40e: Fix of memory leak and integer truncation in i40e_virtchnl.c
+
+Masashi Honma (1):
+      ath9k_htc: Use appropriate rs_datalen type
+
+Matteo Croce (2):
+      Revert "kernel/reboot.c: convert simple_strtoul to kstrtoint"
+      reboot: fix overflow parsing reboot cpu number
+
+Oleksij Rempel (1):
+      can: can_create_echo_skb(): fix echo skb generation: always use skb_clone()
+
+Oliver Hartkopp (1):
+      can: dev: __can_get_echo_skb(): fix real payload length return value for RTR frames
+
+Oliver Herms (1):
+      IPv6: Set SIT tunnel hard_header_len to zero
+
+Peter Zijlstra (1):
+      perf: Fix get_recursion_context()
+
+Shijie Luo (1):
+      mm: mempolicy: fix potential pte_unmap_unlock pte error
+
+Stefano Stabellini (1):
+      swiotlb: fix "x86: Don't panic if can not alloc buffer for swiotlb"
+
+Stephane Grosjean (1):
+      can: peak_usb: peak_usb_get_ts_time(): fix timestamp wrapping
+
+Steven Rostedt (VMware) (1):
+      ring-buffer: Fix recursion protection transitions between interrupt context
+
+Suravee Suthikulpanit (1):
+      iommu/amd: Increase interrupt remapping table limit to 512 entries
+
+Thomas Zimmermann (1):
+      drm/gma500: Fix out-of-bounds access to struct drm_device.vblank[]
+
+Ursula Braun (1):
+      net/af_iucv: fix null pointer dereference on shutdown
+
+Vincent Mailhol (1):
+      can: dev: can_get_echo_skb(): prevent call to kfree_skb() in hard IRQ context
+
+Wang Hai (1):
+      cosa: Add missing kfree in error path of cosa_write
+
+Wengang Wang (1):
+      ocfs2: initialize ip_next_orphan
+
+Will Deacon (1):
+      pinctrl: devicetree: Avoid taking direct reference to device name string
+
+Ye Bin (1):
+      cfg80211: regulatory: Fix inconsistent format argument
+
+Zeng Tao (1):
+      time: Prevent undefined behaviour in timespec64_to_ns()
+
+zhuoliang zhang (1):
+      net: xfrm: fix a race condition during allocing spi
+
