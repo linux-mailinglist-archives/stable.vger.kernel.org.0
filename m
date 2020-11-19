@@ -2,138 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC2F2B8D94
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 09:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C4A2B8DD9
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 09:48:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726474AbgKSIhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 03:37:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726463AbgKSIhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 03:37:08 -0500
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53979C0613D4
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 00:37:08 -0800 (PST)
-Received: by mail-lj1-x241.google.com with SMTP id y16so5372581ljh.0
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 00:37:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M+a6SBHOIGDEXoUce4L2waaYCg/VrsfsbxsAVjJObJs=;
-        b=i7+TxqaMRgKxz7TG5cv8ZTGsAbtZydVKfDJxoELRlLmYRrbI2Y/oBl9ogL+zhdUjFb
-         9yy0MmENgbDJmdvePwPaK/lx4FWv3uPc2ZsF6oEAK4+6rZaKhmtHyYG9PBBXKlJvKsU0
-         XYQxT7qwFfwhUV9VPRdXjY9QCf61OrVaWeZ4eroaL5ZP8yWA1lZCCriVnI2dgGRpt9Tq
-         0aDudarCu2umDCS1lXfiHO6NXYSVBIHFcDcu4X/81LNxzVNdBefOguxWlwz5ec57rVrQ
-         n9pfAE5w68jI/8GJT3B+BtE9/ye/mV+iZOs2aTO6jJeoAUskQq6lcNLGr+rcsAZuHPy5
-         QwhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M+a6SBHOIGDEXoUce4L2waaYCg/VrsfsbxsAVjJObJs=;
-        b=l7N5SexnYD/h26chuaESFp1C2VBnpQtfAO+JolPStLD28HE1FKqrVCJVmgUB+84A2v
-         i0wiMJLv3haQ4DBxFNrD65HVdAZRmSI87jwtGCt8ijjln2HqTVwd4Z4picZLrZ7nTtUy
-         KdtJ4tkcm2PMJCvdVxAS4IC6Eq0Vwro53ffhfL9hGUTYrVu+5HPKqa1gTCWBj1BhWSBt
-         r8NhaW4FkKBoMbFiQ0MXe2sYtijU6N+6OjuOchmGxajVvFiDOavMHQdYduqI8E80VSCe
-         PySJ8Ei/dQnZYXIRTqOMfiy9DVFxMIpAvGwpVIJICfnxM+4f2LDWmkJvzH4sGY7zl8i/
-         sVdw==
-X-Gm-Message-State: AOAM533JqAReAJEXZV+JTbnz/COYH7nvB0hWmtQ3RBWcBAHW6HmBZdPM
-        R87iHmi7fJ6NTkzWvCKWPESyaI+xZvpHCGUytPKNhA==
-X-Google-Smtp-Source: ABdhPJyh3AOhoLZVXBPx2c33/4l51LAm2SjHPARaDKjrDDgbfplrndx8N1XvlKiBRDDzlTxHeRp5AV8lUa9+W76H6mQ=
-X-Received: by 2002:a2e:b8d4:: with SMTP id s20mr5742322ljp.226.1605775026714;
- Thu, 19 Nov 2020 00:37:06 -0800 (PST)
-MIME-Version: 1.0
-References: <17fc60a3-cc50-7cff-eb46-904c2f0c416e@canonical.com>
- <20201118235015.GB6015@geo.homenetwork> <20201119003319.GA6805@geo.homenetwork>
-In-Reply-To: <20201119003319.GA6805@geo.homenetwork>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Thu, 19 Nov 2020 09:36:55 +0100
-Message-ID: <CAKfTPtBYm8UtBBnbc7qddA2_OAa3vwH=KoHNgvsQJ9zO2KocYQ@mail.gmail.com>
-Subject: Re: [PATCH v3] sched/fair: fix unthrottle_cfs_rq for leaf_cfs_rq list
-To:     Tao Zhou <t1zhou@163.com>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        SeongJae Park <sjpark@amazon.com>
-Cc:     Ben Segall <bsegall@google.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Tao Zhou <zohooouoto@zoho.com.cn>,
-        Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@redhat.com>,
-        Tao Zhou <ouwen210@hotmail.com>, Phil Auld <pauld@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pavan Kondeti <pkondeti@codeaurora.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Gavin Guo <gavin.guo@canonical.com>, halves@canonical.com,
-        nivedita.singhvi@canonical.com,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1725853AbgKSIr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 03:47:56 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:4401 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725783AbgKSIrz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Nov 2020 03:47:55 -0500
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4CcCxN0Lggz9txtX;
+        Thu, 19 Nov 2020 09:47:52 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id FW6WPLt43JhR; Thu, 19 Nov 2020 09:47:51 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4CcCxM3C16z9txtW;
+        Thu, 19 Nov 2020 09:47:51 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 01EBE8B801;
+        Thu, 19 Nov 2020 09:47:52 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id g8zi2Y26mbwT; Thu, 19 Nov 2020 09:47:51 +0100 (CET)
+Received: from po17688vm.idsi0.si.c-s.fr (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 6CF4C8B804;
+        Thu, 19 Nov 2020 09:47:51 +0100 (CET)
+Received: by po17688vm.idsi0.si.c-s.fr (Postfix, from userid 0)
+        id D178F6688B; Thu, 19 Nov 2020 08:47:50 +0000 (UTC)
+Message-Id: <b4d72d39b34d9ba5d4716e053382406ef3a2f00a.1605774852.git.christophe.leroy@csgroup.eu>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH for 4.14] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Date:   Thu, 19 Nov 2020 08:47:50 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Nov 2020 at 01:36, Tao Zhou <t1zhou@163.com> wrote:
->
-> On Thu, Nov 19, 2020 at 07:50:15AM +0800, Tao Zhou wrote:
-> > On Wed, Nov 18, 2020 at 07:56:38PM -0300, Guilherme G. Piccoli wrote:
-> > > Hi Vincent (and all CCed), I'm sorry to ping about such "old" patch, but
-> > > we experienced a similar condition to what this patch addresses; it's an
-> > > older kernel (4.15.x) but when suggesting the users to move to an
-> > > updated 5.4.x kernel, we noticed that this patch is not there, although
-> > > similar ones are (like [0] and [1]).
-> > >
-> > > So, I'd like to ask if there's any particular reason to not backport
-> > > this fix to stable kernels, specially the longterm 5.4. The main reason
-> > > behind the question is that the code is very complex for non-experienced
-> > > scheduler developers, and I'm afraid in suggesting such backport to 5.4
-> > > and introduce complex-to-debug issues.
-> > >
-> > > Let me know your thoughts Vincent (and all CCed), thanks in advance.
-> > > Cheers,
-> > >
-> > >
-> > > Guilherme
-> > >
-> > >
-> > > P.S. For those that deleted this thread from the email client, here's a
-> > > link:
-> > > https://lore.kernel.org/lkml/20200513135528.4742-1-vincent.guittot@linaro.org/
-> > >
-> > >
-> > > [0]
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe61468b2cb
-> > >
-> > > [1]
-> > > https://lore.kernel.org/lkml/20200506141821.GA9773@lorien.usersys.redhat.com/
-> > > <- great thread BTW!
-> >
-> > 'sched/fair: Fix unthrottle_cfs_rq() for leaf_cfs_rq list" failed to apply to
-> > 5.4-stable tree'
-> >
-> > You could check above. But I do not have the link about this. Can't search it
-> > on LKML web: https://lore.kernel.org/lkml/
-> >
-> > BTW: 'ouwen210@hotmail.com' and 'zohooouoto@zoho.com.cn' all is myself.
-> >
-> > Sorry for the confusing..
-> >
-> > Thanks.
->
-> Sorry again. I forget something. It is in the stable.
->
-> Here it is:
->
->   https://lore.kernel.org/stable/159041776924279@kroah.com/
+[This is backport for 4.14 of 29daf869cbab69088fe1755d9dd224e99ba78b56]
 
-I think it has never been applied to stable.
-As you mentioned, the backport has been sent :
-https://lore.kernel.org/stable/20200525172709.GB7427@vingu-book/
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-I received another emailed in September and pointed out to the
-backport : https://www.spinics.net/lists/stable/msg410445.html
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
 
+This adds at least 3 instructions to the TLB miss exception
+handlers fast path. Following patch will reduce this overhead.
 
->
+Also update the rotation instruction to the correct number of bits
+to reflect all changes done to _PAGE_ACCESSED over time.
+
+Fixes: d069cb4373fe ("powerpc/8xx: Don't touch ACCESSED when no SWAP.")
+Fixes: 5f356497c384 ("powerpc/8xx: remove unused _PAGE_WRITETHRU")
+Fixes: e0a8e0d90a9f ("powerpc/8xx: Handle PAGE_USER via APG bits")
+Fixes: 5b2753fc3e8a ("powerpc/8xx: Implementation of PAGE_EXEC")
+Fixes: a891c43b97d3 ("powerpc/8xx: Prepare handlers for _PAGE_HUGE for 512k pages.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492856.git.christophe.leroy@csgroup.eu
+---
+ arch/powerpc/kernel/head_8xx.S | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/powerpc/kernel/head_8xx.S b/arch/powerpc/kernel/head_8xx.S
+index 2d0d89e2cb9a..43884af0e35c 100644
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -398,11 +398,9 @@ _ENTRY(ITLBMiss_cmp)
+ #if defined (CONFIG_HUGETLB_PAGE) && defined (CONFIG_PPC_4K_PAGES)
+ 	rlwimi	r10, r11, 1, MI_SPS16K
+ #endif
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	li	r11, RPN_PATTERN
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 20-23 and 28 must be clear.
+@@ -528,11 +526,9 @@ _ENTRY(DTLBMiss_jmp)
+ 	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
+ 	 * r10 = (r10 & ~PRESENT) | r11;
+ 	 */
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 22 and 28 must be clear.
+ 	 * Software indicator bits 24, 25, 26, and 27 must be
+-- 
+2.25.0
+
