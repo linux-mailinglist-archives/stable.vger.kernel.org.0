@@ -2,52 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9162B9131
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 12:38:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9469D2B913D
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 12:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725931AbgKSLhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 06:37:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725877AbgKSLhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 06:37:46 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4BFD246EE;
-        Thu, 19 Nov 2020 11:37:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605785864;
-        bh=Ic1LI1ndEpNL1CRHxmWJlR2k7qMI4FsuU2JtiUF1ZTk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bQPsB1lbl7iHhgNjBBcu7OsEHZgGwoimOOeJXq0vFJjYvv81CJoRv51iey0r9SGeC
-         bbmnIq/5Bb85Z2vH6nJjwkgcM/tUP5nXJs5ARKkE1X0yQ+wiM4HS6cYpF4IQ1+WFsc
-         YNfdyOcPZ8qXyUD9NmmWOIwm//fgqw6cAQpONuCg=
-Date:   Thu, 19 Nov 2020 12:38:28 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Richard Narron <richard@aaazen.com>
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.9 099/255] mac80211: always wind down STA state
-Message-ID: <X7ZZNDyeETPlZVZW@kroah.com>
-References: <alpine.LNX.2.20.2011181915260.441@thursday.test>
+        id S1726898AbgKSLke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 06:40:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37668 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726866AbgKSLke (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 06:40:34 -0500
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD661C0613CF
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 03:40:33 -0800 (PST)
+Received: by mail-ej1-x641.google.com with SMTP id f20so7444943ejz.4
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 03:40:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=FdtGTP1NFKAwnwJlMEciKtLvf/hIcmOYip7i/RiFws8=;
+        b=qBLoq6CdQRkewUD9NNdW8c1JUDR+VCKAtXYvP8rfqQGYn2DnKyn8RedRKFBNGQ2k/a
+         B+hgPm2oumgxnRj7iVxEOt5an+1HWdQGNqZCOys1Mjfq86/BP/2eD47BSmNG2HHDmz3m
+         cVhKRuGz3qbOLY6tY3f7pqDyyZXi9hU2d+V/cVSyRuwydiGUZMPkCrPPDfxWpAgCFSsl
+         uAwtd1CnD8zqXbsqOErpAUrjJzD4mZlBxj1kIQEU6gWvLK2f44WthZ5I6sRRwQ2fCy7c
+         RjRQqoWfTsnlV/xnr2xeEOwQUIkfoGEifMv2Yn+YQgLBFuowl8wCIQFBfVhC8iZcsytE
+         tHEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=FdtGTP1NFKAwnwJlMEciKtLvf/hIcmOYip7i/RiFws8=;
+        b=Wpnx3QhnbvQH9OiAEa+mCyCCBsZrSTWGLZScQEk/uO+uxagCG5Mg0pwKzyThGH1b2Z
+         7ygc0wp9cpfLVj9dJpy820SNMfqij4RPjHLVSaJ9+jLv+oxF4T8DoNl7XsYp1p/HUDCT
+         aDEGu3206Lzi+x/YLDXI64Tidl80lPv5fii1W70sGFCBN6Mk3skFsw5hyyyTICj2OHG1
+         STmy+bgI5nvDW5C7oeoptbCLxb3G4r8pZoh2SOrBZaePBLwflxc2N/YGpmNgjPywxdDS
+         7LwgW6UYvFycZp2I19r4iPp/kc4GocuRvzk6eSdrWf0H+UrtFN7tZfyqNDlKZw7fFaF4
+         /hgw==
+X-Gm-Message-State: AOAM533RoE3ACBkYoMKA5Vmprw/cXhi+2jsLtKIEZv7NJVXxoNg7ENVy
+        w76sdfmvyxJyFTLNAzvksFxkwDUL6Zdyvpzk6v0=
+X-Google-Smtp-Source: ABdhPJz+nwWZ2JxSMFV8m8H4BdF+eWzdvTb5rUbwvU9l/BZsPFf70u3itp/+dPrtnbWs3bj2J/Us5y50Yrrhz1pvNE0=
+X-Received: by 2002:a17:906:b18:: with SMTP id u24mr30128342ejg.501.1605786032300;
+ Thu, 19 Nov 2020 03:40:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.20.2011181915260.441@thursday.test>
+Received: by 2002:a50:3f0f:0:0:0:0:0 with HTTP; Thu, 19 Nov 2020 03:40:31
+ -0800 (PST)
+Reply-To: wpll.esq@gmail.com
+From:   DNs Associates <tayloryaouvi172@gmail.com>
+Date:   Thu, 19 Nov 2020 12:40:31 +0100
+Message-ID: <CACbxuJs6gajPZAJO1fu0_h=J7pfzbT-i0mtnqkO4w0PBX9vX6Q@mail.gmail.com>
+Subject: Re: Waiting for your reply at the earliest
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 18, 2020 at 07:30:25PM -0800, Richard Narron wrote:
-> This patch is 5.9.9-rc1 but is missing from the new 5.9.9 on kernel.org.
-> 
-> Is this desirable?
-
-Yes, please see the email thread on the mailing list about why it was
-removed.
-
-thanks,
-
-greg k-h
+Good morning my dear friend, how are you today. I'm reaching out to
+you directly by email as instructed by my principal attorney about a
+deceased estate in our position and the possibility of us working
+together for mutual benefit. Kindly provide your direct mobile number
+to discuss with you privately, and I would appreciate your prompt
+response on this matter. Best regards. Hs.W. Esq.
