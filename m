@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E8632B9251
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 13:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3232B9256
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 13:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727307AbgKSMNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 07:13:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50608 "EHLO mail.kernel.org"
+        id S1727335AbgKSMNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 07:13:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727126AbgKSMNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 07:13:22 -0500
+        id S1727126AbgKSMNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Nov 2020 07:13:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ECF3206D5;
-        Thu, 19 Nov 2020 12:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3F38206CA;
+        Thu, 19 Nov 2020 12:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605788001;
-        bh=5udg/3TsFPOvmXPOVOm10/2VGSSaG6LhMIAotNo3zc4=;
+        s=korg; t=1605788011;
+        bh=M5kHR2h6piAEAHlOrw6L95h5sj0hsTe1AfQhSSsseF4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=giS+EFLUImj1vYZ9nswoSVNVF0xwDz3QeqZDbbA5nWLCl7rnyXZNTYasMrvcyakWB
-         EcokcjQPSIaD0837/2xJ8IrvfNJ85Q55RvHjH10Ou/v821FK4iUMdJNnz9Y45kihlR
-         05+Zn445AkxL8j8vLBHozOrh9x1X8w6378gkgJ7M=
-Date:   Thu, 19 Nov 2020 13:14:05 +0100
+        b=GatbDLrLye9HBlUeHlvyiRexfTeXyTBKE9JqbhMhdsUZnda6ULyNbsPd8qMWau8VC
+         QSfmTpHSMclIq40YW/3vYcluTELDSZSPW+V/pR4gh3hQkpFzlmiEBJYfCJDxMwBXbd
+         glMj+aqyQ6BJhZH0pgxI8Pycf5Qj4SeO8x/eSMsc=
+Date:   Thu, 19 Nov 2020 13:14:15 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, linux-tegra@vger.kernel.org
 Subject: Re: [PATCH 5.9 000/255] 5.9.9-rc1 review
-Message-ID: <X7ZhjUYTZxzmUh58@kroah.com>
+Message-ID: <X7Zhl+k7UY4WxpUt@kroah.com>
 References: <20201117122138.925150709@linuxfoundation.org>
- <06bf0c38-a484-86c7-5a6b-5191c79c143b@linuxfoundation.org>
+ <f75bf0e521f0445dbe73fa5c5174b883@HQMAIL107.nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <06bf0c38-a484-86c7-5a6b-5191c79c143b@linuxfoundation.org>
+In-Reply-To: <f75bf0e521f0445dbe73fa5c5174b883@HQMAIL107.nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 17, 2020 at 03:04:01PM -0700, Shuah Khan wrote:
-> On 11/17/20 6:02 AM, Greg Kroah-Hartman wrote:
+On Tue, Nov 17, 2020 at 07:09:30PM +0000, Jon Hunter wrote:
+> On Tue, 17 Nov 2020 14:02:20 +0100, Greg Kroah-Hartman wrote:
 > > This is the start of the stable review cycle for the 5.9.9 release.
 > > There are 255 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
@@ -61,12 +61,22 @@ On Tue, Nov 17, 2020 at 03:04:01PM -0700, Shuah Khan wrote:
 > > thanks,
 > > 
 > > greg k-h
-> > 
 > 
-> Compiled and booted on my test system. No dmesg regressions.
+> All tests passing for Tegra ...
 > 
-> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+> Test results for stable-v5.9:
+>     15 builds:	15 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     64 tests:	64 pass, 0 fail
+> 
+> Linux version:	5.9.9-rc1-gfb1622495321
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
+> 
+> Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-Thanks for testing them all and letting me know.
+Thanks for testing all of them and letting me know.
 
 greg k-h
