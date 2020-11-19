@@ -2,89 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4D12B9945
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 18:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 868032B99F2
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 18:52:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726791AbgKSRZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 12:25:40 -0500
-Received: from smtp6-g21.free.fr ([212.27.42.6]:27246 "EHLO smtp6-g21.free.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727195AbgKSRZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 12:25:34 -0500
-Received: from mail.corsac.net (unknown [IPv6:2a01:e34:ec2f:4e20::5])
-        by smtp6-g21.free.fr (Postfix) with ESMTPS id AF28D780344
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 18:25:32 +0100 (CET)
-Received: from scapa.corsac.net (unknown [IPv6:2a01:e34:ec2f:4e20:6af7:28ff:fe8d:2119])
-        by mail.corsac.net (Postfix) with ESMTPS id A1845A4
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 18:24:55 +0100 (CET)
-Received: from corsac (uid 1000)
-        (envelope-from corsac@corsac.net)
-        id a024c
-        by scapa.corsac.net (DragonFly Mail Agent v0.12);
-        Thu, 19 Nov 2020 18:24:55 +0100
-From:   Yves-Alexis Perez <corsac@corsac.net>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Martin Habets <mhabets@solarflare.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Shannon Nelson <snelson@pensando.io>,
-        "Michael S. Tsirkin" <mst@redhat.com>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Yves-Alexis Perez <corsac@corsac.net>,
-        Matti Vuorela <matti.vuorela@bitfactor.fi>,
-        stable@vger.kernel.org
-Subject: [PATCH] usbnet: ipheth: fix connectivity with iOS 14
-Date:   Thu, 19 Nov 2020 18:24:39 +0100
-Message-Id: <20201119172439.94988-1-corsac@corsac.net>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com>
-References: <CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com>
+        id S1728660AbgKSRqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 12:46:18 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:49172 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728266AbgKSRqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 12:46:17 -0500
+Received: from mail-ed1-f71.google.com ([209.85.208.71])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <guilherme.piccoli@canonical.com>)
+        id 1kfo04-0002Et-Ub
+        for stable@vger.kernel.org; Thu, 19 Nov 2020 17:46:14 +0000
+Received: by mail-ed1-f71.google.com with SMTP id g1so2670378edk.0
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 09:45:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UcNqyeQmFGNZ/Z1t0naZPh421CcgFl6xNwdW4VrpvsQ=;
+        b=VzTh4oHU3/XqPucMtszgzmcPMHLxzk2xnKixteVktMegj/znxsmyjNBb3rPM53gqhC
+         zr7vz3o1m0il9nS61KGDm+FkgMfzMcSXX4uVVkg+/PAJRLwx+PrrTSyUrg7N36lVvpdn
+         BzMlmEZYSIvyMG4WzFNGVNS8HfBl+af2F28JVgCu2m0wJewwevgSo6fIVavIfHz1V3hH
+         nwFoJi7OLDLfjBe5up4SAn4sH7aipSp3vKNsS6gzMa6kTRshZb9meZbyzDXaHchrkqRx
+         I/koQoqHKSVUjsuMjUK+hd3kk96Rx5+IOt8YGhvciJgtXlJVE0qnsyOdHK2otm5l4fut
+         AlYg==
+X-Gm-Message-State: AOAM531L+V3POdF2OzCwyP9Lq5Hf2vICE2TfFJMu2bsqHtOa9zq5/q3v
+        KHjZppcuQLE/d4xcNPr8CDISzBcR2gA9q75seRaTUgmR40YnYeJPQH+UPoV4ad8908+hcWAYUyc
+        L6oRAC1H8FTsqjbqQCth9QppCNb3cGYmVsP9rRA830YY5n1LaIQ==
+X-Received: by 2002:a05:6402:114c:: with SMTP id g12mr31644743edw.167.1605807940666;
+        Thu, 19 Nov 2020 09:45:40 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwcMqog08yb/SpQWquGH3DWwblAtqsXkiIVoTLNnkrSpAcVJQiz8QjwdRLG3MkbSV9gv1YP0zjsFeVMZ2QFUZo=
+X-Received: by 2002:a05:6402:114c:: with SMTP id g12mr31644720edw.167.1605807940471;
+ Thu, 19 Nov 2020 09:45:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+ <CAHD1Q_zRaaROK_TCGg0csua=r9pskwKxCnztGW7XPK71n68DGw@mail.gmail.com> <BN8PR12MB297872B12C4DBE0793605F9B9AE00@BN8PR12MB2978.namprd12.prod.outlook.com>
+In-Reply-To: <BN8PR12MB297872B12C4DBE0793605F9B9AE00@BN8PR12MB2978.namprd12.prod.outlook.com>
+From:   Guilherme Piccoli <gpiccoli@canonical.com>
+Date:   Thu, 19 Nov 2020 14:45:04 -0300
+Message-ID: <CAHD1Q_z+Y6b7ay69jOvcOBwQYFmgcPUkdaFu8zTc1QxqfoY2xA@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
+ leaf_cfs_rq list" failed to apply to 5.4-stable tree
+To:     Tao Zhou <ouwen210@hotmail.com>, Ben Segall <bsegall@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Phil Auld <pauld@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "# v4 . 16+" <stable@vger.kernel.org>,
+        Gavin Guo <gavin.guo@canonical.com>,
+        Nivedita Singhvi <nivedita.singhvi@canonical.com>,
+        "Heitor R. Alves de Siqueira" <halves@canonical.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Starting with iOS 14 released in September 2020, connectivity using the
-personal hotspot USB tethering function of iOS devices is broken.
+On Thu, Nov 19, 2020 at 1:44 PM Tao Zhou <ouwen210@hotmail.com> wrote:
+> [...]
+> That time I realized something, but..
+> I try to remember something and get some impression.
+>
+> We need to update the below when do not need to enqueue entity because
+> this is added for runnable_avg updating,
+>
+>         update_load_avg(cfs_rq, se, UPDATE_TG);
+>         se_update_runnable(se);
+>
+> Earlier version do not introduce the above to only update runnable_avg.
+> Use one *for loop* is enough though. Please correct me if I am wrong.
+>
 
-Communication between the host and the device (for example ICMP traffic
-or DNS resolution using the DNS service running in the device itself)
-works fine, but communication to endpoints further away doesn't work.
-
-Investigation on the matter shows that UDP and ICMP traffic from the
-tethered host is reaching the Internet at all. For TCP traffic there are
-exchanges between tethered host and server but packets are modified in
-transit leading to impossible communication.
-
-After some trials Matti Vuorela discovered that reducing the URB buffer
-size by two bytes restored the previous behavior. While a better
-solution might exist to fix the issue, since the protocol is not
-publicly documented and considering the small size of the fix, let's do
-that.
-
-Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
-Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
-Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
-Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
-Cc: stable@vger.kernel.org
----
- drivers/net/usb/ipheth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
-index b09b45382faf..207e59e74935 100644
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -59,7 +59,7 @@
- #define IPHETH_USBINTF_SUBCLASS 253
- #define IPHETH_USBINTF_PROTO    1
- 
--#define IPHETH_BUF_SIZE         1516
-+#define IPHETH_BUF_SIZE         1514
- #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
- #define IPHETH_TX_TIMEOUT       (5 * HZ)
- 
--- 
-2.29.2
-
+Thanks a lot Tao! I'm not sure, I'm definitely not an expert in the
+scheduler. Will defer this one to Vincent / Peter / Phil / Ben.
+Cheers!
