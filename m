@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E667E2B8DDE
+	by mail.lfdr.de (Postfix) with ESMTP id 78D2C2B8DDD
 	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 09:48:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725783AbgKSIr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 03:47:56 -0500
-Received: from pegase1.c-s.fr ([93.17.236.30]:9348 "EHLO pegase1.c-s.fr"
+        id S1725813AbgKSIr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 03:47:59 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:53797 "EHLO pegase1.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725813AbgKSIr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 03:47:56 -0500
+        id S1725843AbgKSIr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Nov 2020 03:47:57 -0500
 Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4CcCxP0gbgz9txtW;
+        by localhost (Postfix) with ESMTP id 4CcCxP3yz8z9txtZ;
         Thu, 19 Nov 2020 09:47:53 +0100 (CET)
 X-Virus-Scanned: Debian amavisd-new at c-s.fr
 Received: from pegase1.c-s.fr ([192.168.12.234])
         by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id RSaFfZRmm4un; Thu, 19 Nov 2020 09:47:53 +0100 (CET)
+        with ESMTP id GUZg-R5baZYR; Thu, 19 Nov 2020 09:47:53 +0100 (CET)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4CcCxN5C9nz9txtS;
-        Thu, 19 Nov 2020 09:47:52 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id AD3C08B78A;
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4CcCxP326bz9txtS;
         Thu, 19 Nov 2020 09:47:53 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 61D518B78A;
+        Thu, 19 Nov 2020 09:47:54 +0100 (CET)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
         by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id U-DgrBLkV29z; Thu, 19 Nov 2020 09:47:53 +0100 (CET)
+        with ESMTP id NpmXwt2C-IGf; Thu, 19 Nov 2020 09:47:54 +0100 (CET)
 Received: from po17688vm.idsi0.si.c-s.fr (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 230C68B802;
-        Thu, 19 Nov 2020 09:47:53 +0100 (CET)
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 296658B7FE;
+        Thu, 19 Nov 2020 09:47:54 +0100 (CET)
 Received: by po17688vm.idsi0.si.c-s.fr (Postfix, from userid 0)
-        id E8BFF6688B; Thu, 19 Nov 2020 08:47:52 +0000 (UTC)
-Message-Id: <9a470c4d9a887ad32acea1d3b49f9aa1f342bb15.1605774918.git.christophe.leroy@csgroup.eu>
+        id EEC4F6688B; Thu, 19 Nov 2020 08:47:53 +0000 (UTC)
+Message-Id: <5251139d0469a2bf4912e17b44ab76306cbd5746.1605774935.git.christophe.leroy@csgroup.eu>
 From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH for 4.4] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+Subject: [PATCH for 4.9] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Date:   Thu, 19 Nov 2020 08:47:52 +0000 (UTC)
+Date:   Thu, 19 Nov 2020 08:47:53 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[This is backport for 4.4 of 29daf869cbab69088fe1755d9dd224e99ba78b56]
+[This is backport for 4.9 of 29daf869cbab69088fe1755d9dd224e99ba78b56]
 
 The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
@@ -70,10 +70,10 @@ Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492
  1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/arch/powerpc/kernel/head_8xx.S b/arch/powerpc/kernel/head_8xx.S
-index 01e274e6907b..3d7512e72900 100644
+index 2274be535dda..3801b32b1642 100644
 --- a/arch/powerpc/kernel/head_8xx.S
 +++ b/arch/powerpc/kernel/head_8xx.S
-@@ -361,11 +361,9 @@ InstructionTLBMiss:
+@@ -359,11 +359,9 @@ InstructionTLBMiss:
  	/* Load the MI_TWC with the attributes for this "segment." */
  	MTSPR_CPU6(SPRN_MI_TWC, r11, r3)	/* Set segment attributes */
  
@@ -86,7 +86,7 @@ index 01e274e6907b..3d7512e72900 100644
  	li	r11, RPN_PATTERN
  	/* The Linux PTE won't go exactly into the MMU TLB.
  	 * Software indicator bits 20-23 and 28 must be clear.
-@@ -436,11 +434,9 @@ DataStoreTLBMiss:
+@@ -443,11 +441,9 @@ _ENTRY(DTLBMiss_jmp)
  	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
  	 * r10 = (r10 & ~PRESENT) | r11;
  	 */
