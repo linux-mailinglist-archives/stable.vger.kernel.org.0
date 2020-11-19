@@ -2,82 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 868032B99F2
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 18:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF712B9A54
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 19:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbgKSRqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 12:46:18 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:49172 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728266AbgKSRqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 12:46:17 -0500
-Received: from mail-ed1-f71.google.com ([209.85.208.71])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <guilherme.piccoli@canonical.com>)
-        id 1kfo04-0002Et-Ub
-        for stable@vger.kernel.org; Thu, 19 Nov 2020 17:46:14 +0000
-Received: by mail-ed1-f71.google.com with SMTP id g1so2670378edk.0
-        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 09:45:40 -0800 (PST)
+        id S1729004AbgKSSD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 13:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40728 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728692AbgKSSD7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 13:03:59 -0500
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F08C0613CF
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 10:03:59 -0800 (PST)
+Received: by mail-pg1-x541.google.com with SMTP id w4so4905379pgg.13
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 10:03:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=91j/Puccwd5Jc8cAozk+StiFMceakrvAIU4u3KrWxGc=;
+        b=d+6QVXMMUkz72KsBDEV4dQ7HCn3ec8MitwPSqKG+SgmPPzrxiWSkVEcRfq++ULi7Px
+         GJZ8yMFGJgY9y6vifgGtIwDlw/6wxXrdfvrt8D7cdXeP92wF5Sm2OT23uvHXRD5MFnEB
+         I9aS0kJ943ceTS5o1XsNsQpKd0TB5CXVJLUxeIjDQ/3T55O75U61DNS3BvU3CbPtdKBJ
+         9KK7RU48aUiKdoyLaIZYzAr6mnArLVWlZaNj+1X53sLIR8U5sDYdLt+xtc8nQTQJFOKl
+         jMXlycMOZ9AUIUaNPCOK1xSxAj+LEbpdhdSd6jtiqs6y9aulxuH3zys+aPONReFVGN/G
+         MjuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UcNqyeQmFGNZ/Z1t0naZPh421CcgFl6xNwdW4VrpvsQ=;
-        b=VzTh4oHU3/XqPucMtszgzmcPMHLxzk2xnKixteVktMegj/znxsmyjNBb3rPM53gqhC
-         zr7vz3o1m0il9nS61KGDm+FkgMfzMcSXX4uVVkg+/PAJRLwx+PrrTSyUrg7N36lVvpdn
-         BzMlmEZYSIvyMG4WzFNGVNS8HfBl+af2F28JVgCu2m0wJewwevgSo6fIVavIfHz1V3hH
-         nwFoJi7OLDLfjBe5up4SAn4sH7aipSp3vKNsS6gzMa6kTRshZb9meZbyzDXaHchrkqRx
-         I/koQoqHKSVUjsuMjUK+hd3kk96Rx5+IOt8YGhvciJgtXlJVE0qnsyOdHK2otm5l4fut
-         AlYg==
-X-Gm-Message-State: AOAM531L+V3POdF2OzCwyP9Lq5Hf2vICE2TfFJMu2bsqHtOa9zq5/q3v
-        KHjZppcuQLE/d4xcNPr8CDISzBcR2gA9q75seRaTUgmR40YnYeJPQH+UPoV4ad8908+hcWAYUyc
-        L6oRAC1H8FTsqjbqQCth9QppCNb3cGYmVsP9rRA830YY5n1LaIQ==
-X-Received: by 2002:a05:6402:114c:: with SMTP id g12mr31644743edw.167.1605807940666;
-        Thu, 19 Nov 2020 09:45:40 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwcMqog08yb/SpQWquGH3DWwblAtqsXkiIVoTLNnkrSpAcVJQiz8QjwdRLG3MkbSV9gv1YP0zjsFeVMZ2QFUZo=
-X-Received: by 2002:a05:6402:114c:: with SMTP id g12mr31644720edw.167.1605807940471;
- Thu, 19 Nov 2020 09:45:40 -0800 (PST)
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=91j/Puccwd5Jc8cAozk+StiFMceakrvAIU4u3KrWxGc=;
+        b=fVTJ0dgTXfJ86mdmGBUEIwSN3/r5vt9COZN9ja6qKlHEXkjESyjBMn9yw2JWc7oPb/
+         TUi1h8sOBLMiOLvjvsw6AsEGK+kvPBiP5jlDiuWKMRsYT/1SxtBjdIgEc2nK3jqJNony
+         iqFaH/ZngEuEUqFfudtgsn2jy6Lb0GlYMpMyS46XOFzw6po8gltVpxRWIdO3z7z4qiiB
+         zp1gx6jF8FexGTk5lmMnpQO3DDwG3mVEPjZU0OtSACGbmAyrJHgacujpe7IBNOoz2WNx
+         GoyCXAIFjuCkx9j5Ip2dqQXq2J+9qTaIqgdJ3o7ymAAf2yxr2gIDYVVKsZOEBDUMxaM0
+         0NjA==
+X-Gm-Message-State: AOAM533+8vI6UIKyktNeLgfMtXZ2jCpxUX8dcyoeUFpD0efF7erLOWhr
+        xoJmdYD3Cw6JG9Ld/YKfDBxC6Mn8sNx1v+Xbbcg=
+X-Google-Smtp-Source: ABdhPJxomlLMzJbp731BaPen76c0tGtM1xqhtvWNcAGyvnigHGLamC7KHlA5jlAto/L3Lq2q9wr1B3oMP+MuUs5XaMk=
+X-Received: by 2002:a17:90a:f211:: with SMTP id bs17mr5820430pjb.144.1605809038818;
+ Thu, 19 Nov 2020 10:03:58 -0800 (PST)
 MIME-Version: 1.0
-References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
- <CAHD1Q_zRaaROK_TCGg0csua=r9pskwKxCnztGW7XPK71n68DGw@mail.gmail.com> <BN8PR12MB297872B12C4DBE0793605F9B9AE00@BN8PR12MB2978.namprd12.prod.outlook.com>
-In-Reply-To: <BN8PR12MB297872B12C4DBE0793605F9B9AE00@BN8PR12MB2978.namprd12.prod.outlook.com>
-From:   Guilherme Piccoli <gpiccoli@canonical.com>
-Date:   Thu, 19 Nov 2020 14:45:04 -0300
-Message-ID: <CAHD1Q_z+Y6b7ay69jOvcOBwQYFmgcPUkdaFu8zTc1QxqfoY2xA@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-To:     Tao Zhou <ouwen210@hotmail.com>, Ben Segall <bsegall@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Phil Auld <pauld@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "# v4 . 16+" <stable@vger.kernel.org>,
-        Gavin Guo <gavin.guo@canonical.com>,
-        Nivedita Singhvi <nivedita.singhvi@canonical.com>,
-        "Heitor R. Alves de Siqueira" <halves@canonical.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
+Sender: obihappiness2@gmail.com
+Received: by 2002:a17:90a:2ace:0:0:0:0 with HTTP; Thu, 19 Nov 2020 10:03:58
+ -0800 (PST)
+From:   reverend bishop <reverendbishopwilli@gmail.com>
+Date:   Thu, 19 Nov 2020 10:03:58 -0800
+X-Google-Sender-Auth: auAoaF634_RfuaB78lQIzu9qgc8
+Message-ID: <CA+6hoHRA-nLVdQTxB4orsr4yYvqByH1tvBwLACp3cm5KcPMgjQ@mail.gmail.com>
+Subject: URGENT RESPONSE
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 1:44 PM Tao Zhou <ouwen210@hotmail.com> wrote:
-> [...]
-> That time I realized something, but..
-> I try to remember something and get some impression.
->
-> We need to update the below when do not need to enqueue entity because
-> this is added for runnable_avg updating,
->
->         update_load_avg(cfs_rq, se, UPDATE_TG);
->         se_update_runnable(se);
->
-> Earlier version do not introduce the above to only update runnable_avg.
-> Use one *for loop* is enough though. Please correct me if I am wrong.
->
+--=20
+  Sir/Mrs.
 
-Thanks a lot Tao! I'm not sure, I'm definitely not an expert in the
-scheduler. Will defer this one to Vincent / Peter / Phil / Ben.
-Cheers!
+Good Day,
+
+We the World Bank Group Liaison office in Burkina Faso-Ouagadougou BF
+wishes to bring to base on the instruction by the Economic Community
+of West African States (ECO-WAS) and African Union including the world
+bank Group Geneva office in Switzerland wishes to inform you that you
+have been compensate with cash reward card valued of {$2.700, 000.00}
+because your file was passed to our office you are among the victim of
+Fraud and scam in Africa / Burkina Faso =E2=80=93Ouagadougou.
+
+1. Full Name:.........
+2. Delivery Address:..........
+3. Telephone:..............
+
+NOTE: For the immediate collection of your CASH REWARD CARD contact
+our representative Agent. Bishop Williams Liaison office in Burkina
+Faso-Ouagadougou BF to enable you confirm your payment without further
+delay and note any other contact you made outside his office is at of
+your own risk.  EMAIL ADDRESS: reverendbishopwilli@gmail.com
+
+Thanks
+Bishop Williams.
+Co-coordinator
