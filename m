@@ -2,50 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9E32B9AEC
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 19:52:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7832B9B5A
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 20:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728466AbgKSSvf convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 19 Nov 2020 13:51:35 -0500
-Received: from nrg.gov.ru ([95.173.131.222]:41131 "HELO nrg.gov.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-        id S1728296AbgKSSvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 13:51:35 -0500
-X-Greylist: delayed 8925 seconds by postgrey-1.27 at vger.kernel.org; Thu, 19 Nov 2020 13:51:34 EST
-Received: from [192.168.43.240] ([105.112.25.105])
-        (authenticated bits=0)
-        by nrg.gov.ru (8.15.2/8.14.9) with ESMTPSA id 0AJGLlif038601
-        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
-        Thu, 19 Nov 2020 19:22:38 +0300 (MSK)
-        (envelope-from info@office.com)
-Message-Id: <202011191622.0AJGLlif038601@nrg.gov.ru>
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1727987AbgKSTPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 14:15:40 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:4203 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727658AbgKSTPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 14:15:40 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5fb6c4600001>; Thu, 19 Nov 2020 11:15:44 -0800
+Received: from [10.26.75.251] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 19 Nov
+ 2020 19:15:34 +0000
+Subject: Re: [PATCH v2 6/6] thermal: tegra: Avoid setting edp_irq when not
+ relevant
+To:     Nicolas Chauvet <kwizart@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+CC:     <linux-tegra@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <20200927150956.34609-1-kwizart@gmail.com>
+ <20200927150956.34609-7-kwizart@gmail.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <1ddb2245-fde0-644c-e89a-5f94015fc682@nvidia.com>
+Date:   Thu, 19 Nov 2020 19:15:32 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: DONATION FOR YOU!!
-To:     Recipients <info@office.com>
-From:   "Dr. Mack John" <info@office.com>
-Date:   Thu, 19 Nov 2020 17:21:51 -0800
-Reply-To: drmackjohn222@gmail.com
-X-Spam-Status: No, score=4.2 required=10.0 tests=ALL_TRUSTED,BAYES_50,
-        DATE_IN_FUTURE_96_Q,FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        LOTS_OF_MONEY,MISSING_MID,SUBJ_ALL_CAPS,T_HK_NAME_DR autolearn=no
-        autolearn_force=no version=3.4.0
-X-Spam-Level: ****
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on nrg.gov.ru
-X-Virus-Scanned: clamav-milter 0.100.2 at nrg.gov.ru
-X-Virus-Status: Clean
+In-Reply-To: <20200927150956.34609-7-kwizart@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1605813344; bh=P8wOcgzHDHysvM8DY3r9OjnAvldoeo1HaRws/7olnzk=;
+        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
+         MIME-Version:In-Reply-To:Content-Type:Content-Language:
+         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
+        b=CH01VTU1yk62xWDzFhYBAQDNIm3Mvs9desaptzLSFYzvwpr+hZVXezGSoHtgC+CcM
+         +MtAg8In8yk1AQX78dNipQFYuLZB+JN7PlAGJapCVQehuWPIkFmQBRHNT97M6U21/6
+         MLHNkjQClI+FmimiHEwv+HidDUaXenXtBS5cELxnFH+vSY6wuzz1xvC9UOKu/ml+jU
+         j2Wd4PyLPVUGjqu4oJpWwC2nI4lth6Bc7fQjqLIFUmLrnjXi1knd4WN3zjBM2xDLAk
+         od2C+br5Semsr8k4EJR2NLr18UPqEPwxgjNkl1pkwndUTrZQ/kaYY5+EuKnlM6Lpfs
+         7IyBcrkwFoWBw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Via del Campidoglio 1 00186.
-Roma RM, ITALIAN.
 
-Hello,
 
-How are you? Mrs Amelia Kennedy gave me your contact and asked me to contact you before she died, She is donating sum $6.5 million for you to help her set up a charity organisation in your country and use part of the money for yourself and your family, Get back to me so I can give you directives on how to contact the Bank to get the money, I am the lawyer of Mrs Amelia Kennedy, Reply my mail:( drmackjohn222@gmail.com ) and also whats-app me on this number: +17047262900, Do not call this number, It's only for whats-app.
+On 27/09/2020 16:09, Nicolas Chauvet wrote:
+> According to the binding, the edp_irq is not available on tegra124/132
 
-Regards.
-Dr. Mack John.
+It appears that the binding doc is not update to date or missing the
+relevant information. Looking at the Tegra124 TRM I see that there is a
+SOCTHERM EDP IRQ (51) and so maybe the correct fix is to add this.
+
+Cheers
+Jon
+
+-- 
+nvpublic
