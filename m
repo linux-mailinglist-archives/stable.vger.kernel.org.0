@@ -2,125 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D912B9C50
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 21:55:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF3132B9C62
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 22:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgKSUy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 15:54:58 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:52242 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbgKSUy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 15:54:58 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AJKsL7g122414;
-        Thu, 19 Nov 2020 20:54:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2020-01-29; bh=jUdxTuSHtsuS3WsA4fd2+z7O66RBMlImwnbK4D6tItg=;
- b=lJgJ0exMOfKGfTU9qWgUxdSdYpQ7NX5JU5l4WBWJenUkHxDJaa3j2YYohjmeLEOYdezl
- qxAAEJlDVNSTe45OQ9YCpmse4BssJrkQEjgi8DX3EeMVH6vZIzLDeP7rBo11d7AGWaqK
- Vqzsc0iqyPKC71ssR9QcY3jJpZ/vcus6xBma3KGXUfHRaL5HumWoF7gkwS4V/QEhY4W5
- 4VSglFI4FtI9HPmrdOX6VXsxrX6su1gDEqPGxTC4OnJ5g/NARWHeyaV6SrlWCGNUwvfj
- ue32zhNoTBN3XjboQUS7Q2x1OKtA6qaNwi12imQfb+dNYsh5KhRxi5H/x8kN9aRY1lTa lA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 34t4rb7s1m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 19 Nov 2020 20:54:21 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AJKnjGO117244;
-        Thu, 19 Nov 2020 20:52:15 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 34uspwp9ru-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 Nov 2020 20:52:15 +0000
-Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0AJKqDZq028770;
-        Thu, 19 Nov 2020 20:52:13 GMT
-Received: from dhcp-10-159-251-58.vpn.oracle.com (/10.159.251.58)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 19 Nov 2020 12:52:13 -0800
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
-Subject: Re: [PATCH 1/1] kernel/crash_core.c - Add crashkernel=auto for x86
- and ARM
-From:   Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-In-Reply-To: <CACPcB9e8p5Ayw15aOe5ZNPOa7MF3+pzPdcaZgTc_E_TZYkgD6Q@mail.gmail.com>
-Date:   Thu, 19 Nov 2020 12:52:10 -0800
-Cc:     John Donnelly <john.p.donnelly@oracle.com>, stable@vger.kernel.org,
-        Dave Young <dyoung@redhat.com>, Baoquan He <bhe@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        Vinod Koul <vkoul@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Michael Walle <michael@walle.cc>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Olof Johansson <olof@lixom.net>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        =?utf-8?Q?Diego_Elio_Petten=C3=B2?= <flameeyes@flameeyes.com>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        kexec@lists.infradead.org, linux-doc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <8F545EB3-9AA4-45AE-84D2-7C0B5CF43FF6@oracle.com>
-References: <20201118232431.21832-1-saeed.mirzamohammadi@oracle.com>
- <CACPcB9e8p5Ayw15aOe5ZNPOa7MF3+pzPdcaZgTc_E_TZYkgD6Q@mail.gmail.com>
-To:     Kairui Song <kasong@redhat.com>
-X-Mailer: Apple Mail (2.3608.120.23.2.4)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9810 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
- mlxscore=0 bulkscore=0 suspectscore=3 adultscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011190142
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9810 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 clxscore=1015
- malwarescore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=3 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011190143
+        id S1726255AbgKSU6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Nov 2020 15:58:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbgKSU6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Nov 2020 15:58:44 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FD6C0613CF
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 12:58:43 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id r17so7936736wrw.1
+        for <stable@vger.kernel.org>; Thu, 19 Nov 2020 12:58:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=xc7/x1MaFb524IrN8KAFjf+6KBwAmpGFVqSr2wK43OM=;
+        b=kNwRG7r/+zTkxeswl45j6u8h/oY8ijzKgErX93btVhinHYSFibM1mW+dx+07liSof9
+         Xbwv0DQg/t0jFtFYzOJV+uM715Rn7rPbFz2g+FYQ8Y8BD/e6LUTL32n/lByjtxHzt6xW
+         Q/OfppzKQ/fTuNm8Fx+rEsc/azssjKmuW5nLdeuCZDijJGvD1p8tKxTAyVYpMmrttFpa
+         k2Cc4A0+WpO6nwiPjQuD1fKSoNFvFkxzLBCxq76DoHIvhO1iotqVj1KouhQely7g39fK
+         RIf7ldR93xQuVciD5GqX9WZwkTyd6sl3SN5bpVTHcNKWMdEHDEdh4jz9YjP/B/gJ0l0x
+         Bodw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=xc7/x1MaFb524IrN8KAFjf+6KBwAmpGFVqSr2wK43OM=;
+        b=dTbH9Cgb4a4KBINUjH6gRJMjhnxN18P/x4A/K5bHcVOmxEAsj9FTom+VT5lOsJ0X+H
+         bTM2LCVBOvt4ZwW4dwivQH7k3VTah+JzqT7P9LUv8ONONlfn6QLmkKLdcOaRgJo83yff
+         VNVDeMgPXI4Dw4PnhC31rzG26oVna8b1opXno6qKT4ykeRxCW0t19sH8lTXpW+i6R4m2
+         +1aP/6eIC8EBxpbwcpVe7zXIZYDoU3E/Q8oPurWdsY1okgjUG7CiK3CuX+E7ev+X9cp7
+         eP4i0+n2jEAAujFkgoXIlQ4AtTYy/jPVMzpJDanDIESdP/Is76CDIKe8fOa44S0N8Rua
+         eWhg==
+X-Gm-Message-State: AOAM531HXuQihDdZnBb/CQet1VW39XLaVBHInv6QS2K8y3GWYCvVCVrI
+        64idHNZnuOqaQxb3pd1lqbaligxlK2pkIHb3
+X-Google-Smtp-Source: ABdhPJyD83eTdJswEHiSaYQID4teDiioFtMgjskaH2dn9NvgFhV+eezzh9e95V7OkFaFfvTOQJqIYw==
+X-Received: by 2002:adf:fa10:: with SMTP id m16mr11972521wrr.194.1605819522522;
+        Thu, 19 Nov 2020 12:58:42 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id k3sm1565238wrn.81.2020.11.19.12.58.41
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 19 Nov 2020 12:58:41 -0800 (PST)
+Date:   Thu, 19 Nov 2020 20:58:39 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     bgolaszewski@baylibre.com, andriy.shevchenko@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] gpio: mockup: fix resource leak in error
+ path" failed to apply to 4.14-stable tree
+Message-ID: <20201119205839.u7sbd4ytxjivybts@debian>
+References: <160180783111955@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="27ylru5jiy5aeisb"
+Content-Disposition: inline
+In-Reply-To: <160180783111955@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-[I=E2=80=99m resending this email as it failed to be sent to certain =
-emails.]
 
-> And I think crashkernel=3Dauto could be used as an indicator that user
-> want the kernel to control the crashkernel size, so some further work
-> could be done to adjust the crashkernel more accordingly. eg. when
-> memory encryption is enabled, increase the crashkernel value for the
-> auto estimation, as it's known to consume more crashkernel memory.
->=20
-Thanks for the suggestion! I tried to keep it simple and leave it to the =
-user to change Kconfig in case a different range is needed. Based on =
-experience, these ranges work well for most of the regular cases.
+--27ylru5jiy5aeisb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->=20
-> But why not make it arch-independent? This crashkernel=3Dauto idea
-> should simply work with every arch.
+Hi Greg,
 
-Thanks! I=E2=80=99ll be making it arch-independent in the v2 patch.
+On Sun, Oct 04, 2020 at 12:37:11PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
->=20
-> I think this rounding may be better moved to the arch specified part
-> where parse_crashkernel is called?
+Here is the backport. Please consider for 4.14-stable.
 
-Thanks for the suggestion. Could you please elaborate why do we need to =
-do that?
+--
+Regards
+Sudip
 
-Thanks,
-Saeed
+--27ylru5jiy5aeisb
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-gpio-mockup-fix-resource-leak-in-error-path.patch"
 
+From 9c0dde685fd7e37a444a927fb9c9aca740444816 Mon Sep 17 00:00:00 2001
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date: Tue, 8 Sep 2020 15:07:49 +0200
+Subject: [PATCH] gpio: mockup: fix resource leak in error path
+
+commit 1b02d9e770cd7087f34c743f85ccf5ea8372b047 upstream
+
+If the module init function fails after creating the debugs directory,
+it's never removed. Add proper cleanup calls to avoid this resource
+leak.
+
+Fixes: 9202ba2397d1 ("gpio: mockup: implement event injecting over debugfs")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/gpio/gpio-mockup.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
+index d99c8d8da9a0..a09a1334afbf 100644
+--- a/drivers/gpio/gpio-mockup.c
++++ b/drivers/gpio/gpio-mockup.c
+@@ -350,6 +350,7 @@ static int __init mock_device_init(void)
+ 	err = platform_driver_register(&gpio_mockup_driver);
+ 	if (err) {
+ 		platform_device_unregister(pdev);
++		debugfs_remove_recursive(gpio_mockup_dbg_dir);
+ 		return err;
+ 	}
+ 
+-- 
+2.11.0
+
+
+--27ylru5jiy5aeisb--
