@@ -2,57 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B36EF2BA539
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 09:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E17A2BA558
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 09:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727387AbgKTIzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 03:55:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33676 "EHLO mail.kernel.org"
+        id S1727270AbgKTI7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 03:59:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727386AbgKTIzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 03:55:54 -0500
+        id S1726529AbgKTI7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 03:59:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B93622256;
-        Fri, 20 Nov 2020 08:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 028382224C;
+        Fri, 20 Nov 2020 08:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605862554;
-        bh=mC18zPUCIASC9qaiBc6ANH27U5frpdHstHW/rTu1FKU=;
+        s=korg; t=1605862756;
+        bh=1LWDK9wxtiHw0M8wzUFGuapScSNSyTYrfvzGmXcfH8g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0HbLbNk4R23aqFL/9ZtdGgotdsgEuFSTmmKyio/O/wWLHxUhhKstW6IZaNYnKpyVY
-         kwLbSj54P40gEXkMujhDXFyMuVa2BMCukNUwiAjT1ex5XKOdVYrRdoI5AXdkp/QTeD
-         1j58WYJd/Rkch4v2MK/SGk7BztN+RNZACzMt7apk=
-Date:   Fri, 20 Nov 2020 09:56:36 +0100
+        b=EJT/PvHRrKa4c9dtZHdl888KShjSPLbhoJTAhjCfzTcaEojVx7t6uCU/E1+YSK+gk
+         73HqRlsXwDF6DLETgBW6PEhdXkmTZSOCAQdwXAm5c68ue354eQGsk6ivbCwOGkRXO3
+         JRGvpmrSFGF38tI8Zd/+/bqOlYC/PXH7RZOuCkfo=
+Date:   Fri, 20 Nov 2020 09:59:58 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     bgolaszewski@baylibre.com, andriy.shevchenko@linux.intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] gpio: mockup: fix resource leak in error
- path" failed to apply to 4.14-stable tree
-Message-ID: <X7eExLkI0H/Oe7zH@kroah.com>
-References: <160180783111955@kroah.com>
- <20201119205839.u7sbd4ytxjivybts@debian>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH for 5.4] powerpc/8xx: Always fault when _PAGE_ACCESSED is
+ not set
+Message-ID: <X7eFjrnW6pK9MA52@kroah.com>
+References: <d18243335a9a31763ab5455a31a0345707771dec.1605774898.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201119205839.u7sbd4ytxjivybts@debian>
+In-Reply-To: <d18243335a9a31763ab5455a31a0345707771dec.1605774898.git.christophe.leroy@csgroup.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 08:58:39PM +0000, Sudip Mukherjee wrote:
-> Hi Greg,
+On Thu, Nov 19, 2020 at 08:47:54AM +0000, Christophe Leroy wrote:
+> [This is backport for 5.4 of 29daf869cbab69088fe1755d9dd224e99ba78b56]
 > 
-> On Sun, Oct 04, 2020 at 12:37:11PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> Here is the backport. Please consider for 4.14-stable.
+> The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-Now queued up, thanks.
+All backports now queued up, thanks.
 
 greg k-h
