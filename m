@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F72BA811
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0150B2BA7F7
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbgKTLE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:04:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51950 "EHLO mail.kernel.org"
+        id S1727770AbgKTLDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:03:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727940AbgKTLE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:04:26 -0500
+        id S1727741AbgKTLDq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:03:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DC92236F;
-        Fri, 20 Nov 2020 11:04:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1022D2222F;
+        Fri, 20 Nov 2020 11:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870265;
-        bh=yVP9HCp5Xi6g7SjY83SY5YsHLJNL3JHWYJ+JMcjpzw0=;
+        s=korg; t=1605870225;
+        bh=1Tg5jzgwoZxwmccl1AopzA5gfyHglXxx/I52qH2SzAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOz6rIiu6spW2LbfFdpFyDbysb1Qz2n0Plg0IE56UlxpezUbdlFXNu7OX1kd25HcJ
-         cgL8rx8ine2QE0QhtVJd+ppzrDDe686Uzl9Soml3rCeolDb9DhpZEx72Ii3txff63S
-         QLu7KeVGKIUdMTDGpVJEUwnuSCx5J4plFgc2LzZ4=
+        b=FkqqjdWc2LHdEK47f/dRDNCxHUVOtBNShp5GvCE/vAnTqeDVhb52da5U5k/p9ixBb
+         67pYX+pLSrgrWVNJkWQ6vcFz+PbKzYG9SKjhHxu6oMbYBSO1ySvhnGiNr53Yw6w4kC
+         kWg4y6Rr8QE2KJpLVx+gh1ktxb+QokN0ycxhdaUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net
-Subject: [PATCH 4.9 02/16] powerpc/64s: move some exception handlers out of line
-Date:   Fri, 20 Nov 2020 12:03:07 +0100
-Message-Id: <20201120104539.835892188@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 10/15] xfs: catch inode allocation state mismatch corruption
+Date:   Fri, 20 Nov 2020 12:03:08 +0100
+Message-Id: <20201120104540.065893304@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
-References: <20201120104539.706905067@linuxfoundation.org>
+In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
+References: <20201120104539.534424264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Dave Chinner <dchinner@redhat.com>
 
-(backport only)
+commit ee457001ed6c6f31ddad69c24c1da8f377d8472d upstream
 
-We're about to grow the exception handlers, which will make a bunch of them
-no longer fit within the space available. We move them out of line.
+We recently came across a V4 filesystem causing memory corruption
+due to a newly allocated inode being setup twice and being added to
+the superblock inode list twice. From code inspection, the only way
+this could happen is if a newly allocated inode was not marked as
+free on disk (i.e. di_mode wasn't zero).
 
-This is a fiddly and error-prone business, so in the interests of reviewability
-I haven't merged this in with the addition of the entry flush.
+Running the metadump on an upstream debug kernel fails during inode
+allocation like so:
 
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+XFS: Assertion failed: ip->i_d.di_nblocks == 0, file: fs/xfs/xfs_inod=
+e.c, line: 838
+ ------------[ cut here ]------------
+kernel BUG at fs/xfs/xfs_message.c:114!
+invalid opcode: 0000 [#1] PREEMPT SMP
+CPU: 11 PID: 3496 Comm: mkdir Not tainted 4.16.0-rc5-dgc #442
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/0=
+1/2014
+RIP: 0010:assfail+0x28/0x30
+RSP: 0018:ffffc9000236fc80 EFLAGS: 00010202
+RAX: 00000000ffffffea RBX: 0000000000004000 RCX: 0000000000000000
+RDX: 00000000ffffffc0 RSI: 000000000000000a RDI: ffffffff8227211b
+RBP: ffffc9000236fce8 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000bec R11: f000000000000000 R12: ffffc9000236fd30
+R13: ffff8805c76bab80 R14: ffff8805c77ac800 R15: ffff88083fb12e10
+FS:  00007fac8cbff040(0000) GS:ffff88083fd00000(0000) knlGS:0000000000000=
+000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fffa6783ff8 CR3: 00000005c6e2b003 CR4: 00000000000606e0
+Call Trace:
+ xfs_ialloc+0x383/0x570
+ xfs_dir_ialloc+0x6a/0x2a0
+ xfs_create+0x412/0x670
+ xfs_generic_create+0x1f7/0x2c0
+ ? capable_wrt_inode_uidgid+0x3f/0x50
+ vfs_mkdir+0xfb/0x1b0
+ SyS_mkdir+0xcf/0xf0
+ do_syscall_64+0x73/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x42/0xb7
+
+Extracting the inode number we crashed on from an event trace and
+looking at it with xfs_db:
+
+xfs_db> inode 184452204
+xfs_db> p
+core.magic = 0x494e
+core.mode = 0100644
+core.version = 2
+core.format = 2 (extents)
+core.nlinkv2 = 1
+core.onlink = 0
+.....
+
+Confirms that it is not a free inode on disk. xfs_repair
+also trips over this inode:
+
+.....
+zero length extent (off = 0, fsbno = 0) in ino 184452204
+correcting nextents for inode 184452204
+bad attribute fork in inode 184452204, would clear attr fork
+bad nblocks 1 for inode 184452204, would reset to 0
+bad anextents 1 for inode 184452204, would reset to 0
+imap claims in-use inode 184452204 is free, would correct imap
+would have cleared inode 184452204
+.....
+disconnected inode 184452204, would move to lost+found
+
+And so we have a situation where the directory structure and the
+inobt thinks the inode is free, but the inode on disk thinks it is
+still in use. Where this corruption came from is not possible to
+diagnose, but we can detect it and prevent the kernel from oopsing
+on lookup. The reproducer now results in:
+
+$ sudo mkdir /mnt/scratch/{0,1,2,3,4,5}{0,1,2,3,4,5}
+mkdir: cannot create directory =E2=80=98/mnt/scratch/00=E2=80=99: File ex=
+ists
+mkdir: cannot create directory =E2=80=98/mnt/scratch/01=E2=80=99: File ex=
+ists
+mkdir: cannot create directory =E2=80=98/mnt/scratch/03=E2=80=99: Structu=
+re needs cleaning
+mkdir: cannot create directory =E2=80=98/mnt/scratch/04=E2=80=99: Input/o=
+utput error
+mkdir: cannot create directory =E2=80=98/mnt/scratch/05=E2=80=99: Input/o=
+utput error
+....
+
+And this corruption shutdown:
+
+[   54.843517] XFS (loop0): Corruption detected! Free inode 0xafe846c not=
+ marked free on disk
+[   54.845885] XFS (loop0): Internal error xfs_trans_cancel at line 1023 =
+of file fs/xfs/xfs_trans.c.  Caller xfs_create+0x425/0x670
+[   54.848994] CPU: 10 PID: 3541 Comm: mkdir Not tainted 4.16.0-rc5-dgc #=
+443
+[   54.850753] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIO=
+S 1.10.2-1 04/01/2014
+[   54.852859] Call Trace:
+[   54.853531]  dump_stack+0x85/0xc5
+[   54.854385]  xfs_trans_cancel+0x197/0x1c0
+[   54.855421]  xfs_create+0x425/0x670
+[   54.856314]  xfs_generic_create+0x1f7/0x2c0
+[   54.857390]  ? capable_wrt_inode_uidgid+0x3f/0x50
+[   54.858586]  vfs_mkdir+0xfb/0x1b0
+[   54.859458]  SyS_mkdir+0xcf/0xf0
+[   54.860254]  do_syscall_64+0x73/0x1a0
+[   54.861193]  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+[   54.862492] RIP: 0033:0x7fb73bddf547
+[   54.863358] RSP: 002b:00007ffdaa553338 EFLAGS: 00000246 ORIG_RAX: 0000=
+000000000053
+[   54.865133] RAX: ffffffffffffffda RBX: 00007ffdaa55449a RCX: 00007fb73=
+bddf547
+[   54.866766] RDX: 0000000000000001 RSI: 00000000000001ff RDI: 00007ffda=
+a55449a
+[   54.868432] RBP: 00007ffdaa55449a R08: 00000000000001ff R09: 00005623a=
+8670dd0
+[   54.870110] R10: 00007fb73be72d5b R11: 0000000000000246 R12: 000000000=
+00001ff
+[   54.871752] R13: 00007ffdaa5534b0 R14: 0000000000000000 R15: 00007ffda=
+a553500
+[   54.873429] XFS (loop0): xfs_do_force_shutdown(0x8) called from line 1=
+024 of file fs/xfs/xfs_trans.c.  Return address = ffffffff814cd050
+[   54.882790] XFS (loop0): Corruption of in-memory data detected.  Shutt=
+ing down filesystem
+[   54.884597] XFS (loop0): Please umount the filesystem and rectify the =
+problem(s)
+
+Note that this crash is only possible on v4 filesystemsi or v5
+filesystems mounted with the ikeep mount option. For all other V5
+filesystems, this problem cannot occur because we don't read inodes
+we are allocating from disk - we simply overwrite them with the new
+inode information.
+
+Signed-Off-By: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Carlos Maiolino <cmaiolino@redhat.com>
+Tested-by: Carlos Maiolino <cmaiolino@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+[sudip: use ip->i_d.di_mode instead of VFS_I(ip)->i_mode]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_icache.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -519,6 +519,10 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
- EXC_REAL_BEGIN(data_access_slb, 0x380, 0x400)
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
-+	b tramp_data_access_slb
-+EXC_REAL_END(data_access_slb, 0x380, 0x400)
-+
-+TRAMP_REAL_BEGIN(tramp_data_access_slb)
- 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x380)
- 	std	r3,PACA_EXSLB+EX_R3(r13)
- 	mfspr	r3,SPRN_DAR
-@@ -537,7 +541,6 @@ EXC_REAL_BEGIN(data_access_slb, 0x380, 0
- 	mtctr	r10
- 	bctr
- #endif
--EXC_REAL_END(data_access_slb, 0x380, 0x400)
+--- a/fs/xfs/xfs_icache.c
++++ b/fs/xfs/xfs_icache.c
+@@ -298,7 +298,28 @@ xfs_iget_cache_miss(
  
- EXC_VIRT_BEGIN(data_access_slb, 0x4380, 0x4400)
- 	SET_SCRATCH0(r13)
-@@ -587,6 +590,10 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
- EXC_REAL_BEGIN(instruction_access_slb, 0x480, 0x500)
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
-+	b tramp_instruction_access_slb
-+EXC_REAL_END(instruction_access_slb, 0x480, 0x500)
-+
-+TRAMP_REAL_BEGIN(tramp_instruction_access_slb)
- 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x480)
- 	std	r3,PACA_EXSLB+EX_R3(r13)
- 	mfspr	r3,SPRN_SRR0		/* SRR0 is faulting address */
-@@ -600,7 +607,6 @@ EXC_REAL_BEGIN(instruction_access_slb, 0
- 	mtctr	r10
- 	bctr
- #endif
--EXC_REAL_END(instruction_access_slb, 0x480, 0x500)
+ 	trace_xfs_iget_miss(ip);
  
- EXC_VIRT_BEGIN(instruction_access_slb, 0x4480, 0x4500)
- 	SET_SCRATCH0(r13)
+-	if ((ip->i_d.di_mode == 0) && !(flags & XFS_IGET_CREATE)) {
++
++	/*
++	 * If we are allocating a new inode, then check what was returned is
++	 * actually a free, empty inode. If we are not allocating an inode,
++	 * the check we didn't find a free inode.
++	 */
++	if (flags & XFS_IGET_CREATE) {
++		if (ip->i_d.di_mode != 0) {
++			xfs_warn(mp,
++"Corruption detected! Free inode 0x%llx not marked free on disk",
++				ino);
++			error = -EFSCORRUPTED;
++			goto out_destroy;
++		}
++		if (ip->i_d.di_nblocks != 0) {
++			xfs_warn(mp,
++"Corruption detected! Free inode 0x%llx has blocks allocated!",
++				ino);
++			error = -EFSCORRUPTED;
++			goto out_destroy;
++		}
++	} else if (ip->i_d.di_mode == 0) {
+ 		error = -ENOENT;
+ 		goto out_destroy;
+ 	}
 
 
