@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52F92BA826
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF752BA827
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbgKTLFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52500 "EHLO mail.kernel.org"
+        id S1728091AbgKTLFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726460AbgKTLFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:00 -0500
+        id S1728084AbgKTLFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5396A2245A;
-        Fri, 20 Nov 2020 11:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BE7B2222F;
+        Fri, 20 Nov 2020 11:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870300;
-        bh=bG11z9d9Iux42UdMLwXXlg6Ly5O/9t6T0TpysOcERLg=;
+        s=korg; t=1605870303;
+        bh=Mi2KZEa8XAG7+4z+65I789OP/f3uYQitj+gV5HV9wYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Un8wmgwk/WC0vxHXVOSNJZVhJ6dXizBAUnRw5dX/6fgkYoAfhCOGa/j4Xv3/GG5ZU
-         JpCE9n14cegbOv+/W4I7Ju0LL00NjehXqOm6UQgkzJ6OVxDLG1hVKL/0KZxmmmvHy2
-         zS2GZLNiTbrTQrQ3tM1s+azeGll9gyXHAjvdVB50=
+        b=RL8LVKiaiUqfd63bvLShtFkl8WqcBe/3ZNq5yfM0Hw801yF5+g2qjtwqqj86AyDmQ
+         bDfrIZuNMK2MSQS2VwRYfOgVcmaaVabEHSC/kvv8M4Bb1yGLCUvdctk+vCKeGintbp
+         Zs1T42fngB6Plo1mpF0IolkzN0y/+f4EMpoF14hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 11/17] gpio: mockup: fix resource leak in error path
-Date:   Fri, 20 Nov 2020 12:03:22 +0100
-Message-Id: <20201120104540.973074513@linuxfoundation.org>
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 12/17] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+Date:   Fri, 20 Nov 2020 12:03:23 +0100
+Message-Id: <20201120104541.014478524@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
 References: <20201120104540.414709708@linuxfoundation.org>
@@ -44,34 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 1b02d9e770cd7087f34c743f85ccf5ea8372b047 upstream
+commit 29daf869cbab69088fe1755d9dd224e99ba78b56 upstream.
 
-If the module init function fails after creating the debugs directory,
-it's never removed. Add proper cleanup calls to avoid this resource
-leak.
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-Fixes: 9202ba2397d1 ("gpio: mockup: implement event injecting over debugfs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
+
+This adds at least 3 instructions to the TLB miss exception
+handlers fast path. Following patch will reduce this overhead.
+
+Also update the rotation instruction to the correct number of bits
+to reflect all changes done to _PAGE_ACCESSED over time.
+
+Fixes: d069cb4373fe ("powerpc/8xx: Don't touch ACCESSED when no SWAP.")
+Fixes: 5f356497c384 ("powerpc/8xx: remove unused _PAGE_WRITETHRU")
+Fixes: e0a8e0d90a9f ("powerpc/8xx: Handle PAGE_USER via APG bits")
+Fixes: 5b2753fc3e8a ("powerpc/8xx: Implementation of PAGE_EXEC")
+Fixes: a891c43b97d3 ("powerpc/8xx: Prepare handlers for _PAGE_HUGE for 512k pages.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492856.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpio/gpio-mockup.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -350,6 +350,7 @@ static int __init mock_device_init(void)
- 	err = platform_driver_register(&gpio_mockup_driver);
- 	if (err) {
- 		platform_device_unregister(pdev);
-+		debugfs_remove_recursive(gpio_mockup_dbg_dir);
- 		return err;
- 	}
- 
+---
+ arch/powerpc/kernel/head_8xx.S |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -398,11 +398,9 @@ _ENTRY(ITLBMiss_cmp)
+ #if defined (CONFIG_HUGETLB_PAGE) && defined (CONFIG_PPC_4K_PAGES)
+ 	rlwimi	r10, r11, 1, MI_SPS16K
+ #endif
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	li	r11, RPN_PATTERN
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 20-23 and 28 must be clear.
+@@ -528,11 +526,9 @@ _ENTRY(DTLBMiss_jmp)
+ 	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
+ 	 * r10 = (r10 & ~PRESENT) | r11;
+ 	 */
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 22 and 28 must be clear.
+ 	 * Software indicator bits 24, 25, 26, and 27 must be
 
 
