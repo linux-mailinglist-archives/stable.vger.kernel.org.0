@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 141CD2BA84D
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8872BA84C
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728360AbgKTLGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728357AbgKTLGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 20 Nov 2020 06:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728348AbgKTLGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:06:11 -0500
+        id S1728341AbgKTLGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:06:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 011D5206E3;
-        Fri, 20 Nov 2020 11:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4380D22255;
+        Fri, 20 Nov 2020 11:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870370;
-        bh=6WPY7IXik1n0TmpUGXGANP023j170ZaxUYNVhqmACzU=;
+        s=korg; t=1605870373;
+        bh=KPQWNfEGf3USttRB5uIhSXOb90JsMj2//VH6TQ9uH7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rqzymRQtqmVoyby4aQ5Ojo/Ufg9/Jyet0UiQquN4xrETeUKU/Y+nuS/bBphpl+4K
-         /FErEFwSTeeF/WoYgFVxh6ghFKykhORvs3WxCgFde4K0m/nZYZugp5ouXkkOviFpua
-         4KyouYq1gZIPCtvoDF+wGZwO3n0WeDLCU3q3q5Ic=
+        b=vd5f3r2Qs+GqR/D0aheXwJfJVzOyq7Jd3Memjex2DPQ0Dj1CMeqy65b4bRDEsp0BQ
+         2pMeqRJETFWxFUZpynwTwGK99UwDg0T7QI6J9WgA8m0AtMT3vSTyMi1pwuIRWjFibk
+         BvpRThMfjd0dCi0bMypNJtctsHAm+6hEItaF2Vdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Tor Jeremiassen <tor@ti.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.19 08/14] Revert "perf cs-etm: Move definition of traceid_list global variable from header file"
-Date:   Fri, 20 Nov 2020 12:03:29 +0100
-Message-Id: <20201120104540.213608508@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 09/14] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+Date:   Fri, 20 Nov 2020 12:03:30 +0100
+Message-Id: <20201120104540.267432978@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201120104539.806156260@linuxfoundation.org>
 References: <20201120104539.806156260@linuxfoundation.org>
@@ -52,78 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Salvatore Bonaccorso <carnil@debian.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
-(but only from 4.19.y)
+commit 29daf869cbab69088fe1755d9dd224e99ba78b56 upstream.
 
-The original commit introduces a build failure as seen on Debian buster
-when compiled with gcc (Debian 8.3.0-6) 8.3.0:
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-  $ LC_ALL=C.UTF-8 ARCH=x86 make perf
-  [...]
-  Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf.h' differs from latest version at 'include/uapi/linux/bpf.h'
-    CC       util/cs-etm-decoder/cs-etm-decoder.o
-    CC       util/intel-pt.o
-  util/cs-etm-decoder/cs-etm-decoder.c: In function 'cs_etm_decoder__buffer_packet':
-  util/cs-etm-decoder/cs-etm-decoder.c:287:24: error: 'traceid_list' undeclared (first use in this function); did you mean 'trace_event'?
-    inode = intlist__find(traceid_list, trace_chan_id);
-                          ^~~~~~~~~~~~
-                          trace_event
-  util/cs-etm-decoder/cs-etm-decoder.c:287:24: note: each undeclared identifier is reported only once for each function it appears in
-  make[6]: *** [/build/linux-stable/tools/build/Makefile.build:97: util/cs-etm-decoder/cs-etm-decoder.o] Error 1
-  make[5]: *** [/build/linux-stable/tools/build/Makefile.build:139: cs-etm-decoder] Error 2
-  make[5]: *** Waiting for unfinished jobs....
-  make[4]: *** [/build/linux-stable/tools/build/Makefile.build:139: util] Error 2
-  make[3]: *** [Makefile.perf:633: libperf-in.o] Error 2
-  make[2]: *** [Makefile.perf:206: sub-make] Error 2
-  make[1]: *** [Makefile:70: all] Error 2
-  make: *** [Makefile:77: perf] Error 2
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
 
-Link: https://lore.kernel.org/stable/20201114083501.GA468764@eldamar.lan/
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Tor Jeremiassen <tor@ti.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org> # 4.19.y
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+This adds at least 3 instructions to the TLB miss exception
+handlers fast path. Following patch will reduce this overhead.
+
+Also update the rotation instruction to the correct number of bits
+to reflect all changes done to _PAGE_ACCESSED over time.
+
+Fixes: d069cb4373fe ("powerpc/8xx: Don't touch ACCESSED when no SWAP.")
+Fixes: 5f356497c384 ("powerpc/8xx: remove unused _PAGE_WRITETHRU")
+Fixes: e0a8e0d90a9f ("powerpc/8xx: Handle PAGE_USER via APG bits")
+Fixes: 5b2753fc3e8a ("powerpc/8xx: Implementation of PAGE_EXEC")
+Fixes: a891c43b97d3 ("powerpc/8xx: Prepare handlers for _PAGE_HUGE for 512k pages.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492856.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/perf/util/cs-etm.c |    3 ---
- tools/perf/util/cs-etm.h |    3 +++
- 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/perf/util/cs-etm.c
-+++ b/tools/perf/util/cs-etm.c
-@@ -87,9 +87,6 @@ struct cs_etm_queue {
- 	struct cs_etm_packet *packet;
- };
+---
+ arch/powerpc/kernel/head_8xx.S |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -356,11 +356,9 @@ _ENTRY(ITLBMiss_cmp)
+ 	/* Load the MI_TWC with the attributes for this "segment." */
+ 	mtspr	SPRN_MI_TWC, r11	/* Set segment attributes */
  
--/* RB tree for quick conversion between traceID and metadata pointers */
--static struct intlist *traceid_list;
--
- static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
- static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
- 					   pid_t tid, u64 time_);
---- a/tools/perf/util/cs-etm.h
-+++ b/tools/perf/util/cs-etm.h
-@@ -53,6 +53,9 @@ enum {
- 	CS_ETMV4_PRIV_MAX,
- };
- 
-+/* RB tree for quick conversion between traceID and CPUs */
-+struct intlist *traceid_list;
-+
- #define KiB(x) ((x) * 1024)
- #define MiB(x) ((x) * 1024 * 1024)
- 
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-7, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	li	r11, RPN_PATTERN | 0x200
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 20 and 23 must be clear.
+@@ -482,11 +480,9 @@ _ENTRY(DTLBMiss_jmp)
+ 	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
+ 	 * r10 = (r10 & ~PRESENT) | r11;
+ 	 */
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-7, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 24, 25, 26, and 27 must be
+ 	 * set.  All other Linux PTE bits control the behavior
 
 
