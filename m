@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF182BA7E9
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5822BA801
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727367AbgKTLD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
+        id S1727784AbgKTLEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:04:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725789AbgKTLD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:03:27 -0500
+        id S1727479AbgKTLEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:04:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BCE622264;
-        Fri, 20 Nov 2020 11:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06DEF206E3;
+        Fri, 20 Nov 2020 11:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870206;
-        bh=tEFlnQzHiMrBy94HnraFOFfcIOpuFiy+DRi2+NwCxC8=;
+        s=korg; t=1605870239;
+        bh=MUVItjyLVPb1kmzebgShmL9DMZAkI/Jnnp91v2rmgs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMPB2m7IRMJILIx3LWW4WtFEwW+AA4BqG3MgsJQVfQWgvNoD+iTOmV9YzSDr5ef/E
-         pVQiTMPVXCz6aDuen98gi9NxpPkQ4LOTTN91FLhJ1qB7L6MYBiOJtyUth1Ss4viDnz
-         SqUB82TWVl0LXxRVSbSA2M7rkptPfPiVuIqtqFco=
+        b=yVWcbThLpctyeXh7b0EO6lbFT7ljihh4Iy5y9eNarHSx9g+EXd9qS8UoV4Fbe6Dg3
+         AwUZ3L0E4uRr7FIVIZmFjWZUUSAk/aTSCWExH88laRpCQyFvztn1FNcIUg4eWaRjNS
+         7S5BeyD7GGdCONO2twzEgq4VIuBHjil7LHtifJK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
         Christophe Leroy <christophe.leroy@c-s.fr>,
-        Russell Currey <ruscur@russell.cc>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 04/15] powerpc: Add a framework for user access tracking
-Date:   Fri, 20 Nov 2020 12:03:02 +0100
-Message-Id: <20201120104539.759815956@linuxfoundation.org>
+Subject: [PATCH 4.4 05/15] powerpc: Implement user_access_begin and friends
+Date:   Fri, 20 Nov 2020 12:03:03 +0100
+Message-Id: <20201120104539.811631814@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
 References: <20201120104539.534424264@linuxfoundation.org>
@@ -45,274 +44,179 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-Backported from commit de78a9c42a79 ("powerpc: Add a framework
-for Kernel Userspace Access Protection"). Here we don't try to
-add the KUAP framework, we just want the helper functions
-because we want to put uaccess flush helpers in them.
+commit 5cd623333e7cf4e3a334c70529268b65f2a6c2c7 upstream.
 
-In terms of fixes, we don't need commit 1d8f739b07bd ("powerpc/kuap:
-Fix set direction in allow/prevent_user_access()") as we don't have
-real KUAP. Likewise as all our allows are noops and all our prevents
-are just flushes, we don't need commit 9dc086f1e9ef ("powerpc/futex:
-Fix incorrect user access blocking") The other 2 fixes we do need.
+Today, when a function like strncpy_from_user() is called,
+the userspace access protection is de-activated and re-activated
+for every word read.
 
-The original description is:
+By implementing user_access_begin and friends, the protection
+is de-activated at the beginning of the copy and re-activated at the
+end.
 
-This patch implements a framework for Kernel Userspace Access
-Protection.
+Implement user_access_begin(), user_access_end() and
+unsafe_get_user(), unsafe_put_user() and unsafe_copy_to_user()
 
-Then subarches will have the possibility to provide their own
-implementation by providing setup_kuap() and
-allow/prevent_user_access().
-
-Some platforms will need to know the area accessed and whether it is
-accessed from read, write or both. Therefore source, destination and
-size and handed over to the two functions.
-
-mpe: Rename to allow/prevent rather than unlock/lock, and add
-read/write wrappers. Drop the 32-bit code for now until we have an
-implementation for it. Add kuap to pt_regs for 64-bit as well as
-32-bit. Don't split strings, use pr_crit_ratelimited().
+For the time being, we keep user_access_save() and
+user_access_restore() as nops.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Russell Currey <ruscur@russell.cc>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/36d4fbf9e56a75994aca4ee2214c77b26a5a8d35.1579866752.git.christophe.leroy@c-s.fr
 Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/futex.h        |    4 +++
- arch/powerpc/include/asm/kup.h          |   36 ++++++++++++++++++++++++++++++
- arch/powerpc/include/asm/uaccess.h      |   38 +++++++++++++++++++++++++-------
- arch/powerpc/lib/checksum_wrappers_64.c |    4 +++
- 4 files changed, 74 insertions(+), 8 deletions(-)
- create mode 100644 arch/powerpc/include/asm/kup.h
+ arch/powerpc/include/asm/uaccess.h |   60 ++++++++++++++++++++++++++++---------
+ 1 file changed, 46 insertions(+), 14 deletions(-)
 
---- a/arch/powerpc/include/asm/futex.h
-+++ b/arch/powerpc/include/asm/futex.h
-@@ -36,6 +36,7 @@ static inline int arch_futex_atomic_op_i
- {
- 	int oldval = 0, ret;
- 
-+	allow_write_to_user(uaddr, sizeof(*uaddr));
- 	pagefault_disable();
- 
- 	switch (op) {
-@@ -62,6 +63,7 @@ static inline int arch_futex_atomic_op_i
- 
- 	*oval = oldval;
- 
-+	prevent_write_to_user(uaddr, sizeof(*uaddr));
- 	return ret;
- }
- 
-@@ -75,6 +77,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
- 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
- 		return -EFAULT;
- 
-+	allow_write_to_user(uaddr, sizeof(*uaddr));
-         __asm__ __volatile__ (
-         PPC_ATOMIC_ENTRY_BARRIER
- "1:     lwarx   %1,0,%3         # futex_atomic_cmpxchg_inatomic\n\
-@@ -97,6 +100,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
-         : "cc", "memory");
- 
- 	*uval = prev;
-+	prevent_write_to_user(uaddr, sizeof(*uaddr));
-         return ret;
- }
- 
---- /dev/null
-+++ b/arch/powerpc/include/asm/kup.h
-@@ -0,0 +1,36 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_POWERPC_KUP_H_
-+#define _ASM_POWERPC_KUP_H_
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <asm/pgtable.h>
-+
-+static inline void allow_user_access(void __user *to, const void __user *from,
-+				     unsigned long size) { }
-+static inline void prevent_user_access(void __user *to, const void __user *from,
-+				       unsigned long size) { }
-+
-+static inline void allow_read_from_user(const void __user *from, unsigned long size)
-+{
-+	allow_user_access(NULL, from, size);
-+}
-+
-+static inline void allow_write_to_user(void __user *to, unsigned long size)
-+{
-+	allow_user_access(to, NULL, size);
-+}
-+
-+static inline void prevent_read_from_user(const void __user *from, unsigned long size)
-+{
-+	prevent_user_access(NULL, from, size);
-+}
-+
-+static inline void prevent_write_to_user(void __user *to, unsigned long size)
-+{
-+	prevent_user_access(to, NULL, size);
-+}
-+
-+#endif /* !__ASSEMBLY__ */
-+
-+#endif /* _ASM_POWERPC_KUP_H_ */
 --- a/arch/powerpc/include/asm/uaccess.h
 +++ b/arch/powerpc/include/asm/uaccess.h
-@@ -9,6 +9,7 @@
- #include <asm/asm-compat.h>
- #include <asm/processor.h>
- #include <asm/page.h>
-+#include <asm/kup.h>
+@@ -106,9 +106,14 @@ struct exception_table_entry {
+ 	__put_user_check((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
  
- #define VERIFY_READ	0
- #define VERIFY_WRITE	1
-@@ -164,6 +165,7 @@ extern long __put_user_bad(void);
- #define __put_user_size(x, ptr, size, retval)			\
+ #define __get_user(x, ptr) \
+-	__get_user_nocheck((x), (ptr), sizeof(*(ptr)))
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), true)
+ #define __put_user(x, ptr) \
+-	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), true)
++
++#define __get_user_allowed(x, ptr) \
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), false)
++#define __put_user_allowed(x, ptr) \
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), false)
+ 
+ #define __get_user_inatomic(x, ptr) \
+ 	__get_user_nosleep((x), (ptr), sizeof(*(ptr)))
+@@ -162,10 +167,9 @@ extern long __put_user_bad(void);
+ 		: "r" (x), "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __put_user_size(x, ptr, size, retval)			\
++#define __put_user_size_allowed(x, ptr, size, retval)		\
  do {								\
  	retval = 0;						\
-+	allow_write_to_user(ptr, size);				\
+-	allow_write_to_user(ptr, size);				\
  	switch (size) {						\
  	  case 1: __put_user_asm(x, ptr, retval, "stb"); break;	\
  	  case 2: __put_user_asm(x, ptr, retval, "sth"); break;	\
-@@ -171,6 +173,7 @@ do {								\
+@@ -173,17 +177,26 @@ do {								\
  	  case 8: __put_user_asm2(x, ptr, retval); break;	\
  	  default: __put_user_bad();				\
  	}							\
-+	prevent_write_to_user(ptr, size);			\
++} while (0)
++
++#define __put_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_write_to_user(ptr, size);				\
++	__put_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_write_to_user(ptr, size);			\
  } while (0)
  
- #define __put_user_nocheck(x, ptr, size)			\
-@@ -252,6 +255,7 @@ do {								\
+-#define __put_user_nocheck(x, ptr, size)			\
++#define __put_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __pu_err;						\
+ 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
+ 	if (!is_kernel_addr((unsigned long)__pu_addr))		\
+ 		might_fault();					\
+ 	__chk_user_ptr(ptr);					\
+-	__put_user_size((x), __pu_addr, (size), __pu_err);	\
++	if (do_allow)								\
++		__put_user_size((x), __pu_addr, (size), __pu_err);		\
++	else									\
++		__put_user_size_allowed((x), __pu_addr, (size), __pu_err);	\
+ 	__pu_err;						\
+ })
+ 
+@@ -249,13 +262,12 @@ extern long __get_user_bad(void);
+ 		: "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __get_user_size(x, ptr, size, retval)			\
++#define __get_user_size_allowed(x, ptr, size, retval)		\
+ do {								\
+ 	retval = 0;						\
  	__chk_user_ptr(ptr);					\
  	if (size > sizeof(x))					\
  		(x) = __get_user_bad();				\
-+	allow_read_from_user(ptr, size);			\
+-	allow_read_from_user(ptr, size);			\
  	switch (size) {						\
  	case 1: __get_user_asm(x, ptr, retval, "lbz"); break;	\
  	case 2: __get_user_asm(x, ptr, retval, "lhz"); break;	\
-@@ -259,6 +263,7 @@ do {								\
+@@ -263,10 +275,16 @@ do {								\
  	case 8: __get_user_asm2(x, ptr, retval);  break;	\
  	default: (x) = __get_user_bad();			\
  	}							\
-+	prevent_read_from_user(ptr, size);			\
++} while (0)
++
++#define __get_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_read_from_user(ptr, size);			\
++	__get_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_read_from_user(ptr, size);			\
  } while (0)
  
- #define __get_user_nocheck(x, ptr, size)			\
-@@ -328,9 +333,14 @@ extern unsigned long __copy_tofrom_user(
- static inline unsigned long copy_from_user(void *to,
- 		const void __user *from, unsigned long n)
- {
-+	unsigned long ret;
-+
- 	if (likely(access_ok(VERIFY_READ, from, n))) {
-+		allow_user_access(to, from, n);
- 		barrier_nospec();
--		return __copy_tofrom_user((__force void __user *)to, from, n);
-+		ret = __copy_tofrom_user((__force void __user *)to, from, n);
-+		prevent_user_access(to, from, n);
-+		return ret;
- 	}
- 	memset(to, 0, n);
- 	return n;
-@@ -361,8 +371,9 @@ extern unsigned long copy_in_user(void _
- static inline unsigned long __copy_from_user_inatomic(void *to,
- 		const void __user *from, unsigned long n)
- {
-+	unsigned long ret;
- 	if (__builtin_constant_p(n) && (n <= 8)) {
--		unsigned long ret = 1;
-+		ret = 1;
- 
- 		switch (n) {
- 		case 1:
-@@ -387,14 +398,18 @@ static inline unsigned long __copy_from_
- 	}
- 
- 	barrier_nospec();
--	return __copy_tofrom_user((__force void __user *)to, from, n);
-+	allow_read_from_user(from, n);
-+	ret = __copy_tofrom_user((__force void __user *)to, from, n);
-+	prevent_read_from_user(from, n);
-+	return ret;
- }
- 
- static inline unsigned long __copy_to_user_inatomic(void __user *to,
+-#define __get_user_nocheck(x, ptr, size)			\
++#define __get_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __gu_err;						\
+ 	unsigned long __gu_val;					\
+@@ -275,7 +293,10 @@ do {								\
+ 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
+ 		might_fault();					\
+ 	barrier_nospec();					\
+-	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
++	if (do_allow)								\
++		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);		\
++	else									\
++		__get_user_size_allowed(__gu_val, __gu_addr, (size), __gu_err);	\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;			\
+ 	__gu_err;						\
+ })
+@@ -408,21 +429,22 @@ static inline unsigned long __copy_to_us
  		const void *from, unsigned long n)
  {
-+	unsigned long ret;
+ 	unsigned long ret;
++
  	if (__builtin_constant_p(n) && (n <= 8)) {
--		unsigned long ret = 1;
-+		ret = 1;
+ 		ret = 1;
  
  		switch (n) {
  		case 1:
-@@ -414,7 +429,10 @@ static inline unsigned long __copy_to_us
- 			return 0;
- 	}
+-			__put_user_size(*(u8 *)from, (u8 __user *)to, 1, ret);
++			__put_user_size_allowed(*(u8 *)from, (u8 __user *)to, 1, ret);
+ 			break;
+ 		case 2:
+-			__put_user_size(*(u16 *)from, (u16 __user *)to, 2, ret);
++			__put_user_size_allowed(*(u16 *)from, (u16 __user *)to, 2, ret);
+ 			break;
+ 		case 4:
+-			__put_user_size(*(u32 *)from, (u32 __user *)to, 4, ret);
++			__put_user_size_allowed(*(u32 *)from, (u32 __user *)to, 4, ret);
+ 			break;
+ 		case 8:
+-			__put_user_size(*(u64 *)from, (u64 __user *)to, 8, ret);
++			__put_user_size_allowed(*(u64 *)from, (u64 __user *)to, 8, ret);
+ 			break;
+ 		}
+ 		if (ret == 0)
+@@ -467,6 +489,16 @@ extern long strncpy_from_user(char *dst,
+ extern __must_check long strlen_user(const char __user *str);
+ extern __must_check long strnlen_user(const char __user *str, long n);
  
--	return __copy_tofrom_user(to, (__force const void __user *)from, n);
-+	allow_write_to_user(to, n);
-+	ret = __copy_tofrom_user(to, (__force const void __user *)from, n);
-+	prevent_write_to_user(to, n);
-+	return ret;
- }
++
++#define user_access_begin()	do { } while (0)
++#define user_access_end()	prevent_user_access(NULL, NULL, ~0ul)
++
++#define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
++#define unsafe_get_user(x, p, e) unsafe_op_wrap(__get_user_allowed(x, p), e)
++#define unsafe_put_user(x, p, e) unsafe_op_wrap(__put_user_allowed(x, p), e)
++#define unsafe_copy_to_user(d, s, l, e) \
++	unsafe_op_wrap(__copy_to_user_inatomic(d, s, l), e)
++
+ #endif  /* __ASSEMBLY__ */
+ #endif /* __KERNEL__ */
  
- static inline unsigned long __copy_from_user(void *to,
-@@ -435,10 +453,14 @@ extern unsigned long __clear_user(void _
- 
- static inline unsigned long clear_user(void __user *addr, unsigned long size)
- {
-+	unsigned long ret = size;
- 	might_fault();
--	if (likely(access_ok(VERIFY_WRITE, addr, size)))
--		return __clear_user(addr, size);
--	return size;
-+	if (likely(access_ok(VERIFY_WRITE, addr, size))) {
-+		allow_write_to_user(addr, size);
-+		ret = __clear_user(addr, size);
-+		prevent_write_to_user(addr, size);
-+	}
-+	return ret;
- }
- 
- extern long strncpy_from_user(char *dst, const char __user *src, long count);
---- a/arch/powerpc/lib/checksum_wrappers_64.c
-+++ b/arch/powerpc/lib/checksum_wrappers_64.c
-@@ -29,6 +29,7 @@ __wsum csum_and_copy_from_user(const voi
- 	unsigned int csum;
- 
- 	might_sleep();
-+	allow_read_from_user(src, len);
- 
- 	*err_ptr = 0;
- 
-@@ -60,6 +61,7 @@ __wsum csum_and_copy_from_user(const voi
- 	}
- 
- out:
-+	prevent_read_from_user(src, len);
- 	return (__force __wsum)csum;
- }
- EXPORT_SYMBOL(csum_and_copy_from_user);
-@@ -70,6 +72,7 @@ __wsum csum_and_copy_to_user(const void
- 	unsigned int csum;
- 
- 	might_sleep();
-+	allow_write_to_user(dst, len);
- 
- 	*err_ptr = 0;
- 
-@@ -97,6 +100,7 @@ __wsum csum_and_copy_to_user(const void
- 	}
- 
- out:
-+	prevent_write_to_user(dst, len);
- 	return (__force __wsum)csum;
- }
- EXPORT_SYMBOL(csum_and_copy_to_user);
 
 
