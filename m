@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E57D2BA519
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 09:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A212BA52A
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 09:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727256AbgKTIvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 03:51:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60840 "EHLO mail.kernel.org"
+        id S1725801AbgKTIyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 03:54:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727119AbgKTIvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 03:51:48 -0500
+        id S1726420AbgKTIyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 03:54:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0686922254;
-        Fri, 20 Nov 2020 08:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0452B22253;
+        Fri, 20 Nov 2020 08:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605862306;
-        bh=Ci7RCZTsOsqc/q+v5QDFseGFwLdpFuenhgcKVJBqBus=;
+        s=korg; t=1605862438;
+        bh=f4BGBwrIRm8gPS5Jp17Ug2jQVG4S8TaM+ZZVFb8/BF0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TphDx7ctHSb6HKIeK7oFzMRbQ0n+gQL4k62rKQzHHylGm03mIt93eyIOyEcG5d2yK
-         mm0p4jpkGS9pI3+aT40Zt1LPgvy5gp9z3CqlWSSGSsvbHoRCTiSUz7Qrdgf6nxP69/
-         S2h8C0z8K7/hdGi+uBcqBqz4UAp4kkDNaynUQsTU=
-Date:   Fri, 20 Nov 2020 09:52:18 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        b=UIEhc+JOWEQlX/0yFRrIOjOaOPQ2FjHWs7tZ4kNSKBDRMV05iLvC7YI978VLJlpwA
+         l1smamWHU/kQnmLiw3aX7c8rLV/CQSANaRFPynCEc0f2tbiteUVcwFsZIcFsNb0uUL
+         cVj480RNU8sHeFReVHgZ99/gP5QfTnlul3QoYmDQ=
+Date:   Fri, 20 Nov 2020 09:54:41 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: backport of e50e4f0b85be ("i2c: imx: Fix external abort on
- interrupt in exit paths") for v4.4.y
-Message-ID: <X7eDwnjkikIAEz3O@kroah.com>
-References: <20201118210914.67lheikunk2b6i5f@debian>
+Cc:     ultracoolguy@tutanota.com, pavel@ucw.cz, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] leds: lm3697: Fix out-of-bound access"
+ failed to apply to 5.9-stable tree
+Message-ID: <X7eEUWOEl4dl2uvf@kroah.com>
+References: <160440470667193@kroah.com>
+ <20201118225938.5nvkjdhc4st2zs57@debian>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201118210914.67lheikunk2b6i5f@debian>
+In-Reply-To: <20201118225938.5nvkjdhc4st2zs57@debian>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 18, 2020 at 09:09:14PM +0000, Sudip Mukherjee wrote:
-> Hi Greg, Sasha,
+On Wed, Nov 18, 2020 at 10:59:38PM +0000, Sudip Mukherjee wrote:
+> Hi Greg,
 > 
-> This was missing in 4.4-stable. It was easier to backport than picking
-> all the other commits needed to aply it cleanly. It has been manually
-> backported with an extra label for goto. I will prefer an Ack from
-> Wolfram or Krzysztof or Oleksij before you add it to your queue.
+> On Tue, Nov 03, 2020 at 12:58:26PM +0100, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.9-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> Here is the backport. Please consider for 5.9-stable.
 
-Looks sane enough to me, thanks!
-
-All now queued up.
+Now applied, thanks.
 
 greg k-h
