@@ -2,132 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E3E2BB4F3
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 20:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6508A2BB561
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 20:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731409AbgKTTMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 14:12:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40252 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731110AbgKTTMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 14:12:40 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C941922240;
-        Fri, 20 Nov 2020 19:12:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1605899559;
-        bh=9uCcHEhTM74W2+kv7DPG7OQif1zF75Wc2h4i+prR13I=;
-        h=Date:From:To:Subject:From;
-        b=rGLmJ8Aep3WFMntf+bcghkA4ac62x8ORupIYzmQ0ivn1yBNO39IiMOG3Xr/ijfTTH
-         qRZ+qZiGgFltF2hHJqiUnm5b2cFaaTYZ7/ZOr0nyXRXGXmCGsSmaLzAXeysdeO0Bci
-         5VYDZmxCW1Im3Gt3Aal7Gtgvo+AfZV6FdSnsEcUU=
-Date:   Fri, 20 Nov 2020 11:12:38 -0800
-From:   akpm@linux-foundation.org
-To:     aruna.ramakrishna@oracle.com, bert.barbe@oracle.com,
-        davem@davemloft.net, dongli.zhang@oracle.com, edumazet@google.com,
-        joe.jin@oracle.com, manjunath.b.patil@oracle.com,
-        mm-commits@vger.kernel.org, rama.nichanamatlu@oracle.com,
-        srinivas.eeda@oracle.com, stable@vger.kernel.org, vbabka@suse.cz,
-        venkat.x.venkatsubra@oracle.com, willy@infradead.org
-Subject:  [merged] page_frag-recover-from-memory-pressure.patch
- removed from -mm tree
-Message-ID: <20201120191238.7qAsVgioO%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1732377AbgKTT3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 14:29:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50566 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732366AbgKTT3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 14:29:40 -0500
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCD4C0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:29:39 -0800 (PST)
+Received: by mail-lf1-x144.google.com with SMTP id 74so15027997lfo.5
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:29:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1ENdAioGv2Q8eY87iogzPJTHqRbYcuXrTklYSoVbeVw=;
+        b=evS+J+XBR5p/6mcLYAKQLiKRO2uqyRSublTlr95YtwT17h9QD8IvA2RHEV+qDY+gIZ
+         JOZBmzb7B7518iz/u245hunU4bVVPYU2EE9wSZDPYdInZHbY8p5p40hn7bZzQDZfm4//
+         n5X+f4WcTeSEEoGlIB0zuOXHVvaQg7qDQJgy14VXrPgvui6zzon7LL83fPU//gQp4yG2
+         iPA5aGTHX3nCxdpYx09TimLS4F4h3nuVBssI6uKoTXbCiKAOrRVG65uxwfgJfp/uycvK
+         EZAVvgYrNMTTZvv1dghGsybJKMZCbQw4Mg3xH43wpknJw2p+Sbzd1kc3aagGuEkrTaLl
+         vpYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1ENdAioGv2Q8eY87iogzPJTHqRbYcuXrTklYSoVbeVw=;
+        b=b6wRkyDdplYdmS3BvF4ZwqrWCQ1i7OnUa5oDHVyxWpBjnmvpZyuOcsKNFtSIN1KHk9
+         OOOKMK+Sw9p5FAtYPdkTVMLD+CAPCXWqFsnaboHHtqj5xRx8dU+wmhci991N6UD7oSvn
+         3NaO0AD3AKqJHxg5/Ws5wHGRo/7oOt99/2wdrepxmA1FiYpo541ZkzDmfHbhxxxF7SqT
+         AQ60uDgQVDcc4RQMYIsTotYUHS52HP7q8nPzeVbbCW/tw8UZ9Kh4N5clg1r7cl8K1Tga
+         2r5VLlaMlPXLMqGu/kVWw2xWSybLbx/Isgql1BNKH6ZKdWSp0TOIbX3qzk4DDQ61wegR
+         63/w==
+X-Gm-Message-State: AOAM531idL/E6+sUlxDMsrG3j++Hk90BXlP6BgWk23olhCpEYTHRyit3
+        cmYC/mxqULKqvcHlQMFOEAPZjfOMLhvO+erHOuE=
+X-Google-Smtp-Source: ABdhPJzyhQ/51Q7dV9avp9L46zcpKh9dqFp/SqpRWdON+VWI4lWIjRseexpDE3IvVri66oqD2dWVFl/3LQRB7sJFgfQ=
+X-Received: by 2002:a05:6512:21c:: with SMTP id a28mr8985486lfo.486.1605900578367;
+ Fri, 20 Nov 2020 11:29:38 -0800 (PST)
+MIME-Version: 1.0
+References: <20201120073909.357536-1-carnil@debian.org> <CAHtQpK6xA4Ej_LCKBv6TWgiypzwzFzPy3ANvH8BRw-y_FkuJqg@mail.gmail.com>
+ <20201120133400.GA405401@eldamar.lan> <CAHtQpK7=hpWLM-ztyTS8vzGDfG_46Qx2vc6q0fm1dDDU3W6+UA@mail.gmail.com>
+ <20201120155317.GA502412@eldamar.lan> <CAHtQpK5Xuui3q6_x2FKQ1DbP-n8zFa_AR-uQFmcCOH2kzMR6fQ@mail.gmail.com>
+ <20201120183008.GA518373@eldamar.lan>
+In-Reply-To: <20201120183008.GA518373@eldamar.lan>
+From:   Andrey Zhizhikin <andrey.z@gmail.com>
+Date:   Fri, 20 Nov 2020 20:29:26 +0100
+Message-ID: <CAHtQpK5af-MYz6pr6OzFUh4FwV9oG=2UxVPuaA2TBjLEvm6Tsw@mail.gmail.com>
+Subject: Re: [PATCH] Revert "perf cs-etm: Move definition of 'traceid_list'
+ global variable from header file"
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        Tor Jeremiassen <tor@ti.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Salvatore,
 
-The patch titled
-     Subject: mm, page_frag: recover from memory pressure
-has been removed from the -mm tree.  Its filename was
-     page_frag-recover-from-memory-pressure.patch
+On Fri, Nov 20, 2020 at 7:30 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+>
+> Hi Andrey,
+>
+> On Fri, Nov 20, 2020 at 05:31:59PM +0100, Andrey Zhizhikin wrote:
+> > Hello Salvatore,
+> >
+> > On Fri, Nov 20, 2020 at 4:53 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > >
+> > > Hi Andrey,
+> > >
+> > > On Fri, Nov 20, 2020 at 03:29:39PM +0100, Andrey Zhizhikin wrote:
+> > > > Hello Salvatore,
+> > > >
+> > > > On Fri, Nov 20, 2020 at 2:34 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > > > >
+> > > > > Hi Andrey,
+> > > > >
+> > > > > On Fri, Nov 20, 2020 at 10:54:22AM +0100, Andrey Zhizhikin wrote:
+> > > > > > On Fri, Nov 20, 2020 at 8:39 AM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > > > > > >
+> > > > > > > This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
+> > > > > > > (but only from 4.19.y)
+> > > > > >
+> > > > > > This revert would fail the build of 4.19.y with gcc10, I believe the
+> > > > > > original commit was introduced to address exactly this case. If this
+> > > > > > is intended behavior that 4.19.y is not compiled with newer gcc
+> > > > > > versions - then this revert is OK.
+> > > > >
+> > > > > TTBOMK, this would not regress the build for newer gcc (specifically
+> > > > > gcc10) as 4.19.158 is failing perf tool builds there as well (without
+> > > > > the above commit reverted). Just as an example v4.19.y does not have
+> > > > > cff20b3151cc ("perf tests bp_account: Make global variable static")
+> > > > > which is there in v5.6-rc6 to fix build failures with 10.0.1.
+> > > > >
+> > > > > But it did regress builds with older gcc's as for instance used in
+> > > > > Debian buster (gcc 8.3.0) since 4.19.152.
+> > > > >
+> > > > > Do I possibly miss something? If there is a solution to make it build
+> > > > > with newer GCCs and *not* regress previously working GCC versions then
+> > > > > this is surely the best outcome though.
+> > > >
+> > > > I guess (and from what I understand in Leo's reply), porting of
+> > > > 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to
+> > > > traceID-metadata") should solve the issue for both older and newer gcc
+> > > > versions.
+> > > >
+> > > > The breakage is now in
+> > > > [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c] file (which uses
+> > > > traceid_list inside). This is solved with the above commit, which
+> > > > concealed traceid_list internally inside [tools/perf/util/cs-etm.c]
+> > > > file and exposed to [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c]
+> > > > via cs_etm__get_cpu() call.
+> > > >
+> > > > Can you try out to port that commit to see if that would solve your
+> > > > regression?
+> > >
+> > > So something like the following will compile as well with the older
+> > > gcc version.
+> > >
+> > > I realize: I mainline the order of the commits was:
+> > >
+> > > 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
+> > > 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header f
+> > > ile")
+> > >
+> > > But to v4.19.y only 168200b6d6ea was backported, and while that was
+> > > done I now realize the comment was also changed including the change
+> > > fom 95c6fe970a01.
+> > >
+> > > Thus the proposed backported patch would drop the change in
+> > > tools/perf/util/cs-etm.c to the comment as this was already done.
+> > > Thecnically currently the comment would be wrong, because it reads:
+> > >
+> > > /* RB tree for quick conversion between traceID and metadata pointers */
+> > >
+> > > but backport of 95c6fe970a01 is not included.
+> > >
+> > > Would the right thing to do thus be:
+> > >
+> > > - Revert b801d568c7d8 "perf cs-etm: Move definition of 'traceid_list' global variable from header file"
+> > > - Backport 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
+> > > - Backport 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header file")
+> >
+> > Yes, I believe this would be the correct course of action here; this
+> > should cover the regression you've encountered and should ensure that
+> > perf builds on both the "old" and "new" gcc versions.
+>
+> Although perf tools in v4.19.y won't compile with recent GCCs.
+>
+> Greg did already queued up the first part of it, so the revert. I
+> think we can pick the later two commits again up after the v4.19.159
+> release?
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Sounds reasonable to me.
 
-------------------------------------------------------
-From: Dongli Zhang <dongli.zhang@oracle.com>
-Subject: mm, page_frag: recover from memory pressure
-
-The ethernet driver may allocate skb (and skb->data) via napi_alloc_skb().
-This ends up to page_frag_alloc() to allocate skb->data from
-page_frag_cache->va.
-
-During the memory pressure, page_frag_cache->va may be allocated as
-pfmemalloc page.  As a result, the skb->pfmemalloc is always true as
-skb->data is from page_frag_cache->va.  The skb will be dropped if the
-sock (receiver) does not have SOCK_MEMALLOC.  This is expected behaviour
-under memory pressure.
-
-However, once kernel is not under memory pressure any longer (suppose
-large amount of memory pages are just reclaimed), the page_frag_alloc()
-may still re-use the prior pfmemalloc page_frag_cache->va to allocate
-skb->data.  As a result, the skb->pfmemalloc is always true unless
-page_frag_cache->va is re-allocated, even if the kernel is not under
-memory pressure any longer.
-
-Here is how kernel runs into issue.
-
-1. The kernel is under memory pressure and allocation of
-   PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. 
-   Instead, the pfmemalloc page is allocated for page_frag_cache->va.
-
-2. All skb->data from page_frag_cache->va (pfmemalloc) will have
-   skb->pfmemalloc=true.  The skb will always be dropped by sock without
-   SOCK_MEMALLOC.  This is an expected behaviour.
-
-3. Suppose a large amount of pages are reclaimed and kernel is not
-   under memory pressure any longer.  We expect skb->pfmemalloc drop will
-   not happen.
-
-4. Unfortunately, page_frag_alloc() does not proactively re-allocate
-   page_frag_alloc->va and will always re-use the prior pfmemalloc page. 
-   The skb->pfmemalloc is always true even kernel is not under memory
-   pressure any longer.
-
-Fix this by freeing and re-allocating the page instead of recycling it.
-
-Link: https://lore.kernel.org/lkml/20201103193239.1807-1-dongli.zhang@oracle.com/
-Link: https://lore.kernel.org/linux-mm/20201105042140.5253-1-willy@infradead.org/
-Link: https://lkml.kernel.org/r/20201115201029.11903-1-dongli.zhang@oracle.com
-Fixes: 79930f5892e ("net: do not deplete pfmemalloc reserve")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-Cc: Bert Barbe <bert.barbe@oracle.com>
-Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
-Cc: Joe Jin <joe.jin@oracle.com>
-Cc: SRINIVAS <srinivas.eeda@oracle.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_alloc.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
---- a/mm/page_alloc.c~page_frag-recover-from-memory-pressure
-+++ a/mm/page_alloc.c
-@@ -5103,6 +5103,11 @@ refill:
- 		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
- 			goto refill;
- 
-+		if (unlikely(nc->pfmemalloc)) {
-+			free_the_page(page, compound_order(page));
-+			goto refill;
-+		}
-+
- #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
- 		/* if size can vary use size else just use PAGE_SIZE */
- 		size = nc->size;
-_
-
-Patches currently in -mm which might be from dongli.zhang@oracle.com are
+>
+> Regards,
+> Salvatore
 
 
+
+-- 
+Regards,
+Andrey.
