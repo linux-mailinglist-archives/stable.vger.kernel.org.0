@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 132A52BA800
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C97862BA831
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbgKTLD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50970 "EHLO mail.kernel.org"
+        id S1728106AbgKTLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727784AbgKTLD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:03:57 -0500
+        id S1728148AbgKTLFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29491206E3;
-        Fri, 20 Nov 2020 11:03:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA12422255;
+        Fri, 20 Nov 2020 11:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870236;
-        bh=wQz/dAefaNVNwr0CsGIoG0cz/aQDXoiZTfq2pfURcAM=;
+        s=korg; t=1605870319;
+        bh=m6ZFw1C6vwDc7iXqLj1qDZdUW2q7DcqpcX2t3kPxVwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4p8dwP3ATLIJhr7ciCGzjeQzr5LsyqNY1f+jF5OXRfjIgUZBel4LPMkXj9FKJVe8
-         U3x8DRHS40ZnEm3iCXkEIvtVyAdoIBCSLxMXk16ipSSfBMNmFxRk1Wvc6AY4fCEz84
-         WK+ktYpGl3wohDfGHM0l8cBgdZfcJvoM0H2Kb5iw=
+        b=NOQl/B9dL1b/FnfBdm2FNiUdDsJt46shLDvwl1PqXomkF6iAtBahF4HTmN4No/Oaj
+         05n/MjwwBwH97lHqhAoUa+os4w5ZtePNSf+seRJ0lzHIBpo8C18bk9/96rLyASCA5p
+         9q/g9ABlvcf4eYPhZHlVYgZGeDsKkh8vJ1AghNUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 14/15] mac80211: always wind down STA state
-Date:   Fri, 20 Nov 2020 12:03:12 +0100
-Message-Id: <20201120104540.261565597@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net
+Subject: [PATCH 4.14 02/17] powerpc/64s: move some exception handlers out of line
+Date:   Fri, 20 Nov 2020 12:03:13 +0100
+Message-Id: <20201120104540.530368843@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
-References: <20201120104539.534424264@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Daniel Axtens <dja@axtens.net>
 
-commit dcd479e10a0510522a5d88b29b8f79ea3467d501 upstream.
+(backport only)
 
-When (for example) an IBSS station is pre-moved to AUTHORIZED
-before it's inserted, and then the insertion fails, we don't
-clean up the fast RX/TX states that might already have been
-created, since we don't go through all the state transitions
-again on the way down.
+We're about to grow the exception handlers, which will make a bunch of them
+no longer fit within the space available. We move them out of line.
 
-Do that, if it hasn't been done already, when the station is
-freed. I considered only freeing the fast TX/RX state there,
-but we might add more state so it's more robust to wind down
-the state properly.
+This is a fiddly and error-prone business, so in the interests of reviewability
+I haven't merged this in with the addition of the entry flush.
 
-Note that we warn if the station was ever inserted, it should
-have been properly cleaned up in that case, and the driver
-will probably not like things happening out of order.
-
-Reported-by: syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20201009141710.7223b322a955.I95bd08b9ad0e039c034927cce0b75beea38e059b@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/mac80211/sta_info.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/powerpc/kernel/exceptions-64s.S |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -242,6 +242,24 @@ struct sta_info *sta_info_get_by_idx(str
-  */
- void sta_info_free(struct ieee80211_local *local, struct sta_info *sta)
- {
-+	/*
-+	 * If we had used sta_info_pre_move_state() then we might not
-+	 * have gone through the state transitions down again, so do
-+	 * it here now (and warn if it's inserted).
-+	 *
-+	 * This will clear state such as fast TX/RX that may have been
-+	 * allocated during state transitions.
-+	 */
-+	while (sta->sta_state > IEEE80211_STA_NONE) {
-+		int ret;
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -516,13 +516,16 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
+ EXC_REAL_BEGIN(data_access_slb, 0x380, 0x80)
+ 	SET_SCRATCH0(r13)
+ 	EXCEPTION_PROLOG_0(PACA_EXSLB)
++	b tramp_data_access_slb
++EXC_REAL_END(data_access_slb, 0x380, 0x80)
 +
-+		WARN_ON_ONCE(test_sta_flag(sta, WLAN_STA_INSERTED));
-+
-+		ret = sta_info_move_state(sta, sta->sta_state - 1);
-+		if (WARN_ONCE(ret, "sta_info_move_state() returned %d\n", ret))
-+			break;
-+	}
-+
- 	if (sta->rate_ctrl)
- 		rate_control_free_sta(sta);
++TRAMP_REAL_BEGIN(tramp_data_access_slb)
+ 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x380)
+ 	mr	r12,r3	/* save r3 */
+ 	mfspr	r3,SPRN_DAR
+ 	mfspr	r11,SPRN_SRR1
+ 	crset	4*cr6+eq
+ 	BRANCH_TO_COMMON(r10, slb_miss_common)
+-EXC_REAL_END(data_access_slb, 0x380, 0x80)
  
+ EXC_VIRT_BEGIN(data_access_slb, 0x4380, 0x80)
+ 	SET_SCRATCH0(r13)
+@@ -560,13 +563,16 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
+ EXC_REAL_BEGIN(instruction_access_slb, 0x480, 0x80)
+ 	SET_SCRATCH0(r13)
+ 	EXCEPTION_PROLOG_0(PACA_EXSLB)
++	b tramp_instruction_access_slb
++EXC_REAL_END(instruction_access_slb, 0x480, 0x80)
++
++TRAMP_REAL_BEGIN(tramp_instruction_access_slb)
+ 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x480)
+ 	mr	r12,r3	/* save r3 */
+ 	mfspr	r3,SPRN_SRR0		/* SRR0 is faulting address */
+ 	mfspr	r11,SPRN_SRR1
+ 	crclr	4*cr6+eq
+ 	BRANCH_TO_COMMON(r10, slb_miss_common)
+-EXC_REAL_END(instruction_access_slb, 0x480, 0x80)
+ 
+ EXC_VIRT_BEGIN(instruction_access_slb, 0x4480, 0x80)
+ 	SET_SCRATCH0(r13)
 
 
