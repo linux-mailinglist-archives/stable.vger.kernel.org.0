@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF852BA89F
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45ECA2BA8B1
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728417AbgKTLGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:06:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54460 "EHLO mail.kernel.org"
+        id S1728254AbgKTLFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728410AbgKTLGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:06:36 -0500
+        id S1728251AbgKTLFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA85A2408E;
-        Fri, 20 Nov 2020 11:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03847206E3;
+        Fri, 20 Nov 2020 11:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870394;
-        bh=miRzaqvneAnB3APqiUeOQwDQeHSheeVnH82k7rytGxY=;
+        s=korg; t=1605870345;
+        bh=OFN24E43YJvgaH4jHFbBy/LxYpvbUaHvyiPjFyTyebU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQKu/b2SbbGhJopPVWcV2zwMhYmL5jnjsq73jev+Pf/b4HwO+fhvO1+xpc37DnWKW
-         nJh3Yi+sqA4ps3Nqu3ZGx7TbiUW8eK5Xb5/MPfZj1u+IHnvyZJCgSNbvOQzjjsrq+f
-         LCQw+X9WNu9EDpS3La3cQzGyYbNv6MK/DJtJ9XUc=
+        b=iyuYSPlHYNrBvzXK8eWKO+Gc4E50E838BfbgTPSxeeOgs42ouMYWpyb4iRE6eLQtr
+         m8TkVkYfy3PC6kxzsR1pKbvrxnIpvY8mwm3j/NrbcouOGqMNAeIA43nb923XUlOVQe
+         GFMU4zD/pBu9RnPBXOYzBknwE3YuHTTV0FI71sw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Spoorthy S <spoorts2@in.ibm.com>,
-        Russell Currey <ruscur@russell.cc>
-Subject: [PATCH 5.4 01/17] selftests/powerpc: rfi_flush: disable entry flush if present
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 17/17] ACPI: GED: fix -Wformat
 Date:   Fri, 20 Nov 2020 12:03:28 +0100
-Message-Id: <20201120104541.136752834@linuxfoundation.org>
+Message-Id: <20201120104541.268753844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104541.058449969@linuxfoundation.org>
-References: <20201120104541.058449969@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,101 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit fcb48454c23c5679d1a2e252f127642e91b05cbe upstream.
+commit 9debfb81e7654fe7388a49f45bc4d789b94c1103 upstream.
 
-We are about to add an entry flush. The rfi (exit) flush test measures
-the number of L1D flushes over a syscall with the RFI flush enabled and
-disabled. But if the entry flush is also enabled, the effect of enabling
-and disabling the RFI flush is masked.
+Clang is more aggressive about -Wformat warnings when the format flag
+specifies a type smaller than the parameter. It turns out that gsi is an
+int. Fixes:
 
-If there is a debugfs entry for the entry flush, disable it during the RFI
-flush and restore it later.
+drivers/acpi/evged.c:105:48: warning: format specifies type 'unsigned
+char' but the argument has type 'unsigned int' [-Wformat]
+trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
+                                            ^~~
 
-Reported-by: Spoorthy S <spoorts2@in.ibm.com>
-Signed-off-by: Russell Currey <ruscur@russell.cc>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Fixes: ea6f3af4c5e6 ("ACPI: GED: add support for _Exx / _Lxx handler methods")
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/powerpc/security/rfi_flush.c |   35 +++++++++++++++----
- 1 file changed, 29 insertions(+), 6 deletions(-)
 
---- a/tools/testing/selftests/powerpc/security/rfi_flush.c
-+++ b/tools/testing/selftests/powerpc/security/rfi_flush.c
-@@ -50,16 +50,30 @@ int rfi_flush_test(void)
- 	__u64 l1d_misses_total = 0;
- 	unsigned long iterations = 100000, zero_size = 24 * 1024;
- 	unsigned long l1d_misses_expected;
--	int rfi_flush_org, rfi_flush;
-+	int rfi_flush_orig, rfi_flush;
-+	int have_entry_flush, entry_flush_orig;
+---
+ drivers/acpi/evged.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/acpi/evged.c
++++ b/drivers/acpi/evged.c
+@@ -104,7 +104,7 @@ static acpi_status acpi_ged_request_inte
  
- 	SKIP_IF(geteuid() != 0);
+ 	switch (gsi) {
+ 	case 0 ... 255:
+-		sprintf(ev_name, "_%c%02hhX",
++		sprintf(ev_name, "_%c%02X",
+ 			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
  
--	if (read_debugfs_file("powerpc/rfi_flush", &rfi_flush_org)) {
-+	if (read_debugfs_file("powerpc/rfi_flush", &rfi_flush_orig) < 0) {
- 		perror("Unable to read powerpc/rfi_flush debugfs file");
- 		SKIP_IF(1);
- 	}
- 
--	rfi_flush = rfi_flush_org;
-+	if (read_debugfs_file("powerpc/entry_flush", &entry_flush_orig) < 0) {
-+		have_entry_flush = 0;
-+	} else {
-+		have_entry_flush = 1;
-+
-+		if (entry_flush_orig != 0) {
-+			if (write_debugfs_file("powerpc/entry_flush", 0) < 0) {
-+				perror("error writing to powerpc/entry_flush debugfs file");
-+				return 1;
-+			}
-+		}
-+	}
-+
-+	rfi_flush = rfi_flush_orig;
- 
- 	fd = perf_event_open_counter(PERF_TYPE_RAW, /* L1d miss */ 0x400f0, -1);
- 	FAIL_IF(fd < 0);
-@@ -68,6 +82,7 @@ int rfi_flush_test(void)
- 
- 	FAIL_IF(perf_event_enable(fd));
- 
-+	// disable L1 prefetching
- 	set_dscr(1);
- 
- 	iter = repetitions;
-@@ -109,8 +124,8 @@ again:
- 		       repetitions * l1d_misses_expected / 2,
- 		       passes, repetitions);
- 
--	if (rfi_flush == rfi_flush_org) {
--		rfi_flush = !rfi_flush_org;
-+	if (rfi_flush == rfi_flush_orig) {
-+		rfi_flush = !rfi_flush_orig;
- 		if (write_debugfs_file("powerpc/rfi_flush", rfi_flush) < 0) {
- 			perror("error writing to powerpc/rfi_flush debugfs file");
- 			return 1;
-@@ -126,11 +141,19 @@ again:
- 
- 	set_dscr(0);
- 
--	if (write_debugfs_file("powerpc/rfi_flush", rfi_flush_org) < 0) {
-+	if (write_debugfs_file("powerpc/rfi_flush", rfi_flush_orig) < 0) {
- 		perror("unable to restore original value of powerpc/rfi_flush debugfs file");
- 		return 1;
- 	}
- 
-+	if (have_entry_flush) {
-+		if (write_debugfs_file("powerpc/entry_flush", entry_flush_orig) < 0) {
-+			perror("unable to restore original value of powerpc/entry_flush "
-+			       "debugfs file");
-+			return 1;
-+		}
-+	}
-+
- 	return rc;
- }
- 
+ 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
 
 
