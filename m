@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C97862BA831
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DAA2BA7F0
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728106AbgKTLFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:05:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52966 "EHLO mail.kernel.org"
+        id S1727657AbgKTLDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:03:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728148AbgKTLFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:20 -0500
+        id S1725789AbgKTLDf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:03:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA12422255;
-        Fri, 20 Nov 2020 11:05:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C00522255;
+        Fri, 20 Nov 2020 11:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870319;
-        bh=m6ZFw1C6vwDc7iXqLj1qDZdUW2q7DcqpcX2t3kPxVwo=;
+        s=korg; t=1605870214;
+        bh=03Y/u/tnlP5eaLfzaq6Vle9auOAVXrvWtwUEtN7JWxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOQl/B9dL1b/FnfBdm2FNiUdDsJt46shLDvwl1PqXomkF6iAtBahF4HTmN4No/Oaj
-         05n/MjwwBwH97lHqhAoUa+os4w5ZtePNSf+seRJ0lzHIBpo8C18bk9/96rLyASCA5p
-         9q/g9ABlvcf4eYPhZHlVYgZGeDsKkh8vJ1AghNUk=
+        b=bZuKDbknSIn0DYfpQam6k67QGoO3xR+QhUtfTSKhusw3xn1rDJEsmZJ5lvKipxXDp
+         S0S+lvXNdqDblDdp12iQVUEiD9OnfuvYeaEHqesAI6T30oXQy8CtO5SFZzjOElJ6lz
+         qJXT/O2+p9Bd9n0xSe8kV56lksNpbMF+rE7B/KAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net
-Subject: [PATCH 4.14 02/17] powerpc/64s: move some exception handlers out of line
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        David Edmondson <david.edmondson@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 15/15] KVM: x86: clflushopt should be treated as a no-op by emulation
 Date:   Fri, 20 Nov 2020 12:03:13 +0100
-Message-Id: <20201120104540.530368843@linuxfoundation.org>
+Message-Id: <20201120104540.311014155@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
-References: <20201120104540.414709708@linuxfoundation.org>
+In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
+References: <20201120104539.534424264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: David Edmondson <david.edmondson@oracle.com>
 
-(backport only)
+commit 51b958e5aeb1e18c00332e0b37c5d4e95a3eff84 upstream.
 
-We're about to grow the exception handlers, which will make a bunch of them
-no longer fit within the space available. We move them out of line.
+The instruction emulator ignores clflush instructions, yet fails to
+support clflushopt. Treat both similarly.
 
-This is a fiddly and error-prone business, so in the interests of reviewability
-I haven't merged this in with the addition of the entry flush.
-
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Fixes: 13e457e0eebf ("KVM: x86: Emulator does not decode clflush well")
+Signed-off-by: David Edmondson <david.edmondson@oracle.com>
+Message-Id: <20201103120400.240882-1-david.edmondson@oracle.com>
+Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/kernel/exceptions-64s.S |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -516,13 +516,16 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
- EXC_REAL_BEGIN(data_access_slb, 0x380, 0x80)
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
-+	b tramp_data_access_slb
-+EXC_REAL_END(data_access_slb, 0x380, 0x80)
-+
-+TRAMP_REAL_BEGIN(tramp_data_access_slb)
- 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x380)
- 	mr	r12,r3	/* save r3 */
- 	mfspr	r3,SPRN_DAR
- 	mfspr	r11,SPRN_SRR1
- 	crset	4*cr6+eq
- 	BRANCH_TO_COMMON(r10, slb_miss_common)
--EXC_REAL_END(data_access_slb, 0x380, 0x80)
+---
+ arch/x86/kvm/emulate.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -3922,6 +3922,12 @@ static int em_clflush(struct x86_emulate
+ 	return X86EMUL_CONTINUE;
+ }
  
- EXC_VIRT_BEGIN(data_access_slb, 0x4380, 0x80)
- 	SET_SCRATCH0(r13)
-@@ -560,13 +563,16 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
- EXC_REAL_BEGIN(instruction_access_slb, 0x480, 0x80)
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
-+	b tramp_instruction_access_slb
-+EXC_REAL_END(instruction_access_slb, 0x480, 0x80)
++static int em_clflushopt(struct x86_emulate_ctxt *ctxt)
++{
++	/* emulating clflushopt regardless of cpuid */
++	return X86EMUL_CONTINUE;
++}
 +
-+TRAMP_REAL_BEGIN(tramp_instruction_access_slb)
- 	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x480)
- 	mr	r12,r3	/* save r3 */
- 	mfspr	r3,SPRN_SRR0		/* SRR0 is faulting address */
- 	mfspr	r11,SPRN_SRR1
- 	crclr	4*cr6+eq
- 	BRANCH_TO_COMMON(r10, slb_miss_common)
--EXC_REAL_END(instruction_access_slb, 0x480, 0x80)
+ static int em_movsxd(struct x86_emulate_ctxt *ctxt)
+ {
+ 	ctxt->dst.val = (s32) ctxt->src.val;
+@@ -4411,7 +4417,7 @@ static const struct opcode group11[] = {
+ };
  
- EXC_VIRT_BEGIN(instruction_access_slb, 0x4480, 0x80)
- 	SET_SCRATCH0(r13)
+ static const struct gprefix pfx_0f_ae_7 = {
+-	I(SrcMem | ByteOp, em_clflush), N, N, N,
++	I(SrcMem | ByteOp, em_clflush), I(SrcMem | ByteOp, em_clflushopt), N, N,
+ };
+ 
+ static const struct group_dual group15 = { {
 
 
