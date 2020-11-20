@@ -2,118 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF0C2BB1CC
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 18:54:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF412BB2F8
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 19:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728934AbgKTRwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 12:52:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728933AbgKTRwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 12:52:23 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A56C0613CF
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 09:52:23 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id 34so7895034pgp.10
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 09:52:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version;
-        bh=pVdeI1sYIriKSKU0FAfSE1onJx9VqHW2QxdMQfohHlE=;
-        b=S6cwSJFWciVZJ/O4DHvzItNqZhYkCFL9lFZO7Qs64qtIAqATlt0VYH86pyz+tW3WBq
-         CclLKbfZPizwx0HhcjbDfpWC97MMxpUQ8ixhUUKywAXQlX76kzf3RN8wFoTCCJrDv2vT
-         lthKMxELdfxmMAoSU9+tLj90ajl3rZJyy8sXg4ikj6V3RljjwtP9SUoAZevsMGj1KPq9
-         UnJKIPmI0pOXI5g/WHJ6BCtRartbfrzpGWziVVQQOBD8kR9buf87mqfbtmdqjkKbMrcM
-         3qsw2pqxv8DrVC6Xo6ydCJF96zlD0OVww/Q81mL2RoEM/rRRSH/nNZtzl7ZROo2kMmOc
-         d1NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version;
-        bh=pVdeI1sYIriKSKU0FAfSE1onJx9VqHW2QxdMQfohHlE=;
-        b=qbHrxpxP4A52lkoOuZVXkif4ZkXXEn8I/zXzB+pKHU1R31jwV19gHmhAg7OuZJvGUW
-         9dJAuBseGaH7CoX7wCUNKPIns0zKiVeUNDUtk5/wyTidpR9UCwVrLxj6aYcnTHJu5GZc
-         1FFKNnIhTTzxWSpDMeGbT1GoK63EMBK9dd+Y8v0wPpm+UuwKIPHq+SI4gcmTArs+mvKK
-         EV5byheX6LgdhzDI5TBtgzZQ7RIuVz/huSNT3v1zBh8eSOukmj+5pTJ7zh0ZQcIpWIlZ
-         5Ui1e77Dz0k4bHG1iLAvC08tWUppn34N2QSmuxUEAv4atkO7855GWcq2D5atTkEOp5K/
-         I1FQ==
-X-Gm-Message-State: AOAM532c6ERrY9ka+FGCAV8kszqlMVdlVqXGdWd9fdQ4i/iVsWUPoB4c
-        dB8OqNJX7dwVbW8mXgn6ITDyTg==
-X-Google-Smtp-Source: ABdhPJzScsu1nZ3ZInsLfW7bstHlr8/e/Q73vdfsiyNhdbmilFHXACO2L6p3BApzBa44g/4Bp+HceA==
-X-Received: by 2002:a17:90a:fed:: with SMTP id 100mr12040112pjz.65.1605894743044;
-        Fri, 20 Nov 2020 09:52:23 -0800 (PST)
-Received: from debian ([171.49.186.209])
-        by smtp.gmail.com with ESMTPSA id 138sm4131039pfy.88.2020.11.20.09.52.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2020 09:52:22 -0800 (PST)
-Message-ID: <37c1365302a6c05e3d1fa6dd17d39e9eb71f932d.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.9 00/14] 5.9.10-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Date:   Fri, 20 Nov 2020 23:22:17 +0530
-In-Reply-To: <20201120104541.168007611@linuxfoundation.org>
-References: <20201120104541.168007611@linuxfoundation.org>
-Content-Type: multipart/mixed; boundary="=-jhvfZqZ6WQlWS8Jd5dOF"
-User-Agent: Evolution 3.36.4-2 
+        id S1730342AbgKTS2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 13:28:16 -0500
+Received: from mga01.intel.com ([192.55.52.88]:57252 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730287AbgKTS2P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 13:28:15 -0500
+IronPort-SDR: F+k0hQ3dsst/wqsO7JAQCCr9rQPZlsZS5qlpfj8oj4CfgQ6tMIlr6S35lSfPEOUlVvE4lW9DpN
+ 7uXVn6C4dAGw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9811"; a="189624492"
+X-IronPort-AV: E=Sophos;i="5.78,357,1599548400"; 
+   d="scan'208";a="189624492"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2020 10:28:15 -0800
+IronPort-SDR: Q3O3PelUozvsAwIsLFJYjoqAZ32eFUGMGUXFsA35UKca4UytL7TZE2ZjiqIY+zm6Ca0zAHCpU7
+ zSy6CR7/Whsg==
+X-IronPort-AV: E=Sophos;i="5.78,357,1599548400"; 
+   d="scan'208";a="369251032"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2020 10:28:14 -0800
+Subject: [PATCH] libnvdimm/namespace: Fix reaping of invalidated
+ block-window-namespace labels
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>, linux-kernel@vger.kernel.org
+Date:   Fri, 20 Nov 2020 10:28:14 -0800
+Message-ID: <160589689452.3253830.10997437402431159372.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A recent change to ndctl to attempt to reconfigure namespaces in place
+uncovered a label accounting problem in block-window-type namespaces.
+The ndctl "create.sh" test is able to trigger this signature:
 
---=-jhvfZqZ6WQlWS8Jd5dOF
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+ WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ Call Trace:
+  uuid_store+0x21b/0x2f0 [libnvdimm]
+  kernfs_fop_write+0xcf/0x1c0
+  vfs_write+0xcc/0x380
+  ksys_write+0x68/0xe0
 
-On Fri, 2020-11-20 at 12:03 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.9.10 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied,
-> please
-> let me know.
-> 
-> Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	
-> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> stable-rc.git linux-5.9.y
-> and the diffstat can be found below.
-> 
-hello,
+When allocated capacity for a namespace is renamed (new UUID) the labels
+with the old UUID need to be deleted. The ndctl behavior to always
+destroy namespaces on reconfiguration hid this problem.
 
-Compiled and booted 5.9.10-rc1+. No issues with "dmesg -l err"
-But "dmesg -l warn" shows something.
+The immediate impact of this bug is limited since block-window-type
+namespaces only seem to exist in the specification and not in any
+shipping products. However, the label handling code is being reused for
+other technologies like CXL region labels, so there is a benefit to
+making sure both vertical labels sets (block-window) and horizontal
+label sets (pmem) have a functional reference implementation in
+libnvdimm.
 
-file dmesg-warn-nov-20-2020-portion.txt  is attached
+Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
+Cc: <stable@vger.kernel.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/nvdimm/label.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-
---
-software engineer
-rajagiri school of engineering and technology - autonomous
-
-
-
---=-jhvfZqZ6WQlWS8Jd5dOF
-Content-Disposition: attachment; filename="dmesg-warn-nov-20-2020-portion.txt"
-Content-Type: text/plain; name="dmesg-warn-nov-20-2020-portion.txt"; charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-WyAxMTM1Ljc1ODE2NV0gcGNpZXBvcnQgMDAwMDowMDoxYy41OiBQQ0llIEJ1cyBFcnJvcjogc2V2
-ZXJpdHk9Q29ycmVjdGVkLCB0eXBlPURhdGEgTGluayBMYXllciwgKFRyYW5zbWl0dGVyIElEKQpb
-IDExMzUuNzU4MTc0XSBwY2llcG9ydCAwMDAwOjAwOjFjLjU6ICAgZGV2aWNlIFs4MDg2OjlkMTVd
-IGVycm9yIHN0YXR1cy9tYXNrPTAwMDAxMDAwLzAwMDAyMDAwClsgMTEzNS43NTgxODNdIHBjaWVw
-b3J0IDAwMDA6MDA6MWMuNTogICAgWzEyXSBUaW1lb3V0ICAgICAgICAgICAgICAgCg==
-
-
---=-jhvfZqZ6WQlWS8Jd5dOF--
+diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
+index 47a4828b8b31..6f2be7a34598 100644
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -980,6 +980,15 @@ static int __blk_label_update(struct nd_region *nd_region,
+ 		}
+ 	}
+ 
++	/* release slots associated with any invalidated UUIDs */
++	mutex_lock(&nd_mapping->lock);
++	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
++		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
++			reap_victim(nd_mapping, label_ent);
++			list_move(&label_ent->list, &list);
++		}
++	mutex_unlock(&nd_mapping->lock);
++
+ 	/*
+ 	 * Find the resource associated with the first label in the set
+ 	 * per the v1.2 namespace specification.
 
