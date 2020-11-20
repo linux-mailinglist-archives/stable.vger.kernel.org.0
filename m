@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B24E2BA8AD
+	by mail.lfdr.de (Postfix) with ESMTP id 0D9BC2BA8AC
 	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728160AbgKTLFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:05:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52998 "EHLO mail.kernel.org"
+        id S1728036AbgKTLEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:04:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728148AbgKTLFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:23 -0500
+        id S1728031AbgKTLEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:04:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8966922264;
-        Fri, 20 Nov 2020 11:05:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B68B2236F;
+        Fri, 20 Nov 2020 11:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870322;
-        bh=vksW7/Qq4I0H/UWU4/l4MyTDIt7aF6pF8MibK9ILeIs=;
+        s=korg; t=1605870285;
+        bh=uZP5PO/o0bTiMJkMMZ9aGNNs5w+4eUQLtZYBwDLUAVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLFc1t6h5EITeTjFPCqQaX1Z/vk9W2KmZjgRNl27wZNVty2yXVcSCW1RumMH1ZZiD
-         TMVheOk8JEmX2jvrkgzpAnhChcFNDDQubbULZDZKjv5nzuWL9dnkXmImg6yclX0Yri
-         dKMzZVo0iVECkM8tHyoOs1NacPfsjRgFwxluMWZM=
+        b=Z//6eD64mvnAWHnqScatzt46mykDwIhxitCuKJHuQUjVa7mC+/xrREBVUxJmW3KYk
+         W2LKBLYYnghdF2bwtvf/GSncxnu6U9nwBW3lvEOPsfykKV3fCPBOTs62poEFPMUMKb
+         GF14C8Ctv4X8VhQreBnymoNLrTBt2BoxTwl308VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH 4.14 03/17] powerpc/64s: flush L1D on kernel entry
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 09/16] i2c: imx: use clk notifier for rate changes
 Date:   Fri, 20 Nov 2020 12:03:14 +0100
-Message-Id: <20201120104540.582430921@linuxfoundation.org>
+Message-Id: <20201120104540.189421521@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
-References: <20201120104540.414709708@linuxfoundation.org>
+In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
+References: <20201120104539.706905067@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,454 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit f79643787e0a0762d2409b7b8334e83f22d85695 upstream.
+commit 90ad2cbe88c22d0215225ab9594eeead0eb24fde upstream
 
-IBM Power9 processors can speculatively operate on data in the L1 cache before
-it has been completely validated, via a way-prediction mechanism. It is not possible
-for an attacker to determine the contents of impermissible memory using this method,
-since these systems implement a combination of hardware and software security measures
-to prevent scenarios where protected data could be leaked.
+Instead of repeatedly calling clk_get_rate for each transfer, register
+a clock notifier to update the cached divider value each time the clock
+rate actually changes.
 
-However these measures don't address the scenario where an attacker induces
-the operating system to speculatively execute instructions using data that the
-attacker controls. This can be used for example to speculatively bypass "kernel
-user access prevention" techniques, as discovered by Anthony Steinhauser of
-Google's Safeside Project. This is not an attack by itself, but there is a possibility
-it could be used in conjunction with side-channels or other weaknesses in the
-privileged code to construct an attack.
-
-This issue can be mitigated by flushing the L1 cache between privilege boundaries
-of concern. This patch flushes the L1 cache on kernel entry.
-
-This is part of the fix for CVE-2020-4788.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |    3 +
- arch/powerpc/include/asm/exception-64s.h        |    9 +++
- arch/powerpc/include/asm/feature-fixups.h       |   10 ++++
- arch/powerpc/include/asm/security_features.h    |    4 +
- arch/powerpc/include/asm/setup.h                |    3 +
- arch/powerpc/kernel/exceptions-64s.S            |   47 ++++++++++++++++--
- arch/powerpc/kernel/setup_64.c                  |   60 +++++++++++++++++++++++-
- arch/powerpc/kernel/vmlinux.lds.S               |    7 ++
- arch/powerpc/lib/feature-fixups.c               |   54 +++++++++++++++++++++
- arch/powerpc/platforms/powernv/setup.c          |   11 ++++
- arch/powerpc/platforms/pseries/setup.c          |    4 +
- 11 files changed, 205 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-imx.c |   32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2446,6 +2446,7 @@
- 					       mds=off [X86]
- 					       tsx_async_abort=off [X86]
- 					       kvm.nx_huge_pages=off [X86]
-+					       no_entry_flush [PPC]
- 
- 				Exceptions:
- 					       This does not have any effect on
-@@ -2749,6 +2750,8 @@
- 
- 	noefi		Disable EFI runtime services support.
- 
-+	no_entry_flush  [PPC] Don't flush the L1-D cache when entering the kernel.
-+
- 	noexec		[IA-64]
- 
- 	noexec		[X86]
---- a/arch/powerpc/include/asm/exception-64s.h
-+++ b/arch/powerpc/include/asm/exception-64s.h
-@@ -84,11 +84,18 @@
- 	nop;								\
- 	nop
- 
-+#define ENTRY_FLUSH_SLOT						\
-+	ENTRY_FLUSH_FIXUP_SECTION;					\
-+	nop;								\
-+	nop;								\
-+	nop;
-+
- /*
-  * r10 must be free to use, r13 must be paca
-  */
- #define INTERRUPT_TO_KERNEL						\
--	STF_ENTRY_BARRIER_SLOT
-+	STF_ENTRY_BARRIER_SLOT;						\
-+	ENTRY_FLUSH_SLOT
- 
- /*
-  * Macros for annotating the expected destination of (h)rfid
---- a/arch/powerpc/include/asm/feature-fixups.h
-+++ b/arch/powerpc/include/asm/feature-fixups.h
-@@ -203,6 +203,14 @@ label##3:					       	\
- 	FTR_ENTRY_OFFSET 955b-956b;			\
- 	.popsection;
- 
-+#define ENTRY_FLUSH_FIXUP_SECTION			\
-+957:							\
-+	.pushsection __entry_flush_fixup,"a";		\
-+	.align 2;					\
-+958:							\
-+	FTR_ENTRY_OFFSET 957b-958b;			\
-+	.popsection;
-+
- #define RFI_FLUSH_FIXUP_SECTION				\
- 951:							\
- 	.pushsection __rfi_flush_fixup,"a";		\
-@@ -235,8 +243,10 @@ label##3:					       	\
- #include <linux/types.h>
- 
- extern long stf_barrier_fallback;
-+extern long entry_flush_fallback;
- extern long __start___stf_entry_barrier_fixup, __stop___stf_entry_barrier_fixup;
- extern long __start___stf_exit_barrier_fixup, __stop___stf_exit_barrier_fixup;
-+extern long __start___entry_flush_fixup, __stop___entry_flush_fixup;
- extern long __start___rfi_flush_fixup, __stop___rfi_flush_fixup;
- extern long __start___barrier_nospec_fixup, __stop___barrier_nospec_fixup;
- extern long __start__btb_flush_fixup, __stop__btb_flush_fixup;
---- a/arch/powerpc/include/asm/security_features.h
-+++ b/arch/powerpc/include/asm/security_features.h
-@@ -84,12 +84,16 @@ static inline bool security_ftr_enabled(
- // Software required to flush link stack on context switch
- #define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
- 
-+// The L1-D cache should be flushed when entering the kernel
-+#define SEC_FTR_L1D_FLUSH_ENTRY		0x0000000000004000ull
-+
- 
- // Features enabled by default
- #define SEC_FTR_DEFAULT \
- 	(SEC_FTR_L1D_FLUSH_HV | \
- 	 SEC_FTR_L1D_FLUSH_PR | \
- 	 SEC_FTR_BNDS_CHK_SPEC_BAR | \
-+	 SEC_FTR_L1D_FLUSH_ENTRY | \
- 	 SEC_FTR_FAVOUR_SECURITY)
- 
- #endif /* _ASM_POWERPC_SECURITY_FEATURES_H */
---- a/arch/powerpc/include/asm/setup.h
-+++ b/arch/powerpc/include/asm/setup.h
-@@ -51,12 +51,15 @@ enum l1d_flush_type {
- };
- 
- void setup_rfi_flush(enum l1d_flush_type, bool enable);
-+void setup_entry_flush(bool enable);
-+void setup_uaccess_flush(bool enable);
- void do_rfi_flush_fixups(enum l1d_flush_type types);
- #ifdef CONFIG_PPC_BARRIER_NOSPEC
- void setup_barrier_nospec(void);
- #else
- static inline void setup_barrier_nospec(void) { };
- #endif
-+void do_entry_flush_fixups(enum l1d_flush_type types);
- void do_barrier_nospec_fixups(bool enable);
- extern bool barrier_nospec_enabled;
- 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -484,7 +484,7 @@ EXC_COMMON_BEGIN(unrecover_mce)
- 	b	1b
- 
- 
--EXC_REAL(data_access, 0x300, 0x80)
-+EXC_REAL_OOL(data_access, 0x300, 0x80)
- EXC_VIRT(data_access, 0x4300, 0x80, 0x300)
- TRAMP_KVM_SKIP(PACA_EXGEN, 0x300)
- 
-@@ -540,7 +540,7 @@ EXC_VIRT_END(data_access_slb, 0x4380, 0x
- TRAMP_KVM_SKIP(PACA_EXSLB, 0x380)
- 
- 
--EXC_REAL(instruction_access, 0x400, 0x80)
-+EXC_REAL_OOL(instruction_access, 0x400, 0x80)
- EXC_VIRT(instruction_access, 0x4400, 0x80, 0x400)
- TRAMP_KVM(PACA_EXGEN, 0x400)
- 
-@@ -836,13 +836,13 @@ END_FTR_SECTION_IFSET(CPU_FTR_TM)
- 
- 
- EXC_REAL_OOL_MASKABLE(decrementer, 0x900, 0x80)
--EXC_VIRT_MASKABLE(decrementer, 0x4900, 0x80, 0x900)
-+EXC_VIRT_OOL_MASKABLE(decrementer, 0x4900, 0x80, 0x900)
- TRAMP_KVM(PACA_EXGEN, 0x900)
- EXC_COMMON_ASYNC(decrementer_common, 0x900, timer_interrupt)
- 
- 
--EXC_REAL_HV(hdecrementer, 0x980, 0x80)
--EXC_VIRT_HV(hdecrementer, 0x4980, 0x80, 0x980)
-+EXC_REAL_OOL_HV(hdecrementer, 0x980, 0x80)
-+EXC_VIRT_OOL_HV(hdecrementer, 0x4980, 0x80, 0x980)
- TRAMP_KVM_HV(PACA_EXGEN, 0x980)
- EXC_COMMON(hdecrementer_common, 0x980, hdec_interrupt)
- 
-@@ -1459,6 +1459,43 @@ TRAMP_REAL_BEGIN(stf_barrier_fallback)
- 	.endr
- 	blr
- 
-+TRAMP_REAL_BEGIN(entry_flush_fallback)
-+	std	r9,PACA_EXRFI+EX_R9(r13)
-+	std	r10,PACA_EXRFI+EX_R10(r13)
-+	std	r11,PACA_EXRFI+EX_R11(r13)
-+	mfctr	r9
-+	ld	r10,PACA_RFI_FLUSH_FALLBACK_AREA(r13)
-+	ld	r11,PACA_L1D_FLUSH_SIZE(r13)
-+	srdi	r11,r11,(7 + 3) /* 128 byte lines, unrolled 8x */
-+	mtctr	r11
-+	DCBT_STOP_ALL_STREAM_IDS(r11) /* Stop prefetch streams */
-+
-+	/* order ld/st prior to dcbt stop all streams with flushing */
-+	sync
-+
-+	/*
-+	 * The load addresses are at staggered offsets within cachelines,
-+	 * which suits some pipelines better (on others it should not
-+	 * hurt).
-+	 */
-+1:
-+	ld	r11,(0x80 + 8)*0(r10)
-+	ld	r11,(0x80 + 8)*1(r10)
-+	ld	r11,(0x80 + 8)*2(r10)
-+	ld	r11,(0x80 + 8)*3(r10)
-+	ld	r11,(0x80 + 8)*4(r10)
-+	ld	r11,(0x80 + 8)*5(r10)
-+	ld	r11,(0x80 + 8)*6(r10)
-+	ld	r11,(0x80 + 8)*7(r10)
-+	addi	r10,r10,0x80*8
-+	bdnz	1b
-+
-+	mtctr	r9
-+	ld	r9,PACA_EXRFI+EX_R9(r13)
-+	ld	r10,PACA_EXRFI+EX_R10(r13)
-+	ld	r11,PACA_EXRFI+EX_R11(r13)
-+	blr
-+
- TRAMP_REAL_BEGIN(rfi_flush_fallback)
- 	SET_SCRATCH0(r13);
- 	GET_PACA(r13);
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -792,7 +792,9 @@ early_initcall(disable_hardlockup_detect
- static enum l1d_flush_type enabled_flush_types;
- static void *l1d_flush_fallback_area;
- static bool no_rfi_flush;
-+static bool no_entry_flush;
- bool rfi_flush;
-+bool entry_flush;
- 
- static int __init handle_no_rfi_flush(char *p)
- {
-@@ -802,6 +804,14 @@ static int __init handle_no_rfi_flush(ch
- }
- early_param("no_rfi_flush", handle_no_rfi_flush);
- 
-+static int __init handle_no_entry_flush(char *p)
-+{
-+	pr_info("entry-flush: disabled on command line.");
-+	no_entry_flush = true;
-+	return 0;
-+}
-+early_param("no_entry_flush", handle_no_entry_flush);
-+
- /*
-  * The RFI flush is not KPTI, but because users will see doco that says to use
-  * nopti we hijack that option here to also disable the RFI flush.
-@@ -833,6 +843,18 @@ void rfi_flush_enable(bool enable)
- 	rfi_flush = enable;
- }
- 
-+void entry_flush_enable(bool enable)
-+{
-+	if (enable) {
-+		do_entry_flush_fixups(enabled_flush_types);
-+		on_each_cpu(do_nothing, NULL, 1);
-+	} else {
-+		do_entry_flush_fixups(L1D_FLUSH_NONE);
-+	}
-+
-+	entry_flush = enable;
-+}
-+
- static void __ref init_fallback_flush(void)
- {
- 	u64 l1d_size, limit;
-@@ -874,10 +896,19 @@ void setup_rfi_flush(enum l1d_flush_type
- 
- 	enabled_flush_types = types;
- 
--	if (!no_rfi_flush && !cpu_mitigations_off())
-+	if (!cpu_mitigations_off() && !no_rfi_flush)
- 		rfi_flush_enable(enable);
- }
- 
-+void setup_entry_flush(bool enable)
-+{
-+	if (cpu_mitigations_off())
-+		return;
-+
-+	if (!no_entry_flush)
-+		entry_flush_enable(enable);
-+}
-+
- #ifdef CONFIG_DEBUG_FS
- static int rfi_flush_set(void *data, u64 val)
- {
-@@ -905,9 +936,36 @@ static int rfi_flush_get(void *data, u64
- 
- DEFINE_SIMPLE_ATTRIBUTE(fops_rfi_flush, rfi_flush_get, rfi_flush_set, "%llu\n");
- 
-+static int entry_flush_set(void *data, u64 val)
-+{
-+	bool enable;
-+
-+	if (val == 1)
-+		enable = true;
-+	else if (val == 0)
-+		enable = false;
-+	else
-+		return -EINVAL;
-+
-+	/* Only do anything if we're changing state */
-+	if (enable != entry_flush)
-+		entry_flush_enable(enable);
-+
-+	return 0;
-+}
-+
-+static int entry_flush_get(void *data, u64 *val)
-+{
-+	*val = entry_flush ? 1 : 0;
-+	return 0;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_entry_flush, entry_flush_get, entry_flush_set, "%llu\n");
-+
- static __init int rfi_flush_debugfs_init(void)
- {
- 	debugfs_create_file("rfi_flush", 0600, powerpc_debugfs_root, NULL, &fops_rfi_flush);
-+	debugfs_create_file("entry_flush", 0600, powerpc_debugfs_root, NULL, &fops_entry_flush);
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -194,6 +194,7 @@ struct imx_i2c_dma {
+ struct imx_i2c_struct {
+ 	struct i2c_adapter	adapter;
+ 	struct clk		*clk;
++	struct notifier_block	clk_change_nb;
+ 	void __iomem		*base;
+ 	wait_queue_head_t	queue;
+ 	unsigned long		i2csr;
+@@ -468,15 +469,14 @@ static int i2c_imx_acked(struct imx_i2c_
  	return 0;
  }
- device_initcall(rfi_flush_debugfs_init);
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -141,6 +141,13 @@ SECTIONS
- 	}
  
- 	. = ALIGN(8);
-+	__entry_flush_fixup : AT(ADDR(__entry_flush_fixup) - LOAD_OFFSET) {
-+		__start___entry_flush_fixup = .;
-+		*(__entry_flush_fixup)
-+		__stop___entry_flush_fixup = .;
-+	}
-+
-+	. = ALIGN(8);
- 	__stf_exit_barrier_fixup : AT(ADDR(__stf_exit_barrier_fixup) - LOAD_OFFSET) {
- 		__start___stf_exit_barrier_fixup = .;
- 		*(__stf_exit_barrier_fixup)
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -232,6 +232,60 @@ void do_stf_barrier_fixups(enum stf_barr
- 	do_stf_exit_barrier_fixups(types);
+-static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx)
++static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
++			    unsigned int i2c_clk_rate)
+ {
+ 	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+-	unsigned int i2c_clk_rate;
+ 	unsigned int div;
+ 	int i;
+ 
+ 	/* Divider value calculation */
+-	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+ 	if (i2c_imx->cur_clk == i2c_clk_rate)
+ 		return;
+ 
+@@ -511,6 +511,20 @@ static void i2c_imx_set_clk(struct imx_i
+ #endif
  }
  
-+void do_entry_flush_fixups(enum l1d_flush_type types)
++static int i2c_imx_clk_notifier_call(struct notifier_block *nb,
++				     unsigned long action, void *data)
 +{
-+	unsigned int instrs[3], *dest;
-+	long *start, *end;
-+	int i;
++	struct clk_notifier_data *ndata = data;
++	struct imx_i2c_struct *i2c_imx = container_of(&ndata->clk,
++						      struct imx_i2c_struct,
++						      clk);
 +
-+	start = PTRRELOC(&__start___entry_flush_fixup);
-+	end = PTRRELOC(&__stop___entry_flush_fixup);
++	if (action & POST_RATE_CHANGE)
++		i2c_imx_set_clk(i2c_imx, ndata->new_rate);
 +
-+	instrs[0] = 0x60000000; /* nop */
-+	instrs[1] = 0x60000000; /* nop */
-+	instrs[2] = 0x60000000; /* nop */
-+
-+	i = 0;
-+	if (types == L1D_FLUSH_FALLBACK) {
-+		instrs[i++] = 0x7d4802a6; /* mflr r10		*/
-+		instrs[i++] = 0x60000000; /* branch patched below */
-+		instrs[i++] = 0x7d4803a6; /* mtlr r10		*/
-+	}
-+
-+	if (types & L1D_FLUSH_ORI) {
-+		instrs[i++] = 0x63ff0000; /* ori 31,31,0 speculation barrier */
-+		instrs[i++] = 0x63de0000; /* ori 30,30,0 L1d flush*/
-+	}
-+
-+	if (types & L1D_FLUSH_MTTRIG)
-+		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
-+
-+	for (i = 0; start < end; start++, i++) {
-+		dest = (void *)start + *start;
-+
-+		pr_devel("patching dest %lx\n", (unsigned long)dest);
-+
-+		patch_instruction(dest, instrs[0]);
-+
-+		if (types == L1D_FLUSH_FALLBACK)
-+			patch_branch((dest + 1), (unsigned long)&entry_flush_fallback,
-+				     BRANCH_SET_LINK);
-+		else
-+			patch_instruction((dest + 1), instrs[1]);
-+
-+		patch_instruction((dest + 2), instrs[2]);
-+	}
-+
-+	printk(KERN_DEBUG "entry-flush: patched %d locations (%s flush)\n", i,
-+		(types == L1D_FLUSH_NONE)       ? "no" :
-+		(types == L1D_FLUSH_FALLBACK)   ? "fallback displacement" :
-+		(types &  L1D_FLUSH_ORI)        ? (types & L1D_FLUSH_MTTRIG)
-+							? "ori+mttrig type"
-+							: "ori type" :
-+		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
-+						: "unknown");
++	return NOTIFY_OK;
 +}
 +
- void do_rfi_flush_fixups(enum l1d_flush_type types)
+ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
  {
- 	unsigned int instrs[3], *dest;
---- a/arch/powerpc/platforms/powernv/setup.c
-+++ b/arch/powerpc/platforms/powernv/setup.c
-@@ -124,12 +124,23 @@ static void pnv_setup_rfi_flush(void)
- 			type = L1D_FLUSH_ORI;
- 	}
+ 	unsigned int temp = 0;
+@@ -518,8 +532,6 @@ static int i2c_imx_start(struct imx_i2c_
  
-+	/*
-+	 * If we are non-Power9 bare metal, we don't need to flush on kernel
-+	 * entry: it fixes a P9 specific vulnerability.
-+	 */
-+	if (!pvr_version_is(PVR_POWER9))
-+		security_ftr_clear(SEC_FTR_L1D_FLUSH_ENTRY);
-+
- 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) && \
- 		 (security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR)   || \
- 		  security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV));
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
  
- 	setup_rfi_flush(type, enable);
- 	setup_count_cache_flush();
-+
-+	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
-+		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
-+	setup_entry_flush(enable);
- }
+-	i2c_imx_set_clk(i2c_imx);
+-
+ 	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+ 	/* Enable I2C controller */
+ 	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+@@ -1131,6 +1143,9 @@ static int i2c_imx_probe(struct platform
+ 				   "clock-frequency", &i2c_imx->bitrate);
+ 	if (ret < 0 && pdata && pdata->bitrate)
+ 		i2c_imx->bitrate = pdata->bitrate;
++	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
++	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
  
- static void __init pnv_setup_arch(void)
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -544,6 +544,10 @@ void pseries_setup_rfi_flush(void)
+ 	/* Set up chip registers to defaults */
+ 	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+@@ -1141,12 +1156,12 @@ static int i2c_imx_probe(struct platform
+ 	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+ 	/* Give it another chance if pinctrl used is not ready yet */
+ 	if (ret == -EPROBE_DEFER)
+-		goto rpm_disable;
++		goto clk_notifier_unregister;
  
- 	setup_rfi_flush(types, enable);
- 	setup_count_cache_flush();
-+
-+	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
-+		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
-+	setup_entry_flush(enable);
- }
+ 	/* Add I2C adapter */
+ 	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+ 	if (ret < 0)
+-		goto rpm_disable;
++		goto clk_notifier_unregister;
  
- static void __init pSeries_setup_arch(void)
+ 	pm_runtime_mark_last_busy(&pdev->dev);
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+@@ -1162,6 +1177,8 @@ static int i2c_imx_probe(struct platform
+ 
+ 	return 0;   /* Return OK */
+ 
++clk_notifier_unregister:
++	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ rpm_disable:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+@@ -1195,6 +1212,7 @@ static int i2c_imx_remove(struct platfor
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+ 
++	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 
+ 	pm_runtime_put_noidle(&pdev->dev);
 
 
