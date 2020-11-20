@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4C62BA7E5
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 854192BA7E7
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbgKTLDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50430 "EHLO mail.kernel.org"
+        id S1725952AbgKTLDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:03:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725789AbgKTLDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:03:21 -0500
+        id S1725789AbgKTLDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:03:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3DA3206E3;
-        Fri, 20 Nov 2020 11:03:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A67CE206E3;
+        Fri, 20 Nov 2020 11:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870200;
-        bh=j80G1CmC5IA2HvZlRbmXBMsft86w8eemJb0r1ujRnwU=;
+        s=korg; t=1605870203;
+        bh=bfCjx8stzRu5VXLaTz4gn4YzXYSCGT5wTa0kQZaokj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGHB+UWFZBfpo4BT6eDpoF9lCr3gaI9aZjcOOzAc/Iz9q1J9rwogDPRm3F62YsVgV
-         8z94EORhGVYTbsUcpxUxgp64SPZYdQT/gpAiGzDPkMd+sK/J5zi1w+xrYSSjPQy5ff
-         82C0cGjTgmnXpMUTJdcPwNUy7MFx302lDWACBbS0=
+        b=LEaVdh1RZNebc02sqXvNAve4aN0JC/5tF4IsaBXpNepEYJo2IC8SkuV3P4qyT7yqM
+         stkIbhsTNh9x1lqqHGL+v/1IC4jwk/tJFf55PH9Y0jKeyHIinUFL1qOkGn37DEnCP/
+         E7iyD0pk58EerjxKRbDiLLqd+tw1MyRRSQeKjZAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net
-Subject: [PATCH 4.4 02/15] powerpc/64s: move some exception handlers out of line
-Date:   Fri, 20 Nov 2020 12:03:00 +0100
-Message-Id: <20201120104539.660642010@linuxfoundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
+        Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH 4.4 03/15] powerpc/64s: flush L1D on kernel entry
+Date:   Fri, 20 Nov 2020 12:03:01 +0100
+Message-Id: <20201120104539.710799974@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
 References: <20201120104539.534424264@linuxfoundation.org>
@@ -40,222 +41,414 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-(backport only)
+commit f79643787e0a0762d2409b7b8334e83f22d85695 upstream.
 
-We're about to grow the exception handlers, which will make a bunch of them
-no longer fit within the space available. We move them out of line.
+IBM Power9 processors can speculatively operate on data in the L1 cache before
+it has been completely validated, via a way-prediction mechanism. It is not possible
+for an attacker to determine the contents of impermissible memory using this method,
+since these systems implement a combination of hardware and software security measures
+to prevent scenarios where protected data could be leaked.
 
-This is a fiddly and error-prone business, so in the interests of reviewability
-I haven't merged this in with the addition of the entry flush.
+However these measures don't address the scenario where an attacker induces
+the operating system to speculatively execute instructions using data that the
+attacker controls. This can be used for example to speculatively bypass "kernel
+user access prevention" techniques, as discovered by Anthony Steinhauser of
+Google's Safeside Project. This is not an attack by itself, but there is a possibility
+it could be used in conjunction with side-channels or other weaknesses in the
+privileged code to construct an attack.
 
+This issue can be mitigated by flushing the L1 cache between privilege boundaries
+of concern. This patch flushes the L1 cache on kernel entry.
+
+This is part of the fix for CVE-2020-4788.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S |  138 ++++++++++++++++++++++-------------
- 1 file changed, 90 insertions(+), 48 deletions(-)
+ Documentation/kernel-parameters.txt          |    3 +
+ arch/powerpc/include/asm/exception-64s.h     |    9 +++-
+ arch/powerpc/include/asm/feature-fixups.h    |   10 ++++
+ arch/powerpc/include/asm/security_features.h |    4 +
+ arch/powerpc/include/asm/setup.h             |    3 +
+ arch/powerpc/kernel/exceptions-64s.S         |   38 +++++++++++++++++
+ arch/powerpc/kernel/setup_64.c               |   58 +++++++++++++++++++++++++++
+ arch/powerpc/kernel/vmlinux.lds.S            |    7 +++
+ arch/powerpc/lib/feature-fixups.c            |   54 +++++++++++++++++++++++++
+ arch/powerpc/platforms/powernv/setup.c       |   10 ++++
+ arch/powerpc/platforms/pseries/setup.c       |    4 +
+ 11 files changed, 199 insertions(+), 1 deletion(-)
 
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2196,6 +2196,7 @@ bytes respectively. Such letter suffixes
+ 					       spec_store_bypass_disable=off [X86]
+ 					       mds=off [X86]
+ 					       tsx_async_abort=off [X86]
++					       no_entry_flush [PPC]
+ 
+ 			auto (default)
+ 				Mitigate all CPU vulnerabilities, but leave SMT
+@@ -2476,6 +2477,8 @@ bytes respectively. Such letter suffixes
+ 
+ 	noefi		Disable EFI runtime services support.
+ 
++	no_entry_flush	[PPC] Don't flush the L1-D cache when entering the kernel.
++
+ 	noexec		[IA-64]
+ 
+ 	noexec		[X86]
+--- a/arch/powerpc/include/asm/exception-64s.h
++++ b/arch/powerpc/include/asm/exception-64s.h
+@@ -65,11 +65,18 @@
+ 	nop;								\
+ 	nop
+ 
++#define ENTRY_FLUSH_SLOT						\
++	ENTRY_FLUSH_FIXUP_SECTION;					\
++	nop;								\
++	nop;								\
++	nop;
++
+ /*
+  * r10 must be free to use, r13 must be paca
+  */
+ #define INTERRUPT_TO_KERNEL						\
+-	STF_ENTRY_BARRIER_SLOT
++	STF_ENTRY_BARRIER_SLOT;						\
++	ENTRY_FLUSH_SLOT
+ 
+ /*
+  * Macros for annotating the expected destination of (h)rfid
+--- a/arch/powerpc/include/asm/feature-fixups.h
++++ b/arch/powerpc/include/asm/feature-fixups.h
+@@ -200,6 +200,14 @@ label##3:					       	\
+ 	FTR_ENTRY_OFFSET 955b-956b;			\
+ 	.popsection;
+ 
++#define ENTRY_FLUSH_FIXUP_SECTION			\
++957:							\
++	.pushsection __entry_flush_fixup,"a";		\
++	.align 2;					\
++958:							\
++	FTR_ENTRY_OFFSET 957b-958b;			\
++	.popsection;
++
+ #define RFI_FLUSH_FIXUP_SECTION				\
+ 951:							\
+ 	.pushsection __rfi_flush_fixup,"a";		\
+@@ -231,8 +239,10 @@ label##3:					       	\
+ #ifndef __ASSEMBLY__
+ 
+ extern long stf_barrier_fallback;
++extern long entry_flush_fallback;
+ extern long __start___stf_entry_barrier_fixup, __stop___stf_entry_barrier_fixup;
+ extern long __start___stf_exit_barrier_fixup, __stop___stf_exit_barrier_fixup;
++extern long __start___entry_flush_fixup, __stop___entry_flush_fixup;
+ extern long __start___rfi_flush_fixup, __stop___rfi_flush_fixup;
+ extern long __start___barrier_nospec_fixup, __stop___barrier_nospec_fixup;
+ extern long __start__btb_flush_fixup, __stop__btb_flush_fixup;
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -84,12 +84,16 @@ static inline bool security_ftr_enabled(
+ // Software required to flush link stack on context switch
+ #define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
+ 
++// The L1-D cache should be flushed when entering the kernel
++#define SEC_FTR_L1D_FLUSH_ENTRY		0x0000000000004000ull
++
+ 
+ // Features enabled by default
+ #define SEC_FTR_DEFAULT \
+ 	(SEC_FTR_L1D_FLUSH_HV | \
+ 	 SEC_FTR_L1D_FLUSH_PR | \
+ 	 SEC_FTR_BNDS_CHK_SPEC_BAR | \
++	 SEC_FTR_L1D_FLUSH_ENTRY | \
+ 	 SEC_FTR_FAVOUR_SECURITY)
+ 
+ #endif /* _ASM_POWERPC_SECURITY_FEATURES_H */
+--- a/arch/powerpc/include/asm/setup.h
++++ b/arch/powerpc/include/asm/setup.h
+@@ -38,12 +38,15 @@ enum l1d_flush_type {
+ };
+ 
+ void setup_rfi_flush(enum l1d_flush_type, bool enable);
++void setup_entry_flush(bool enable);
++void setup_uaccess_flush(bool enable);
+ void do_rfi_flush_fixups(enum l1d_flush_type types);
+ #ifdef CONFIG_PPC_BARRIER_NOSPEC
+ void setup_barrier_nospec(void);
+ #else
+ static inline void setup_barrier_nospec(void) { };
+ #endif
++void do_entry_flush_fixups(enum l1d_flush_type types);
+ void do_barrier_nospec_fixups(bool enable);
+ extern bool barrier_nospec_enabled;
+ 
 --- a/arch/powerpc/kernel/exceptions-64s.S
 +++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -202,8 +202,8 @@ ALT_FTR_SECTION_END_IFSET(CPU_FTR_HVMODE
- data_access_pSeries:
- 	HMT_MEDIUM_PPR_DISCARD
- 	SET_SCRATCH0(r13)
--	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, data_access_common, EXC_STD,
--				 KVMTEST, 0x300)
-+	EXCEPTION_PROLOG_0(PACA_EXGEN)
-+	b data_access_pSeries_ool
+@@ -1712,6 +1712,44 @@ hrfi_flush_fallback:
+ 	GET_SCRATCH0(r13);
+ 	hrfid
  
- 	. = 0x380
- 	.globl data_access_slb_pSeries
-@@ -211,31 +211,15 @@ data_access_slb_pSeries:
- 	HMT_MEDIUM_PPR_DISCARD
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
--	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST, 0x380)
--	std	r3,PACA_EXSLB+EX_R3(r13)
--	mfspr	r3,SPRN_DAR
--#ifdef __DISABLED__
--	/* Keep that around for when we re-implement dynamic VSIDs */
--	cmpdi	r3,0
--	bge	slb_miss_user_pseries
--#endif /* __DISABLED__ */
--	mfspr	r12,SPRN_SRR1
--#ifndef CONFIG_RELOCATABLE
--	b	slb_miss_realmode
--#else
--	/*
--	 * We can't just use a direct branch to slb_miss_realmode
--	 * because the distance from here to there depends on where
--	 * the kernel ends up being put.
--	 */
--	mfctr	r11
--	ld	r10,PACAKBASE(r13)
--	LOAD_HANDLER(r10, slb_miss_realmode)
--	mtctr	r10
--	bctr
--#endif
-+	b data_access_slb_pSeries_ool
- 
--	STD_EXCEPTION_PSERIES(0x400, 0x400, instruction_access)
-+	. = 0x400
-+	.globl instruction_access_pSeries
-+instruction_access_pSeries:
-+	HMT_MEDIUM_PPR_DISCARD
-+	SET_SCRATCH0(r13)
-+	EXCEPTION_PROLOG_0(PACA_EXGEN)
-+	b instruction_access_pSeries_ool
- 
- 	. = 0x480
- 	.globl instruction_access_slb_pSeries
-@@ -243,24 +227,7 @@ instruction_access_slb_pSeries:
- 	HMT_MEDIUM_PPR_DISCARD
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXSLB)
--	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x480)
--	std	r3,PACA_EXSLB+EX_R3(r13)
--	mfspr	r3,SPRN_SRR0		/* SRR0 is faulting address */
--#ifdef __DISABLED__
--	/* Keep that around for when we re-implement dynamic VSIDs */
--	cmpdi	r3,0
--	bge	slb_miss_user_pseries
--#endif /* __DISABLED__ */
--	mfspr	r12,SPRN_SRR1
--#ifndef CONFIG_RELOCATABLE
--	b	slb_miss_realmode
--#else
--	mfctr	r11
--	ld	r10,PACAKBASE(r13)
--	LOAD_HANDLER(r10, slb_miss_realmode)
--	mtctr	r10
--	bctr
--#endif
-+	b instruction_access_slb_pSeries_ool
- 
- 	/* We open code these as we can't have a ". = x" (even with
- 	 * x = "." within a feature section
-@@ -291,13 +258,19 @@ hardware_interrupt_hv:
- 	KVM_HANDLER_PR(PACA_EXGEN, EXC_STD, 0x800)
- 
- 	. = 0x900
--	.globl decrementer_pSeries
--decrementer_pSeries:
-+	.globl decrementer_trampoline
-+decrementer_trampoline:
- 	SET_SCRATCH0(r13)
- 	EXCEPTION_PROLOG_0(PACA_EXGEN)
- 	b	decrementer_ool
- 
--	STD_EXCEPTION_HV(0x980, 0x982, hdecrementer)
-+	. = 0x980
-+	.globl hdecrementer_trampoline
-+hdecrementer_trampoline:
-+	HMT_MEDIUM_PPR_DISCARD;
-+	SET_SCRATCH0(r13);
-+	EXCEPTION_PROLOG_0(PACA_EXGEN)
-+	b hdecrementer_hv
- 
- 	MASKABLE_EXCEPTION_PSERIES(0xa00, 0xa00, doorbell_super)
- 	KVM_HANDLER_PR(PACA_EXGEN, EXC_STD, 0xa00)
-@@ -545,6 +518,64 @@ machine_check_pSeries_0:
- 	KVM_HANDLER_PR(PACA_EXGEN, EXC_STD, 0x900)
- 	KVM_HANDLER(PACA_EXGEN, EXC_HV, 0x982)
- 
-+/* moved from 0x300 */
-+	.globl data_access_pSeries_ool
-+data_access_pSeries_ool:
-+	EXCEPTION_PROLOG_1(PACA_EXGEN, KVMTEST, 0x300)
-+	EXCEPTION_PROLOG_PSERIES_1(data_access_common, EXC_STD)
++	.globl entry_flush_fallback
++entry_flush_fallback:
++	std	r9,PACA_EXRFI+EX_R9(r13)
++	std	r10,PACA_EXRFI+EX_R10(r13)
++	std	r11,PACA_EXRFI+EX_R11(r13)
++	mfctr	r9
++	ld	r10,PACA_RFI_FLUSH_FALLBACK_AREA(r13)
++	ld	r11,PACA_L1D_FLUSH_SIZE(r13)
++	srdi	r11,r11,(7 + 3) /* 128 byte lines, unrolled 8x */
++	mtctr	r11
++	DCBT_STOP_ALL_STREAM_IDS(r11) /* Stop prefetch streams */
 +
-+	.globl data_access_slb_pSeries_ool
-+data_access_slb_pSeries_ool:
-+	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST, 0x380)
-+	std	r3,PACA_EXSLB+EX_R3(r13)
-+	mfspr	r3,SPRN_DAR
-+#ifdef __DISABLED__
-+	/* Keep that around for when we re-implement dynamic VSIDs */
-+	cmpdi	r3,0
-+	bge	slb_miss_user_pseries
-+#endif /* __DISABLED__ */
-+	mfspr	r12,SPRN_SRR1
-+#ifndef CONFIG_RELOCATABLE
-+	b	slb_miss_realmode
-+#else
++	/* order ld/st prior to dcbt stop all streams with flushing */
++	sync
++
 +	/*
-+	 * We can't just use a direct branch to slb_miss_realmode
-+	 * because the distance from here to there depends on where
-+	 * the kernel ends up being put.
++	 * The load addresses are at staggered offsets within cachelines,
++	 * which suits some pipelines better (on others it should not
++	 * hurt).
 +	 */
-+	mfctr	r11
-+	ld	r10,PACAKBASE(r13)
-+	LOAD_HANDLER(r10, slb_miss_realmode)
-+	mtctr	r10
-+	bctr
-+#endif
++1:
++	ld	r11,(0x80 + 8)*0(r10)
++	ld	r11,(0x80 + 8)*1(r10)
++	ld	r11,(0x80 + 8)*2(r10)
++	ld	r11,(0x80 + 8)*3(r10)
++	ld	r11,(0x80 + 8)*4(r10)
++	ld	r11,(0x80 + 8)*5(r10)
++	ld	r11,(0x80 + 8)*6(r10)
++	ld	r11,(0x80 + 8)*7(r10)
++	addi	r10,r10,0x80*8
++	bdnz	1b
 +
-+	.globl instruction_access_pSeries_ool
-+instruction_access_pSeries_ool:
-+	EXCEPTION_PROLOG_1(PACA_EXGEN, KVMTEST_PR, 0x400)
-+	EXCEPTION_PROLOG_PSERIES_1(instruction_access_common, EXC_STD)
++	mtctr	r9
++	ld	r9,PACA_EXRFI+EX_R9(r13)
++	ld	r10,PACA_EXRFI+EX_R10(r13)
++	ld	r11,PACA_EXRFI+EX_R11(r13)
++	blr
 +
-+	.globl instruction_access_slb_pSeries_ool
-+instruction_access_slb_pSeries_ool:
-+	EXCEPTION_PROLOG_1(PACA_EXSLB, KVMTEST_PR, 0x480)
-+	std	r3,PACA_EXSLB+EX_R3(r13)
-+	mfspr	r3,SPRN_SRR0		/* SRR0 is faulting address */
-+#ifdef __DISABLED__
-+	/* Keep that around for when we re-implement dynamic VSIDs */
-+	cmpdi	r3,0
-+	bge	slb_miss_user_pseries
-+#endif /* __DISABLED__ */
-+	mfspr	r12,SPRN_SRR1
-+#ifndef CONFIG_RELOCATABLE
-+	b	slb_miss_realmode
-+#else
-+	mfctr	r11
-+	ld	r10,PACAKBASE(r13)
-+	LOAD_HANDLER(r10, slb_miss_realmode)
-+	mtctr	r10
-+	bctr
-+#endif
-+
- #ifdef CONFIG_PPC_DENORMALISATION
- denorm_assist:
- BEGIN_FTR_SECTION
-@@ -612,6 +643,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
- 	.align	7
- 	/* moved from 0xe00 */
- 	MASKABLE_EXCEPTION_OOL(0x900, decrementer)
-+	STD_EXCEPTION_HV_OOL(0x982, hdecrementer)
- 	STD_EXCEPTION_HV_OOL(0xe02, h_data_storage)
- 	KVM_HANDLER_SKIP(PACA_EXGEN, EXC_HV, 0xe02)
- 	STD_EXCEPTION_HV_OOL(0xe22, h_instr_storage)
-@@ -894,7 +926,15 @@ hardware_interrupt_relon_hv:
- 	STD_RELON_EXCEPTION_PSERIES(0x4600, 0x600, alignment)
- 	STD_RELON_EXCEPTION_PSERIES(0x4700, 0x700, program_check)
- 	STD_RELON_EXCEPTION_PSERIES(0x4800, 0x800, fp_unavailable)
--	MASKABLE_RELON_EXCEPTION_PSERIES(0x4900, 0x900, decrementer)
-+
-+	. = 0x4900
-+	.globl decrementer_relon_trampoline
-+decrementer_relon_trampoline:
-+	HMT_MEDIUM_PPR_DISCARD
-+	SET_SCRATCH0(r13)
-+	EXCEPTION_PROLOG_0(PACA_EXGEN)
-+	b decrementer_relon_pSeries
-+
- 	STD_RELON_EXCEPTION_HV(0x4980, 0x982, hdecrementer)
- 	MASKABLE_RELON_EXCEPTION_PSERIES(0x4a00, 0xa00, doorbell_super)
- 	STD_RELON_EXCEPTION_PSERIES(0x4b00, 0xb00, trap_0b)
-@@ -1244,6 +1284,8 @@ END_FTR_SECTION_IFSET(CPU_FTR_VSX)
- __end_handlers:
+ /*
+  * Hash table stuff
+  */
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -844,7 +844,9 @@ early_initcall(disable_hardlockup_detect
+ static enum l1d_flush_type enabled_flush_types;
+ static void *l1d_flush_fallback_area;
+ static bool no_rfi_flush;
++static bool no_entry_flush;
+ bool rfi_flush;
++bool entry_flush;
  
- 	/* Equivalents to the above handlers for relocation-on interrupt vectors */
-+	MASKABLE_RELON_EXCEPTION_PSERIES_OOL(0x900, decrementer)
-+
- 	STD_RELON_EXCEPTION_HV_OOL(0xe40, emulation_assist)
- 	MASKABLE_RELON_EXCEPTION_HV_OOL(0xe80, h_doorbell)
+ static int __init handle_no_rfi_flush(char *p)
+ {
+@@ -854,6 +856,14 @@ static int __init handle_no_rfi_flush(ch
+ }
+ early_param("no_rfi_flush", handle_no_rfi_flush);
  
++static int __init handle_no_entry_flush(char *p)
++{
++	pr_info("entry-flush: disabled on command line.");
++	no_entry_flush = true;
++	return 0;
++}
++early_param("no_entry_flush", handle_no_entry_flush);
++
+ /*
+  * The RFI flush is not KPTI, but because users will see doco that says to use
+  * nopti we hijack that option here to also disable the RFI flush.
+@@ -885,6 +895,18 @@ void rfi_flush_enable(bool enable)
+ 	rfi_flush = enable;
+ }
+ 
++void entry_flush_enable(bool enable)
++{
++	if (enable) {
++		do_entry_flush_fixups(enabled_flush_types);
++		on_each_cpu(do_nothing, NULL, 1);
++	} else {
++		do_entry_flush_fixups(L1D_FLUSH_NONE);
++	}
++
++	entry_flush = enable;
++}
++
+ static void __ref init_fallback_flush(void)
+ {
+ 	u64 l1d_size, limit;
+@@ -930,6 +952,15 @@ void setup_rfi_flush(enum l1d_flush_type
+ 		rfi_flush_enable(enable);
+ }
+ 
++void setup_entry_flush(bool enable)
++{
++	if (cpu_mitigations_off())
++		return;
++
++	if (!no_entry_flush)
++		entry_flush_enable(enable);
++}
++
+ #ifdef CONFIG_DEBUG_FS
+ static int rfi_flush_set(void *data, u64 val)
+ {
+@@ -957,9 +988,36 @@ static int rfi_flush_get(void *data, u64
+ 
+ DEFINE_SIMPLE_ATTRIBUTE(fops_rfi_flush, rfi_flush_get, rfi_flush_set, "%llu\n");
+ 
++static int entry_flush_set(void *data, u64 val)
++{
++	bool enable;
++
++	if (val == 1)
++		enable = true;
++	else if (val == 0)
++		enable = false;
++	else
++		return -EINVAL;
++
++	/* Only do anything if we're changing state */
++	if (enable != entry_flush)
++		entry_flush_enable(enable);
++
++	return 0;
++}
++
++static int entry_flush_get(void *data, u64 *val)
++{
++	*val = entry_flush ? 1 : 0;
++	return 0;
++}
++
++DEFINE_SIMPLE_ATTRIBUTE(fops_entry_flush, entry_flush_get, entry_flush_set, "%llu\n");
++
+ static __init int rfi_flush_debugfs_init(void)
+ {
+ 	debugfs_create_file("rfi_flush", 0600, powerpc_debugfs_root, NULL, &fops_rfi_flush);
++	debugfs_create_file("entry_flush", 0600, powerpc_debugfs_root, NULL, &fops_entry_flush);
+ 	return 0;
+ }
+ device_initcall(rfi_flush_debugfs_init);
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -81,6 +81,13 @@ SECTIONS
+ 	}
+ 
+ 	. = ALIGN(8);
++	__entry_flush_fixup : AT(ADDR(__entry_flush_fixup) - LOAD_OFFSET) {
++		__start___entry_flush_fixup = .;
++		*(__entry_flush_fixup)
++		__stop___entry_flush_fixup = .;
++	}
++
++	. = ALIGN(8);
+ 	__stf_exit_barrier_fixup : AT(ADDR(__stf_exit_barrier_fixup) - LOAD_OFFSET) {
+ 		__start___stf_exit_barrier_fixup = .;
+ 		*(__stf_exit_barrier_fixup)
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -229,6 +229,60 @@ void do_stf_barrier_fixups(enum stf_barr
+ 	do_stf_exit_barrier_fixups(types);
+ }
+ 
++void do_entry_flush_fixups(enum l1d_flush_type types)
++{
++	unsigned int instrs[3], *dest;
++	long *start, *end;
++	int i;
++
++	start = PTRRELOC(&__start___entry_flush_fixup);
++	end = PTRRELOC(&__stop___entry_flush_fixup);
++
++	instrs[0] = 0x60000000; /* nop */
++	instrs[1] = 0x60000000; /* nop */
++	instrs[2] = 0x60000000; /* nop */
++
++	i = 0;
++	if (types == L1D_FLUSH_FALLBACK) {
++		instrs[i++] = 0x7d4802a6; /* mflr r10		*/
++		instrs[i++] = 0x60000000; /* branch patched below */
++		instrs[i++] = 0x7d4803a6; /* mtlr r10		*/
++	}
++
++	if (types & L1D_FLUSH_ORI) {
++		instrs[i++] = 0x63ff0000; /* ori 31,31,0 speculation barrier */
++		instrs[i++] = 0x63de0000; /* ori 30,30,0 L1d flush*/
++	}
++
++	if (types & L1D_FLUSH_MTTRIG)
++		instrs[i++] = 0x7c12dba6; /* mtspr TRIG2,r0 (SPR #882) */
++
++	for (i = 0; start < end; start++, i++) {
++		dest = (void *)start + *start;
++
++		pr_devel("patching dest %lx\n", (unsigned long)dest);
++
++		patch_instruction(dest, instrs[0]);
++
++		if (types == L1D_FLUSH_FALLBACK)
++			patch_branch((dest + 1), (unsigned long)&entry_flush_fallback,
++				     BRANCH_SET_LINK);
++		else
++			patch_instruction((dest + 1), instrs[1]);
++
++		patch_instruction((dest + 2), instrs[2]);
++	}
++
++	printk(KERN_DEBUG "entry-flush: patched %d locations (%s flush)\n", i,
++		(types == L1D_FLUSH_NONE)       ? "no" :
++		(types == L1D_FLUSH_FALLBACK)   ? "fallback displacement" :
++		(types &  L1D_FLUSH_ORI)        ? (types & L1D_FLUSH_MTTRIG)
++							? "ori+mttrig type"
++							: "ori type" :
++		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
++						: "unknown");
++}
++
+ void do_rfi_flush_fixups(enum l1d_flush_type types)
+ {
+ 	unsigned int instrs[3], *dest;
+--- a/arch/powerpc/platforms/powernv/setup.c
++++ b/arch/powerpc/platforms/powernv/setup.c
+@@ -124,12 +124,22 @@ static void pnv_setup_rfi_flush(void)
+ 			type = L1D_FLUSH_ORI;
+ 	}
+ 
++	/*
++	 * 4.4 doesn't support Power9 bare metal, so we don't need to flush
++	 * here - the flush fixes a P9 specific vulnerability.
++	 */
++	security_ftr_clear(SEC_FTR_L1D_FLUSH_ENTRY);
++
+ 	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) && \
+ 		 (security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR)   || \
+ 		  security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV));
+ 
+ 	setup_rfi_flush(type, enable);
+ 	setup_count_cache_flush();
++
++	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
++		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
++	setup_entry_flush(enable);
+ }
+ 
+ static void __init pnv_setup_arch(void)
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -584,6 +584,10 @@ void pseries_setup_rfi_flush(void)
+ 
+ 	setup_rfi_flush(types, enable);
+ 	setup_count_cache_flush();
++
++	enable = security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) &&
++		 security_ftr_enabled(SEC_FTR_L1D_FLUSH_ENTRY);
++	setup_entry_flush(enable);
+ }
+ 
+ static void __init pSeries_setup_arch(void)
 
 
