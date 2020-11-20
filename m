@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A99122BA86E
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27B202BA89C
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728408AbgKTLHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:07:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
+        id S1728443AbgKTLJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:09:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728584AbgKTLHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:07:48 -0500
+        id S1728445AbgKTLGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:06:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11E7222255;
-        Fri, 20 Nov 2020 11:07:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40D792236F;
+        Fri, 20 Nov 2020 11:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870467;
-        bh=4vmCDo5Feohy25DsYOISnO1rV0AUL2cXqFvfb97ExBY=;
+        s=korg; t=1605870411;
+        bh=S64rmI05iX5oi/8hg3+BGqme9z9ceIDJUIXqWYB6Wgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6r0pz6/1MqZTp0gzDQnXVFGr5PjwJj3zbmoZ/H6YIUJnvJSFR3HdL8DptT+qxL6J
-         5rQlPJuGqvLXcvrNPgvgLHHL1KWqqNg8CflTD3tXpw9IFsEz9qqy42KXre2CCp2QZZ
-         efh3xrehS2vzH+syStcoUZn4+kCFdvzB4gV7N5E4=
+        b=LmKVLWTdG6SZMeq1Kilc2NiwslcgsEbXLyFCluFkQkR0ZyxaF5dq7VqDlFRx/cJuJ
+         IJWx/13uVQO0l1lXqk22u4OhMqSskWv5XKhJywEzdqRfDzbjFp614L/iXw6mOY4765
+         mfSNSRpSjE1Q6WhT6gGlrwjRhevGVa9jMVEuo7LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 04/14] powerpc: Only include kup-radix.h for 64-bit Book3S
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 15/17] can: proc: can_remove_proc(): silence remove_proc_entry warning
 Date:   Fri, 20 Nov 2020 12:03:42 +0100
-Message-Id: <20201120104541.388561008@linuxfoundation.org>
+Message-Id: <20201120104541.806260368@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104541.168007611@linuxfoundation.org>
-References: <20201120104541.168007611@linuxfoundation.org>
+In-Reply-To: <20201120104541.058449969@linuxfoundation.org>
+References: <20201120104541.058449969@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,112 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 178d52c6e89c38d0553b0ac8b99927b11eb995b0 upstream.
+commit 3accbfdc36130282f5ae9e6eecfdf820169fedce upstream.
 
-In kup.h we currently include kup-radix.h for all 64-bit builds, which
-includes Book3S and Book3E. The latter doesn't make sense, Book3E
-never uses the Radix MMU.
+If can_init_proc() fail to create /proc/net/can directory, can_remove_proc()
+will trigger a warning:
 
-This has worked up until now, but almost by accident, and the recent
-uaccess flush changes introduced a build breakage on Book3E because of
-the bad structure of the code.
+WARNING: CPU: 6 PID: 7133 at fs/proc/generic.c:672 remove_proc_entry+0x17b0
+Kernel panic - not syncing: panic_on_warn set ...
 
-So disentangle things so that we only use kup-radix.h for Book3S. This
-requires some more stubs in kup.h and fixing an include in
-syscall_64.c.
+Fix to return early from can_remove_proc() if can proc_dir does not exists.
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1594709090-3203-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: 8e8cda6d737d ("can: initial support for network namespaces")
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/book3s/64/kup-radix.h |    4 ++--
- arch/powerpc/include/asm/kup.h                 |   11 ++++++++---
- arch/powerpc/kernel/syscall_64.c               |    2 +-
- 3 files changed, 11 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-@@ -27,6 +27,7 @@
- #endif
- .endm
- 
-+#ifdef CONFIG_PPC_KUAP
- .macro kuap_check_amr gpr1, gpr2
- #ifdef CONFIG_PPC_KUAP_DEBUG
- 	BEGIN_MMU_FTR_SECTION_NESTED(67)
-@@ -38,6 +39,7 @@
- 	END_MMU_FTR_SECTION_NESTED_IFSET(MMU_FTR_RADIX_KUAP, 67)
- #endif
- .endm
-+#endif
- 
- .macro kuap_save_amr_and_lock gpr1, gpr2, use_cr, msr_pr_cr
- #ifdef CONFIG_PPC_KUAP
-@@ -148,8 +150,6 @@ static inline unsigned long kuap_get_and
- 	return 0UL;
- }
- 
--static inline void kuap_check_amr(void) { }
--
- static inline unsigned long get_kuap(void)
- {
- 	return AMR_KUAP_BLOCKED;
---- a/arch/powerpc/include/asm/kup.h
-+++ b/arch/powerpc/include/asm/kup.h
-@@ -14,7 +14,7 @@
- #define KUAP_CURRENT_WRITE	8
- #define KUAP_CURRENT		(KUAP_CURRENT_READ | KUAP_CURRENT_WRITE)
- 
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- #include <asm/book3s/64/kup-radix.h>
- #endif
- #ifdef CONFIG_PPC_8xx
-@@ -35,6 +35,9 @@
- .macro kuap_check	current, gpr
- .endm
- 
-+.macro kuap_check_amr	gpr1, gpr2
-+.endm
-+
- #endif
- 
- #else /* !__ASSEMBLY__ */
-@@ -60,19 +63,21 @@ bad_kuap_fault(struct pt_regs *regs, uns
- 	return false;
- }
- 
-+static inline void kuap_check_amr(void) { }
-+
- /*
-  * book3s/64/kup-radix.h defines these functions for the !KUAP case to flush
-  * the L1D cache after user accesses. Only include the empty stubs for other
-  * platforms.
+---
+ net/can/proc.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -471,6 +471,9 @@ void can_init_proc(struct net *net)
   */
--#ifndef CONFIG_PPC64
-+#ifndef CONFIG_PPC_BOOK3S_64
- static inline void allow_user_access(void __user *to, const void __user *from,
- 				     unsigned long size, unsigned long dir) { }
- static inline void prevent_user_access(void __user *to, const void __user *from,
- 				       unsigned long size, unsigned long dir) { }
- static inline unsigned long prevent_user_access_return(void) { return 0UL; }
- static inline void restore_user_access(unsigned long flags) { }
--#endif /* CONFIG_PPC64 */
-+#endif /* CONFIG_PPC_BOOK3S_64 */
- #endif /* CONFIG_PPC_KUAP */
+ void can_remove_proc(struct net *net)
+ {
++	if (!net->can.proc_dir)
++		return;
++
+ 	if (net->can.pde_version)
+ 		remove_proc_entry(CAN_PROC_VERSION, net->can.proc_dir);
  
- static inline void allow_read_from_user(const void __user *from, unsigned long size)
---- a/arch/powerpc/kernel/syscall_64.c
-+++ b/arch/powerpc/kernel/syscall_64.c
-@@ -2,7 +2,7 @@
+@@ -498,6 +501,5 @@ void can_remove_proc(struct net *net)
+ 	if (net->can.pde_rcvlist_sff)
+ 		remove_proc_entry(CAN_PROC_RCVLIST_SFF, net->can.proc_dir);
  
- #include <linux/err.h>
- #include <asm/asm-prototypes.h>
--#include <asm/book3s/64/kup-radix.h>
-+#include <asm/kup.h>
- #include <asm/cputime.h>
- #include <asm/hw_irq.h>
- #include <asm/kprobes.h>
+-	if (net->can.proc_dir)
+-		remove_proc_entry("can", net->proc_net);
++	remove_proc_entry("can", net->proc_net);
+ }
 
 
