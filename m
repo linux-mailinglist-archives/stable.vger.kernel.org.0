@@ -2,188 +2,296 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF792BAA41
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 13:34:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5779B2BAA49
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 13:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728171AbgKTMeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 07:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42450 "EHLO
+        id S1727943AbgKTMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 07:37:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727728AbgKTMeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 07:34:11 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A337C0613CF;
-        Fri, 20 Nov 2020 04:34:11 -0800 (PST)
-Date:   Fri, 20 Nov 2020 12:34:08 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1605875649;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6jLnTUfu5q7HFGMcvp9gG1DICGNnnjhFJ/HglxpNjIk=;
-        b=XYxZbx8aNirOJGDWuvhf+dR7KqCHeDhrx35HPbYVhVMCbSLMoNz45cYDcmlO7Ub1N4kTpZ
-        jRMYqWPFkWip9X229WBkpcnMLQVbKC/vgLNRRUftGMdIlI121MZ2XMHUdeB3ga2T1QOKSS
-        i3I7ttwpAwW9C+DIYFi6JATBXVfZJKmgLY1uIntoyzM18dxgaO5fDDoCex2uz0El4iC/ib
-        XlJQxT4BVUkO4bN77Ejaqp/dUYo7QBQuP5FDOY17KRFQBC9YUDlQorB6FwgHC72UgCTcoQ
-        HAKOmrlaz+tXk1FbHEw2pzGF6LkGgkX9g2WUvEVrQlzN05tPz0BfXgdE9OSnhw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1605875649;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6jLnTUfu5q7HFGMcvp9gG1DICGNnnjhFJ/HglxpNjIk=;
-        b=vhEY7q3J+2XcxyOBfuizQG6slQmYZJgm5tRnHxgFTC7XN+7jAD6Hsg6DSaSyCUr4fVQbEE
-        qo3HdvYIHKgQWSBQ==
-From:   "tip-bot2 for Daniel Jordan" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: sched/core] cpuset: fix race between hotplug work and later CPU offline
-Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20201112171711.639541-1-daniel.m.jordan@oracle.com>
-References: <20201112171711.639541-1-daniel.m.jordan@oracle.com>
-MIME-Version: 1.0
-Message-ID: <160587564863.11244.11496515259891440886.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        with ESMTP id S1727917AbgKTMhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 07:37:01 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6086AC0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:37:01 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id j19so7179068pgg.5
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:37:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AnN+AzmJj/x/BvLo3/yJsYFZnkQ05yyrIFNvBSLL1rQ=;
+        b=xDIMLhn7N3w62T1CK0ce9TaeuRI+7mRlFnWZDypqDsfkH2Ir+bNsSGjBF5K8sDmlfj
+         mNY4Z3SiBgNEFYXXDRY3zzfg846xWYCDrrbw4pJrRJiN1SJcD3npgsr1hSWv0CA12NIR
+         kDd3Y47uCCXNvVeIcAqFaQ2jCA7kfLnDMyxPtHyH3k+D/iiB+ujKTr3VSS9BCmQEySBt
+         tpEF4FK/4xI/Guy5dGTOhhU44/TsH7sx1AW4VkZBaYg1nnzD2pgkrQp3ODT+rV/h8ITP
+         BtAl4rgUzihD/BTrAq/OElPJhXLRxaOxLM5lZtjWS9M36EgdbVCkKuMb8k5KF/ogs4Bo
+         JYTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AnN+AzmJj/x/BvLo3/yJsYFZnkQ05yyrIFNvBSLL1rQ=;
+        b=U6vuBRtWMvfEMhSTJ6opHV+jHb1hdF/tgjqkbeODgLFhsXaZP+Mfanam0BdkXqeDng
+         W6uscMZIilQHwceb6Yi+LwHLS0H2HbgVbyGuIR29EcKzabkuG9V6kWwzAwe3CO3Q2BO1
+         F5zjdGJ5zGSN9iGRjxcMnOpVZakkvswMZhGoVHTH3tP7wNE2OwXatIQvif6gkDS1QdyY
+         RcOVWl9m5XioIJbsc1iBwEexzQnOj8HL+EXBrHFtSbYbEXilkX0x6c0eiUnXIThatBE5
+         8ZTeVOdyowM2TkM8UbmplJibto8ck2KtR8wT8YSEWBStVtyJKXj+P5OnVHVMfu2PfX7Y
+         y2+A==
+X-Gm-Message-State: AOAM531eNbNWJQwaSsSrqK7TP04cnhu3JKH5J35386B/J+EVYNuD7Tiz
+        A72lD2dhMnnCNoOTqvcV2UCentAJf/oisQ==
+X-Google-Smtp-Source: ABdhPJy/IpVZdgafRIhK5FFUinnCHXEblnaSf/evvF/MuC38tfj4M5OhcSVidt7VinEenUOpSgBGZA==
+X-Received: by 2002:a17:90a:ca97:: with SMTP id y23mr9533370pjt.186.1605875820534;
+        Fri, 20 Nov 2020 04:37:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i11sm3958541pjl.53.2020.11.20.04.36.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2020 04:36:59 -0800 (PST)
+Message-ID: <5fb7b86b.1c69fb81.74838.73d2@mx.google.com>
+Date:   Fri, 20 Nov 2020 04:36:59 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.78
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 174 runs, 6 regressions (v5.4.78)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the sched/core branch of tip:
+stable-rc/linux-5.4.y baseline: 174 runs, 6 regressions (v5.4.78)
 
-Commit-ID:     406100f3da08066c00105165db8520bbc7694a36
-Gitweb:        https://git.kernel.org/tip/406100f3da08066c00105165db8520bbc7694a36
-Author:        Daniel Jordan <daniel.m.jordan@oracle.com>
-AuthorDate:    Thu, 12 Nov 2020 12:17:11 -05:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Thu, 19 Nov 2020 11:25:45 +01:00
+Regressions Summary
+-------------------
 
-cpuset: fix race between hotplug work and later CPU offline
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
 
-One of our machines keeled over trying to rebuild the scheduler domains.
-Mainline produces the same splat:
+hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-  BUG: unable to handle page fault for address: 0000607f820054db
-  CPU: 2 PID: 149 Comm: kworker/1:1 Not tainted 5.10.0-rc1-master+ #6
-  Workqueue: events cpuset_hotplug_workfn
-  RIP: build_sched_domains
-  Call Trace:
-   partition_sched_domains_locked
-   rebuild_sched_domains_locked
-   cpuset_hotplug_workfn
+qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
 
-It happens with cgroup2 and exclusive cpusets only.  This reproducer
-triggers it on an 8-cpu vm and works most effectively with no
-preexisting child cgroups:
+qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
 
-  cd $UNIFIED_ROOT
-  mkdir cg1
-  echo 4-7 > cg1/cpuset.cpus
-  echo root > cg1/cpuset.cpus.partition
+qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
 
-  # with smt/control reading 'on',
-  echo off > /sys/devices/system/cpu/smt/control
+stm32mp157c-dk2       | arm   | lab-baylibre  | gcc-8    | multi_v7_defconf=
+ig  | 1          =
 
-RIP maps to
 
-  sd->shared = *per_cpu_ptr(sdd->sds, sd_id);
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.78/plan/baseline/
 
-from sd_init().  sd_id is calculated earlier in the same function:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.78
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      315443293a2d0d7c183ca6dd4624d9e4f8a7054a =
 
-  cpumask_and(sched_domain_span(sd), cpu_map, tl->mask(cpu));
-  sd_id = cpumask_first(sched_domain_span(sd));
 
-tl->mask(cpu), which reads cpu_sibling_map on x86, returns an empty mask
-and so cpumask_first() returns >= nr_cpu_ids, which leads to the bogus
-value from per_cpu_ptr() above.
 
-The problem is a race between cpuset_hotplug_workfn() and a later
-offline of CPU N.  cpuset_hotplug_workfn() updates the effective masks
-when N is still online, the offline clears N from cpu_sibling_map, and
-then the worker uses the stale effective masks that still have N to
-generate the scheduling domains, leading the worker to read
-N's empty cpu_sibling_map in sd_init().
+Test Regressions
+---------------- =
 
-rebuild_sched_domains_locked() prevented the race during the cgroup2
-cpuset series up until the Fixes commit changed its check.  Make the
-check more robust so that it can detect an offline CPU in any exclusive
-cpuset's effective mask, not just the top one.
 
-Fixes: 0ccea8feb980 ("cpuset: Make generate_sched_domains() work with partition")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201112171711.639541-1-daniel.m.jordan@oracle.com
----
- kernel/cgroup/cpuset.c | 33 ++++++++++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 57b5b5d..53c70c4 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -983,25 +983,48 @@ partition_and_rebuild_sched_domains(int ndoms_new, cpumask_var_t doms_new[],
-  */
- static void rebuild_sched_domains_locked(void)
- {
-+	struct cgroup_subsys_state *pos_css;
- 	struct sched_domain_attr *attr;
- 	cpumask_var_t *doms;
-+	struct cpuset *cs;
- 	int ndoms;
- 
- 	lockdep_assert_cpus_held();
- 	percpu_rwsem_assert_held(&cpuset_rwsem);
- 
- 	/*
--	 * We have raced with CPU hotplug. Don't do anything to avoid
-+	 * If we have raced with CPU hotplug, return early to avoid
- 	 * passing doms with offlined cpu to partition_sched_domains().
--	 * Anyways, hotplug work item will rebuild sched domains.
-+	 * Anyways, cpuset_hotplug_workfn() will rebuild sched domains.
-+	 *
-+	 * With no CPUs in any subpartitions, top_cpuset's effective CPUs
-+	 * should be the same as the active CPUs, so checking only top_cpuset
-+	 * is enough to detect racing CPU offlines.
- 	 */
- 	if (!top_cpuset.nr_subparts_cpus &&
- 	    !cpumask_equal(top_cpuset.effective_cpus, cpu_active_mask))
- 		return;
- 
--	if (top_cpuset.nr_subparts_cpus &&
--	   !cpumask_subset(top_cpuset.effective_cpus, cpu_active_mask))
--		return;
-+	/*
-+	 * With subpartition CPUs, however, the effective CPUs of a partition
-+	 * root should be only a subset of the active CPUs.  Since a CPU in any
-+	 * partition root could be offlined, all must be checked.
-+	 */
-+	if (top_cpuset.nr_subparts_cpus) {
-+		rcu_read_lock();
-+		cpuset_for_each_descendant_pre(cs, pos_css, &top_cpuset) {
-+			if (!is_partition_root(cs)) {
-+				pos_css = css_rightmost_descendant(pos_css);
-+				continue;
-+			}
-+			if (!cpumask_subset(cs->effective_cpus,
-+					    cpu_active_mask)) {
-+				rcu_read_unlock();
-+				return;
-+			}
-+		}
-+		rcu_read_unlock();
-+	}
- 
- 	/* Generate domain masks and attrs */
- 	ndoms = generate_sched_domains(&doms, &attr);
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb784b1fe64a1fc31d8d924
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb784b1fe64a1fc31d8d=
+925
+        failing since 222 days (last pass: v5.4.30-54-g6f04e8ca5355, first =
+fail: v5.4.30-81-gf163418797b9) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb78412453b72f047d8d93b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb78412453b72f047d8d=
+93c
+        new failure (last pass: v5.4.77-152-ga3746663c3479) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7831a09b961680dd8d916
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7831a09b961680dd8d=
+917
+        failing since 5 days (last pass: v5.4.77-44-g28fe0e171c204, first f=
+ail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb783151b3c3b9fb9d8d929
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb783151b3c3b9fb9d8d=
+92a
+        failing since 5 days (last pass: v5.4.77-44-g28fe0e171c204, first f=
+ail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb78316ba231445e8d8d8ff
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb78316ba231445e8d8d=
+900
+        failing since 5 days (last pass: v5.4.77-44-g28fe0e171c204, first f=
+ail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+stm32mp157c-dk2       | arm   | lab-baylibre  | gcc-8    | multi_v7_defconf=
+ig  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7885f9ca1dc06c4d8d91b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.78/=
+arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp157c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7885f9ca1dc06c4d8d=
+91c
+        failing since 23 days (last pass: v5.4.72-55-g7fa6d77807db, first f=
+ail: v5.4.72-409-gab6643bad070) =
+
+ =20
