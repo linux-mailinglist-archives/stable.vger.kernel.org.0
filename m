@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACC72BAF15
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 16:37:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 134562BAF16
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 16:37:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728319AbgKTPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 10:35:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S1729041AbgKTPgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 10:36:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728232AbgKTPf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 10:35:58 -0500
+        id S1728705AbgKTPgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 10:36:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57ACC22D0A;
-        Fri, 20 Nov 2020 15:35:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 103B322D0A;
+        Fri, 20 Nov 2020 15:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605886557;
-        bh=tL4e5Nt9dN6dLP7d9JlWBmxbhsVwgQSGwyDbRvX5cXQ=;
+        s=korg; t=1605886566;
+        bh=mQbNioBL9tJUmI74tAeehKyzcx0Eu+djTJ5f6iylrUQ=;
         h=Subject:To:From:Date:From;
-        b=x1h6HASNp8BJMYhELDYKBkdDOLYAdpyVE1thd4+/yyfPgR6y0EP+5N6IhQn0lXZHr
-         uGyo2yt0aBG2+knlqjhxzLuTt4na1V8zEt2cTZNv9yg54KMobFOMcwK4N7uTdd/ckv
-         Wz3zCck1XmsqsF8CDG029SxiJTAiTKW5LYyCkEu4=
-Subject: patch "USB: core: Fix regression in Hercules audio card" added to usb-linus
-To:     stern@rowland.harvard.edu, bugzilla.kernel.org@mrtoasted.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=NE7ldr/Cqobju2GPXMk4EJ1LVNRqTbvFXM7ZBYwXRxwtLzNFwm5NcCMOWtozo4kuV
+         ofo8Mv32BDtSp/+qnEdB5HTEkXPLCE5hQigtvGKHazh0jKnqYRGNlUMxwxG7sGZbrQ
+         bp9dMMGIyKBqV/EeQgqh6NUZz2BSfBYd0oE5p3T0=
+Subject: patch "USB: core: Change %pK for __user pointers to %px" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, vskrishn@codeaurora.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 20 Nov 2020 16:36:39 +0100
-Message-ID: <160588659919086@kroah.com>
+Date:   Fri, 20 Nov 2020 16:36:40 +0100
+Message-ID: <1605886600205209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: core: Fix regression in Hercules audio card
+    USB: core: Change %pK for __user pointers to %px
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -54,58 +54,96 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 184eead057cc7e803558269babc1f2cfb9113ad1 Mon Sep 17 00:00:00 2001
+From f3bc432aa8a7a2bfe9ebb432502be5c5d979d7fe Mon Sep 17 00:00:00 2001
 From: Alan Stern <stern@rowland.harvard.edu>
-Date: Thu, 19 Nov 2020 12:00:40 -0500
-Subject: USB: core: Fix regression in Hercules audio card
+Date: Thu, 19 Nov 2020 12:02:28 -0500
+Subject: USB: core: Change %pK for __user pointers to %px
 
-Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
-aimed to make the USB stack more reliable by detecting and skipping
-over endpoints that are duplicated between interfaces.  This caused a
-regression for a Hercules audio card (reported as Bugzilla #208357),
-which contains such non-compliant duplications.  Although the
-duplications are harmless, skipping the valid endpoints prevented the
-device from working.
+Commit 2f964780c03b ("USB: core: replace %p with %pK") used the %pK
+format specifier for a bunch of __user pointers.  But as the 'K' in
+the specifier indicates, it is meant for kernel pointers.  The reason
+for the %pK specifier is to avoid leaks of kernel addresses, but when
+the pointer is to an address in userspace the security implications
+are minimal.  In particular, no kernel information is leaked.
 
-This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
-the Hercules card, telling the kernel to ignore the invalid duplicate
-endpoints and thereby allowing the valid endpoints to be used as
-intended.
+This patch changes the __user %pK specifiers (used in a bunch of
+debugging output lines) to %px, which will always print the actual
+address with no mangling.  (Notably, there is no printk format
+specifier particularly intended for __user pointers.)
 
-Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+Fixes: 2f964780c03b ("USB: core: replace %p with %pK")
+CC: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
 CC: <stable@vger.kernel.org>
-Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
+Link: https://lore.kernel.org/r/20201119170228.GB576844@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/core/devio.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index f536ea9fe945..fad31ccd1fa8 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -348,6 +348,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* Guillemot Webcam Hercules Dualpix Exchange*/
- 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index e96a858a1218..533236366a03 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -482,11 +482,11 @@ static void snoop_urb(struct usb_device *udev,
  
-+	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
-+	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
-+			USB_QUIRK_ENDPOINT_IGNORE },
-+
- 	/* Midiman M-Audio Keystation 88es */
- 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
+ 	if (userurb) {		/* Async */
+ 		if (when == SUBMIT)
+-			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
++			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
+ 					"length %u\n",
+ 					userurb, ep, t, d, length);
+ 		else
+-			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
++			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
+ 					"actual_length %u status %d\n",
+ 					userurb, ep, t, d, length,
+ 					timeout_or_status);
+@@ -1997,7 +1997,7 @@ static int proc_reapurb(struct usb_dev_state *ps, void __user *arg)
+ 	if (as) {
+ 		int retval;
  
-@@ -525,6 +529,8 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
-  * Matched for devices with USB_QUIRK_ENDPOINT_IGNORE.
-  */
- static const struct usb_device_id usb_endpoint_ignore[] = {
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
- 	{ }
+-		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
++		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
+ 		retval = processcompl(as, (void __user * __user *)arg);
+ 		free_async(as);
+ 		return retval;
+@@ -2014,7 +2014,7 @@ static int proc_reapurbnonblock(struct usb_dev_state *ps, void __user *arg)
+ 
+ 	as = async_getcompleted(ps);
+ 	if (as) {
+-		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
++		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
+ 		retval = processcompl(as, (void __user * __user *)arg);
+ 		free_async(as);
+ 	} else {
+@@ -2142,7 +2142,7 @@ static int proc_reapurb_compat(struct usb_dev_state *ps, void __user *arg)
+ 	if (as) {
+ 		int retval;
+ 
+-		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
++		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
+ 		retval = processcompl_compat(as, (void __user * __user *)arg);
+ 		free_async(as);
+ 		return retval;
+@@ -2159,7 +2159,7 @@ static int proc_reapurbnonblock_compat(struct usb_dev_state *ps, void __user *ar
+ 
+ 	as = async_getcompleted(ps);
+ 	if (as) {
+-		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
++		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
+ 		retval = processcompl_compat(as, (void __user * __user *)arg);
+ 		free_async(as);
+ 	} else {
+@@ -2624,7 +2624,7 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+ #endif
+ 
+ 	case USBDEVFS_DISCARDURB:
+-		snoop(&dev->dev, "%s: DISCARDURB %pK\n", __func__, p);
++		snoop(&dev->dev, "%s: DISCARDURB %px\n", __func__, p);
+ 		ret = proc_unlinkurb(ps, p);
+ 		break;
+ 
 -- 
 2.29.2
 
