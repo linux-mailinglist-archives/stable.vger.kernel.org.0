@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F15B2BA845
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4306F2BA832
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbgKTLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:06:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53836 "EHLO mail.kernel.org"
+        id S1728138AbgKTLFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728316AbgKTLF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:59 -0500
+        id S1728106AbgKTLFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B45722255;
-        Fri, 20 Nov 2020 11:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5609F22255;
+        Fri, 20 Nov 2020 11:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870358;
-        bh=Hr9VvzPrqDQrNNv4Z0hu/WtB6wxn28zPpBdu7oHJbr0=;
+        s=korg; t=1605870308;
+        bh=pacmUmtR7LmVBsOgRqR+EBHryOQtqgnOc84petNq3Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3NGNblmwppegz/mbmF1h1EY7C5dzaXk78e6WEtrtxe7BGApbc09hsMIqVRoG8dIC
-         Ru+J0edwQDvtV4tEBtszNHL9+TfZigLYpFj0YmHSGvX57rSSBKJ+AZdupNGg7yb1Bq
-         SUjY6q1Eiv0Rf1wkE/x76/QghYU0BOixa8WyeWoY=
+        b=UNICmwU4fuQLLdMUKVgHR647hsNLsjrhn9Zizqt1BdX2aN//9L85Ow2VI8EhTqHtS
+         C+gKcdP1nRyvVHLKfhWzTHZTeW3roi/SYjellpjcUc4L68foCvMf3Q0smhXSPMadCV
+         hkUuniFKi6OI+98TPy3NhdA7mTMlLylUQDDqeE2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 04/14] powerpc: Implement user_access_begin and friends
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 14/17] mac80211: always wind down STA state
 Date:   Fri, 20 Nov 2020 12:03:25 +0100
-Message-Id: <20201120104540.019138184@linuxfoundation.org>
+Message-Id: <20201120104541.115102840@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.806156260@linuxfoundation.org>
-References: <20201120104539.806156260@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,205 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 5cd623333e7cf4e3a334c70529268b65f2a6c2c7 upstream.
+commit dcd479e10a0510522a5d88b29b8f79ea3467d501 upstream.
 
-Today, when a function like strncpy_from_user() is called,
-the userspace access protection is de-activated and re-activated
-for every word read.
+When (for example) an IBSS station is pre-moved to AUTHORIZED
+before it's inserted, and then the insertion fails, we don't
+clean up the fast RX/TX states that might already have been
+created, since we don't go through all the state transitions
+again on the way down.
 
-By implementing user_access_begin and friends, the protection
-is de-activated at the beginning of the copy and re-activated at the
-end.
+Do that, if it hasn't been done already, when the station is
+freed. I considered only freeing the fast TX/RX state there,
+but we might add more state so it's more robust to wind down
+the state properly.
 
-Implement user_access_begin(), user_access_end() and
-unsafe_get_user(), unsafe_put_user() and unsafe_copy_to_user()
+Note that we warn if the station was ever inserted, it should
+have been properly cleaned up in that case, and the driver
+will probably not like things happening out of order.
 
-For the time being, we keep user_access_save() and
-user_access_restore() as nops.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/36d4fbf9e56a75994aca4ee2214c77b26a5a8d35.1579866752.git.christophe.leroy@c-s.fr
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Reported-by: syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201009141710.7223b322a955.I95bd08b9ad0e039c034927cce0b75beea38e059b@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/uaccess.h |   75 +++++++++++++++++++++++++++----------
- 1 file changed, 56 insertions(+), 19 deletions(-)
 
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -92,9 +92,14 @@ static inline int __access_ok(unsigned l
- 	__put_user_check((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
- 
- #define __get_user(x, ptr) \
--	__get_user_nocheck((x), (ptr), sizeof(*(ptr)))
-+	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), true)
- #define __put_user(x, ptr) \
--	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
-+	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), true)
-+
-+#define __get_user_allowed(x, ptr) \
-+	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), false)
-+#define __put_user_allowed(x, ptr) \
-+	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), false)
- 
- #define __get_user_inatomic(x, ptr) \
- 	__get_user_nosleep((x), (ptr), sizeof(*(ptr)))
-@@ -139,10 +144,9 @@ extern long __put_user_bad(void);
- 		: "r" (x), "b" (addr), "i" (-EFAULT), "0" (err))
- #endif /* __powerpc64__ */
- 
--#define __put_user_size(x, ptr, size, retval)			\
-+#define __put_user_size_allowed(x, ptr, size, retval)		\
- do {								\
- 	retval = 0;						\
--	allow_write_to_user(ptr, size);				\
- 	switch (size) {						\
- 	  case 1: __put_user_asm(x, ptr, retval, "stb"); break;	\
- 	  case 2: __put_user_asm(x, ptr, retval, "sth"); break;	\
-@@ -150,17 +154,26 @@ do {								\
- 	  case 8: __put_user_asm2(x, ptr, retval); break;	\
- 	  default: __put_user_bad();				\
- 	}							\
-+} while (0)
-+
-+#define __put_user_size(x, ptr, size, retval)			\
-+do {								\
-+	allow_write_to_user(ptr, size);				\
-+	__put_user_size_allowed(x, ptr, size, retval);		\
- 	prevent_write_to_user(ptr, size);			\
- } while (0)
- 
--#define __put_user_nocheck(x, ptr, size)			\
-+#define __put_user_nocheck(x, ptr, size, do_allow)			\
- ({								\
- 	long __pu_err;						\
- 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
- 	if (!is_kernel_addr((unsigned long)__pu_addr))		\
- 		might_fault();					\
- 	__chk_user_ptr(ptr);					\
--	__put_user_size((x), __pu_addr, (size), __pu_err);	\
-+	if (do_allow)								\
-+		__put_user_size((x), __pu_addr, (size), __pu_err);		\
-+	else									\
-+		__put_user_size_allowed((x), __pu_addr, (size), __pu_err);	\
- 	__pu_err;						\
- })
- 
-@@ -237,13 +250,12 @@ extern long __get_user_bad(void);
- 		: "b" (addr), "i" (-EFAULT), "0" (err))
- #endif /* __powerpc64__ */
- 
--#define __get_user_size(x, ptr, size, retval)			\
-+#define __get_user_size_allowed(x, ptr, size, retval)		\
- do {								\
- 	retval = 0;						\
- 	__chk_user_ptr(ptr);					\
- 	if (size > sizeof(x))					\
- 		(x) = __get_user_bad();				\
--	allow_read_from_user(ptr, size);			\
- 	switch (size) {						\
- 	case 1: __get_user_asm(x, ptr, retval, "lbz"); break;	\
- 	case 2: __get_user_asm(x, ptr, retval, "lhz"); break;	\
-@@ -251,6 +263,12 @@ do {								\
- 	case 8: __get_user_asm2(x, ptr, retval);  break;	\
- 	default: (x) = __get_user_bad();			\
- 	}							\
-+} while (0)
-+
-+#define __get_user_size(x, ptr, size, retval)			\
-+do {								\
-+	allow_read_from_user(ptr, size);			\
-+	__get_user_size_allowed(x, ptr, size, retval);		\
- 	prevent_read_from_user(ptr, size);			\
- } while (0)
- 
-@@ -261,7 +279,7 @@ do {								\
- #define __long_type(x) \
- 	__typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
- 
--#define __get_user_nocheck(x, ptr, size)			\
-+#define __get_user_nocheck(x, ptr, size, do_allow)			\
- ({								\
- 	long __gu_err;						\
- 	__long_type(*(ptr)) __gu_val;				\
-@@ -270,7 +288,10 @@ do {								\
- 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
- 		might_fault();					\
- 	barrier_nospec();					\
--	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
-+	if (do_allow)								\
-+		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);		\
-+	else									\
-+		__get_user_size_allowed(__gu_val, __gu_addr, (size), __gu_err);	\
- 	(x) = (__typeof__(*(ptr)))__gu_val;			\
- 	__gu_err;						\
- })
-@@ -357,33 +378,40 @@ static inline unsigned long raw_copy_fro
- 	return ret;
- }
- 
--static inline unsigned long raw_copy_to_user(void __user *to,
--		const void *from, unsigned long n)
-+static inline unsigned long
-+raw_copy_to_user_allowed(void __user *to, const void *from, unsigned long n)
+---
+ net/mac80211/sta_info.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -244,6 +244,24 @@ struct sta_info *sta_info_get_by_idx(str
+  */
+ void sta_info_free(struct ieee80211_local *local, struct sta_info *sta)
  {
--	unsigned long ret;
- 	if (__builtin_constant_p(n) && (n <= 8)) {
--		ret = 1;
-+		unsigned long ret = 1;
++	/*
++	 * If we had used sta_info_pre_move_state() then we might not
++	 * have gone through the state transitions down again, so do
++	 * it here now (and warn if it's inserted).
++	 *
++	 * This will clear state such as fast TX/RX that may have been
++	 * allocated during state transitions.
++	 */
++	while (sta->sta_state > IEEE80211_STA_NONE) {
++		int ret;
++
++		WARN_ON_ONCE(test_sta_flag(sta, WLAN_STA_INSERTED));
++
++		ret = sta_info_move_state(sta, sta->sta_state - 1);
++		if (WARN_ONCE(ret, "sta_info_move_state() returned %d\n", ret))
++			break;
++	}
++
+ 	if (sta->rate_ctrl)
+ 		rate_control_free_sta(sta);
  
- 		switch (n) {
- 		case 1:
--			__put_user_size(*(u8 *)from, (u8 __user *)to, 1, ret);
-+			__put_user_size_allowed(*(u8 *)from, (u8 __user *)to, 1, ret);
- 			break;
- 		case 2:
--			__put_user_size(*(u16 *)from, (u16 __user *)to, 2, ret);
-+			__put_user_size_allowed(*(u16 *)from, (u16 __user *)to, 2, ret);
- 			break;
- 		case 4:
--			__put_user_size(*(u32 *)from, (u32 __user *)to, 4, ret);
-+			__put_user_size_allowed(*(u32 *)from, (u32 __user *)to, 4, ret);
- 			break;
- 		case 8:
--			__put_user_size(*(u64 *)from, (u64 __user *)to, 8, ret);
-+			__put_user_size_allowed(*(u64 *)from, (u64 __user *)to, 8, ret);
- 			break;
- 		}
- 		if (ret == 0)
- 			return 0;
- 	}
- 
-+	return __copy_tofrom_user(to, (__force const void __user *)from, n);
-+}
-+
-+static inline unsigned long
-+raw_copy_to_user(void __user *to, const void *from, unsigned long n)
-+{
-+	unsigned long ret;
-+
- 	allow_write_to_user(to, n);
--	ret = __copy_tofrom_user(to, (__force const void __user *)from, n);
-+	ret = raw_copy_to_user_allowed(to, from, n);
- 	prevent_write_to_user(to, n);
- 	return ret;
- }
-@@ -410,4 +438,13 @@ extern long __copy_from_user_flushcache(
- extern void memcpy_page_flushcache(char *to, struct page *page, size_t offset,
- 			   size_t len);
- 
-+#define user_access_begin(type, ptr, len) access_ok(type, ptr, len)
-+#define user_access_end()		  prevent_user_access(NULL, NULL, ~0ul)
-+
-+#define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
-+#define unsafe_get_user(x, p, e) unsafe_op_wrap(__get_user_allowed(x, p), e)
-+#define unsafe_put_user(x, p, e) unsafe_op_wrap(__put_user_allowed(x, p), e)
-+#define unsafe_copy_to_user(d, s, l, e) \
-+	unsafe_op_wrap(raw_copy_to_user_allowed(d, s, l), e)
-+
- #endif	/* _ARCH_POWERPC_UACCESS_H */
 
 
