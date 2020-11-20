@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F4B2BA837
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3745A2BA8A6
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728192AbgKTLFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:05:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53102 "EHLO mail.kernel.org"
+        id S1727898AbgKTLEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:04:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728185AbgKTLFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:32 -0500
+        id S1727479AbgKTLEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:04:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412EE22255;
-        Fri, 20 Nov 2020 11:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9200722255;
+        Fri, 20 Nov 2020 11:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870330;
-        bh=Uh82WsloCTqpwwhoh9WLV9nGbzer1zu4OwvMCblWyU4=;
+        s=korg; t=1605870251;
+        bh=AzG+hYW+2MMV6CP9u3mWyQwef1/Y96kbJ63kZ3Op9R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZjYk5/XK6zP/UwFh26A9BzccMqmxzkazQha+TOZSGvdpGJm59P8ZJyr4qYsdPCjU
-         ai4Mikl2LN+UvOwNl12PZhFG7OO2C/OTyiwLVetf4AT9iQrkrmIXkXFTYIxbM0szYg
-         GgCTxnezIg8nXoh1hc35msx/vtd1piJojsKrImRg=
+        b=zVis4Cs4765sEicjkF5hkHwHSAKvetvOAuylhH0hhpzob2po7IkZ5+M+SxR3WcZJi
+         eZggogNTkzmAExfA//P9FkuLwPLuyv43TRpa+gckQK42tWItEpAhIwYcyhXC8Ro99W
+         PaeeY9jRYokBGBSJ3K5rubnRmnPTdk8nPM6/jfHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [PATCH 4.14 06/17] powerpc: Fix __clear_user() with KUAP enabled
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 12/16] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
 Date:   Fri, 20 Nov 2020 12:03:17 +0100
-Message-Id: <20201120104540.726952705@linuxfoundation.org>
+Message-Id: <20201120104540.338331426@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
-References: <20201120104540.414709708@linuxfoundation.org>
+In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
+References: <20201120104539.706905067@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 61e3acd8c693a14fc69b824cb5b08d02cb90a6e7 upstream.
+commit 29daf869cbab69088fe1755d9dd224e99ba78b56 upstream.
 
-The KUAP implementation adds calls in clear_user() to enable and
-disable access to userspace memory. However, it doesn't add these to
-__clear_user(), which is used in the ptrace regset code.
+The kernel expects pte_young() to work regardless of CONFIG_SWAP.
 
-As there's only one direct user of __clear_user() (the regset code),
-and the time taken to set the AMR for KUAP purposes is going to
-dominate the cost of a quick access_ok(), there's not much point
-having a separate path.
+Make sure a minor fault is taken to set _PAGE_ACCESSED when it
+is not already set, regardless of the selection of CONFIG_SWAP.
 
-Rename __clear_user() to __arch_clear_user(), and make __clear_user()
-just call clear_user().
+This adds at least 3 instructions to the TLB miss exception
+handlers fast path. Following patch will reduce this overhead.
 
-Reported-by: syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com
-Reported-by: Daniel Axtens <dja@axtens.net>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-[mpe: Use __arch_clear_user() for the asm version like arm64 & nds32]
+Also update the rotation instruction to the correct number of bits
+to reflect all changes done to _PAGE_ACCESSED over time.
+
+Fixes: d069cb4373fe ("powerpc/8xx: Don't touch ACCESSED when no SWAP.")
+Fixes: 5f356497c384 ("powerpc/8xx: remove unused _PAGE_WRITETHRU")
+Fixes: e0a8e0d90a9f ("powerpc/8xx: Handle PAGE_USER via APG bits")
+Fixes: 5b2753fc3e8a ("powerpc/8xx: Implementation of PAGE_EXEC")
+Fixes: a891c43b97d3 ("powerpc/8xx: Prepare handlers for _PAGE_HUGE for 512k pages.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191209132221.15328-1-ajd@linux.ibm.com
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492856.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/uaccess.h |    9 +++++++--
- arch/powerpc/lib/string.S          |    4 ++--
- arch/powerpc/lib/string_64.S       |    6 +++---
- 3 files changed, 12 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -390,7 +390,7 @@ raw_copy_to_user(void __user *to, const
- 	return ret;
- }
+---
+ arch/powerpc/kernel/head_8xx.S |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -359,11 +359,9 @@ InstructionTLBMiss:
+ 	/* Load the MI_TWC with the attributes for this "segment." */
+ 	MTSPR_CPU6(SPRN_MI_TWC, r11, r3)	/* Set segment attributes */
  
--extern unsigned long __clear_user(void __user *addr, unsigned long size);
-+unsigned long __arch_clear_user(void __user *addr, unsigned long size);
- 
- static inline unsigned long clear_user(void __user *addr, unsigned long size)
- {
-@@ -398,12 +398,17 @@ static inline unsigned long clear_user(v
- 	might_fault();
- 	if (likely(access_ok(VERIFY_WRITE, addr, size))) {
- 		allow_write_to_user(addr, size);
--		ret = __clear_user(addr, size);
-+		ret = __arch_clear_user(addr, size);
- 		prevent_write_to_user(addr, size);
- 	}
- 	return ret;
- }
- 
-+static inline unsigned long __clear_user(void __user *addr, unsigned long size)
-+{
-+	return clear_user(addr, size);
-+}
-+
- extern long strncpy_from_user(char *dst, const char __user *src, long count);
- extern __must_check long strnlen_user(const char __user *str, long n);
- 
---- a/arch/powerpc/lib/string.S
-+++ b/arch/powerpc/lib/string.S
-@@ -88,7 +88,7 @@ _GLOBAL(memchr)
- EXPORT_SYMBOL(memchr)
- 
- #ifdef CONFIG_PPC32
--_GLOBAL(__clear_user)
-+_GLOBAL(__arch_clear_user)
- 	addi	r6,r3,-4
- 	li	r3,0
- 	li	r5,0
-@@ -128,5 +128,5 @@ _GLOBAL(__clear_user)
- 	EX_TABLE(1b, 91b)
- 	EX_TABLE(8b, 92b)
- 
--EXPORT_SYMBOL(__clear_user)
-+EXPORT_SYMBOL(__arch_clear_user)
- #endif
---- a/arch/powerpc/lib/string_64.S
-+++ b/arch/powerpc/lib/string_64.S
-@@ -29,7 +29,7 @@ PPC64_CACHES:
- 	.section	".text"
- 
- /**
-- * __clear_user: - Zero a block of memory in user space, with less checking.
-+ * __arch_clear_user: - Zero a block of memory in user space, with less checking.
-  * @to:   Destination address, in user space.
-  * @n:    Number of bytes to zero.
-  *
-@@ -70,7 +70,7 @@ err3;	stb	r0,0(r3)
- 	mr	r3,r4
- 	blr
- 
--_GLOBAL_TOC(__clear_user)
-+_GLOBAL_TOC(__arch_clear_user)
- 	cmpdi	r4,32
- 	neg	r6,r3
- 	li	r0,0
-@@ -193,4 +193,4 @@ err1;	dcbz	0,r3
- 	cmpdi	r4,32
- 	blt	.Lshort_clear
- 	b	.Lmedium_clear
--EXPORT_SYMBOL(__clear_user)
-+EXPORT_SYMBOL(__arch_clear_user)
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	li	r11, RPN_PATTERN
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 20-23 and 28 must be clear.
+@@ -443,11 +441,9 @@ _ENTRY(DTLBMiss_jmp)
+ 	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
+ 	 * r10 = (r10 & ~PRESENT) | r11;
+ 	 */
+-#ifdef CONFIG_SWAP
+-	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
++	rlwinm	r11, r10, 32-11, _PAGE_PRESENT
+ 	and	r11, r11, r10
+ 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+-#endif
+ 	/* The Linux PTE won't go exactly into the MMU TLB.
+ 	 * Software indicator bits 22 and 28 must be clear.
+ 	 * Software indicator bits 24, 25, 26, and 27 must be
 
 
