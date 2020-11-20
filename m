@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98EC42BA8B4
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C742BA850
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725824AbgKTLKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:10:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54056 "EHLO mail.kernel.org"
+        id S1728373AbgKTLGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:06:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728365AbgKTLGS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:06:18 -0500
+        id S1728369AbgKTLGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:06:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B5F12236F;
-        Fri, 20 Nov 2020 11:06:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D3402240C;
+        Fri, 20 Nov 2020 11:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870376;
-        bh=5qeS4CZMo09H/Af9Z0VwPzriEpL2Vul070MAciqK2C8=;
+        s=korg; t=1605870379;
+        bh=pacmUmtR7LmVBsOgRqR+EBHryOQtqgnOc84petNq3Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZElrxoa5p6e7nIulyrpmRYsVJ6mGXXGWmlksno95B4juqcxioyVgF615MxuvWUjo
-         g/J3SAVC3VEPudeRUj5qWBhYL77m7TdfM5mtVpHSmxmvTR2KeusRDs20io8HFyHfqO
-         DyiDFyvIw+dkhowFTeFfJS2penRP1MMo7c8mQYmc=
+        b=iZmLKrNto0eC6X99HApHMI4GQfZG58bh1bhFVLAZhRmH8/JgleJdscmsGp5R5yngz
+         AhSihECAKAEeO190XPDtmpcEqaIB3e/S+2w7UwRyGFcx00nNvCS+NkJzx8mDpzwYWo
+         EwrEXCh37z9R1vt2u706pEYXijyFhn+5lgo+wylE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodong Zhao <nopitydays@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 10/14] Input: sunkbd - avoid use-after-free in teardown paths
-Date:   Fri, 20 Nov 2020 12:03:31 +0100
-Message-Id: <20201120104540.318439982@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 11/14] mac80211: always wind down STA state
+Date:   Fri, 20 Nov 2020 12:03:32 +0100
+Message-Id: <20201120104540.368043685@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201120104539.806156260@linuxfoundation.org>
 References: <20201120104539.806156260@linuxfoundation.org>
@@ -42,94 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 77e70d351db7de07a46ac49b87a6c3c7a60fca7e upstream.
+commit dcd479e10a0510522a5d88b29b8f79ea3467d501 upstream.
 
-We need to make sure we cancel the reinit work before we tear down the
-driver structures.
+When (for example) an IBSS station is pre-moved to AUTHORIZED
+before it's inserted, and then the insertion fails, we don't
+clean up the fast RX/TX states that might already have been
+created, since we don't go through all the state transitions
+again on the way down.
 
-Reported-by: Bodong Zhao <nopitydays@gmail.com>
-Tested-by: Bodong Zhao <nopitydays@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Do that, if it hasn't been done already, when the station is
+freed. I considered only freeing the fast TX/RX state there,
+but we might add more state so it's more robust to wind down
+the state properly.
+
+Note that we warn if the station was ever inserted, it should
+have been properly cleaned up in that case, and the driver
+will probably not like things happening out of order.
+
+Reported-by: syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201009141710.7223b322a955.I95bd08b9ad0e039c034927cce0b75beea38e059b@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/keyboard/sunkbd.c |   41 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 33 insertions(+), 8 deletions(-)
+ net/mac80211/sta_info.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/input/keyboard/sunkbd.c
-+++ b/drivers/input/keyboard/sunkbd.c
-@@ -111,7 +111,8 @@ static irqreturn_t sunkbd_interrupt(stru
- 	switch (data) {
- 
- 	case SUNKBD_RET_RESET:
--		schedule_work(&sunkbd->tq);
-+		if (sunkbd->enabled)
-+			schedule_work(&sunkbd->tq);
- 		sunkbd->reset = -1;
- 		break;
- 
-@@ -212,16 +213,12 @@ static int sunkbd_initialize(struct sunk
- }
- 
- /*
-- * sunkbd_reinit() sets leds and beeps to a state the computer remembers they
-- * were in.
-+ * sunkbd_set_leds_beeps() sets leds and beeps to a state the computer remembers
-+ * they were in.
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -244,6 +244,24 @@ struct sta_info *sta_info_get_by_idx(str
   */
- 
--static void sunkbd_reinit(struct work_struct *work)
-+static void sunkbd_set_leds_beeps(struct sunkbd *sunkbd)
+ void sta_info_free(struct ieee80211_local *local, struct sta_info *sta)
  {
--	struct sunkbd *sunkbd = container_of(work, struct sunkbd, tq);
--
--	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
--
- 	serio_write(sunkbd->serio, SUNKBD_CMD_SETLED);
- 	serio_write(sunkbd->serio,
- 		(!!test_bit(LED_CAPSL,   sunkbd->dev->led) << 3) |
-@@ -234,11 +231,39 @@ static void sunkbd_reinit(struct work_st
- 		SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev->snd));
- }
- 
-+
-+/*
-+ * sunkbd_reinit() wait for the keyboard reset to complete and restores state
-+ * of leds and beeps.
-+ */
-+
-+static void sunkbd_reinit(struct work_struct *work)
-+{
-+	struct sunkbd *sunkbd = container_of(work, struct sunkbd, tq);
-+
 +	/*
-+	 * It is OK that we check sunkbd->enabled without pausing serio,
-+	 * as we only want to catch true->false transition that will
-+	 * happen once and we will be woken up for it.
++	 * If we had used sta_info_pre_move_state() then we might not
++	 * have gone through the state transitions down again, so do
++	 * it here now (and warn if it's inserted).
++	 *
++	 * This will clear state such as fast TX/RX that may have been
++	 * allocated during state transitions.
 +	 */
-+	wait_event_interruptible_timeout(sunkbd->wait,
-+					 sunkbd->reset >= 0 || !sunkbd->enabled,
-+					 HZ);
++	while (sta->sta_state > IEEE80211_STA_NONE) {
++		int ret;
 +
-+	if (sunkbd->reset >= 0 && sunkbd->enabled)
-+		sunkbd_set_leds_beeps(sunkbd);
-+}
++		WARN_ON_ONCE(test_sta_flag(sta, WLAN_STA_INSERTED));
 +
- static void sunkbd_enable(struct sunkbd *sunkbd, bool enable)
- {
- 	serio_pause_rx(sunkbd->serio);
- 	sunkbd->enabled = enable;
- 	serio_continue_rx(sunkbd->serio);
-+
-+	if (!enable) {
-+		wake_up_interruptible(&sunkbd->wait);
-+		cancel_work_sync(&sunkbd->tq);
++		ret = sta_info_move_state(sta, sta->sta_state - 1);
++		if (WARN_ONCE(ret, "sta_info_move_state() returned %d\n", ret))
++			break;
 +	}
- }
++
+ 	if (sta->rate_ctrl)
+ 		rate_control_free_sta(sta);
  
- /*
 
 
