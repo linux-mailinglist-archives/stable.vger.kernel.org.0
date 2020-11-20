@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 200C12BAEFC
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9832BAEFD
 	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 16:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbgKTPcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 10:32:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35890 "EHLO mail.kernel.org"
+        id S1728409AbgKTPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 10:32:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728125AbgKTPcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 10:32:21 -0500
+        id S1728350AbgKTPcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 10:32:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A10122D0A;
-        Fri, 20 Nov 2020 15:32:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED466238E6;
+        Fri, 20 Nov 2020 15:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605886341;
-        bh=LNejVOTz4b+SSz/UOzPECBdP4fj5rJBFfFWMUipnmpk=;
+        s=korg; t=1605886349;
+        bh=fMnKhUKpKgJPvSBKalcNnc7FOizrCoA91gw6SWF8sig=;
         h=Subject:To:From:Date:From;
-        b=ksatC/izkOEPetZxV7YihwFs69Jovr/7wCe5bUwhmJB+6S8Ftf4lK0zXzui6RlU0g
-         Vzz4CcQb0D0owhNwBORB5Czy5Mg10IoAXd21tV0vfeKDCpZh5y0bBPdNI5kvIZTrED
-         rAt7jmu7EmGUO74y5sWoou6RhWe21bDBSVIvNa/g=
-Subject: patch "USB: quirks: Add USB_QUIRK_DISCONNECT_SUSPEND quirk for Lenovo A630Z" added to usb-linus
-To:     penghao@uniontech.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=onMtQfpRPXRXVd1Ra0HpvZdNJLwlYdn52mqbrbsfW0t7c1jjQzksYPtSxKPpfaGgS
+         meRAKXW9/GTPtxjRqm6Pu4o2/u9IUpob1qlaTc6f6xO8FMneep0cm7V8PouXnR6DlR
+         2MgUx/TO4cT9j60JIR36wmBk/FAgeg7f/4rYlOhw=
+Subject: patch "usb: gadget: f_midi: Fix memleak in f_midi_alloc" added to usb-linus
+To:     zhangqilong3@huawei.com, gregkh@linuxfoundation.org,
+        hulkci@huawei.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 20 Nov 2020 16:33:03 +0100
-Message-ID: <1605886383241186@kroah.com>
+Message-ID: <160588638396222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: quirks: Add USB_QUIRK_DISCONNECT_SUSPEND quirk for Lenovo A630Z
+    usb: gadget: f_midi: Fix memleak in f_midi_alloc
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -54,69 +54,61 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 9ca57518361418ad5ae7dc38a2128fbf4855e1a2 Mon Sep 17 00:00:00 2001
-From: penghao <penghao@uniontech.com>
-Date: Wed, 18 Nov 2020 20:30:39 +0800
-Subject: USB: quirks: Add USB_QUIRK_DISCONNECT_SUSPEND quirk for Lenovo A630Z
- TIO built-in usb-audio card
+From e7694cb6998379341fd9bf3bd62b48c4e6a79385 Mon Sep 17 00:00:00 2001
+From: Zhang Qilong <zhangqilong3@huawei.com>
+Date: Tue, 17 Nov 2020 10:16:28 +0800
+Subject: usb: gadget: f_midi: Fix memleak in f_midi_alloc
 
-Add a USB_QUIRK_DISCONNECT_SUSPEND quirk for the Lenovo TIO built-in
-usb-audio. when A630Z going into S3,the system immediately wakeup 7-8
-seconds later by usb-audio disconnect interrupt to avoids the issue.
-eg dmesg:
-....
-[  626.974091 ] usb 7-1.1: USB disconnect, device number 3
-....
-....
-[ 1774.486691] usb 7-1.1: new full-speed USB device number 5 using xhci_hcd
-[ 1774.947742] usb 7-1.1: New USB device found, idVendor=17ef, idProduct=a012, bcdDevice= 0.55
-[ 1774.956588] usb 7-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
-[ 1774.964339] usb 7-1.1: Product: Thinkcentre TIO24Gen3 for USB-audio
-[ 1774.970999] usb 7-1.1: Manufacturer: Lenovo
-[ 1774.975447] usb 7-1.1: SerialNumber: 000000000000
-[ 1775.048590] usb 7-1.1: 2:1: cannot get freq at ep 0x1
-.......
-Seeking a better fix, we've tried a lot of things, including:
- - Check that the device's power/wakeup is disabled
- - Check that remote wakeup is off at the USB level
- - All the quirks in drivers/usb/core/quirks.c
-   e.g. USB_QUIRK_RESET_RESUME,
-        USB_QUIRK_RESET,
-        USB_QUIRK_IGNORE_REMOTE_WAKEUP,
-        USB_QUIRK_NO_LPM.
+In the error path, if midi is not null, we should
+free the midi->id if necessary to prevent memleak.
 
-but none of that makes any difference.
-
-There are no errors in the logs showing any suspend/resume-related issues.
-When the system wakes up due to the modem, log-wise it appears to be a
-normal resume.
-
-Introduce a quirk to disable the port during suspend when the modem is
-detected.
-
-Signed-off-by: penghao <penghao@uniontech.com>
-Link: https://lore.kernel.org/r/20201118123039.11696-1-penghao@uniontech.com
+Fixes: b85e9de9e818d ("usb: gadget: f_midi: convert to new function interface with backward compatibility")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201117021629.1470544-2-zhangqilong3@huawei.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/function/f_midi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index a1e3a037a289..f536ea9fe945 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -421,6 +421,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
+diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
+index 85cb15734aa8..19d97940eeb9 100644
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1315,7 +1315,7 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
+ 	midi->id = kstrdup(opts->id, GFP_KERNEL);
+ 	if (opts->id && !midi->id) {
+ 		status = -ENOMEM;
+-		goto setup_fail;
++		goto midi_free;
+ 	}
+ 	midi->in_ports = opts->in_ports;
+ 	midi->out_ports = opts->out_ports;
+@@ -1327,7 +1327,7 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
  
-+	/* Lenovo ThinkCenter A630Z TI024Gen3 usb-audio */
-+	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
-+			USB_QUIRK_DISCONNECT_SUSPEND },
+ 	status = kfifo_alloc(&midi->in_req_fifo, midi->qlen, GFP_KERNEL);
+ 	if (status)
+-		goto setup_fail;
++		goto midi_free;
+ 
+ 	spin_lock_init(&midi->transmit_lock);
+ 
+@@ -1343,9 +1343,13 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
+ 
+ 	return &midi->func;
+ 
++midi_free:
++	if (midi)
++		kfree(midi->id);
++	kfree(midi);
+ setup_fail:
+ 	mutex_unlock(&opts->lock);
+-	kfree(midi);
 +
- 	/* BUILDWIN Photo Frame */
- 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
- 			USB_QUIRK_HONOR_BNUMINTERFACES },
+ 	return ERR_PTR(status);
+ }
+ 
 -- 
 2.29.2
 
