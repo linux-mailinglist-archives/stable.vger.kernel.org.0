@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F252B9B03
-	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 19:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9E32B9AEC
+	for <lists+stable@lfdr.de>; Thu, 19 Nov 2020 19:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727708AbgKSS5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Nov 2020 13:57:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59596 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727025AbgKSS5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Nov 2020 13:57:11 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EB1D2151B;
-        Thu, 19 Nov 2020 18:57:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1605812230;
-        bh=i4mQIFLjwvFqbd0N4OxgUfvufwBI3b6pbjHDzOyryVo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XpqWvjRCeYcJVg4l5yOHeLEQODM2X3jYkrZMzutu3+AhuFIX3tzJP24RMCc4jvQEf
-         giOaQkpXj7thJLV0V8lby/J5UDBBPK6f1VGzWOasX81rVGMuFESJH12GtwyYTx9pqn
-         okQ7rKllgpYIbZKa+PzM5ou/I2eJwV/tsHXEiwoY=
-Date:   Thu, 19 Nov 2020 13:57:09 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-Cc:     peterz@infradead.org, Vincent Guittot <vincent.guittot@linaro.org>,
-        bsegall@google.com, gregkh@linuxfoundation.org, pauld@redhat.com,
-        zohooouoto@zoho.com.cn, stable@vger.kernel.org,
-        Gavin Guo <gavin.guo@canonical.com>,
-        nivedita.singhvi@canonical.com, halves@canonical.com
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-Message-ID: <20201119185709.GD643756@sasha-vm>
-References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+        id S1728466AbgKSSvf convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 19 Nov 2020 13:51:35 -0500
+Received: from nrg.gov.ru ([95.173.131.222]:41131 "HELO nrg.gov.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1728296AbgKSSvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Nov 2020 13:51:35 -0500
+X-Greylist: delayed 8925 seconds by postgrey-1.27 at vger.kernel.org; Thu, 19 Nov 2020 13:51:34 EST
+Received: from [192.168.43.240] ([105.112.25.105])
+        (authenticated bits=0)
+        by nrg.gov.ru (8.15.2/8.14.9) with ESMTPSA id 0AJGLlif038601
+        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
+        Thu, 19 Nov 2020 19:22:38 +0300 (MSK)
+        (envelope-from info@office.com)
+Message-Id: <202011191622.0AJGLlif038601@nrg.gov.ru>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: DONATION FOR YOU!!
+To:     Recipients <info@office.com>
+From:   "Dr. Mack John" <info@office.com>
+Date:   Thu, 19 Nov 2020 17:21:51 -0800
+Reply-To: drmackjohn222@gmail.com
+X-Spam-Status: No, score=4.2 required=10.0 tests=ALL_TRUSTED,BAYES_50,
+        DATE_IN_FUTURE_96_Q,FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        LOTS_OF_MONEY,MISSING_MID,SUBJ_ALL_CAPS,T_HK_NAME_DR autolearn=no
+        autolearn_force=no version=3.4.0
+X-Spam-Level: ****
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on nrg.gov.ru
+X-Virus-Scanned: clamav-milter 0.100.2 at nrg.gov.ru
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 19, 2020 at 11:56:01AM -0300, Guilherme G. Piccoli wrote:
->Hi Sasha / Peter, is there anything blocking this backport from Vincent
->to get merged in 5.4.y?
+Via del Campidoglio 1 00186.
+Roma RM, ITALIAN.
 
-An ack from Peter...
+Hello,
 
--- 
-Thanks,
-Sasha
+How are you? Mrs Amelia Kennedy gave me your contact and asked me to contact you before she died, She is donating sum $6.5 million for you to help her set up a charity organisation in your country and use part of the money for yourself and your family, Get back to me so I can give you directives on how to contact the Bank to get the money, I am the lawyer of Mrs Amelia Kennedy, Reply my mail:( drmackjohn222@gmail.com ) and also whats-app me on this number: +17047262900, Do not call this number, It's only for whats-app.
+
+Regards.
+Dr. Mack John.
