@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4C62BA833
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F15B2BA845
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbgKTLFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:05:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52700 "EHLO mail.kernel.org"
+        id S1728320AbgKTLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:06:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728084AbgKTLFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:05:06 -0500
+        id S1728316AbgKTLF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D62F22264;
-        Fri, 20 Nov 2020 11:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B45722255;
+        Fri, 20 Nov 2020 11:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870306;
-        bh=CS1m08S/M49rUEL6Eyl6/INRnwZpMB9PJeYy452BtIY=;
+        s=korg; t=1605870358;
+        bh=Hr9VvzPrqDQrNNv4Z0hu/WtB6wxn28zPpBdu7oHJbr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NP92thiMbvFF9cWZFo/PC+tw/zVz9GfLdFzpfhUMv7gtIvO4SeKqAKSsYAnhi+FtL
-         XlMwiPTRa8I97JAClH0TEQr5Jfs454XJKBIKM5UhJfQpK0aLTFWzTBqITqeANnTeBi
-         NeEatPUwS4gHDAzSF6hxKtVUKhXiBM6x9mO+o3LM=
+        b=A3NGNblmwppegz/mbmF1h1EY7C5dzaXk78e6WEtrtxe7BGApbc09hsMIqVRoG8dIC
+         Ru+J0edwQDvtV4tEBtszNHL9+TfZigLYpFj0YmHSGvX57rSSBKJ+AZdupNGg7yb1Bq
+         SUjY6q1Eiv0Rf1wkE/x76/QghYU0BOixa8WyeWoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodong Zhao <nopitydays@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 13/17] Input: sunkbd - avoid use-after-free in teardown paths
-Date:   Fri, 20 Nov 2020 12:03:24 +0100
-Message-Id: <20201120104541.065077842@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 04/14] powerpc: Implement user_access_begin and friends
+Date:   Fri, 20 Nov 2020 12:03:25 +0100
+Message-Id: <20201120104540.019138184@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
-References: <20201120104540.414709708@linuxfoundation.org>
+In-Reply-To: <20201120104539.806156260@linuxfoundation.org>
+References: <20201120104539.806156260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +42,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 77e70d351db7de07a46ac49b87a6c3c7a60fca7e upstream.
+commit 5cd623333e7cf4e3a334c70529268b65f2a6c2c7 upstream.
 
-We need to make sure we cancel the reinit work before we tear down the
-driver structures.
+Today, when a function like strncpy_from_user() is called,
+the userspace access protection is de-activated and re-activated
+for every word read.
 
-Reported-by: Bodong Zhao <nopitydays@gmail.com>
-Tested-by: Bodong Zhao <nopitydays@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+By implementing user_access_begin and friends, the protection
+is de-activated at the beginning of the copy and re-activated at the
+end.
+
+Implement user_access_begin(), user_access_end() and
+unsafe_get_user(), unsafe_put_user() and unsafe_copy_to_user()
+
+For the time being, we keep user_access_save() and
+user_access_restore() as nops.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/36d4fbf9e56a75994aca4ee2214c77b26a5a8d35.1579866752.git.christophe.leroy@c-s.fr
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/keyboard/sunkbd.c |   41 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 33 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/uaccess.h |   75 +++++++++++++++++++++++++++----------
+ 1 file changed, 56 insertions(+), 19 deletions(-)
 
---- a/drivers/input/keyboard/sunkbd.c
-+++ b/drivers/input/keyboard/sunkbd.c
-@@ -115,7 +115,8 @@ static irqreturn_t sunkbd_interrupt(stru
- 	switch (data) {
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -92,9 +92,14 @@ static inline int __access_ok(unsigned l
+ 	__put_user_check((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
  
- 	case SUNKBD_RET_RESET:
--		schedule_work(&sunkbd->tq);
-+		if (sunkbd->enabled)
-+			schedule_work(&sunkbd->tq);
- 		sunkbd->reset = -1;
- 		break;
+ #define __get_user(x, ptr) \
+-	__get_user_nocheck((x), (ptr), sizeof(*(ptr)))
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), true)
+ #define __put_user(x, ptr) \
+-	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), true)
++
++#define __get_user_allowed(x, ptr) \
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), false)
++#define __put_user_allowed(x, ptr) \
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), false)
  
-@@ -216,16 +217,12 @@ static int sunkbd_initialize(struct sunk
+ #define __get_user_inatomic(x, ptr) \
+ 	__get_user_nosleep((x), (ptr), sizeof(*(ptr)))
+@@ -139,10 +144,9 @@ extern long __put_user_bad(void);
+ 		: "r" (x), "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __put_user_size(x, ptr, size, retval)			\
++#define __put_user_size_allowed(x, ptr, size, retval)		\
+ do {								\
+ 	retval = 0;						\
+-	allow_write_to_user(ptr, size);				\
+ 	switch (size) {						\
+ 	  case 1: __put_user_asm(x, ptr, retval, "stb"); break;	\
+ 	  case 2: __put_user_asm(x, ptr, retval, "sth"); break;	\
+@@ -150,17 +154,26 @@ do {								\
+ 	  case 8: __put_user_asm2(x, ptr, retval); break;	\
+ 	  default: __put_user_bad();				\
+ 	}							\
++} while (0)
++
++#define __put_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_write_to_user(ptr, size);				\
++	__put_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_write_to_user(ptr, size);			\
+ } while (0)
+ 
+-#define __put_user_nocheck(x, ptr, size)			\
++#define __put_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __pu_err;						\
+ 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
+ 	if (!is_kernel_addr((unsigned long)__pu_addr))		\
+ 		might_fault();					\
+ 	__chk_user_ptr(ptr);					\
+-	__put_user_size((x), __pu_addr, (size), __pu_err);	\
++	if (do_allow)								\
++		__put_user_size((x), __pu_addr, (size), __pu_err);		\
++	else									\
++		__put_user_size_allowed((x), __pu_addr, (size), __pu_err);	\
+ 	__pu_err;						\
+ })
+ 
+@@ -237,13 +250,12 @@ extern long __get_user_bad(void);
+ 		: "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __get_user_size(x, ptr, size, retval)			\
++#define __get_user_size_allowed(x, ptr, size, retval)		\
+ do {								\
+ 	retval = 0;						\
+ 	__chk_user_ptr(ptr);					\
+ 	if (size > sizeof(x))					\
+ 		(x) = __get_user_bad();				\
+-	allow_read_from_user(ptr, size);			\
+ 	switch (size) {						\
+ 	case 1: __get_user_asm(x, ptr, retval, "lbz"); break;	\
+ 	case 2: __get_user_asm(x, ptr, retval, "lhz"); break;	\
+@@ -251,6 +263,12 @@ do {								\
+ 	case 8: __get_user_asm2(x, ptr, retval);  break;	\
+ 	default: (x) = __get_user_bad();			\
+ 	}							\
++} while (0)
++
++#define __get_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_read_from_user(ptr, size);			\
++	__get_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_read_from_user(ptr, size);			\
+ } while (0)
+ 
+@@ -261,7 +279,7 @@ do {								\
+ #define __long_type(x) \
+ 	__typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
+ 
+-#define __get_user_nocheck(x, ptr, size)			\
++#define __get_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __gu_err;						\
+ 	__long_type(*(ptr)) __gu_val;				\
+@@ -270,7 +288,10 @@ do {								\
+ 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
+ 		might_fault();					\
+ 	barrier_nospec();					\
+-	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
++	if (do_allow)								\
++		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);		\
++	else									\
++		__get_user_size_allowed(__gu_val, __gu_addr, (size), __gu_err);	\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;			\
+ 	__gu_err;						\
+ })
+@@ -357,33 +378,40 @@ static inline unsigned long raw_copy_fro
+ 	return ret;
  }
  
- /*
-- * sunkbd_reinit() sets leds and beeps to a state the computer remembers they
-- * were in.
-+ * sunkbd_set_leds_beeps() sets leds and beeps to a state the computer remembers
-+ * they were in.
-  */
- 
--static void sunkbd_reinit(struct work_struct *work)
-+static void sunkbd_set_leds_beeps(struct sunkbd *sunkbd)
+-static inline unsigned long raw_copy_to_user(void __user *to,
+-		const void *from, unsigned long n)
++static inline unsigned long
++raw_copy_to_user_allowed(void __user *to, const void *from, unsigned long n)
  {
--	struct sunkbd *sunkbd = container_of(work, struct sunkbd, tq);
--
--	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
--
- 	serio_write(sunkbd->serio, SUNKBD_CMD_SETLED);
- 	serio_write(sunkbd->serio,
- 		(!!test_bit(LED_CAPSL,   sunkbd->dev->led) << 3) |
-@@ -238,11 +235,39 @@ static void sunkbd_reinit(struct work_st
- 		SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev->snd));
- }
+-	unsigned long ret;
+ 	if (__builtin_constant_p(n) && (n <= 8)) {
+-		ret = 1;
++		unsigned long ret = 1;
  
-+
-+/*
-+ * sunkbd_reinit() wait for the keyboard reset to complete and restores state
-+ * of leds and beeps.
-+ */
-+
-+static void sunkbd_reinit(struct work_struct *work)
-+{
-+	struct sunkbd *sunkbd = container_of(work, struct sunkbd, tq);
-+
-+	/*
-+	 * It is OK that we check sunkbd->enabled without pausing serio,
-+	 * as we only want to catch true->false transition that will
-+	 * happen once and we will be woken up for it.
-+	 */
-+	wait_event_interruptible_timeout(sunkbd->wait,
-+					 sunkbd->reset >= 0 || !sunkbd->enabled,
-+					 HZ);
-+
-+	if (sunkbd->reset >= 0 && sunkbd->enabled)
-+		sunkbd_set_leds_beeps(sunkbd);
+ 		switch (n) {
+ 		case 1:
+-			__put_user_size(*(u8 *)from, (u8 __user *)to, 1, ret);
++			__put_user_size_allowed(*(u8 *)from, (u8 __user *)to, 1, ret);
+ 			break;
+ 		case 2:
+-			__put_user_size(*(u16 *)from, (u16 __user *)to, 2, ret);
++			__put_user_size_allowed(*(u16 *)from, (u16 __user *)to, 2, ret);
+ 			break;
+ 		case 4:
+-			__put_user_size(*(u32 *)from, (u32 __user *)to, 4, ret);
++			__put_user_size_allowed(*(u32 *)from, (u32 __user *)to, 4, ret);
+ 			break;
+ 		case 8:
+-			__put_user_size(*(u64 *)from, (u64 __user *)to, 8, ret);
++			__put_user_size_allowed(*(u64 *)from, (u64 __user *)to, 8, ret);
+ 			break;
+ 		}
+ 		if (ret == 0)
+ 			return 0;
+ 	}
+ 
++	return __copy_tofrom_user(to, (__force const void __user *)from, n);
 +}
 +
- static void sunkbd_enable(struct sunkbd *sunkbd, bool enable)
- {
- 	serio_pause_rx(sunkbd->serio);
- 	sunkbd->enabled = enable;
- 	serio_continue_rx(sunkbd->serio);
++static inline unsigned long
++raw_copy_to_user(void __user *to, const void *from, unsigned long n)
++{
++	unsigned long ret;
 +
-+	if (!enable) {
-+		wake_up_interruptible(&sunkbd->wait);
-+		cancel_work_sync(&sunkbd->tq);
-+	}
+ 	allow_write_to_user(to, n);
+-	ret = __copy_tofrom_user(to, (__force const void __user *)from, n);
++	ret = raw_copy_to_user_allowed(to, from, n);
+ 	prevent_write_to_user(to, n);
+ 	return ret;
  }
+@@ -410,4 +438,13 @@ extern long __copy_from_user_flushcache(
+ extern void memcpy_page_flushcache(char *to, struct page *page, size_t offset,
+ 			   size_t len);
  
- /*
++#define user_access_begin(type, ptr, len) access_ok(type, ptr, len)
++#define user_access_end()		  prevent_user_access(NULL, NULL, ~0ul)
++
++#define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
++#define unsafe_get_user(x, p, e) unsafe_op_wrap(__get_user_allowed(x, p), e)
++#define unsafe_put_user(x, p, e) unsafe_op_wrap(__put_user_allowed(x, p), e)
++#define unsafe_copy_to_user(d, s, l, e) \
++	unsafe_op_wrap(raw_copy_to_user_allowed(d, s, l), e)
++
+ #endif	/* _ARCH_POWERPC_UACCESS_H */
 
 
