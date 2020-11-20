@@ -2,149 +2,364 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 134562BAF16
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 16:37:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 320582BAF49
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 16:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729041AbgKTPgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 10:36:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38178 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbgKTPgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 10:36:07 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 103B322D0A;
-        Fri, 20 Nov 2020 15:36:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605886566;
-        bh=mQbNioBL9tJUmI74tAeehKyzcx0Eu+djTJ5f6iylrUQ=;
-        h=Subject:To:From:Date:From;
-        b=NE7ldr/Cqobju2GPXMk4EJ1LVNRqTbvFXM7ZBYwXRxwtLzNFwm5NcCMOWtozo4kuV
-         ofo8Mv32BDtSp/+qnEdB5HTEkXPLCE5hQigtvGKHazh0jKnqYRGNlUMxwxG7sGZbrQ
-         bp9dMMGIyKBqV/EeQgqh6NUZz2BSfBYd0oE5p3T0=
-Subject: patch "USB: core: Change %pK for __user pointers to %px" added to usb-linus
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, vskrishn@codeaurora.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 20 Nov 2020 16:36:40 +0100
-Message-ID: <1605886600205209@kroah.com>
+        id S1728528AbgKTPrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 10:47:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44356 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729246AbgKTPrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 10:47:13 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD76C0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 07:47:12 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id l11so5056854plt.1
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 07:47:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ogRWB7oU/UgqGVz+FwZPwh8jJ0nZcy3mUtAVUlUF4eQ=;
+        b=NED6F0OYtwnHUkCFJZYAYf6Ku68/Ipz+DCI1/7KwzufUKTKiEhTkYjYuNmB7GTQsTQ
+         +3ygntLX/PpMVWAdWr0d32QmRgB1pCxTqnFNbNnbt2yCcN0rxWWn8JVxmd6CRLH3QkT7
+         +DUxXbQT+vsqSrtetg0Mf8BSBu9g/IEv9J+CbYaXrrwYsseo8RZf5JNSP/tXisRovaR9
+         zFm72PTJOmtj9Y5IyMhBNXu9HSSQ3FQUqefrWl/yeoP+aeSpNWACBO7hW0/kGeovGlP1
+         H6a9TeVeoNfVnGKtLKjLX0AdP+HRPExENVha5aeu1Gd7JtMxPYLC14lNOm1s890bUtaM
+         1dJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ogRWB7oU/UgqGVz+FwZPwh8jJ0nZcy3mUtAVUlUF4eQ=;
+        b=uU4DpkRr4iCmO5GayNDscDp7ofMnU0eANUafM82oHYWfg4G7UeUlI3yw5wDdvh172j
+         cAf7XgQSMQ0SlmfIb/VCTowo1kE2Laz7P+mEwcIekN+O1WJ2UHIZ7xujXxqkP1Wj1Wq6
+         sAuWKoUejGZuo24JNc3og9KDohEVSqutT+oIydctKHp7oHs1LpmGwMxk/YlIpq+GH+Ih
+         zN6C+9sN56T638Fa3FMQBnoYHOujWQqg4+iQtBAvnIJb4ih/WReST9rWsme+j8DK+3+H
+         in0E7ChF8WAtrjrybYOq/FKVCtd3WuZ6aZncxvSKRCnDOt9OhvWhkcXdtrcGDodSRB/1
+         yuQw==
+X-Gm-Message-State: AOAM531MAIP4WAKsiH1cxq9LvqAatAVG5EKna0TT13DBzRrUVy5JUDRz
+        Y/u4i7KQQxAvNbhIRJ4/OeqY9jxL6O8Ylw==
+X-Google-Smtp-Source: ABdhPJxyfPBSAetqYcMqRcLdSAu7f7Xi/IUgcVYP6jh+tN939ZJxfKaRAp7nDn1I19epf97ao4abgA==
+X-Received: by 2002:a17:902:b209:b029:d8:e821:efc6 with SMTP id t9-20020a170902b209b02900d8e821efc6mr14291005plr.5.1605887231429;
+        Fri, 20 Nov 2020 07:47:11 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a12sm4364867pjh.48.2020.11.20.07.47.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2020 07:47:09 -0800 (PST)
+Message-ID: <5fb7e4fd.1c69fb81.5b788.8098@mx.google.com>
+Date:   Fri, 20 Nov 2020 07:47:09 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.78-17-g2c39a62cc796
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 174 runs,
+ 7 regressions (v5.4.78-17-g2c39a62cc796)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 174 runs, 7 regressions (v5.4.78-17-g2c39a62c=
+c796)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    USB: core: Change %pK for __user pointers to %px
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
 
-If you have any questions about this process, please let me know.
+qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
 
+qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
 
-From f3bc432aa8a7a2bfe9ebb432502be5c5d979d7fe Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Thu, 19 Nov 2020 12:02:28 -0500
-Subject: USB: core: Change %pK for __user pointers to %px
-
-Commit 2f964780c03b ("USB: core: replace %p with %pK") used the %pK
-format specifier for a bunch of __user pointers.  But as the 'K' in
-the specifier indicates, it is meant for kernel pointers.  The reason
-for the %pK specifier is to avoid leaks of kernel addresses, but when
-the pointer is to an address in userspace the security implications
-are minimal.  In particular, no kernel information is leaked.
-
-This patch changes the __user %pK specifiers (used in a bunch of
-debugging output lines) to %px, which will always print the actual
-address with no mangling.  (Notably, there is no printk format
-specifier particularly intended for __user pointers.)
-
-Fixes: 2f964780c03b ("USB: core: replace %p with %pK")
-CC: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201119170228.GB576844@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/devio.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index e96a858a1218..533236366a03 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -482,11 +482,11 @@ static void snoop_urb(struct usb_device *udev,
- 
- 	if (userurb) {		/* Async */
- 		if (when == SUBMIT)
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"length %u\n",
- 					userurb, ep, t, d, length);
- 		else
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"actual_length %u status %d\n",
- 					userurb, ep, t, d, length,
- 					timeout_or_status);
-@@ -1997,7 +1997,7 @@ static int proc_reapurb(struct usb_dev_state *ps, void __user *arg)
- 	if (as) {
- 		int retval;
- 
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -2014,7 +2014,7 @@ static int proc_reapurbnonblock(struct usb_dev_state *ps, void __user *arg)
- 
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2142,7 +2142,7 @@ static int proc_reapurb_compat(struct usb_dev_state *ps, void __user *arg)
- 	if (as) {
- 		int retval;
- 
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -2159,7 +2159,7 @@ static int proc_reapurbnonblock_compat(struct usb_dev_state *ps, void __user *ar
- 
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2624,7 +2624,7 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
- #endif
- 
- 	case USBDEVFS_DISCARDURB:
--		snoop(&dev->dev, "%s: DISCARDURB %pK\n", __func__, p);
-+		snoop(&dev->dev, "%s: DISCARDURB %px\n", __func__, p);
- 		ret = proc_unlinkurb(ps, p);
- 		break;
- 
--- 
-2.29.2
+stm32mp157c-dk2       | arm   | lab-baylibre  | gcc-8    | multi_v7_defconf=
+ig  | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.78-17-g2c39a62cc796/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.78-17-g2c39a62cc796
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2c39a62cc796ce6c50e432e92e2c6b8699f20123 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b1112132252a62d8d92a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4=
+_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b1112132252a62d8d=
+92b
+        failing since 22 days (last pass: v5.4.72-409-gbbe9df5e07cf, first =
+fail: v5.4.72-409-ga6e47f533653) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b1494fc5f7a07bd8d92f
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5fb7b1494fc5f7a0=
+7bd8d932
+        failing since 0 day (last pass: v5.4.78-5-g843222460ebea, first fai=
+l: v5.4.78-13-g81acf0f7c6ec)
+        1 lines
+
+    2020-11-20 12:04:33.543000+00:00  Connected to bcm2837-rpi-3-b console =
+[channel connected] (~$quit to exit)
+    2020-11-20 12:04:33.543000+00:00  (user:khilman) is already connected
+    2020-11-20 12:04:48.894000+00:00  =00
+    2020-11-20 12:04:48.894000+00:00  =
+
+    2020-11-20 12:04:48.894000+00:00  U-Boot 2018.11 (Dec 04 2018 - 10:54:3=
+2 -0800)
+    2020-11-20 12:04:48.895000+00:00  =
+
+    2020-11-20 12:04:48.895000+00:00  DRAM:  948 MiB
+    2020-11-20 12:04:48.910000+00:00  RPI 3 Model B (0xa02082)
+    2020-11-20 12:04:48.996000+00:00  MMC:   mmc@7e202000: 0, sdhci@7e30000=
+0: 1
+    2020-11-20 12:04:49.028000+00:00  Loading Environment from FAT... *** W=
+arning - bad CRC, using default environment =
+
+    ... (375 line(s) more)  =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b1cde7a2f9aa71d8d92b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b1cde7a2f9aa71d8d=
+92c
+        failing since 0 day (last pass: v5.4.78-5-g843222460ebea, first fai=
+l: v5.4.78-13-g81acf0f7c6ec) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b2a29339d34e88d8d922
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b2a29339d34e88d8d=
+923
+        failing since 6 days (last pass: v5.4.77-44-gce6b18c3a8969, first f=
+ail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b1ff255cc9860dd8d94e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b1ff255cc9860dd8d=
+94f
+        failing since 6 days (last pass: v5.4.77-44-gce6b18c3a8969, first f=
+ail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b1c8e7a2f9aa71d8d926
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b1c8e7a2f9aa71d8d=
+927
+        failing since 6 days (last pass: v5.4.77-44-gce6b18c3a8969, first f=
+ail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+    | regressions
+----------------------+-------+---------------+----------+-----------------=
+----+------------
+stm32mp157c-dk2       | arm   | lab-baylibre  | gcc-8    | multi_v7_defconf=
+ig  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fb7b3078f385ffebbd8d90a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
+7c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.78-17=
+-g2c39a62cc796/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-stm32mp15=
+7c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fb7b3078f385ffebbd8d=
+90b
+        failing since 25 days (last pass: v5.4.72-54-gc97bc0eb3ef2, first f=
+ail: v5.4.72-402-g22eb6f319bc6) =
+
+ =20
