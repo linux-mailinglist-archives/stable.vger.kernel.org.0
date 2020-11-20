@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FA72BA8AB
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 132A52BA800
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbgKTLEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:04:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
+        id S1727829AbgKTLD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbgKTLEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:04:41 -0500
+        id S1727784AbgKTLD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:03:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7465E22264;
-        Fri, 20 Nov 2020 11:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29491206E3;
+        Fri, 20 Nov 2020 11:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870280;
-        bh=rW92cS6AXh3BL1XGA0yxQH8z6NDRrd3MybpMxJ23wSw=;
+        s=korg; t=1605870236;
+        bh=wQz/dAefaNVNwr0CsGIoG0cz/aQDXoiZTfq2pfURcAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjcMe7XgSu+tci0p7lsFeVqIB7pJEFMoNeDr21ufNa8dfTbwvxzrFp09QKELRpK5w
-         PmFsypj24JqTj7tE7LutxtDq41a9YULM/pFUBtAl+x08cncjkZq16+1hqU1HJ3W2y2
-         9SvWCZWMa4B1G2lB5rAPqA3SzMGeoYgLu6Xylek0=
+        b=m4p8dwP3ATLIJhr7ciCGzjeQzr5LsyqNY1f+jF5OXRfjIgUZBel4LPMkXj9FKJVe8
+         U3x8DRHS40ZnEm3iCXkEIvtVyAdoIBCSLxMXk16ipSSfBMNmFxRk1Wvc6AY4fCEz84
+         WK+ktYpGl3wohDfGHM0l8cBgdZfcJvoM0H2Kb5iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 07/16] powerpc/uaccess: Evaluate macro arguments once, before user access is allowed
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 14/15] mac80211: always wind down STA state
 Date:   Fri, 20 Nov 2020 12:03:12 +0100
-Message-Id: <20201120104540.087576936@linuxfoundation.org>
+Message-Id: <20201120104540.261565597@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
-References: <20201120104539.706905067@linuxfoundation.org>
+In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
+References: <20201120104539.534424264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,150 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit d02f6b7dab8228487268298ea1f21081c0b4b3eb upstream.
+commit dcd479e10a0510522a5d88b29b8f79ea3467d501 upstream.
 
-get/put_user() can be called with nontrivial arguments. fs/proc/page.c
-has a good example:
+When (for example) an IBSS station is pre-moved to AUTHORIZED
+before it's inserted, and then the insertion fails, we don't
+clean up the fast RX/TX states that might already have been
+created, since we don't go through all the state transitions
+again on the way down.
 
-    if (put_user(stable_page_flags(ppage), out)) {
+Do that, if it hasn't been done already, when the station is
+freed. I considered only freeing the fast TX/RX state there,
+but we might add more state so it's more robust to wind down
+the state properly.
 
-stable_page_flags() is quite a lot of code, including spin locks in
-the page allocator.
+Note that we warn if the station was ever inserted, it should
+have been properly cleaned up in that case, and the driver
+will probably not like things happening out of order.
 
-Ensure these arguments are evaluated before user access is allowed.
-
-This improves security by reducing code with access to userspace, but
-it also fixes a PREEMPT bug with KUAP on powerpc/64s:
-stable_page_flags() is currently called with AMR set to allow writes,
-it ends up calling spin_unlock(), which can call preempt_schedule. But
-the task switch code can not be called with AMR set (it relies on
-interrupts saving the register), so this blows up.
-
-It's fine if the code inside allow_user_access() is preemptible,
-because a timer or IPI will save the AMR, but it's not okay to
-explicitly cause a reschedule.
-
-Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200407041245.600651-1-npiggin@gmail.com
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Reported-by: syzbot+2e293dbd67de2836ba42@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201009141710.7223b322a955.I95bd08b9ad0e039c034927cce0b75beea38e059b@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/uaccess.h |   49 ++++++++++++++++++++++++++-----------
- 1 file changed, 35 insertions(+), 14 deletions(-)
 
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -190,13 +190,17 @@ do {								\
- ({								\
- 	long __pu_err;						\
- 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
-+	__typeof__(*(ptr)) __pu_val = (x);			\
-+	__typeof__(size) __pu_size = (size);			\
-+								\
- 	if (!is_kernel_addr((unsigned long)__pu_addr))		\
- 		might_fault();					\
--	__chk_user_ptr(ptr);					\
-+	__chk_user_ptr(__pu_addr);				\
- 	if (do_allow)								\
--		__put_user_size((x), __pu_addr, (size), __pu_err);		\
-+		__put_user_size(__pu_val, __pu_addr, __pu_size, __pu_err);	\
- 	else									\
--		__put_user_size_allowed((x), __pu_addr, (size), __pu_err);	\
-+		__put_user_size_allowed(__pu_val, __pu_addr, __pu_size, __pu_err); \
-+								\
- 	__pu_err;						\
- })
- 
-@@ -204,9 +208,13 @@ do {								\
- ({									\
- 	long __pu_err = -EFAULT;					\
- 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
-+	__typeof__(*(ptr)) __pu_val = (x);				\
-+	__typeof__(size) __pu_size = (size);				\
-+									\
- 	might_fault();							\
--	if (access_ok(VERIFY_WRITE, __pu_addr, size))			\
--		__put_user_size((x), __pu_addr, (size), __pu_err);	\
-+	if (access_ok(VERIFY_WRITE, __pu_addr, __pu_size))			\
-+		__put_user_size(__pu_val, __pu_addr, __pu_size, __pu_err); \
-+									\
- 	__pu_err;							\
- })
- 
-@@ -214,8 +222,12 @@ do {								\
- ({								\
- 	long __pu_err;						\
- 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
--	__chk_user_ptr(ptr);					\
--	__put_user_size((x), __pu_addr, (size), __pu_err);	\
-+	__typeof__(*(ptr)) __pu_val = (x);			\
-+	__typeof__(size) __pu_size = (size);			\
-+								\
-+	__chk_user_ptr(__pu_addr);				\
-+	__put_user_size(__pu_val, __pu_addr, __pu_size, __pu_err); \
-+								\
- 	__pu_err;						\
- })
- 
-@@ -289,15 +301,18 @@ do {								\
- 	long __gu_err;						\
- 	unsigned long __gu_val;					\
- 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
--	__chk_user_ptr(ptr);					\
-+	__typeof__(size) __gu_size = (size);			\
-+								\
-+	__chk_user_ptr(__gu_addr);				\
- 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
- 		might_fault();					\
- 	barrier_nospec();					\
- 	if (do_allow)								\
--		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);		\
-+		__get_user_size(__gu_val, __gu_addr, __gu_size, __gu_err);	\
- 	else									\
--		__get_user_size_allowed(__gu_val, __gu_addr, (size), __gu_err);	\
-+		__get_user_size_allowed(__gu_val, __gu_addr, __gu_size, __gu_err); \
- 	(x) = (__typeof__(*(ptr)))__gu_val;			\
-+								\
- 	__gu_err;						\
- })
- 
-@@ -306,12 +321,15 @@ do {								\
- 	long __gu_err = -EFAULT;					\
- 	unsigned long  __gu_val = 0;					\
- 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
-+	__typeof__(size) __gu_size = (size);				\
-+									\
- 	might_fault();							\
--	if (access_ok(VERIFY_READ, __gu_addr, (size))) {		\
-+	if (access_ok(VERIFY_READ, __gu_addr, __gu_size)) {		\
- 		barrier_nospec();					\
--		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
-+		__get_user_size(__gu_val, __gu_addr, __gu_size, __gu_err); \
- 	}								\
- 	(x) = (__force __typeof__(*(ptr)))__gu_val;				\
-+									\
- 	__gu_err;							\
- })
- 
-@@ -320,10 +338,13 @@ do {								\
- 	long __gu_err;						\
- 	unsigned long __gu_val;					\
- 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
--	__chk_user_ptr(ptr);					\
-+	__typeof__(size) __gu_size = (size);			\
-+								\
-+	__chk_user_ptr(__gu_addr);				\
- 	barrier_nospec();					\
--	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
-+	__get_user_size(__gu_val, __gu_addr, __gu_size, __gu_err); \
- 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
-+								\
- 	__gu_err;						\
- })
+---
+ net/mac80211/sta_info.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -242,6 +242,24 @@ struct sta_info *sta_info_get_by_idx(str
+  */
+ void sta_info_free(struct ieee80211_local *local, struct sta_info *sta)
+ {
++	/*
++	 * If we had used sta_info_pre_move_state() then we might not
++	 * have gone through the state transitions down again, so do
++	 * it here now (and warn if it's inserted).
++	 *
++	 * This will clear state such as fast TX/RX that may have been
++	 * allocated during state transitions.
++	 */
++	while (sta->sta_state > IEEE80211_STA_NONE) {
++		int ret;
++
++		WARN_ON_ONCE(test_sta_flag(sta, WLAN_STA_INSERTED));
++
++		ret = sta_info_move_state(sta, sta->sta_state - 1);
++		if (WARN_ONCE(ret, "sta_info_move_state() returned %d\n", ret))
++			break;
++	}
++
+ 	if (sta->rate_ctrl)
+ 		rate_control_free_sta(sta);
  
 
 
