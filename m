@@ -2,134 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AAF72BA88C
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE8EA2BA879
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgKTLJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:09:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55288 "EHLO mail.kernel.org"
+        id S1728557AbgKTLIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728517AbgKTLHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:07:15 -0500
+        id S1728593AbgKTLII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:08:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63DEA22255;
-        Fri, 20 Nov 2020 11:07:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A939C221FB;
+        Fri, 20 Nov 2020 11:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870435;
-        bh=gljOvNHXp1VTBEnY7Lwwr+Y4r9gqVd7Of+cJhgsToVk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7TBPt1qeMDZwVlThiR9yu+0hgivVZWc2Ei+OJZ8reM9p3elG9t8mcCSuQY5el1IC
-         ffPqlvpDO5KoQGv58qBOD8pKhRndXofZPJK+hMPaLwrPTVO1w1cdP7IyPCAdoN6poz
-         j9T8uWNl0Kj5um+WJzjba+QPpVu+h+gDpIknNP2I=
+        s=korg; t=1605870485;
+        bh=PxU0lxr86YkSiNXVYlI1WIBnaLBJRZFuBPMrdTGswyY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KxVihM/o5Ibz//WbsAhI8mgfCSsWlm71DJTl6Bf+glDC/iGrx9vy4bZW7i0aUoDUN
+         W2MyKMDjGACRmRgQ9Pqo1B9qogArfVS6f+XUgZqadiE84NBdTJe0hn1SsEeWrDJQZm
+         SmEwaB6U24oCOi0b03znLmMFTcUVLqzQsOAMdKjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 11/17] powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 5.9 00/14] 5.9.10-rc1 review
 Date:   Fri, 20 Nov 2020 12:03:38 +0100
-Message-Id: <20201120104541.615620653@linuxfoundation.org>
+Message-Id: <20201120104541.168007611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104541.058449969@linuxfoundation.org>
-References: <20201120104541.058449969@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.9.10-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.9.10-rc1
+X-KernelTest-Deadline: 2020-11-22T10:45+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+This is the start of the stable review cycle for the 5.9.10 release.
+There are 14 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 29daf869cbab69088fe1755d9dd224e99ba78b56 upstream.
+Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
+Anything received after that time might be too late.
 
-The kernel expects pte_young() to work regardless of CONFIG_SWAP.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.10-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
+and the diffstat can be found below.
 
-Make sure a minor fault is taken to set _PAGE_ACCESSED when it
-is not already set, regardless of the selection of CONFIG_SWAP.
+thanks,
 
-This adds at least 3 instructions to the TLB miss exception
-handlers fast path. Following patch will reduce this overhead.
+greg k-h
 
-Also update the rotation instruction to the correct number of bits
-to reflect all changes done to _PAGE_ACCESSED over time.
+-------------
+Pseudo-Shortlog of commits:
 
-Fixes: d069cb4373fe ("powerpc/8xx: Don't touch ACCESSED when no SWAP.")
-Fixes: 5f356497c384 ("powerpc/8xx: remove unused _PAGE_WRITETHRU")
-Fixes: e0a8e0d90a9f ("powerpc/8xx: Handle PAGE_USER via APG bits")
-Fixes: 5b2753fc3e8a ("powerpc/8xx: Implementation of PAGE_EXEC")
-Fixes: a891c43b97d3 ("powerpc/8xx: Prepare handlers for _PAGE_HUGE for 512k pages.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/af834e8a0f1fa97bfae65664950f0984a70c4750.1602492856.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.9.10-rc1
 
----
- arch/powerpc/kernel/head_8xx.S |   14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+Nick Desaulniers <ndesaulniers@google.com>
+    ACPI: GED: fix -Wformat
 
---- a/arch/powerpc/kernel/head_8xx.S
-+++ b/arch/powerpc/kernel/head_8xx.S
-@@ -229,9 +229,7 @@ SystemCall:
- 
- InstructionTLBMiss:
- 	mtspr	SPRN_SPRG_SCRATCH0, r10
--#if defined(ITLB_MISS_KERNEL) || defined(CONFIG_SWAP)
- 	mtspr	SPRN_SPRG_SCRATCH1, r11
--#endif
- 
- 	/* If we are faulting a kernel address, we have to use the
- 	 * kernel page tables.
-@@ -278,11 +276,9 @@ InstructionTLBMiss:
- #ifdef ITLB_MISS_KERNEL
- 	mtcr	r11
- #endif
--#ifdef CONFIG_SWAP
--	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
-+	rlwinm	r11, r10, 32-7, _PAGE_PRESENT
- 	and	r11, r11, r10
- 	rlwimi	r10, r11, 0, _PAGE_PRESENT
--#endif
- 	/* The Linux PTE won't go exactly into the MMU TLB.
- 	 * Software indicator bits 20 and 23 must be clear.
- 	 * Software indicator bits 22, 24, 25, 26, and 27 must be
-@@ -296,9 +292,7 @@ InstructionTLBMiss:
- 
- 	/* Restore registers */
- 0:	mfspr	r10, SPRN_SPRG_SCRATCH0
--#if defined(ITLB_MISS_KERNEL) || defined(CONFIG_SWAP)
- 	mfspr	r11, SPRN_SPRG_SCRATCH1
--#endif
- 	rfi
- 	patch_site	0b, patch__itlbmiss_exit_1
- 
-@@ -308,9 +302,7 @@ InstructionTLBMiss:
- 	addi	r10, r10, 1
- 	stw	r10, (itlb_miss_counter - PAGE_OFFSET)@l(0)
- 	mfspr	r10, SPRN_SPRG_SCRATCH0
--#if defined(ITLB_MISS_KERNEL) || defined(CONFIG_SWAP)
- 	mfspr	r11, SPRN_SPRG_SCRATCH1
--#endif
- 	rfi
- #endif
- 
-@@ -394,11 +386,9 @@ DataStoreTLBMiss:
- 	 * r11 = ((r10 & PRESENT) & ((r10 & ACCESSED) >> 5));
- 	 * r10 = (r10 & ~PRESENT) | r11;
- 	 */
--#ifdef CONFIG_SWAP
--	rlwinm	r11, r10, 32-5, _PAGE_PRESENT
-+	rlwinm	r11, r10, 32-7, _PAGE_PRESENT
- 	and	r11, r11, r10
- 	rlwimi	r10, r11, 0, _PAGE_PRESENT
--#endif
- 	/* The Linux PTE won't go exactly into the MMU TLB.
- 	 * Software indicator bits 24, 25, 26, and 27 must be
- 	 * set.  All other Linux PTE bits control the behavior
+David Edmondson <david.edmondson@oracle.com>
+    KVM: x86: clflushopt should be treated as a no-op by emulation
+
+Arnd Bergmann <arnd@arndb.de>
+    perf/x86/intel/uncore: Fix Add BW copypasta
+
+Qian Cai <cai@redhat.com>
+    powerpc/smp: Call rcu_cpu_starting() earlier
+
+Tommi Rantala <tommi.t.rantala@nokia.com>
+    selftests/harness: prettify SKIP message whitespace again
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    can: proc: can_remove_proc(): silence remove_proc_entry warning
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: always wind down STA state
+
+Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    Input: sunkbd - avoid use-after-free in teardown paths
+
+Gabriel David <ultracoolguy@tutanota.com>
+    leds: lm3697: Fix out-of-bound access
+
+Daniel Axtens <dja@axtens.net>
+    selftests/powerpc: entry flush test
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc: Only include kup-radix.h for 64-bit Book3S
+
+Nicholas Piggin <npiggin@gmail.com>
+    powerpc/64s: flush L1D after user accesses
+
+Nicholas Piggin <npiggin@gmail.com>
+    powerpc/64s: flush L1D on kernel entry
+
+Russell Currey <ruscur@russell.cc>
+    selftests/powerpc: rfi_flush: disable entry flush if present
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |   7 +
+ Makefile                                           |   4 +-
+ arch/powerpc/include/asm/book3s/64/kup-radix.h     |  66 ++++---
+ arch/powerpc/include/asm/exception-64s.h           |  12 +-
+ arch/powerpc/include/asm/feature-fixups.h          |  19 ++
+ arch/powerpc/include/asm/kup.h                     |  26 ++-
+ arch/powerpc/include/asm/security_features.h       |   7 +
+ arch/powerpc/include/asm/setup.h                   |   4 +
+ arch/powerpc/kernel/exceptions-64s.S               |  80 +++++----
+ arch/powerpc/kernel/setup_64.c                     | 122 ++++++++++++-
+ arch/powerpc/kernel/smp.c                          |   2 +-
+ arch/powerpc/kernel/syscall_64.c                   |   2 +-
+ arch/powerpc/kernel/vmlinux.lds.S                  |  14 ++
+ arch/powerpc/lib/feature-fixups.c                  | 104 +++++++++++
+ arch/powerpc/platforms/powernv/setup.c             |  17 ++
+ arch/powerpc/platforms/pseries/setup.c             |   8 +
+ arch/x86/events/intel/uncore_snb.c                 |   2 +-
+ arch/x86/kvm/emulate.c                             |   8 +-
+ drivers/acpi/evged.c                               |   2 +-
+ drivers/input/keyboard/sunkbd.c                    |  41 ++++-
+ drivers/leds/leds-lm3697.c                         |   8 +-
+ net/can/proc.c                                     |   6 +-
+ net/mac80211/sta_info.c                            |  18 ++
+ tools/testing/selftests/kselftest_harness.h        |   2 +-
+ .../testing/selftests/powerpc/security/.gitignore  |   1 +
+ tools/testing/selftests/powerpc/security/Makefile  |   2 +-
+ .../selftests/powerpc/security/entry_flush.c       | 198 +++++++++++++++++++++
+ .../testing/selftests/powerpc/security/rfi_flush.c |  35 +++-
+ 28 files changed, 719 insertions(+), 98 deletions(-)
 
 
