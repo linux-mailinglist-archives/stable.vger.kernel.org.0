@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4522BA871
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51C9F2BA898
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727543AbgKTLHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:07:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S1728289AbgKTLJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:09:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728432AbgKTLHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:07:51 -0500
+        id S1728475AbgKTLG7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:06:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B483206E3;
-        Fri, 20 Nov 2020 11:07:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2EBD206E3;
+        Fri, 20 Nov 2020 11:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870470;
-        bh=HElhHWD3NNO9omoBPlZg5mSoMAUJsp5xfB2CXHCBRTs=;
+        s=korg; t=1605870417;
+        bh=BXCl5lnHPHbgAc3oM33JSIXt4g6ZDhwRntFQ5umQ1As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSgiXQHWae3D3xeFS9upnRyraAxX2TNrUQZBs3oeDx/yAv/rDuKD21pky0kLMnOZ2
-         JUpyQ9ahYUOKjYyGI+JBrPVFcuWVN0h1EqCko65ysQP38xxC/u9Er0d0fSgpm8Uf3Q
-         9uJw2Or4zUq0LEOK/euL1QtfNuWUXDrIjyoHtD+k=
+        b=zte8ysTKuMLp190ftSCN9hwXkQTcmSmOWubpyO3DowZiB3Ysd1HzeRREyKjgsUbkg
+         xnwedGiWP7uqg2BY2pjzeN0xyuTuFlWQR10szOc9b7wmv7KhqpvmD9LAiJziHJ7GgP
+         IrEp64wLoB80okudS+XEHmGXKzcTAoaLj2ajKnjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net
-Subject: [PATCH 5.9 05/14] selftests/powerpc: entry flush test
-Date:   Fri, 20 Nov 2020 12:03:43 +0100
-Message-Id: <20201120104541.433708552@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 17/17] ACPI: GED: fix -Wformat
+Date:   Fri, 20 Nov 2020 12:03:44 +0100
+Message-Id: <20201120104541.906965532@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104541.168007611@linuxfoundation.org>
-References: <20201120104541.168007611@linuxfoundation.org>
+In-Reply-To: <20201120104541.058449969@linuxfoundation.org>
+References: <20201120104541.058449969@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,241 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 89a83a0c69c81a25ce91002b90ca27ed86132a0a upstream.
+commit 9debfb81e7654fe7388a49f45bc4d789b94c1103 upstream.
 
-Add a test modelled on the RFI flush test which counts the number
-of L1D misses doing a simple syscall with the entry flush on and off.
+Clang is more aggressive about -Wformat warnings when the format flag
+specifies a type smaller than the parameter. It turns out that gsi is an
+int. Fixes:
 
-For simplicity of backporting, this test duplicates a lot of code from
-rfi_flush. We clean that up in the next patch.
+drivers/acpi/evged.c:105:48: warning: format specifies type 'unsigned
+char' but the argument has type 'unsigned int' [-Wformat]
+trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
+                                            ^~~
 
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Fixes: ea6f3af4c5e6 ("ACPI: GED: add support for _Exx / _Lxx handler methods")
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/powerpc/security/.gitignore    |    1 
- tools/testing/selftests/powerpc/security/Makefile      |    2 
- tools/testing/selftests/powerpc/security/entry_flush.c |  198 +++++++++++++++++
- 3 files changed, 200 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/powerpc/security/entry_flush.c
 
---- a/tools/testing/selftests/powerpc/security/.gitignore
-+++ b/tools/testing/selftests/powerpc/security/.gitignore
-@@ -1,2 +1,3 @@
- # SPDX-License-Identifier: GPL-2.0-only
- rfi_flush
-+entry_flush
---- a/tools/testing/selftests/powerpc/security/Makefile
-+++ b/tools/testing/selftests/powerpc/security/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0+
+---
+ drivers/acpi/evged.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/acpi/evged.c
++++ b/drivers/acpi/evged.c
+@@ -101,7 +101,7 @@ static acpi_status acpi_ged_request_inte
  
--TEST_GEN_PROGS := rfi_flush spectre_v2
-+TEST_GEN_PROGS := rfi_flush entry_flush spectre_v2
- top_srcdir = ../../../../..
+ 	switch (gsi) {
+ 	case 0 ... 255:
+-		sprintf(ev_name, "_%c%02hhX",
++		sprintf(ev_name, "_%c%02X",
+ 			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
  
- CFLAGS += -I../../../../../usr/include
---- /dev/null
-+++ b/tools/testing/selftests/powerpc/security/entry_flush.c
-@@ -0,0 +1,198 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+
-+/*
-+ * Copyright 2018 IBM Corporation.
-+ */
-+
-+#define __SANE_USERSPACE_TYPES__
-+
-+#include <sys/types.h>
-+#include <stdint.h>
-+#include <malloc.h>
-+#include <unistd.h>
-+#include <signal.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <stdio.h>
-+#include "utils.h"
-+
-+#define CACHELINE_SIZE 128
-+
-+struct perf_event_read {
-+	__u64 nr;
-+	__u64 l1d_misses;
-+};
-+
-+static inline __u64 load(void *addr)
-+{
-+	__u64 tmp;
-+
-+	asm volatile("ld %0,0(%1)" : "=r"(tmp) : "b"(addr));
-+
-+	return tmp;
-+}
-+
-+static void syscall_loop(char *p, unsigned long iterations,
-+			 unsigned long zero_size)
-+{
-+	for (unsigned long i = 0; i < iterations; i++) {
-+		for (unsigned long j = 0; j < zero_size; j += CACHELINE_SIZE)
-+			load(p + j);
-+		getppid();
-+	}
-+}
-+
-+static void sigill_handler(int signr, siginfo_t *info, void *unused)
-+{
-+	static int warned;
-+	ucontext_t *ctx = (ucontext_t *)unused;
-+	unsigned long *pc = &UCONTEXT_NIA(ctx);
-+
-+	/* mtspr 3,RS to check for move to DSCR below */
-+	if ((*((unsigned int *)*pc) & 0xfc1fffff) == 0x7c0303a6) {
-+		if (!warned++)
-+			printf("WARNING: Skipping over dscr setup. Consider running 'ppc64_cpu --dscr=1' manually.\n");
-+		*pc += 4;
-+	} else {
-+		printf("SIGILL at %p\n", pc);
-+		abort();
-+	}
-+}
-+
-+static void set_dscr(unsigned long val)
-+{
-+	static int init;
-+	struct sigaction sa;
-+
-+	if (!init) {
-+		memset(&sa, 0, sizeof(sa));
-+		sa.sa_sigaction = sigill_handler;
-+		sa.sa_flags = SA_SIGINFO;
-+		if (sigaction(SIGILL, &sa, NULL))
-+			perror("sigill_handler");
-+		init = 1;
-+	}
-+
-+	asm volatile("mtspr %1,%0" : : "r" (val), "i" (SPRN_DSCR));
-+}
-+
-+int entry_flush_test(void)
-+{
-+	char *p;
-+	int repetitions = 10;
-+	int fd, passes = 0, iter, rc = 0;
-+	struct perf_event_read v;
-+	__u64 l1d_misses_total = 0;
-+	unsigned long iterations = 100000, zero_size = 24 * 1024;
-+	unsigned long l1d_misses_expected;
-+	int rfi_flush_orig;
-+	int entry_flush, entry_flush_orig;
-+
-+	SKIP_IF(geteuid() != 0);
-+
-+	// The PMU event we use only works on Power7 or later
-+	SKIP_IF(!have_hwcap(PPC_FEATURE_ARCH_2_06));
-+
-+	if (read_debugfs_file("powerpc/rfi_flush", &rfi_flush_orig) < 0) {
-+		perror("Unable to read powerpc/rfi_flush debugfs file");
-+		SKIP_IF(1);
-+	}
-+
-+	if (read_debugfs_file("powerpc/entry_flush", &entry_flush_orig) < 0) {
-+		perror("Unable to read powerpc/entry_flush debugfs file");
-+		SKIP_IF(1);
-+	}
-+
-+	if (rfi_flush_orig != 0) {
-+		if (write_debugfs_file("powerpc/rfi_flush", 0) < 0) {
-+			perror("error writing to powerpc/rfi_flush debugfs file");
-+			FAIL_IF(1);
-+		}
-+	}
-+
-+	entry_flush = entry_flush_orig;
-+
-+	fd = perf_event_open_counter(PERF_TYPE_RAW, /* L1d miss */ 0x400f0, -1);
-+	FAIL_IF(fd < 0);
-+
-+	p = (char *)memalign(zero_size, CACHELINE_SIZE);
-+
-+	FAIL_IF(perf_event_enable(fd));
-+
-+	// disable L1 prefetching
-+	set_dscr(1);
-+
-+	iter = repetitions;
-+
-+	/*
-+	 * We expect to see l1d miss for each cacheline access when entry_flush
-+	 * is set. Allow a small variation on this.
-+	 */
-+	l1d_misses_expected = iterations * (zero_size / CACHELINE_SIZE - 2);
-+
-+again:
-+	FAIL_IF(perf_event_reset(fd));
-+
-+	syscall_loop(p, iterations, zero_size);
-+
-+	FAIL_IF(read(fd, &v, sizeof(v)) != sizeof(v));
-+
-+	if (entry_flush && v.l1d_misses >= l1d_misses_expected)
-+		passes++;
-+	else if (!entry_flush && v.l1d_misses < (l1d_misses_expected / 2))
-+		passes++;
-+
-+	l1d_misses_total += v.l1d_misses;
-+
-+	while (--iter)
-+		goto again;
-+
-+	if (passes < repetitions) {
-+		printf("FAIL (L1D misses with entry_flush=%d: %llu %c %lu) [%d/%d failures]\n",
-+		       entry_flush, l1d_misses_total, entry_flush ? '<' : '>',
-+		       entry_flush ? repetitions * l1d_misses_expected :
-+		       repetitions * l1d_misses_expected / 2,
-+		       repetitions - passes, repetitions);
-+		rc = 1;
-+	} else {
-+		printf("PASS (L1D misses with entry_flush=%d: %llu %c %lu) [%d/%d pass]\n",
-+		       entry_flush, l1d_misses_total, entry_flush ? '>' : '<',
-+		       entry_flush ? repetitions * l1d_misses_expected :
-+		       repetitions * l1d_misses_expected / 2,
-+		       passes, repetitions);
-+	}
-+
-+	if (entry_flush == entry_flush_orig) {
-+		entry_flush = !entry_flush_orig;
-+		if (write_debugfs_file("powerpc/entry_flush", entry_flush) < 0) {
-+			perror("error writing to powerpc/entry_flush debugfs file");
-+			return 1;
-+		}
-+		iter = repetitions;
-+		l1d_misses_total = 0;
-+		passes = 0;
-+		goto again;
-+	}
-+
-+	perf_event_disable(fd);
-+	close(fd);
-+
-+	set_dscr(0);
-+
-+	if (write_debugfs_file("powerpc/rfi_flush", rfi_flush_orig) < 0) {
-+		perror("unable to restore original value of powerpc/rfi_flush debugfs file");
-+		return 1;
-+	}
-+
-+	if (write_debugfs_file("powerpc/entry_flush", entry_flush_orig) < 0) {
-+		perror("unable to restore original value of powerpc/entry_flush debugfs file");
-+		return 1;
-+	}
-+
-+	return rc;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	return test_harness(entry_flush_test, "entry_flush_test");
-+}
+ 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
 
 
