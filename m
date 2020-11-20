@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9FE2BA855
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:09:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B782BA82E
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728409AbgKTLGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:06:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54330 "EHLO mail.kernel.org"
+        id S1728102AbgKTLFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728405AbgKTLGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:06:32 -0500
+        id S1728124AbgKTLFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F215022470;
-        Fri, 20 Nov 2020 11:06:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 239A6206E3;
+        Fri, 20 Nov 2020 11:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870391;
-        bh=7atSHnN+R+DbgYHNQpP2oi7S4xgIpvpP6V5z7RTBNQQ=;
+        s=korg; t=1605870311;
+        bh=AZLsmIPNPAilBs+BoMq2gA0uY08IdxmkzWMcW4lV+XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZ3HGrT20wpMj3gOqoCfvrB3rKmf3d0j8GgpUU1Ybg+godTB/OWjeiy+KT/PTW2ZR
-         JxtWV3ny7XApxv+ZKWBpsLQAAVlwinK8ci6DT5KjC/ellq4bwVa4e6TTkoPF0GmEji
-         liJX4QZ55fwKs6RQtPcWxjS9k8C8F01GFgXfKgm0=
+        b=aXdKzxxBRaIoNJlOijtYdMR2KKLC9GUFj20bsyL0yrT2oBp7F2HI5p/bvLe2z/RbT
+         EMgxLiyrkKv2bkiZoU3x85rcuqy0yg5dOhFSBz/F9vgEoniJZ5h9yDGRBmaNY2oWyg
+         +AQWdtSyubOOshgToBfFteWgpUz3NpvhNbyT02WA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [PATCH 4.19 05/14] powerpc: Fix __clear_user() with KUAP enabled
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 15/17] can: proc: can_remove_proc(): silence remove_proc_entry warning
 Date:   Fri, 20 Nov 2020 12:03:26 +0100
-Message-Id: <20201120104540.062636345@linuxfoundation.org>
+Message-Id: <20201120104541.164938956@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.806156260@linuxfoundation.org>
-References: <20201120104539.806156260@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 61e3acd8c693a14fc69b824cb5b08d02cb90a6e7 upstream.
+commit 3accbfdc36130282f5ae9e6eecfdf820169fedce upstream.
 
-The KUAP implementation adds calls in clear_user() to enable and
-disable access to userspace memory. However, it doesn't add these to
-__clear_user(), which is used in the ptrace regset code.
+If can_init_proc() fail to create /proc/net/can directory, can_remove_proc()
+will trigger a warning:
 
-As there's only one direct user of __clear_user() (the regset code),
-and the time taken to set the AMR for KUAP purposes is going to
-dominate the cost of a quick access_ok(), there's not much point
-having a separate path.
+WARNING: CPU: 6 PID: 7133 at fs/proc/generic.c:672 remove_proc_entry+0x17b0
+Kernel panic - not syncing: panic_on_warn set ...
 
-Rename __clear_user() to __arch_clear_user(), and make __clear_user()
-just call clear_user().
+Fix to return early from can_remove_proc() if can proc_dir does not exists.
 
-Reported-by: syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com
-Reported-by: Daniel Axtens <dja@axtens.net>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-[mpe: Use __arch_clear_user() for the asm version like arm64 & nds32]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191209132221.15328-1-ajd@linux.ibm.com
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1594709090-3203-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: 8e8cda6d737d ("can: initial support for network namespaces")
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/uaccess.h |    9 +++++++--
- arch/powerpc/lib/string_32.S       |    4 ++--
- arch/powerpc/lib/string_64.S       |    6 +++---
- 3 files changed, 12 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -416,7 +416,7 @@ raw_copy_to_user(void __user *to, const
- 	return ret;
- }
- 
--extern unsigned long __clear_user(void __user *addr, unsigned long size);
-+unsigned long __arch_clear_user(void __user *addr, unsigned long size);
- 
- static inline unsigned long clear_user(void __user *addr, unsigned long size)
+---
+ net/can/proc.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -554,6 +554,9 @@ void can_init_proc(struct net *net)
+  */
+ void can_remove_proc(struct net *net)
  {
-@@ -424,12 +424,17 @@ static inline unsigned long clear_user(v
- 	might_fault();
- 	if (likely(access_ok(VERIFY_WRITE, addr, size))) {
- 		allow_write_to_user(addr, size);
--		ret = __clear_user(addr, size);
-+		ret = __arch_clear_user(addr, size);
- 		prevent_write_to_user(addr, size);
- 	}
- 	return ret;
- }
- 
-+static inline unsigned long __clear_user(void __user *addr, unsigned long size)
-+{
-+	return clear_user(addr, size);
-+}
++	if (!net->can.proc_dir)
++		return;
 +
- extern long strncpy_from_user(char *dst, const char __user *src, long count);
- extern __must_check long strnlen_user(const char __user *str, long n);
+ 	if (net->can.pde_version)
+ 		remove_proc_entry(CAN_PROC_VERSION, net->can.proc_dir);
  
---- a/arch/powerpc/lib/string_32.S
-+++ b/arch/powerpc/lib/string_32.S
-@@ -17,7 +17,7 @@ CACHELINE_BYTES = L1_CACHE_BYTES
- LG_CACHELINE_BYTES = L1_CACHE_SHIFT
- CACHELINE_MASK = (L1_CACHE_BYTES-1)
+@@ -581,6 +584,5 @@ void can_remove_proc(struct net *net)
+ 	if (net->can.pde_rcvlist_sff)
+ 		remove_proc_entry(CAN_PROC_RCVLIST_SFF, net->can.proc_dir);
  
--_GLOBAL(__clear_user)
-+_GLOBAL(__arch_clear_user)
- /*
-  * Use dcbz on the complete cache lines in the destination
-  * to set them to zero.  This requires that the destination
-@@ -87,4 +87,4 @@ _GLOBAL(__clear_user)
- 	EX_TABLE(8b, 91b)
- 	EX_TABLE(9b, 91b)
- 
--EXPORT_SYMBOL(__clear_user)
-+EXPORT_SYMBOL(__arch_clear_user)
---- a/arch/powerpc/lib/string_64.S
-+++ b/arch/powerpc/lib/string_64.S
-@@ -29,7 +29,7 @@ PPC64_CACHES:
- 	.section	".text"
- 
- /**
-- * __clear_user: - Zero a block of memory in user space, with less checking.
-+ * __arch_clear_user: - Zero a block of memory in user space, with less checking.
-  * @to:   Destination address, in user space.
-  * @n:    Number of bytes to zero.
-  *
-@@ -70,7 +70,7 @@ err3;	stb	r0,0(r3)
- 	mr	r3,r4
- 	blr
- 
--_GLOBAL_TOC(__clear_user)
-+_GLOBAL_TOC(__arch_clear_user)
- 	cmpdi	r4,32
- 	neg	r6,r3
- 	li	r0,0
-@@ -193,4 +193,4 @@ err1;	dcbz	0,r3
- 	cmpdi	r4,32
- 	blt	.Lshort_clear
- 	b	.Lmedium_clear
--EXPORT_SYMBOL(__clear_user)
-+EXPORT_SYMBOL(__arch_clear_user)
+-	if (net->can.proc_dir)
+-		remove_proc_entry("can", net->proc_net);
++	remove_proc_entry("can", net->proc_net);
+ }
 
 
