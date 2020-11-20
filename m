@@ -2,335 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E692BA9E0
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 13:11:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CBF32BA9FA
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 13:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727254AbgKTMKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 07:10:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38770 "EHLO
+        id S1727983AbgKTMQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 07:16:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727061AbgKTMKS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 07:10:18 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E7CC0613CF
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:10:18 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id v21so3504238plo.12
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:10:18 -0800 (PST)
+        with ESMTP id S1727917AbgKTMQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 07:16:03 -0500
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E7DC0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:16:02 -0800 (PST)
+Received: by mail-lf1-x141.google.com with SMTP id r9so13143938lfn.11
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 04:16:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bY5G9pPuamFuV0MFfQtqbPMqSIbJljEDBfh1GnuwCVM=;
-        b=SlYZIvVuXOrhA7gzLmHz/2oezuREsyp6lZuGGQ0Jbv9wpY/CEt6EvQjbYdJEFmD2sc
-         2eM9WvvthyDPowyfLRaWDWNSYUUMycMsKmpoeCTg+LW/pEg74+ALdJnoIa9StSjcaOMf
-         zkDZPEo66LGca8usunv9BAiRNcMb0qc2mOqvHGaVZ8Ulpar9blO+JpWXo9m42AiD4mh4
-         s9pT1Jb70ehr6CwKvMBmisiBosJ/Efj05q6pz6q2pDvHfwaaabWuWbBbxUKo70vdA7Z8
-         OYvrTr67oyMJTODJn22iAl7mE4H9736VY2bVexpgZNTMadaLj1RHtyDn0cCQn94lX2dT
-         bLrQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MVSaOkF3AomvYRttVt5pT5G0ZpChiXWS9V8yrqr9bO4=;
+        b=U+Ag/6xGozQSd+HaCLrD0hEWIdBg6mA2vBFEougKY9KNMaThva+1LwdWfiNkZwlHNh
+         cfK3oxd7cE54uC+TYTfZwY1jH83PxOO5EOQp6k8ppLJFSRjFU3sgv/3cMhwPbiXBRRs1
+         52WimeDmht3hFYSe6blyahsBklPiH5sbjWrnxW8ey+x40VCi805l97LBAy7p9JRg2HIW
+         rr1j4Va8cq2vvYHvH0g+SopkAJiW+8NkJGfgbi9VZevMU7YvWgQHgtxiYRk5oxZA6QaP
+         G5EtGykkSATFIqgF8OhhDs0P6Juwj7yq1otoVNTYfNHx/BfYLOK60c0pTFCG6z+5WuWy
+         747w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bY5G9pPuamFuV0MFfQtqbPMqSIbJljEDBfh1GnuwCVM=;
-        b=WtYXeCc0/9ZtogMKWWbjJxcaU+GVs9lzSj4xHRkw2OCjyRjRRnN2oGwc7fKnagxcKK
-         iiUEFUQd8kWQ14kyNUk5hFxoH2nZL2jpdriEohMXMukRUUUuntM2pLuV2r8Vc+pynb8P
-         WtYsBTzZeXvW6/5h6nLMsG/eTFPxkMJc5wL66UbCf0E1/DLpYjOlEu8L+wFXWBYD38G+
-         REWmPP3jxzhVhKHJipKzYf4EmnN2huPk2VNMm/sTDkAoStKGa14IIWPsGrhP6psrgO+I
-         hddfiuGF4zStb3uIrAedzeXbIZo9m74S/Q9KRgfx/I5S52yTddO+EWsp7crhKGE8xE6U
-         l8iA==
-X-Gm-Message-State: AOAM531oogTM8ZJ+z6H2V3y/4VoCMq0DIBpcfe3vI3i0ElYa57LHrG88
-        lnKjuJMa9FQnFCJ75n8ZnJdSkM/cZGpw+w==
-X-Google-Smtp-Source: ABdhPJy0pzcI6e3IR1D6U9PgdGozIwOwH8jgM1Pbh2K8459oOg4Y9tK1U7MkT9qoNnYdaBkoWIah7w==
-X-Received: by 2002:a17:902:bb94:b029:d6:edb2:4f41 with SMTP id m20-20020a170902bb94b02900d6edb24f41mr13316564pls.3.1605874217587;
-        Fri, 20 Nov 2020 04:10:17 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k4sm3669570pfg.130.2020.11.20.04.10.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2020 04:10:16 -0800 (PST)
-Message-ID: <5fb7b228.1c69fb81.271ca.6e36@mx.google.com>
-Date:   Fri, 20 Nov 2020 04:10:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MVSaOkF3AomvYRttVt5pT5G0ZpChiXWS9V8yrqr9bO4=;
+        b=Tks+YTtUwgn2M+7tj5l3Qe3zk9B3xYzqvDxcqLULn3OFRpi8VlcvixhleP9bkEQXov
+         GQ0fvJvyL28UPkryeJRQmxDB2Uv41amIc8Wp2HhY7Qd5faDznVAGFlckh9nCY5/qNemq
+         xRAw+w5uRLcS2BXlcc8EwBoyzRU17kMWiCY6t4adC0iBoJZ1s4qNJdMx/53Jmz1D8O0e
+         QKtaIwpednlR7oke1ohHeTPBbQNyqnKuinzd5V7EC6yLrwg9Xj7OeUuWsk8B12RGV/pX
+         u5qQY6CtPPrgVM1yhUwbecsowdo+byu6xN+8A97HgyyTVApmV4oXvW4kqUZCM4jI+1/V
+         C1bQ==
+X-Gm-Message-State: AOAM530D+hzbjkDGfg3ejbzzqrD0MsqAwtzN5+41HlVOwzRdGrjA9jvm
+        PFUqADYmDoVXaSGmjKPFi4t1RDah6HmpVxN4HR/+nMaz9cHcNg==
+X-Google-Smtp-Source: ABdhPJxHhDispxKgVq6UB2k87k0Hbs8a1DiHLZ6sjyEAyXB3TVnLWRnnuT4B/xUmAR/+M6hO/EUXkqfYDjDP7is5plg=
+X-Received: by 2002:a05:6512:2151:: with SMTP id s17mr8275696lfr.287.1605874561147;
+ Fri, 20 Nov 2020 04:16:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.244
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 116 runs, 7 regressions (v4.9.244)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20201120073909.357536-1-carnil@debian.org> <CAHtQpK6xA4Ej_LCKBv6TWgiypzwzFzPy3ANvH8BRw-y_FkuJqg@mail.gmail.com>
+ <20201120111948.GA7077@leoy-ThinkPad-X240s>
+In-Reply-To: <20201120111948.GA7077@leoy-ThinkPad-X240s>
+From:   Andrey Zhizhikin <andrey.z@gmail.com>
+Date:   Fri, 20 Nov 2020 13:15:49 +0100
+Message-ID: <CAHtQpK6LsBS4acs_A-3=Wg9sVZqUwFxQPnmC9kLE2erc2zmbag@mail.gmail.com>
+Subject: Re: [PATCH] Revert "perf cs-etm: Move definition of 'traceid_list'
+ global variable from header file"
+To:     Leo Yan <leo.yan@linaro.org>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>, stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        Tor Jeremiassen <tor@ti.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 116 runs, 7 regressions (v4.9.244)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-jetson-tk1           | arm   | lab-collabora | gcc-8    | tegra_defconfig  =
-   | 1          =
-
-panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.244/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.244
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c3203bb03db01f205a909d5010782358bc92bc0a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-jetson-tk1           | arm   | lab-collabora | gcc-8    | tegra_defconfig  =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb78565b5d3837657d8d923
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/tegra_defconfig/gcc-8/lab-collabora/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/tegra_defconfig/gcc-8/lab-collabora/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb78565b5d3837657d8d=
-924
-        new failure (last pass: v4.9.243-79-gd3e70b39d31a) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb77e0bbe49c5a551d8d8fd
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fb77e0bbe49c5a=
-551d8d902
-        new failure (last pass: v4.9.243-79-gd3e70b39d31a)
-        2 lines
-
-    2020-11-20 08:27:51.474000+00:00   udevd/123
-    2020-11-20 08:27:51.484000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2020-11-20 08:27:51.505000+00:00  [   20.514251] smsc95xx v1.0.5   =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb77d088ae3a99173d8d916
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb77d088ae3a99173d8d=
-917
-        failing since 5 days (last pass: v4.9.243-17-g9c24315b745a0, first =
-fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb77cc04fce53eddfd8d8fd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb77cc04fce53eddfd8d=
-8fe
-        failing since 5 days (last pass: v4.9.243-17-g9c24315b745a0, first =
-fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb77c9f4434df507fd8d909
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb77c9f4434df507fd8d=
-90a
-        failing since 5 days (last pass: v4.9.243-17-g9c24315b745a0, first =
-fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb77bac12a6159d38d8d904
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb77bac12a6159d38d8d=
-905
-        failing since 2 days (last pass: v4.9.243-17-g9c24315b745a0, first =
-fail: v4.9.243-79-gd3e70b39d31a) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fb78b2318c9ab91ffd8d91c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.244=
-/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fb78b2318c9ab91ffd8d=
-91d
-        new failure (last pass: v4.9.243-79-gd3e70b39d31a) =
-
- =20
+On Fri, Nov 20, 2020 at 12:19 PM Leo Yan <leo.yan@linaro.org> wrote:
+>
+> On Fri, Nov 20, 2020 at 10:54:22AM +0100, Andrey Zhizhikin wrote:
+> > On Fri, Nov 20, 2020 at 8:39 AM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > >
+> > > This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
+> > > (but only from 4.19.y)
+> >
+> > This revert would fail the build of 4.19.y with gcc10, I believe the
+> > original commit was introduced to address exactly this case. If this
+> > is intended behavior that 4.19.y is not compiled with newer gcc
+> > versions - then this revert is OK.
+>
+> The original commit has a dependency for commit 95c6fe970a01 ("perf
+> cs-etm: Change tuple from traceID-CPU# to traceID-metadata").  If the
+> commit 95c6fe970a01 is not backported on v4.19.y, then I think reverting
+> in this patch is the right way to do.
+
+Commit 95c6fe970a01 (perf cs-etm: Change tuple from traceID-CPU# to
+traceID-metadata) did not change a definition of traceid_list in
+tools/perf/util/cs-etm.h header file rather a comment above it.
+
+Definition of traceid_list in tools/perf/util/cs-etm.h header file was
+done in commit cd8bfd8c973ea (perf tools: Add processing of coresight
+metadata) which appears in all branches starting from linux-4.16.y.
+
+The issue with this definition of traceid_list in header file would
+break perf builds with newer gcc versions if this commit would be
+reverted, so I believe that than rather reverting - commit
+95c6fe970a01 ("perf
+cs-etm: Change tuple from traceID-CPU# to traceID-metadata") should be
+backported onto 4.19.y instead.
+
+Or am I missing something else here?
+
+
+>
+> Thanks,
+> Leo
+>
+> > > The original commit introduces a build failure as seen on Debian buster
+> > > when compiled with gcc (Debian 8.3.0-6) 8.3.0:
+> > >
+> > >   $ LC_ALL=C.UTF-8 ARCH=x86 make perf
+> > >   [...]
+> > >   Warning: Kernel ABI header at 'tools/include/uapi/linux/bpf.h' differs from latest version at 'include/uapi/linux/bpf.h'
+> > >     CC       util/cs-etm-decoder/cs-etm-decoder.o
+> > >     CC       util/intel-pt.o
+> > >   util/cs-etm-decoder/cs-etm-decoder.c: In function 'cs_etm_decoder__buffer_packet':
+> > >   util/cs-etm-decoder/cs-etm-decoder.c:287:24: error: 'traceid_list' undeclared (first use in this function); did you mean 'trace_event'?
+> > >     inode = intlist__find(traceid_list, trace_chan_id);
+> > >                           ^~~~~~~~~~~~
+> > >                           trace_event
+> > >   util/cs-etm-decoder/cs-etm-decoder.c:287:24: note: each undeclared identifier is reported only once for each function it appears in
+> > >   make[6]: *** [/build/linux-stable/tools/build/Makefile.build:97: util/cs-etm-decoder/cs-etm-decoder.o] Error 1
+> > >   make[5]: *** [/build/linux-stable/tools/build/Makefile.build:139: cs-etm-decoder] Error 2
+> > >   make[5]: *** Waiting for unfinished jobs....
+> > >   make[4]: *** [/build/linux-stable/tools/build/Makefile.build:139: util] Error 2
+> > >   make[3]: *** [Makefile.perf:633: libperf-in.o] Error 2
+> > >   make[2]: *** [Makefile.perf:206: sub-make] Error 2
+> > >   make[1]: *** [Makefile:70: all] Error 2
+> > >   make: *** [Makefile:77: perf] Error 2
+> > >
+> > > Link: https://lore.kernel.org/stable/20201114083501.GA468764@eldamar.lan/
+> > > Cc: Leo Yan <leo.yan@linaro.org>
+> > > Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > > Cc: Jiri Olsa <jolsa@redhat.com>
+> > > Cc: Mark Rutland <mark.rutland@arm.com>
+> > > Cc: Namhyung Kim <namhyung@kernel.org>
+> > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+> > > Cc: Tor Jeremiassen <tor@ti.com>
+> > > Cc: linux-arm-kernel@lists.infradead.org
+> > > Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+> > > Cc: Guenter Roeck <linux@roeck-us.net>
+> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Cc: <stable@vger.kernel.org> # 4.19.y
+> > > Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+> > > ---
+> > >  tools/perf/util/cs-etm.c | 3 ---
+> > >  tools/perf/util/cs-etm.h | 3 +++
+> > >  2 files changed, 3 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+> > > index ad33b99f5d21..7b5e15cc6b71 100644
+> > > --- a/tools/perf/util/cs-etm.c
+> > > +++ b/tools/perf/util/cs-etm.c
+> > > @@ -87,9 +87,6 @@ struct cs_etm_queue {
+> > >         struct cs_etm_packet *packet;
+> > >  };
+> > >
+> > > -/* RB tree for quick conversion between traceID and metadata pointers */
+> > > -static struct intlist *traceid_list;
+> > > -
+> > >  static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
+> > >  static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
+> > >                                            pid_t tid, u64 time_);
+> > > diff --git a/tools/perf/util/cs-etm.h b/tools/perf/util/cs-etm.h
+> > > index c7ef97b198c7..37f8d48179ca 100644
+> > > --- a/tools/perf/util/cs-etm.h
+> > > +++ b/tools/perf/util/cs-etm.h
+> > > @@ -53,6 +53,9 @@ enum {
+> > >         CS_ETMV4_PRIV_MAX,
+> > >  };
+> > >
+> > > +/* RB tree for quick conversion between traceID and CPUs */
+> > > +struct intlist *traceid_list;
+> > > +
+> > >  #define KiB(x) ((x) * 1024)
+> > >  #define MiB(x) ((x) * 1024 * 1024)
+> > >
+> > > --
+> > > 2.29.2
+> > >
+> >
+> >
+> > --
+> > Regards,
+> > Andrey.
+
+
+
+--
+Regards,
+Andrey.
