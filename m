@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC0E2BA7F9
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E24A02BA815
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727741AbgKTLDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        id S1727993AbgKTLEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:04:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727782AbgKTLDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:03:49 -0500
+        id S1727988AbgKTLEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:04:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E298C206E3;
-        Fri, 20 Nov 2020 11:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C83F2222F;
+        Fri, 20 Nov 2020 11:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870228;
-        bh=rNIkynq+602ULSeogxN1VWJWoqxVJ4zEQYcT7pgIooI=;
+        s=korg; t=1605870274;
+        bh=dTD2DLGty+aIUP0OGK41KfWgrqWTj1EVwmM4aNhXhnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy+KS7Q2V+Oc30QTOpqx9bu8ebdFC/DtOmfWBBT2wyKC9T6/LgenmvToaVlbg6U8M
-         UpWsqEgvxTtIW3EoUtJQgiFEVQ4jJnNo4j6eA8K1X9ERrrO/9wl7vRvGmcsPRv8fHM
-         KNBUbB0iphOJdBhcVbuLI4E0+MNfYvgSBhjIF3Rs=
+        b=O1EksPrkv1RWr7Yy5fAhByfUEbToql5zhu8VumJp49mDLej79A+y2VrscvwVFh6iG
+         6ceChTf820k5fsJmymG2+G9j3A+wdGUTnyZd+9kfHHKzudUVQcu+3se9zKaH7fP1Qb
+         w3U8lPLHl7shLLRGpDUJ51lpeYUXGlybCIco/ghU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Xu <wen.xu@gatech.edu>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 11/15] xfs: validate cached inodes are free when allocated
-Date:   Fri, 20 Nov 2020 12:03:09 +0100
-Message-Id: <20201120104540.115699799@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 05/16] powerpc: Implement user_access_begin and friends
+Date:   Fri, 20 Nov 2020 12:03:10 +0100
+Message-Id: <20201120104539.991842563@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.534424264@linuxfoundation.org>
-References: <20201120104539.534424264@linuxfoundation.org>
+In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
+References: <20201120104539.706905067@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,157 +42,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit afca6c5b2595fc44383919fba740c194b0b76aff upstream
+commit 5cd623333e7cf4e3a334c70529268b65f2a6c2c7 upstream.
 
-A recent fuzzed filesystem image cached random dcache corruption
-when the reproducer was run. This often showed up as panics in
-lookup_slow() on a null inode->i_ops pointer when doing pathwalks.
+Today, when a function like strncpy_from_user() is called,
+the userspace access protection is de-activated and re-activated
+for every word read.
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
-....
-Call Trace:
- lookup_slow+0x44/0x60
- walk_component+0x3dd/0x9f0
- link_path_walk+0x4a7/0x830
- path_lookupat+0xc1/0x470
- filename_lookup+0x129/0x270
- user_path_at_empty+0x36/0x40
- path_listxattr+0x98/0x110
- SyS_listxattr+0x13/0x20
- do_syscall_64+0xf5/0x280
- entry_SYSCALL_64_after_hwframe+0x42/0xb7
+By implementing user_access_begin and friends, the protection
+is de-activated at the beginning of the copy and re-activated at the
+end.
 
-but had many different failure modes including deadlocks trying to
-lock the inode that was just allocated or KASAN reports of
-use-after-free violations.
+Implement user_access_begin(), user_access_end() and
+unsafe_get_user(), unsafe_put_user() and unsafe_copy_to_user()
 
-The cause of the problem was a corrupt INOBT on a v4 fs where the
-root inode was marked as free in the inobt record. Hence when we
-allocated an inode, it chose the root inode to allocate, found it in
-the cache and re-initialised it.
+For the time being, we keep user_access_save() and
+user_access_restore() as nops.
 
-We recently fixed a similar inode allocation issue caused by inobt
-record corruption problem in xfs_iget_cache_miss() in commit
-ee457001ed6c ("xfs: catch inode allocation state mismatch
-corruption"). This change adds similar checks to the cache-hit path
-to catch it, and turns the reproducer into a corruption shutdown
-situation.
-
-Reported-by: Wen Xu <wen.xu@gatech.edu>
-Signed-Off-By: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Carlos Maiolino <cmaiolino@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-[darrick: fix typos in comment]
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-[sudip: use ip->i_d.di_mode instead of VFS_I(ip)->i_mode]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/36d4fbf9e56a75994aca4ee2214c77b26a5a8d35.1579866752.git.christophe.leroy@c-s.fr
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_icache.c |   73 ++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 48 insertions(+), 25 deletions(-)
+ arch/powerpc/include/asm/uaccess.h |   60 ++++++++++++++++++++++++++++---------
+ 1 file changed, 46 insertions(+), 14 deletions(-)
 
---- a/fs/xfs/xfs_icache.c
-+++ b/fs/xfs/xfs_icache.c
-@@ -135,6 +135,46 @@ xfs_inode_free(
- }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -106,9 +106,14 @@ struct exception_table_entry {
+ 	__put_user_check((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
  
- /*
-+ * If we are allocating a new inode, then check what was returned is
-+ * actually a free, empty inode. If we are not allocating an inode,
-+ * then check we didn't find a free inode.
-+ *
-+ * Returns:
-+ *	0		if the inode free state matches the lookup context
-+ *	-ENOENT		if the inode is free and we are not allocating
-+ *	-EFSCORRUPTED	if there is any state mismatch at all
-+ */
-+static int
-+xfs_iget_check_free_state(
-+	struct xfs_inode	*ip,
-+	int			flags)
-+{
-+	if (flags & XFS_IGET_CREATE) {
-+		/* should be a free inode */
-+		if (ip->i_d.di_mode != 0) {
-+			xfs_warn(ip->i_mount,
-+"Corruption detected! Free inode 0x%llx not marked free! (mode 0x%x)",
-+				ip->i_ino, ip->i_d.di_mode);
-+			return -EFSCORRUPTED;
-+		}
+ #define __get_user(x, ptr) \
+-	__get_user_nocheck((x), (ptr), sizeof(*(ptr)))
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), true)
+ #define __put_user(x, ptr) \
+-	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)))
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), true)
 +
-+		if (ip->i_d.di_nblocks != 0) {
-+			xfs_warn(ip->i_mount,
-+"Corruption detected! Free inode 0x%llx has blocks allocated!",
-+				ip->i_ino);
-+			return -EFSCORRUPTED;
-+		}
-+		return 0;
-+	}
++#define __get_user_allowed(x, ptr) \
++	__get_user_nocheck((x), (ptr), sizeof(*(ptr)), false)
++#define __put_user_allowed(x, ptr) \
++	__put_user_nocheck((__typeof__(*(ptr)))(x), (ptr), sizeof(*(ptr)), false)
+ 
+ #define __get_user_inatomic(x, ptr) \
+ 	__get_user_nosleep((x), (ptr), sizeof(*(ptr)))
+@@ -162,10 +167,9 @@ extern long __put_user_bad(void);
+ 		: "r" (x), "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __put_user_size(x, ptr, size, retval)			\
++#define __put_user_size_allowed(x, ptr, size, retval)		\
+ do {								\
+ 	retval = 0;						\
+-	allow_write_to_user(ptr, size);				\
+ 	switch (size) {						\
+ 	  case 1: __put_user_asm(x, ptr, retval, "stb"); break;	\
+ 	  case 2: __put_user_asm(x, ptr, retval, "sth"); break;	\
+@@ -173,17 +177,26 @@ do {								\
+ 	  case 8: __put_user_asm2(x, ptr, retval); break;	\
+ 	  default: __put_user_bad();				\
+ 	}							\
++} while (0)
 +
-+	/* should be an allocated inode */
-+	if (ip->i_d.di_mode == 0)
-+		return -ENOENT;
++#define __put_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_write_to_user(ptr, size);				\
++	__put_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_write_to_user(ptr, size);			\
+ } while (0)
+ 
+-#define __put_user_nocheck(x, ptr, size)			\
++#define __put_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __pu_err;						\
+ 	__typeof__(*(ptr)) __user *__pu_addr = (ptr);		\
+ 	if (!is_kernel_addr((unsigned long)__pu_addr))		\
+ 		might_fault();					\
+ 	__chk_user_ptr(ptr);					\
+-	__put_user_size((x), __pu_addr, (size), __pu_err);	\
++	if (do_allow)								\
++		__put_user_size((x), __pu_addr, (size), __pu_err);		\
++	else									\
++		__put_user_size_allowed((x), __pu_addr, (size), __pu_err);	\
+ 	__pu_err;						\
+ })
+ 
+@@ -249,13 +262,12 @@ extern long __get_user_bad(void);
+ 		: "b" (addr), "i" (-EFAULT), "0" (err))
+ #endif /* __powerpc64__ */
+ 
+-#define __get_user_size(x, ptr, size, retval)			\
++#define __get_user_size_allowed(x, ptr, size, retval)		\
+ do {								\
+ 	retval = 0;						\
+ 	__chk_user_ptr(ptr);					\
+ 	if (size > sizeof(x))					\
+ 		(x) = __get_user_bad();				\
+-	allow_read_from_user(ptr, size);			\
+ 	switch (size) {						\
+ 	case 1: __get_user_asm(x, ptr, retval, "lbz"); break;	\
+ 	case 2: __get_user_asm(x, ptr, retval, "lhz"); break;	\
+@@ -263,10 +275,16 @@ do {								\
+ 	case 8: __get_user_asm2(x, ptr, retval);  break;	\
+ 	default: (x) = __get_user_bad();			\
+ 	}							\
++} while (0)
 +
-+	return 0;
-+}
++#define __get_user_size(x, ptr, size, retval)			\
++do {								\
++	allow_read_from_user(ptr, size);			\
++	__get_user_size_allowed(x, ptr, size, retval);		\
+ 	prevent_read_from_user(ptr, size);			\
+ } while (0)
+ 
+-#define __get_user_nocheck(x, ptr, size)			\
++#define __get_user_nocheck(x, ptr, size, do_allow)			\
+ ({								\
+ 	long __gu_err;						\
+ 	unsigned long __gu_val;					\
+@@ -275,7 +293,10 @@ do {								\
+ 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
+ 		might_fault();					\
+ 	barrier_nospec();					\
+-	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
++	if (do_allow)								\
++		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);		\
++	else									\
++		__get_user_size_allowed(__gu_val, __gu_addr, (size), __gu_err);	\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;			\
+ 	__gu_err;						\
+ })
+@@ -396,21 +417,22 @@ static inline unsigned long __copy_to_us
+ 		const void *from, unsigned long n)
+ {
+ 	unsigned long ret;
 +
-+/*
-  * Check the validity of the inode we just found it the cache
-  */
- static int
-@@ -183,12 +223,12 @@ xfs_iget_cache_hit(
- 	}
+ 	if (__builtin_constant_p(n) && (n <= 8)) {
+ 		ret = 1;
  
- 	/*
--	 * If lookup is racing with unlink return an error immediately.
-+	 * Check the inode free state is valid. This also detects lookup
-+	 * racing with unlinks.
- 	 */
--	if (ip->i_d.di_mode == 0 && !(flags & XFS_IGET_CREATE)) {
--		error = -ENOENT;
-+	error = xfs_iget_check_free_state(ip, flags);
-+	if (error)
- 		goto out_error;
--	}
+ 		switch (n) {
+ 		case 1:
+-			__put_user_size(*(u8 *)from, (u8 __user *)to, 1, ret);
++			__put_user_size_allowed(*(u8 *)from, (u8 __user *)to, 1, ret);
+ 			break;
+ 		case 2:
+-			__put_user_size(*(u16 *)from, (u16 __user *)to, 2, ret);
++			__put_user_size_allowed(*(u16 *)from, (u16 __user *)to, 2, ret);
+ 			break;
+ 		case 4:
+-			__put_user_size(*(u32 *)from, (u32 __user *)to, 4, ret);
++			__put_user_size_allowed(*(u32 *)from, (u32 __user *)to, 4, ret);
+ 			break;
+ 		case 8:
+-			__put_user_size(*(u64 *)from, (u64 __user *)to, 8, ret);
++			__put_user_size_allowed(*(u64 *)from, (u64 __user *)to, 8, ret);
+ 			break;
+ 		}
+ 		if (ret == 0)
+@@ -456,6 +478,16 @@ extern long strncpy_from_user(char *dst,
+ extern __must_check long strlen_user(const char __user *str);
+ extern __must_check long strnlen_user(const char __user *str, long n);
  
- 	/*
- 	 * If IRECLAIMABLE is set, we've torn down the VFS inode already.
-@@ -300,29 +340,12 @@ xfs_iget_cache_miss(
++
++#define user_access_begin()	do { } while (0)
++#define user_access_end()	prevent_user_access(NULL, NULL, ~0ul)
++
++#define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
++#define unsafe_get_user(x, p, e) unsafe_op_wrap(__get_user_allowed(x, p), e)
++#define unsafe_put_user(x, p, e) unsafe_op_wrap(__put_user_allowed(x, p), e)
++#define unsafe_copy_to_user(d, s, l, e) \
++	unsafe_op_wrap(__copy_to_user_inatomic(d, s, l), e)
++
+ #endif  /* __ASSEMBLY__ */
+ #endif /* __KERNEL__ */
  
- 
- 	/*
--	 * If we are allocating a new inode, then check what was returned is
--	 * actually a free, empty inode. If we are not allocating an inode,
--	 * the check we didn't find a free inode.
-+	 * Check the inode free state is valid. This also detects lookup
-+	 * racing with unlinks.
- 	 */
--	if (flags & XFS_IGET_CREATE) {
--		if (ip->i_d.di_mode != 0) {
--			xfs_warn(mp,
--"Corruption detected! Free inode 0x%llx not marked free on disk",
--				ino);
--			error = -EFSCORRUPTED;
--			goto out_destroy;
--		}
--		if (ip->i_d.di_nblocks != 0) {
--			xfs_warn(mp,
--"Corruption detected! Free inode 0x%llx has blocks allocated!",
--				ino);
--			error = -EFSCORRUPTED;
--			goto out_destroy;
--		}
--	} else if (ip->i_d.di_mode == 0) {
--		error = -ENOENT;
-+	error = xfs_iget_check_free_state(ip, flags);
-+	if (error)
- 		goto out_destroy;
--	}
- 
- 	/*
- 	 * Preload the radix tree so we can insert safely under the
 
 
