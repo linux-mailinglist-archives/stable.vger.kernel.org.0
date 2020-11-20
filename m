@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F352BA80F
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0AB2BA824
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727942AbgKTLEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:04:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51820 "EHLO mail.kernel.org"
+        id S1728071AbgKTLE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:04:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727940AbgKTLEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:04:23 -0500
+        id S1728069AbgKTLEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:04:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D260B2242B;
-        Fri, 20 Nov 2020 11:04:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B45FC2222F;
+        Fri, 20 Nov 2020 11:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870262;
-        bh=OFN24E43YJvgaH4jHFbBy/LxYpvbUaHvyiPjFyTyebU=;
+        s=korg; t=1605870295;
+        bh=xEB9S83KMm2yJsxuC/cicG8lRQlYK4arMRAdbrOPRK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCCFBIJQT42JE0pfmmh/RBTLpdeRw0JG78bDzxSOWY4RNONCqumpWfh7GOCSPTkKM
-         78sZJzOP6SM17SvpS1rw0g4APuXWqYrVLcjIwqx5LHggDL3Ir+2N4RkdyH9vfI46S/
-         60yUzk7WGgYPyfIz7eehVmTvGpqYJOfDaMxLvuyg=
+        b=BBiXhmdPY7lekEUhMaFOEJCMnPIo3Hh1yfEpYBE7Dt9cAQscgEGk8NdAU69lH9FFE
+         uxK45v8UcmNeiBLdzpbkoMVjX9/3IhV5vq4xLYTyu1WAToqRvztM3b17Jqnfh3r6IV
+         l60wIw74Lvog96CxcR7OtOD3Q64qU0EtEZSe34Ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 16/16] ACPI: GED: fix -Wformat
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 10/17] i2c: imx: Fix external abort on interrupt in exit paths
 Date:   Fri, 20 Nov 2020 12:03:21 +0100
-Message-Id: <20201120104540.521558662@linuxfoundation.org>
+Message-Id: <20201120104540.930328277@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
-References: <20201120104539.706905067@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 9debfb81e7654fe7388a49f45bc4d789b94c1103 upstream.
+commit e50e4f0b85be308a01b830c5fbdffc657e1a6dd0 upstream
 
-Clang is more aggressive about -Wformat warnings when the format flag
-specifies a type smaller than the parameter. It turns out that gsi is an
-int. Fixes:
+If interrupt comes late, during probe error path or device remove (could
+be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+i2c_imx_isr() will access registers with the clock being disabled.  This
+leads to external abort on non-linefetch on Toradex Colibri VF50 module
+(with Vybrid VF5xx):
 
-drivers/acpi/evged.c:105:48: warning: format specifies type 'unsigned
-char' but the argument has type 'unsigned int' [-Wformat]
-trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
-                                            ^~~
+    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
+    Internal error: : 1008 [#1] ARM
+    Modules linked in:
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
+      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
+      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
+      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
+      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
+      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
+      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
+      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
+      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
+      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
+      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
+      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
+      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/378
-Fixes: ea6f3af4c5e6 ("ACPI: GED: add support for _Exx / _Lxx handler methods")
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Additionally, the i2c_imx_isr() could wake up the wait queue
+(imx_i2c_struct->queue) before its initialization happens.
+
+The resource-managed framework should not be used for interrupt handling,
+because the resource will be released too late - after disabling clocks.
+The interrupt handler is not prepared for such case.
+
+Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/acpi/evged.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-imx.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/drivers/acpi/evged.c
-+++ b/drivers/acpi/evged.c
-@@ -104,7 +104,7 @@ static acpi_status acpi_ged_request_inte
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1111,14 +1111,6 @@ static int i2c_imx_probe(struct platform
+ 		return ret;
+ 	}
  
- 	switch (gsi) {
- 	case 0 ... 255:
--		sprintf(ev_name, "_%c%02hhX",
-+		sprintf(ev_name, "_%c%02X",
- 			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
+-	/* Request IRQ */
+-	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+-				pdev->name, i2c_imx);
+-	if (ret) {
+-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+-		goto clk_disable;
+-	}
+-
+ 	/* Init queue */
+ 	init_waitqueue_head(&i2c_imx->queue);
  
- 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
+@@ -1137,6 +1129,14 @@ static int i2c_imx_probe(struct platform
+ 	if (ret < 0)
+ 		goto rpm_disable;
+ 
++	/* Request IRQ */
++	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
++				   pdev->name, i2c_imx);
++	if (ret) {
++		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
++		goto rpm_disable;
++	}
++
+ 	/* Set up clock divider */
+ 	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+@@ -1179,13 +1179,12 @@ static int i2c_imx_probe(struct platform
+ 
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	free_irq(irq, i2c_imx);
+ rpm_disable:
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-
+-clk_disable:
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 	return ret;
+ }
+@@ -1193,7 +1192,7 @@ clk_disable:
+ static int i2c_imx_remove(struct platform_device *pdev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+-	int ret;
++	int irq, ret;
+ 
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0)
+@@ -1213,6 +1212,9 @@ static int i2c_imx_remove(struct platfor
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+ 
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
++	irq = platform_get_irq(pdev, 0);
++	if (irq >= 0)
++		free_irq(irq, i2c_imx);
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 
+ 	pm_runtime_put_noidle(&pdev->dev);
 
 
