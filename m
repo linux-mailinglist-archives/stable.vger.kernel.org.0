@@ -2,124 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A252BABDD
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 15:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE9D2BABF9
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 15:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727367AbgKTO3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 09:29:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726255AbgKTO3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 09:29:54 -0500
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E657C0613CF
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 06:29:54 -0800 (PST)
-Received: by mail-lj1-x241.google.com with SMTP id v20so10231376ljk.8
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 06:29:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vDPBgO3uo8+/dosAedlCw+h4RcP8gEHZLzLWs9uGsho=;
-        b=GZldtKaiB6YXXPqkfPYLavH3CBsSoyQ15KZQrz8/Uu1ATyB0SGKdjQjiyY91rlKfc/
-         uqkbKThLWLf7SrPZ3jSkEIibfao/BBLdW/5SUgWdjFBhJEteidJ+vJA6JfXQRv0GXOW/
-         yRY1YpznbIhMyTEeFMdqs+Fk8T0CKOAmjodr8FI5YmMUF4et2sIGieTZ+uLzEcHAg4lE
-         Wncs+IDU9GPiBUQp17KluPU3SIWY3CVzCOs0YBFZF26mFQiag9EUa4pTwoEA6ngSJc4T
-         96QXRCKmwuNcGjs67Bjiew74xePxkA1vhcdfz40gCOlES7Li3dQ3Llcz+MZpNi2NBJMR
-         FlcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vDPBgO3uo8+/dosAedlCw+h4RcP8gEHZLzLWs9uGsho=;
-        b=By0AtCsc1hRGiPRNVO+kvHw3qmblEvkT4+iwufdBQ2XFDhnDRCUk7Lr7clP2aDjMNw
-         motp5/8rQgMfAIzUDvi/Si3/mX1LgO8cmQfURodPrWba7g4SdJFuyVQCttVA9CDlNq1b
-         zPf2D9hjin6x4535vlBusL14KmhBUE1FQPwTTMb6k9QAHuvnptcLyMftFCa7U1c2cT2N
-         VSReEzCg4OvT3eYGdQMvB9GILSYHYhqq53k3k9pY3jldq1eijZQjfSjLQG1pvvDKwMLF
-         KJuBHZi5U8a9+moAGyl7/Vi3fz1h8Uhf1MVl30oTplQ1QPeugQLMXq2BFBZjeEXgfbh7
-         Nvwg==
-X-Gm-Message-State: AOAM531YnWXb7MKFV+rEXu1JF2ffbRBRGESSZfB7iFY52nxc8gRJ5twe
-        ni5QnOeocasqwHvL3nNblaw0Jo+Bnvtu6x1i0q0=
-X-Google-Smtp-Source: ABdhPJxgE26On7V77ILRgIjkavE+qP9nC9aScvDtQWqWj9qPSXmu0AsDCVZLXj+hmEmQ9OzsEoKfyu2ToLOUJuHYPe4=
-X-Received: by 2002:a2e:a416:: with SMTP id p22mr8748493ljn.221.1605882591420;
- Fri, 20 Nov 2020 06:29:51 -0800 (PST)
-MIME-Version: 1.0
-References: <20201120073909.357536-1-carnil@debian.org> <CAHtQpK6xA4Ej_LCKBv6TWgiypzwzFzPy3ANvH8BRw-y_FkuJqg@mail.gmail.com>
- <20201120133400.GA405401@eldamar.lan>
-In-Reply-To: <20201120133400.GA405401@eldamar.lan>
-From:   Andrey Zhizhikin <andrey.z@gmail.com>
-Date:   Fri, 20 Nov 2020 15:29:39 +0100
-Message-ID: <CAHtQpK7=hpWLM-ztyTS8vzGDfG_46Qx2vc6q0fm1dDDU3W6+UA@mail.gmail.com>
-Subject: Re: [PATCH] Revert "perf cs-etm: Move definition of 'traceid_list'
- global variable from header file"
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        id S1727123AbgKTOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 09:36:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725805AbgKTOgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 09:36:07 -0500
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C5082236F;
+        Fri, 20 Nov 2020 14:36:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605882966;
+        bh=j2dSYypETbDYVNoDBWsVOOyAKJVVu4Ogy3WRiJXmbGI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NWbZpQUtUGh4S38MxVlOuy+y3ZRHQ+hSU0lessRpwqEV7+WCNXSMp1fUFfrMKd9OH
+         TFMKC+MD6wHULTQjMpUVJDiQmSZt9QXpeyxuEaJQ1LAFkfuHqsrtMGoKfOdxlcr2Li
+         oJC/N5qg2Ae1eefEiIBLHa8KwMUVOHPqVqRv1oPY=
+From:   Will Deacon <will@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Yu Zhao <yuzhao@google.com>, Minchan Kim <minchan@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Tor Jeremiassen <tor@ti.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/6] arm64: pgtable: Fix pte_accessible()
+Date:   Fri, 20 Nov 2020 14:35:52 +0000
+Message-Id: <20201120143557.6715-2-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20201120143557.6715-1-will@kernel.org>
+References: <20201120143557.6715-1-will@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Salvatore,
+pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
+invalidation is necessary when unmapping pages for reclaim. Although our
+implementation is correct according to the architecture, returning true
+only for valid, young ptes in the absence of racing page-table
+modifications, this is in fact flawed due to lazy invalidation of old
+ptes in ptep_clear_flush_young() where we elide the expensive DSB
+instruction for completing the TLB invalidation.
 
-On Fri, Nov 20, 2020 at 2:34 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
->
-> Hi Andrey,
->
-> On Fri, Nov 20, 2020 at 10:54:22AM +0100, Andrey Zhizhikin wrote:
-> > On Fri, Nov 20, 2020 at 8:39 AM Salvatore Bonaccorso <carnil@debian.org> wrote:
-> > >
-> > > This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
-> > > (but only from 4.19.y)
-> >
-> > This revert would fail the build of 4.19.y with gcc10, I believe the
-> > original commit was introduced to address exactly this case. If this
-> > is intended behavior that 4.19.y is not compiled with newer gcc
-> > versions - then this revert is OK.
->
-> TTBOMK, this would not regress the build for newer gcc (specifically
-> gcc10) as 4.19.158 is failing perf tool builds there as well (without
-> the above commit reverted). Just as an example v4.19.y does not have
-> cff20b3151cc ("perf tests bp_account: Make global variable static")
-> which is there in v5.6-rc6 to fix build failures with 10.0.1.
->
-> But it did regress builds with older gcc's as for instance used in
-> Debian buster (gcc 8.3.0) since 4.19.152.
->
-> Do I possibly miss something? If there is a solution to make it build
-> with newer GCCs and *not* regress previously working GCC versions then
-> this is surely the best outcome though.
+Rather than penalise the aging path, adjust pte_accessible() to return
+true for any valid pte, even if the access flag is cleared.
 
-I guess (and from what I understand in Leo's reply), porting of
-95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to
-traceID-metadata") should solve the issue for both older and newer gcc
-versions.
+Cc: <stable@vger.kernel.org>
+Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
+Reported-by: Yu Zhao <yuzhao@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/include/asm/pgtable.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-The breakage is now in
-[tools/perf/util/cs-etm-decoder/cs-etm-decoder.c] file (which uses
-traceid_list inside). This is solved with the above commit, which
-concealed traceid_list internally inside [tools/perf/util/cs-etm.c]
-file and exposed to [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c]
-via cs_etm__get_cpu() call.
-
-Can you try out to port that commit to see if that would solve your regression?
-
->
-> Regards,
-> Salvatore
-
-
-
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 4ff12a7adcfd..1bdf51f01e73 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -115,8 +115,6 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+ #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+ #define pte_valid_not_user(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+-#define pte_valid_young(pte) \
+-	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+ #define pte_valid_user(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
+ 
+@@ -126,7 +124,7 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+  * remapped as PROT_NONE but are yet to be flushed from the TLB.
+  */
+ #define pte_accessible(mm, pte)	\
+-	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
++	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
+ 
+ /*
+  * p??_access_permitted() is true for valid user mappings (subject to the
 -- 
-Regards,
-Andrey.
+2.29.2.454.gaff20da3a2-goog
+
