@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6398B2BA807
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F4B2BA837
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 12:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgKTLEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 06:04:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51138 "EHLO mail.kernel.org"
+        id S1728192AbgKTLFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 06:05:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727479AbgKTLEJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Nov 2020 06:04:09 -0500
+        id S1728185AbgKTLFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Nov 2020 06:05:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB7102245A;
-        Fri, 20 Nov 2020 11:04:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 412EE22255;
+        Fri, 20 Nov 2020 11:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1605870248;
-        bh=0y8pARHSu06BzIOetLFWR+XIxZY/Sk47qNXdJ+ZBZY0=;
+        s=korg; t=1605870330;
+        bh=Uh82WsloCTqpwwhoh9WLV9nGbzer1zu4OwvMCblWyU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qFZSN/CQxjbk8IwNU9JJMTx6a4PMB00QMtdJNFX2zd/i0CCbux2PRv/00vnQWw6b
-         ASW10q6YqFv24A4R2A9o/h9xTiUtpebHc1o5GpU5XTaUIOc70/bwh/YNozuMWYcixT
-         QxZmxzDObj4KSGYyIy4oJbhm2cPSG607/sdA4GOY=
+        b=PZjYk5/XK6zP/UwFh26A9BzccMqmxzkazQha+TOZSGvdpGJm59P8ZJyr4qYsdPCjU
+         ai4Mikl2LN+UvOwNl12PZhFG7OO2C/OTyiwLVetf4AT9iQrkrmIXkXFTYIxbM0szYg
+         GgCTxnezIg8nXoh1hc35msx/vtd1piJojsKrImRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Looijmans <mike.looijmans@topic.nl>,
-        Peter Rosin <peda@axentia.se>,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 4.9 11/16] i2c: mux: pca954x: Add missing pca9546 definition to chip_desc
-Date:   Fri, 20 Nov 2020 12:03:16 +0100
-Message-Id: <20201120104540.289446648@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
+        syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Donnellan <ajd@linux.ibm.com>
+Subject: [PATCH 4.14 06/17] powerpc: Fix __clear_user() with KUAP enabled
+Date:   Fri, 20 Nov 2020 12:03:17 +0100
+Message-Id: <20201120104540.726952705@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201120104539.706905067@linuxfoundation.org>
-References: <20201120104539.706905067@linuxfoundation.org>
+In-Reply-To: <20201120104540.414709708@linuxfoundation.org>
+References: <20201120104540.414709708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Looijmans <mike.looijmans@topic.nl>
+From: Andrew Donnellan <ajd@linux.ibm.com>
 
-commit dbe4d69d252e9e65c6c46826980b77b11a142065 upstream.
+commit 61e3acd8c693a14fc69b824cb5b08d02cb90a6e7 upstream.
 
-The spec for the pca9546 was missing. This chip is the same as the pca9545
-except that it lacks interrupt lines. While the i2c_device_id table mapped
-the pca9546 to the pca9545 definition the compatible table did not.
+The KUAP implementation adds calls in clear_user() to enable and
+disable access to userspace memory. However, it doesn't add these to
+__clear_user(), which is used in the ptrace regset code.
 
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
+As there's only one direct user of __clear_user() (the regset code),
+and the time taken to set the AMR for KUAP purposes is going to
+dominate the cost of a quick access_ok(), there's not much point
+having a separate path.
+
+Rename __clear_user() to __arch_clear_user(), and make __clear_user()
+just call clear_user().
+
+Reported-by: syzbot+f25ecf4b2982d8c7a640@syzkaller-ppc64.appspotmail.com
+Reported-by: Daniel Axtens <dja@axtens.net>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: de78a9c42a79 ("powerpc: Add a framework for Kernel Userspace Access Protection")
+Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+[mpe: Use __arch_clear_user() for the asm version like arm64 & nds32]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191209132221.15328-1-ajd@linux.ibm.com
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/uaccess.h |    9 +++++++--
+ arch/powerpc/lib/string.S          |    4 ++--
+ arch/powerpc/lib/string_64.S       |    6 +++---
+ 3 files changed, 12 insertions(+), 7 deletions(-)
 
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -96,6 +96,10 @@ static const struct chip_desc chips[] =
- 		.nchans = 4,
- 		.muxtype = pca954x_isswi,
- 	},
-+	[pca_9546] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+	},
- 	[pca_9547] = {
- 		.nchans = 8,
- 		.enable = 0x8,
-@@ -113,7 +117,7 @@ static const struct i2c_device_id pca954
- 	{ "pca9543", pca_9543 },
- 	{ "pca9544", pca_9544 },
- 	{ "pca9545", pca_9545 },
--	{ "pca9546", pca_9545 },
-+	{ "pca9546", pca_9546 },
- 	{ "pca9547", pca_9547 },
- 	{ "pca9548", pca_9548 },
- 	{ }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -390,7 +390,7 @@ raw_copy_to_user(void __user *to, const
+ 	return ret;
+ }
+ 
+-extern unsigned long __clear_user(void __user *addr, unsigned long size);
++unsigned long __arch_clear_user(void __user *addr, unsigned long size);
+ 
+ static inline unsigned long clear_user(void __user *addr, unsigned long size)
+ {
+@@ -398,12 +398,17 @@ static inline unsigned long clear_user(v
+ 	might_fault();
+ 	if (likely(access_ok(VERIFY_WRITE, addr, size))) {
+ 		allow_write_to_user(addr, size);
+-		ret = __clear_user(addr, size);
++		ret = __arch_clear_user(addr, size);
+ 		prevent_write_to_user(addr, size);
+ 	}
+ 	return ret;
+ }
+ 
++static inline unsigned long __clear_user(void __user *addr, unsigned long size)
++{
++	return clear_user(addr, size);
++}
++
+ extern long strncpy_from_user(char *dst, const char __user *src, long count);
+ extern __must_check long strnlen_user(const char __user *str, long n);
+ 
+--- a/arch/powerpc/lib/string.S
++++ b/arch/powerpc/lib/string.S
+@@ -88,7 +88,7 @@ _GLOBAL(memchr)
+ EXPORT_SYMBOL(memchr)
+ 
+ #ifdef CONFIG_PPC32
+-_GLOBAL(__clear_user)
++_GLOBAL(__arch_clear_user)
+ 	addi	r6,r3,-4
+ 	li	r3,0
+ 	li	r5,0
+@@ -128,5 +128,5 @@ _GLOBAL(__clear_user)
+ 	EX_TABLE(1b, 91b)
+ 	EX_TABLE(8b, 92b)
+ 
+-EXPORT_SYMBOL(__clear_user)
++EXPORT_SYMBOL(__arch_clear_user)
+ #endif
+--- a/arch/powerpc/lib/string_64.S
++++ b/arch/powerpc/lib/string_64.S
+@@ -29,7 +29,7 @@ PPC64_CACHES:
+ 	.section	".text"
+ 
+ /**
+- * __clear_user: - Zero a block of memory in user space, with less checking.
++ * __arch_clear_user: - Zero a block of memory in user space, with less checking.
+  * @to:   Destination address, in user space.
+  * @n:    Number of bytes to zero.
+  *
+@@ -70,7 +70,7 @@ err3;	stb	r0,0(r3)
+ 	mr	r3,r4
+ 	blr
+ 
+-_GLOBAL_TOC(__clear_user)
++_GLOBAL_TOC(__arch_clear_user)
+ 	cmpdi	r4,32
+ 	neg	r6,r3
+ 	li	r0,0
+@@ -193,4 +193,4 @@ err1;	dcbz	0,r3
+ 	cmpdi	r4,32
+ 	blt	.Lshort_clear
+ 	b	.Lmedium_clear
+-EXPORT_SYMBOL(__clear_user)
++EXPORT_SYMBOL(__arch_clear_user)
 
 
