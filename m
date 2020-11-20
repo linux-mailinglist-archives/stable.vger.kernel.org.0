@@ -2,180 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6508A2BB561
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 20:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 730E92BB620
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 20:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732377AbgKTT3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 14:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50566 "EHLO
+        id S1729962AbgKTTxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 14:53:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732366AbgKTT3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 14:29:40 -0500
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCD4C0613CF
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:29:39 -0800 (PST)
-Received: by mail-lf1-x144.google.com with SMTP id 74so15027997lfo.5
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:29:39 -0800 (PST)
+        with ESMTP id S1729062AbgKTTxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 14:53:14 -0500
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE466C0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:53:13 -0800 (PST)
+Received: by mail-io1-xd43.google.com with SMTP id m13so11128925ioq.9
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 11:53:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1ENdAioGv2Q8eY87iogzPJTHqRbYcuXrTklYSoVbeVw=;
-        b=evS+J+XBR5p/6mcLYAKQLiKRO2uqyRSublTlr95YtwT17h9QD8IvA2RHEV+qDY+gIZ
-         JOZBmzb7B7518iz/u245hunU4bVVPYU2EE9wSZDPYdInZHbY8p5p40hn7bZzQDZfm4//
-         n5X+f4WcTeSEEoGlIB0zuOXHVvaQg7qDQJgy14VXrPgvui6zzon7LL83fPU//gQp4yG2
-         iPA5aGTHX3nCxdpYx09TimLS4F4h3nuVBssI6uKoTXbCiKAOrRVG65uxwfgJfp/uycvK
-         EZAVvgYrNMTTZvv1dghGsybJKMZCbQw4Mg3xH43wpknJw2p+Sbzd1kc3aagGuEkrTaLl
-         vpYA==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=GxnkL7sBSNoqYoJigqom0+XD1YVRiqS6FwGLG7iJAO4=;
+        b=rnN1fS4zx8lj60uqorsVrI3/bKsdKEpgfxSOWN01UgyAtOLtDXXzTzcw82y7Zwm2jj
+         4t69K1Pf6kMgoVoH25M4P/QarFk9kkw/yUl2Nc1RM9B97YcnzYowzkrgorLOT0hmE+7f
+         HTZq8pNl9P7i4UdG5dqVikedfi4RgHQtz6AmwvgDvnZQDB5l/TR24hX0yfZQDxFxbffz
+         kEU+8CqQYPWFwmcqTeTQ+qh3f7CTXFHID/R5BPF3kkZJr1QgRO9bQz1x6jFnrN9oExvB
+         Z+bOFim2X686YNJFfO8IQZfgMBjjNc8Zcr2SyO5Md8SRJTBcmk5UTqRMS4boS0ewTmJI
+         dcQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1ENdAioGv2Q8eY87iogzPJTHqRbYcuXrTklYSoVbeVw=;
-        b=b6wRkyDdplYdmS3BvF4ZwqrWCQ1i7OnUa5oDHVyxWpBjnmvpZyuOcsKNFtSIN1KHk9
-         OOOKMK+Sw9p5FAtYPdkTVMLD+CAPCXWqFsnaboHHtqj5xRx8dU+wmhci991N6UD7oSvn
-         3NaO0AD3AKqJHxg5/Ws5wHGRo/7oOt99/2wdrepxmA1FiYpo541ZkzDmfHbhxxxF7SqT
-         AQ60uDgQVDcc4RQMYIsTotYUHS52HP7q8nPzeVbbCW/tw8UZ9Kh4N5clg1r7cl8K1Tga
-         2r5VLlaMlPXLMqGu/kVWw2xWSybLbx/Isgql1BNKH6ZKdWSp0TOIbX3qzk4DDQ61wegR
-         63/w==
-X-Gm-Message-State: AOAM531idL/E6+sUlxDMsrG3j++Hk90BXlP6BgWk23olhCpEYTHRyit3
-        cmYC/mxqULKqvcHlQMFOEAPZjfOMLhvO+erHOuE=
-X-Google-Smtp-Source: ABdhPJzyhQ/51Q7dV9avp9L46zcpKh9dqFp/SqpRWdON+VWI4lWIjRseexpDE3IvVri66oqD2dWVFl/3LQRB7sJFgfQ=
-X-Received: by 2002:a05:6512:21c:: with SMTP id a28mr8985486lfo.486.1605900578367;
- Fri, 20 Nov 2020 11:29:38 -0800 (PST)
-MIME-Version: 1.0
-References: <20201120073909.357536-1-carnil@debian.org> <CAHtQpK6xA4Ej_LCKBv6TWgiypzwzFzPy3ANvH8BRw-y_FkuJqg@mail.gmail.com>
- <20201120133400.GA405401@eldamar.lan> <CAHtQpK7=hpWLM-ztyTS8vzGDfG_46Qx2vc6q0fm1dDDU3W6+UA@mail.gmail.com>
- <20201120155317.GA502412@eldamar.lan> <CAHtQpK5Xuui3q6_x2FKQ1DbP-n8zFa_AR-uQFmcCOH2kzMR6fQ@mail.gmail.com>
- <20201120183008.GA518373@eldamar.lan>
-In-Reply-To: <20201120183008.GA518373@eldamar.lan>
-From:   Andrey Zhizhikin <andrey.z@gmail.com>
-Date:   Fri, 20 Nov 2020 20:29:26 +0100
-Message-ID: <CAHtQpK5af-MYz6pr6OzFUh4FwV9oG=2UxVPuaA2TBjLEvm6Tsw@mail.gmail.com>
-Subject: Re: [PATCH] Revert "perf cs-etm: Move definition of 'traceid_list'
- global variable from header file"
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=GxnkL7sBSNoqYoJigqom0+XD1YVRiqS6FwGLG7iJAO4=;
+        b=klA002bofHK1GZmxnLmhdd71Wc4WZ073aMLi2Ov9TszRI9cqlAjC7pdi/bCvnEiKYn
+         9nwxrlNhZX6Eq5o0igOXY2BYaEYEh4yaxLn9N+uKv6qk/iZ5P30gMcwpWOW17N5YHYZF
+         fgQpsjG/StCb7BcMyRyTo5O9zqbgGlWpYb6Gdd2K9pweviuW2aLNQaSzrkLF05lX8ZcN
+         inqstH1xEOrYyGMvDfk4mfcfBbS7dhZDoT+S5zMSggLY8W9IBLr0hFRnXmbGpx/ZyeI1
+         Owy8aiWhesPVzWmNDNziSvZpDFCxsT7g1JuSm0Aegp0003wfBwfKLbZFv+xqM1ep1r7O
+         h9lg==
+X-Gm-Message-State: AOAM530HWowZxEDFwBfnrA+uFNOsyJjjbCYgRoGGkD/Dqh2V1NK+vAO6
+        PfBmAgpDqpap+TrYpdPVQv7f1w==
+X-Google-Smtp-Source: ABdhPJxSffGKpVjywoxuXIvCRu/AM8DhpUH1m+P2eYdFRYvfM6wAc7GXcabZRhXBoGj9LwhZ0yGeZQ==
+X-Received: by 2002:a02:90ca:: with SMTP id c10mr21200448jag.115.1605901993088;
+        Fri, 20 Nov 2020 11:53:13 -0800 (PST)
+Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
+        by smtp.gmail.com with ESMTPSA id k26sm1937993iom.32.2020.11.20.11.53.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Nov 2020 11:53:12 -0800 (PST)
+Date:   Fri, 20 Nov 2020 12:53:08 -0700
+From:   Yu Zhao <yuzhao@google.com>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Minchan Kim <minchan@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Tor Jeremiassen <tor@ti.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/6] arm64: pgtable: Fix pte_accessible()
+Message-ID: <20201120195308.GA1303870@google.com>
+References: <20201120143557.6715-1-will@kernel.org>
+ <20201120143557.6715-2-will@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201120143557.6715-2-will@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Salvatore,
+On Fri, Nov 20, 2020 at 02:35:52PM +0000, Will Deacon wrote:
+> pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
+> invalidation is necessary when unmapping pages for reclaim. Although our
+> implementation is correct according to the architecture, returning true
+> only for valid, young ptes in the absence of racing page-table
+> modifications, this is in fact flawed due to lazy invalidation of old
+> ptes in ptep_clear_flush_young() where we elide the expensive DSB
+> instruction for completing the TLB invalidation.
+> 
+> Rather than penalise the aging path, adjust pte_accessible() to return
+> true for any valid pte, even if the access flag is cleared.
 
-On Fri, Nov 20, 2020 at 7:30 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
->
-> Hi Andrey,
->
-> On Fri, Nov 20, 2020 at 05:31:59PM +0100, Andrey Zhizhikin wrote:
-> > Hello Salvatore,
-> >
-> > On Fri, Nov 20, 2020 at 4:53 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
-> > >
-> > > Hi Andrey,
-> > >
-> > > On Fri, Nov 20, 2020 at 03:29:39PM +0100, Andrey Zhizhikin wrote:
-> > > > Hello Salvatore,
-> > > >
-> > > > On Fri, Nov 20, 2020 at 2:34 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
-> > > > >
-> > > > > Hi Andrey,
-> > > > >
-> > > > > On Fri, Nov 20, 2020 at 10:54:22AM +0100, Andrey Zhizhikin wrote:
-> > > > > > On Fri, Nov 20, 2020 at 8:39 AM Salvatore Bonaccorso <carnil@debian.org> wrote:
-> > > > > > >
-> > > > > > > This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
-> > > > > > > (but only from 4.19.y)
-> > > > > >
-> > > > > > This revert would fail the build of 4.19.y with gcc10, I believe the
-> > > > > > original commit was introduced to address exactly this case. If this
-> > > > > > is intended behavior that 4.19.y is not compiled with newer gcc
-> > > > > > versions - then this revert is OK.
-> > > > >
-> > > > > TTBOMK, this would not regress the build for newer gcc (specifically
-> > > > > gcc10) as 4.19.158 is failing perf tool builds there as well (without
-> > > > > the above commit reverted). Just as an example v4.19.y does not have
-> > > > > cff20b3151cc ("perf tests bp_account: Make global variable static")
-> > > > > which is there in v5.6-rc6 to fix build failures with 10.0.1.
-> > > > >
-> > > > > But it did regress builds with older gcc's as for instance used in
-> > > > > Debian buster (gcc 8.3.0) since 4.19.152.
-> > > > >
-> > > > > Do I possibly miss something? If there is a solution to make it build
-> > > > > with newer GCCs and *not* regress previously working GCC versions then
-> > > > > this is surely the best outcome though.
-> > > >
-> > > > I guess (and from what I understand in Leo's reply), porting of
-> > > > 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to
-> > > > traceID-metadata") should solve the issue for both older and newer gcc
-> > > > versions.
-> > > >
-> > > > The breakage is now in
-> > > > [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c] file (which uses
-> > > > traceid_list inside). This is solved with the above commit, which
-> > > > concealed traceid_list internally inside [tools/perf/util/cs-etm.c]
-> > > > file and exposed to [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c]
-> > > > via cs_etm__get_cpu() call.
-> > > >
-> > > > Can you try out to port that commit to see if that would solve your
-> > > > regression?
-> > >
-> > > So something like the following will compile as well with the older
-> > > gcc version.
-> > >
-> > > I realize: I mainline the order of the commits was:
-> > >
-> > > 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
-> > > 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header f
-> > > ile")
-> > >
-> > > But to v4.19.y only 168200b6d6ea was backported, and while that was
-> > > done I now realize the comment was also changed including the change
-> > > fom 95c6fe970a01.
-> > >
-> > > Thus the proposed backported patch would drop the change in
-> > > tools/perf/util/cs-etm.c to the comment as this was already done.
-> > > Thecnically currently the comment would be wrong, because it reads:
-> > >
-> > > /* RB tree for quick conversion between traceID and metadata pointers */
-> > >
-> > > but backport of 95c6fe970a01 is not included.
-> > >
-> > > Would the right thing to do thus be:
-> > >
-> > > - Revert b801d568c7d8 "perf cs-etm: Move definition of 'traceid_list' global variable from header file"
-> > > - Backport 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
-> > > - Backport 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header file")
-> >
-> > Yes, I believe this would be the correct course of action here; this
-> > should cover the regression you've encountered and should ensure that
-> > perf builds on both the "old" and "new" gcc versions.
->
-> Although perf tools in v4.19.y won't compile with recent GCCs.
->
-> Greg did already queued up the first part of it, so the revert. I
-> think we can pick the later two commits again up after the v4.19.159
-> release?
+The chance of a system hitting reclaim is proportional to how long
+it's been running, and that of having mapped but yet to be accessed
+PTEs is reciprocal, so to speak. I don't reboot my devices everyday,
+and therefore:
 
-Sounds reasonable to me.
+Acked-by: Yu Zhao <yuzhao@google.com>
 
->
-> Regards,
-> Salvatore
-
-
-
--- 
-Regards,
-Andrey.
+> Cc: <stable@vger.kernel.org>
+> Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
+> Reported-by: Yu Zhao <yuzhao@google.com>
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
+>  arch/arm64/include/asm/pgtable.h | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+> index 4ff12a7adcfd..1bdf51f01e73 100644
+> --- a/arch/arm64/include/asm/pgtable.h
+> +++ b/arch/arm64/include/asm/pgtable.h
+> @@ -115,8 +115,6 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>  #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+>  #define pte_valid_not_user(pte) \
+>  	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+> -#define pte_valid_young(pte) \
+> -	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+>  #define pte_valid_user(pte) \
+>  	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
+>  
+> @@ -126,7 +124,7 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>   * remapped as PROT_NONE but are yet to be flushed from the TLB.
+>   */
+>  #define pte_accessible(mm, pte)	\
+> -	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
+> +	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
+>  
+>  /*
+>   * p??_access_permitted() is true for valid user mappings (subject to the
+> -- 
+> 2.29.2.454.gaff20da3a2-goog
+> 
