@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED172BAB76
-	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 14:43:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E98BC2BAB89
+	for <lists+stable@lfdr.de>; Fri, 20 Nov 2020 14:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727043AbgKTNmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 08:42:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
+        id S1726693AbgKTNxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 08:53:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726553AbgKTNmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 08:42:46 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901A8C0613CF
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 05:42:46 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id x15so4880566pll.2
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 05:42:46 -0800 (PST)
+        with ESMTP id S1726684AbgKTNxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 08:53:19 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DEA2C0613CF
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 05:53:19 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id 10so7915881pfp.5
+        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 05:53:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=ih0sZmhvjfQFWHjetr5bbZfgQ7x3eatipQaFav8zcNU=;
-        b=TjLrUw0zzHUGLbDLxF5UGOdUTYcmYygMCNKlrfeVp3W2CC0O+tJs54fh4/AzdbnL/l
-         VlQ/WxqhTkamv06cat+ic/q/uWLH/WBYbKtDClydjD9rvG5uiG6kjxJqC23w1BBSFFq6
-         aclXTsceHBupYCSkRuRwlFipxcWGkXLyHzR/s0MxkTQSpA2LP8F3vx7esSg5eqB/FB6e
-         LzwC/ejuKGeR2hJ1gyJXMuIflNA1D0/8Q7OeHGyPGwWKWAYfwj1rxeTCQDn/I8iJLL51
-         au6Og1T/VXS2ve2X0B/ix1Tc8SEA1tnYowOe1gv2hUHh7QvZU9hAi9SfNCTMV97BF6Td
-         xSow==
+        bh=xhHHIfdzDxNpMCAN78g8m/AMFcu6gBCIqTXZIwVtFLg=;
+        b=1X8lgmzbpgesOrl5gHn3as39334Up/vOpIPDgP97RJtl64IXqpYBqbrO+vgbwzh0i+
+         UlWNnu2726HNDxaBZE/2JKkWItuklGWzjMkoo8/6vF3DCBb8fvdrA4+rNhPTx1f7R9Jr
+         Apc6iI91zB+pExPU+8KvSB5XI+zU6/KanX5Sz20pNHliW1MpqmrUyR+GFBZNmSlukjSI
+         2BMVDDW9GaIClreb0RUtXWj+AiKnKWLSa1DguKFYM9QDzHQDn/5gD0fBr3kkgOV1psiF
+         BlyOrfVWz6cxN7SQTcgOfm8itNDFZ9WXbO7EqyejiN+uWZ5MunTYxCenJnzF1rwPh2oL
+         dwkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=ih0sZmhvjfQFWHjetr5bbZfgQ7x3eatipQaFav8zcNU=;
-        b=miL9rop0jBKMXqve3bwOBOVqaR7MoRy8ISRkPlmFUMdyCMK6M56EF+aT5Y9izi00dz
-         XM26GyfNG+AvnNTNclL9H4BhpgO1f4Aq3ScfmivJx3DRkYaVOiq4KO/AsxKXeUYZNJ3h
-         isMsUL2v57X3pPFKKVd8KMLFlX7X3MSfDkzJ0KsYzEMWs1eijf+celTiAmRcnlE86ThX
-         GLuKody32l2pdJkqhGYfvm7TjuYUpfM1L9m2PysH3DAKSv3WnuxqELXkd0HlmsyK1MnZ
-         lCu9XvvJUvpGccur2xBEw0LmpyMQeCgNbeQPV9jE64MUmJWfBjlW+GMFLq5E4pWC3jWp
-         OQbw==
-X-Gm-Message-State: AOAM5327DAVbvyGTG5WkCiqY4AKrjkCQFuxYLLJXPbLP4EyEmrq13JSx
-        oFFe+4gpB5ujmcp9KKC2Xd+Hblr9dm0otQ==
-X-Google-Smtp-Source: ABdhPJzrg0snHR+M5OvZql09S5AN6S6Wdie3h95maCeC3HN80lNoXf9t8xYv8yIz1ii+e1gbjPW3ag==
-X-Received: by 2002:a17:902:778e:b029:d8:d024:a9a with SMTP id o14-20020a170902778eb02900d8d0240a9amr14027842pll.12.1605879764979;
-        Fri, 20 Nov 2020 05:42:44 -0800 (PST)
+        bh=xhHHIfdzDxNpMCAN78g8m/AMFcu6gBCIqTXZIwVtFLg=;
+        b=Q4k6q2cDAXf8UgdZkwcpgEdWeBfFpoffkebzM1n7JcmPGK7djpzeds7vs1A5rxRsV3
+         f73+Q08eTZ15F/PNDNZiTN4s3WiWxSbhoZWRdJXrl2MVnFroGKUyHHcBUdPUg2TIyIOT
+         Imwpw0rNrwzOpbL+YFcH6J/fra9i30gAtGFord8lpNiZS2+Qkq45P4x+pvekEnqOhBDx
+         f2j3ULK6LtU8jVUv/DYuW21OXOAh+1lY6YQRqo5mukEOO+crwAqOVD54IXfcJcT85znI
+         ggedVTcATvs0eecUO5tTJqjArTahg4zAygGVqf7sq7yXMcOORNxL8/Uf4EyYuAiwm590
+         /H3Q==
+X-Gm-Message-State: AOAM533ggToYpHUG6Afr0kzed7AI7W/YhcDT9eRzhYCI9Ee328TjvV3o
+        sx8kOEVx7W6QM+t5pOF1eOSuAlYHCMpnYw==
+X-Google-Smtp-Source: ABdhPJx9R5xZsiXFDkOLbwy0yqbE4t+Ic0G1gjHhwqkaTtXdKGHZVqPIhI+ts5FIYCqurYHZ1jKDiw==
+X-Received: by 2002:aa7:870e:0:b029:18b:f46:9ca9 with SMTP id b14-20020aa7870e0000b029018b0f469ca9mr13830447pfo.3.1605880396458;
+        Fri, 20 Nov 2020 05:53:16 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q12sm4290651pjl.41.2020.11.20.05.42.43
+        by smtp.gmail.com with ESMTPSA id a3sm3717353pfo.46.2020.11.20.05.53.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2020 05:42:44 -0800 (PST)
-Message-ID: <5fb7c7d4.1c69fb81.0cca.7e45@mx.google.com>
-Date:   Fri, 20 Nov 2020 05:42:44 -0800 (PST)
+        Fri, 20 Nov 2020 05:53:15 -0800 (PST)
+Message-ID: <5fb7ca4b.1c69fb81.dfe94.70ea@mx.google.com>
+Date:   Fri, 20 Nov 2020 05:53:15 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.207-18-g6334af4e50696
+X-Kernelci-Kernel: v4.14.207-18-g5602fbd93fec
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed,
- 66 warnings (v4.14.207-18-g6334af4e50696)
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 build: 201 builds: 2 failed, 199 passed, 2 errors,
+ 66 warnings (v4.14.207-18-g5602fbd93fec)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,21 +65,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed, 66 warnings=
- (v4.14.207-18-g6334af4e50696)
+stable-rc/queue/4.14 build: 201 builds: 2 failed, 199 passed, 2 errors, 66 =
+warnings (v4.14.207-18-g5602fbd93fec)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.207-18-g6334af4e50696/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.207-18-g5602fbd93fec/
 
 Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.207-18-g6334af4e50696
-Git Commit: 6334af4e50696e5e03708e10c1da2015a9f37c6a
+Branch: queue/4.14
+Git Describe: v4.14.207-18-g5602fbd93fec
+Git Commit: 5602fbd93fec4652696d61892a31a7ff7794dde6
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
 
-Warnings Detected:
+Build Failures Detected:
+
+arm:
+    imx_v6_v7_defconfig: (gcc-8) FAIL
+    mxs_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
 
 arc:
     allnoconfig (gcc-8): 1 warning
@@ -110,6 +116,7 @@ arm:
     efm32_defconfig (gcc-8): 1 warning
     eseries_pxa_defconfig (gcc-8): 1 warning
     h5000_defconfig (gcc-8): 1 warning
+    imx_v6_v7_defconfig (gcc-8): 1 error
     integrator_defconfig (gcc-8): 1 warning
     lpc32xx_defconfig (gcc-8): 1 warning
     lpd270_defconfig (gcc-8): 1 warning
@@ -117,6 +124,7 @@ arm:
     magician_defconfig (gcc-8): 1 warning
     mainstone_defconfig (gcc-8): 1 warning
     multi_v4t_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 error
     palmz72_defconfig (gcc-8): 1 warning
     pcm027_defconfig (gcc-8): 1 warning
     prima2_defconfig (gcc-8): 1 warning
@@ -158,6 +166,11 @@ mips:
 x86_64:
     tinyconfig (gcc-8): 1 warning
 
+Errors summary:
+
+    2    /scratch/linux/drivers/net/can/flexcan.c:301:37: error: =E2=80=98F=
+LEXCAN_QUIRK_SUPPORT_ECC=E2=80=99 undeclared here (not in a function); did =
+you mean =E2=80=98FLEXCAN_QUIRK_DISABLE_MECR=E2=80=99?
 
 Warnings summary:
 
@@ -195,29 +208,6 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -232,8 +222,31 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -589,8 +602,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /scratch/linux/drivers/net/can/flexcan.c:301:37: error: =E2=80=98FLEXCA=
+N_QUIRK_SUPPORT_ECC=E2=80=99 undeclared here (not in a function); did you m=
+ean =E2=80=98FLEXCAN_QUIRK_DISABLE_MECR=E2=80=99?
 
 ---------------------------------------------------------------------------=
 -----
@@ -910,8 +928,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+mxs_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    /scratch/linux/drivers/net/can/flexcan.c:301:37: error: =E2=80=98FLEXCA=
+N_QUIRK_SUPPORT_ECC=E2=80=99 undeclared here (not in a function); did you m=
+ean =E2=80=98FLEXCAN_QUIRK_DISABLE_MECR=E2=80=99?
 
 ---------------------------------------------------------------------------=
 -----
@@ -1290,12 +1313,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
+    .config:1028:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1304,12 +1326,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1322,16 +1340,21 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
 
 Warnings:
-    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
