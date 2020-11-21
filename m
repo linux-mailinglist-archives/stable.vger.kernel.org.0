@@ -2,201 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 851012BBE30
-	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 10:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E36F52BBE9B
+	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 12:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727241AbgKUJSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Nov 2020 04:18:42 -0500
-Received: from mail-oo1-f66.google.com ([209.85.161.66]:45006 "EHLO
-        mail-oo1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726854AbgKUJSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Nov 2020 04:18:39 -0500
-Received: by mail-oo1-f66.google.com with SMTP id i13so2791892oou.11;
-        Sat, 21 Nov 2020 01:18:38 -0800 (PST)
+        id S1727591AbgKULNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Nov 2020 06:13:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54776 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727464AbgKULNA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Nov 2020 06:13:00 -0500
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1862C061A4A
+        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 03:12:58 -0800 (PST)
+Received: by mail-ed1-x543.google.com with SMTP id a15so12179268edy.1
+        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 03:12:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=P5vHvdUoWhYAs5cSrnvPwGGcOljN0xSOLxbRb4b9UYM=;
+        b=rPOhtzZjOn3wSOAQS/9+eJ5lQr3Ymg+IrcnKq1u1AWkfB9qMI1uaQxXGV0hIjKDXVu
+         2DDjyKGFaHeLIV8j0pG3M6TFawrutGSJloQNQ7JnQzFeDEPjyIq+zflwBhXX7dlmbsLe
+         A/eBvmDzqM1BUTQ50yeFcsrypSEFF/Qdq9j1/yHNhcAmAHIlXarScWPzE5lwpj+brSYg
+         ZJSEQgv+sFaohdBihZskZhJArEI7fuyS7hYhyGnlg1vZ0+2f5dbyV38qacUTdW5macfo
+         dejyPyGECZnGvRreQ0CUqBK0YV+LDQWRriRlYB2BK9fXl1YsS1bEVBBT8SEvBqRykxky
+         imyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WaMha0En6LkvNa0zqCPwgKvusypP+GNCRLE4znVs274=;
-        b=YjKYBzAT59/F26ZJYCuI2A7KEdcHpHvLTL1Keq6hC+VwHnHtbE/zMwgl/lVqMaifvO
-         Sp+qR6ciylkPXgGto4SSGrtbxR1SHu5E0mJGKNLDB5BBHn+xdEOXN6omoD69kZUc0x2D
-         q3b+z6vzPgeYR0PYYHaDXOq0ss1Cp6rDWRqQGzzhcOMoqDTEccyEnQ4Sr6JGN9me+qxM
-         D8O7yChJ3bXm4pMkeDA6Ns02ROC3MGtucRuIZJsE9nCevdrnSSI7fbTfQf73I+KMzQCk
-         vYPOG7eIj+Fy4KgutbABeOdi9Fg8KRL72AGnMVTIEZ0OGE/JRoo5Rsvu2iq0ja05qNes
-         GS0A==
-X-Gm-Message-State: AOAM533kv1O2FX2r3lE875K2APLPOY5FyCtK4S62TXlOW7MgjKOzErJj
-        gbMFejj8B6LbDD0rMTPEsvUpnm6earFentM1o2o=
-X-Google-Smtp-Source: ABdhPJyowNnoUrA3Mz/7yfMy3Z3o1JIdvy8nv3Lo7KpazvsKj/zkLv5vUmVX8M/ykA2X5Tbn+KzYCs8VU79DooXNsrw=
-X-Received: by 2002:a4a:d694:: with SMTP id i20mr16921417oot.40.1605950318178;
- Sat, 21 Nov 2020 01:18:38 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=P5vHvdUoWhYAs5cSrnvPwGGcOljN0xSOLxbRb4b9UYM=;
+        b=tz+JE6HEYBtuUahKV+rbWETTn8y0PsL6xeqn0ZjQyyCsP1tZ2W0qZeAGoHkpO7tgMP
+         JrO6aRdNJyEkCDmpy7QFBhsYd+vEbKziOMmt6LSdL5cJAwNu6UuoRp3ZMElNvRExyibD
+         8nCNVPOH13NKaW+Xrf/aPfMENg5LjavceEskdTXo7y9yDq0oSTT354LnyMYn3PML5Sut
+         NLt8UzI9C4HTmC3eHeydNZ2pIf2M/9f2CujUM610pQX+redCdSaW3YaLdIvWVTHJChfV
+         CN+klw0LL1Z4BU7tMWUwNxH9qeKb9p0RefIVMDqv8xzB6wbOwIczaq6FohFHkEvQnqLZ
+         TKGA==
+X-Gm-Message-State: AOAM533T7BM0OwL0IBpOlmefEf6H2p7fZptV5y1T7LpHvIJPkq/7KUmZ
+        TzuBWYMUK+CgIGXwPb14K6ACO21Aj/dtoHlSZNTwAJQlv9uFGB1B
+X-Google-Smtp-Source: ABdhPJy6hmsTRqH7tZsib+6sa5lPVt4Kni+8dfi57Gpx8+Lpy0Bzn/YmhDib4BbRTfcgexPRZMsPS8vmgGhBSd2hs9A=
+X-Received: by 2002:aa7:df81:: with SMTP id b1mr38358069edy.365.1605957177396;
+ Sat, 21 Nov 2020 03:12:57 -0800 (PST)
 MIME-Version: 1.0
-References: <b39102a332ae92c274fc8651acb4c52cfb9824a1.1605847196.git.fthain@telegraphics.com.au>
- <CAMuHMdUS4wmUUtAqgjGc=WVcRC4RJ9nJhVnne89YzOUvd=CCvw@mail.gmail.com> <alpine.LNX.2.23.453.2011210955390.6@nippy.intranet>
-In-Reply-To: <alpine.LNX.2.23.453.2011210955390.6@nippy.intranet>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Sat, 21 Nov 2020 10:18:26 +0100
-Message-ID: <CAMuHMdVRXxEU_R_Sdi7tSR7y7FoU+fFScsfUCVS+JbXU9BWt8A@mail.gmail.com>
-Subject: Re: [PATCH] m68k: Fix WARNING splat in pmac_zilog driver
-To:     Finn Thain <fthain@telegraphics.com.au>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Joshua Thompson <funaho@jurai.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+References: <20201120104541.168007611@linuxfoundation.org>
+In-Reply-To: <20201120104541.168007611@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 21 Nov 2020 16:42:45 +0530
+Message-ID: <CA+G9fYuFoJqZrQJn9bqd1U9YZnr1x+2acsLYCay=99QGGjd6mQ@mail.gmail.com>
+Subject: Re: [PATCH 5.9 00/14] 5.9.10-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux-stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Finn,
-
-On Sat, Nov 21, 2020 at 12:47 AM Finn Thain <fthain@telegraphics.com.au> wrote:
-> On Fri, 20 Nov 2020, Geert Uytterhoeven wrote:
-> > On Fri, Nov 20, 2020 at 5:51 AM Finn Thain <fthain@telegraphics.com.au> wrote:
-> > > Don't add platform resources that won't be used. This avoids a
-> > > recently-added warning from the driver core, that can show up on a
-> > > multi-platform kernel when !MACH_IS_MAC.
-> > >
-> > > ------------[ cut here ]------------
-> > > WARNING: CPU: 0 PID: 0 at drivers/base/platform.c:224 platform_get_irq_optional+0x8e/0xce
-> > > 0 is an invalid IRQ number
-> > > Modules linked in:
-> > > CPU: 0 PID: 0 Comm: swapper Not tainted 5.9.0-multi #1
-> > > Stack from 004b3f04:
-> > >         004b3f04 00462c2f 00462c2f 004b3f20 0002e128 004754db 004b6ad4 004b3f4c
-> > >         0002e19c 004754f7 000000e0 00285ba0 00000009 00000000 004b3f44 ffffffff
-> > >         004754db 004b3f64 004b3f74 00285ba0 004754f7 000000e0 00000009 004754db
-> > >         004fdf0c 005269e2 004fdf0c 00000000 004b3f88 00285cae 004b6964 00000000
-> > >         004fdf0c 004b3fac 0051cc68 004b6964 00000000 004b6964 00000200 00000000
-> > >         0051cc3e 0023c18a 004b3fc0 0051cd8a 004fdf0c 00000002 0052b43c 004b3fc8
-> > > Call Trace: [<0002e128>] __warn+0xa6/0xd6
-> > >  [<0002e19c>] warn_slowpath_fmt+0x44/0x76
-> > >  [<00285ba0>] platform_get_irq_optional+0x8e/0xce
-> > >  [<00285ba0>] platform_get_irq_optional+0x8e/0xce
-> > >  [<00285cae>] platform_get_irq+0x12/0x4c
-> > >  [<0051cc68>] pmz_init_port+0x2a/0xa6
-> > >  [<0051cc3e>] pmz_init_port+0x0/0xa6
-> > >  [<0023c18a>] strlen+0x0/0x22
-> > >  [<0051cd8a>] pmz_probe+0x34/0x88
-> > >  [<0051cde6>] pmz_console_init+0x8/0x28
-> > >  [<00511776>] console_init+0x1e/0x28
-> > >  [<0005a3bc>] printk+0x0/0x16
-> > >  [<0050a8a6>] start_kernel+0x368/0x4ce
-> > >  [<005094f8>] _sinittext+0x4f8/0xc48
-> > > random: get_random_bytes called from print_oops_end_marker+0x56/0x80 with crng_init=0
-> > > ---[ end trace 392d8e82eed68d6c ]---
-> > >
-> > > Cc: Michael Ellerman <mpe@ellerman.id.au>
-> > > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> > > Cc: Paul Mackerras <paulus@samba.org>
-> > > Cc: Joshua Thompson <funaho@jurai.org>
-> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Cc: Jiri Slaby <jirislaby@kernel.org>
-> > > Cc: stable@vger.kernel.org # v5.8+
-> > > References: commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
-> > > Reported-by: Laurent Vivier <laurent@vivier.eu>
-> > > Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-> > > ---
-> > > The global platform_device structs provide the equivalent of a direct
-> > > search of the OpenFirmware tree, for platforms that don't have OF.
-> > > The purpose of that search is discussed in the comments in pmac_zilog.c:
-> > >
-> > >          * First, we need to do a direct OF-based probe pass. We
-> > >          * do that because we want serial console up before the
-> > >          * macio stuffs calls us back
-> > >
-> > > The actual platform bus matching takes place later, with a module_initcall,
-> > > following the usual pattern.
-> >
-> > I think it would be good for this explanation to be part of the
-> > actual patch description above.
-> >
+On Fri, 20 Nov 2020 at 16:39, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Thanks for your review.
+> This is the start of the stable review cycle for the 5.9.10 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> I take that explanation as read because it was fundamental to the changes
-> I made to pmac_zilog.c back in 2009 with commit ec9cbe09899e ("pmac-zilog:
-> add platform driver").
-
-That's a long time ago ;-)
-I asked because to the casual reader, it's far from obvious why the platform
-device use-time is different from the platform device's resources use-time.
-
-> IMO, being that it isn't news, it doesn't belong in the changelog.
-> However, I agree that it needs to be documented. How about I add a comment
-> to pmac_zilog.c?
-
-Fine for me.
-
-> > > --- a/drivers/tty/serial/pmac_zilog.c
-> > > +++ b/drivers/tty/serial/pmac_zilog.c
-> > > @@ -1697,18 +1697,17 @@ extern struct platform_device scc_a_pdev, scc_b_pdev;
-> > >
-> > >  static int __init pmz_init_port(struct uart_pmac_port *uap)
-> > >  {
-> > > -       struct resource *r_ports;
-> > > -       int irq;
-> > > +       struct resource *r_ports, *r_irq;
-> > >
-> > >         r_ports = platform_get_resource(uap->pdev, IORESOURCE_MEM, 0);
-> > > -       irq = platform_get_irq(uap->pdev, 0);
-> > > -       if (!r_ports || irq <= 0)
-> > > +       r_irq = platform_get_resource(uap->pdev, IORESOURCE_IRQ, 0);
-> > > +       if (!r_ports || !r_irq)
-> > >                 return -ENODEV;
-> > >
-> > >         uap->port.mapbase  = r_ports->start;
-> > >         uap->port.membase  = (unsigned char __iomem *) r_ports->start;
-> > >         uap->port.iotype   = UPIO_MEM;
-> > > -       uap->port.irq      = irq;
-> > > +       uap->port.irq      = r_irq->start;
-> > >         uap->port.uartclk  = ZS_CLOCK;
-> > >         uap->port.fifosize = 1;
-> > >         uap->port.ops      = &pmz_pops;
-> >
-> > Given the resources are no longer present on !MAC, just doing
-> >
-> >             r_ports = platform_get_resource(uap->pdev, IORESOURCE_MEM, 0);
-> >     +       if (!r_ports)
-> >     +               return -ENODEV;
-> >             irq = platform_get_irq(uap->pdev, 0);
-> >
-> > should be sufficient?
+> Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
+> Anything received after that time might be too late.
 >
-> I think your suggestion is shorter but not better. Commit a85a6c86c25b
-> (which introduced the WARNING) suggests that testing for irq == 0 is
-> undesirable. My patch resolves that.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.9.10-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.9.y
+> and the diffstat can be found below.
 >
-> As a bonus, by simply testing for the existence of both resources, I've
-> addressed the mistake I made when I originally added the slick
-> platform_get_irq() call instead of consistently using
-> platform_get_resource().
+> thanks,
 >
-> platform_get_irq() hides a bunch of architecture-specific logic that is
-> not appropriate here. The WARNING itself is a good example of that kind of
-> logic.
->
-> Do you agree? If so, I will add this explanation to the commit log.
+> greg k-h
 
-OK, your main motivation is to get rid of the zero-check.
-Leaving it could indeed trigger some janitorial changes by people who
-don't understand the code at all, so it's good to avoid that ;-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Thanks!
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Gr{oetje,eeting}s,
+Summary
+------------------------------------------------------------------------
 
-                        Geert
+kernel: 5.9.10-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.9.y
+git commit: 861b379f08830cebd80999babf94973e831999c2
+git describe: v5.9.9-15-g861b379f0883
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.=
+y/build/v5.9.9-15-g861b379f0883
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+No regressions (compared to build v5.9.9)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+No fixes (compared to build v5.9.9)
+
+Ran 49372 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-controllers-tests
+* ltp-cve-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kunit
+* kselftest
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
