@@ -2,95 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7E02BC1AA
-	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 20:01:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BF52BC25E
+	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 23:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727171AbgKUTBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Nov 2020 14:01:02 -0500
-Received: from gproxy3-pub.mail.unifiedlayer.com ([69.89.30.42]:35167 "EHLO
-        gproxy3-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726305AbgKUTBC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Nov 2020 14:01:02 -0500
-X-Greylist: delayed 1363 seconds by postgrey-1.27 at vger.kernel.org; Sat, 21 Nov 2020 14:01:01 EST
-Received: from CMGW (unknown [10.9.0.13])
-        by gproxy3.mail.unifiedlayer.com (Postfix) with ESMTP id 922E7400B3
-        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 11:38:18 -0700 (MST)
-Received: from bh-25.webhostbox.net ([208.91.199.152])
-        by cmsmtp with ESMTP
-        id gXm6kRQYEi1lMgXm6kQwk9; Sat, 21 Nov 2020 11:38:18 -0700
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.2 cv=D4A3ErZj c=1 sm=1 tr=0
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=kj9zAlcOel0A:10 a=nNwsprhYR40A:10
- a=evQFzbml-YQA:10 a=_jlGtV7tAAAA:8 a=959YoNXsCQVYEN-jlBQA:9 a=CjuIK1q_8ugA:10
- a=nlm17XC03S6CtCLSeiRr:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=gjTsQMpb8Fsw6hXBqlFhYKEFt77M9HPCU5xg2TbjIpU=; b=kvzYCSNgBMbTdpsi72lmk3PFtl
-        iFQNpRTYLGjQiorLZtfeFGjFVQZAzTyzDJFbYtZoHIkjIr2WuOUnOJw8t8oDuyvEmH4WZQTtvVSSf
-        gNxljeljLl4AsQ4pZYgXFOzrGmTlcRjUlXex98fl565tEOtNWPQKWvQqnfalmcwoAAEriXeeDmp75
-        quB3o2Df1hjgmyDrLaMuyZGCtRAVhLpiDgoV1eY2YGjjGqyCCiC2xJ+97j6H86Kn2vQ0fVIcaeR8z
-        ZL67VrrYLJCBHC4w5/vQdp9o44FBZ8p/WXk/kUz/KH4KM1KVy4bfOWX/Aymbh5wBexGekGcFgj95l
-        s1IRYQ2w==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40942 helo=localhost)
-        by bh-25.webhostbox.net with esmtpa (Exim 4.93)
-        (envelope-from <linux@roeck-us.net>)
-        id 1kgXm5-0038XF-Fu; Sat, 21 Nov 2020 18:38:17 +0000
-Date:   Sat, 21 Nov 2020 10:38:17 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.9 00/14] 5.9.10-rc1 review
-Message-ID: <20201121183817.GG111877@roeck-us.net>
-References: <20201120104541.168007611@linuxfoundation.org>
+        id S1728594AbgKUWDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Nov 2020 17:03:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52806 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728554AbgKUWDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Nov 2020 17:03:13 -0500
+Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (unknown [163.114.132.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00D2F221EB;
+        Sat, 21 Nov 2020 22:03:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1605996192;
+        bh=R6LqJxezNsIXeikq7/GWHBaCNJJhNQqtYGcbp68R/3M=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DHo8lItmfyDlGx9rDMqCPK3RRroyKQ1eP/qG2LLbTrbP86PRDurhtMGIjcPjaPGFF
+         GbWL1gsbT9DO9XYEjhQ+Sk+nVuGrCVmCwPe2UfADDYAcqNrmN43VavyrrCmsRg0gM5
+         I3lzR5ifW8oYRN04boVkjovzzP11R6f7R6sNQpZo=
+Date:   Sat, 21 Nov 2020 14:03:11 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Yves-Alexis Perez <corsac@corsac.net>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Martin Habets <mhabets@solarflare.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Shannon Nelson <snelson@pensando.io>,
+        "Michael S. Tsirkin" <mst@redhat.com>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usbnet: ipheth: fix connectivity with iOS 14
+Message-ID: <20201121140311.42585c68@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201119172439.94988-1-corsac@corsac.net>
+References: <CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com>
+        <20201119172439.94988-1-corsac@corsac.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201120104541.168007611@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1kgXm5-0038XF-Fu
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:40942
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 46
-X-Org:  HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 20, 2020 at 12:03:38PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.9.10 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, 19 Nov 2020 18:24:39 +0100 Yves-Alexis Perez wrote:
+> Starting with iOS 14 released in September 2020, connectivity using the
+> personal hotspot USB tethering function of iOS devices is broken.
 > 
-> Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
-> Anything received after that time might be too late.
+> Communication between the host and the device (for example ICMP traffic
+> or DNS resolution using the DNS service running in the device itself)
+> works fine, but communication to endpoints further away doesn't work.
 > 
+> Investigation on the matter shows that UDP and ICMP traffic from the
+> tethered host is reaching the Internet at all. For TCP traffic there are
+> exchanges between tethered host and server but packets are modified in
+> transit leading to impossible communication.
+> 
+> After some trials Matti Vuorela discovered that reducing the URB buffer
+> size by two bytes restored the previous behavior. While a better
+> solution might exist to fix the issue, since the protocol is not
+> publicly documented and considering the small size of the fix, let's do
+> that.
+> 
+> Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+> Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+> Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+> Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 426 pass: 426 fail: 0
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+Applied to net with the typo fixed, thanks!
