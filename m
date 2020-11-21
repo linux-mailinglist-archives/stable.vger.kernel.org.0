@@ -2,93 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C892BBABB
-	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 01:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D82BC2BBCBE
+	for <lists+stable@lfdr.de>; Sat, 21 Nov 2020 04:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbgKUAON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Nov 2020 19:14:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38400 "EHLO
+        id S1726431AbgKUDnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Nov 2020 22:43:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728766AbgKUAON (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 19:14:13 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B56C061A04
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 16:14:12 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id 34so8696856pgp.10
-        for <stable@vger.kernel.org>; Fri, 20 Nov 2020 16:14:12 -0800 (PST)
+        with ESMTP id S1726417AbgKUDnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Nov 2020 22:43:31 -0500
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5B7C0613CF;
+        Fri, 20 Nov 2020 19:43:30 -0800 (PST)
+Received: by mail-oi1-x241.google.com with SMTP id j15so7574091oih.4;
+        Fri, 20 Nov 2020 19:43:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=uKqWBXY7mffdyrXuPqWycdmx7WjMxlzQo4Hepbp5MLA=;
-        b=MGiQ7+/4djIxMNoiGQ2HQ5FgX0BiX7MECdXbKPZQNck9BCSf+vD2+mluHPNMzxP+cG
-         RI0JpcoQox5J9JpacWYIlNvbSs1OrmSiauOJ68nqJB8tYnVuKuPBYc8FcY1jjqvArHkA
-         I6HVsM1vDIu+1mfN0Wl7aQWjh2gsxwta3wtgwqJ9oZ+fcL+3/zZ0LOLgvGnvXFaqMwCj
-         hL03GrfM7phnxuW/StGxVHtcBP2ondXPfL4j3l6zj5t+qWg1haT1vASUsL4Qti5hi+nw
-         5coIoF1phUpLhxGUIGQtFXzot8Pa+T381k+CAFNX/BgZfUyxMNe2Zr9rrHM2tF0Z1vRx
-         MYlw==
+        bh=Y6px9tXuF4Qgiy8xXoUBm2WM7J/cNcGPuCYetBct2LI=;
+        b=sSybWjvwjuHeA6Epva/SygtwaCF3Sc4tQBSZYgSVt9DnrhYDSAIbluz2Se8MErK1Rb
+         zzj/MOqZvcMwxVFWUX7taHPyDhsPGTj1j8l+ZwLoSncjtrfRvl3K3c7ByUUeI3jUBF+F
+         9gt1HsmEygPM2SVCtYc9A9mNKwfivbj5/nOYMCz4H355X924BXBb4yflEoE6zmUhJ/8y
+         f213eDE9mxbT3u8lsnPEnYS6mSYNMQOj8NPbZs4qsA+4xzaLg8YRNPj8pxogwli3fT/d
+         ivm0mzcc2LlGcHXhVf2jiS7Sc7Pd44jfpM1sfAd1hDemFYtNxSPJYfNglYnqdfJkoNrr
+         8H/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=uKqWBXY7mffdyrXuPqWycdmx7WjMxlzQo4Hepbp5MLA=;
-        b=qaAhHRtPSnbgRjnnv1R9/3nkWSB2auIOsy1oyymLbYCBNkEfFGdZNS/ue3Il77py0r
-         laXCv0CuZZGYFT9P59XknY/KlUA+lPxGGa0wO0abXtA970pD5SveTaqtrPUdHcGgMFXv
-         b48U1t695YCpD/95rOj12yuJv/KDXdChZUkB2CTVP3YPIJZ5QyoFdgUaGgHFioHskqBa
-         t1E5N1xc1nHZQeu86qxCTCFxInKTqpllDah9aIPpVU2u8jydmDUSs2LHcDgV/+RroQkX
-         0tKU4GODxxfgzxCWWkQTNd9oQAffdiYA9n8UAJmn4bqiEg+mQM/pYo8ZCvm0zdgzb0Qo
-         OcUA==
-X-Gm-Message-State: AOAM533rfIRGtVibQcxkPK3EazxIQdxFIDUIZVl1/WR0gtPgnQNEHYPd
-        elJvZAfUCAyQy92CPSjaoN+doQ==
-X-Google-Smtp-Source: ABdhPJwimHlEuo6JCbvv0hg1vOC1+1xFeCDf/huX/AovS5V1x99g1hDelggACAaCxCijehAiqasUPg==
-X-Received: by 2002:a05:6a00:1684:b029:18b:665e:5211 with SMTP id k4-20020a056a001684b029018b665e5211mr15948880pfc.20.1605917652295;
-        Fri, 20 Nov 2020 16:14:12 -0800 (PST)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id s4sm5432591pjr.44.2020.11.20.16.14.11
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Y6px9tXuF4Qgiy8xXoUBm2WM7J/cNcGPuCYetBct2LI=;
+        b=Ml6nKcGHnGg0U9orb/8Y0mm6kG8iwxBhflB3GFc/coDr8FBBypRKB/mDHEkQ+6xXDN
+         1g6o+tb12/QwZ9lp5/+0JoAGE0kycdTmq91KqqZSBNVfUYVG7SF7kpM5IzfDpj4rQdIt
+         z+I3D0Ufr/1SrSBZwxzDKamnKmzr7EnCE/zheM5isR45CDyVjMuyNvKN1krBqx4imluQ
+         C13wNZLUTkccrekVc/iGtqWBbBST6KMH21WecQj6dtga3aqK6K5Vi4RTJm/W2OF4id/+
+         wdHScwIJadH27IBmljVlE1aVEgSAUmdt+5O8RItm8O0F5jhdlJWxRyx1SSMaPMrSQZL5
+         HfNw==
+X-Gm-Message-State: AOAM530TJFxf4+7JSiAonWHV2HDGRSoIIfBo6XgM4ayg/WM0DWNiHHGG
+        gbXvp8spZnEbZ8KGP7wgvbVm3LSOrZBi1w==
+X-Google-Smtp-Source: ABdhPJyLARdT6fIZbi0FUO/sHDWLPrPIxxj3KJqnv7rGqm8tRcARwx75jmemC7w7ZC6Gn1a105aZqw==
+X-Received: by 2002:aca:4849:: with SMTP id v70mr8953990oia.103.1605930209314;
+        Fri, 20 Nov 2020 19:43:29 -0800 (PST)
+Received: from unknown.attlocal.net ([2600:1700:65a0:ab60:c0bb:f8c1:a62c:f78b])
+        by smtp.gmail.com with ESMTPSA id k63sm2832685oif.12.2020.11.20.19.43.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2020 16:14:11 -0800 (PST)
-Date:   Fri, 20 Nov 2020 16:14:11 -0800 (PST)
-X-Google-Original-Date: Fri, 20 Nov 2020 16:14:07 PST (-0800)
-Subject:     Re: [PATCH] RISC-V: Add missing jump label initialization
-In-Reply-To: <20201106075359.3401471-1-anup.patel@wdc.com>
-CC:     Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu,
-        Atish Patra <Atish.Patra@wdc.com>,
-        Alistair Francis <Alistair.Francis@wdc.com>,
-        anup@brainfault.org, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Anup Patel <Anup.Patel@wdc.com>,
-        stable@vger.kernel.org
-From:   Palmer Dabbelt <palmerdabbelt@google.com>
-To:     Anup Patel <Anup.Patel@wdc.com>
-Message-ID: <mhng-f4c607c8-ecf6-4eda-88de-4011214fcb33@palmerdabbelt-glaptop1>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
+        Fri, 20 Nov 2020 19:43:28 -0800 (PST)
+From:   Cong Wang <xiyou.wangcong@gmail.com>
+To:     netdev@vger.kernel.org
+Cc:     Cong Wang <cong.wang@bytedance.com>, liuzx@knownsec.com,
+        Florian Westphal <fw@strlen.de>,
+        Edward Cree <ecree@solarflare.com>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [Patch stable] netfilter: clear skb->next in NF_HOOK_LIST()
+Date:   Fri, 20 Nov 2020 19:43:17 -0800
+Message-Id: <20201121034317.577081-1-xiyou.wangcong@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 05 Nov 2020 23:53:59 PST (-0800), Anup Patel wrote:
-> The jump_label_init() should be called from setup_arch() very
-> early for proper functioning of jump label support.
->
-> Fixes: ebc00dde8a97 ("riscv: Add jump-label implementation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anup Patel <anup.patel@wdc.com>
-> ---
->  arch/riscv/kernel/setup.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-> index c424cc6dd833..117f3212a8e4 100644
-> --- a/arch/riscv/kernel/setup.c
-> +++ b/arch/riscv/kernel/setup.c
-> @@ -75,6 +75,7 @@ void __init setup_arch(char **cmdline_p)
->  	*cmdline_p = boot_command_line;
->
->  	early_ioremap_setup();
-> +	jump_label_init();
->  	parse_early_param();
->
->  	efi_init();
+From: Cong Wang <cong.wang@bytedance.com>
 
-Thanks, this is on fixes.
+NF_HOOK_LIST() uses list_del() to remove skb from the linked list,
+however, it is not sufficient as skb->next still points to other
+skb. We should just call skb_list_del_init() to clear skb->next,
+like the rest places which using skb list.
+
+This has been fixed in upstream by commit ca58fbe06c54
+("netfilter: add and use nf_hook_slow_list()").
+
+Fixes: 9f17dbf04ddf ("netfilter: fix use-after-free in NF_HOOK_LIST")
+Reported-by: liuzx@knownsec.com
+Tested-by: liuzx@knownsec.com
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Edward Cree <ecree@solarflare.com>
+Cc: stable@vger.kernel.org # between 4.19 and 5.4
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+---
+ include/linux/netfilter.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
+index 77ebb61faf48..4c0e6539effd 100644
+--- a/include/linux/netfilter.h
++++ b/include/linux/netfilter.h
+@@ -316,7 +316,7 @@ NF_HOOK_LIST(uint8_t pf, unsigned int hook, struct net *net, struct sock *sk,
+ 
+ 	INIT_LIST_HEAD(&sublist);
+ 	list_for_each_entry_safe(skb, next, head, list) {
+-		list_del(&skb->list);
++		skb_list_del_init(skb);
+ 		if (nf_hook(pf, hook, net, sk, skb, in, out, okfn) == 1)
+ 			list_add_tail(&skb->list, &sublist);
+ 	}
+-- 
+2.25.1
+
