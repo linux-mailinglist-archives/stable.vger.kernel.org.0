@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3670E2BC981
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 22:14:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C51E2BC98F
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 22:25:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbgKVVN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 16:13:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56392 "EHLO
+        id S1725918AbgKVVZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 16:25:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727339AbgKVVN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 16:13:27 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E64C0613CF
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 13:13:26 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id c66so13008343pfa.4
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 13:13:26 -0800 (PST)
+        with ESMTP id S1725831AbgKVVZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 16:25:01 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 954EAC0613CF
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 13:25:00 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id c66so13024480pfa.4
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 13:25:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=6psevKgIvzBgrOVeYdLqmsCPykfOq9Suw/4jqanABm8=;
-        b=QEltZ8U5oChyQFcAgLC6FidGmNyPfcwpkM2s/eGwlz2xnAmpnsCmkKiFwzjzqL88Bj
-         W3XctLwncOQlSVV5Ebq7eykfrF6hMxFtkvOHzTMOodGNOhydU7yJCEad+IRcoCVj1uBk
-         yysryWQz8d9TqLYVpQymGOv2VIhHBnuy89dwFInqe6vhN8z9wg7hC8TotNQz498+WO+K
-         W6LcBkACpHmniXPHAT0In/GsrIyh9i1OfFHcNQP8h90e5D2BVLLo+xw6QBzKAmJb5Qv5
-         IuHjOV1w9s25dY0bqugP0uI3CzrsAMYhJb/mImmM0Q73WUVY3aSLMbiJINWFDfTz34/p
-         V80g==
+        bh=UMRD0dPlaRGH7/jz7FiA35hsizRtpqyp5MSOc3mkQ9c=;
+        b=oKX7uQP1iRS7Hdpn6B+kSwqHo3rADDm7mm8gA5cbhG6wcaX0wVhoTH+kVd8tHvncaq
+         ZsK4TyioWUCBgT9tUL9f2HPvFY/siaxyavZ1zDfPPC35cgGF0Ng/3FKvMG+rAhKbUba2
+         vzECoPmSVXwPqyeILDzPwh8LgCKbWA58jvkPopW/nEBCVRvKrWAmbrlx03JFabACyFqx
+         eCKpMdcFyHpKdjjEGjAV2NfheCISAYefsLyro9R5Nxrp66PuIYnCKu6bVOw2K27GRyvV
+         YULIra7F1pAm1lCGeofZ+sHa9LPyt+0M+LXREfIS5GHljOraNDNimbILYsItEWvYZ+mK
+         w6TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=6psevKgIvzBgrOVeYdLqmsCPykfOq9Suw/4jqanABm8=;
-        b=VNmPsMPoFn6uWzZwhSHU3bDTlWrzYYC5Nfa0dsoTEq7whDo1ND7NzyexpXos/qqUTg
-         Tu5oBMr9+Z19GyDoyAoid2w+4hsgJxZadDdHI1IRb7aDXR2nBg6dUBeiEejPQXaQdTEg
-         qnBL1V/+gg2xOxBRamJEbyP73C7aOJTfM2U5iWPBcYiOsWmC07+0wIgNcm0hmOnj7GDb
-         BNW/STQaSi5QKUEAukDLfzPM3/pcpoR1Yt8gfv8v8ZrIG1GFAH15ZPbYiNev1m42NlED
-         d2yeXK+EiOD+/L6fEG8t8Yq8ym2heDY88j5c/dYD0II+k6u6r0k9YsgtknSrEHnrEbht
-         lD3w==
-X-Gm-Message-State: AOAM532iW8eePSa5fUVP1Emlgrdkr4uK47+tjUMVLmLSM4BgSnpBmjK2
-        qJ+IbtyrLbOQDD/GvJus2xHw57bhKBmJvw==
-X-Google-Smtp-Source: ABdhPJzgdoCcFoBwFSgvCsP+Q2o619Tiy3fpdMpnyNfOGigLugLFgNe/MTFN9FMU6hvWmxgHGJcSHQ==
-X-Received: by 2002:a65:560b:: with SMTP id l11mr26113311pgs.63.1606079605541;
-        Sun, 22 Nov 2020 13:13:25 -0800 (PST)
+        bh=UMRD0dPlaRGH7/jz7FiA35hsizRtpqyp5MSOc3mkQ9c=;
+        b=p275VXS09UjSm5kJ2U7u3YyI/+YJVHWUoP0v8e4T7Vi07+ZSJWULOCCF3YPJzloK90
+         bWtOjcUI+nY5mmPdyFVoTLLQIHiTxCa4KZHSIFfT8cGmP2zVNM2PSHTlV+8Szds5T0V9
+         Qemc+MPeq8yb2tiHrJREwvSi/T9K9vJVQdt7LItseq+02IOjHSlmsbTDYi62Rpd1vOt7
+         vG5xC+8e6Ri4pKex64QwX+IKs3NMacs0ckHxw8o4VaxK7HNBKZ9/wxMbEObr/qm0KWzL
+         WZqSoGK+Bzo/o3+wqyVAilE5YAwoukwDaau06K8OaGVpdzLv0x9PHPd4xjqVapaMwKnT
+         N/LQ==
+X-Gm-Message-State: AOAM530B8pL0Pz1BH4/I1fEqd39MyHf0vPZ+RzZpG+MoJfJUvvpVSZX6
+        KvUksMXrQcb32hofx0JI7L181cr9DKkpfQ==
+X-Google-Smtp-Source: ABdhPJynOWGtftduaWfh15y056aH2XE6WQEk6FZMAHSsuDjZ+qZ0nczEL0rjsUf6uCywIUNrFvuJ1Q==
+X-Received: by 2002:a65:4683:: with SMTP id h3mr10653325pgr.167.1606080298003;
+        Sun, 22 Nov 2020 13:24:58 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f16sm8748510pgk.48.2020.11.22.13.13.24
+        by smtp.gmail.com with ESMTPSA id s5sm2982723pgc.15.2020.11.22.13.24.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2020 13:13:24 -0800 (PST)
-Message-ID: <5fbad474.1c69fb81.fbf3f.32f6@mx.google.com>
-Date:   Sun, 22 Nov 2020 13:13:24 -0800 (PST)
+        Sun, 22 Nov 2020 13:24:57 -0800 (PST)
+Message-ID: <5fbad729.1c69fb81.38ad0.7694@mx.google.com>
+Date:   Sun, 22 Nov 2020 13:24:57 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.208-23-g2be7299a7fe0
+X-Kernelci-Kernel: v4.19.159-32-g9230dcfcb9bbb
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 build: 201 builds: 0 failed, 201 passed,
- 66 warnings (v4.14.208-23-g2be7299a7fe0)
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 build: 206 builds: 0 failed, 206 passed,
+ 77 warnings (v4.19.159-32-g9230dcfcb9bbb)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,19 +65,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 201 builds: 0 failed, 201 passed, 66 warnings (=
-v4.14.208-23-g2be7299a7fe0)
+stable-rc/queue/4.19 build: 206 builds: 0 failed, 206 passed, 77 warnings (=
+v4.19.159-32-g9230dcfcb9bbb)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.208-23-g2be7299a7fe0/
+9/kernel/v4.19.159-32-g9230dcfcb9bbb/
 
 Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.208-23-g2be7299a7fe0
-Git Commit: 2be7299a7fe01d6568fdf7bb5b041f9ac5cec8ac
+Branch: queue/4.19
+Git Describe: v4.19.159-32-g9230dcfcb9bbb
+Git Commit: 9230dcfcb9bbb67e508ce277936263ec0ee826e9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Warnings Detected:
 
@@ -117,6 +117,7 @@ arm:
     magician_defconfig (gcc-8): 1 warning
     mainstone_defconfig (gcc-8): 1 warning
     multi_v4t_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
     palmz72_defconfig (gcc-8): 1 warning
     pcm027_defconfig (gcc-8): 1 warning
     prima2_defconfig (gcc-8): 1 warning
@@ -130,10 +131,11 @@ arm:
     s5pv210_defconfig (gcc-8): 1 warning
     spitz_defconfig (gcc-8): 1 warning
     stm32_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
     tango4_defconfig (gcc-8): 1 warning
     tct_hammer_defconfig (gcc-8): 1 warning
     tinyconfig (gcc-8): 1 warning
-    versatile_defconfig (gcc-8): 1 warning
+    vf610m4_defconfig (gcc-8): 1 warning
     viper_defconfig (gcc-8): 1 warning
     vt8500_v6_v7_defconfig (gcc-8): 1 warning
     xcep_defconfig (gcc-8): 1 warning
@@ -142,8 +144,12 @@ arm:
 i386:
 
 mips:
+    allnoconfig (gcc-8): 1 warning
     db1xxx_defconfig (gcc-8): 1 warning
+    gcw0_defconfig (gcc-8): 1 warning
     jmr3927_defconfig (gcc-8): 1 warning
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 2 warnings
     malta_defconfig (gcc-8): 1 warning
     malta_kvm_guest_defconfig (gcc-8): 1 warning
     malta_qemu_32r6_defconfig (gcc-8): 2 warnings
@@ -152,8 +158,14 @@ mips:
     maltasmvp_eva_defconfig (gcc-8): 1 warning
     maltaup_defconfig (gcc-8): 1 warning
     maltaup_xpa_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
     pic32mzda_defconfig (gcc-8): 1 warning
-    xilfpga_defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+
+riscv:
+    allnoconfig (gcc-8): 1 warning
+    defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
 
 x86_64:
     tinyconfig (gcc-8): 1 warning
@@ -161,15 +173,18 @@ x86_64:
 
 Warnings summary:
 
-    64   /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_l=
+    69   /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_l=
 ist=E2=80=99 defined but not used [-Wunused-variable]
-    1    {standard input}:29: Warning: macro instruction expanded into mult=
-iple instructions
-    1    .config:1028:warning: override: UNWINDER_GUESS changes choice state
-
-Section mismatches summary:
-
-    2    WARNING: modpost: Found 1 section mismatch(es).
+    3    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame siz=
+e of 1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_propert=
+y): /wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 =
+or bad phandle (referred from clocks[0])
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    .config:1010:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -195,8 +210,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -205,11 +224,11 @@ allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -218,13 +237,17 @@ allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
 matches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -232,8 +255,13 @@ allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -241,7 +269,7 @@ am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -290,7 +318,7 @@ axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -299,7 +327,7 @@ axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -332,16 +360,10 @@ ion mismatches
 bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -369,7 +391,7 @@ clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -378,7 +400,7 @@ cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -407,7 +429,7 @@ colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
 0 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -421,7 +443,7 @@ corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -435,7 +457,7 @@ db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -447,6 +469,15 @@ section mismatches
 -----
 defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -469,7 +500,7 @@ efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -488,7 +519,7 @@ eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -513,6 +544,15 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -532,7 +572,7 @@ h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -546,7 +586,7 @@ haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -555,7 +595,7 @@ haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -569,7 +609,7 @@ hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
 mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -598,7 +638,7 @@ integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -652,7 +692,7 @@ jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -682,8 +722,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -697,8 +741,14 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
+lid for HOTPLUG_PCI_SHPC
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -711,7 +761,7 @@ lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -720,7 +770,7 @@ lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -729,7 +779,7 @@ lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -738,7 +788,7 @@ magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -747,7 +797,7 @@ mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -756,7 +806,7 @@ malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -770,7 +820,7 @@ malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
 , 0 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -779,9 +829,9 @@ malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
 s, 0 section mismatches
 
 Warnings:
-    {standard input}:29: Warning: macro instruction expanded into multiple =
-instructions
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -790,7 +840,7 @@ maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -799,7 +849,7 @@ maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -808,7 +858,7 @@ maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
 0 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -817,7 +867,7 @@ maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -826,7 +876,7 @@ maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -880,7 +930,7 @@ multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -890,8 +940,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_property): /=
+wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 or ba=
+d phandle (referred from clocks[0])
 
 ---------------------------------------------------------------------------=
 -----
@@ -935,8 +990,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    /scratch/linux/net/core/rtnetlink.c:3191:1: warning: the frame size of =
+1312 bytes is larger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -949,7 +1008,7 @@ nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -958,7 +1017,7 @@ nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -967,7 +1026,7 @@ nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -976,7 +1035,7 @@ nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
  0 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1016,11 +1075,16 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1029,7 +1093,7 @@ pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1038,7 +1102,7 @@ pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1062,7 +1126,7 @@ prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1071,7 +1135,7 @@ pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1080,7 +1144,7 @@ pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1089,7 +1153,7 @@ pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1098,7 +1162,7 @@ pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1122,7 +1186,7 @@ raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1161,7 +1225,7 @@ s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1170,7 +1234,7 @@ s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1179,7 +1243,7 @@ s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1233,7 +1297,7 @@ spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1242,13 +1306,18 @@ stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    arch/arm/boot/dts/sun8i-h3-beelink-x2.dtb: Warning (clocks_property): /=
+wifi_pwrseq: Missing property '#clock-cells' in node /soc/rtc@1f00000 or ba=
+d phandle (referred from clocks[0])
 
 ---------------------------------------------------------------------------=
 -----
@@ -1256,7 +1325,7 @@ tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1280,7 +1349,7 @@ tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1290,29 +1359,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
 tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1322,16 +1373,47 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    .config:1010:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1354,7 +1436,7 @@ vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1363,17 +1445,13 @@ vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1382,11 +1460,20 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
+=E2=80=99 defined but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1400,7 +1487,7 @@ vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
 section mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1419,16 +1506,7 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
 mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
-=E2=80=99 defined but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
@@ -1442,7 +1520,7 @@ zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
 mismatches
 
 Warnings:
-    /scratch/linux/drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=
+    /scratch/linux/drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=
 =E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
