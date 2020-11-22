@@ -2,167 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFA72BC2AB
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 00:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D14182BC3F3
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 06:41:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbgKUXkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Nov 2020 18:40:18 -0500
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:60574 "EHLO
-        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726560AbgKUXkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Nov 2020 18:40:18 -0500
-Received: by kvm5.telegraphics.com.au (Postfix, from userid 502)
-        id 1C91429AB9; Sat, 21 Nov 2020 18:40:16 -0500 (EST)
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Paul Mackerras" <paulus@samba.org>,
-        "Joshua Thompson" <funaho@jurai.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Jiri Slaby" <jirislaby@kernel.org>, stable@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
-        linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Message-Id: <0c0fe1e4f11ccec202d4df09ea7d9d98155d101a.1606001297.git.fthain@telegraphics.com.au>
-From:   Finn Thain <fthain@telegraphics.com.au>
-Subject: [PATCH v2] m68k: Fix WARNING splat in pmac_zilog driver
-Date:   Sun, 22 Nov 2020 10:28:17 +1100
+        id S1727345AbgKVFlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 00:41:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727267AbgKVFle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 00:41:34 -0500
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF78BC0613CF
+        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 21:41:34 -0800 (PST)
+Received: by mail-oi1-x244.google.com with SMTP id v202so12677697oia.9
+        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 21:41:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=yQvyFDM0JjV69fRQJvQbh4EUUpGYP88ib4fx5c7S58s=;
+        b=mJBunxM5mgkzBeH2Zqtr83SqxLzRQSI7jClSU564b/d8b94UJKf0ItjyaU8DOysg9q
+         c2qrBo8aHMdfR9hFXUBrTuIndVRUWnODvuOoejC55fXbmlNn/YwzSESZOD/40gvxinXC
+         Wvd3n8E82XsOpQlCJclCsN+Tbf5AAzNUhsp9Qpc9dTYWz9oLvdK+BPp2+S8sI+8Fj4xT
+         AkZJ/sAcKBw4adkSr0cQMyyDeMTuuwYzOes78AZLUJ9otLcg12Rx5f4U8Xs7wNSSENWN
+         ppDjxUS4l2njr6Cm53FAz6F95SPpOhxtr95nOCHLdfngcggTtw3lm2iBNOTZmutjWhDE
+         vTLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=yQvyFDM0JjV69fRQJvQbh4EUUpGYP88ib4fx5c7S58s=;
+        b=SMVSmFbYGrfQGNnfMtBXyzoLpFtuObFwmOyORM35XnVJ4hihV3HYdPkNxDsxejWoN+
+         FMFourv+vrqYqg0WEaesB/ez6ES24blG91NI9/MIsRwcD+kQqF69v2O9mLXHIz/n3Co7
+         XElo3EpwaytO7qtuR/G3dJPIZpoScOiyjX34drJTV5XedHhitFrf47qo4bF1s6GXnRDo
+         LCNGvdDCDceNdMEEIGjUsUsVJHAYATMpFeBi8F3Yc05jeLm/K1NRB6vvjpgZnamj0/er
+         skXz0JzrJLfe47AXaAf6oBsILxUf8/pMmslaIsmNpoyLG/xOPH64XSh79XAtZJE8yf2K
+         R43w==
+X-Gm-Message-State: AOAM531SgFATcATLKxAjeF4wWJM4DMAbOT8xEzek8+jKvtBf1Xjg3U4S
+        f1P6BLzKzmMzkkq63f1fSmGRkQ==
+X-Google-Smtp-Source: ABdhPJyqx4jrmkRkFOuiZci8CzeEUgW29mdcrfQBlpoCszNp00F3WQtf7ygPl9u4zmcUvbfO92rU8g==
+X-Received: by 2002:a54:4608:: with SMTP id p8mr11536251oip.5.1606023694131;
+        Sat, 21 Nov 2020 21:41:34 -0800 (PST)
+Received: from localhost.localdomain (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
+        by smtp.gmail.com with ESMTPSA id s28sm4303132otr.4.2020.11.21.21.41.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Nov 2020 21:41:33 -0800 (PST)
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        Siddharth Gupta <sidgup@codeaurora.org>
+Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
+        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v3 1/4] remoteproc: sysmon: Ensure remote notification ordering
+Date:   Sat, 21 Nov 2020 21:41:32 -0800
+Message-Id: <20201122054135.802935-2-bjorn.andersson@linaro.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201122054135.802935-1-bjorn.andersson@linaro.org>
+References: <20201122054135.802935-1-bjorn.andersson@linaro.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Don't add platform resources that won't be used. This avoids a
-recently-added warning from the driver core, that can show up on a
-multi-platform kernel when !MACH_IS_MAC.
+The reliance on the remoteproc's state for determining when to send
+sysmon notifications to a remote processor is racy with regard to
+concurrent remoteproc operations.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at drivers/base/platform.c:224 platform_get_irq_optional+0x8e/0xce
-0 is an invalid IRQ number
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.9.0-multi #1
-Stack from 004b3f04:
-        004b3f04 00462c2f 00462c2f 004b3f20 0002e128 004754db 004b6ad4 004b3f4c
-        0002e19c 004754f7 000000e0 00285ba0 00000009 00000000 004b3f44 ffffffff
-        004754db 004b3f64 004b3f74 00285ba0 004754f7 000000e0 00000009 004754db
-        004fdf0c 005269e2 004fdf0c 00000000 004b3f88 00285cae 004b6964 00000000
-        004fdf0c 004b3fac 0051cc68 004b6964 00000000 004b6964 00000200 00000000
-        0051cc3e 0023c18a 004b3fc0 0051cd8a 004fdf0c 00000002 0052b43c 004b3fc8
-Call Trace: [<0002e128>] __warn+0xa6/0xd6
- [<0002e19c>] warn_slowpath_fmt+0x44/0x76
- [<00285ba0>] platform_get_irq_optional+0x8e/0xce
- [<00285ba0>] platform_get_irq_optional+0x8e/0xce
- [<00285cae>] platform_get_irq+0x12/0x4c
- [<0051cc68>] pmz_init_port+0x2a/0xa6
- [<0051cc3e>] pmz_init_port+0x0/0xa6
- [<0023c18a>] strlen+0x0/0x22
- [<0051cd8a>] pmz_probe+0x34/0x88
- [<0051cde6>] pmz_console_init+0x8/0x28
- [<00511776>] console_init+0x1e/0x28
- [<0005a3bc>] printk+0x0/0x16
- [<0050a8a6>] start_kernel+0x368/0x4ce
- [<005094f8>] _sinittext+0x4f8/0xc48
-random: get_random_bytes called from print_oops_end_marker+0x56/0x80 with crng_init=0
----[ end trace 392d8e82eed68d6c ]---
+Further more the advertisement of the state of other remote processor to
+a newly started remote processor might not only send the wrong state,
+but might result in a stream of state changes that are out of order.
 
-Commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid"),
-which introduced the WARNING, suggests that testing for irq == 0 is
-undesirable. Instead of that comparison, just test for resource existence.
+Address this by introducing state tracking within the sysmon instances
+themselves and extend the locking to ensure that the notifications are
+consistent with this state.
 
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Joshua Thompson <funaho@jurai.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: stable@vger.kernel.org # v5.8+
-References: commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
-Reported-by: Laurent Vivier <laurent@vivier.eu>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Fixes: 1f36ab3f6e3b ("remoteproc: sysmon: Inform current rproc about all active rprocs")
+Fixes: 1877f54f75ad ("remoteproc: sysmon: Add notifications for events")
+Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
-Changed since v1:
- - Add a comment to explain the need for the global structs.
- - Expand the commit log to better explain the intention of the patch.
----
- arch/m68k/mac/config.c          | 17 +++++++++--------
- drivers/tty/serial/pmac_zilog.c | 14 +++++++++-----
- 2 files changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
-index 0ac53d87493c..2bea1799b8de 100644
---- a/arch/m68k/mac/config.c
-+++ b/arch/m68k/mac/config.c
-@@ -777,16 +777,12 @@ static struct resource scc_b_rsrcs[] = {
- struct platform_device scc_a_pdev = {
- 	.name           = "scc",
- 	.id             = 0,
--	.num_resources  = ARRAY_SIZE(scc_a_rsrcs),
--	.resource       = scc_a_rsrcs,
- };
- EXPORT_SYMBOL(scc_a_pdev);
+Changes since v2:
+- Hold sysmon_lock during traversal of sysmons in sysmon_start()
+
+ drivers/remoteproc/qcom_sysmon.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index 9eb2f6bccea6..b37b111b15b3 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -22,6 +22,9 @@ struct qcom_sysmon {
+ 	struct rproc_subdev subdev;
+ 	struct rproc *rproc;
  
- struct platform_device scc_b_pdev = {
- 	.name           = "scc",
- 	.id             = 1,
--	.num_resources  = ARRAY_SIZE(scc_b_rsrcs),
--	.resource       = scc_b_rsrcs,
- };
- EXPORT_SYMBOL(scc_b_pdev);
- 
-@@ -813,10 +809,15 @@ static void __init mac_identify(void)
- 
- 	/* Set up serial port resources for the console initcall. */
- 
--	scc_a_rsrcs[0].start = (resource_size_t) mac_bi_data.sccbase + 2;
--	scc_a_rsrcs[0].end   = scc_a_rsrcs[0].start;
--	scc_b_rsrcs[0].start = (resource_size_t) mac_bi_data.sccbase;
--	scc_b_rsrcs[0].end   = scc_b_rsrcs[0].start;
-+	scc_a_rsrcs[0].start     = (resource_size_t)mac_bi_data.sccbase + 2;
-+	scc_a_rsrcs[0].end       = scc_a_rsrcs[0].start;
-+	scc_a_pdev.num_resources = ARRAY_SIZE(scc_a_rsrcs);
-+	scc_a_pdev.resource      = scc_a_rsrcs;
++	int state;
++	struct mutex state_lock;
 +
-+	scc_b_rsrcs[0].start     = (resource_size_t)mac_bi_data.sccbase;
-+	scc_b_rsrcs[0].end       = scc_b_rsrcs[0].start;
-+	scc_b_pdev.num_resources = ARRAY_SIZE(scc_b_rsrcs);
-+	scc_b_pdev.resource      = scc_b_rsrcs;
+ 	struct list_head node;
  
- 	switch (macintosh_config->scc_type) {
- 	case MAC_SCC_PSC:
-diff --git a/drivers/tty/serial/pmac_zilog.c b/drivers/tty/serial/pmac_zilog.c
-index 96e7aa479961..216b75ef5048 100644
---- a/drivers/tty/serial/pmac_zilog.c
-+++ b/drivers/tty/serial/pmac_zilog.c
-@@ -1693,22 +1693,26 @@ static int __init pmz_probe(void)
+ 	const char *name;
+@@ -448,7 +451,10 @@ static int sysmon_prepare(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_POWERUP
+ 	};
  
- #else
++	mutex_lock(&sysmon->state_lock);
++	sysmon->state = SSCTL_SSR_EVENT_BEFORE_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon->state_lock);
  
-+/* On PCI PowerMacs, pmz_probe() does an explicit search of the OpenFirmware
-+ * tree to obtain the device_nodes needed to start the console before the
-+ * macio driver. On Macs without OpenFirmware, global platform_devices take
-+ * the place of those device_nodes.
-+ */
- extern struct platform_device scc_a_pdev, scc_b_pdev;
+ 	return 0;
+ }
+@@ -472,20 +478,25 @@ static int sysmon_start(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
+ 	};
  
- static int __init pmz_init_port(struct uart_pmac_port *uap)
++	mutex_lock(&sysmon->state_lock);
++	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon->state_lock);
+ 
+ 	mutex_lock(&sysmon_lock);
+ 	list_for_each_entry(target, &sysmon_list, node) {
+-		if (target == sysmon ||
+-		    target->rproc->state != RPROC_RUNNING)
++		if (target == sysmon)
+ 			continue;
+ 
++		mutex_lock(&target->state_lock);
+ 		event.subsys_name = target->name;
++		event.ssr_event = target->state;
+ 
+ 		if (sysmon->ssctl_version == 2)
+ 			ssctl_send_event(sysmon, &event);
+ 		else if (sysmon->ept)
+ 			sysmon_send_event(sysmon, &event);
++		mutex_unlock(&target->state_lock);
+ 	}
+ 	mutex_unlock(&sysmon_lock);
+ 
+@@ -500,7 +511,10 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
+ 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN
+ 	};
+ 
++	mutex_lock(&sysmon->state_lock);
++	sysmon->state = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon->state_lock);
+ 
+ 	/* Don't request graceful shutdown if we've crashed */
+ 	if (crashed)
+@@ -521,7 +535,10 @@ static void sysmon_unprepare(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_SHUTDOWN
+ 	};
+ 
++	mutex_lock(&sysmon->state_lock);
++	sysmon->state = SSCTL_SSR_EVENT_AFTER_SHUTDOWN;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
++	mutex_unlock(&sysmon->state_lock);
+ }
+ 
+ /**
+@@ -534,11 +551,10 @@ static int sysmon_notify(struct notifier_block *nb, unsigned long event,
+ 			 void *data)
  {
--	struct resource *r_ports;
--	int irq;
-+	struct resource *r_ports, *r_irq;
+ 	struct qcom_sysmon *sysmon = container_of(nb, struct qcom_sysmon, nb);
+-	struct rproc *rproc = sysmon->rproc;
+ 	struct sysmon_event *sysmon_event = data;
  
- 	r_ports = platform_get_resource(uap->pdev, IORESOURCE_MEM, 0);
--	irq = platform_get_irq(uap->pdev, 0);
--	if (!r_ports || irq <= 0)
-+	r_irq = platform_get_resource(uap->pdev, IORESOURCE_IRQ, 0);
-+	if (!r_ports || !r_irq)
- 		return -ENODEV;
+ 	/* Skip non-running rprocs and the originating instance */
+-	if (rproc->state != RPROC_RUNNING ||
++	if (sysmon->state != SSCTL_SSR_EVENT_AFTER_POWERUP ||
+ 	    !strcmp(sysmon_event->subsys_name, sysmon->name)) {
+ 		dev_dbg(sysmon->dev, "not notifying %s\n", sysmon->name);
+ 		return NOTIFY_DONE;
+@@ -591,6 +607,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 	init_completion(&sysmon->ind_comp);
+ 	init_completion(&sysmon->shutdown_comp);
+ 	mutex_init(&sysmon->lock);
++	mutex_init(&sysmon->state_lock);
  
- 	uap->port.mapbase  = r_ports->start;
- 	uap->port.membase  = (unsigned char __iomem *) r_ports->start;
- 	uap->port.iotype   = UPIO_MEM;
--	uap->port.irq      = irq;
-+	uap->port.irq      = r_irq->start;
- 	uap->port.uartclk  = ZS_CLOCK;
- 	uap->port.fifosize = 1;
- 	uap->port.ops      = &pmz_pops;
+ 	sysmon->shutdown_irq = of_irq_get_byname(sysmon->dev->of_node,
+ 						 "shutdown-ack");
 -- 
-2.26.2
+2.28.0
 
