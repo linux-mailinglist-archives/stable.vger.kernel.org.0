@@ -2,152 +2,323 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54ED32BC661
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 16:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437082BC66F
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 16:20:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727646AbgKVPId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 10:08:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57048 "EHLO
+        id S1727889AbgKVPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 10:19:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgKVPIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 10:08:32 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFD6C0613CF;
-        Sun, 22 Nov 2020 07:08:32 -0800 (PST)
-Received: from zn.tnic (p200300ec2f2c2e0055069f03ffcec7d5.dip0.t-ipconnect.de [IPv6:2003:ec:2f2c:2e00:5506:9f03:ffce:c7d5])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 45E201EC0501;
-        Sun, 22 Nov 2020 16:08:23 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1606057703;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:
-         content-transfer-encoding:content-transfer-encoding:in-reply-to:
-         references; bh=/fCqI6TMThbTpUDiQGra8w90Ed/xwBB5K2rz4D6pVbY=;
-        b=ATIA5nAjDz0hjyO8yY4GtJzr0wOc4NTNcjWmD4AdWytF1IYCPlbs9ji4CYX8I28bxjzkxH
-        qKsmUqSAwlGFZLoQeLShFc+k4xBAY9aGFKyBkm7vIbb28SYzbcbcQucB3s0JGkTFCf8VqK
-        vtbIvRmSLo3M0QK6Nja/DEbZedLom4g=
-From:   Borislav Petkov <bp@alien8.de>
-To:     Yazen Ghannam <Yazen.Ghannam@amd.com>
-Cc:     linux-edac <linux-edac@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] EDAC/amd64: Fix PCI component registration
-Date:   Sun, 22 Nov 2020 16:08:15 +0100
-Message-Id: <20201122150815.13808-1-bp@alien8.de>
-X-Mailer: git-send-email 2.21.0
+        with ESMTP id S1727882AbgKVPT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 10:19:56 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60FA6C0613CF
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 07:19:56 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id b63so12473139pfg.12
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 07:19:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/KYd7+1lt68G/0bqGu6m3EhFGsxG32AOIDh3Rw440JM=;
+        b=g8i62rW7tOwYJyXBTeeRY6X/n44BwQBSRQGqu2+EuxLkzGV/XeAtrB/LIrUAJGCfQC
+         dE+evQlMV8KbKcJyC0STQeBjORdtuiXHhJhrMV6zOgNiEfaD9BkQfdkJwrHRFX9Ot8iC
+         bqzormhyws0g2jpyztmhZyV1fPqnu8oFLIlEGji4FGESsIOuELZlh40ussKIWt3RCSnl
+         GRentnOD60/6ZDtkcY+q4K/mWO+EPXF3G6/nwZmUJLa2KA3Qn3J1arfUnkmqUKEcwnfd
+         dx+VeCK1MFpeSEelSU8am58ESli7rIVeaxGmkjO5xE67xYiKRf47+UC6hgEKqlAxZl1y
+         ZBkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/KYd7+1lt68G/0bqGu6m3EhFGsxG32AOIDh3Rw440JM=;
+        b=Y2INiP3yRXZ42jvnCMTsEDlUjG5PzuE6B+wPMhyjByn8T/0Podt0ZzHM6cA8TNklEt
+         wMeUTuoesPkU9lcF4q7hnI8bbT9dXrbZT1R/pqmxeGTvuRh9fp+smkfVovaBb2iNmvFr
+         Vo34RvYdJ4ImnzA5VmQjIggtklqig+Jiw/YzdeiRXKLQWzirVgZJFXfnjnc9+LYGDGHC
+         DYRbt7dFIOfkAjvosQ7UaVOCgGVnIb3lrYExmeu81Dquvwsk1XudJ9omMAnat8MWgqG9
+         pgqLzDiWgaNjaqcse7lfj0H0XQqqKuBjtrCMjU9m/9PX03SHdca7q+du0AQ1Yp6sz8MT
+         uPuw==
+X-Gm-Message-State: AOAM532T8HH2wvicaWJbsTEOOXBm8ecjOpMfMZehnEFyOXF7X3ySgMyE
+        AzjfyOy5cPCr5tCc61AkOL6WX1HIywtUYg==
+X-Google-Smtp-Source: ABdhPJxaBKYHPbnuL7EUCO5SHITP8yuyL0+TLpPmyNenk8BzUqPSP30iRgXnpIPBYqFSTeOPBSLMVQ==
+X-Received: by 2002:a17:90a:7341:: with SMTP id j1mr19875795pjs.78.1606058395398;
+        Sun, 22 Nov 2020 07:19:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y3sm11870203pjb.18.2020.11.22.07.19.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Nov 2020 07:19:54 -0800 (PST)
+Message-ID: <5fba819a.1c69fb81.d8bc8.8953@mx.google.com>
+Date:   Sun, 22 Nov 2020 07:19:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.245
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y baseline: 145 runs, 7 regressions (v4.9.245)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+stable/linux-4.9.y baseline: 145 runs, 7 regressions (v4.9.245)
 
-In order to setup its PCI component, the driver needs any node private
-instance in order to get a reference to the PCI device and hand that
-into edac_pci_create_generic_ctl(). For convenience, it uses the 0th
-memory controller descriptor under the assumption that if any, the 0th
-will be always present.
+Regressions Summary
+-------------------
 
-However, this assumption goes wrong when the 0th node doesn't have
-memory and the driver doesn't initialize an instance for it:
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
 
-  EDAC amd64: F17h detected (node 0).
-  ...
-  EDAC amd64: Node 0: No DIMMs detected.
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
 
-But looking up node instances is not really needed - all one needs is
-the pointer to the proper device which gets discovered during instance
-init.
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
 
-So stash that pointer into a variable and use it when setting up the
-EDAC PCI component.
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
 
-Clear that variable when the driver needs to unwind due to some
-instances failing init to avoid any registration imbalance.
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- drivers/edac/amd64_edac.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+qemu_x86_64          | x86_64 | lab-broonie     | gcc-8    | x86_64_defconf=
+ig    | 1          =
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 4e36d8494563..f7087ddddb90 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -18,6 +18,9 @@ static struct amd64_family_type *fam_type;
- /* Per-node stuff */
- static struct ecc_settings **ecc_stngs;
- 
-+/* Device for the PCI component */
-+static struct device *pci_ctl_dev;
-+
- /*
-  * Valid scrub rates for the K8 hardware memory scrubber. We map the scrubbing
-  * bandwidth to a valid bit pattern. The 'set' operation finds the 'matching-
-@@ -2675,6 +2678,9 @@ reserve_mc_sibling_devs(struct amd64_pvt *pvt, u16 pci_id1, u16 pci_id2)
- 			return -ENODEV;
- 		}
- 
-+		if (!pci_ctl_dev)
-+			pci_ctl_dev = &pvt->F0->dev;
-+
- 		edac_dbg(1, "F0: %s\n", pci_name(pvt->F0));
- 		edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
- 		edac_dbg(1, "F6: %s\n", pci_name(pvt->F6));
-@@ -2699,6 +2705,9 @@ reserve_mc_sibling_devs(struct amd64_pvt *pvt, u16 pci_id1, u16 pci_id2)
- 		return -ENODEV;
- 	}
- 
-+	if (!pci_ctl_dev)
-+		pci_ctl_dev = &pvt->F2->dev;
-+
- 	edac_dbg(1, "F1: %s\n", pci_name(pvt->F1));
- 	edac_dbg(1, "F2: %s\n", pci_name(pvt->F2));
- 	edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
-@@ -3615,21 +3624,10 @@ static void remove_one_instance(unsigned int nid)
- 
- static void setup_pci_device(void)
- {
--	struct mem_ctl_info *mci;
--	struct amd64_pvt *pvt;
--
- 	if (pci_ctl)
- 		return;
- 
--	mci = edac_mc_find(0);
--	if (!mci)
--		return;
--
--	pvt = mci->pvt_info;
--	if (pvt->umc)
--		pci_ctl = edac_pci_create_generic_ctl(&pvt->F0->dev, EDAC_MOD_STR);
--	else
--		pci_ctl = edac_pci_create_generic_ctl(&pvt->F2->dev, EDAC_MOD_STR);
-+	pci_ctl = edac_pci_create_generic_ctl(pci_ctl_dev, EDAC_MOD_STR);
- 	if (!pci_ctl) {
- 		pr_warn("%s(): Unable to create PCI control\n", __func__);
- 		pr_warn("%s(): PCI error report via EDAC not set\n", __func__);
-@@ -3708,6 +3706,8 @@ static int __init amd64_edac_init(void)
- 	return 0;
- 
- err_pci:
-+	pci_ctl_dev = NULL;
-+
- 	msrs_free(msrs);
- 	msrs = NULL;
- 
-@@ -3737,6 +3737,8 @@ static void __exit amd64_edac_exit(void)
- 	kfree(ecc_stngs);
- 	ecc_stngs = NULL;
- 
-+	pci_ctl_dev = NULL;
-+
- 	msrs_free(msrs);
- 	msrs = NULL;
- }
--- 
-2.21.0
+r8a7795-salvator-x   | arm64  | lab-baylibre    | gcc-8    | defconfig     =
+      | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
+v4.9.245/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.9.y
+  Describe: v4.9.245
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      ce62d3c7a552d9b1e3471a189abcccbfe5b91ac8 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba45e85c4ee52646d8d906
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba45e85c4ee52646d8d=
+907
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba45ec5c4ee52646d8d924
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba45ec5c4ee52646d8d=
+925
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba4d674c889d82bbd8d924
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba4d674c889d82bbd8d=
+925
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba4597db3d932b36d8d90e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba4597db3d932b36d8d=
+90f
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba459f32893aa8c7d8d91d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba459f32893aa8c7d8d=
+91e
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_x86_64          | x86_64 | lab-broonie     | gcc-8    | x86_64_defconf=
+ig    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba47c85ac0bae415d8d935
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/x8=
+6_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/x8=
+6_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba47c85ac0bae415d8d=
+936
+        new failure (last pass: v4.9.244) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+r8a7795-salvator-x   | arm64  | lab-baylibre    | gcc-8    | defconfig     =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fba45e95c4ee52646d8d90b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.245/ar=
+m64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fba45e95c4ee52646d8d=
+90c
+        failing since 3 days (last pass: v4.9.243, first fail: v4.9.244) =
+
+ =20
