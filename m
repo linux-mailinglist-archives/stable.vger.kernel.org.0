@@ -2,67 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B472BC4A4
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 10:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 281BD2BC4A6
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 10:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727359AbgKVJS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 04:18:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46484 "EHLO mail.kernel.org"
+        id S1727365AbgKVJUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 04:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726741AbgKVJSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Nov 2020 04:18:54 -0500
+        id S1727334AbgKVJUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Nov 2020 04:20:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6D6120781;
-        Sun, 22 Nov 2020 09:18:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA1CC20781;
+        Sun, 22 Nov 2020 09:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606036734;
-        bh=Ztmf3cfSkwTfLgfvs4YxzReZXN2LiVa7IVdDsGcYMz8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oBhbmKIy3K3ZdzdbLKYX1ezhiyzf9u/kA19KwwOpJM97A6N7GFB9JvLLd+mMgILHO
-         GvwZeH8ajGjTU8BtbIrgUaBEIgfb9EqClLXH+KUapKqxAmqUPF7WuyaW0vC3CT9TFD
-         aWN0mCIPzaHYsEXtPHZuiIADZ2ShNPweXOHI25II=
-Date:   Sun, 22 Nov 2020 10:19:32 +0100
+        s=korg; t=1606036833;
+        bh=TJW2wYIlyTFIfGdVf4fRRUwKSMbfx9QX9lN/wCrR5C0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oiHQGBzdID22j0UQT71CcGriJAApIjrxvAOTIDFAoTK9OFlIdsGZN3Aasvw+LdVgd
+         NDUJBy0YAVO1wLu+1yQnu3xVX9pcIfFzsRDkpSokxPVLpjJiK8wNkQDT3NS89Np3wW
+         4eUQsUqBHYDh6hnREC4ioXraDUdeS2LZjb5E3MSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.9 00/14] 5.9.10-rc1 review
-Message-ID: <X7otJNXeRTEvZE2i@kroah.com>
-References: <20201120104541.168007611@linuxfoundation.org>
- <20201121183817.GG111877@roeck-us.net>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.245
+Date:   Sun, 22 Nov 2020 10:21:10 +0100
+Message-Id: <160603687065126@kroah.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201121183817.GG111877@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 21, 2020 at 10:38:17AM -0800, Guenter Roeck wrote:
-> On Fri, Nov 20, 2020 at 12:03:38PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.9.10 release.
-> > There are 14 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 154 pass: 154 fail: 0
-> Qemu test results:
-> 	total: 426 pass: 426 fail: 0
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+I'm announcing the release of the 4.4.245 kernel.
 
-Thanks for the testing.  I'll leave the powerpc build failures in as the
-issue being fixed is better to have at the moment.  Hopefully the ppc
-developers can fix those up soon.
+All users of the 4.4 kernel series must upgrade.
+
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
+
+------------
+
+ Documentation/kernel-parameters.txt            |    7 
+ Makefile                                       |    2 
+ arch/powerpc/include/asm/book3s/64/kup-radix.h |   23 ++
+ arch/powerpc/include/asm/exception-64s.h       |   15 +
+ arch/powerpc/include/asm/feature-fixups.h      |   19 ++
+ arch/powerpc/include/asm/futex.h               |    4 
+ arch/powerpc/include/asm/kup.h                 |   40 ++++
+ arch/powerpc/include/asm/security_features.h   |    7 
+ arch/powerpc/include/asm/setup.h               |    4 
+ arch/powerpc/include/asm/uaccess.h             |  142 +++++++++++++---
+ arch/powerpc/kernel/exceptions-64s.S           |  210 +++++++++++++++----------
+ arch/powerpc/kernel/head_8xx.S                 |    8 
+ arch/powerpc/kernel/ppc_ksyms.c                |   10 +
+ arch/powerpc/kernel/setup_64.c                 |  138 ++++++++++++++++
+ arch/powerpc/kernel/vmlinux.lds.S              |   14 +
+ arch/powerpc/lib/checksum_wrappers_64.c        |    4 
+ arch/powerpc/lib/feature-fixups.c              |  104 ++++++++++++
+ arch/powerpc/lib/string.S                      |    2 
+ arch/powerpc/lib/string_64.S                   |    4 
+ arch/powerpc/platforms/powernv/setup.c         |   15 +
+ arch/powerpc/platforms/pseries/setup.c         |    8 
+ arch/x86/kvm/emulate.c                         |    8 
+ drivers/i2c/busses/i2c-imx.c                   |   25 +-
+ drivers/input/keyboard/sunkbd.c                |   41 +++-
+ fs/xfs/xfs_icache.c                            |   58 ++++++
+ net/mac80211/sta_info.c                        |   18 ++
+ 26 files changed, 781 insertions(+), 149 deletions(-)
+
+Andrew Donnellan (1):
+      powerpc: Fix __clear_user() with KUAP enabled
+
+Christophe Leroy (3):
+      powerpc: Add a framework for user access tracking
+      powerpc: Implement user_access_begin and friends
+      powerpc/8xx: Always fault when _PAGE_ACCESSED is not set
+
+Daniel Axtens (2):
+      powerpc/64s: Define MASKABLE_RELON_EXCEPTION_PSERIES_OOL
+      powerpc/64s: move some exception handlers out of line
+
+Dave Chinner (2):
+      xfs: catch inode allocation state mismatch corruption
+      xfs: validate cached inodes are free when allocated
+
+David Edmondson (1):
+      KVM: x86: clflushopt should be treated as a no-op by emulation
+
+Dmitry Torokhov (1):
+      Input: sunkbd - avoid use-after-free in teardown paths
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.245
+
+Johannes Berg (1):
+      mac80211: always wind down STA state
+
+Krzysztof Kozlowski (1):
+      i2c: imx: Fix external abort on interrupt in exit paths
+
+Nicholas Piggin (3):
+      powerpc/64s: flush L1D on kernel entry
+      powerpc/uaccess: Evaluate macro arguments once, before user access is allowed
+      powerpc/64s: flush L1D after user accesses
+
