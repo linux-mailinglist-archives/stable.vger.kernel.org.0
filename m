@@ -2,94 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DEC2BC472
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 08:48:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA0722BC47A
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 09:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbgKVHr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 02:47:58 -0500
-Received: from ozlabs.ru ([107.174.27.60]:33692 "EHLO ozlabs.ru"
+        id S1727244AbgKVIAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 03:00:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbgKVHr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Nov 2020 02:47:58 -0500
-Received: from fstn1-p1.ozlabs.ibm.com (localhost [IPv6:::1])
-        by ozlabs.ru (Postfix) with ESMTP id A6F9AAE80249;
-        Sun, 22 Nov 2020 02:39:57 -0500 (EST)
-From:   Alexey Kardashevskiy <aik@ozlabs.ru>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        kvm-ppc@vger.kernel.org,
-        =?UTF-8?q?Leonardo=20Augusto=20Guimar=C3=A3es=20Garcia?= 
-        <lagarcia@br.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
-        kvm@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH kernel v2] vfio/pci/nvlink2: Do not attempt NPU2 setup on POWER8NVL NPU
-Date:   Sun, 22 Nov 2020 18:39:50 +1100
-Message-Id: <20201122073950.15684-1-aik@ozlabs.ru>
-X-Mailer: git-send-email 2.17.1
+        id S1726461AbgKVIAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Nov 2020 03:00:14 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1BDE208B3;
+        Sun, 22 Nov 2020 08:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1606032011;
+        bh=5nGQjY4uD/TbgJNXxHcVpqpVIu40OtUsHmB86TH07xM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jdnxMe200K+7CTqyW7AeInXsbWAw9lZM4jemnTgRL8szWwdmF4kAe9ZRpkorWM3xX
+         JhZvFHHdhi5XNucw5r2KpNovmL98WuW28BeVj7miFdSjOs2kwpuX50NLwvFU1nOEbF
+         MgOcBbgziES7sBeCFAZUKm1KrfPr8ihkLVplDfPo=
+Date:   Sun, 22 Nov 2020 09:00:06 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Daniel Axtens <dja@axtens.net>, Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/15] 4.4.245-rc1 review
+Message-ID: <X7oahkxvsgCgDtrG@kroah.com>
+References: <20201120104539.534424264@linuxfoundation.org>
+ <20201121182903.GB111877@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201121182903.GB111877@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We execute certain NPU2 setup code (such as mapping an LPID to a device
-in NPU2) unconditionally if an Nvlink bridge is detected. However this
-cannot succeed on POWER8NVL machines as the init helpers return an error
-other than ENODEV which means the device is there is and setup failed so
-vfio_pci_enable() fails and pass through is not possible.
+On Sat, Nov 21, 2020 at 10:29:03AM -0800, Guenter Roeck wrote:
+> On Fri, Nov 20, 2020 at 12:02:58PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.4.245 release.
+> > There are 15 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 22 Nov 2020 10:45:32 +0000.
+> > Anything received after that time might be too late.
+> > 
+> Build results:
+> 	total: 165 pass: 164 fail: 1
+> Failed builds:
+> 	powerpc:ppc64e_defconfig
+> Qemu test results:
+> 	total: 328 pass: 323 fail: 5
+> Failed tests:
+> 	ppc64:ppce500:corenet64_smp_defconfig:e5500:initrd
+> 	ppc64:ppce500:corenet64_smp_defconfig:e5500:nvme:rootfs
+> 	ppc64:ppce500:corenet64_smp_defconfig:e5500:sdhci:mmc:rootfs
+> 	ppc64:ppce500:corenet64_smp_defconfig:e5500:scsi[53C895A]:rootfs
+> 	ppc64:ppce500:corenet64_smp_defconfig:e5500:sata-sii3112:rootfs	
+> 
+> Failure in all cases is:
+> 
+> In file included from arch/powerpc/kernel/ppc_ksyms.c:10:0:
+> arch/powerpc/include/asm/book3s/64/kup-radix.h:11:29: error: redefinition of ‘allow_user_access’
+>  static __always_inline void allow_user_access(void __user *to, const void __user *from,
+>                              ^~~~~~~~~~~~~~~~~
+> In file included from arch/powerpc/include/asm/uaccess.h:12:0,
+>                  from arch/powerpc/kernel/ppc_ksyms.c:8:
+> arch/powerpc/include/asm/kup.h:12:20: note: previous definition of ‘allow_user_access’ was here
+>  static inline void allow_user_access(void __user *to, const void __user *from,
+>                     ^~~~~~~~~~~~~~~~~
+> In file included from arch/powerpc/kernel/ppc_ksyms.c:10:0:
+> arch/powerpc/include/asm/book3s/64/kup-radix.h:16:20: error: redefinition of ‘prevent_user_access’
+>  static inline void prevent_user_access(void __user *to, const void __user *from,
+>                     ^~~~~~~~~~~~~~~~~~~
+> In file included from arch/powerpc/include/asm/uaccess.h:12:0,
+>                  from arch/powerpc/kernel/ppc_ksyms.c:8:
+> arch/powerpc/include/asm/kup.h:14:20: note: previous definition of ‘prevent_user_access’ was here
+>  static inline void prevent_user_access(void __user *to, const void __user *from,
+>                     ^~~~~~~~~~~~~~~~~~~
+> 
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-This changes the two NPU2 related init helpers to return -ENODEV if
-there is no "memory-region" device tree property as this is
-the distinction between NPU and NPU2.
+Thanks for testing these.
 
-Tested on
-- POWER9 pvr=004e1201, Ubuntu 19.04 host, Ubuntu 18.04 vm,
-  NVIDIA GV100 10de:1db1 driver 418.39
-- POWER8 pvr=004c0100, RHEL 7.6 host, Ubuntu 16.10 vm,
-  NVIDIA P100 10de:15f9 driver 396.47
+Daniel, looks like your patches broke some configurations on powerpc as
+shown above.  Care to send a fix-up patch for these?
 
-Fixes: 7f92891778df ("vfio_pci: Add NVIDIA GV100GL [Tesla V100 SXM2] subdriver")
-Cc: stable@vger.kernel.org # 5.0
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
----
-Changes:
-v2:
-* updated commit log with tested configs and replaced P8+ with POWER8NVL for clarity
----
- drivers/vfio/pci/vfio_pci_nvlink2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+thanks,
 
-diff --git a/drivers/vfio/pci/vfio_pci_nvlink2.c b/drivers/vfio/pci/vfio_pci_nvlink2.c
-index 65c61710c0e9..9adcf6a8f888 100644
---- a/drivers/vfio/pci/vfio_pci_nvlink2.c
-+++ b/drivers/vfio/pci/vfio_pci_nvlink2.c
-@@ -231,7 +231,7 @@ int vfio_pci_nvdia_v100_nvlink2_init(struct vfio_pci_device *vdev)
- 		return -EINVAL;
- 
- 	if (of_property_read_u32(npu_node, "memory-region", &mem_phandle))
--		return -EINVAL;
-+		return -ENODEV;
- 
- 	mem_node = of_find_node_by_phandle(mem_phandle);
- 	if (!mem_node)
-@@ -393,7 +393,7 @@ int vfio_pci_ibm_npu2_init(struct vfio_pci_device *vdev)
- 	int ret;
- 	struct vfio_pci_npu2_data *data;
- 	struct device_node *nvlink_dn;
--	u32 nvlink_index = 0;
-+	u32 nvlink_index = 0, mem_phandle = 0;
- 	struct pci_dev *npdev = vdev->pdev;
- 	struct device_node *npu_node = pci_device_to_OF_node(npdev);
- 	struct pci_controller *hose = pci_bus_to_host(npdev->bus);
-@@ -408,6 +408,9 @@ int vfio_pci_ibm_npu2_init(struct vfio_pci_device *vdev)
- 	if (!pnv_pci_get_gpu_dev(vdev->pdev))
- 		return -ENODEV;
- 
-+	if (of_property_read_u32(npu_node, "memory-region", &mem_phandle))
-+		return -ENODEV;
-+
- 	/*
- 	 * NPU2 normally has 8 ATSD registers (for concurrency) and 6 links
- 	 * so we can allocate one register per link, using nvlink index as
--- 
-2.17.1
-
+greg k-h
