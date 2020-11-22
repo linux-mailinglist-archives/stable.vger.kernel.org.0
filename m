@@ -2,95 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 317A82BC445
+	by mail.lfdr.de (Postfix) with ESMTP id A8F152BC446
 	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 07:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727330AbgKVGRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 01:17:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55750 "EHLO mail.kernel.org"
+        id S1727365AbgKVGRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 01:17:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726957AbgKVGRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Nov 2020 01:17:13 -0500
+        id S1726957AbgKVGRR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Nov 2020 01:17:17 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1C2620885;
-        Sun, 22 Nov 2020 06:17:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 497972078B;
+        Sun, 22 Nov 2020 06:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1606025833;
-        bh=V4UvNIFEgSB4f61jE+1hR5zA9b8uKcCSOXQu58krr8I=;
+        s=korg; t=1606025836;
+        bh=jrc/JdXc5WLDiTXrtI1X6OX98BsrWUAKsI2mV15Ki+Q=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=Rf78JHKQyePOpA8S+2V96F1CMPyZBTCz2A/4NZqlK7gNkRnyQIs38EwsdChQWn+SB
-         VsBQh9BVKHYXwao14XKxG5TPaI2+HWmv+x1hBjSmxLdWrVZqnP3wKdOYbAE+cWgscn
-         Vi8FB4XCckmT/1n30ir42vZRBDajcLbjvXNi/f+0=
-Date:   Sat, 21 Nov 2020 22:17:12 -0800
+        b=j562wNKEtcEEsKEMiY5ivUxU6mITtILTcnuq+geZSXMbVLAnp++PPpl7vqg18NNqV
+         Sn0s4hR0OOA9MmUMLbG34FYeOIFVMIVjNN8/NYTFzQBVHzQYfkx9ewBlhMbZvBjrn3
+         NQaGC66CaGNEFZWCZgiVGuUQ1vuWGL/T6hci+Jgo=
+Date:   Sat, 21 Nov 2020 22:17:15 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, chris@chrisdown.name, cl@linux.com,
-        guro@fb.com, hannes@cmpxchg.org, iamjoonsoo.kim@lge.com,
-        laoar.shao@gmail.com, linux-mm@kvack.org, mhocko@kernel.org,
-        mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, shakeelb@google.com, songmuchun@bytedance.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz, vdavydov.dev@gmail.com
-Subject:  [patch 5/8] mm: memcg/slab: fix root memcg vmstats
-Message-ID: <20201122061712.pLjLif6pl%akpm@linux-foundation.org>
+To:     aarcange@redhat.com, akpm@linux-foundation.org,
+        egorenar@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        hca@linux.ibm.com, linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 6/8] mm/userfaultfd: do not access vma->vm_mm
+ after calling handle_userfault()
+Message-ID: <20201122061715.eoZ-MxK3C%akpm@linux-foundation.org>
 In-Reply-To: <20201121221631.948ae4655e913a319d61700a@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: memcg/slab: fix root memcg vmstats
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
 
-If we reparent the slab objects to the root memcg, when we free the slab
-object, we need to update the per-memcg vmstats to keep it correct for the
-root memcg.  Now this at least affects the vmstat of NR_KERNEL_STACK_KB
-for !CONFIG_VMAP_STACK when the thread stack size is smaller than the
-PAGE_SIZE.
+Alexander reported a syzkaller / KASAN finding on s390, see below for
+complete output.
 
-David said: "I assume that without this fix that the root memcg's
-vmstat would always be inflated if we reparented."
+In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be freed
+in some cases.  In the case of userfaultfd_missing(), this will happen
+after calling handle_userfault(), which might have released the mmap_lock.
+Therefore, the following pte_free(vma->vm_mm, pgtable) will access an
+unstable vma->vm_mm, which could have been freed or re-used already.
 
-Link: https://lkml.kernel.org/r/20201110031015.15715-1-songmuchun@bytedance.com
-Fixes: ec9f02384f60 ("mm: workingset: fix vmstat counters for shadow nodes")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Christopher Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Yafang Shao <laoar.shao@gmail.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: <stable@vger.kernel.org>	[5.3+]
+For all architectures other than s390 this will go w/o any negative
+impact, because pte_free() simply frees the page and ignores the passed-in
+mm.  The implementation for SPARC32 would also access mm->page_table_lock
+for pte_free(), but there is no THP support in SPARC32, so the buggy code
+path will not be used there.
+
+For s390, the mm->context.pgtable_list is being used to maintain the 2K
+pagetable fragments, and operating on an already freed or even re-used mm
+could result in various more or less subtle bugs due to list / pagetable
+corruption.
+
+Fix this by calling pte_free() before handle_userfault(), similar to how
+it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
+non-huge_zero_page case.
+
+Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
+userfaultfd_missing() faults") actually introduced both, the
+do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
+changes wrt to calling handle_userfault(), but only in the latter case it
+put the pte_free() before calling handle_userfault().
+
+==================================================================
+BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
+
+CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
+Hardware name: IBM 3906 M04 701 (KVM/Linux)
+Call Trace:
+ [<00000000aa0a7a1c>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
+ [<00000000aa0a7a1c>] show_stack+0x174/0x220 arch/s390/kernel/dumpstack.c:135
+ [<00000000aa105952>] __dump_stack lib/dump_stack.c:77 [inline]
+ [<00000000aa105952>] dump_stack+0x262/0x2e8 lib/dump_stack.c:118
+ [<00000000aa0b484e>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:385
+ [<00000000a61f13aa>] __kasan_report mm/kasan/report.c:545 [inline]
+ [<00000000a61f13aa>] kasan_report+0x11a/0x168 mm/kasan/report.c:562
+ [<00000000a620d782>] do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+ [<00000000a610632e>] create_huge_pmd mm/memory.c:4256 [inline]
+ [<00000000a610632e>] __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
+ [<00000000a61067b0>] handle_mm_fault+0x288/0x748 mm/memory.c:4607
+ [<00000000a598b55c>] do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
+ [<00000000a598d7c4>] do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
+ [<00000000aa124e5e>] pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
+ [<00000000aa0a6902>] copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
+ [<00000000aa0a6902>] raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
+ [<00000000a7c24668>] _copy_from_user+0x48/0xa8 lib/usercopy.c:16
+ [<00000000a5b0b2a8>] copy_from_user include/linux/uaccess.h:192 [inline]
+ [<00000000a5b0b2a8>] __do_sys_sigaltstack kernel/signal.c:4064 [inline]
+ [<00000000a5b0b2a8>] __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
+ [<00000000aa124a9c>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+
+Allocated by task 9334:
+ stack_trace_save+0xbe/0xf0 kernel/stacktrace.c:121
+ kasan_save_stack+0x30/0x60 mm/kasan/common.c:48
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc.constprop.0+0xd0/0xe8 mm/kasan/common.c:461
+ slab_post_alloc_hook mm/slab.h:526 [inline]
+ slab_alloc_node mm/slub.c:2891 [inline]
+ slab_alloc mm/slub.c:2899 [inline]
+ kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
+ vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
+ __split_vma+0xba/0x560 mm/mmap.c:2742
+ split_vma+0xca/0x108 mm/mmap.c:2800
+ mlock_fixup+0x4ae/0x600 mm/mlock.c:550
+ apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
+ do_mlock+0x1aa/0x718 mm/mlock.c:711
+ __do_sys_mlock2 mm/mlock.c:738 [inline]
+ __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
+ system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+
+Freed by task 9333:
+ stack_trace_save+0xbe/0xf0 kernel/stacktrace.c:121
+ kasan_save_stack+0x30/0x60 mm/kasan/common.c:48
+ kasan_set_track+0x32/0x48 mm/kasan/common.c:56
+ kasan_set_free_info+0x34/0x50 mm/kasan/generic.c:355
+ __kasan_slab_free+0x11e/0x190 mm/kasan/common.c:422
+ slab_free_hook mm/slub.c:1544 [inline]
+ slab_free_freelist_hook mm/slub.c:1577 [inline]
+ slab_free mm/slub.c:3142 [inline]
+ kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
+ __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
+ vma_merge+0x87e/0xce0 mm/mmap.c:1209
+ userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
+ __fput+0x22c/0x7a8 fs/file_table.c:281
+ task_work_run+0x200/0x320 kernel/task_work.c:151
+ tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+ do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
+ system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
+
+The buggy address belongs to the object at 00000000962d6948
+ which belongs to the cache vm_area_struct of size 200
+The buggy address is located 64 bytes inside of
+ 200-byte region [00000000962d6948, 00000000962d6a10)
+The buggy address belongs to the page:
+page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6
+flags: 0x3ffff00000000200(slab)
+raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
+raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
+page dumped because: kasan: bad access detected
+page->mem_cgroup:0000000096959501
+
+Memory state around the buggy address:
+ 00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
+>00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ 00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
+ 00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
+Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: <stable@vger.kernel.org>	[4.3+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memcontrol.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ mm/huge_memory.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/mm/memcontrol.c~mm-memcg-slab-fix-root-memcg-vmstats
-+++ a/mm/memcontrol.c
-@@ -867,8 +867,13 @@ void __mod_lruvec_slab_state(void *p, en
- 	rcu_read_lock();
- 	memcg = mem_cgroup_from_obj(p);
- 
--	/* Untracked pages have no memcg, no lruvec. Update only the node */
--	if (!memcg || memcg == root_mem_cgroup) {
-+	/*
-+	 * Untracked pages have no memcg, no lruvec. Update only the
-+	 * node. If we reparent the slab objects to the root memcg,
-+	 * when we free the slab object, we need to update the per-memcg
-+	 * vmstats to keep it correct for the root memcg.
-+	 */
-+	if (!memcg) {
- 		__mod_node_page_state(pgdat, idx, val);
- 	} else {
- 		lruvec = mem_cgroup_lruvec(memcg, pgdat);
+--- a/mm/huge_memory.c~mm-userfaultfd-do-not-access-vma-vm_mm-after-calling-handle_userfault
++++ a/mm/huge_memory.c
+@@ -710,7 +710,6 @@ vm_fault_t do_huge_pmd_anonymous_page(st
+ 			transparent_hugepage_use_zero_page()) {
+ 		pgtable_t pgtable;
+ 		struct page *zero_page;
+-		bool set;
+ 		vm_fault_t ret;
+ 		pgtable = pte_alloc_one(vma->vm_mm);
+ 		if (unlikely(!pgtable))
+@@ -723,25 +722,25 @@ vm_fault_t do_huge_pmd_anonymous_page(st
+ 		}
+ 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
+ 		ret = 0;
+-		set = false;
+ 		if (pmd_none(*vmf->pmd)) {
+ 			ret = check_stable_address_space(vma->vm_mm);
+ 			if (ret) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 			} else if (userfaultfd_missing(vma)) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
+ 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
+ 			} else {
+ 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
+ 						   haddr, vmf->pmd, zero_page);
+ 				spin_unlock(vmf->ptl);
+-				set = true;
+ 			}
+-		} else
++		} else {
+ 			spin_unlock(vmf->ptl);
+-		if (!set)
+ 			pte_free(vma->vm_mm, pgtable);
++		}
+ 		return ret;
+ 	}
+ 	gfp = alloc_hugepage_direct_gfpmask(vma);
 _
