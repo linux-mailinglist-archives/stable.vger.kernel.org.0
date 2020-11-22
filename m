@@ -2,61 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3262BC778
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 18:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C58F52BC77D
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 18:29:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727876AbgKVRYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 12:24:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59398 "EHLO mail.kernel.org"
+        id S1727888AbgKVR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 12:28:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727317AbgKVRYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Nov 2020 12:24:15 -0500
+        id S1727382AbgKVR2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Nov 2020 12:28:35 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87B352075A;
-        Sun, 22 Nov 2020 17:24:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AA4E2075A;
+        Sun, 22 Nov 2020 17:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606065854;
-        bh=Elh3R1YSSvrCOACWDQxGvtTzosAavyGIFoVducOAnUQ=;
+        s=default; t=1606066115;
+        bh=MzwCV85IXikmvquomiOznbMjTM8I05CMsHRCE6QnEQg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z4kkeaD0QENS2NPkiKXOmOObDqpsWs8qko7XdkqmPMkpX1V3WFHZUw3RTFkS5zl0v
-         0f/iBwV5IuYtUxkQoMu6JfTwOUEDSnREJNc52u/9gt6+IwCqBPOwNVkEDQg8gjf37H
-         DKB3bB8pGGDdH1VVc9FgQi2D795HIjGwGlVHcF1s=
-Date:   Sun, 22 Nov 2020 12:24:13 -0500
+        b=kthW4sD/mpGOr/rzJO7XBaINWnjv62A6v7PhzOQrIZ9EHoSBhKFNqGCKZ/Rc9Ua+6
+         df1/E5l3MJtsDsiwwSCkvLztUaG2W8VCV6YqhmdU9siWADC/OQOYF38LQJnAtYGu0R
+         jUrhBFsz9slCRJ1OC3nyboYVUdkgS/11xKqrrnns=
+Date:   Sun, 22 Nov 2020 12:28:34 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Florian Westphal <fw@strlen.de>
-Cc:     Cong Wang <xiyou.wangcong@gmail.com>, netdev@vger.kernel.org,
-        Cong Wang <cong.wang@bytedance.com>, liuzx@knownsec.com,
-        Edward Cree <ecree@solarflare.com>, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [Patch stable] netfilter: clear skb->next in NF_HOOK_LIST()
-Message-ID: <20201122172413.GG643756@sasha-vm>
-References: <20201121034317.577081-1-xiyou.wangcong@gmail.com>
- <20201121222249.GU15137@breakpoint.cc>
+To:     Kamal Mostafa <kamal@canonical.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>
+Subject: Re: [PATCH 5.9.x] usb: dwc2: Avoid leaving the error_debugfs label
+ unused
+Message-ID: <20201122172834.GH643756@sasha-vm>
+References: <X7eAyumuMGcWBG81@kroah.com>
+ <20201120164645.12542-1-kamal@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20201121222249.GU15137@breakpoint.cc>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201120164645.12542-1-kamal@canonical.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 21, 2020 at 11:22:49PM +0100, Florian Westphal wrote:
->Cong Wang <xiyou.wangcong@gmail.com> wrote:
->> From: Cong Wang <cong.wang@bytedance.com>
->>
->> NF_HOOK_LIST() uses list_del() to remove skb from the linked list,
->> however, it is not sufficient as skb->next still points to other
->> skb. We should just call skb_list_del_init() to clear skb->next,
->> like the rest places which using skb list.
->>
->> This has been fixed in upstream by commit ca58fbe06c54
->> ("netfilter: add and use nf_hook_slow_list()").
+On Fri, Nov 20, 2020 at 08:46:45AM -0800, Kamal Mostafa wrote:
+>From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 >
->Thanks Cong, agree with this change, afaics its applicable to 4.19.y and 5.4.y.
+>commit 190bb01b72d2d5c3654a03c42fb1ad0dc6114c79 upstream.
+>
+>The error_debugfs label is only used when either
+>CONFIG_USB_DWC2_PERIPHERAL or CONFIG_USB_DWC2_DUAL_ROLE is enabled. Add
+>the same #if to the error_debugfs label itself as the code which uses
+>this label already has.
+>
+>This avoids the following compiler warning:
+>  warning: label ‘error_debugfs’ defined but not used [-Wunused-label]
+>
+>Fixes: e1c08cf23172ed ("usb: dwc2: Add missing cleanups when usb_add_gadget_udc() fails")
+>Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+>Reported-by: kernel test robot <lkp@intel.com>
+>Reported-by: Jens Axboe <axboe@kernel.dk>
+>Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+>Signed-off-by: Felipe Balbi <balbi@kernel.org>
+>Cc: stable@vger.kernel.org # 5.9.x
+>Signed-off-by: Kamal Mostafa <kamal@canonical.com>
 
-Queued for 5.4 and 4.19, thanks!
+Queued up, thanks!
 
 -- 
 Thanks,
