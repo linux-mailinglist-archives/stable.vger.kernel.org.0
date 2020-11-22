@@ -2,125 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C902E2BC5D5
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 14:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C75C2BC5DC
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 14:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727816AbgKVNdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 08:33:13 -0500
-Received: from mail-02.mail-europe.com ([51.89.119.103]:36574 "EHLO
-        mail-02.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727817AbgKVNdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 08:33:12 -0500
-Date:   Sun, 22 Nov 2020 13:33:01 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1606051989;
-        bh=NGfLf+2/UDS8HyaW78yoZusoy/lNepZl6zp7GO3POq4=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=exdWE6k68YH+uJsIPhr9xzHVoeeJFakjTYw+VEh0P1Zp5BXi1sXFKc+UeRl5C5/gO
-         w+dR8PmwIfa6FL9auxAEL44O+BTn4W9uWn2p05dkOIG592LOoXcHLkymrDI3lTJ6D1
-         eHljNVUH7UVGRqOFjQNC1kgJaGPd4lAr8SFbGfa8=
-To:     Coiby Xu <coiby.xu@gmail.com>
-From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Helmut Stult <helmut.stult@schinfo.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Subject: Re: [PATCH v3] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
-Message-ID: <xsbDy_74QEfC8byvpA0nIjI0onndA3wuiLm2Iattq-8TLPy28kMq7GKhkfrfzqdBAQfp_w5CTCCJ8XjFmegtZqP58xioheh7OHV7Bam33aQ=@protonmail.com>
-In-Reply-To: <20201122101525.j265hvj6lqgbtfi2@Rk>
-References: <20201021134931.462560-1-coiby.xu@gmail.com> <qo0Y8DqV6mbQsSFabOaqRoxYhKdYCZPjqYuF811CTdPXRFFXpx7sNXYcW9OGI5PMyclgsTjI7Xj3Du3v4hYQVBWGJl3t0t8XSbTKE9uOJ2E=@protonmail.com> <20201122101525.j265hvj6lqgbtfi2@Rk>
+        id S1727424AbgKVNnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 08:43:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44066 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbgKVNnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 08:43:49 -0500
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 954E7C0613CF
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 05:43:47 -0800 (PST)
+Received: by mail-pg1-x542.google.com with SMTP id s63so1853879pgc.8
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 05:43:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=VMo/8v8YIHV7YCxMTFk+wlmDiZzGS+1fgOlxp3NW+zk=;
+        b=INjCAaq6oOv/oBDuqHTLj0/biF5ioqGgLs9OLO0CYfhKajkiiN6LU2cPOypmixoCYu
+         PXxUEZlAyPlwdfvOY3PxhfOMk0Q7opZ3GODIYqzT7cFgenAuTr+2rqP3SdT94Sp1YAPE
+         9HNhMO2qbPKXJDgF9vuTuWfwHkZbG6IwCEVfXWfHC7OXkRY/WDEwP2BgAXUj44xpUATs
+         brVNtivLEiZSzir4bXKv0T4dmz12kJJlyHbEqKCNdxdRl3SMmkVuOwZ3WcKJrr0Qyj8I
+         LXCz7+MiLdQ3bNb8sKWwV25xdR6phfF51OItO0uUOIUQzyL2Y78M5yqKoG4oI8AsyHvU
+         MLoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=VMo/8v8YIHV7YCxMTFk+wlmDiZzGS+1fgOlxp3NW+zk=;
+        b=t9N8RyhG+5lbTOpK0zxUsnn1fzy9D3obIH3OzytbzmYv6WWNNVJYDRnCJTVNFK62Lg
+         +NuyxUh65/yZwOXRR3lR+gzPFO6fr+4N38S+xXRpZlBqW3U5vRfVbUOaj9pqFE0HfeEJ
+         v2nQWybSZyArN0Cq84ze25/0UIwFUmIjbYZWODwBE8IwFtzJ4tHVHulsUWdss69Lts+4
+         N4Lg2yRpm1rk3VNz9Jf9hzEYUlrqWKwW2N28l2aZHdrYJKDw8Ow6vXCjeDMKCYY/LIU8
+         8Z2fzqIQBAKfH4ZW7mOcuLYMiKKzLxXmYxTnYmIxvXsFuCYhmlAppEg6Ps8D6yeKvpMF
+         oE8A==
+X-Gm-Message-State: AOAM533bUEd5dhNLiUnecTGc5tTVXVSvCoTgI4xtrwTrsf0rlGkYLtLp
+        ZIRn289tMBnp/qftp552Pk7wUg==
+X-Google-Smtp-Source: ABdhPJxI5pg/SCpTmhDzOWHOPGG4pg40SBSvv9qqkrmRSXS4xQslIcnQzAfzrxeXVx3NIiUKLy0k6w==
+X-Received: by 2002:aa7:969d:0:b029:196:59ad:ab93 with SMTP id f29-20020aa7969d0000b029019659adab93mr21527507pfk.16.1606052626829;
+        Sun, 22 Nov 2020 05:43:46 -0800 (PST)
+Received: from leoy-ThinkPad-X240s ([103.127.239.100])
+        by smtp.gmail.com with ESMTPSA id d25sm1243320pfo.172.2020.11.22.05.43.42
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 22 Nov 2020 05:43:46 -0800 (PST)
+Date:   Sun, 22 Nov 2020 21:43:39 +0800
+From:   Leo Yan <leo.yan@linaro.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     Andrey Zhizhikin <andrey.z@gmail.com>, stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        Tor Jeremiassen <tor@ti.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] Revert "perf cs-etm: Move definition of 'traceid_list'
+ global variable from header file"
+Message-ID: <20201122134339.GA6071@leoy-ThinkPad-X240s>
+References: <20201120073909.357536-1-carnil@debian.org>
+ <CAHtQpK6xA4Ej_LCKBv6TWgiypzwzFzPy3ANvH8BRw-y_FkuJqg@mail.gmail.com>
+ <20201120133400.GA405401@eldamar.lan>
+ <CAHtQpK7=hpWLM-ztyTS8vzGDfG_46Qx2vc6q0fm1dDDU3W6+UA@mail.gmail.com>
+ <20201120155317.GA502412@eldamar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201120155317.GA502412@eldamar.lan>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+Hi Salvatore, Andrey,
 
+On Fri, Nov 20, 2020 at 04:53:17PM +0100, Salvatore Bonaccorso wrote:
+> Hi Andrey,
+> 
+> On Fri, Nov 20, 2020 at 03:29:39PM +0100, Andrey Zhizhikin wrote:
+> > Hello Salvatore,
+> > 
+> > On Fri, Nov 20, 2020 at 2:34 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > >
+> > > Hi Andrey,
+> > >
+> > > On Fri, Nov 20, 2020 at 10:54:22AM +0100, Andrey Zhizhikin wrote:
+> > > > On Fri, Nov 20, 2020 at 8:39 AM Salvatore Bonaccorso <carnil@debian.org> wrote:
+> > > > >
+> > > > > This reverts commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
+> > > > > (but only from 4.19.y)
+> > > >
+> > > > This revert would fail the build of 4.19.y with gcc10, I believe the
+> > > > original commit was introduced to address exactly this case. If this
+> > > > is intended behavior that 4.19.y is not compiled with newer gcc
+> > > > versions - then this revert is OK.
+> > >
+> > > TTBOMK, this would not regress the build for newer gcc (specifically
+> > > gcc10) as 4.19.158 is failing perf tool builds there as well (without
+> > > the above commit reverted). Just as an example v4.19.y does not have
+> > > cff20b3151cc ("perf tests bp_account: Make global variable static")
+> > > which is there in v5.6-rc6 to fix build failures with 10.0.1.
+> > >
+> > > But it did regress builds with older gcc's as for instance used in
+> > > Debian buster (gcc 8.3.0) since 4.19.152.
+> > >
+> > > Do I possibly miss something? If there is a solution to make it build
+> > > with newer GCCs and *not* regress previously working GCC versions then
+> > > this is surely the best outcome though.
+> > 
+> > I guess (and from what I understand in Leo's reply), porting of
+> > 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to
+> > traceID-metadata") should solve the issue for both older and newer gcc
+> > versions.
+> > 
+> > The breakage is now in
+> > [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c] file (which uses
+> > traceid_list inside). This is solved with the above commit, which
+> > concealed traceid_list internally inside [tools/perf/util/cs-etm.c]
+> > file and exposed to [tools/perf/util/cs-etm-decoder/cs-etm-decoder.c]
+> > via cs_etm__get_cpu() call.
+> > 
+> > Can you try out to port that commit to see if that would solve your
+> > regression?
+> 
+> So something like the following will compile as well with the older
+> gcc version.
+> 
+> I realize: I mainline the order of the commits was:
+> 
+> 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
+> 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header f
+> ile")
+> 
+> But to v4.19.y only 168200b6d6ea was backported, and while that was
+> done I now realize the comment was also changed including the change
+> fom 95c6fe970a01.
+> 
+> Thus the proposed backported patch would drop the change in
+> tools/perf/util/cs-etm.c to the comment as this was already done.
+> Thecnically currently the comment would be wrong, because it reads:
+> 
+> /* RB tree for quick conversion between traceID and metadata pointers */
+> 
+> but backport of 95c6fe970a01 is not included.
+> 
+> Would the right thing to do thus be:
+> 
+> - Revert b801d568c7d8 "perf cs-etm: Move definition of 'traceid_list' global variable from header file"
+> - Backport 95c6fe970a01 ("perf cs-etm: Change tuple from traceID-CPU# to traceID-metadata")
+> - Backport 168200b6d6ea ("perf cs-etm: Move definition of 'traceid_list' global variable from header file")
+> 
+> ?
+> 
+> Leo ist that what you were proposing?
 
-2020. november 22., vas=C3=A1rnap 11:15 keltez=C3=A9ssel, Coiby Xu =C3=
-=ADrta:
+Though this isn't my proposing, I totally agree with this :)
 
-> [...]
-> >> +static int get_gpio_pin_state(struct irq_desc *irq_desc)
-> >> +{
-> >> +=09struct gpio_chip *gc =3D irq_data_get_irq_chip_data(&irq_desc->irq=
-_data);
-> >> +
-> >> +=09return gc->get(gc, irq_desc->irq_data.hwirq);
-> >> +}
-> [...]
-> >> +=09ssize_t=09status =3D get_gpio_pin_state(irq_desc);
-> >
-> >`get_gpio_pin_state()` returns an `int`, so I am not sure why `ssize_t` =
-is used here.
-> >
->
-> I used `ssize_t` because I found gpiolib-sysfs.c uses `ssize_t`
->
->      // drivers/gpio/gpiolib-sysfs.c
->      static ssize_t value_show(struct device *dev,
->      =09=09struct device_attribute *attr, char *buf)
->      {
->      =09struct gpiod_data *data =3D dev_get_drvdata(dev);
->      =09struct gpio_desc *desc =3D data->desc;
->      =09ssize_t=09=09=09status;
->
->      =09mutex_lock(&data->mutex);
->
->      =09status =3D gpiod_get_value_cansleep(desc);
->          ...
->      =09return status;
->      }
->
-> According to the book Advanced Programming in the UNIX Environment by
-> W. Richard Stevens,
->      With the 1990 POSIX.1 standard, the primitive system data type
->      ssize_t was introduced to provide the signed return value...
->
-> So ssize_t is fairly common, for example, the read and write syscall
-> return a value of type ssize_t. But I haven't found out why ssize_t is
-> better int.
-> >
+Just some notes: prior to apply the commit 95c6fe970a01,
+tools/perf/util/cs-etm-decoder/cs-etm-decoder.c is the only source
+file which uses the variable "traceid_list"; after applied the commit
+95c6fe970a01, the code for using the variable "traceid_list" has been
+moved out from tools/perf/util/cs-etm-decoder/cs-etm-decoder.c and
+moved in tools/perf/util/cs-etm.c.
 
-Sorry if I wasn't clear, what prompted me to ask that question is the follo=
-wing:
-`gc->get()` returns `int`, `get_gpio_pin_state()` returns `int`, yet you st=
-ill
-save the return value of `get_gpio_pin_state()` into a variable with type
-`ssize_t` for no apparent reason. In the example you cited, `ssize_t` is us=
-ed
-because the show() callback of a sysfs attribute must return `ssize_t`, but=
- here,
-`interrupt_line_active()` returns `bool`, so I don't see any advantage over=
- a
-plain `int`. Anyways, I believe either one is fine, I just found it odd.
+So the commit 168200b6d6ea moves the definition of "traceid_list" from
+the header file to the source file tools/perf/util/cs-etm.c and it
+defines the variable as "static".
 
+As you mentioned, backporting 95c6fe970a01 and 168200b6d6ea can fix
+both for the older (8.3.0) and new GCC (10.0.1).  And I confirmed this
+should not cause logic issue.
 
-> >> +
-> >> +=09if (status < 0) {
-> >> +=09=09dev_warn(&client->dev,
-> >> +=09=09=09 "Failed to get GPIO Interrupt line status for %s",
-> >> +=09=09=09 client->name);
-> >
-> >I think it's possible that the kernel message buffer is flooded with the=
-se
-> >messages, which is not optimal in my opinion.
-> >
-> Thank you! Replaced with dev_dbg in v4.
-> [...]
+Thanks for looking at this issue.
 
-Have you looked at `dev_{warn,dbg,...}_ratelimited()`?
-
-
-Regards,
-Barnab=C3=A1s P=C5=91cze
+Leo
