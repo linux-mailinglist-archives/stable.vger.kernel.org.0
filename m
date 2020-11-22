@@ -2,192 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D14182BC3F3
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 06:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F79D2BC431
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 06:48:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbgKVFlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 00:41:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54624 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727267AbgKVFle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 00:41:34 -0500
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF78BC0613CF
-        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 21:41:34 -0800 (PST)
-Received: by mail-oi1-x244.google.com with SMTP id v202so12677697oia.9
-        for <stable@vger.kernel.org>; Sat, 21 Nov 2020 21:41:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=yQvyFDM0JjV69fRQJvQbh4EUUpGYP88ib4fx5c7S58s=;
-        b=mJBunxM5mgkzBeH2Zqtr83SqxLzRQSI7jClSU564b/d8b94UJKf0ItjyaU8DOysg9q
-         c2qrBo8aHMdfR9hFXUBrTuIndVRUWnODvuOoejC55fXbmlNn/YwzSESZOD/40gvxinXC
-         Wvd3n8E82XsOpQlCJclCsN+Tbf5AAzNUhsp9Qpc9dTYWz9oLvdK+BPp2+S8sI+8Fj4xT
-         AkZJ/sAcKBw4adkSr0cQMyyDeMTuuwYzOes78AZLUJ9otLcg12Rx5f4U8Xs7wNSSENWN
-         ppDjxUS4l2njr6Cm53FAz6F95SPpOhxtr95nOCHLdfngcggTtw3lm2iBNOTZmutjWhDE
-         vTLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=yQvyFDM0JjV69fRQJvQbh4EUUpGYP88ib4fx5c7S58s=;
-        b=SMVSmFbYGrfQGNnfMtBXyzoLpFtuObFwmOyORM35XnVJ4hihV3HYdPkNxDsxejWoN+
-         FMFourv+vrqYqg0WEaesB/ez6ES24blG91NI9/MIsRwcD+kQqF69v2O9mLXHIz/n3Co7
-         XElo3EpwaytO7qtuR/G3dJPIZpoScOiyjX34drJTV5XedHhitFrf47qo4bF1s6GXnRDo
-         LCNGvdDCDceNdMEEIGjUsUsVJHAYATMpFeBi8F3Yc05jeLm/K1NRB6vvjpgZnamj0/er
-         skXz0JzrJLfe47AXaAf6oBsILxUf8/pMmslaIsmNpoyLG/xOPH64XSh79XAtZJE8yf2K
-         R43w==
-X-Gm-Message-State: AOAM531SgFATcATLKxAjeF4wWJM4DMAbOT8xEzek8+jKvtBf1Xjg3U4S
-        f1P6BLzKzmMzkkq63f1fSmGRkQ==
-X-Google-Smtp-Source: ABdhPJyqx4jrmkRkFOuiZci8CzeEUgW29mdcrfQBlpoCszNp00F3WQtf7ygPl9u4zmcUvbfO92rU8g==
-X-Received: by 2002:a54:4608:: with SMTP id p8mr11536251oip.5.1606023694131;
-        Sat, 21 Nov 2020 21:41:34 -0800 (PST)
-Received: from localhost.localdomain (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
-        by smtp.gmail.com with ESMTPSA id s28sm4303132otr.4.2020.11.21.21.41.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Nov 2020 21:41:33 -0800 (PST)
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Siddharth Gupta <sidgup@codeaurora.org>
-Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 1/4] remoteproc: sysmon: Ensure remote notification ordering
-Date:   Sat, 21 Nov 2020 21:41:32 -0800
-Message-Id: <20201122054135.802935-2-bjorn.andersson@linaro.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201122054135.802935-1-bjorn.andersson@linaro.org>
-References: <20201122054135.802935-1-bjorn.andersson@linaro.org>
+        id S1727250AbgKVFsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 00:48:05 -0500
+Received: from sonic303-20.consmr.mail.ne1.yahoo.com ([66.163.188.146]:40778
+        "EHLO sonic303-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726461AbgKVFsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 00:48:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1606024083; bh=YfdJmkgyAelV91TRnp6plxiix9tzbdDcoL6irU7Kg4w=; h=Date:From:Reply-To:Subject:References:From:Subject; b=MgaohE9WMs9Xk6L0HkyqT9cikZ+qO76ukuklE7zjD7YMrb5LjqFREtDDhf9AMQRsaujgyMSEteJc88QSK2/3NpUi0aCzxXR+rPkQ/oC6wDDd+OHIc6TUWX0sMJjJOMxux2S3CPOohiBxyIbtypW15vzEcLTw/LxV/iRTvIhX+do1FmPhVfQfOMDPXoI7P1C7l+py6GJN6XxdGbDjlTMvYpisXEXy72eif4kiZ2LXVDxhso74SyPbLmmSlhcex0XUkMQDMqsKrz8K3LqapYneVT/4sQoCWNEDcIncEQqQX3ieJxHMu4iva4KOf5k2nUlyb4EdX7FPrfyHjDEEslr0xQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1606024083; bh=KZFdSigA8PiN9N4ON1cfj4325/aYaEPhMonpsQxJRTK=; h=Date:From:Subject:From:Subject; b=V9+kNzm0GbVwR3UF1FwwYl/GnDiCUl//wXfB9ZY/SEWb8vbSqSKZN7ewndO5Rb0PW98nXt5wLki4wayZuBZFKUNGp8DT5BK+RXKuy4Xj+9H7eH3UOoTqZZkz2zXfmLWO0CCEu3QqkSaROnFQQiAo23vD9Aj8fE+HpRl9QM8xvtsCRtiVyD52OvFPIOuqjIaN/sHOMrwgFDFNgu6KwvSSu2jSOI//laddYd/iA/8X9R0T0+vbM0BvuQSKXsGV+esxR9usmTN0/tVrjTu2wgvTBp7rUHDL9sxuBgjOEBtrn6Cwpxzu1LcBwJI9jsl4vsJrWnOilKBatFSdKyDjKpte+w==
+X-YMail-OSG: 3lcoaDQVM1nsY_pwJB.HaZo.9Yn2hM6joXXXxT1yOzRNaDRu58wXkuhAXlPmqIA
+ DEL2rr5GsXbV3vh0j9odHjTUnWmF.A8bO_IC68lZaKWXok7XArRWp8Kr9Pgb6YP0dWyqQtjomVtS
+ 4SYbQCAi9o5YhmTwrdwQ9vtwdgVYsIrExEHtbaXfruSCO9W.lTS4E1J1NkEBdZlfWj.3EZfA.KD8
+ Y_P2U1FTawWhLFL1oAB2uNC6mmJj7Qb8p3b96geCHjS0LJPNnjPZ89qkAHsgrr9wvvovL0dTa0o9
+ oBCc5GqC6PbpGBhuQQU8Tyv_c4EEsk9J6VyoJcFsdFKkL2pRGik6tIUeofkNaJ38y19ouux.52DN
+ lE6nZ__5Jpb_ENt1fPv_X4.O.KwArnv9NJrqXkIfPzJ4ayKSd1vj0AG40rHI0pKZPnJg3qoxRb.s
+ rJtlD1FULte9_lITRm3VV9F5t2YyFQrmFidPxdvUjpfL1YVpAD.7D1Pgpv6CsYytsO9OasBQ6iok
+ WzjbjZFh0IOWOPBZEmWNImpT_uirvyMq02ikLDq.GGh5UpPT3COx3PXmqN488d2R9ejju26f.ddy
+ iMUgNz8u9bo2BiLiHHA.wKoWrAFc_7qZkSZ31cyzS5kmiY3Nhq4ONvYvbfkwTcIyxvHX3sr5DEvC
+ C3fhRnQAjv6QDu7q3Dj8n4o3.4YK4LNx6mgQUd._neqoe6lT3R0WB7CnRhr8V_vGoAMXpLbFhPjv
+ GAuT7mwNSeZwchjjK9Ho9ecoDVqWcN3o.2gGB6m6mXGTDniuem4_6aanm0UAPQL5HSbgrpew7BVc
+ Mu8LaR4WyoydjlsdMsmDTkgGizPZm2Tlpk3Gnf8ApUqMTTs94KSj11UvEP1rUym61ANqfV3l3HoL
+ CmLc4HMJLIR0uS7bQ4ijxzwaziRbX0Zx06s9Mye53_va.mXajpDVMRJla5bLlmSOjl1tsARlu0ST
+ 8_k8SzOb0J6wB5pV5hgItYC9e3rLOx52tHyyaIxOOxaDBrqx4lc9BXlpJ99zYPDff2dHGsvkLHGf
+ bLkkqSJhYMhTQyEKC6CVl4.dmKcPLsvHY7tGt0Eak4zmy9XOmYaABNFYTlYqPr6JklFtcHdRDJD_
+ bB4bARH_LNuuMt7dOcgcEAtoYOKjjYLtwAffxpaWHzfDQQoWVDyLn7R7EgDEQNtrdcSoiGGOcDQn
+ gsA8nLZrUI7vwwY8q9TKOf0IuOXZ9Zk33pLsVrZ0TjDEnJwbU4GHh6Y3SNUdMwxRclGIukPOmGh8
+ jxzq5kk_JxZhPWXMzlF81goAbl6uaAJWz6m6GURJXOeV1Bb3XS332vwiTCGwml4SWsSFZGfdYNz2
+ YEEzSIQ1QgJFcqpPnXl4d6RKghSK8omXTImfNRcPyse04rJubbXx1XWxXOgQftaAX8SU5ChLlJNg
+ kG6nHZlQprB_0_OcStsm8H3_V3z.YGOxsiUS9y_L.UUjLs9RHayg.MsfTgKQJdVYerxqbVUpUeu4
+ gQmNNQmdegV7yV0quNMAcwjN.Jcb9VTp.6YxpDXx_r5Ikko9XwFLI4RRJrMxuLifGHRw4qTjkdnw
+ UiO6SbdIqA1ji3QOwwKVLecJchrb3rewaYnhZ3j63csPCIpZSlXYTf.gczRCQ3DSkjsf9kinso0S
+ .baALEPCgKz2qolitmWJ8G0.rmzfuet6MWifEebwwI0MXeVYeXQNIhigZbhZGJF9aCp.Et50G0Lk
+ bV.3hzWpDQFHweH2P5Ida375x0yFlIO9GaPed._pbMsP8ss9KAA1LZrbbAw3yADmRLzM6YW1TbbG
+ xCBnUfCagdnN67y.nLIe3TUyQURRiL5y8PitC_4E44ZYI8dxxa56fxo1M.bg_HnXeIiaVUmo6Uoo
+ OscYXRcsT.hD4Xile1jolmfhAz3lZlKEGl8UsUpZHnXGxKlAlL2HEGdO.EzfmghzmXVdybSxFL.B
+ OkdCzOYtAj9LVw.zWnWUZE5pr_1StofU.4TdYuWMTLLsWBezBETemQ5CP5cGyuhP0dt8rnSl3Z_2
+ NSl3xtrJ8s7TqVK2gCoIohYCjnsnPw078AlJh8_WRxx.uhP5MLl3SX_2YUyT24_E9fGcav.QU4_q
+ vfjF2JERZb2EZdbKC3C1ePaKlK9uCjy2M65G9cm7C.GgEShq6UOTbCOZPqEo_jb.hklvOMlHVOwU
+ QacTKCzG5Om1C7uuT1YEhQLKxRbXQ0QMXQfoZ4i63SIMs1xm0sBggDhUA02CPre1fQOUBboF_ZJm
+ joavMbPwdjL0FRiHGEoa_cNyEwgxTRLc031UTZyxHRivIJep4RZFHDuMj1jlLBy.EVIixbEP9SO3
+ H6e8E2P47Z.E_rgxYqGFex1abStPJvj9kNnBFVmyzaMIAhO5s78XOYLHYusB1YF_0vzNQbPVHoJk
+ 5r0Ih6QdNcdG_ZPDLa09ywHCwS8KMIrYcKyu6JA6HKXe0yuwZ4767FgKL.5WJJ4cK7o6A3mQlPtC
+ pdj_QRxXI7dyNZz90gRNmPBRFWDK2SRPvNRI.KjPRngfYaj5zG6tGdgf1utx47dIrCKQ96DohQnp
+ atHBF0fMWA6nWDQKlpB6GcIinhu2fQyJ3KgS9sBNXi5l47zTy_XYtR2_HJEUtnRH5DrOSkB65omZ
+ N36_OXDazprmO4dCEb6IE9rmaOLwaJzWcLItnHbtc_ITRUEMsQtW_K9oqjGiLldKr7OIbEzZ.2y5
+ S1oqa92h9SoxBMfSoiN1k4Tkf4PEkYDgM7dv4lnnekeeuDfYuBHKN32yPgbyh6MpqVNCQvYbfD0B
+ XzQtZvTI5cNXKn2ssxRMjPI2pU6vwkoHDXSJ8qLXwRBZNgfzBltmOR8yWRfoSfzvupiVsOdNjr6C
+ r0Ja3RB1.c1bGPmJHZgLlu0Nh41XrXbvqB91v46SNIM_kX8wubFd9k4It_3bazj54OSyA0faDZ2R
+ MsGsZDPAx9Yy7xT1F73QDvzdp68DB.A2lflrMAk4jc6XiouPNh5WE9f_HQzVGfKwiiRrEaQ01gx1
+ I7izGq.AKORLh7WVYOLgLUu8Dj7W7f0r47Udn5C6mzsNpsDAF28B0WATFMpyb.DTm1obz9OBGnv_
+ .OpdN1gsjNL2Y4mmVOioFOXIymJ2.i8V2xv7u3EoyrhDxc_nJFS.7srvmmrzabhLGGEl7bZGrt.h
+ UrVaKxLN2jPhWopUwH5zOfAXtJ8SxkXSb5BOSMq0VBthV5Ov4AIypiOzWpjZxyb0JmWDeQWsvbQi
+ avQqeP92_nrjIQMAFkUUJdN2YZuVYZJ0X6.1tDeuPVBRhNr8qlrgkJIkR0X3K7xdyQoxE3W3yess
+ h4h.xVH19rsqHHY0M2BlDG.kPhhjlSGlIQVwr.PXvmcRIIxQhmtIW0aYvTNWfQr5XJfzSZyo-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sun, 22 Nov 2020 05:48:03 +0000
+Date:   Sun, 22 Nov 2020 05:48:02 +0000 (UTC)
+From:   "Mr.Mohammed Emdad" <mohammeddrashok@gmail.com>
+Reply-To: mohammedemdadmohammedemdad77@gmail.com
+Message-ID: <743596736.350084.1606024082648@mail.yahoo.com>
+Subject: URGENT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <743596736.350084.1606024082648.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.17111 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The reliance on the remoteproc's state for determining when to send
-sysmon notifications to a remote processor is racy with regard to
-concurrent remoteproc operations.
 
-Further more the advertisement of the state of other remote processor to
-a newly started remote processor might not only send the wrong state,
-but might result in a stream of state changes that are out of order.
 
-Address this by introducing state tracking within the sysmon instances
-themselves and extend the locking to ensure that the notifications are
-consistent with this state.
+Dear Friend,
 
-Fixes: 1f36ab3f6e3b ("remoteproc: sysmon: Inform current rproc about all active rprocs")
-Fixes: 1877f54f75ad ("remoteproc: sysmon: Add notifications for events")
-Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
 
-Changes since v2:
-- Hold sysmon_lock during traversal of sysmons in sysmon_start()
+My name is Mr.Mohammed Emdad, I am working with one of the prime bank in Bu=
+rkina Faso. Here in this bank there is existed dormant account for many yea=
+rs, which belong to one of our late foreign customer. The amount in this ac=
+count stands at $13,500,000.00 (Thirteen Million FiveHundred Thousand USA D=
+ollars).
 
- drivers/remoteproc/qcom_sysmon.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+I need a foreign account where the bank will transfer this fund. I know you=
+ would be surprised to read this message, especially from someone relativel=
+y unknown to you But do not worry yourself so much.This is a genuine, risk =
+free and legal business transaction. I am aware of the unsafe nature of the=
+ internet, and was compelled to use this medium due to the nature of this p=
+roject.
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index 9eb2f6bccea6..b37b111b15b3 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -22,6 +22,9 @@ struct qcom_sysmon {
- 	struct rproc_subdev subdev;
- 	struct rproc *rproc;
- 
-+	int state;
-+	struct mutex state_lock;
-+
- 	struct list_head node;
- 
- 	const char *name;
-@@ -448,7 +451,10 @@ static int sysmon_prepare(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_POWERUP
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_BEFORE_POWERUP;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
- 	return 0;
- }
-@@ -472,20 +478,25 @@ static int sysmon_start(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
- 	mutex_lock(&sysmon_lock);
- 	list_for_each_entry(target, &sysmon_list, node) {
--		if (target == sysmon ||
--		    target->rproc->state != RPROC_RUNNING)
-+		if (target == sysmon)
- 			continue;
- 
-+		mutex_lock(&target->state_lock);
- 		event.subsys_name = target->name;
-+		event.ssr_event = target->state;
- 
- 		if (sysmon->ssctl_version == 2)
- 			ssctl_send_event(sysmon, &event);
- 		else if (sysmon->ept)
- 			sysmon_send_event(sysmon, &event);
-+		mutex_unlock(&target->state_lock);
- 	}
- 	mutex_unlock(&sysmon_lock);
- 
-@@ -500,7 +511,10 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
- 		.ssr_event = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_BEFORE_SHUTDOWN;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- 
- 	/* Don't request graceful shutdown if we've crashed */
- 	if (crashed)
-@@ -521,7 +535,10 @@ static void sysmon_unprepare(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_AFTER_SHUTDOWN
- 	};
- 
-+	mutex_lock(&sysmon->state_lock);
-+	sysmon->state = SSCTL_SSR_EVENT_AFTER_SHUTDOWN;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-+	mutex_unlock(&sysmon->state_lock);
- }
- 
- /**
-@@ -534,11 +551,10 @@ static int sysmon_notify(struct notifier_block *nb, unsigned long event,
- 			 void *data)
- {
- 	struct qcom_sysmon *sysmon = container_of(nb, struct qcom_sysmon, nb);
--	struct rproc *rproc = sysmon->rproc;
- 	struct sysmon_event *sysmon_event = data;
- 
- 	/* Skip non-running rprocs and the originating instance */
--	if (rproc->state != RPROC_RUNNING ||
-+	if (sysmon->state != SSCTL_SSR_EVENT_AFTER_POWERUP ||
- 	    !strcmp(sysmon_event->subsys_name, sysmon->name)) {
- 		dev_dbg(sysmon->dev, "not notifying %s\n", sysmon->name);
- 		return NOTIFY_DONE;
-@@ -591,6 +607,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 	init_completion(&sysmon->ind_comp);
- 	init_completion(&sysmon->shutdown_comp);
- 	mutex_init(&sysmon->lock);
-+	mutex_init(&sysmon->state_lock);
- 
- 	sysmon->shutdown_irq = of_irq_get_byname(sysmon->dev->of_node,
- 						 "shutdown-ack");
--- 
-2.28.0
+There is no risk involved; the transaction will be executed under a legitim=
+ate arrangement that will protect you from any breach of law. It is better =
+that we claim the money, than allowing the bank directors to take it, they =
+are rich already. I am not a greedy person, Let me know your mind on this a=
+nd please do treat this information highly confidential. I will review furt=
+her information=E2=80=99s / details to you as soon as i receive your positi=
+ve reply.
 
+If you are really sure of your integrity, trust worthy and confidentiality,=
+ kindly get back to me urgently.
+
+Note you might receive this message in your inbox or spam or junk folder, d=
+epends on your web host or server network.
+
+Best regards,
+
+I wait for your positive response.
+
+Mr. Mohammed Emdad
