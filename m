@@ -2,112 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4622BC5DB
-	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 14:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C902E2BC5D5
+	for <lists+stable@lfdr.de>; Sun, 22 Nov 2020 14:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbgKVNme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 08:42:34 -0500
-Received: from gproxy1-pub.mail.unifiedlayer.com ([69.89.25.95]:47890 "EHLO
-        gproxy1-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727513AbgKVNmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 08:42:33 -0500
-X-Greylist: delayed 740 seconds by postgrey-1.27 at vger.kernel.org; Sun, 22 Nov 2020 08:42:33 EST
-Received: from cmgw12.unifiedlayer.com (unknown [10.9.0.12])
-        by gproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id EE723BA749AE4
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 06:30:12 -0700 (MST)
-Received: from bh-25.webhostbox.net ([208.91.199.152])
-        by cmsmtp with ESMTP
-        id gpRUkX2tkeMJHgpRUkf72g; Sun, 22 Nov 2020 06:30:12 -0700
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.3 cv=T72iscCQ c=1 sm=1 tr=0
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=kj9zAlcOel0A:10:nop_charset_1
- a=nNwsprhYR40A:10:nop_rcvd_month_year
- a=evQFzbml-YQA:10:endurance_base64_authed_username_1 a=zTUoEDChpA-VcAYVmHAA:9
- a=CjuIK1q_8ugA:10:nop_charset_2
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=+EZK8e1wUZmg2SWx+whbh9mPUb23f907Z1rah/T7D2M=; b=JRPScSBYXY/52NcuC2OU2xIX1M
-        6xTpHWVkGi1+qOMRx9nQVjNyc3nS385OcPdnIWsEbP/qQuLBYcPcFiat7GW+JLlJoAGyjS59NMTVD
-        DTgtQPQ3G2N2x7n8ApF4yydjbV6dbqCiyS1K0Vp9kauNMlUoSdS1tHKoEuYHEGfnPvAgdNN4S+3qG
-        /K3w8qLlJMkZa/MLbHT+MKx9brhNKpLdZ+Aj/b9SyPflD8vS1A/ZWkgmVSWgcLIHrn0e6B9eM8xD3
-        Q6GpD7eyO5f5HnAdb76j5a53AHn6uN994Lb1Qg+X529ONB9HKjatrH/AVTajV3cfnqF+AeWvkvkHF
-        9y/g9Fww==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:44492 helo=localhost)
-        by bh-25.webhostbox.net with esmtpa (Exim 4.93)
-        (envelope-from <linux@roeck-us.net>)
-        id 1kgpRU-002iMt-1g; Sun, 22 Nov 2020 13:30:12 +0000
-Date:   Sun, 22 Nov 2020 05:30:11 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     "Chatradhi, Naveen Krishna" <NaveenKrishna.Chatradhi@amd.com>
-Cc:     Salvatore Bonaccorso <carnil@debian.org>,
-        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
-        "naveenkrishna.ch@gmail.com" <naveenkrishna.ch@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] hwmon: amd_energy: modify the visibility of the counters
-Message-ID: <20201122133011.GA48943@roeck-us.net>
-References: <20201112172159.8781-1-nchatrad@amd.com>
- <238e3cf7-582f-a265-5300-9b44948107b0@roeck-us.net>
- <20201113135834.GA354992@eldamar.lan>
- <DM6PR12MB438866557FEE8F42C0F6AF26E8FD0@DM6PR12MB4388.namprd12.prod.outlook.com>
+        id S1727816AbgKVNdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 08:33:13 -0500
+Received: from mail-02.mail-europe.com ([51.89.119.103]:36574 "EHLO
+        mail-02.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727817AbgKVNdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 08:33:12 -0500
+Date:   Sun, 22 Nov 2020 13:33:01 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1606051989;
+        bh=NGfLf+2/UDS8HyaW78yoZusoy/lNepZl6zp7GO3POq4=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=exdWE6k68YH+uJsIPhr9xzHVoeeJFakjTYw+VEh0P1Zp5BXi1sXFKc+UeRl5C5/gO
+         w+dR8PmwIfa6FL9auxAEL44O+BTn4W9uWn2p05dkOIG592LOoXcHLkymrDI3lTJ6D1
+         eHljNVUH7UVGRqOFjQNC1kgJaGPd4lAr8SFbGfa8=
+To:     Coiby Xu <coiby.xu@gmail.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Helmut Stult <helmut.stult@schinfo.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH v3] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
+Message-ID: <xsbDy_74QEfC8byvpA0nIjI0onndA3wuiLm2Iattq-8TLPy28kMq7GKhkfrfzqdBAQfp_w5CTCCJ8XjFmegtZqP58xioheh7OHV7Bam33aQ=@protonmail.com>
+In-Reply-To: <20201122101525.j265hvj6lqgbtfi2@Rk>
+References: <20201021134931.462560-1-coiby.xu@gmail.com> <qo0Y8DqV6mbQsSFabOaqRoxYhKdYCZPjqYuF811CTdPXRFFXpx7sNXYcW9OGI5PMyclgsTjI7Xj3Du3v4hYQVBWGJl3t0t8XSbTKE9uOJ2E=@protonmail.com> <20201122101525.j265hvj6lqgbtfi2@Rk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DM6PR12MB438866557FEE8F42C0F6AF26E8FD0@DM6PR12MB4388.namprd12.prod.outlook.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1kgpRU-002iMt-1g
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:44492
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 1
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 22, 2020 at 06:56:24AM +0000, Chatradhi, Naveen Krishna wrote:
-> [AMD Official Use Only - Approved for External Use]
-> 
-> Hi Guenter, Salvatore
-> 
-> > This is very unusual, and may mess up the "sensors" command.
-> > What problem is this trying to solve ?
-> Guenter, sorry for the delayed response.
-> This fix is required to address the possible side channel attack reported in CVE-2020-12912.
-> 
-[ ... ]
-> 
-> >> ?
-> Yes, Salvatore, thanks for bringing the links. 
-> 
-A much better fix would have been to cache RAPL data for a short period
-of time. To avoid any possibility of attacks, maybe add some random
-interval. Something like this:
+Hi
 
-In accumulate_delta():
-	accums->next_update = jiffies + HZ / 2 + get_random_int % HZ;
 
-In amd_energy_read():
-	accum = &data->accums[channel];
-	if (time_after(accum->next_update))
-		accumulate_delta(data, channel, cpu, reg);
-	*val = div64_ul(accum->energy_ctr * 1000000UL, BIT(data->energy_units));
+2020. november 22., vas=C3=A1rnap 11:15 keltez=C3=A9ssel, Coiby Xu =C3=
+=ADrta:
 
-and drop amd_add_delta().
+> [...]
+> >> +static int get_gpio_pin_state(struct irq_desc *irq_desc)
+> >> +{
+> >> +=09struct gpio_chip *gc =3D irq_data_get_irq_chip_data(&irq_desc->irq=
+_data);
+> >> +
+> >> +=09return gc->get(gc, irq_desc->irq_data.hwirq);
+> >> +}
+> [...]
+> >> +=09ssize_t=09status =3D get_gpio_pin_state(irq_desc);
+> >
+> >`get_gpio_pin_state()` returns an `int`, so I am not sure why `ssize_t` =
+is used here.
+> >
+>
+> I used `ssize_t` because I found gpiolib-sysfs.c uses `ssize_t`
+>
+>      // drivers/gpio/gpiolib-sysfs.c
+>      static ssize_t value_show(struct device *dev,
+>      =09=09struct device_attribute *attr, char *buf)
+>      {
+>      =09struct gpiod_data *data =3D dev_get_drvdata(dev);
+>      =09struct gpio_desc *desc =3D data->desc;
+>      =09ssize_t=09=09=09status;
+>
+>      =09mutex_lock(&data->mutex);
+>
+>      =09status =3D gpiod_get_value_cansleep(desc);
+>          ...
+>      =09return status;
+>      }
+>
+> According to the book Advanced Programming in the UNIX Environment by
+> W. Richard Stevens,
+>      With the 1990 POSIX.1 standard, the primitive system data type
+>      ssize_t was introduced to provide the signed return value...
+>
+> So ssize_t is fairly common, for example, the read and write syscall
+> return a value of type ssize_t. But I haven't found out why ssize_t is
+> better int.
+> >
 
-Guenter
+Sorry if I wasn't clear, what prompted me to ask that question is the follo=
+wing:
+`gc->get()` returns `int`, `get_gpio_pin_state()` returns `int`, yet you st=
+ill
+save the return value of `get_gpio_pin_state()` into a variable with type
+`ssize_t` for no apparent reason. In the example you cited, `ssize_t` is us=
+ed
+because the show() callback of a sysfs attribute must return `ssize_t`, but=
+ here,
+`interrupt_line_active()` returns `bool`, so I don't see any advantage over=
+ a
+plain `int`. Anyways, I believe either one is fine, I just found it odd.
+
+
+> >> +
+> >> +=09if (status < 0) {
+> >> +=09=09dev_warn(&client->dev,
+> >> +=09=09=09 "Failed to get GPIO Interrupt line status for %s",
+> >> +=09=09=09 client->name);
+> >
+> >I think it's possible that the kernel message buffer is flooded with the=
+se
+> >messages, which is not optimal in my opinion.
+> >
+> Thank you! Replaced with dev_dbg in v4.
+> [...]
+
+Have you looked at `dev_{warn,dbg,...}_ratelimited()`?
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze
