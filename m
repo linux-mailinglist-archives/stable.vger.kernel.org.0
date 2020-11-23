@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40EB82C07BB
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D752C07BE
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733107AbgKWMnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:43:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
+        id S1733131AbgKWMnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:43:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733103AbgKWMni (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:43:38 -0500
+        id S1733124AbgKWMnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:43:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 436F720732;
-        Mon, 23 Nov 2020 12:43:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02CCA2078E;
+        Mon, 23 Nov 2020 12:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135418;
-        bh=brDKBbGdSgwPLZM5AU6k6cfr4JV5ACzmzCx2P5mZHsU=;
+        s=korg; t=1606135424;
+        bh=rEJjTXKFIbJw1crVMURY0MUHunOV/OSzLjtn+W4dNSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhU3XyPJJg1IBTpW3p+ltd0lNhjv56qWsCLojCuUaeZaXclkGzzeq+O4Xlhw3xXeR
-         8LaiorrhCaJx4URp5mK1azYjmJsU4au6CtRLSE8rU6QzoGYwi1oN1GVGTNcE1utEOh
-         82Cusy18Pmvfheom6Fr705AHNmyYpc06NKuejXc8=
+        b=gH791+o2UK9F+LxZkNIiV/4JKOOzB1osMcEUb56xIIMeEX76/djkCfOMbE3MGqvC9
+         18j1itAnV7qcwxzEr++tQFAZhnOKZcDn2Gpbw0rbOxvGt6T4D4qGfILbtz38ASGU2A
+         04rzK5FJEB8OVurjj7DC8R1lusi5r3Ba2iTiTgIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 062/252] ACPI: button: Add DMI quirk for Medion Akoya E2228T
-Date:   Mon, 23 Nov 2020 13:20:12 +0100
-Message-Id: <20201123121838.588062559@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 064/252] arm64: psci: Avoid printing in cpu_psci_cpu_die()
+Date:   Mon, 23 Nov 2020 13:20:14 +0100
+Message-Id: <20201123121838.678632567@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,58 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 7daaa06357bf7f1874b62bb1ea9d66a51d4e567e ]
+[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
 
-The Medion Akoya E2228T's ACPI _LID implementation is quite broken,
-it has the same issues as the one from the Medion Akoya E2215T:
+cpu_psci_cpu_die() is called in the context of the dying CPU, which
+will no longer be online or tracked by RCU. It is therefore not generally
+safe to call printk() if the PSCI "cpu off" request fails, so remove the
+pr_crit() invocation.
 
-1. For notifications it uses an ActiveLow Edge GpioInt, rather then
-   an ActiveBoth one, meaning that the device is only notified when the
-   lid is closed, not when it is opened.
-
-2. Matching with this its _LID method simply always returns 0 (closed)
-
-In order for the Linux LID code to work properly with this implementation,
-the lid_init_state selection needs to be set to ACPI_BUTTON_LID_INIT_OPEN,
-add a DMI quirk for this.
-
-While working on this I also found out that the MD60### part of the model
-number differs per country/batch while all of the E2215T and E2228T models
-have this issue, so also remove the " MD60198" part from the E2215T quirk.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Qian Cai <cai@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/button.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/psci.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-index da4b125ab4c3e..088ec847fd26a 100644
---- a/drivers/acpi/button.c
-+++ b/drivers/acpi/button.c
-@@ -102,7 +102,18 @@ static const struct dmi_system_id dmi_lid_quirks[] = {
- 		 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T MD60198"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T"),
-+		},
-+		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
-+	},
-+	{
-+		/*
-+		 * Medion Akoya E2228T, notification of the LID device only
-+		 * happens on close, not on open and _LID always returns closed.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "E2228T"),
- 		},
- 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
- 	},
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index 43ae4e0c968f6..62d2bda7adb80 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -66,7 +66,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
+ 
+ static void cpu_psci_cpu_die(unsigned int cpu)
+ {
+-	int ret;
+ 	/*
+ 	 * There are no known implementations of PSCI actually using the
+ 	 * power state field, pass a sensible default for now.
+@@ -74,9 +73,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
+ 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
+ 
+-	ret = psci_ops.cpu_off(state);
+-
+-	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++	psci_ops.cpu_off(state);
+ }
+ 
+ static int cpu_psci_cpu_kill(unsigned int cpu)
 -- 
 2.27.0
 
