@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FE92C0AF8
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C476F2C0AFB
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731301AbgKWMeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:34:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
+        id S1731336AbgKWMeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:34:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731289AbgKWMeE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:04 -0500
+        id S1731326AbgKWMeN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:34:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2D3D20721;
-        Mon, 23 Nov 2020 12:34:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 586902065E;
+        Mon, 23 Nov 2020 12:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134844;
-        bh=NHmPMnESY0zBAZW3SwxeKcuHVYiDhqTz+NIMx+Ucv38=;
+        s=korg; t=1606134852;
+        bh=nkMEbw7y4uctaWp/3Yr/LsCUmBn1Twxw2ozfR+zNMnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ys9+scz/ZrzPi+6/qFlVBQGQKJaVpqBk7ShW2YSfEpIaFa/foj96fiGsg+LDXQ/0C
-         H5rtXRclqk/3FPvzy2WvL4U5lKTUy+tT9agaW3TZYm+oTscKnPHjS76mnIvG+qQ42r
-         R0GAbAcxxP3R0B/n2Tkm/IuUg3OKYz/P12S/0Lx4=
+        b=B+iSASYg5fW3nP6FQP1ncNsoS6+rZHCicPLP2N0L5gw/IYXqW53wbzNs212WipmLN
+         0yE+JhEkEA6ExH1CJSpNzQq35/ZRLMfzfJjtPProne1rcM97qfpfBkFLB0sbvcdEga
+         o+Gihzx/W11rkivAi29uC6UhS/DU3lSJQb4U7QZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 011/158] net: b44: fix error return code in b44_init_one()
-Date:   Mon, 23 Nov 2020 13:20:39 +0100
-Message-Id: <20201123121820.483684836@linuxfoundation.org>
+Subject: [PATCH 5.4 014/158] net: ethernet: ti: cpsw: fix error return code in cpsw_probe()
+Date:   Mon, 23 Nov 2020 13:20:42 +0100
+Message-Id: <20201123121820.626225773@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -46,33 +45,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 7b027c249da54f492699c43e26cba486cfd48035 ]
+[ Upstream commit 35f735c665114840dcd3142f41148d07870f51f7 ]
 
 Fix to return a negative error code from the error handling
 case instead of 0, as done elsewhere in this function.
 
-Fixes: 39a6f4bce6b4 ("b44: replace the ssb_dma API with the generic DMA API")
+Fixes: 83a8471ba255 ("net: ethernet: ti: cpsw: refactor probe to group common hw initialization")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1605582131-36735-1-git-send-email-zhangchangzhong@huawei.com
+Link: https://lore.kernel.org/r/1605250173-18438-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/b44.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/cpsw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/broadcom/b44.c
-+++ b/drivers/net/ethernet/broadcom/b44.c
-@@ -2391,7 +2391,8 @@ static int b44_init_one(struct ssb_devic
- 		goto err_out_free_dev;
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -2876,6 +2876,7 @@ static int cpsw_probe(struct platform_de
+ 				       CPSW_MAX_QUEUES, CPSW_MAX_QUEUES);
+ 	if (!ndev) {
+ 		dev_err(dev, "error allocating net_device\n");
++		ret = -ENOMEM;
+ 		goto clean_cpts;
  	}
  
--	if (dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30))) {
-+	err = dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30));
-+	if (err) {
- 		dev_err(sdev->dev,
- 			"Required 30BIT DMA mask unsupported by the system\n");
- 		goto err_out_powerdown;
 
 
