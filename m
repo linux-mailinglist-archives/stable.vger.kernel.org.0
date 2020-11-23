@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6002C0BD4
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6CE2C0A9B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730247AbgKWNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:31:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36894 "EHLO mail.kernel.org"
+        id S1729530AbgKWMXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:23:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730229AbgKWM05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:57 -0500
+        id S1729339AbgKWMXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:23:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C28A720728;
-        Mon, 23 Nov 2020 12:26:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 047A820781;
+        Mon, 23 Nov 2020 12:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134417;
-        bh=Q1TdgDXmY1kSWooOCJWJqG1UQDpxrak7pKjGdM5pMiY=;
+        s=korg; t=1606134183;
+        bh=Gov2K5TH7IZ2L7sr2SbSBoAUkGxSVm9oRr2PGKW6BXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlHj9THH3yiC3wxuTqnEjw0twAj0GHweQX6D3tGM+7MTQnnTT+03uJniQ/e2Ce1Hu
-         sfmZS8pcA20gOGkdJMU6MioDZs+p2nBWeiFlZ0yCjYoeV1vBMLt9EbEIOzEsCk8Uh+
-         h+ppesZBZhz3P6W/D80sUdhtPwwVe3QeS5H7VTCE=
+        b=eZEn/FwAGpf93uEIl/zV3XoXO1+WSh/h7TQL9H2UOiaZRwmLkJNbVwhCLGTxHS2VX
+         sfVkPp6T5o3Hqusf1hd5Gfh8E4pGHGw5M4lLjcBwdPU6nKisyZP/uqQcRj6LB6yTX+
+         uogcZ1mRN388knxurI5Hm6bpnqQwWZV5ManMRg0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jamorris@linux.microsoft.com>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 12/60] netlabel: fix an uninitialized warning in netlbl_unlabel_staticlist()
+Subject: [PATCH 4.4 08/38] net: x25: Increase refcnt of "struct x25_neigh" in x25_rx_call_request
 Date:   Mon, 23 Nov 2020 13:21:54 +0100
-Message-Id: <20201123121805.625855988@linuxfoundation.org>
+Message-Id: <20201123121804.716824334@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 1ba86d4366e023d96df3dbe415eea7f1dc08c303 ]
+[ Upstream commit 4ee18c179e5e815fa5575e0d2db0c05795a804ee ]
 
-Static checking revealed that a previous fix to
-netlbl_unlabel_staticlist() leaves a stack variable uninitialized,
-this patches fixes that.
+The x25_disconnect function in x25_subr.c would decrease the refcount of
+"x25->neighbour" (struct x25_neigh) and reset this pointer to NULL.
 
-Fixes: 866358ec331f ("netlabel: fix our progress tracking in netlbl_unlabel_staticlist()")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Link: https://lore.kernel.org/r/160530304068.15651.18355773009751195447.stgit@sifl
+However, the x25_rx_call_request function in af_x25.c, which is called
+when we receive a connection request, does not increase the refcount when
+it assigns the pointer.
+
+Fix this issue by increasing the refcount of "struct x25_neigh" in
+x25_rx_call_request.
+
+This patch fixes frequent kernel crashes when using AF_X25 sockets.
+
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201112103506.5875-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_unlabeled.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/x25/af_x25.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -1180,7 +1180,7 @@ static int netlbl_unlabel_staticlist(str
- 	u32 skip_bkt = cb->args[0];
- 	u32 skip_chain = cb->args[1];
- 	u32 skip_addr4 = cb->args[2];
--	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
-+	u32 iter_bkt, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
- 	struct netlbl_unlhsh_iface *iface;
- 	struct list_head *iter_list;
- 	struct netlbl_af4list *addr4;
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1047,6 +1047,7 @@ int x25_rx_call_request(struct sk_buff *
+ 	makex25->lci           = lci;
+ 	makex25->dest_addr     = dest_addr;
+ 	makex25->source_addr   = source_addr;
++	x25_neigh_hold(nb);
+ 	makex25->neighbour     = nb;
+ 	makex25->facilities    = facilities;
+ 	makex25->dte_facilities= dte_facilities;
 
 
