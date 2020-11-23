@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DEA2C01BA
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2257D2C01BB
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727229AbgKWIxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 03:53:18 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52195 "EHLO
+        id S1727352AbgKWIxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 03:53:19 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:58033 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726776AbgKWIxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:53:17 -0500
+        by vger.kernel.org with ESMTP id S1726776AbgKWIxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:53:19 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B79C2F50;
-        Mon, 23 Nov 2020 03:53:16 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:53:17 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 3961BE83;
+        Mon, 23 Nov 2020 03:53:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:53:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JUo4+/
-        7FoPseKFJphycuEf1iYq5eoBGL3JInLaXgEEE=; b=L0/ZYzx9ohnoQXEpy6lbnG
-        ZIY6et+u0/CdA7fjAHZj/JT+THN4UCzY9qiQs7GN9NSvEgNgU+2AJLF9vQi6OXSN
-        0shElt93zxybcEHT9luLTU/x31RDsbMY4nBx6S17khLeuut2tx4NckIsb2050W2+
-        ZhfU1GJCMuvpgy+bnBaGK8uUtYKVitK0nKIFAImuKwC7Vvb1fatu9rhc/33FSMYZ
-        LPWlPUujB78Ic73ub8lideT+oFuwUYSP8CaETbv8PyG+hep8xpuvzlovCNH5hR1R
-        5HkcBMxsYyEo3R2g4T3J2J4QFuRBdkyZtLy5yi4JLdqCrmQ1YBFn0ytxoPQSRT2w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NS69bb
+        0peA6BlCjI5eTX0tdXKjKYNA8gko5UQdiW+nY=; b=OlFreRnzk8k9L4p25NB5Zq
+        yzyZ2AUc3mJXFdGpFlGLvRXiUFFUUPDH9MuzfI9an+4Qt+QgGrFho77hItcJR6/G
+        vZ28QQzr5zEzkfWbdWAqwkmXYIwyysftqy0g+sbZT/hW5nkHi8iv1R8+vLLB0XW9
+        p5SIfmL0UcfMYmfMjAlVSyjklIVWZtnNf9wG1TLCj7solBTppQoO4x3jOxoUyX8X
+        gmE/mPx9Eg8zMD1nJM7vhku5PtXgW18gv0qIj6JLD4t+AYgQ8RiRhAKzHWUF7Nfl
+        EcggbjpcVkowP9hZKaQEQ5Dp+fhlHc9hnsoOjpJlHo+JiCSoKWKVjyq51l9TjguQ
         ==
-X-ME-Sender: <xms:fHi7XxQXpTq9PBGZwFzgngQi2gTqDVdC-rE9STbmPIBz1S2MKOg8Ig>
-    <xme:fHi7X6znbDHfRuRfUku-hs9jsaMDNEc8ZkBQM0Bp0UN3QCmb_cqmLmJaIsuuB9MGQ
-    KrlkW5wl06gfg>
+X-ME-Sender: <xms:fXi7XwlmFLL7-PKGF_l1wFe_QasV1Mc9aglc7aQVOJX8kktTFS69qQ>
+    <xme:fXi7X_2jnUwZvBqFSyB6TV8bdQppEELhTdceQTy6lQOUf37DGE2hFHkyyaN_PcA0W
+    QOQzDUe-icijQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvvdcutefuodetgg
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
     peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:fHi7X22Ec5VwL7NDNmbVkTIUzmWruJD_kLukAQAjnoA4rIHZe5Du_w>
-    <xmx:fHi7X5C8iEpvKwO0d_sroXzQgxrf7KnzJf4-7kMHiayMrqqcYXXkSA>
-    <xmx:fHi7X6htpYYenSnZe33GaMl6AzTIO5XACdhI24dLMN19DJ3UBrUTdw>
-    <xmx:fHi7X7ujGDaLuwezUaPqWarWQCsj7V3KfzqOWXZArIQwSp-k15Rg7Hs6aCE>
+X-ME-Proxy: <xmx:fXi7X-p4EMst6uFVeMcjaSp1h3pY7e9sNWQxfKiLoqEO6FICcn-MaQ>
+    <xmx:fXi7X8kjQetM0vIKfjMYutFI0A9zMSUlAM_1GYcFX8p-ROVkejUZ4w>
+    <xmx:fXi7X-2Wcji-VNHLh_dm2s6ZBjgkcKHgMBalbGRXmEmpDgmjB8ZSZQ>
+    <xmx:fXi7Xzx_Ju3qhZUY3FxQPLrjEyi5hWac691aoqEAiz6z96ctgDVtyyzUPH8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DAEAA3064AAE;
-        Mon, 23 Nov 2020 03:53:15 -0500 (EST)
-Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix use-after-free on unbind" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 82B3F328005D;
+        Mon, 23 Nov 2020 03:53:17 -0500 (EST)
+Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix use-after-free on unbind" failed to apply to 4.19-stable tree
 To:     lukas@wunner.de, broonie@kernel.org, f.fainelli@gmail.com,
         olteanv@gmail.com, s.hauer@pengutronix.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 23 Nov 2020 09:54:25 +0100
-Message-ID: <160612166566247@kroah.com>
+Message-ID: <160612166517133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
