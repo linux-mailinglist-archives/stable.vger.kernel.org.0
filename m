@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4245A2C081E
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90AC42C0823
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387418AbgKWMpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:45:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
+        id S1732037AbgKWMqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:46:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732471AbgKWMpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:45:49 -0500
+        id S1732268AbgKWMqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4929220857;
-        Mon, 23 Nov 2020 12:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98A1020857;
+        Mon, 23 Nov 2020 12:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135547;
-        bh=KQHgldinaXVU4ptnrhh+NXgdwdh0aUB+OeY0+doq9Aw=;
+        s=korg; t=1606135558;
+        bh=NS0+aJRhIytqEg4VHWmLaSaF8gUuzPFm1DxGh3/6YjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVAjQO7yJQmf8A17ixyprYFY0JeWsmdUVQNspjJJsB6gPillCWtB/1XdAdSy5bi6m
-         +vEeCVD0OzhVkmuteaIm7+JF3Z01xcmSfNVYgBz0hd0yK/ujuPKwMDEXJGKsZMdD8k
-         r31d8GP05+nsxM6QXBhi9uphnPcSPT83FohpngUA=
+        b=U2kfZvXzi2SZA03+Q+Fc0FZNCtMZ/OPbK1LuV8Vr2Yk+TqRU+Br7hXT8XjstZp9Ri
+         Mygqkssd3oaAykv7U56incZyy1tCZ2C5SKDk+Zx04iTw27RoNJ4eGsy+J6BtR0uQcv
+         nTLy+MFCpFiulvx5p4VHimJVt1+TQ75xMgjnFhd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
         Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 080/252] ARM: dts: sun8i: r40: bananapi-m2-ultra: Fix ethernet node
-Date:   Mon, 23 Nov 2020 13:20:30 +0100
-Message-Id: <20201123121839.457525762@linuxfoundation.org>
+Subject: [PATCH 5.9 081/252] Revert "arm: sun8i: orangepi-pc-plus: Set EMAC activity LEDs to active high"
+Date:   Mon, 23 Nov 2020 13:20:31 +0100
+Message-Id: <20201123121839.505928998@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,35 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit b3eec3212e66ece33f69be0de98d54e67834e798 ]
+[ Upstream commit 8d80e2f00a42ef10b54e1b2d9e97314f8fd046c0 ]
 
-Ethernet PHY on BananaPi M2 Ultra provides RX and TX delays. Fix
-ethernet node to reflect that fact.
+This reverts commit 75ee680cbd2e4d0156b94f9fec50076361ab12f2.
 
-Fixes: c36fd5a48bd2 ("ARM: dts: sun8i: r40: bananapi-m2-ultra: Enable GMAC ethernet controller")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Turns out the activity and link LEDs on the RJ45 port are active low,
+just like on the Orange Pi PC.
+
+Revert the commit that says otherwise.
+
+Fixes: 75ee680cbd2e ("arm: sun8i: orangepi-pc-plus: Set EMAC activity LEDs to active high")
+Fixes: 4904337fe34f ("ARM: dts: sunxi: Restore EMAC changes (boards)")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20201025081949.783443-1-jernej.skrabec@siol.net
+Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://lore.kernel.org/r/20201024162515.30032-1-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-index ea15073f0c79c..7db89500f399c 100644
---- a/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-+++ b/arch/arm/boot/dts/sun8i-r40-bananapi-m2-ultra.dts
-@@ -129,7 +129,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&gmac_rgmii_pins>;
- 	phy-handle = <&phy1>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-supply = <&reg_dc1sw>;
- 	status = "okay";
+diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
+index 71fb732089397..babf4cf1b2f68 100644
+--- a/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
++++ b/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
+@@ -53,11 +53,6 @@
+ 	};
  };
+ 
+-&emac {
+-	/* LEDs changed to active high on the plus */
+-	/delete-property/ allwinner,leds-active-low;
+-};
+-
+ &mmc1 {
+ 	vmmc-supply = <&reg_vcc3v3>;
+ 	bus-width = <4>;
 -- 
 2.27.0
 
