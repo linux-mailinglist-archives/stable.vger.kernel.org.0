@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B39F2C0B48
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3A22C0B61
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388984AbgKWNWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:22:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
+        id S1731475AbgKWNXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:23:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731119AbgKWMgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:18 -0500
+        id S1731467AbgKWMfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:35:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FEF32065E;
-        Mon, 23 Nov 2020 12:36:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFCA0208FE;
+        Mon, 23 Nov 2020 12:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134978;
-        bh=w4sMYw8FTXTLU3YoJ5gQCC6GLOnwx2Ikq5d/cEpGdpQ=;
+        s=korg; t=1606134900;
+        bh=rwa3KFSxXDuZJ52qykYA1HVYGYNux93hiY58XWWsMvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQt9Puaftd6Jtb/xsQ2mYEBAVWxxcRmNoyXslCd3VTgjAMA/VV0VZN7NwxLjOaX+7
-         GcjwIEWH6TlxBgRtgjR/m01ZiMHgbJrXY0EB2nlu/l1Md7y5y/DsinNg6qXQcIKMvH
-         Uw03Rqi466JVN9PXmHMefVieA+WUVgwOFqFSNn30=
+        b=O6fAxbk4FNivuL5/KmceJP0+Q1bAxg7RUiV2JwXEGpDAcrsEvtVo59jMN8wmFm6qc
+         5kaz411HbiiuOeIw74dJTyMkSBrfr91QdBWU07r/X6fcLAnn29yb6mSWjRKU+223UH
+         BEwasRUp1akRI3hhJR8HfEV7JZQjzdfdw1IM0GyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladyslav Tarasiuk <vladyslavt@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.4 030/158] net/mlx5: Disable QoS when min_rates on all VFs are zero
-Date:   Mon, 23 Nov 2020 13:20:58 +0100
-Message-Id: <20201123121821.390172508@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 033/158] net: ftgmac100: Fix crash when removing driver
+Date:   Mon, 23 Nov 2020 13:21:01 +0100
+Message-Id: <20201123121821.535115422@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -43,77 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 470b74758260e4abc2508cf1614573c00a00465c ]
+[ Upstream commit 3d5179458d22dc0b4fdc724e4bed4231a655112a ]
 
-Currently when QoS is enabled for VF and any min_rate is configured,
-the driver sets bw_share value to at least 1 and doesn’t allow to set
-it to 0 to make minimal rate unlimited. It means there is always a
-minimal rate configured for every VF, even if user tries to remove it.
+When removing the driver we would hit BUG_ON(!list_empty(&dev->ptype_specific))
+in net/core/dev.c due to still having the NC-SI packet handler
+registered.
 
-In order to make QoS disable possible, check whether all vports have
-configured min_rate = 0. If this is true, set their bw_share to 0 to
-disable min_rate limitations.
+ # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/unbind
+  ------------[ cut here ]------------
+  kernel BUG at net/core/dev.c:10254!
+  Internal error: Oops - BUG: 0 [#1] SMP ARM
+  CPU: 0 PID: 115 Comm: sh Not tainted 5.10.0-rc3-next-20201111-00007-g02e0365710c4 #46
+  Hardware name: Generic DT based system
+  PC is at netdev_run_todo+0x314/0x394
+  LR is at cpumask_next+0x20/0x24
+  pc : [<806f5830>]    lr : [<80863cb0>]    psr: 80000153
+  sp : 855bbd58  ip : 00000001  fp : 855bbdac
+  r10: 80c03d00  r9 : 80c06228  r8 : 81158c54
+  r7 : 00000000  r6 : 80c05dec  r5 : 80c05d18  r4 : 813b9280
+  r3 : 813b9054  r2 : 8122c470  r1 : 00000002  r0 : 00000002
+  Flags: Nzcv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
+  Control: 00c5387d  Table: 85514008  DAC: 00000051
+  Process sh (pid: 115, stack limit = 0x7cb5703d)
+ ...
+  Backtrace:
+  [<806f551c>] (netdev_run_todo) from [<80707eec>] (rtnl_unlock+0x18/0x1c)
+   r10:00000051 r9:854ed710 r8:81158c54 r7:80c76bb0 r6:81158c10 r5:8115b410
+   r4:813b9000
+  [<80707ed4>] (rtnl_unlock) from [<806f5db8>] (unregister_netdev+0x2c/0x30)
+  [<806f5d8c>] (unregister_netdev) from [<805a8180>] (ftgmac100_remove+0x20/0xa8)
+   r5:8115b410 r4:813b9000
+  [<805a8160>] (ftgmac100_remove) from [<805355e4>] (platform_drv_remove+0x34/0x4c)
 
-Fixes: c9497c98901c ("net/mlx5: Add support for setting VF min rate")
-Signed-off-by: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: bd466c3fb5a4 ("net/faraday: Support NCSI mode")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20201117024448.1170761-1-joel@jms.id.au
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -2369,12 +2369,15 @@ static u32 calculate_vports_min_rate_div
- 		max_guarantee = evport->info.min_rate;
- 	}
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1891,6 +1891,8 @@ static int ftgmac100_probe(struct platfo
+ 	return 0;
  
--	return max_t(u32, max_guarantee / fw_max_bw_share, 1);
-+	if (max_guarantee)
-+		return max_t(u32, max_guarantee / fw_max_bw_share, 1);
-+	return 0;
- }
+ err_ncsi_dev:
++	if (priv->ndev)
++		ncsi_unregister_dev(priv->ndev);
+ err_register_netdev:
+ 	ftgmac100_destroy_mdio(netdev);
+ err_setup_mdio:
+@@ -1911,6 +1913,8 @@ static int ftgmac100_remove(struct platf
+ 	netdev = platform_get_drvdata(pdev);
+ 	priv = netdev_priv(netdev);
  
--static int normalize_vports_min_rate(struct mlx5_eswitch *esw, u32 divider)
-+static int normalize_vports_min_rate(struct mlx5_eswitch *esw)
- {
- 	u32 fw_max_bw_share = MLX5_CAP_QOS(esw->dev, max_tsar_bw_share);
-+	u32 divider = calculate_vports_min_rate_divider(esw);
- 	struct mlx5_vport *evport;
- 	u32 vport_max_rate;
- 	u32 vport_min_rate;
-@@ -2387,9 +2390,9 @@ static int normalize_vports_min_rate(str
- 			continue;
- 		vport_min_rate = evport->info.min_rate;
- 		vport_max_rate = evport->info.max_rate;
--		bw_share = MLX5_MIN_BW_SHARE;
-+		bw_share = 0;
++	if (priv->ndev)
++		ncsi_unregister_dev(priv->ndev);
+ 	unregister_netdev(netdev);
  
--		if (vport_min_rate)
-+		if (divider)
- 			bw_share = MLX5_RATE_TO_BW_SHARE(vport_min_rate,
- 							 divider,
- 							 fw_max_bw_share);
-@@ -2414,7 +2417,6 @@ int mlx5_eswitch_set_vport_rate(struct m
- 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport);
- 	u32 fw_max_bw_share;
- 	u32 previous_min_rate;
--	u32 divider;
- 	bool min_rate_supported;
- 	bool max_rate_supported;
- 	int err = 0;
-@@ -2439,8 +2441,7 @@ int mlx5_eswitch_set_vport_rate(struct m
- 
- 	previous_min_rate = evport->info.min_rate;
- 	evport->info.min_rate = min_rate;
--	divider = calculate_vports_min_rate_divider(esw);
--	err = normalize_vports_min_rate(esw, divider);
-+	err = normalize_vports_min_rate(esw);
- 	if (err) {
- 		evport->info.min_rate = previous_min_rate;
- 		goto unlock;
+ 	clk_disable_unprepare(priv->clk);
 
 
