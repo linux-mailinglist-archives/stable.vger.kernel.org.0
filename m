@@ -2,228 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 103922C0279
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1092C0282
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:51:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727108AbgKWJq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 04:46:27 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:40757 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726618AbgKWJq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:46:27 -0500
+        id S1727108AbgKWJun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 04:50:43 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:41045 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725275AbgKWJun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:50:43 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 22865F92;
-        Mon, 23 Nov 2020 04:46:26 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:46:26 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 44939FDE;
+        Mon, 23 Nov 2020 04:50:42 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:50:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=Zt6xL17Lc7Ssyj/EVKQTWYkHTAL
+        1DE+Q5z8Pv0sUS/c=; b=N5f8Ujvo+16LIdGbF0X/63sNEucBDGnQ1h6vdMAOJcE
+        aHnoVQ8YmvZlsDizl76shzu8uZANYRLSdQLH+JuQjMzhIH2eiX+HbDxkMYsWvAT3
+        7yIS7U7dSB46Bv3BFN5hSUktufy0/gJqWfgqfCZwxkS5OQjEsAal4KGwXEf57I34
+        fD7KtbqTBuIQrgRo8FtAUC8H0+FaRMNqAWp0SAVJy9PcNDrmWamDNY62US2hOUFX
+        LVkzjNtjss7XJNyg5ESYpcEO090LgDHhth3XWqvopqzSX/ZfKFngp+ygUmqaXRDP
+        PuXES9sAk0KZKiCoysFtGfA9KcUNJ5KEWH9MOcJd1tA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+ZItps
-        jNMVbP5gSd7O7rgHCniWlgTBXESf/6AJwjc6Y=; b=mMf65x79FRj2O/OhTmwcKi
-        vzV+E2j5fUr+vnSMrc+YC+kKjAdKkbqKlgK51IsHyPa1V8b0hKoTc4Kfr9RsnqiO
-        Zu9eY1RIuGomX6w58SnV9VwTTsugpvnJ4SrQRgPN62BOwuDBuOwGUQwT1TXQAEvh
-        rH1XHrfZAAXbrTf7OHAlVuDUkzL8kK8tIn+YlVqqOEeaknoD8Gjh4ncUy7hojDzB
-        2MC8ownD+oJxF2VsYfxqNW9IzfptIsxzmZ4xo4s8F95PIrkQ54Qo32FBp0xDWMGY
-        uesEG6msc1R3fc/f87YT5Qms5YGHZdsTgenPDjMSrp2LAIoi8HwXLoUjsIWnjLRg
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Zt6xL1
+        7Lc7Ssyj/EVKQTWYkHTAL1DE+Q5z8Pv0sUS/c=; b=GMUvRDxO/Fk9yM1EXVVi/M
+        tM6zBJW2dzp+EouzCwysmAFTmKPcavT3gS1Hc+A6AMCvRJJrdawJ+r7zBSMrT6Hr
+        f+3/CgVVbsPw57lZo34AO7hcmgWVnFL7M2keKW1pKgVaziwBVh48VHNMvmV6pG4a
+        NYhfmO96AfTdk/R6vjUOYU+MVLpwrItcFvI1Aijri8RViq2G0nrfVd+aOaNICpAP
+        p8Q9yBwr8lHzbdr6DFlNoepabfDaarXzArbIOdfqZPJ2f6dWppjCdfGp8ZFVY24f
+        dyzVD5MAshMZsTkZEkbPtolu67kCnmeZn5wlj9idDEsHc/W9e5sdaAn7JiJ9xybA
         ==
-X-ME-Sender: <xms:8YS7XwOstT8HHNn0iFOyR3noZxtqAMx8ZWAX3qOQqOW4OcteFof2Og>
-    <xme:8YS7X28Ln83-VQRuuNmpCTwXPG8IRTrrJuaUcm-MP-BFKBiCc1qXi2djZJ_J6pr62
-    MHjteCG3OvzCw>
+X-ME-Sender: <xms:8YW7X_Rlkl5oBae3Lg5-yaZvICGoMDtr6JqcVOqRuwKaGHWg2xEEcw>
+    <xme:8YW7Xwy91Kh7ro_AeFciPrFUC9OzYkiPey7GVcr3y1enO2lymkSA-HzWDpAXL6AQP
+    f3oCljXHuNjNw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudegiedgtdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:8YS7X3TwsTQIplBMtqK4NV7sArZI42C4ma2KHJ3Tm-T-TFFKLp8D1w>
-    <xmx:8YS7X4sFn9XHMLz_ac6O__gCzyVaZTj291zId2_iTLxP6NksdFKSWA>
-    <xmx:8YS7X4cCGLa3wmfnsgb6jmRaWSbFNHpUDwI34-FRGOdPSJqyDVMHKw>
-    <xmx:8YS7X361z3p7WgEEfT_ihjsAoq6_e8L0UH-d40dd0phzqjkB8w_S-hH_XaI>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:8YW7X02e3ar9UJWygR5Ssj1x_wbxR6Qs1aHQV9GEcji9559qOnASeg>
+    <xmx:8YW7X_AAddYijCYbrdJNMiOU-OnGn4kbnAvcxtWHFFUksa1li9C1Rg>
+    <xmx:8YW7X4jKLKhwOyta959LZp0gqdTzIGI3v3rcEZs76kJxO7N-QEN0dg>
+    <xmx:8YW7XzUw9YVDVK6UL7u63U7AiQUHYgVIuMjqUM9_u-2jUOkGByCkEw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5C44A3064AB3;
-        Mon, 23 Nov 2020 04:46:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm/userfaultfd: do not access vma->vm_mm after calling" failed to apply to 4.14-stable tree
-To:     gerald.schaefer@linux.ibm.com, aarcange@redhat.com,
-        akpm@linux-foundation.org, egorenar@linux.ibm.com,
-        hca@linux.ibm.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 10:47:36 +0100
-Message-ID: <1606124856217243@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id ECB2A3280066;
+        Mon, 23 Nov 2020 04:50:40 -0500 (EST)
+Date:   Mon, 23 Nov 2020 10:51:51 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ralph Siemsen <ralph.siemsen@linaro.org>
+Cc:     akpm@linux-foundation.org, charante@codeaurora.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        mgorman@techsingularity.net, vinmenon@codeaurora.org,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] mm, page_alloc: skip ->watermark_boost for atomic
+ order-0 allocations-fix
+Message-ID: <X7uGN78QH8gk2q4P@kroah.com>
+References: <20200617171518.96211e345de65c54b9343a3a@linux-foundation.org>
+ <20201019184017.6340-1-ralph.siemsen@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201019184017.6340-1-ralph.siemsen@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Oct 19, 2020 at 02:40:17PM -0400, Ralph Siemsen wrote:
+> Hi,
+> 
+> Please consider applying the patch from this thread to 5.8.y:
+> commit f80b08fc44536a311a9f3182e50f318b79076425
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+5.8 is end-of-life, sorry.
+
+Now queued up for 5.4.y.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From bfe8cc1db02ab243c62780f17fc57f65bde0afe1 Mon Sep 17 00:00:00 2001
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Date: Sat, 21 Nov 2020 22:17:15 -0800
-Subject: [PATCH] mm/userfaultfd: do not access vma->vm_mm after calling
- handle_userfault()
-
-Alexander reported a syzkaller / KASAN finding on s390, see below for
-complete output.
-
-In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be
-freed in some cases.  In the case of userfaultfd_missing(), this will
-happen after calling handle_userfault(), which might have released the
-mmap_lock.  Therefore, the following pte_free(vma->vm_mm, pgtable) will
-access an unstable vma->vm_mm, which could have been freed or re-used
-already.
-
-For all architectures other than s390 this will go w/o any negative
-impact, because pte_free() simply frees the page and ignores the
-passed-in mm.  The implementation for SPARC32 would also access
-mm->page_table_lock for pte_free(), but there is no THP support in
-SPARC32, so the buggy code path will not be used there.
-
-For s390, the mm->context.pgtable_list is being used to maintain the 2K
-pagetable fragments, and operating on an already freed or even re-used
-mm could result in various more or less subtle bugs due to list /
-pagetable corruption.
-
-Fix this by calling pte_free() before handle_userfault(), similar to how
-it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
-non-huge_zero_page case.
-
-Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
-userfaultfd_missing() faults") actually introduced both, the
-do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
-changes wrt to calling handle_userfault(), but only in the latter case
-it put the pte_free() before calling handle_userfault().
-
-  BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
-  Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
-
-  CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
-  Hardware name: IBM 3906 M04 701 (KVM/Linux)
-  Call Trace:
-    do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
-    create_huge_pmd mm/memory.c:4256 [inline]
-    __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
-    handle_mm_fault+0x288/0x748 mm/memory.c:4607
-    do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
-    do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
-    pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
-    copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
-    raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
-    _copy_from_user+0x48/0xa8 lib/usercopy.c:16
-    copy_from_user include/linux/uaccess.h:192 [inline]
-    __do_sys_sigaltstack kernel/signal.c:4064 [inline]
-    __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
-    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-  Allocated by task 9334:
-    slab_alloc_node mm/slub.c:2891 [inline]
-    slab_alloc mm/slub.c:2899 [inline]
-    kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
-    vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
-    __split_vma+0xba/0x560 mm/mmap.c:2742
-    split_vma+0xca/0x108 mm/mmap.c:2800
-    mlock_fixup+0x4ae/0x600 mm/mlock.c:550
-    apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
-    do_mlock+0x1aa/0x718 mm/mlock.c:711
-    __do_sys_mlock2 mm/mlock.c:738 [inline]
-    __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
-    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-  Freed by task 9333:
-    slab_free mm/slub.c:3142 [inline]
-    kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
-    __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
-    vma_merge+0x87e/0xce0 mm/mmap.c:1209
-    userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
-    __fput+0x22c/0x7a8 fs/file_table.c:281
-    task_work_run+0x200/0x320 kernel/task_work.c:151
-    tracehook_notify_resume include/linux/tracehook.h:188 [inline]
-    do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
-    system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
-
-  The buggy address belongs to the object at 00000000962d6948 which belongs to the cache vm_area_struct of size 200
-  The buggy address is located 64 bytes inside of 200-byte region [00000000962d6948, 00000000962d6a10)
-  The buggy address belongs to the page: page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6 flags: 0x3ffff00000000200(slab)
-  raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
-  raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
-  page dumped because: kasan: bad access detected
-  page->mem_cgroup:0000000096959501
-
-  Memory state around the buggy address:
-   00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
-  >00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                        ^
-   00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
-   00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ==================================================================
-
-Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
-Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[4.3+]
-Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 9474dbc150ed..ec2bb93f7431 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -710,7 +710,6 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf)
- 			transparent_hugepage_use_zero_page()) {
- 		pgtable_t pgtable;
- 		struct page *zero_page;
--		bool set;
- 		vm_fault_t ret;
- 		pgtable = pte_alloc_one(vma->vm_mm);
- 		if (unlikely(!pgtable))
-@@ -723,25 +722,25 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf)
- 		}
- 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
- 		ret = 0;
--		set = false;
- 		if (pmd_none(*vmf->pmd)) {
- 			ret = check_stable_address_space(vma->vm_mm);
- 			if (ret) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 			} else if (userfaultfd_missing(vma)) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
- 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
- 			} else {
- 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
- 						   haddr, vmf->pmd, zero_page);
- 				spin_unlock(vmf->ptl);
--				set = true;
- 			}
--		} else
-+		} else {
- 			spin_unlock(vmf->ptl);
--		if (!set)
- 			pte_free(vma->vm_mm, pgtable);
-+		}
- 		return ret;
- 	}
- 	gfp = alloc_hugepage_direct_gfpmask(vma);
-
