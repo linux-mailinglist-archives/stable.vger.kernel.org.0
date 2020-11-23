@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B23602C086D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE9D2C0934
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732717AbgKWMvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:51:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35284 "EHLO mail.kernel.org"
+        id S2387982AbgKWNFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:05:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387589AbgKWMue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:50:34 -0500
+        id S2387592AbgKWMui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:50:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67F8208C3;
-        Mon, 23 Nov 2020 12:50:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 954FD20732;
+        Mon, 23 Nov 2020 12:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135831;
-        bh=Kpjv2vjdVuB+jkxDA0Kv2AL1fh/ayi1VCR2Z6onj4sw=;
+        s=korg; t=1606135834;
+        bh=soHkxBfU49wsF73GvObfjDsAZhGzd1y8gFzn43c9Ln4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dbMCncvytmChhF1xDNVl/k/6VsAxQyYlaFi5Sg+r9SY2hZT0CKKjKsQK9W+Z1qe/8
-         HrC46RJQy5TI17/SH6AHm3txwV6mrus4NdTGBqGm4g95zPw/UBNwD5BZg+Qph4+gRd
-         /Vs8q3Yk4NE0i0oN4nE5ncem+bTR6yoMvYec0/00=
+        b=PwsElWX3Krs7qL80c+pMEefZfC7HyPjAS/V5IZlL+r4gyelUiw+ZSccbjpH8tvzwH
+         +N3eIc1yhz1oY6iCQEVsYHsge4OmYXS2X3NiGWupPmkWUGX4ONdrORkOOOmF4aFiEW
+         Qz2KEb4gWDUlje8E8TPSBuLb5QrCicJceArJLLq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
+        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 182/252] sched: Fix rq->nr_iowait ordering
-Date:   Mon, 23 Nov 2020 13:22:12 +0100
-Message-Id: <20201123121844.378746555@linuxfoundation.org>
+Subject: [PATCH 5.9 183/252] libfs: fix error cast of negative value in simple_attr_write()
+Date:   Mon, 23 Nov 2020 13:22:13 +0100
+Message-Id: <20201123121844.425033534@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,74 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit ec618b84f6e15281cc3660664d34cd0dd2f2579e ]
+[ Upstream commit 488dac0c9237647e9b8f788b6a342595bfa40bda ]
 
-  schedule()				ttwu()
-    deactivate_task();			  if (p->on_rq && ...) // false
-					    atomic_dec(&task_rq(p)->nr_iowait);
-    if (prev->in_iowait)
-      atomic_inc(&rq->nr_iowait);
+The attr->set() receive a value of u64, but simple_strtoll() is used for
+doing the conversion.  It will lead to the error cast if user inputs a
+negative value.
 
-Allows nr_iowait to be decremented before it gets incremented,
-resulting in more dodgy IO-wait numbers than usual.
+Use kstrtoull() instead of simple_strtoll() to convert a string got from
+the user to an unsigned value.  The former will return '-EINVAL' if it
+gets a negetive value, but the latter can't handle the situation
+correctly.  Make 'val' unsigned long long as what kstrtoull() takes,
+this will eliminate the compile warning on no 64-bit architectures.
 
-Note that because we can now do ttwu_queue_wakelist() before
-p->on_cpu==0, we lose the natural ordering and have to further delay
-the decrement.
-
-Fixes: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
-Reported-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Link: https://lkml.kernel.org/r/20201117093829.GD3121429@hirez.programming.kicks-ass.net
+Fixes: f7b88631a897 ("fs/libfs.c: fix simple_attr_write() on 32bit machines")
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/1605341356-11872-1-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ fs/libfs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index b1e0da56abcac..c4da7e17b9061 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2505,7 +2505,12 @@ ttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,
- #ifdef CONFIG_SMP
- 	if (wake_flags & WF_MIGRATED)
- 		en_flags |= ENQUEUE_MIGRATED;
-+	else
- #endif
-+	if (p->in_iowait) {
-+		delayacct_blkio_end(p);
-+		atomic_dec(&task_rq(p)->nr_iowait);
-+	}
+diff --git a/fs/libfs.c b/fs/libfs.c
+index e0d42e977d9af..7bf691979a584 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -957,7 +957,7 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 			  size_t len, loff_t *ppos)
+ {
+ 	struct simple_attr *attr;
+-	u64 val;
++	unsigned long long val;
+ 	size_t size;
+ 	ssize_t ret;
  
- 	activate_task(rq, p, en_flags);
- 	ttwu_do_wakeup(rq, p, wake_flags, rf);
-@@ -2892,11 +2897,6 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
- 	if (READ_ONCE(p->on_rq) && ttwu_runnable(p, wake_flags))
- 		goto unlock;
+@@ -975,7 +975,9 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 		goto out;
  
--	if (p->in_iowait) {
--		delayacct_blkio_end(p);
--		atomic_dec(&task_rq(p)->nr_iowait);
--	}
--
- #ifdef CONFIG_SMP
- 	/*
- 	 * Ensure we load p->on_cpu _after_ p->on_rq, otherwise it would be
-@@ -2967,6 +2967,11 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
- 
- 	cpu = select_task_rq(p, p->wake_cpu, SD_BALANCE_WAKE, wake_flags);
- 	if (task_cpu(p) != cpu) {
-+		if (p->in_iowait) {
-+			delayacct_blkio_end(p);
-+			atomic_dec(&task_rq(p)->nr_iowait);
-+		}
-+
- 		wake_flags |= WF_MIGRATED;
- 		psi_ttwu_dequeue(p);
- 		set_task_cpu(p, cpu);
+ 	attr->set_buf[size] = '\0';
+-	val = simple_strtoll(attr->set_buf, NULL, 0);
++	ret = kstrtoull(attr->set_buf, 0, &val);
++	if (ret)
++		goto out;
+ 	ret = attr->set(attr->data, val);
+ 	if (ret == 0)
+ 		ret = len; /* on success, claim we got the whole input */
 -- 
 2.27.0
 
