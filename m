@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0AED2C063D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6722C063E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730547AbgKWM3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:29:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
+        id S1730045AbgKWM3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730544AbgKWM3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:29:05 -0500
+        id S1730548AbgKWM3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9A9C20781;
-        Mon, 23 Nov 2020 12:29:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B98420728;
+        Mon, 23 Nov 2020 12:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134545;
-        bh=NGE/0HDnAS+V8bvF7zR6cxDjXawGPNrEPal/aIYCHsc=;
+        s=korg; t=1606134547;
+        bh=v1S8x8/ClwspTymGs7wrszJpgf699HwWQWriqCRGo+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NdFDRIn4Ir9ZAT297g9pig8cWDRYYySzfstnv4JCOof2dg/Kisj1x9GmYmNFuql+M
-         D/4Z+q3Ezgtt4FECpMo598sXRlgJuSSRueH3PfrW01ZpbkpV+jMVpIyMGcPC6utYEP
-         +5DYagX6jZPY8ZcAdB4hVCtyLcSstjJS5odXm1s8=
+        b=l0tAlgXHq26xV9kOkbKO42OYHzmDqs7lxBO/5Y/EjOs4tdEpEYl/HEbBQPqmlBY6j
+         D3Q/PFBoJOilt02+/M2Yp4Z1D18rMTwP0BROuvKwXVBLILUq0sKQILdPDptlDAj8/h
+         SLl5HlrESTrJTkiLATxpUs85VQM/MktcTEVRPVhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/60] perf lock: Dont free "lock_seq_stat" if read_count isnt zero
-Date:   Mon, 23 Nov 2020 13:22:10 +0100
-Message-Id: <20201123121806.393806213@linuxfoundation.org>
+Subject: [PATCH 4.14 29/60] can: af_can: prevent potential access of uninitialized member in can_rcv()
+Date:   Mon, 23 Nov 2020 13:22:11 +0100
+Message-Id: <20201123121806.446515358@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
 References: <20201123121805.028396732@linuxfoundation.org>
@@ -44,52 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit b0e5a05cc9e37763c7f19366d94b1a6160c755bc ]
+[ Upstream commit c8c958a58fc67f353289986850a0edf553435702 ]
 
-When execute command "perf lock report", it hits failure and outputs log
-as follows:
+In can_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
-  perf: builtin-lock.c:623: report_lock_release_event: Assertion `!(seq->read_count < 0)' failed.
-  Aborted
+Fix this uninitialized variable access by checking cfd->len's validity
+condition (cfd->len > CAN_MAX_DLEN) separately after the skb->len's
+condition is checked, and appropriately modify the log messages that
+are generated as well.
+In case either of the required conditions fail, the skb is freed and
+NET_RX_DROP is returned, same as before.
 
-This is an imbalance issue.  The locking sequence structure
-"lock_seq_stat" contains the reader counter and it is used to check if
-the locking sequence is balance or not between acquiring and releasing.
-
-If the tool wrongly frees "lock_seq_stat" when "read_count" isn't zero,
-the "read_count" will be reset to zero when allocate a new structure at
-the next time; thus it causes the wrong counting for reader and finally
-results in imbalance issue.
-
-To fix this issue, if detects "read_count" is not zero (means still have
-read user in the locking sequence), goto the "end" tag to skip freeing
-structure "lock_seq_stat".
-
-Fixes: e4cef1f65061 ("perf lock: Fix state machine to recognize lock sequence")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/r/20201104094229.17509-2-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 8cb68751c115 ("can: af_can: can_rcv(): replace WARN_ONCE by pr_warn_once")
+Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
+Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201103213906.24219-2-anant.thazhemadam@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-lock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/af_can.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
-index fe69cd6b89e1a..6140b0548ad7d 100644
---- a/tools/perf/builtin-lock.c
-+++ b/tools/perf/builtin-lock.c
-@@ -620,7 +620,7 @@ static int report_lock_release_event(struct perf_evsel *evsel,
- 	case SEQ_STATE_READ_ACQUIRED:
- 		seq->read_count--;
- 		BUG_ON(seq->read_count < 0);
--		if (!seq->read_count) {
-+		if (seq->read_count) {
- 			ls->nr_release++;
- 			goto end;
- 		}
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 46c85731d16f0..e1cf5c300bacc 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -722,16 +722,25 @@ static int can_rcv(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
+ 
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU ||
+-		     cfd->len > CAN_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d\n",
++			     dev->type, skb->len);
++		goto free_skb;
++	}
++
++	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
++	if (unlikely(cfd->len > CAN_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d, datalen %d\n",
+ 			     dev->type, skb->len, cfd->len);
+-		kfree_skb(skb);
+-		return NET_RX_DROP;
++		goto free_skb;
+ 	}
+ 
+ 	can_receive(skb, dev);
+ 	return NET_RX_SUCCESS;
++
++free_skb:
++	kfree_skb(skb);
++	return NET_RX_DROP;
+ }
+ 
+ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
 -- 
 2.27.0
 
