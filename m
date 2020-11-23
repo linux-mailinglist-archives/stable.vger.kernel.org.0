@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D28B12C0A26
+	by mail.lfdr.de (Postfix) with ESMTP id 6293E2C0A25
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732624AbgKWMmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
+        id S1732725AbgKWMmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732586AbgKWMml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:42:41 -0500
+        id S1732949AbgKWMmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:44 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67B9B2076E;
-        Mon, 23 Nov 2020 12:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ED7120888;
+        Mon, 23 Nov 2020 12:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135361;
-        bh=t6R4CbITu2uIuaeJ1NJEzxNodkHNClQ8mtBqZzLVrng=;
+        s=korg; t=1606135363;
+        bh=dWd8T2yo9NXYD7bdTYaQEjA+WjGJAEzUkkl3TYN4bW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGkfMuV0F/ex3qJq/9UAp/mpZKcWzm9GeNTKCeAR3AdHPb2Pv2E7CRHOWkDKGhaa3
-         ETkQT5sa8hiZGVhC2Wgv4ccjXw/BUkyAp9KZPd4eevS6G27SMzKtANYsXh5A0bROkt
-         h//Lp+hJ0CcWyLoJk8SGNC0eLnYqSZiJtPiM18w0=
+        b=IZjkxGLrQk6z++/BKMBa+7E0lAUyFL/fAR71KtsvVL7DZ2BFybb8OAHAOdiTjILmW
+         b2fbr/9TDFstbDS78tfVaNQgI7Cp466CBaPc0k8f+96VNkHvaYIGzldtEno60vO5Eb
+         LYVwlyuLixyQtFmnNc6opPmGcSE/k6TQ6aLVwT/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org,
+        Ryan Sharpelletti <sharpelletti@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 040/252] sctp: change to hold/put transport for proto_unreach_timer
-Date:   Mon, 23 Nov 2020 13:19:50 +0100
-Message-Id: <20201123121837.517246665@linuxfoundation.org>
+Subject: [PATCH 5.9 041/252] tcp: only postpone PROBE_RTT if RTT is < current min_rtt estimate
+Date:   Mon, 23 Nov 2020 13:19:51 +0100
+Message-Id: <20201123121837.563847696@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,102 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ryan Sharpelletti <sharpelletti@google.com>
 
-[ Upstream commit 057a10fa1f73d745c8e69aa54ab147715f5630ae ]
+[ Upstream commit 1b9e2a8c99a5c021041bfb2d512dc3ed92a94ffd ]
 
-A call trace was found in Hangbin's Codenomicon testing with debug kernel:
+During loss recovery, retransmitted packets are forced to use TCP
+timestamps to calculate the RTT samples, which have a millisecond
+granularity. BBR is designed using a microsecond granularity. As a
+result, multiple RTT samples could be truncated to the same RTT value
+during loss recovery. This is problematic, as BBR will not enter
+PROBE_RTT if the RTT sample is <= the current min_rtt sample, meaning
+that if there are persistent losses, PROBE_RTT will constantly be
+pushed off and potentially never re-entered. This patch makes sure
+that BBR enters PROBE_RTT by checking if RTT sample is < the current
+min_rtt sample, rather than <=.
 
-  [ 2615.981988] ODEBUG: free active (active state 0) object type: timer_list hint: sctp_generate_proto_unreach_event+0x0/0x3a0 [sctp]
-  [ 2615.995050] WARNING: CPU: 17 PID: 0 at lib/debugobjects.c:328 debug_print_object+0x199/0x2b0
-  [ 2616.095934] RIP: 0010:debug_print_object+0x199/0x2b0
-  [ 2616.191533] Call Trace:
-  [ 2616.194265]  <IRQ>
-  [ 2616.202068]  debug_check_no_obj_freed+0x25e/0x3f0
-  [ 2616.207336]  slab_free_freelist_hook+0xeb/0x140
-  [ 2616.220971]  kfree+0xd6/0x2c0
-  [ 2616.224293]  rcu_do_batch+0x3bd/0xc70
-  [ 2616.243096]  rcu_core+0x8b9/0xd00
-  [ 2616.256065]  __do_softirq+0x23d/0xacd
-  [ 2616.260166]  irq_exit+0x236/0x2a0
-  [ 2616.263879]  smp_apic_timer_interrupt+0x18d/0x620
-  [ 2616.269138]  apic_timer_interrupt+0xf/0x20
-  [ 2616.273711]  </IRQ>
+The Netflix transport/TCP team discovered this bug in the Linux TCP
+BBR code during lab tests.
 
-This is because it holds asoc when transport->proto_unreach_timer starts
-and puts asoc when the timer stops, and without holding transport the
-transport could be freed when the timer is still running.
-
-So fix it by holding/putting transport instead for proto_unreach_timer
-in transport, just like other timers in transport.
-
-v1->v2:
-  - Also use sctp_transport_put() for the "out_unlock:" path in
-    sctp_generate_proto_unreach_event(), as Marcelo noticed.
-
-Fixes: 50b5d6ad6382 ("sctp: Fix a race between ICMP protocol unreachable and connect()")
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Link: https://lore.kernel.org/r/102788809b554958b13b95d33440f5448113b8d6.1605331373.git.lucien.xin@gmail.com
+Fixes: 0f8782ea1497 ("tcp_bbr: add BBR congestion control")
+Signed-off-by: Ryan Sharpelletti <sharpelletti@google.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Link: https://lore.kernel.org/r/20201116174412.1433277-1-sharpelletti.kdev@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/input.c         |    4 ++--
- net/sctp/sm_sideeffect.c |    4 ++--
- net/sctp/transport.c     |    2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_bbr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -449,7 +449,7 @@ void sctp_icmp_proto_unreachable(struct
- 		else {
- 			if (!mod_timer(&t->proto_unreach_timer,
- 						jiffies + (HZ/20)))
--				sctp_association_hold(asoc);
-+				sctp_transport_hold(t);
- 		}
- 	} else {
- 		struct net *net = sock_net(sk);
-@@ -458,7 +458,7 @@ void sctp_icmp_proto_unreachable(struct
- 			 "encountered!\n", __func__);
- 
- 		if (del_timer(&t->proto_unreach_timer))
--			sctp_association_put(asoc);
-+			sctp_transport_put(t);
- 
- 		sctp_do_sm(net, SCTP_EVENT_T_OTHER,
- 			   SCTP_ST_OTHER(SCTP_EVENT_ICMP_PROTO_UNREACH),
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -419,7 +419,7 @@ void sctp_generate_proto_unreach_event(s
- 		/* Try again later.  */
- 		if (!mod_timer(&transport->proto_unreach_timer,
- 				jiffies + (HZ/20)))
--			sctp_association_hold(asoc);
-+			sctp_transport_hold(transport);
- 		goto out_unlock;
- 	}
- 
-@@ -435,7 +435,7 @@ void sctp_generate_proto_unreach_event(s
- 
- out_unlock:
- 	bh_unlock_sock(sk);
--	sctp_association_put(asoc);
-+	sctp_transport_put(transport);
- }
- 
-  /* Handle the timeout of the RE-CONFIG timer. */
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -133,7 +133,7 @@ void sctp_transport_free(struct sctp_tra
- 
- 	/* Delete the ICMP proto unreachable timer if it's active. */
- 	if (del_timer(&transport->proto_unreach_timer))
--		sctp_association_put(transport->asoc);
-+		sctp_transport_put(transport);
- 
- 	sctp_transport_put(transport);
- }
+--- a/net/ipv4/tcp_bbr.c
++++ b/net/ipv4/tcp_bbr.c
+@@ -945,7 +945,7 @@ static void bbr_update_min_rtt(struct so
+ 	filter_expired = after(tcp_jiffies32,
+ 			       bbr->min_rtt_stamp + bbr_min_rtt_win_sec * HZ);
+ 	if (rs->rtt_us >= 0 &&
+-	    (rs->rtt_us <= bbr->min_rtt_us ||
++	    (rs->rtt_us < bbr->min_rtt_us ||
+ 	     (filter_expired && !rs->is_ack_delayed))) {
+ 		bbr->min_rtt_us = rs->rtt_us;
+ 		bbr->min_rtt_stamp = tcp_jiffies32;
 
 
