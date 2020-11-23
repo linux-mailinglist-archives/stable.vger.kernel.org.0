@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9552C086E
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0CDD2C0A56
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387628AbgKWMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:51:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S1732288AbgKWMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:39:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387597AbgKWMus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:50:48 -0500
+        id S1732282AbgKWMje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:39:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2826720857;
-        Mon, 23 Nov 2020 12:50:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F041E2076E;
+        Mon, 23 Nov 2020 12:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135846;
-        bh=s52W6+SKgWgMHP+7fpSLSOnh7iHmGoEjrtwCYPk+dv0=;
+        s=korg; t=1606135173;
+        bh=6p6WLMXtvcqPhZcMzRA4cJhAPLIS/sWhYY/eAup0aRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykt+6i96dT4jqwbvAG8Vo4C4Zs8rXL218o6qNojMAU/xCwxpx8qpzEu/eWsd1HoqX
-         gy90wI0MUN+5ZWR9TcMTeeFG0kpQ2uBXeSTeOiY/2eamag1pLr135WmwySDlhG++Nt
-         ilj8J+yv3KNd1iQ8VMrw948kt4crGcokHpmfgYKM=
+        b=IAyfXWtoP2kcXShzZsTCDxu9wUhGalcyX1Dw0rpksbI0POWl1gv2s0+Q39wgSHMfJ
+         vBPcGG3JiijTccpqIUD/KRFhagEGzj4ueeaZ83W50mjnG3LPRKCRhgHOgWOj2rCz78
+         +oHzcNqGcTnWW0a4np/WuoInayfGpH+jg43Yaaj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         russianneuromancer <russianneuromancer@ya.ru>
-Subject: [PATCH 5.9 209/252] iio: accel: kxcjk1013: Add support for KIOX010A ACPI DSM for setting tablet-mode
+Subject: [PATCH 5.4 131/158] iio: accel: kxcjk1013: Add support for KIOX010A ACPI DSM for setting tablet-mode
 Date:   Mon, 23 Nov 2020 13:22:39 +0100
-Message-Id: <20201123121845.652533579@linuxfoundation.org>
+Message-Id: <20201123121826.246282806@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
-References: <20201123121835.580259631@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -96,7 +96,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  struct kxcjk1013_data {
-@@ -275,6 +276,32 @@ static const struct {
+@@ -274,6 +275,32 @@ static const struct {
  			      {19163, 1, 0},
  			      {38326, 0, 1} };
  
@@ -129,7 +129,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int kxcjk1013_set_mode(struct kxcjk1013_data *data,
  			      enum kxcjk1013_mode mode)
  {
-@@ -352,6 +379,13 @@ static int kxcjk1013_chip_init(struct kx
+@@ -351,6 +378,13 @@ static int kxcjk1013_chip_init(struct kx
  {
  	int ret;
  
@@ -143,7 +143,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_WHO_AM_I);
  	if (ret < 0) {
  		dev_err(&data->client->dev, "Error reading who_am_i\n");
-@@ -1262,6 +1296,8 @@ static const char *kxcjk1013_match_acpi_
+@@ -1248,6 +1282,8 @@ static const char *kxcjk1013_match_acpi_
  
  	if (strcmp(id->id, "SMO8500") == 0)
  		*acpi_type = ACPI_SMO8500;
