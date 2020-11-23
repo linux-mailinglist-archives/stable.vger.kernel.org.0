@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 278612C062A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC142C05F0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbgKWM2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38676 "EHLO mail.kernel.org"
+        id S1730051AbgKWMZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:25:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730426AbgKWM2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:24 -0500
+        id S1730047AbgKWMZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:25:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AC712076E;
-        Mon, 23 Nov 2020 12:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DF8C20857;
+        Mon, 23 Nov 2020 12:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134502;
-        bh=UQg/RWwP5+WrRaMaJNf8KMdy1OCi+B5uD4EPEedixk8=;
+        s=korg; t=1606134346;
+        bh=lYUHFsfMSCvVN1o385q1QZefOqjlrdDMMZNDJSIOhaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6MgEtbybmW6Ng6g0IVR3ydU0RwxOSBTYui0HrM14s0tWu9Vf9S6HSZRsePM56vqj
-         aUlXmFXugrfljwMwGH/gfibnoLkk9I8qIrowaiaoPcdFQYHjeI0cqhiyDgX/fBs6yq
-         aX15L94dMO0lXqgql6ACMgwSL2mCzbE46pgoxU74=
+        b=k8YgFSO4vTBDt0HAbTk3g9U34lSHtANS7B06LzGBxfyHrEgyYIzzaoAaO6+r8LwYS
+         FAAa0zkBr/QffL/0Is4al6lwXkNYzdfhCYB7Pfx1vhUPRQG867+B1y9YfPDaZVyIwC
+         E9Fg0wfk/zJfMkK9UupoY7hrUb3/VcHOBsEJ86Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=E7=A7=A6=E4=B8=96=E6=9D=BE?= <qinshisong1205@gmail.com>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: [PATCH 4.14 42/60] speakup: Do not let the line discipline be used several times
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.9 38/47] efivarfs: fix memory leak in efivarfs_create()
 Date:   Mon, 23 Nov 2020 13:22:24 +0100
-Message-Id: <20201123121807.083931084@linuxfoundation.org>
+Message-Id: <20201123121807.399007267@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
 
-commit d4122754442799187d5d537a9c039a49a67e57f1 upstream.
+commit fe5186cf12e30facfe261e9be6c7904a170bd822 upstream.
 
-Speakup has only one speakup_tty variable to store the tty it is managing. This
-makes sense since its codebase currently assumes that there is only one user who
-controls the screen reading.
+kmemleak report:
+  unreferenced object 0xffff9b8915fcb000 (size 4096):
+  comm "efivarfs.sh", pid 2360, jiffies 4294920096 (age 48.264s)
+  hex dump (first 32 bytes):
+    2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  -...............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000cc4d897c>] kmem_cache_alloc_trace+0x155/0x4b0
+    [<000000007d1dfa72>] efivarfs_create+0x6e/0x1a0
+    [<00000000e6ee18fc>] path_openat+0xe4b/0x1120
+    [<000000000ad0414f>] do_filp_open+0x91/0x100
+    [<00000000ce93a198>] do_sys_openat2+0x20c/0x2d0
+    [<000000002a91be6d>] do_sys_open+0x46/0x80
+    [<000000000a854999>] __x64_sys_openat+0x20/0x30
+    [<00000000c50d89c9>] do_syscall_64+0x38/0x90
+    [<00000000cecd6b5f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-That however means that we have to forbid using the line discipline several
-times, otherwise the second closure would try to free a NULL ldisc_data, leading to
+In efivarfs_create(), inode->i_private is setup with efivar_entry
+object which is never freed.
 
-general protection fault: 0000 [#1] SMP KASAN PTI
-RIP: 0010:spk_ttyio_ldisc_close+0x2c/0x60
-Call Trace:
- tty_ldisc_release+0xa2/0x340
- tty_release_struct+0x17/0xd0
- tty_release+0x9d9/0xcc0
- __fput+0x231/0x740
- task_work_run+0x12c/0x1a0
- do_exit+0x9b5/0x2230
- ? release_task+0x1240/0x1240
- ? __do_page_fault+0x562/0xa30
- do_group_exit+0xd5/0x2a0
- __x64_sys_exit_group+0x35/0x40
- do_syscall_64+0x89/0x2b0
- ? page_fault+0x8/0x30
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Cc: stable@vger.kernel.org
-Reported-by: 秦世松 <qinshisong1205@gmail.com>
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Tested-by: Shisong Qin <qinshisong1205@gmail.com>
-Link: https://lore.kernel.org/r/20201110183541.fzgnlwhjpgqzjeth@function
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+Link: https://lore.kernel.org/r/20201023115429.GA2479@cosmos
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/speakup/spk_ttyio.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/efivarfs/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/speakup/spk_ttyio.c
-+++ b/drivers/staging/speakup/spk_ttyio.c
-@@ -48,10 +48,18 @@ static int spk_ttyio_ldisc_open(struct t
- 
- 	if (tty->ops->write == NULL)
- 		return -EOPNOTSUPP;
-+
-+	mutex_lock(&speakup_tty_mutex);
-+	if (speakup_tty) {
-+		mutex_unlock(&speakup_tty_mutex);
-+		return -EBUSY;
-+	}
- 	speakup_tty = tty;
- 
- 	ldisc_data = kmalloc(sizeof(struct spk_ldisc_data), GFP_KERNEL);
- 	if (!ldisc_data) {
-+		speakup_tty = NULL;
-+		mutex_unlock(&speakup_tty_mutex);
- 		pr_err("speakup: Failed to allocate ldisc_data.\n");
- 		return -ENOMEM;
- 	}
-@@ -59,6 +67,7 @@ static int spk_ttyio_ldisc_open(struct t
- 	sema_init(&ldisc_data->sem, 0);
- 	ldisc_data->buf_free = true;
- 	speakup_tty->disc_data = ldisc_data;
-+	mutex_unlock(&speakup_tty_mutex);
- 
- 	return 0;
+--- a/fs/efivarfs/super.c
++++ b/fs/efivarfs/super.c
+@@ -23,6 +23,7 @@ LIST_HEAD(efivarfs_list);
+ static void efivarfs_evict_inode(struct inode *inode)
+ {
+ 	clear_inode(inode);
++	kfree(inode->i_private);
  }
+ 
+ static const struct super_operations efivarfs_ops = {
 
 
