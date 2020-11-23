@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46BE2C0274
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483F62C0277
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727076AbgKWJpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 04:45:02 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:60219 "EHLO
+        id S1726744AbgKWJqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 04:46:22 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52513 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726676AbgKWJpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:45:02 -0500
+        by vger.kernel.org with ESMTP id S1726618AbgKWJqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:46:22 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 9726AFAA;
-        Mon, 23 Nov 2020 04:45:00 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 190E2F81;
+        Mon, 23 Nov 2020 04:46:21 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:45:00 -0500
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:46:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lNbw7w
-        Ic9gjut+fzpm4HTq0u+mzZkxIKlq2e54uicYk=; b=Y9MMDbhCucrzIfJqhOnxYY
-        XWh0aHg7J/MIqu2J/gUN36TTBLLva/Cnw3I9lFA9I+2SMyfKYw3FNd3s1gXPaQiA
-        7ToqrEAT/oQtJU+kRosdPFnoH6lkvqZBLSRE9c37BPfNb2n1tUnYvu253F/BTLHk
-        7ZYdb0n/O7OUaRwKnc6HJzAcNulml0XUbVDRPEoDj6Y6Q/usQd18ReXSFbpijZXK
-        RgswXYIKf5nEzpUqmUR4FLaOEVXD4a7DYuaWpcf9qi7yv7uUPCPtKWb+1Og5LiJS
-        A2detc9M3+VQZEwZwXnw0/z42yLQThmJdM3+9cuG932wnBDa8DyLOs9mk3n5jhoQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=W3aWsQ
+        FN2f1FLLx9lC9wxBmT5MsyTIPnhW8QVa0Pabo=; b=d/H9D0vHRNyoJffY+X0kvi
+        a5aDxcFZzAJI2rvu3zoe/wcIxOg/VvVcVrJQU757eIUI+ghxe05R/I8vOxP7Dv/I
+        /8SB9TcWmlusw3HVkLLX8mCbINLMzLtMqWCInt3TKIim0+Mcdbdn+2L1ssvbqyNE
+        q/kp8SvyxagvVmSZp8jyU7JDPdi9FXDfdp19mL3MQtASdj505mvgqMDofBmpL4Nb
+        COh3frjnyXotgHGMZW5MoeK4xwZwKm4FnW16Ct1MZ1BjbBumoaAq0YLe1jepO+Dl
+        xq5y34E8DAsVWLD2//UDRHBxXX9j3SyviQJbm1T+FOMnIgt13+kv7Vo7VCO13ngQ
         ==
-X-ME-Sender: <xms:nIS7X2z-F077yozsIrVJKyG_PM8P-r6aq_pMIlYVCsOYjpcKNb37SA>
-    <xme:nIS7XyR4UkpPx1nDi738GkeUnIgU-xeP23LeBfXmmiIEwOSc9o9VR18NmQAMzubCK
-    C7XOo5Z0ZUmDg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudegiedgtdekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:7IS7X3bFfXksm4dqd6F35NNKyWthKxxlV-B5Fc33_a49C9BkiJZcCA>
+    <xme:7IS7X2Yzs170pit67r1CSLmBadS-X6Z4NYVkLK51guTNqn6-6IQXLhDXgS29MqvmQ
+    brMMfKwwRPgbA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudegiedgtdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:nIS7X4XXna21SHOSF7ume6FYZxnI42Pfx0jOqhiYNdVNI3pfJzc3uw>
-    <xmx:nIS7X8itVQXJtTqI6ExVfziOHrgki8bbE_r9cjYxBLXInGkpBexuJw>
-    <xmx:nIS7X4ByQCBOtbwj9Li1MzkcEtHZaWz4CpHhuIsXGp8HVXIlktArYw>
-    <xmx:nIS7XzqAulNnHqVFwVEunjVWC-K9eaYnCFjzIWYql1wQKe6Qia3OESAC82o>
+X-ME-Proxy: <xmx:7IS7X5_e4h9U8Re6VMejoPHpPaBhqGmup1UEFj0KMI5gi25j1HDD3Q>
+    <xmx:7IS7X9oPE8mDrsBVo6ld9CoXPWacanNm4rTjk7MtPIgaIFF3dVEKhw>
+    <xmx:7IS7Xypgl6IFUvzl68skrUI8iaIRb0RB7zLFKBEbJvovVnR-AdTJmA>
+    <xmx:7IS7X7k7GMIreUo6SqsWAw1ab6_3_6haKPtwWvLNl722Ud1uSv-yp5Cj9VE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D32B43064AB5;
-        Mon, 23 Nov 2020 04:44:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/microcode/intel: Check patch signature before saving" failed to apply to 4.9-stable tree
-To:     yu.c.chen@intel.com, bp@suse.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id BF7323064AB3;
+        Mon, 23 Nov 2020 04:46:19 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/userfaultfd: do not access vma->vm_mm after calling" failed to apply to 4.4-stable tree
+To:     gerald.schaefer@linux.ibm.com, aarcange@redhat.com,
+        akpm@linux-foundation.org, egorenar@linux.ibm.com,
+        hca@linux.ibm.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 10:46:03 +0100
-Message-ID: <16061247634917@kroah.com>
+Date:   Mon, 23 Nov 2020 10:47:31 +0100
+Message-ID: <1606124851724@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,171 +73,157 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1a371e67dc77125736cc56d3a0893f06b75855b6 Mon Sep 17 00:00:00 2001
-From: Chen Yu <yu.c.chen@intel.com>
-Date: Fri, 13 Nov 2020 09:59:23 +0800
-Subject: [PATCH] x86/microcode/intel: Check patch signature before saving
- microcode for early loading
+From bfe8cc1db02ab243c62780f17fc57f65bde0afe1 Mon Sep 17 00:00:00 2001
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Date: Sat, 21 Nov 2020 22:17:15 -0800
+Subject: [PATCH] mm/userfaultfd: do not access vma->vm_mm after calling
+ handle_userfault()
 
-Currently, scan_microcode() leverages microcode_matches() to check
-if the microcode matches the CPU by comparing the family and model.
-However, the processor stepping and flags of the microcode signature
-should also be considered when saving a microcode patch for early
-update.
+Alexander reported a syzkaller / KASAN finding on s390, see below for
+complete output.
 
-Use find_matching_signature() in scan_microcode() and get rid of the
-now-unused microcode_matches() which is a good cleanup in itself.
+In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be
+freed in some cases.  In the case of userfaultfd_missing(), this will
+happen after calling handle_userfault(), which might have released the
+mmap_lock.  Therefore, the following pte_free(vma->vm_mm, pgtable) will
+access an unstable vma->vm_mm, which could have been freed or re-used
+already.
 
-Complete the verification of the patch being saved for early loading in
-save_microcode_patch() directly. This needs to be done there too because
-save_mc_for_early() will call save_microcode_patch() too.
+For all architectures other than s390 this will go w/o any negative
+impact, because pte_free() simply frees the page and ignores the
+passed-in mm.  The implementation for SPARC32 would also access
+mm->page_table_lock for pte_free(), but there is no THP support in
+SPARC32, so the buggy code path will not be used there.
 
-The second reason why this needs to be done is because the loader still
-tries to support, at least hypothetically, mixed-steppings systems and
-thus adds all patches to the cache that belong to the same CPU model
-albeit with different steppings.
+For s390, the mm->context.pgtable_list is being used to maintain the 2K
+pagetable fragments, and operating on an already freed or even re-used
+mm could result in various more or less subtle bugs due to list /
+pagetable corruption.
 
-For example:
+Fix this by calling pte_free() before handle_userfault(), similar to how
+it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
+non-huge_zero_page case.
 
-  microcode: CPU: sig=0x906ec, pf=0x2, rev=0xd6
-  microcode: mc_saved[0]: sig=0x906e9, pf=0x2a, rev=0xd6, total size=0x19400, date = 2020-04-23
-  microcode: mc_saved[1]: sig=0x906ea, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
-  microcode: mc_saved[2]: sig=0x906eb, pf=0x2, rev=0xd6, total size=0x19400, date = 2020-04-23
-  microcode: mc_saved[3]: sig=0x906ec, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
-  microcode: mc_saved[4]: sig=0x906ed, pf=0x22, rev=0xd6, total size=0x19400, date = 2020-04-23
+Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
+userfaultfd_missing() faults") actually introduced both, the
+do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
+changes wrt to calling handle_userfault(), but only in the latter case
+it put the pte_free() before calling handle_userfault().
 
-The patch which is being saved for early loading, however, can only be
-the one which fits the CPU this runs on so do the signature verification
-before saving.
+  BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+  Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
 
- [ bp: Do signature verification in save_microcode_patch()
-       and rewrite commit message. ]
+  CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
+  Hardware name: IBM 3906 M04 701 (KVM/Linux)
+  Call Trace:
+    do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+    create_huge_pmd mm/memory.c:4256 [inline]
+    __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
+    handle_mm_fault+0x288/0x748 mm/memory.c:4607
+    do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
+    do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
+    pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
+    copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
+    raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
+    _copy_from_user+0x48/0xa8 lib/usercopy.c:16
+    copy_from_user include/linux/uaccess.h:192 [inline]
+    __do_sys_sigaltstack kernel/signal.c:4064 [inline]
+    __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
+    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
 
-Fixes: ec400ddeff20 ("x86/microcode_intel_early.c: Early update ucode on Intel's CPU")
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=208535
-Link: https://lkml.kernel.org/r/20201113015923.13960-1-yu.c.chen@intel.com
+  Allocated by task 9334:
+    slab_alloc_node mm/slub.c:2891 [inline]
+    slab_alloc mm/slub.c:2899 [inline]
+    kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
+    vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
+    __split_vma+0xba/0x560 mm/mmap.c:2742
+    split_vma+0xca/0x108 mm/mmap.c:2800
+    mlock_fixup+0x4ae/0x600 mm/mlock.c:550
+    apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
+    do_mlock+0x1aa/0x718 mm/mlock.c:711
+    __do_sys_mlock2 mm/mlock.c:738 [inline]
+    __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
+    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
 
-diff --git a/arch/x86/kernel/cpu/microcode/intel.c b/arch/x86/kernel/cpu/microcode/intel.c
-index 6a99535d7f37..7e8e07bddd5f 100644
---- a/arch/x86/kernel/cpu/microcode/intel.c
-+++ b/arch/x86/kernel/cpu/microcode/intel.c
-@@ -100,53 +100,6 @@ static int has_newer_microcode(void *mc, unsigned int csig, int cpf, int new_rev
- 	return find_matching_signature(mc, csig, cpf);
- }
- 
--/*
-- * Given CPU signature and a microcode patch, this function finds if the
-- * microcode patch has matching family and model with the CPU.
-- *
-- * %true - if there's a match
-- * %false - otherwise
-- */
--static bool microcode_matches(struct microcode_header_intel *mc_header,
--			      unsigned long sig)
--{
--	unsigned long total_size = get_totalsize(mc_header);
--	unsigned long data_size = get_datasize(mc_header);
--	struct extended_sigtable *ext_header;
--	unsigned int fam_ucode, model_ucode;
--	struct extended_signature *ext_sig;
--	unsigned int fam, model;
--	int ext_sigcount, i;
--
--	fam   = x86_family(sig);
--	model = x86_model(sig);
--
--	fam_ucode   = x86_family(mc_header->sig);
--	model_ucode = x86_model(mc_header->sig);
--
--	if (fam == fam_ucode && model == model_ucode)
--		return true;
--
--	/* Look for ext. headers: */
--	if (total_size <= data_size + MC_HEADER_SIZE)
--		return false;
--
--	ext_header   = (void *) mc_header + data_size + MC_HEADER_SIZE;
--	ext_sig      = (void *)ext_header + EXT_HEADER_SIZE;
--	ext_sigcount = ext_header->count;
--
--	for (i = 0; i < ext_sigcount; i++) {
--		fam_ucode   = x86_family(ext_sig->sig);
--		model_ucode = x86_model(ext_sig->sig);
--
--		if (fam == fam_ucode && model == model_ucode)
--			return true;
--
--		ext_sig++;
--	}
--	return false;
--}
--
- static struct ucode_patch *memdup_patch(void *data, unsigned int size)
- {
- 	struct ucode_patch *p;
-@@ -164,7 +117,7 @@ static struct ucode_patch *memdup_patch(void *data, unsigned int size)
- 	return p;
- }
- 
--static void save_microcode_patch(void *data, unsigned int size)
-+static void save_microcode_patch(struct ucode_cpu_info *uci, void *data, unsigned int size)
- {
- 	struct microcode_header_intel *mc_hdr, *mc_saved_hdr;
- 	struct ucode_patch *iter, *tmp, *p = NULL;
-@@ -210,6 +163,9 @@ static void save_microcode_patch(void *data, unsigned int size)
- 	if (!p)
- 		return;
- 
-+	if (!find_matching_signature(p->data, uci->cpu_sig.sig, uci->cpu_sig.pf))
-+		return;
-+
- 	/*
- 	 * Save for early loading. On 32-bit, that needs to be a physical
- 	 * address as the APs are running from physical addresses, before
-@@ -344,13 +300,14 @@ scan_microcode(void *data, size_t size, struct ucode_cpu_info *uci, bool save)
- 
- 		size -= mc_size;
- 
--		if (!microcode_matches(mc_header, uci->cpu_sig.sig)) {
-+		if (!find_matching_signature(data, uci->cpu_sig.sig,
-+					     uci->cpu_sig.pf)) {
- 			data += mc_size;
- 			continue;
+  Freed by task 9333:
+    slab_free mm/slub.c:3142 [inline]
+    kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
+    __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
+    vma_merge+0x87e/0xce0 mm/mmap.c:1209
+    userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
+    __fput+0x22c/0x7a8 fs/file_table.c:281
+    task_work_run+0x200/0x320 kernel/task_work.c:151
+    tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+    do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
+    system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
+
+  The buggy address belongs to the object at 00000000962d6948 which belongs to the cache vm_area_struct of size 200
+  The buggy address is located 64 bytes inside of 200-byte region [00000000962d6948, 00000000962d6a10)
+  The buggy address belongs to the page: page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6 flags: 0x3ffff00000000200(slab)
+  raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
+  raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
+  page dumped because: kasan: bad access detected
+  page->mem_cgroup:0000000096959501
+
+  Memory state around the buggy address:
+   00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
+  >00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                        ^
+   00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
+   00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+
+Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: <stable@vger.kernel.org>	[4.3+]
+Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 9474dbc150ed..ec2bb93f7431 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -710,7 +710,6 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf)
+ 			transparent_hugepage_use_zero_page()) {
+ 		pgtable_t pgtable;
+ 		struct page *zero_page;
+-		bool set;
+ 		vm_fault_t ret;
+ 		pgtable = pte_alloc_one(vma->vm_mm);
+ 		if (unlikely(!pgtable))
+@@ -723,25 +722,25 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf)
  		}
- 
- 		if (save) {
--			save_microcode_patch(data, mc_size);
-+			save_microcode_patch(uci, data, mc_size);
- 			goto next;
- 		}
- 
-@@ -483,14 +440,14 @@ static void show_saved_mc(void)
-  * Save this microcode patch. It will be loaded early when a CPU is
-  * hot-added or resumes.
-  */
--static void save_mc_for_early(u8 *mc, unsigned int size)
-+static void save_mc_for_early(struct ucode_cpu_info *uci, u8 *mc, unsigned int size)
- {
- 	/* Synchronization during CPU hotplug. */
- 	static DEFINE_MUTEX(x86_cpu_microcode_mutex);
- 
- 	mutex_lock(&x86_cpu_microcode_mutex);
- 
--	save_microcode_patch(mc, size);
-+	save_microcode_patch(uci, mc, size);
- 	show_saved_mc();
- 
- 	mutex_unlock(&x86_cpu_microcode_mutex);
-@@ -935,7 +892,7 @@ static enum ucode_state generic_load_microcode(int cpu, struct iov_iter *iter)
- 	 * permanent memory. So it will be loaded early when a CPU is hot added
- 	 * or resumes.
- 	 */
--	save_mc_for_early(new_mc, new_mc_size);
-+	save_mc_for_early(uci, new_mc, new_mc_size);
- 
- 	pr_debug("CPU%d found a matching microcode update with version 0x%x (current=0x%x)\n",
- 		 cpu, new_rev, uci->cpu_sig.rev);
+ 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
+ 		ret = 0;
+-		set = false;
+ 		if (pmd_none(*vmf->pmd)) {
+ 			ret = check_stable_address_space(vma->vm_mm);
+ 			if (ret) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 			} else if (userfaultfd_missing(vma)) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
+ 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
+ 			} else {
+ 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
+ 						   haddr, vmf->pmd, zero_page);
+ 				spin_unlock(vmf->ptl);
+-				set = true;
+ 			}
+-		} else
++		} else {
+ 			spin_unlock(vmf->ptl);
+-		if (!set)
+ 			pte_free(vma->vm_mm, pgtable);
++		}
+ 		return ret;
+ 	}
+ 	gfp = alloc_hugepage_direct_gfpmask(vma);
 
