@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E242C0BEF
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6D2D2C0ACA
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730754AbgKWNdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:33:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35344 "EHLO mail.kernel.org"
+        id S1730431AbgKWM2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:28:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730040AbgKWMZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:45 -0500
+        id S1730424AbgKWM2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:28:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA11C208C3;
-        Mon, 23 Nov 2020 12:25:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA75420781;
+        Mon, 23 Nov 2020 12:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134343;
-        bh=beepN1enpIkIqzm43BzJnt/q7Dpf/K7nNG/A2pLSkbo=;
+        s=korg; t=1606134499;
+        bh=9TNSILEiZYYklOtuCxbobqHGVG427ZMFU/vmbkl3gqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0dolPQ8HoJ8FRjKrYrKf8j/MV8ecOpbKtQYTSmcqkGPVle3vybMTETD/iDZv/pv7H
-         vZAoPTB2fk4LeXDQPWOrTk74SPPTf4rH7FsmCkgbq6N+ghtSuiden5EfTykndGFbHR
-         FWMXffydJDCu7UkEDl/aHluXLWw2py+AdPZ76nbA=
+        b=UJK3+LdHx8eY6BZqmf//ges3ya2i2LOUQcZ188TVmjAhbcPWIInAxmv5Qix+8T8qf
+         kwf8Zg1M/38yu+sdjZ2KikJJFDCecBzHhe2VlVDSgWTZTOHsI5MvIHADMb2jGrCNAJ
+         QAEhYfLT8wS/craXLeTG5z6gPvERvO7SmDi4q3e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Fugang Duan <fugang.duan@nxp.com>
-Subject: [PATCH 4.9 37/47] tty: serial: imx: keep console clocks always on
+        Guenter Roeck <linux@roeck-us.net>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 4.14 41/60] powerpc/uaccess-flush: fix missing includes in kup-radix.h
 Date:   Mon, 23 Nov 2020 13:22:23 +0100
-Message-Id: <20201123121807.348822035@linuxfoundation.org>
+Message-Id: <20201123121807.031623016@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Daniel Axtens <dja@axtens.net>
 
-commit e67c139c488e84e7eae6c333231e791f0e89b3fb upstream.
+Guenter reports a build failure on cell_defconfig and maple_defconfg:
 
-For below code, there has chance to cause deadlock in SMP system:
-Thread 1:
-clk_enable_lock();
-pr_info("debug message");
-clk_enable_unlock();
+In file included from arch/powerpc/include/asm/kup.h:10:0,
+		 from arch/powerpc/include/asm/uaccess.h:12,
+		 from arch/powerpc/lib/checksum_wrappers.c:24:
+arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: data definition has no type or storage class [-Werror]
+ DECLARE_STATIC_KEY_FALSE(uaccess_flush_key);
+ ^~~~~~~~~~~~~~~~~~~~~~~~
+arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: type defaults to ‘int’ in declaration of ‘DECLARE_STATIC_KEY_FALSE’ [-Werror=implicit-int]
+arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: parameter names (without types) in function declaration [-Werror]
+arch/powerpc/include/asm/book3s/64/kup-radix.h: In function ‘prevent_user_access’:
+arch/powerpc/include/asm/book3s/64/kup-radix.h:18:6: error: implicit declaration of function ‘static_branch_unlikely’ [-Werror=implicit-function-declaration]
+  if (static_branch_unlikely(&uaccess_flush_key))
+      ^~~~~~~~~~~~~~~~~~~~~~
+arch/powerpc/include/asm/book3s/64/kup-radix.h:18:30: error: ‘uaccess_flush_key’ undeclared (first use in this function); did you mean
+‘do_uaccess_flush’?
+  if (static_branch_unlikely(&uaccess_flush_key))
+			      ^~~~~~~~~~~~~~~~~
+			      do_uaccess_flush
+arch/powerpc/include/asm/book3s/64/kup-radix.h:18:30: note: each undeclared identifier is reported only once for each function it appears in
+cc1: all warnings being treated as errors
 
-Thread 2:
-imx_uart_console_write()
-	clk_enable()
-		clk_enable_lock();
+This is because I failed to include linux/jump_label.h in kup-radix.h. Include it.
 
-Thread 1:
-Acuired clk enable_lock -> printk -> console_trylock_spinning
-Thread 2:
-console_unlock() -> imx_uart_console_write -> clk_disable -> Acquite clk enable_lock
-
-So the patch is to keep console port clocks always on like
-other console drivers.
-
-Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20201111025136.29818-1-fugang.duan@nxp.com
-Cc: stable <stable@vger.kernel.org>
-[fix up build warning - gregkh]
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/imx.c |   20 +++-----------------
- 1 file changed, 3 insertions(+), 17 deletions(-)
+ arch/powerpc/include/asm/book3s/64/kup-radix.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1787,16 +1787,6 @@ imx_console_write(struct console *co, co
- 	unsigned int ucr1;
- 	unsigned long flags = 0;
- 	int locked = 1;
--	int retval;
--
--	retval = clk_enable(sport->clk_per);
--	if (retval)
--		return;
--	retval = clk_enable(sport->clk_ipg);
--	if (retval) {
--		clk_disable(sport->clk_per);
--		return;
--	}
+--- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
++++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #ifndef _ASM_POWERPC_BOOK3S_64_KUP_RADIX_H
+ #define _ASM_POWERPC_BOOK3S_64_KUP_RADIX_H
++#include <linux/jump_label.h>
  
- 	if (sport->port.sysrq)
- 		locked = 0;
-@@ -1832,9 +1822,6 @@ imx_console_write(struct console *co, co
+ DECLARE_STATIC_KEY_FALSE(uaccess_flush_key);
  
- 	if (locked)
- 		spin_unlock_irqrestore(&sport->port.lock, flags);
--
--	clk_disable(sport->clk_ipg);
--	clk_disable(sport->clk_per);
- }
- 
- /*
-@@ -1935,15 +1922,14 @@ imx_console_setup(struct console *co, ch
- 
- 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
- 
--	clk_disable(sport->clk_ipg);
- 	if (retval) {
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 		goto error_console;
- 	}
- 
--	retval = clk_prepare(sport->clk_per);
-+	retval = clk_prepare_enable(sport->clk_per);
- 	if (retval)
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 
- error_console:
- 	return retval;
 
 
