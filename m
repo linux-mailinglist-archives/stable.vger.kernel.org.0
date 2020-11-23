@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3F142C0AF2
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 791E42C0B7E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbgKWMdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:33:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44544 "EHLO mail.kernel.org"
+        id S1731891AbgKWNZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:25:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730614AbgKWMdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:10 -0500
+        id S1731173AbgKWMdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7E9D20888;
-        Mon, 23 Nov 2020 12:33:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37B2920721;
+        Mon, 23 Nov 2020 12:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134788;
-        bh=KSX0GOJAIGf/XPCwJh5SbZHN4b3oQ1XwQefD9h4Ag9g=;
+        s=korg; t=1606134794;
+        bh=z5PWkdOOMtL8ANKvzJP2CyYiCUYdTph4fTL5PBUB8F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBMC+rdv9UkpP4i+efxFrR9vdwNgWgEoh8ej1LWDHPFdlNKPZrOEhP2NSoMbHYK8y
-         QTVq+Fs4ykW6fPB/OMMXFd1HfX2wBBRbslC2Y5TTu43GNteag6EdIZkZCwWzmAh6E8
-         vQhyeDw2cUB108/Gz24MXUz3nWLYfPKHF9//YcZU=
+        b=ig75j82G3NvqvoVNEEiHs9nx3yK/MmkNBKOjjhfS5UdeYISrC2qEGq7oiweYfWMhH
+         NpOHtz8RQABWUN+uFkN9UJP6FYFLdYQRK51V9j3S6dG98TbtpD/uhbULwf8Yw0AqmM
+         yO7uq/mVbprAPjeDY2zntjdlCN4MyFjz3u8ow1IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org,
+        syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com,
+        syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com,
+        syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com,
+        syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com,
+        syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com,
+        syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 83/91] mac80211: minstrel: remove deferred sampling code
-Date:   Mon, 23 Nov 2020 13:22:43 +0100
-Message-Id: <20201123121813.358386193@linuxfoundation.org>
+Subject: [PATCH 4.19 85/91] mac80211: free sta in sta_info_insert_finish() on errors
+Date:   Mon, 23 Nov 2020 13:22:45 +0100
+Message-Id: <20201123121813.447834066@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
 References: <20201123121809.285416732@linuxfoundation.org>
@@ -42,108 +48,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 4fe40b8e1566dad04c87fbf299049a1d0d4bd58d upstream.
+commit 7bc40aedf24d31d8bea80e1161e996ef4299fb10 upstream.
 
-Deferring sampling attempts to the second stage has some bad interactions
-with drivers that process the rate table in hardware and use the probe flag
-to indicate probing packets (e.g. most mt76 drivers). On affected drivers
-it can lead to probing not working at all.
+If sta_info_insert_finish() fails, we currently keep the station
+around and free it only in the caller, but there's only one such
+caller and it always frees it immediately.
 
-If the link conditions turn worse, it might not be such a good idea to
-do a lot of sampling for lower rates in this case.
+As syzbot found, another consequence of this split is that we can
+put things that sleep only into __cleanup_single_sta() and not in
+sta_info_free(), but this is the only place that requires such of
+sta_info_free() now.
 
-Fix this by simply skipping the sample attempt instead of deferring it,
-but keep the checks that would allow it to be sampled if it was skipped
-too often, but only if it has less than 95% success probability.
-
-Also ensure that IEEE80211_TX_CTL_RATE_CTRL_PROBE is set for all probing
-packets.
+Change this to free the station in sta_info_insert_finish(), in
+which case we can still sleep. This will also let us unify the
+cleanup code later.
 
 Cc: stable@vger.kernel.org
-Fixes: cccf129f820e ("mac80211: add the 'minstrel' rate control algorithm")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20201111183359.43528-2-nbd@nbd.name
+Fixes: dcd479e10a05 ("mac80211: always wind down STA state")
+Reported-by: syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com
+Reported-by: syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com
+Reported-by: syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com
+Reported-by: syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com
+Reported-by: syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com
+Reported-by: syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201112112201.ee6b397b9453.I9c31d667a0ea2151441cc64ed6613d36c18a48e0@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/rc80211_minstrel.c |   25 ++++---------------------
- net/mac80211/rc80211_minstrel.h |    1 -
- 2 files changed, 4 insertions(+), 22 deletions(-)
+ net/mac80211/sta_info.c |   14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
---- a/net/mac80211/rc80211_minstrel.c
-+++ b/net/mac80211/rc80211_minstrel.c
-@@ -289,12 +289,6 @@ minstrel_tx_status(void *priv, struct ie
- 			mi->r[ndx].stats.success += success;
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -634,7 +634,7 @@ static int sta_info_insert_finish(struct
+  out_drop_sta:
+ 	local->num_sta--;
+ 	synchronize_net();
+-	__cleanup_single_sta(sta);
++	cleanup_single_sta(sta);
+  out_err:
+ 	mutex_unlock(&local->sta_mtx);
+ 	kfree(sinfo);
+@@ -653,19 +653,13 @@ int sta_info_insert_rcu(struct sta_info
+ 
+ 	err = sta_info_insert_check(sta);
+ 	if (err) {
++		sta_info_free(local, sta);
+ 		mutex_unlock(&local->sta_mtx);
+ 		rcu_read_lock();
+-		goto out_free;
++		return err;
  	}
  
--	if ((info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE) && (i >= 0))
--		mi->sample_packets++;
+-	err = sta_info_insert_finish(sta);
+-	if (err)
+-		goto out_free;
 -
--	if (mi->sample_deferred > 0)
--		mi->sample_deferred--;
--
- 	if (time_after(jiffies, mi->last_stats_update +
- 				(mp->update_interval * HZ) / 1000))
- 		minstrel_update_stats(mp, mi);
-@@ -373,7 +367,7 @@ minstrel_get_rate(void *priv, struct iee
- 		return;
- 
- 	delta = (mi->total_packets * sampling_ratio / 100) -
--			(mi->sample_packets + mi->sample_deferred / 2);
-+			mi->sample_packets;
- 
- 	/* delta < 0: no sampling required */
- 	prev_sample = mi->prev_sample;
-@@ -382,7 +376,6 @@ minstrel_get_rate(void *priv, struct iee
- 		return;
- 
- 	if (mi->total_packets >= 10000) {
--		mi->sample_deferred = 0;
- 		mi->sample_packets = 0;
- 		mi->total_packets = 0;
- 	} else if (delta > mi->n_rates * 2) {
-@@ -407,19 +400,8 @@ minstrel_get_rate(void *priv, struct iee
- 	 * rate sampling method should be used.
- 	 * Respect such rates that are not sampled for 20 interations.
- 	 */
--	if (mrr_capable &&
--	    msr->perfect_tx_time > mr->perfect_tx_time &&
--	    msr->stats.sample_skipped < 20) {
--		/* Only use IEEE80211_TX_CTL_RATE_CTRL_PROBE to mark
--		 * packets that have the sampling rate deferred to the
--		 * second MRR stage. Increase the sample counter only
--		 * if the deferred sample rate was actually used.
--		 * Use the sample_deferred counter to make sure that
--		 * the sampling is not done in large bursts */
--		info->flags |= IEEE80211_TX_CTL_RATE_CTRL_PROBE;
--		rate++;
--		mi->sample_deferred++;
--	} else {
-+	if (msr->perfect_tx_time < mr->perfect_tx_time ||
-+	    msr->stats.sample_skipped >= 20) {
- 		if (!msr->sample_limit)
- 			return;
- 
-@@ -439,6 +421,7 @@ minstrel_get_rate(void *priv, struct iee
- 
- 	rate->idx = mi->r[ndx].rix;
- 	rate->count = minstrel_get_retry_count(&mi->r[ndx], info);
-+	info->flags |= IEEE80211_TX_CTL_RATE_CTRL_PROBE;
+-	return 0;
+- out_free:
+-	sta_info_free(local, sta);
+-	return err;
++	return sta_info_insert_finish(sta);
  }
  
- 
---- a/net/mac80211/rc80211_minstrel.h
-+++ b/net/mac80211/rc80211_minstrel.h
-@@ -98,7 +98,6 @@ struct minstrel_sta_info {
- 	u8 max_prob_rate;
- 	unsigned int total_packets;
- 	unsigned int sample_packets;
--	int sample_deferred;
- 
- 	unsigned int sample_row;
- 	unsigned int sample_column;
+ int sta_info_insert(struct sta_info *sta)
 
 
