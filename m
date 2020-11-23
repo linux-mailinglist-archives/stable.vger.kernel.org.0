@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5812C0700
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CC32C0651
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731632AbgKWMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48542 "EHLO mail.kernel.org"
+        id S1730642AbgKWM3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731693AbgKWMg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:28 -0500
+        id S1730635AbgKWM3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 239D82065E;
-        Mon, 23 Nov 2020 12:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D94722076E;
+        Mon, 23 Nov 2020 12:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134986;
-        bh=nGJ0wbBPI6R5iUFnVvFU7AtdQ77xnsin7BCERyvozsw=;
+        s=korg; t=1606134587;
+        bh=x1esv8nM9PTDTtbdXfS1/FxQalXoGy2/5dGtTgYoMpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcs7ZhOJrFqB1aOhjbJogDi2dgAaYw9g7LnMI8SrbGGnT9d3utULShpMdYpoG5VH0
-         ep/5iMJNX47MbRe73LD8cvsZyv2RDDs7Wl7q8pMkLXEYhsEidHclKkzoSjiLQlZ0eo
-         6y2kW8SzpXDy6oKLU7W+zVuCwRwGkUeresI7kq/0=
+        b=HmAlfOxZIjW9OXVuyYFGMWb7868Ev8YoVEczBtqyWI9fwwJMdq2m7//o8MwN2410L
+         LC7Yif+4fNq3//TZlOndZ0FQOutQbKQ0IelibvnrwmFg5GSmeDM5ftYp1dbee30V+K
+         BVMS0Q62xZfq66KkFppU01X3aNdWzWsUWnEDihdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Matyukevich <geomatsi@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/158] arm: dts: imx6qdl-udoo: fix rgmii phy-mode for ksz9031 phy
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 12/91] net: Have netpoll bring-up DSA management interface
 Date:   Mon, 23 Nov 2020 13:21:32 +0100
-Message-Id: <20201123121823.024879726@linuxfoundation.org>
+Message-Id: <20201123121809.897343365@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <geomatsi@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7dd8f0ba88fce98e2953267a66af74c6f4792a56 ]
+[ Upstream commit 1532b9778478577152201adbafa7738b1e844868 ]
 
-Commit bcf3440c6dd7 ("net: phy: micrel: add phy-mode support for the
-KSZ9031 PHY") fixed micrel phy driver adding proper support for phy
-modes. Adapt imx6q-udoo board phy settings : explicitly set required
-delay configuration using "rgmii-id".
+DSA network devices rely on having their DSA management interface up and
+running otherwise their ndo_open() will return -ENETDOWN. Without doing
+this it would not be possible to use DSA devices as netconsole when
+configured on the command line. These devices also do not utilize the
+upper/lower linking so the check about the netpoll device having upper
+is not going to be a problem.
 
-Fixes: cbd54fe0b2bc ("ARM: dts: imx6dl-udoo: Add board support based off imx6q-udoo")
-Signed-off-by: Sergey Matyukevich <geomatsi@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The solution adopted here is identical to the one done for
+net/ipv4/ipconfig.c with 728c02089a0e ("net: ipv4: handle DSA enabled
+master network devices"), with the network namespace scope being
+restricted to that of the process configuring netpoll.
+
+Fixes: 04ff53f96a93 ("net: dsa: Add netconsole support")
+Tested-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20201117035236.22658-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-udoo.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/netpoll.c |   22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index 776bfc77f89d0..16672cbada287 100644
---- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -98,7 +98,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/export.h>
+ #include <linux/if_vlan.h>
++#include <net/dsa.h>
+ #include <net/tcp.h>
+ #include <net/udp.h>
+ #include <net/addrconf.h>
+@@ -638,15 +639,15 @@ EXPORT_SYMBOL_GPL(__netpoll_setup);
  
--- 
-2.27.0
-
+ int netpoll_setup(struct netpoll *np)
+ {
+-	struct net_device *ndev = NULL;
++	struct net_device *ndev = NULL, *dev = NULL;
++	struct net *net = current->nsproxy->net_ns;
+ 	struct in_device *in_dev;
+ 	int err;
+ 
+ 	rtnl_lock();
+-	if (np->dev_name[0]) {
+-		struct net *net = current->nsproxy->net_ns;
++	if (np->dev_name[0])
+ 		ndev = __dev_get_by_name(net, np->dev_name);
+-	}
++
+ 	if (!ndev) {
+ 		np_err(np, "%s doesn't exist, aborting\n", np->dev_name);
+ 		err = -ENODEV;
+@@ -654,6 +655,19 @@ int netpoll_setup(struct netpoll *np)
+ 	}
+ 	dev_hold(ndev);
+ 
++	/* bring up DSA management network devices up first */
++	for_each_netdev(net, dev) {
++		if (!netdev_uses_dsa(dev))
++			continue;
++
++		err = dev_change_flags(dev, dev->flags | IFF_UP);
++		if (err < 0) {
++			np_err(np, "%s failed to open %s\n",
++			       np->dev_name, dev->name);
++			goto put;
++		}
++	}
++
+ 	if (netdev_master_upper_dev_get(ndev)) {
+ 		np_err(np, "%s is a slave device, aborting\n", np->dev_name);
+ 		err = -EBUSY;
 
 
