@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45BEE2C06F7
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE772C06D8
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731656AbgKWMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:36:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48364 "EHLO mail.kernel.org"
+        id S1731460AbgKWMe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:34:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731652AbgKWMgO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:14 -0500
+        id S1730701AbgKWMez (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:34:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADBF0208DB;
-        Mon, 23 Nov 2020 12:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B03B620888;
+        Mon, 23 Nov 2020 12:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134973;
-        bh=dWd8T2yo9NXYD7bdTYaQEjA+WjGJAEzUkkl3TYN4bW0=;
+        s=korg; t=1606134895;
+        bh=hI9u3+G2UlPDYSrs1NXPOVquhZe6DrKAWN8lch3QiJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjBURXjF2ug2sp4ZD/lWt3wH17fAWDYLpdx4qBwaqLM2vxdGjhycBC3CJxGgovZDe
-         y0QmLmjAnf6wBGEDrAcEzQiuoEewFhWSs6rJrk2ZLLEm7hzv4WddVpJPoY5KC6TFv+
-         QaGt2dkMfHOjkqjzSQUajj0EqAgnXNZdpEPMJqsA=
+        b=RtaM5+YDWFkBbtb92aCvnNnBODKfgHK79lTxDKm+ddGBVzEUf2OFQO4/g1m4r6l10
+         8BUmvnGnh1TKQeC0MLN2zyZUekWNt3CzdDQZHQ52xJuyoHo3eh+7qXcfi0pzcGdFNE
+         Nnpw4NpXzMJ+Z/v45UWbB4cN9T3JPCqXSrOOdzWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryan Sharpelletti <sharpelletti@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
+        stable@vger.kernel.org, Filip Moc <dev@moc6.cz>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 028/158] tcp: only postpone PROBE_RTT if RTT is < current min_rtt estimate
-Date:   Mon, 23 Nov 2020 13:20:56 +0100
-Message-Id: <20201123121821.293827742@linuxfoundation.org>
+Subject: [PATCH 5.4 031/158] net: usb: qmi_wwan: Set DTR quirk for MR400
+Date:   Mon, 23 Nov 2020 13:20:59 +0100
+Message-Id: <20201123121821.438701549@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -46,46 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Sharpelletti <sharpelletti@google.com>
+From: Filip Moc <dev@moc6.cz>
 
-[ Upstream commit 1b9e2a8c99a5c021041bfb2d512dc3ed92a94ffd ]
+[ Upstream commit df8d85d8c69d6837817e54dcb73c84a8b5a13877 ]
 
-During loss recovery, retransmitted packets are forced to use TCP
-timestamps to calculate the RTT samples, which have a millisecond
-granularity. BBR is designed using a microsecond granularity. As a
-result, multiple RTT samples could be truncated to the same RTT value
-during loss recovery. This is problematic, as BBR will not enter
-PROBE_RTT if the RTT sample is <= the current min_rtt sample, meaning
-that if there are persistent losses, PROBE_RTT will constantly be
-pushed off and potentially never re-entered. This patch makes sure
-that BBR enters PROBE_RTT by checking if RTT sample is < the current
-min_rtt sample, rather than <=.
+LTE module MR400 embedded in TL-MR6400 v4 requires DTR to be set.
 
-The Netflix transport/TCP team discovered this bug in the Linux TCP
-BBR code during lab tests.
-
-Fixes: 0f8782ea1497 ("tcp_bbr: add BBR congestion control")
-Signed-off-by: Ryan Sharpelletti <sharpelletti@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Link: https://lore.kernel.org/r/20201116174412.1433277-1-sharpelletti.kdev@gmail.com
+Signed-off-by: Filip Moc <dev@moc6.cz>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20201117173631.GA550981@moc6.cz
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_bbr.c |    2 +-
+ drivers/net/usb/qmi_wwan.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_bbr.c
-+++ b/net/ipv4/tcp_bbr.c
-@@ -945,7 +945,7 @@ static void bbr_update_min_rtt(struct so
- 	filter_expired = after(tcp_jiffies32,
- 			       bbr->min_rtt_stamp + bbr_min_rtt_win_sec * HZ);
- 	if (rs->rtt_us >= 0 &&
--	    (rs->rtt_us <= bbr->min_rtt_us ||
-+	    (rs->rtt_us < bbr->min_rtt_us ||
- 	     (filter_expired && !rs->is_ack_delayed))) {
- 		bbr->min_rtt_us = rs->rtt_us;
- 		bbr->min_rtt_stamp = tcp_jiffies32;
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1092,7 +1092,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x05c6, 0x9011, 4)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9021, 1)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9022, 2)},
+-	{QMI_FIXED_INTF(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE  (China Mobile) */
++	{QMI_QUIRK_SET_DTR(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE (China Mobile) */
+ 	{QMI_FIXED_INTF(0x05c6, 0x9026, 3)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x902e, 5)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9031, 5)},
 
 
