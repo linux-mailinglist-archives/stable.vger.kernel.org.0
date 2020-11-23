@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9F62C0582
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8892C0575
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729385AbgKWMXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:23:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60082 "EHLO mail.kernel.org"
+        id S1729455AbgKWMWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:22:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729339AbgKWMXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:02 -0500
+        id S1729339AbgKWMWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:22:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 262DE20857;
-        Mon, 23 Nov 2020 12:22:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD53A20781;
+        Mon, 23 Nov 2020 12:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134180;
-        bh=0jhZlsVg0UwBzmiFxFcxwUNvmbo/kilRtuxK0SC0Cek=;
+        s=korg; t=1606134160;
+        bh=MDEbyFtsYg6VmrWJOOnZ5PNYq4GUlPEx9Wit+vMVfP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXX2fsI/Sp3nWEFLwA0vzK5Rg3h6ckJBx9hCMUKr/SzmvpDoI0ap+kzz62wuGpfyO
-         6bNLXwyIevXvce61EiQkmzq0SdIb34H8ipAJPv4XPrR5A+GhgD4AnkV0wz9p/naa4K
-         24kQDIoiEOESMKjzYV0+Dn/MVQ00yJZeehic44uM=
+        b=UwiwqzorZCBOBg1+lB00Wc71w5EnTtztBq3pgfVvFj7fQ1rZuRMHoLfMDZhFOzXIA
+         +yKu8V3Ccrq40nW4LfUAKwwPvvd4Wx9uCOr3ls+EsuV5j4SKEH4m4bSYq90AkgBLrk
+         qtoB9ju8SkwmuaMnUzNX3vf4YQtGaIx0ur+HKRuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Eran Ben Elisha <eranbe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 07/38] net/mlx4_core: Fix init_hca fields offset
-Date:   Mon, 23 Nov 2020 13:21:53 +0100
-Message-Id: <20201123121804.677317901@linuxfoundation.org>
+Subject: [PATCH 4.4 10/38] sctp: change to hold/put transport for proto_unreach_timer
+Date:   Mon, 23 Nov 2020 13:21:56 +0100
+Message-Id: <20201123121804.813001603@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -45,67 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 6d9c8d15af0ef20a66a0b432cac0d08319920602 ]
+[ Upstream commit 057a10fa1f73d745c8e69aa54ab147715f5630ae ]
 
-Slave function read the following capabilities from the wrong offset:
-1. log_mc_entry_sz
-2. fs_log_entry_sz
-3. log_mc_hash_sz
+A call trace was found in Hangbin's Codenomicon testing with debug kernel:
 
-Fix that by adjusting these capabilities offset to match firmware
-layout.
+  [ 2615.981988] ODEBUG: free active (active state 0) object type: timer_list hint: sctp_generate_proto_unreach_event+0x0/0x3a0 [sctp]
+  [ 2615.995050] WARNING: CPU: 17 PID: 0 at lib/debugobjects.c:328 debug_print_object+0x199/0x2b0
+  [ 2616.095934] RIP: 0010:debug_print_object+0x199/0x2b0
+  [ 2616.191533] Call Trace:
+  [ 2616.194265]  <IRQ>
+  [ 2616.202068]  debug_check_no_obj_freed+0x25e/0x3f0
+  [ 2616.207336]  slab_free_freelist_hook+0xeb/0x140
+  [ 2616.220971]  kfree+0xd6/0x2c0
+  [ 2616.224293]  rcu_do_batch+0x3bd/0xc70
+  [ 2616.243096]  rcu_core+0x8b9/0xd00
+  [ 2616.256065]  __do_softirq+0x23d/0xacd
+  [ 2616.260166]  irq_exit+0x236/0x2a0
+  [ 2616.263879]  smp_apic_timer_interrupt+0x18d/0x620
+  [ 2616.269138]  apic_timer_interrupt+0xf/0x20
+  [ 2616.273711]  </IRQ>
 
-Due to the wrong offset read, the following issues might occur:
-1+2. Negative value reported at max_mcast_qp_attach.
-3. Driver to init FW with multicast hash size of zero.
+This is because it holds asoc when transport->proto_unreach_timer starts
+and puts asoc when the timer stops, and without holding transport the
+transport could be freed when the timer is still running.
 
-Fixes: a40ded604365 ("net/mlx4_core: Add masking for a few queries on HCA caps")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20201118081922.553-1-tariqt@nvidia.com
+So fix it by holding/putting transport instead for proto_unreach_timer
+in transport, just like other timers in transport.
+
+v1->v2:
+  - Also use sctp_transport_put() for the "out_unlock:" path in
+    sctp_generate_proto_unreach_event(), as Marcelo noticed.
+
+Fixes: 50b5d6ad6382 ("sctp: Fix a race between ICMP protocol unreachable and connect()")
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/102788809b554958b13b95d33440f5448113b8d6.1605331373.git.lucien.xin@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/fw.c |    6 +++---
- drivers/net/ethernet/mellanox/mlx4/fw.h |    4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ net/sctp/input.c         |    4 ++--
+ net/sctp/sm_sideeffect.c |    4 ++--
+ net/sctp/transport.c     |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/fw.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
-@@ -1711,14 +1711,14 @@ int mlx4_INIT_HCA(struct mlx4_dev *dev,
- #define	 INIT_HCA_LOG_RD_OFFSET		 (INIT_HCA_QPC_OFFSET + 0x77)
- #define INIT_HCA_MCAST_OFFSET		 0x0c0
- #define	 INIT_HCA_MC_BASE_OFFSET	 (INIT_HCA_MCAST_OFFSET + 0x00)
--#define	 INIT_HCA_LOG_MC_ENTRY_SZ_OFFSET (INIT_HCA_MCAST_OFFSET + 0x12)
--#define	 INIT_HCA_LOG_MC_HASH_SZ_OFFSET	 (INIT_HCA_MCAST_OFFSET + 0x16)
-+#define	 INIT_HCA_LOG_MC_ENTRY_SZ_OFFSET (INIT_HCA_MCAST_OFFSET + 0x13)
-+#define	 INIT_HCA_LOG_MC_HASH_SZ_OFFSET	 (INIT_HCA_MCAST_OFFSET + 0x17)
- #define  INIT_HCA_UC_STEERING_OFFSET	 (INIT_HCA_MCAST_OFFSET + 0x18)
- #define	 INIT_HCA_LOG_MC_TABLE_SZ_OFFSET (INIT_HCA_MCAST_OFFSET + 0x1b)
- #define  INIT_HCA_DEVICE_MANAGED_FLOW_STEERING_EN	0x6
- #define  INIT_HCA_FS_PARAM_OFFSET         0x1d0
- #define  INIT_HCA_FS_BASE_OFFSET          (INIT_HCA_FS_PARAM_OFFSET + 0x00)
--#define  INIT_HCA_FS_LOG_ENTRY_SZ_OFFSET  (INIT_HCA_FS_PARAM_OFFSET + 0x12)
-+#define  INIT_HCA_FS_LOG_ENTRY_SZ_OFFSET  (INIT_HCA_FS_PARAM_OFFSET + 0x13)
- #define  INIT_HCA_FS_A0_OFFSET		  (INIT_HCA_FS_PARAM_OFFSET + 0x18)
- #define  INIT_HCA_FS_LOG_TABLE_SZ_OFFSET  (INIT_HCA_FS_PARAM_OFFSET + 0x1b)
- #define  INIT_HCA_FS_ETH_BITS_OFFSET      (INIT_HCA_FS_PARAM_OFFSET + 0x21)
---- a/drivers/net/ethernet/mellanox/mlx4/fw.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.h
-@@ -184,8 +184,8 @@ struct mlx4_init_hca_param {
- 	u64 cmpt_base;
- 	u64 mtt_base;
- 	u64 global_caps;
--	u16 log_mc_entry_sz;
--	u16 log_mc_hash_sz;
-+	u8 log_mc_entry_sz;
-+	u8 log_mc_hash_sz;
- 	u16 hca_core_clock; /* Internal Clock Frequency (in MHz) */
- 	u8  log_num_qps;
- 	u8  log_num_srqs;
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -448,7 +448,7 @@ void sctp_icmp_proto_unreachable(struct
+ 		else {
+ 			if (!mod_timer(&t->proto_unreach_timer,
+ 						jiffies + (HZ/20)))
+-				sctp_association_hold(asoc);
++				sctp_transport_hold(t);
+ 		}
+ 	} else {
+ 		struct net *net = sock_net(sk);
+@@ -457,7 +457,7 @@ void sctp_icmp_proto_unreachable(struct
+ 			 "encountered!\n", __func__);
+ 
+ 		if (del_timer(&t->proto_unreach_timer))
+-			sctp_association_put(asoc);
++			sctp_transport_put(t);
+ 
+ 		sctp_do_sm(net, SCTP_EVENT_T_OTHER,
+ 			   SCTP_ST_OTHER(SCTP_EVENT_ICMP_PROTO_UNREACH),
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -416,7 +416,7 @@ void sctp_generate_proto_unreach_event(u
+ 		/* Try again later.  */
+ 		if (!mod_timer(&transport->proto_unreach_timer,
+ 				jiffies + (HZ/20)))
+-			sctp_association_hold(asoc);
++			sctp_transport_hold(transport);
+ 		goto out_unlock;
+ 	}
+ 
+@@ -432,7 +432,7 @@ void sctp_generate_proto_unreach_event(u
+ 
+ out_unlock:
+ 	bh_unlock_sock(sk);
+-	sctp_association_put(asoc);
++	sctp_transport_put(transport);
+ }
+ 
+ 
+--- a/net/sctp/transport.c
++++ b/net/sctp/transport.c
+@@ -148,7 +148,7 @@ void sctp_transport_free(struct sctp_tra
+ 
+ 	/* Delete the ICMP proto unreachable timer if it's active. */
+ 	if (del_timer(&transport->proto_unreach_timer))
+-		sctp_association_put(transport->asoc);
++		sctp_transport_put(transport);
+ 
+ 	sctp_transport_put(transport);
+ }
 
 
