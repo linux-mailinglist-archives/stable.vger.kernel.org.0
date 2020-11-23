@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983172C095C
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E12E2C0960
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388240AbgKWNGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:06:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
+        id S2388604AbgKWNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730891AbgKWMtY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:49:24 -0500
+        id S1732992AbgKWMtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:49:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FBE7204EF;
-        Mon, 23 Nov 2020 12:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1886F21D46;
+        Mon, 23 Nov 2020 12:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135762;
-        bh=R+akKUH5BnQWCHbcrzu3Q9Vkix0rDH9o2+KYeqEhYqM=;
+        s=korg; t=1606135764;
+        bh=8hz9cDbkUsjAwmf7nLs7kxhcTcr0bLcaakhwX3Eyqk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+kD7UO7LxxIEJsgnZj3+HHtLgPauSj6YhvLRShh/PlnMfLUFy96IQAdIyBChK1q7
-         PmX+IuiaFYlqTxP46aUoTRjqkJGwyhV+NtJZZKS53P9MTEz9yVESKKVLZUxmS2Ekfk
-         7MiJECUuBKq5sNbb4YCD93w5+ISIjZxJwfdsCfyY=
+        b=ac1h6aMbh3rH0HKFpjGtfv3Ax0VOsTUMs1377BcCpW4awj4xVzXppB4MzJOAlbW03
+         kG2qAnoVPc0A4vvDKINPKDbuTxK6SE5vHizr+1XfLyd9JMy7tRRSUZXOW+gW9xHGp8
+         Y/VGW8sjHBHwsY4D0qae9ZCl0Asv15ZzJiMYvpnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 187/252] HID: logitech-dj: Handle quad/bluetooth keyboards with a builtin trackpad
-Date:   Mon, 23 Nov 2020 13:22:17 +0100
-Message-Id: <20201123121844.615888769@linuxfoundation.org>
+Subject: [PATCH 5.9 188/252] HID: logitech-dj: Fix Dinovo Mini when paired with a MX5x00 receiver
+Date:   Mon, 23 Nov 2020 13:22:18 +0100
+Message-Id: <20201123121844.663587695@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -45,82 +45,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ee5e58418a854755201eb4952b1230d873a457d5 ]
+[ Upstream commit b4c00e7976636f33a4f67eab436a11666c8afd60 ]
 
-Some quad/bluetooth keyboards, such as the Dinovo Edge (Y-RAY81) have a
-builtin touchpad. In this case when asking the receiver for paired devices,
-we get only 1 paired device with a device_type of REPORT_TYPE_KEYBOARD.
+Some users are pairing the Dinovo keyboards with the MX5000 or MX5500
+receivers, instead of with the Dinovo receivers. The receivers are
+mostly the same (and the air protocol obviously is compatible) but
+currently the Dinovo receivers are handled by hid-lg.c while the
+MX5x00 receivers are handled by logitech-dj.c.
 
-This means that we do not instantiate a second dj_hiddev for the mouse
-(as we normally would) and thus there is no place for us to forward the
-mouse input reports to, causing the touchpad part of the keyboard to not
-work.
+When using a Dinovo keyboard, with its builtin touchpad, through
+logitech-dj.c then the touchpad stops working because when asking the
+receiver for paired devices, we get only 1 paired device with
+a device_type of REPORT_TYPE_KEYBOARD. And since we don't see a paired
+mouse, we have nowhere to send mouse-events to, so we drop them.
 
-There is no way for us to detect these keyboards, so this commit adds
-an array with device-ids for such keyboards and when a keyboard is on
-this list it adds STD_MOUSE to the reports_supported bitmap for the
-dj_hiddev created for the keyboard fixing the touchpad not working.
+Extend the existing fix for the Dinovo Edge for this to also cover the
+Dinovo Mini keyboard and also add a mapping to logitech-hidpp for the
+Media key on the Dinovo Mini, so that that keeps working too.
 
-Using a list of device-ids for this is not ideal, but there are only
-very few such keyboards so this should be fine. Besides the Dinovo Edge,
-other known wireless Logitech keyboards with a builtin touchpad are:
-
-* Dinovo Mini (TODO add its device-id to the list)
-* K400 (uses a unifying receiver so is not affected)
-* K600 (uses a unifying receiver so is not affected)
-
-Cc: stable@vger.kernel.org
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1811424
 Fixes: f2113c3020ef ("HID: logitech-dj: add support for Logitech Bluetooth Mini-Receiver")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-dj.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/hid/hid-logitech-dj.c    |  1 +
+ drivers/hid/hid-logitech-hidpp.c | 25 +++++++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
 diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 38ee25a813b9e..1cafb65428b04 100644
+index 1cafb65428b04..389f953c1f12c 100644
 --- a/drivers/hid/hid-logitech-dj.c
 +++ b/drivers/hid/hid-logitech-dj.c
-@@ -866,11 +866,23 @@ static void logi_dj_recv_queue_notification(struct dj_receiver_dev *djrcv_dev,
- 	schedule_work(&djrcv_dev->work);
+@@ -875,6 +875,7 @@ static void logi_dj_recv_queue_notification(struct dj_receiver_dev *djrcv_dev,
+  */
+ static const u16 kbd_builtin_touchpad_ids[] = {
+ 	0xb309, /* Dinovo Edge */
++	0xb30c, /* Dinovo Mini */
+ };
+ 
+ static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 730036650f7df..a2991622702ae 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -93,6 +93,8 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS	BIT(3)
+ #define HIDPP_CAPABILITY_BATTERY_VOLTAGE	BIT(4)
+ 
++#define lg_map_key_clear(c)  hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
++
+ /*
+  * There are two hidpp protocols in use, the first version hidpp10 is known
+  * as register access protocol or RAP, the second version hidpp20 is known as
+@@ -2950,6 +2952,26 @@ static int g920_get_config(struct hidpp_device *hidpp,
+ 	return g920_ff_set_autocenter(hidpp, data);
  }
  
-+/*
-+ * Some quad/bluetooth keyboards have a builtin touchpad in this case we see
-+ * only 1 paired device with a device_type of REPORT_TYPE_KEYBOARD. For the
-+ * touchpad to work we must also forward mouse input reports to the dj_hiddev
-+ * created for the keyboard (instead of forwarding them to a second paired
-+ * device with a device_type of REPORT_TYPE_MOUSE as we normally would).
-+ */
-+static const u16 kbd_builtin_touchpad_ids[] = {
-+	0xb309, /* Dinovo Edge */
-+};
++/* -------------------------------------------------------------------------- */
++/* Logitech Dinovo Mini keyboard with builtin touchpad                        */
++/* -------------------------------------------------------------------------- */
++#define DINOVO_MINI_PRODUCT_ID		0xb30c
 +
- static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
- 					    struct hidpp_event *hidpp_report,
- 					    struct dj_workitem *workitem)
- {
- 	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
-+	int i, id;
++static int lg_dinovo_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
++		return 0;
++
++	switch (usage->hid & HID_USAGE) {
++	case 0x00d: lg_map_key_clear(KEY_MEDIA);	break;
++	default:
++		return 0;
++	}
++	return 1;
++}
++
+ /* -------------------------------------------------------------------------- */
+ /* HID++1.0 devices which use HID++ reports for their wheels                  */
+ /* -------------------------------------------------------------------------- */
+@@ -3185,6 +3207,9 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			field->application != HID_GD_MOUSE)
+ 		return m560_input_mapping(hdev, hi, field, usage, bit, max);
  
- 	workitem->type = WORKITEM_TYPE_PAIRED;
- 	workitem->device_type = hidpp_report->params[HIDPP_PARAM_DEVICE_INFO] &
-@@ -882,6 +894,13 @@ static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
- 		workitem->reports_supported |= STD_KEYBOARD | MULTIMEDIA |
- 					       POWER_KEYS | MEDIA_CENTER |
- 					       HIDPP;
-+		id = (workitem->quad_id_msb << 8) | workitem->quad_id_lsb;
-+		for (i = 0; i < ARRAY_SIZE(kbd_builtin_touchpad_ids); i++) {
-+			if (id == kbd_builtin_touchpad_ids[i]) {
-+				workitem->reports_supported |= STD_MOUSE;
-+				break;
-+			}
-+		}
- 		break;
- 	case REPORT_TYPE_MOUSE:
- 		workitem->reports_supported |= STD_MOUSE | HIDPP;
++	if (hdev->product == DINOVO_MINI_PRODUCT_ID)
++		return lg_dinovo_input_mapping(hdev, hi, field, usage, bit, max);
++
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 
