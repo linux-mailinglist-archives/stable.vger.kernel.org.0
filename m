@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29752C0AD8
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B84C2C0AD9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730582AbgKWM32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:29:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
+        id S1730605AbgKWM3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgKWM30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:29:26 -0500
+        id S1730597AbgKWM3a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:30 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E828E20728;
-        Mon, 23 Nov 2020 12:29:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D660C20728;
+        Mon, 23 Nov 2020 12:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134564;
-        bh=r/hVYxxV5KNm6KWW6ckHa52dmxcRaifvQfh2Ev3F/Zs=;
+        s=korg; t=1606134569;
+        bh=Ojw1F0vyBZwRvi5qPwbUfkz21izj5qnQvOHmifhdMBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbjuVUMF9pyhF3e2KKueLcxSyZ5296C2PJhsJ+3XfO/CAlmuHr4690KXrbrQeA3hg
-         xW9VlKPQMSgWghNq+9+CH22yBcQ2+uiQ0W7CnnTCzR46wRzO2E+v4O5T9z69paTQay
-         cWR+Lq1dwHxa+zdgdOifr+f1zRhXKP7EMBkde0gs=
+        b=X/dNMJSUv+NR5iAlHFfRKO7umlq3UD8Obs9qsdVlvSnVLnC/zAC5XjrTuCb/h7CLh
+         lkP+TQq3Uaexh5WT7H+UzaOenP2qjkrUByRZ/4CjYjqktkMlObEsgUeMc3IqS5CyjX
+         95lu9iIlFQnRJ/n1rEPgQXNBJ0tgvOH0YWW3y8yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.14 58/60] s390/cpum_sf.c: fix file permission for cpum_sfb_size
-Date:   Mon, 23 Nov 2020 13:22:40 +0100
-Message-Id: <20201123121807.853909478@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.14 60/60] x86/microcode/intel: Check patch signature before saving microcode for early loading
+Date:   Mon, 23 Nov 2020 13:22:42 +0100
+Message-Id: <20201123121807.959744857@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
 References: <20201123121805.028396732@linuxfoundation.org>
@@ -43,43 +42,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Chen Yu <yu.c.chen@intel.com>
 
-commit 78d732e1f326f74f240d416af9484928303d9951 upstream.
+commit 1a371e67dc77125736cc56d3a0893f06b75855b6 upstream.
 
-This file is installed by the s390 CPU Measurement sampling
-facility device driver to export supported minimum and
-maximum sample buffer sizes.
-This file is read by lscpumf tool to display the details
-of the device driver capabilities. The lscpumf tool might
-be invoked by a non-root user. In this case it does not
-print anything because the file contents can not be read.
+Currently, scan_microcode() leverages microcode_matches() to check
+if the microcode matches the CPU by comparing the family and model.
+However, the processor stepping and flags of the microcode signature
+should also be considered when saving a microcode patch for early
+update.
 
-Fix this by allowing read access for all users. Reading
-the file contents is ok, changing the file contents is
-left to the root user only.
+Use find_matching_signature() in scan_microcode() and get rid of the
+now-unused microcode_matches() which is a good cleanup in itself.
 
-For further reference and details see:
- [1] https://github.com/ibm-s390-tools/s390-tools/issues/97
+Complete the verification of the patch being saved for early loading in
+save_microcode_patch() directly. This needs to be done there too because
+save_mc_for_early() will call save_microcode_patch() too.
 
-Fixes: 69f239ed335a ("s390/cpum_sf: Dynamically extend the sampling buffer if overflows occur")
-Cc: <stable@vger.kernel.org> # 3.14
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+The second reason why this needs to be done is because the loader still
+tries to support, at least hypothetically, mixed-steppings systems and
+thus adds all patches to the cache that belong to the same CPU model
+albeit with different steppings.
+
+For example:
+
+  microcode: CPU: sig=0x906ec, pf=0x2, rev=0xd6
+  microcode: mc_saved[0]: sig=0x906e9, pf=0x2a, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[1]: sig=0x906ea, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[2]: sig=0x906eb, pf=0x2, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[3]: sig=0x906ec, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[4]: sig=0x906ed, pf=0x22, rev=0xd6, total size=0x19400, date = 2020-04-23
+
+The patch which is being saved for early loading, however, can only be
+the one which fits the CPU this runs on so do the signature verification
+before saving.
+
+ [ bp: Do signature verification in save_microcode_patch()
+       and rewrite commit message. ]
+
+Fixes: ec400ddeff20 ("x86/microcode_intel_early.c: Early update ucode on Intel's CPU")
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208535
+Link: https://lkml.kernel.org/r/20201113015923.13960-1-yu.c.chen@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/perf_cpum_sf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/microcode/intel.c |   63 +++++-----------------------------
+ 1 file changed, 10 insertions(+), 53 deletions(-)
 
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1662,4 +1662,4 @@ out:
- 	return err;
+--- a/arch/x86/kernel/cpu/microcode/intel.c
++++ b/arch/x86/kernel/cpu/microcode/intel.c
+@@ -103,53 +103,6 @@ static int has_newer_microcode(void *mc,
+ 	return find_matching_signature(mc, csig, cpf);
  }
- arch_initcall(init_cpum_sampling_pmu);
--core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
-+core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
+ 
+-/*
+- * Given CPU signature and a microcode patch, this function finds if the
+- * microcode patch has matching family and model with the CPU.
+- *
+- * %true - if there's a match
+- * %false - otherwise
+- */
+-static bool microcode_matches(struct microcode_header_intel *mc_header,
+-			      unsigned long sig)
+-{
+-	unsigned long total_size = get_totalsize(mc_header);
+-	unsigned long data_size = get_datasize(mc_header);
+-	struct extended_sigtable *ext_header;
+-	unsigned int fam_ucode, model_ucode;
+-	struct extended_signature *ext_sig;
+-	unsigned int fam, model;
+-	int ext_sigcount, i;
+-
+-	fam   = x86_family(sig);
+-	model = x86_model(sig);
+-
+-	fam_ucode   = x86_family(mc_header->sig);
+-	model_ucode = x86_model(mc_header->sig);
+-
+-	if (fam == fam_ucode && model == model_ucode)
+-		return true;
+-
+-	/* Look for ext. headers: */
+-	if (total_size <= data_size + MC_HEADER_SIZE)
+-		return false;
+-
+-	ext_header   = (void *) mc_header + data_size + MC_HEADER_SIZE;
+-	ext_sig      = (void *)ext_header + EXT_HEADER_SIZE;
+-	ext_sigcount = ext_header->count;
+-
+-	for (i = 0; i < ext_sigcount; i++) {
+-		fam_ucode   = x86_family(ext_sig->sig);
+-		model_ucode = x86_model(ext_sig->sig);
+-
+-		if (fam == fam_ucode && model == model_ucode)
+-			return true;
+-
+-		ext_sig++;
+-	}
+-	return false;
+-}
+-
+ static struct ucode_patch *memdup_patch(void *data, unsigned int size)
+ {
+ 	struct ucode_patch *p;
+@@ -167,7 +120,7 @@ static struct ucode_patch *memdup_patch(
+ 	return p;
+ }
+ 
+-static void save_microcode_patch(void *data, unsigned int size)
++static void save_microcode_patch(struct ucode_cpu_info *uci, void *data, unsigned int size)
+ {
+ 	struct microcode_header_intel *mc_hdr, *mc_saved_hdr;
+ 	struct ucode_patch *iter, *tmp, *p = NULL;
+@@ -213,6 +166,9 @@ static void save_microcode_patch(void *d
+ 	if (!p)
+ 		return;
+ 
++	if (!find_matching_signature(p->data, uci->cpu_sig.sig, uci->cpu_sig.pf))
++		return;
++
+ 	/*
+ 	 * Save for early loading. On 32-bit, that needs to be a physical
+ 	 * address as the APs are running from physical addresses, before
+@@ -347,13 +303,14 @@ scan_microcode(void *data, size_t size,
+ 
+ 		size -= mc_size;
+ 
+-		if (!microcode_matches(mc_header, uci->cpu_sig.sig)) {
++		if (!find_matching_signature(data, uci->cpu_sig.sig,
++					     uci->cpu_sig.pf)) {
+ 			data += mc_size;
+ 			continue;
+ 		}
+ 
+ 		if (save) {
+-			save_microcode_patch(data, mc_size);
++			save_microcode_patch(uci, data, mc_size);
+ 			goto next;
+ 		}
+ 
+@@ -486,14 +443,14 @@ static void show_saved_mc(void)
+  * Save this microcode patch. It will be loaded early when a CPU is
+  * hot-added or resumes.
+  */
+-static void save_mc_for_early(u8 *mc, unsigned int size)
++static void save_mc_for_early(struct ucode_cpu_info *uci, u8 *mc, unsigned int size)
+ {
+ 	/* Synchronization during CPU hotplug. */
+ 	static DEFINE_MUTEX(x86_cpu_microcode_mutex);
+ 
+ 	mutex_lock(&x86_cpu_microcode_mutex);
+ 
+-	save_microcode_patch(mc, size);
++	save_microcode_patch(uci, mc, size);
+ 	show_saved_mc();
+ 
+ 	mutex_unlock(&x86_cpu_microcode_mutex);
+@@ -937,7 +894,7 @@ static enum ucode_state generic_load_mic
+ 	 * permanent memory. So it will be loaded early when a CPU is hot added
+ 	 * or resumes.
+ 	 */
+-	save_mc_for_early(new_mc, new_mc_size);
++	save_mc_for_early(uci, new_mc, new_mc_size);
+ 
+ 	pr_debug("CPU%d found a matching microcode update with version 0x%x (current=0x%x)\n",
+ 		 cpu, new_rev, uci->cpu_sig.rev);
 
 
