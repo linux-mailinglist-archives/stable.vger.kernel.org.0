@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861AF2C097A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B427E2C085A
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388261AbgKWNIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:08:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33634 "EHLO mail.kernel.org"
+        id S1730953AbgKWMtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:49:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732855AbgKWMst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:48:49 -0500
+        id S1732854AbgKWMsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:48:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C8B621D93;
-        Mon, 23 Nov 2020 12:48:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3B612100A;
+        Mon, 23 Nov 2020 12:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135719;
-        bh=pu5H4ysKBrZtZ+GfN/U9VIlp4hhV5sVvJuz1sV86bhw=;
+        s=korg; t=1606135722;
+        bh=gM89MfZ998p/Ja/OWi4kBdesmpq9uN6SgkbmSVygvk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HT2IufTNywBfAXhN512tCQ0HJ9QGtx9iS/wClHWx5PsmAWRPpcv6KHj2x5yhPjMdr
-         bSUjVXtK42jL21InpOHnpccVZLoOpsO6jkYzoHppQYEFsarYh0fDQug4RHnCH4lFSP
-         KX+HInBicQ/kJyLbApk3IwmJVnkDnMlAJ6pJ2WFc=
+        b=m/Dxo0XRO0ckauz0X/KNbI0LEasItVgDIgnJUNdq9wI5gxrqaN9WmTBQiq/IkNnP9
+         YvshvktcpXntkk2SWfkGpDid8E5ehsUnFWpc9pHR0HTA4waQJ3Oxgp1vBpTKDF02xB
+         5h6NhyF8iXFwr6ne1ZW7mzVnt9VW+pistFXok6Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 170/252] xfs: revert "xfs: fix rmap key and record comparison functions"
-Date:   Mon, 23 Nov 2020 13:22:00 +0100
-Message-Id: <20201123121843.798614447@linuxfoundation.org>
+Subject: [PATCH 5.9 171/252] selftests/seccomp: powerpc: Fix typo in macro variable name
+Date:   Mon, 23 Nov 2020 13:22:01 +0100
+Message-Id: <20201123121843.845269996@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,81 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
+[ Upstream commit f5098e34dd4c774c3040e417960f1637e5daade8 ]
 
-This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
+A typo sneaked into the powerpc selftest. Fix the name so it builds again.
 
-Your maintainer committed a major braino in the rmap code by adding the
-attr fork, bmbt, and unwritten extent usage bits into rmap record key
-comparisons.  While XFS uses the usage bits *in the rmap records* for
-cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
-the owner and offset information to distinguish between reverse mappings
-of the same physical extent into the data fork of a file at multiple
-offsets.  The other bits are not important for key comparisons for index
-lookups, and never have been.
-
-Eric Sandeen reports that this causes regressions in generic/299, so
-undo this patch before it does more damage.
-
-Reported-by: Eric Sandeen <sandeen@sandeen.net>
-Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Fixes: 46138329faea ("selftests/seccomp: powerpc: Fix seccomp return value testing")
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/lkml/87y2ix2895.fsf@mpe.ellerman.id.au
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index 577a66381327c..beb81c84a9375 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -243,8 +243,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
- 
--	x = be64_to_cpu(kp->rm_offset);
--	y = xfs_rmap_irec_offset_pack(rec);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
-+	y = rec->rm_offset;
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -275,8 +275,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
- 
--	x = be64_to_cpu(kp1->rm_offset);
--	y = be64_to_cpu(kp2->rm_offset);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
-+	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -390,8 +390,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(k1->rmap.rm_offset);
--	b = be64_to_cpu(k2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -420,8 +420,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(r1->rmap.rm_offset);
--	b = be64_to_cpu(r2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 9a9eb02539fb4..6a27b12e9b3c2 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -1710,10 +1710,10 @@ TEST_F(TRACE_poke, getpid_runs_normally)
+ 		 * and the code is stored as a positive value.	\
+ 		 */						\
+ 		if (_result < 0) {				\
+-			SYSCALL_RET(_regs) = -result;		\
++			SYSCALL_RET(_regs) = -_result;		\
+ 			(_regs).ccr |= 0x10000000;		\
+ 		} else {					\
+-			SYSCALL_RET(_regs) = result;		\
++			SYSCALL_RET(_regs) = _result;		\
+ 			(_regs).ccr &= ~0x10000000;		\
+ 		}						\
+ 	} while (0)
 -- 
 2.27.0
 
