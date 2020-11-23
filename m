@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DC72C0623
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 768562C068C
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730399AbgKWM2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38276 "EHLO mail.kernel.org"
+        id S1731025AbgKWMcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:32:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730402AbgKWM2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:09 -0500
+        id S1730488AbgKWMcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96F8B20781;
-        Mon, 23 Nov 2020 12:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89DA520728;
+        Mon, 23 Nov 2020 12:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134488;
-        bh=93VrMVYKxpRP0ORf3ecOd7y7hC7tY7W+PyTw58cxmMg=;
+        s=korg; t=1606134727;
+        bh=lyQzsjudopK7FnhFZI2t9WlUN7+yzRcoHCYUy68ZIGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5y6HtfuH58sT/a6NbnSPjA45W5/uH+7MzhIEL1OGgaNsnhDFC3+VqUyqcMKHToWO
-         Ziyxh+3WGNjlAjVyzXOJ8aDqLu2oScLpQNOta31HF82hqu/neJ/b9OpYzrnFeQHzG9
-         C7gfzh3dxffOi/ItIBUxnjU7nMOHLRITjlHn2/jg=
+        b=Xr1PT7KQIXiReEYYv8o0lwitiuHWNRmkuay/9NNmvqU3JuXkQHx0K+9rIaLWHS8tu
+         YZAVSK6VBTPmWKtKLvZduyetA9i5iTLn/kmnZBs/1TRLmtPt5df5iwZ1MdG8CMibKJ
+         5SsZQZv/9EL76eNPJjkkMI4sua6xau6/BlNRdiXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Nishanth Menon <nm@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/60] regulator: ti-abb: Fix array out of bound read access on the first transition
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 60/91] xfs: strengthen rmap record flags checking
 Date:   Mon, 23 Nov 2020 13:22:20 +0100
-Message-Id: <20201123121806.889509136@linuxfoundation.org>
+Message-Id: <20201123121812.238531014@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 2ba546ebe0ce2af47833d8912ced9b4a579f13cb ]
+[ Upstream commit 498fe261f0d6d5189f8e11d283705dd97b474b54 ]
 
-At the start of driver initialization, we do not know what bias
-setting the bootloader has configured the system for and we only know
-for certain the very first time we do a transition.
+We always know the correct state of the rmap record flags (attr, bmbt,
+unwritten) so check them by direct comparison.
 
-However, since the initial value of the comparison index is -EINVAL,
-this negative value results in an array out of bound access on the
-very first transition.
-
-Since we don't know what the setting is, we just set the bias
-configuration as there is nothing to compare against. This prevents
-the array out of bound access.
-
-NOTE: Even though we could use a more relaxed check of "< 0" the only
-valid values(ignoring cosmic ray induced bitflips) are -EINVAL, 0+.
-
-Fixes: 40b1936efebd ("regulator: Introduce TI Adaptive Body Bias(ABB) on-chip LDO driver")
-Link: https://lore.kernel.org/linux-mm/CA+G9fYuk4imvhyCN7D7T6PMDH6oNp6HDCRiTUKMQ6QXXjBa4ag@mail.gmail.com/
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20201118145009.10492-1-nm@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d852657ccfc0 ("xfs: cross-reference reverse-mapping btree")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/xfs/scrub/bmap.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index 6d17357b3a248..5f5f63eb8c762 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -342,8 +342,17 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
- 		return ret;
- 	}
+diff --git a/fs/xfs/scrub/bmap.c b/fs/xfs/scrub/bmap.c
+index b05d65fd360b3..cf005e18d6186 100644
+--- a/fs/xfs/scrub/bmap.c
++++ b/fs/xfs/scrub/bmap.c
+@@ -225,13 +225,13 @@ xchk_bmap_xref_rmap(
+ 	 * which doesn't track unwritten state.
+ 	 */
+ 	if (owner != XFS_RMAP_OWN_COW &&
+-	    irec->br_state == XFS_EXT_UNWRITTEN &&
+-	    !(rmap.rm_flags & XFS_RMAP_UNWRITTEN))
++	    !!(irec->br_state == XFS_EXT_UNWRITTEN) !=
++	    !!(rmap.rm_flags & XFS_RMAP_UNWRITTEN))
+ 		xchk_fblock_xref_set_corrupt(info->sc, info->whichfork,
+ 				irec->br_startoff);
  
--	/* If data is exactly the same, then just update index, no change */
- 	info = &abb->info[sel];
-+	/*
-+	 * When Linux kernel is starting up, we are'nt sure of the
-+	 * Bias configuration that bootloader has configured.
-+	 * So, we get to know the actual setting the first time
-+	 * we are asked to transition.
-+	 */
-+	if (abb->current_info_idx == -EINVAL)
-+		goto just_set_abb;
-+
-+	/* If data is exactly the same, then just update index, no change */
- 	oinfo = &abb->info[abb->current_info_idx];
- 	if (!memcmp(info, oinfo, sizeof(*info))) {
- 		dev_dbg(dev, "%s: Same data new idx=%d, old idx=%d\n", __func__,
-@@ -351,6 +360,7 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
- 		goto out;
- 	}
- 
-+just_set_abb:
- 	ret = ti_abb_set_opp(rdev, abb, info);
- 
- out:
+-	if (info->whichfork == XFS_ATTR_FORK &&
+-	    !(rmap.rm_flags & XFS_RMAP_ATTR_FORK))
++	if (!!(info->whichfork == XFS_ATTR_FORK) !=
++	    !!(rmap.rm_flags & XFS_RMAP_ATTR_FORK))
+ 		xchk_fblock_xref_set_corrupt(info->sc, info->whichfork,
+ 				irec->br_startoff);
+ 	if (rmap.rm_flags & XFS_RMAP_BMBT_BLOCK)
 -- 
 2.27.0
 
