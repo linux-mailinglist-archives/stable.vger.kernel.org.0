@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8338E2C0941
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AF552C086C
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388121AbgKWNFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:05:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35154 "EHLO mail.kernel.org"
+        id S1733218AbgKWMvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:51:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387584AbgKWMuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387585AbgKWMuc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:50:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 751F7204EF;
-        Mon, 23 Nov 2020 12:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F5532100A;
+        Mon, 23 Nov 2020 12:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135820;
-        bh=x68gLZakTnqwMyJegYTFkrTYXgdQC8zKLEhVVWX5rWU=;
+        s=korg; t=1606135823;
+        bh=uFJsSGwd2OXnVl1xi4TGrsfTL2nOokD6AoShrLsFdX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=se/Z4TA/5FQ9Jdw1fV9+T945NjQPZ0gpLD3qMMiw1aSJQb0dFeT3/f+QRL+S0EirB
-         u2GZq671DxQCG2BIlmUsF24g16AtfNX/hLl6oDnqeyuCVcvWL01igrzhLRbUqkg0ZA
-         knznMMf2CyeTjcU7uS5ZBy3pY2JFZy8D/TLDP3j8=
+        b=EaZunY43ExV4Zc+EdWLfmf9Z/t2X2hqHycxE+uoobIh3ajt7acNpCVH46p7f9VPEt
+         P3ZVRuIK3kEHlC9As4MVSaY2TQ2IzAc+MnjVz1Jw6b5ylrUEruyCkiu4cU7gxACE5U
+         xza30RA7KDaWlw6wwSK7euIIPoonOmcrAgOKp8MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dennis Gilmore <dgilmore@redhat.com>
-Subject: [PATCH 5.9 206/252] xfs: fix forkoff miscalculation related to XFS_LITINO(mp)
-Date:   Mon, 23 Nov 2020 13:22:36 +0100
-Message-Id: <20201123121845.504437920@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.9 207/252] ACPI: fan: Initialize performance state sysfs attribute
+Date:   Mon, 23 Nov 2020 13:22:37 +0100
+Message-Id: <20201123121845.553889393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,87 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit ada49d64fb3538144192181db05de17e2ffc3551 upstream.
+commit 7dc7a8b04f3da8aa3c3be514e155e2fa094e976f upstream.
 
-Currently, commit e9e2eae89ddb dropped a (int) decoration from
-XFS_LITINO(mp), and since sizeof() expression is also involved,
-the result of XFS_LITINO(mp) is simply as the size_t type
-(commonly unsigned long).
+The following warning is reported if lock debugging is enabled.
 
-Considering the expression in xfs_attr_shortform_bytesfit():
-  offset = (XFS_LITINO(mp) - bytes) >> 3;
-let "bytes" be (int)340, and
-    "XFS_LITINO(mp)" be (unsigned long)336.
+DEBUG_LOCKS_WARN_ON(1)
+WARNING: CPU: 1 PID: 1 at kernel/locking/lockdep.c:4617 lockdep_init_map_waits+0x141/0x222
+...
+Call Trace:
+ __kernfs_create_file+0x7a/0xd8
+ sysfs_add_file_mode_ns+0x135/0x189
+ sysfs_create_file_ns+0x70/0xa0
+ acpi_fan_probe+0x547/0x621
+ platform_drv_probe+0x67/0x8b
+ ...
 
-on 64-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 3 =
-           (int)(0xfffffffffffffffcUL >> 3) = -1
+Dynamically allocated sysfs attributes need to be initialized to avoid
+the warning.
 
-but on 32-bit platform, the expression is
-  offset = ((unsigned long)336 - (int)340) >> 3 =
-           (int)(0xfffffffcUL >> 3) = 0x1fffffff
-instead.
-
-so offset becomes a large positive number on 32-bit platform, and
-cause xfs_attr_shortform_bytesfit() returns maxforkoff rather than 0.
-
-Therefore, one result is
-  "ASSERT(new_size <= XFS_IFORK_SIZE(ip, whichfork));"
-
-assertion failure in xfs_idata_realloc(), which was also the root
-cause of the original bugreport from Dennis, see:
-   https://bugzilla.redhat.com/show_bug.cgi?id=1894177
-
-And it can also be manually triggered with the following commands:
-  $ touch a;
-  $ setfattr -n user.0 -v "`seq 0 80`" a;
-  $ setfattr -n user.1 -v "`seq 0 80`" a
-
-on 32-bit platform.
-
-Fix the case in xfs_attr_shortform_bytesfit() by bailing out
-"XFS_LITINO(mp) < bytes" in advance suggested by Eric and a misleading
-comment together with this bugfix suggested by Darrick. It seems the
-other users of XFS_LITINO(mp) are not impacted.
-
-Fixes: e9e2eae89ddb ("xfs: only check the superblock version for dinode size calculation")
-Cc: <stable@vger.kernel.org> # 5.7+
-Reported-and-tested-by: Dennis Gilmore <dgilmore@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: d19e470b6605 ("ACPI: fan: Expose fan performance state information")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: 5.6+ <stable@vger.kernel.org> # 5.6+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/acpi/fan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -515,7 +515,7 @@ xfs_attr_copy_value(
-  *========================================================================*/
+--- a/drivers/acpi/fan.c
++++ b/drivers/acpi/fan.c
+@@ -351,6 +351,7 @@ static int acpi_fan_get_fps(struct acpi_
+ 		struct acpi_fan_fps *fps = &fan->fps[i];
  
- /*
-- * Query whether the requested number of additional bytes of extended
-+ * Query whether the total requested number of attr fork bytes of extended
-  * attribute space will be able to fit inline.
-  *
-  * Returns zero if not, else the di_forkoff fork offset to be used in the
-@@ -535,6 +535,12 @@ xfs_attr_shortform_bytesfit(
- 	int			maxforkoff;
- 	int			offset;
- 
-+	/*
-+	 * Check if the new size could fit at all first:
-+	 */
-+	if (bytes > XFS_LITINO(mp))
-+		return 0;
-+
- 	/* rounded down */
- 	offset = (XFS_LITINO(mp) - bytes) >> 3;
- 
+ 		snprintf(fps->name, ACPI_FPS_NAME_LEN, "state%d", i);
++		sysfs_attr_init(&fps->dev_attr.attr);
+ 		fps->dev_attr.show = show_state;
+ 		fps->dev_attr.store = NULL;
+ 		fps->dev_attr.attr.name = fps->name;
 
 
