@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 985F02C0B1B
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98FB2C0BC0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732169AbgKWMjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:39:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
+        id S1731088AbgKWNaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:30:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732158AbgKWMjA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:39:00 -0500
+        id S1730420AbgKWM2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:28:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93BF22076E;
-        Mon, 23 Nov 2020 12:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C2B520728;
+        Mon, 23 Nov 2020 12:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135140;
-        bh=eM/A2Gt6qPDjT4lcbUVvMzb+xRiqchOcjtPCv+PF9YE=;
+        s=korg; t=1606134504;
+        bh=L/h4vsPPUbjtzv4YMMjlE4Iof+2S9Fnn0gy83opF4fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoDYoNa/i1P9HfoOk6nPo/QRec+rasKM5TxU/wAnAy4ZTqGtAoZ0onN2sQFOUS3jP
-         xZLB7HEhx1ecXy75yf3s4nM9EMEcPIHLM0D+ghLc0lgxHeC0b2qwm0QqCsu/0iFU4Y
-         fwLN5DR8SzhEXD05kH/6lQGCTGyLGdAaZrP56kK8=
+        b=BywI6hhUAYhMSi74mFk1t9vw3avdxTEL/qhzmCVwAg7guOtYnTYnuO7yhBCvW/r+U
+         B4qJmKU1q1wljUyAF1ThUujjkxPWPMSoyo2dshl0MlSx7mCzFTn5KNIbh1g5D/WQ7o
+         Bf4QENKvb/k/kdoPk5gv4mlkQjdu28snwwvp2j3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 117/158] ALSA: firewire: Clean up a locking issue in copy_resp_to_buf()
+Subject: [PATCH 4.14 43/60] ALSA: ctl: fix error path at adding user-defined element set
 Date:   Mon, 23 Nov 2020 13:22:25 +0100
-Message-Id: <20201123121825.583279079@linuxfoundation.org>
+Message-Id: <20201123121807.132747398@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 02a9c6ee4183af2e438454c55098b828a96085fb upstream.
+commit 95a793c3bc75cf888e0e641d656e7d080f487d8b upstream.
 
-The spin_lock/unlock_irq() functions cannot be nested.  The problem is
-that presumably we would want the IRQs to be re-enabled on the second
-call the spin_unlock_irq() but instead it will be enabled at the first
-call so IRQs will be enabled earlier than expected.
+When processing request to add/replace user-defined element set, check
+of given element identifier and decision of numeric identifier is done
+in "__snd_ctl_add_replace()" helper function. When the result of check
+is wrong, the helper function returns error code. The error code shall
+be returned to userspace application.
 
-In this situation the copy_resp_to_buf() function is only called from
-one function and it is called with IRQs disabled.  We can just use
-the regular spin_lock/unlock() functions.
+Current implementation includes bug to return zero to userspace application
+regardless of the result. This commit fixes the bug.
 
-Fixes: 555e8a8f7f14 ("ALSA: fireworks: Add command/response functionality into hwdep interface")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201113101241.GB168908@mwanda
+Fixes: e1a7bfe38079 ("ALSA: control: Fix race between adding and removing a user element")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20201113092043.16148-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/fireworks/fireworks_transaction.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/core/control.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/fireworks/fireworks_transaction.c
-+++ b/sound/firewire/fireworks/fireworks_transaction.c
-@@ -123,7 +123,7 @@ copy_resp_to_buf(struct snd_efw *efw, vo
- 	t = (struct snd_efw_transaction *)data;
- 	length = min_t(size_t, be32_to_cpu(t->length) * sizeof(u32), length);
+--- a/sound/core/control.c
++++ b/sound/core/control.c
+@@ -1387,7 +1387,7 @@ static int snd_ctl_elem_add(struct snd_c
  
--	spin_lock_irq(&efw->lock);
-+	spin_lock(&efw->lock);
- 
- 	if (efw->push_ptr < efw->pull_ptr)
- 		capacity = (unsigned int)(efw->pull_ptr - efw->push_ptr);
-@@ -190,7 +190,7 @@ handle_resp_for_user(struct fw_card *car
- 
- 	copy_resp_to_buf(efw, data, length, rcode);
- end:
--	spin_unlock_irq(&instances_lock);
-+	spin_unlock(&instances_lock);
+  unlock:
+ 	up_write(&card->controls_rwsem);
+-	return 0;
++	return err;
  }
  
- static void
+ static int snd_ctl_elem_add_user(struct snd_ctl_file *file,
 
 
