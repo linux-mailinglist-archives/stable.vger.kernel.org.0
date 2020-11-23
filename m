@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D522C0798
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7BB2C079A
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732936AbgKWMmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55488 "EHLO mail.kernel.org"
+        id S1732945AbgKWMme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732930AbgKWMma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:42:30 -0500
+        id S1732939AbgKWMmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:32 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2309A21D7A;
-        Mon, 23 Nov 2020 12:42:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E422208FE;
+        Mon, 23 Nov 2020 12:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135349;
-        bh=5sRT05j5UYL8dUuFjLXBr+J4MtGaD12i655VBY05fJM=;
+        s=korg; t=1606135352;
+        bh=glmf3rwlgCIycDDhruSNvopWtMzWAaMpZbp2MagjPNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iytqLxM+rNtfbrf5Yr2JBT+hO9O34b0G2d/I2hLZ52iV67RFzFw2AGXsRJBMnOsPD
-         D7ptGeCVM1+duXiW/WR5VLeb6rXGAB5CJUXptetUfLny7he4htelvHZhwGAXZHSeAF
-         UR/sgELpvyjyAfS1XVuVMQgtwMnz2dkQSYwkNyzE=
+        b=GrNxKS/TdIDpLkVzjlbFiVKMtGhs3xd7eZS3bVoY3E+rWALUZ/6K56vWsd42dOZVJ
+         Xj3rznrvujpP9u7dyBby402XIibQv9OgjODU4T0X5fsimypAgDwe+I3VBE6cKiMVat
+         YUaH+62vrka3b0UbM39iFn+nRkALiEaKOnk/8Ak4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Aruna Ramakrishna <aruna.ramakrishna@oracle.com>,
-        Bert Barbe <bert.barbe@oracle.com>,
-        Rama Nichanamatlu <rama.nichanamatlu@oracle.com>,
-        Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-        Manjunath Patil <manjunath.b.patil@oracle.com>,
-        Joe Jin <joe.jin@oracle.com>,
-        SRINIVAS <srinivas.eeda@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 036/252] page_frag: Recover from memory pressure
-Date:   Mon, 23 Nov 2020 13:19:46 +0100
-Message-Id: <20201123121837.325261804@linuxfoundation.org>
+Subject: [PATCH 5.9 037/252] qed: fix error return code in qed_iwarp_ll2_start()
+Date:   Mon, 23 Nov 2020 13:19:47 +0100
+Message-Id: <20201123121837.373808256@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -53,78 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit d8c19014bba8f565d8a2f1f46b4e38d1d97bf1a7 ]
+[ Upstream commit cb47d16ea21045c66eebbf5ed792e74a8537e27a ]
 
-The ethernet driver may allocate skb (and skb->data) via napi_alloc_skb().
-This ends up to page_frag_alloc() to allocate skb->data from
-page_frag_cache->va.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-During the memory pressure, page_frag_cache->va may be allocated as
-pfmemalloc page. As a result, the skb->pfmemalloc is always true as
-skb->data is from page_frag_cache->va. The skb will be dropped if the
-sock (receiver) does not have SOCK_MEMALLOC. This is expected behaviour
-under memory pressure.
-
-However, once kernel is not under memory pressure any longer (suppose large
-amount of memory pages are just reclaimed), the page_frag_alloc() may still
-re-use the prior pfmemalloc page_frag_cache->va to allocate skb->data. As a
-result, the skb->pfmemalloc is always true unless page_frag_cache->va is
-re-allocated, even if the kernel is not under memory pressure any longer.
-
-Here is how kernel runs into issue.
-
-1. The kernel is under memory pressure and allocation of
-PAGE_FRAG_CACHE_MAX_ORDER in __page_frag_cache_refill() will fail. Instead,
-the pfmemalloc page is allocated for page_frag_cache->va.
-
-2: All skb->data from page_frag_cache->va (pfmemalloc) will have
-skb->pfmemalloc=true. The skb will always be dropped by sock without
-SOCK_MEMALLOC. This is an expected behaviour.
-
-3. Suppose a large amount of pages are reclaimed and kernel is not under
-memory pressure any longer. We expect skb->pfmemalloc drop will not happen.
-
-4. Unfortunately, page_frag_alloc() does not proactively re-allocate
-page_frag_alloc->va and will always re-use the prior pfmemalloc page. The
-skb->pfmemalloc is always true even kernel is not under memory pressure any
-longer.
-
-Fix this by freeing and re-allocating the page instead of recycling it.
-
-Suggested-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-Cc: Bert Barbe <bert.barbe@oracle.com>
-Cc: Rama Nichanamatlu <rama.nichanamatlu@oracle.com>
-Cc: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Cc: Manjunath Patil <manjunath.b.patil@oracle.com>
-Cc: Joe Jin <joe.jin@oracle.com>
-Cc: SRINIVAS <srinivas.eeda@oracle.com>
-Fixes: 79930f5892e1 ("net: do not deplete pfmemalloc reserve")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201115201029.11903-1-dongli.zhang@oracle.com
+Fixes: 469981b17a4f ("qed: Add unaligned and packed packet processing")
+Fixes: fcb39f6c10b2 ("qed: Add mpa buffer descriptors for storing and processing mpa fpdus")
+Fixes: 1e28eaad07ea ("qed: Add iWARP support for fpdu spanned over more than two tcp packets")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
+Link: https://lore.kernel.org/r/1605532033-27373-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_iwarp.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5053,6 +5053,11 @@ refill:
- 		if (!page_ref_sub_and_test(page, nc->pagecnt_bias))
- 			goto refill;
+--- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+@@ -2754,14 +2754,18 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_h
+ 	iwarp_info->partial_fpdus = kcalloc((u16)p_hwfn->p_rdma_info->num_qps,
+ 					    sizeof(*iwarp_info->partial_fpdus),
+ 					    GFP_KERNEL);
+-	if (!iwarp_info->partial_fpdus)
++	if (!iwarp_info->partial_fpdus) {
++		rc = -ENOMEM;
+ 		goto err;
++	}
  
-+		if (unlikely(nc->pfmemalloc)) {
-+			free_the_page(page, compound_order(page));
-+			goto refill;
-+		}
-+
- #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
- 		/* if size can vary use size else just use PAGE_SIZE */
- 		size = nc->size;
+ 	iwarp_info->max_num_partial_fpdus = (u16)p_hwfn->p_rdma_info->num_qps;
+ 
+ 	iwarp_info->mpa_intermediate_buf = kzalloc(buff_size, GFP_KERNEL);
+-	if (!iwarp_info->mpa_intermediate_buf)
++	if (!iwarp_info->mpa_intermediate_buf) {
++		rc = -ENOMEM;
+ 		goto err;
++	}
+ 
+ 	/* The mpa_bufs array serves for pending RX packets received on the
+ 	 * mpa ll2 that don't have place on the tx ring and require later
+@@ -2771,8 +2775,10 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_h
+ 	iwarp_info->mpa_bufs = kcalloc(data.input.rx_num_desc,
+ 				       sizeof(*iwarp_info->mpa_bufs),
+ 				       GFP_KERNEL);
+-	if (!iwarp_info->mpa_bufs)
++	if (!iwarp_info->mpa_bufs) {
++		rc = -ENOMEM;
+ 		goto err;
++	}
+ 
+ 	INIT_LIST_HEAD(&iwarp_info->mpa_buf_pending_list);
+ 	INIT_LIST_HEAD(&iwarp_info->mpa_buf_list);
 
 
