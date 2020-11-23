@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7572C0ABC
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C1A2C0BC8
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730178AbgKWM0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:26:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36648 "EHLO mail.kernel.org"
+        id S1730302AbgKWNa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:30:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730177AbgKWM0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:40 -0500
+        id S1730356AbgKWM1t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF29020888;
-        Mon, 23 Nov 2020 12:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 868E320781;
+        Mon, 23 Nov 2020 12:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134398;
-        bh=C6kASmgT/t06JcXHUZD9iZn3SJeHYZBKtRITDhaAajE=;
+        s=korg; t=1606134468;
+        bh=ZCJqcz4NK4XgLhHbzm2dmosi4H9y9gxZcvC91eQtnlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4wcGjaT1rfdmR1s0LVtiG96SmrPJVIUcOmYzYUMWoSq/WUYZ9SpCIx5uFQEPbnat
-         ekRnSUYJJirGHcY/6O+cjuhkV+53nTfi5zmhaBAX2JxymfIefDtgvYakHzLrSOu1Nt
-         5zWCQ986LT0cwk2u055Bu3C9BFXzI+s+bUiH3cOM=
+        b=dLY56uSi2u4w8/cs1WAaT7ml47mNUfABATEjqh1LGB1WG/29eo0oA/fGLrH/kr6oC
+         F2JoEkubK8k3VMfkh/QeKJevfcVKzLBXDRdz8D8Rjig5GywW1oUSTN7nhDiYbD+iBG
+         2Nw9h8fCahBV0KrjTSuF2wNaJL8aqc39LBGlCJd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alejandro Concepcion Rodriguez <alejandro@acoro.eu>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 27/47] can: dev: can_restart(): post buffer from the right context
+Subject: [PATCH 4.14 31/60] can: dev: can_restart(): post buffer from the right context
 Date:   Mon, 23 Nov 2020 13:22:13 +0100
-Message-Id: <20201123121806.860563786@linuxfoundation.org>
+Message-Id: <20201123121806.548861633@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index 617eb75c7c0ce..c7508d9a4c6fb 100644
+index e79965a390aab..c483c4b787fee 100644
 --- a/drivers/net/can/dev.c
 +++ b/drivers/net/can/dev.c
-@@ -555,7 +555,7 @@ static void can_restart(struct net_device *dev)
+@@ -578,7 +578,7 @@ static void can_restart(struct net_device *dev)
  	}
  	cf->can_id |= CAN_ERR_RESTARTED;
  
