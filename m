@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 830E32C0871
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4416E2C0A55
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387636AbgKWMvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:51:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35652 "EHLO mail.kernel.org"
+        id S1732307AbgKWMjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:39:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387625AbgKWMvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:51:19 -0500
+        id S1732303AbgKWMji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:39:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B1362158C;
-        Mon, 23 Nov 2020 12:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28E5D208C3;
+        Mon, 23 Nov 2020 12:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135876;
-        bh=JgJXk/AEvnxEiKy0XRZSSkSsvMJpWcNphHMI+6RSPLI=;
+        s=korg; t=1606135178;
+        bh=Bg3qSo+bdQLpOLN05PDRqkoaJUVuItEwLSi3G6u1Hus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oB5q1NWP+UePb4dzHhCZIrlhsIQInuLlTR/bcugpJdfN0fAMoo5n1RUN0B9Xdkmyi
-         PnmUmhsy9T6gxKDNDXZP4x9GhI+elRnOQ9aPWEWrR7OPmloNeaOtKD5jDGVm8lr07x
-         jwe/rp/PbzvNDwPyTxbPKrXAbeOglOCvonX7BuQk=
+        b=HtqaMtLQpkHsIMJCeYOe5PHenlYo0Ge+yk81Rtm2Ha66RO695Fh5vSHYgYwlvHrZm
+         3liD5+g09BYqcDicL3EGt5x48q1lj3bZ4e83iTY38oyEyoWNyX3yVlWEzVW1wO09nI
+         mT3xrirutywtLwkZvjxF4POOtSfMmTxea09kDXY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.9 210/252] iio: adc: mediatek: fix unset field
-Date:   Mon, 23 Nov 2020 13:22:40 +0100
-Message-Id: <20201123121845.700715501@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Han Xu <han.xu@nxp.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 133/158] spi: lpspi: Fix use-after-free on unbind
+Date:   Mon, 23 Nov 2020 13:22:41 +0100
+Message-Id: <20201123121826.345481795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
-References: <20201123121835.580259631@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 15207a92e019803d62687455d8aa2ff9eb3dc82c upstream.
+commit 4def49da620c84a682d9361d6bef0a97eed46fe0 upstream.
 
-dev_comp field is used in a couple of places but it is never set. This
-results in kernel oops when dereferencing a NULL pointer. Set the
-`dev_comp` field correctly in the probe function.
+Normally the last reference on an spi_controller is released by
+spi_unregister_controller().  In the case of the i.MX lpspi driver,
+the spi_controller is registered with devm_spi_register_controller(),
+so spi_unregister_controller() is invoked automatically after the driver
+has unbound.
 
-Fixes: 6d97024dce23 ("iio: adc: mediatek: mt6577-auxadc, add mt6765 support")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201018194644.3366846-1-fparent@baylibre.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+However the driver already releases the last reference in
+fsl_lpspi_remove() through a gratuitous call to spi_master_put(),
+causing a use-after-free when spi_unregister_controller() is
+subsequently invoked by the devres framework.
+
+Fix by dropping the superfluous spi_master_put().
+
+Fixes: 944c01a889d9 ("spi: lpspi: enable runtime pm for lpspi")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.2+
+Cc: Han Xu <han.xu@nxp.com>
+Link: https://lore.kernel.org/r/ab3c0b18bd820501a12c85e440006e09ec0e275f.1604874488.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/mt6577_auxadc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/spi/spi-fsl-lpspi.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/iio/adc/mt6577_auxadc.c
-+++ b/drivers/iio/adc/mt6577_auxadc.c
-@@ -9,9 +9,9 @@
- #include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/of.h>
--#include <linux/of_device.h>
-+#include <linux/mod_devicetable.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/iopoll.h>
- #include <linux/io.h>
- #include <linux/iio/iio.h>
-@@ -276,6 +276,8 @@ static int mt6577_auxadc_probe(struct pl
- 		goto err_disable_clk;
- 	}
+--- a/drivers/spi/spi-fsl-lpspi.c
++++ b/drivers/spi/spi-fsl-lpspi.c
+@@ -973,9 +973,6 @@ static int fsl_lpspi_remove(struct platf
+ 				spi_controller_get_devdata(controller);
  
-+	adc_dev->dev_comp = device_get_match_data(&pdev->dev);
-+
- 	mutex_init(&adc_dev->lock);
+ 	pm_runtime_disable(fsl_lpspi->dev);
+-
+-	spi_master_put(controller);
+-
+ 	return 0;
+ }
  
- 	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_MISC,
 
 
