@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711E62C0B8B
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B012C0AF1
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731834AbgKWN0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:26:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
+        id S1731065AbgKWMc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:32:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731061AbgKWMcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:32:22 -0500
+        id S1730996AbgKWMcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3A422076E;
-        Mon, 23 Nov 2020 12:32:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F9A21534;
+        Mon, 23 Nov 2020 12:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134740;
-        bh=Z5JMkm7C9kNof7AufHhAzVITBeL4cSYnwBaAICVj3l0=;
+        s=korg; t=1606134744;
+        bh=xj65otxT7u7gMA4A125Id7Rf9hy682WQH4WdP7oOkVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNbfLpsNohGfdpdOIc6Tph2HVpFf1zCWa3z6rBRELCm+alyzUcGXzlYE9x3HoXD53
-         VtyPwXxMaDU/murl3klOCCIUNKcbwwuGR7CdnJpGIQ8CwjyRUsVHfGvXcwmQ3aeoGf
-         FQ61YwF1M5OIT/4GgejcRFYfP+yT1MLnzXLJbWPY=
+        b=SCc+ZHMb/Uml0CE3cajlOTw4PmHyvms1dOP6frureF71BnMRUuoL4LV6rBwlwniGk
+         cmnqaWqmPPY+WeorkChqlj+HSn+iBzB2wRjKEshW1GZ+5/n0m6oqpmN8rZIeISa19y
+         eMFxNfrsC3ahJ43zXOCl7kGoh3z4OT3r5ZnRxxv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 64/91] efi/x86: Free efi_pgd with free_pages()
-Date:   Mon, 23 Nov 2020 13:22:24 +0100
-Message-Id: <20201123121812.432161315@linuxfoundation.org>
+Subject: [PATCH 4.19 65/91] libfs: fix error cast of negative value in simple_attr_write()
+Date:   Mon, 23 Nov 2020 13:22:25 +0100
+Message-Id: <20201123121812.480471445@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
 References: <20201123121809.285416732@linuxfoundation.org>
@@ -43,81 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit c2fe61d8be491ff8188edaf22e838f819999146b ]
+[ Upstream commit 488dac0c9237647e9b8f788b6a342595bfa40bda ]
 
-Commit
+The attr->set() receive a value of u64, but simple_strtoll() is used for
+doing the conversion.  It will lead to the error cast if user inputs a
+negative value.
 
-  d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
+Use kstrtoull() instead of simple_strtoll() to convert a string got from
+the user to an unsigned value.  The former will return '-EINVAL' if it
+gets a negetive value, but the latter can't handle the situation
+correctly.  Make 'val' unsigned long long as what kstrtoull() takes,
+this will eliminate the compile warning on no 64-bit architectures.
 
-changed the PGD allocation to allocate PGD_ALLOCATION_ORDER pages, so in
-the error path it should be freed using free_pages() rather than
-free_page().
-
-Commit
-
-    06ace26f4e6f ("x86/efi: Free efi_pgd with free_pages()")
-
-fixed one instance of this, but missed another.
-
-Move the freeing out-of-line to avoid code duplication and fix this bug.
-
-Fixes: d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
-Link: https://lore.kernel.org/r/20201110163919.1134431-1-nivedita@alum.mit.edu
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: f7b88631a897 ("fs/libfs.c: fix simple_attr_write() on 32bit machines")
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/1605341356-11872-1-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/efi/efi_64.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ fs/libfs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
-index 52dd59af873ee..77d05b56089a2 100644
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -214,28 +214,30 @@ int __init efi_alloc_page_tables(void)
- 	gfp_mask = GFP_KERNEL | __GFP_ZERO;
- 	efi_pgd = (pgd_t *)__get_free_pages(gfp_mask, PGD_ALLOCATION_ORDER);
- 	if (!efi_pgd)
--		return -ENOMEM;
-+		goto fail;
+diff --git a/fs/libfs.c b/fs/libfs.c
+index 02158618f4c99..be57e64834e5a 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -868,7 +868,7 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 			  size_t len, loff_t *ppos)
+ {
+ 	struct simple_attr *attr;
+-	u64 val;
++	unsigned long long val;
+ 	size_t size;
+ 	ssize_t ret;
  
- 	pgd = efi_pgd + pgd_index(EFI_VA_END);
- 	p4d = p4d_alloc(&init_mm, pgd, EFI_VA_END);
--	if (!p4d) {
--		free_page((unsigned long)efi_pgd);
--		return -ENOMEM;
--	}
-+	if (!p4d)
-+		goto free_pgd;
+@@ -886,7 +886,9 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 		goto out;
  
- 	pud = pud_alloc(&init_mm, p4d, EFI_VA_END);
--	if (!pud) {
--		if (pgtable_l5_enabled())
--			free_page((unsigned long) pgd_page_vaddr(*pgd));
--		free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
--		return -ENOMEM;
--	}
-+	if (!pud)
-+		goto free_p4d;
- 
- 	efi_mm.pgd = efi_pgd;
- 	mm_init_cpumask(&efi_mm);
- 	init_new_context(NULL, &efi_mm);
- 
- 	return 0;
-+
-+free_p4d:
-+	if (pgtable_l5_enabled())
-+		free_page((unsigned long)pgd_page_vaddr(*pgd));
-+free_pgd:
-+	free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
-+fail:
-+	return -ENOMEM;
- }
- 
- /*
+ 	attr->set_buf[size] = '\0';
+-	val = simple_strtoll(attr->set_buf, NULL, 0);
++	ret = kstrtoull(attr->set_buf, 0, &val);
++	if (ret)
++		goto out;
+ 	ret = attr->set(attr->data, val);
+ 	if (ret == 0)
+ 		ret = len; /* on success, claim we got the whole input */
 -- 
 2.27.0
 
