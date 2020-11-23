@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F2D2C079D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 546F62C079F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732621AbgKWMmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54896 "EHLO mail.kernel.org"
+        id S1732567AbgKWMmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732753AbgKWMlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:41:51 -0500
+        id S1732878AbgKWMmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E21EF20888;
-        Mon, 23 Nov 2020 12:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 845872065E;
+        Mon, 23 Nov 2020 12:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135310;
-        bh=6H6KG8txNKgnXHNj3Ey5OpYJ13zYZsJJLJPC37mIlEk=;
+        s=korg; t=1606135325;
+        bh=JRRpBRnUe89QT5TyEvv1Fvee1GxXlsaqiX9/Ndugci8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKSO2CLNmCC/m1Z8fu4wuOimpRfZ7s71YZDtamsaaQ2rlnW0EuqKzvmtRSuDmgfWs
-         EqgNNktYT5yQRRNeZ/Ge5o/jTOUFfIV/obv3x1aKDCybE8MfGMEKT4kqYgR44o3Pjk
-         T/7PrP17R7WacJOiNtXn1U4v6qNgATphO6Pukqnw=
+        b=mAs96yjhHJJM3D6AGCQgJfGXmvItcQY0gioI+UAuM2ygo6fkONFVLALwhTHhShVUE
+         e8KYmFO10BYRuwJ0Dut4XCib1ZwtB+T96zkXXNgnLxvMRb8rgvh3z0L+Wr4TAHgIlE
+         d2VJUgdAKqZAMDgpej6yE1HWBRWYVFTDS6NrkgCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Alex Elder <elder@linaro.org>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 023/252] net: ipa: lock when freeing transaction
-Date:   Mon, 23 Nov 2020 13:19:33 +0100
-Message-Id: <20201123121836.716621324@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.9 028/252] net/mlx5e: Fix refcount leak on kTLS RX resync
+Date:   Mon, 23 Nov 2020 13:19:38 +0100
+Message-Id: <20201123121836.947659762@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -42,93 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit 064c9c32b17ca9b36f95eba32ee790dbbebd9a5f ]
+[ Upstream commit ea63609857321c38fd4ad096388b413b66001c6c ]
 
-Transactions sit on one of several lists, depending on their state
-(allocated, pending, complete, or polled).  A spinlock protects
-against concurrent access when transactions are moved between these
-lists.
+On resync, the driver calls inet_lookup_established
+(__inet6_lookup_established) that increases sk_refcnt of the socket. To
+decrease it, the driver set skb->destructor to sock_edemux. However, it
+didn't work well, because the TCP stack also sets this destructor for
+early demux, and the refcount gets decreased only once, while increased
+two times (in mlx5e and in the TCP stack). It leads to a socket leak, a
+TLS context leak, which in the end leads to calling tls_dev_del twice:
+on socket close and on driver unload, which in turn leads to a crash.
 
-Transactions are also reference counted.  A newly-allocated
-transaction has an initial count of 1; a transaction is released in
-gsi_trans_free() only if its decremented reference count reaches 0.
-Releasing a transaction includes removing it from the polled (or if
-unused, allocated) list, so the spinlock is acquired when we release
-a transaction.
+This commit fixes the refcount leak by calling sock_gen_put right away
+after using the socket, thus fixing all the subsequent issues.
 
-The reference count is used to allow a caller to synchronously wait
-for a committed transaction to complete.  In this case, the waiter
-takes an extra reference to the transaction *before* committing it
-(so it won't be freed), and releases its reference (calls
-gsi_trans_free()) when it is done with it.
-
-Similarly, gsi_channel_update() takes an extra reference to ensure a
-transaction isn't released before the function is done operating on
-it.  Until the transaction is moved to the completed list (by this
-function) it won't be freed, so this reference is taken "safely."
-
-But in the quiesce path, we want to wait for the "last" transaction,
-which we find in the completed or polled list.  Transactions on
-these lists can be freed at any time, so we (try to) prevent that
-by taking the reference while holding the spinlock.
-
-Currently gsi_trans_free() decrements a transaction's reference
-count unconditionally, acquiring the lock to remove the transaction
-from its list *only* when the count reaches 0.  This does not
-protect the quiesce path, which depends on the lock to ensure its
-extra reference prevents release of the transaction.
-
-Fix this by only dropping the last reference to a transaction
-in gsi_trans_free() while holding the spinlock.
-
-Fixes: 9dd441e4ed575 ("soc: qcom: ipa: GSI transactions")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Alex Elder <elder@linaro.org>
-Link: https://lore.kernel.org/r/20201114182017.28270-1-elder@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 0419d8c9d8f8 ("net/mlx5e: kTLS, Add kTLS RX resync support")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/gsi_trans.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ipa/gsi_trans.c
-+++ b/drivers/net/ipa/gsi_trans.c
-@@ -363,22 +363,31 @@ struct gsi_trans *gsi_channel_trans_allo
- 	return trans;
- }
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+@@ -476,19 +476,22 @@ static void resync_update_sn(struct mlx5
  
--/* Free a previously-allocated transaction (used only in case of error) */
-+/* Free a previously-allocated transaction */
- void gsi_trans_free(struct gsi_trans *trans)
- {
-+	refcount_t *refcount = &trans->refcount;
- 	struct gsi_trans_info *trans_info;
-+	bool last;
+ 	depth += sizeof(struct tcphdr);
  
--	if (!refcount_dec_and_test(&trans->refcount))
-+	/* We must hold the lock to release the last reference */
-+	if (refcount_dec_not_one(refcount))
+-	if (unlikely(!sk || sk->sk_state == TCP_TIME_WAIT))
++	if (unlikely(!sk))
  		return;
  
- 	trans_info = &trans->gsi->channel[trans->channel_id].trans_info;
+-	if (unlikely(!resync_queue_get_psv(sk)))
+-		return;
++	if (unlikely(sk->sk_state == TCP_TIME_WAIT))
++		goto unref;
  
- 	spin_lock_bh(&trans_info->spinlock);
+-	skb->sk = sk;
+-	skb->destructor = sock_edemux;
++	if (unlikely(!resync_queue_get_psv(sk)))
++		goto unref;
  
--	list_del(&trans->links);
-+	/* Reference might have been added before we got the lock */
-+	last = refcount_dec_and_test(refcount);
-+	if (last)
-+		list_del(&trans->links);
- 
- 	spin_unlock_bh(&trans_info->spinlock);
- 
-+	if (!last)
-+		return;
+ 	seq = th->seq;
+ 	datalen = skb->len - depth;
+ 	tls_offload_rx_resync_async_request_start(sk, seq, datalen);
+ 	rq->stats->tls_resync_req_start++;
 +
- 	ipa_gsi_trans_release(trans);
++unref:
++	sock_gen_put(sk);
+ }
  
- 	/* Releasing the reserved TREs implicitly frees the sgl[] and
+ void mlx5e_ktls_rx_resync(struct net_device *netdev, struct sock *sk,
 
 
