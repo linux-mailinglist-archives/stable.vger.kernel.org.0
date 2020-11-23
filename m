@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF7C2C0955
+	by mail.lfdr.de (Postfix) with ESMTP id 2B1852C0954
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388024AbgKWNGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:06:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34574 "EHLO mail.kernel.org"
+        id S2388530AbgKWNGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733001AbgKWMta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:49:30 -0500
+        id S1733007AbgKWMte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:49:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82F8720732;
-        Mon, 23 Nov 2020 12:49:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07B1920857;
+        Mon, 23 Nov 2020 12:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135770;
-        bh=eM/A2Gt6qPDjT4lcbUVvMzb+xRiqchOcjtPCv+PF9YE=;
+        s=korg; t=1606135772;
+        bh=Qy+vtlqeEmzxBXQXamrqE05vlNeqb6i/++oC1mB4eTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpblZ9dta74Cn2m2O2OHC7iIzP3sFY0LCAsmIwy7l1rVCJZm2F+xvV6h1mk1FJJcT
-         HmZgYzrlpupd8AolzrRxLYfnjeM9URR3shknhnzpm+9kYxZrQZ97Dh1c2oHGTIDPgT
-         cVGq+HZ1L9vvXKrm7nVTohVP7ES1J8i8Qvf9PuC0=
+        b=2bh3XggP0XjA7FqMjIztq7mTz5ZS2giWYV63eW1m2CX6HasalEdQ4Q6w0naxWBCj1
+         jHXzegGsSlQvCdbyTgTmJM5SQOYWKDnE3s+yXtMKh5DQmrp9dWnThVjIoN+Jpe4rO2
+         DQ7EkpF9M0dqfqz5rkOt6Q9UlqvKbfrQdFnocD00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 190/252] ALSA: firewire: Clean up a locking issue in copy_resp_to_buf()
-Date:   Mon, 23 Nov 2020 13:22:20 +0100
-Message-Id: <20201123121844.760786615@linuxfoundation.org>
+Subject: [PATCH 5.9 191/252] ALSA: usb-audio: Add delay quirk for all Logitech USB devices
+Date:   Mon, 23 Nov 2020 13:22:21 +0100
+Message-Id: <20201123121844.812086654@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,50 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit 02a9c6ee4183af2e438454c55098b828a96085fb upstream.
+commit 54a2a3898f469a915510038fe84ef4f083131d3e upstream.
 
-The spin_lock/unlock_irq() functions cannot be nested.  The problem is
-that presumably we would want the IRQs to be re-enabled on the second
-call the spin_unlock_irq() but instead it will be enabled at the first
-call so IRQs will be enabled earlier than expected.
+Found one more Logitech device, BCC950 ConferenceCam, which needs
+the same delay here. This makes 3 out of 3 devices I have tried.
 
-In this situation the copy_resp_to_buf() function is only called from
-one function and it is called with IRQs disabled.  We can just use
-the regular spin_lock/unlock() functions.
+Therefore, add a delay for all Logitech devices as it does not hurt.
 
-Fixes: 555e8a8f7f14 ("ALSA: fireworks: Add command/response functionality into hwdep interface")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201113101241.GB168908@mwanda
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc: <stable@vger.kernel.org> # 4.19.y, 5.4.y
+Link: https://lore.kernel.org/r/20201117122803.24310-1-joakim.tjernlund@infinera.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/fireworks/fireworks_transaction.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/quirks.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/firewire/fireworks/fireworks_transaction.c
-+++ b/sound/firewire/fireworks/fireworks_transaction.c
-@@ -123,7 +123,7 @@ copy_resp_to_buf(struct snd_efw *efw, vo
- 	t = (struct snd_efw_transaction *)data;
- 	length = min_t(size_t, be32_to_cpu(t->length) * sizeof(u32), length);
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1678,13 +1678,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
  
--	spin_lock_irq(&efw->lock);
-+	spin_lock(&efw->lock);
- 
- 	if (efw->push_ptr < efw->pull_ptr)
- 		capacity = (unsigned int)(efw->pull_ptr - efw->push_ptr);
-@@ -190,7 +190,7 @@ handle_resp_for_user(struct fw_card *car
- 
- 	copy_resp_to_buf(efw, data, length, rcode);
- end:
--	spin_unlock_irq(&instances_lock);
-+	spin_unlock(&instances_lock);
- }
- 
- static void
+-	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
+-	 *  needs a tiny delay here, otherwise requests like get/set
+-	 *  frequency return as failed despite actually succeeding.
++	/* Zoom R16/24, many Logitech(at least H650e/H570e/BCC950),
++	 * Jabra 550a, Kingston HyperX needs a tiny delay here,
++	 * otherwise requests like get/set frequency return
++	 * as failed despite actually succeeding.
+ 	 */
+ 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
+-	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
+-	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
++	     USB_ID_VENDOR(chip->usb_id) == 0x046d  || /* Logitech */
+ 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
+ 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 
 
