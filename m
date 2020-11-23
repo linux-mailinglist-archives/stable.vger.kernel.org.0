@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 471192C09A6
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486C22C09C7
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387757AbgKWNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:09:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33116 "EHLO mail.kernel.org"
+        id S1732749AbgKWNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:12:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732823AbgKWMrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:47:52 -0500
+        id S1732493AbgKWMqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75AF320888;
-        Mon, 23 Nov 2020 12:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E02A7208C3;
+        Mon, 23 Nov 2020 12:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135664;
-        bh=TfsQs9KMwlOTnsRjtv7z1A1WDSx/eSxK8LLgPSIFwvQ=;
+        s=korg; t=1606135577;
+        bh=q0VLpvB7HxT6vWYXRYJri8y5O6VinuArtNAHQuLFrIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AkSWK0ln6ENNtEPplNBmou676c/rYWHGCSqdpu44Odu76bfVXPLkB1zIMKqOOwCf
-         EfiSMAWj1lcaHGf5MQa4WzELy/Se8CfsFxcjjWHGVs4c9uTppYsT4BD4/qAOFtcw53
-         /qt+VG2HvDtSQv6RwXjtEzBbVKtU6G6gHLjY7sKE=
+        b=WP2twSGQ9B4dMGD+NynBiiOyqY0rSz4K2ONH8tJjk7Yh709vNlDnQcQ7RZVtF1n6Q
+         p8oukte2cHydZr4GQTna+2VEqmrIpigOhYiK3AngGpM6fe9otcAf3isml3O2YWSjOE
+         hxqVenAGUnjLCJpU3z0q+NOIDiUfuv8fERx1Eolg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Patrick Delaunay <patrick.delaunay@st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 110/252] ARM: dts: stm32: Keep VDDA LDO1 always on on DHCOM
-Date:   Mon, 23 Nov 2020 13:21:00 +0100
-Message-Id: <20201123121840.900397145@linuxfoundation.org>
+Subject: [PATCH 5.9 111/252] arm64: dts: imx8mm: fix voltage for 1.6GHz CPU operating point
+Date:   Mon, 23 Nov 2020 13:21:01 +0100
+Message-Id: <20201123121840.949202839@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -47,40 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit f4c7fa39415da6db1fa0bc26162ac23a0fbae8bb ]
+[ Upstream commit d19d2152ca055baf20339cfacbf039c2cfb8d936 ]
 
-The VDDA LDO1 PMIC output supplies the analog VDDA input of the
-STM32MP1 on DHCOM, keep it always on, otherwise there could be
-leakage through the SoC.
+The datasheet for both the industrial and consumer variant of the
+SoC lists a typical voltage of 0.95V for the 1.6GHz CPU operating
+point.
 
-Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>
-Cc: Patrick Delaunay <patrick.delaunay@st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Fixes: e85c9d0faa75 (arm64: dts: imx8mm: Add cpufreq properties)
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mm.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index 6c3920cd5419b..e4804afc90e2f 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -203,6 +203,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm.dtsi b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
+index 76f040e4be5e9..7cc2a810831ab 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
+@@ -129,7 +129,7 @@
  
- 			vdda: ldo1 {
- 				regulator-name = "vdda";
-+				regulator-always-on;
- 				regulator-min-microvolt = <2900000>;
- 				regulator-max-microvolt = <2900000>;
- 				interrupts = <IT_CURLIM_LDO1 0>;
+ 		opp-1600000000 {
+ 			opp-hz = /bits/ 64 <1600000000>;
+-			opp-microvolt = <900000>;
++			opp-microvolt = <950000>;
+ 			opp-supported-hw = <0xc>, <0x7>;
+ 			clock-latency-ns = <150000>;
+ 			opp-suspend;
 -- 
 2.27.0
 
