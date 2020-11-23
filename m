@@ -2,157 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB7A2C0DD2
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 15:41:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697A62C0DF8
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 15:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728896AbgKWOjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 09:39:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
+        id S2389266AbgKWOlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 09:41:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726745AbgKWOjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 09:39:48 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B376CC0613CF;
-        Mon, 23 Nov 2020 06:39:48 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id n137so5046568pfd.3;
-        Mon, 23 Nov 2020 06:39:48 -0800 (PST)
+        with ESMTP id S2389202AbgKWOlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 09:41:14 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B42FC0613CF
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 06:41:14 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id c66so15093667pfa.4
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 06:41:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=fM4j6RxSfo5XXrx0DZNKP61g+fXLGOf6UqMSA1kliTM=;
-        b=n4arlp4WrfAdV9Al4lHHmjtOFo/jH6SuDDse9onYIq4yhjSioHU3iYpJwH138yPrzY
-         LBZUQagNqnrgPF4JILY/I9bN9EEwTimM4alYTZYbk2J7o7tx2Xgskt9xYPnr1+FrnLKp
-         SiJzWibdOTZyz6shXUuOmNzFNDbSef02QEkSNV8RSWiLgutHrLk7SROluh7zkmH4xAsd
-         /qQ4syQ9U7CoiJml/LkXllebqwpPiavQl7hWJ+jgGXhxdbFXw035Vxdh51aj71Bnxu2k
-         O3BvsEe3FSKebtpwF4efadGrMJwytMR6hvhcmH+TqvDJ89ntx2gZXmehfnE0H3ZviBLH
-         b/hw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XdluzenEDGTISWUutFd+Z/boCdEylJNX0M2A2SpT1Ug=;
+        b=D53p+RsbUu8aYH6thENtLDjWuP4IvGsXC9cbakLRYxxCvP2Ah6IpAldlpFlhnJv23m
+         rHAW+jAk6Nzy+3x2sL+2PadOPEjykh4I1yta0TjKOO6nNMcM5qJcZA3eo1NGAemu0Ksx
+         abhJIVbzp2VcZE0Z/L55ndaowksXe1mLlANBTuajudeix/gCzOzas7CJY0xVzLIT2LNG
+         /WF/yagUCNITbhEI77vCfH5XnK+e0is/gtlgV/XLMfw3Gwqzhpa4i+ovCw7BQJNNhex5
+         76CZBdbrf/sdzYRLL68EuPKVLI+ZXovlN/eckkoK4ok+DcfsNb52p9KHJCExGNZms6P/
+         YmLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=fM4j6RxSfo5XXrx0DZNKP61g+fXLGOf6UqMSA1kliTM=;
-        b=RMoVH3Y7LOmBkDTED9TxiKLlkSP1k9WPIaSjohZsu0UnWFv8US4K/NbMudEqkV8qo+
-         pAO86Wltwo7mu7ClE/TkzQzhwQONEObzULFNIoRy3qd4Wf/Kr/JTmjvQNus0nEsMWYtS
-         E+HYw6qS7wCs9zusnnG0BTbwTUK5AijOqZe+MF5F6KMTw7dUxi43LOF7hNkJknQ9rbUu
-         XTzPuMl/8SezouDMPCiYhLrr/C12jYOox4cGyuw/u0cP18M2FSNEia/DyrLxJpDtfyX3
-         fEHf6YcsxZc4X77Ps1kE6JJmZFuYGBFAtW8Zxg+DgJ6ad57dnXOLrqyQ3WcboT8Jplr2
-         fwCA==
-X-Gm-Message-State: AOAM531jehvpL/xGrU8D93ziFz88cGt4bgbin0RXuP5Dktjip+UJpvZn
-        ac8p0Q7i/E9JhfFy5zM2AVU=
-X-Google-Smtp-Source: ABdhPJyjc1M3igO33p6Z7ggpwS0tjse9yx7d+DyT5lc9Di4y9VULB6f0m9+NCpQbWKBgfb704C0aJw==
-X-Received: by 2002:a17:90b:a43:: with SMTP id gw3mr22pjb.189.1606142387596;
-        Mon, 23 Nov 2020 06:39:47 -0800 (PST)
-Received: from localhost ([2001:e42:102:1532:160:16:113:140])
-        by smtp.gmail.com with ESMTPSA id m13sm2087797pfa.115.2020.11.23.06.39.45
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XdluzenEDGTISWUutFd+Z/boCdEylJNX0M2A2SpT1Ug=;
+        b=okvrB6VteU2oFqFDAaB2ii9QFI3ZjvCmvpDEBCdSiBmK3ELeBtQV5Y1wyMZ673o7B+
+         lCV9fYsVKvZV1RC2rZPGpz3YO0Dv3zZn9JSmI78C8Z8Er2I9TLT35jRKvR6mONHMyFJB
+         FdkSqXthAqVn7Vh0rLP79hfIoBW8q1dvFZRlsBUue4T9nbz/1fvELI/0EYN+0v94lskg
+         5Ju5Kfq5Yf5wfjNVyjknD+NrUpGhn+OJhOSesV0egvbyo7gp5yj6lxC3q+fIuakTHMmS
+         zGE4jENHsb9c2PuKSELojHRVUBk5Dz08jG/OmTwAmR66TDH9fgxqHMr/jz/9sbuHygMz
+         miyg==
+X-Gm-Message-State: AOAM532wg3rjI5ly8Zq9xE7obLjkDnqI2iMMbDFW3aYgB7sqgtycEdaU
+        1jmvi1usOjfLe+mGMb/DaaC+YnMlEdxQrQ==
+X-Google-Smtp-Source: ABdhPJys8HlFzzxYzFCbN5sjbMERZc5gDM2ony7Beigsdlxpug72TYpG35wm4eRM2faOGiLKcHSc+Q==
+X-Received: by 2002:a62:2707:0:b029:196:38ea:9848 with SMTP id n7-20020a6227070000b029019638ea9848mr24538113pfn.50.1606142473649;
+        Mon, 23 Nov 2020 06:41:13 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w15sm2375587pjy.47.2020.11.23.06.41.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2020 06:39:46 -0800 (PST)
-From:   Coiby Xu <coiby.xu@gmail.com>
-X-Google-Original-From: Coiby Xu <Coiby.Xu@gmail.com>
-Date:   Mon, 23 Nov 2020 22:36:13 +0800
-To:     =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Helmut Stult <helmut.stult@schinfo.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3] HID: i2c-hid: add polling mode based on connected
- GPIO chip's pin status
-Message-ID: <20201123143613.zzrm3wgm4m6ngvrz@Rk>
-References: <20201021134931.462560-1-coiby.xu@gmail.com>
- <qo0Y8DqV6mbQsSFabOaqRoxYhKdYCZPjqYuF811CTdPXRFFXpx7sNXYcW9OGI5PMyclgsTjI7Xj3Du3v4hYQVBWGJl3t0t8XSbTKE9uOJ2E=@protonmail.com>
- <20201122101525.j265hvj6lqgbtfi2@Rk>
- <xsbDy_74QEfC8byvpA0nIjI0onndA3wuiLm2Iattq-8TLPy28kMq7GKhkfrfzqdBAQfp_w5CTCCJ8XjFmegtZqP58xioheh7OHV7Bam33aQ=@protonmail.com>
+        Mon, 23 Nov 2020 06:41:12 -0800 (PST)
+Message-ID: <5fbbca08.1c69fb81.f8f3f.3fdf@mx.google.com>
+Date:   Mon, 23 Nov 2020 06:41:12 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <xsbDy_74QEfC8byvpA0nIjI0onndA3wuiLm2Iattq-8TLPy28kMq7GKhkfrfzqdBAQfp_w5CTCCJ8XjFmegtZqP58xioheh7OHV7Bam33aQ=@protonmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.159-91-ge3ab2e9b1083
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 125 runs,
+ 3 regressions (v4.19.159-91-ge3ab2e9b1083)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 22, 2020 at 01:33:01PM +0000, Barnabás Pőcze wrote:
->Hi
->
->
->2020. november 22., vasárnap 11:15 keltezéssel, Coiby Xu írta:
->
->> [...]
->> >> +static int get_gpio_pin_state(struct irq_desc *irq_desc)
->> >> +{
->> >> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(&irq_desc->irq_data);
->> >> +
->> >> +	return gc->get(gc, irq_desc->irq_data.hwirq);
->> >> +}
->> [...]
->> >> +	ssize_t	status = get_gpio_pin_state(irq_desc);
->> >
->> >`get_gpio_pin_state()` returns an `int`, so I am not sure why `ssize_t` is used here.
->> >
->>
->> I used `ssize_t` because I found gpiolib-sysfs.c uses `ssize_t`
->>
->>      // drivers/gpio/gpiolib-sysfs.c
->>      static ssize_t value_show(struct device *dev,
->>      		struct device_attribute *attr, char *buf)
->>      {
->>      	struct gpiod_data *data = dev_get_drvdata(dev);
->>      	struct gpio_desc *desc = data->desc;
->>      	ssize_t			status;
->>
->>      	mutex_lock(&data->mutex);
->>
->>      	status = gpiod_get_value_cansleep(desc);
->>          ...
->>      	return status;
->>      }
->>
->> According to the book Advanced Programming in the UNIX Environment by
->> W. Richard Stevens,
->>      With the 1990 POSIX.1 standard, the primitive system data type
->>      ssize_t was introduced to provide the signed return value...
->>
->> So ssize_t is fairly common, for example, the read and write syscall
->> return a value of type ssize_t. But I haven't found out why ssize_t is
->> better int.
->> >
->
->Sorry if I wasn't clear, what prompted me to ask that question is the following:
->`gc->get()` returns `int`, `get_gpio_pin_state()` returns `int`, yet you still
->save the return value of `get_gpio_pin_state()` into a variable with type
->`ssize_t` for no apparent reason. In the example you cited, `ssize_t` is used
->because the show() callback of a sysfs attribute must return `ssize_t`, but here,
->`interrupt_line_active()` returns `bool`, so I don't see any advantage over a
->plain `int`. Anyways, I believe either one is fine, I just found it odd.
->
-I don't understand why "the show() callback of a sysfs attribute
-must return `ssize_t`" instead of int. Do you think the rationale
-behind it is the same for this case? If yes, using "ssize_t" for
-status could be justified.
+stable-rc/queue/4.19 baseline: 125 runs, 3 regressions (v4.19.159-91-ge3ab2=
+e9b1083)
 
->
->> >> +
->> >> +	if (status < 0) {
->> >> +		dev_warn(&client->dev,
->> >> +			 "Failed to get GPIO Interrupt line status for %s",
->> >> +			 client->name);
->> >
->> >I think it's possible that the kernel message buffer is flooded with these
->> >messages, which is not optimal in my opinion.
->> >
->> Thank you! Replaced with dev_dbg in v4.
->> [...]
->
->Have you looked at `dev_{warn,dbg,...}_ratelimited()`?
->
-Thank you for pointing me to these functions!
->
->Regards,
->Barnabás Pőcze
+Regressions Summary
+-------------------
 
---
-Best regards,
-Coiby
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.159-91-ge3ab2e9b1083/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.159-91-ge3ab2e9b1083
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e3ab2e9b108329cdbaf14fc9770ed200d399c0c3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fbb959f7c9a8389b7d8d920
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fbb959f7c9a8389b7d8d=
+921
+        failing since 9 days (last pass: v4.19.157-26-gd59f3161b3a0, first =
+fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fbb95af7c9a8389b7d8d9a6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fbb95af7c9a8389b7d8d=
+9a7
+        failing since 9 days (last pass: v4.19.157-26-gd59f3161b3a0, first =
+fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fbb9616fceabd96ecd8d91f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.159=
+-91-ge3ab2e9b1083/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fbb9616fceabd96ecd8d=
+920
+        failing since 9 days (last pass: v4.19.157-26-gd59f3161b3a0, first =
+fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
