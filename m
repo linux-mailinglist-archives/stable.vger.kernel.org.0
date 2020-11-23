@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD662C0786
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 393A22C05FF
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732535AbgKWMkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:40:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53528 "EHLO mail.kernel.org"
+        id S1730124AbgKWM0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:26:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732529AbgKWMkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:40:39 -0500
+        id S1730142AbgKWM0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:26:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA0820857;
-        Mon, 23 Nov 2020 12:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAF5F20728;
+        Mon, 23 Nov 2020 12:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135238;
-        bh=4tkJfRLL+x/vtIR/vHVvnhcoeEplKQ4liZAcFlzeWA8=;
+        s=korg; t=1606134384;
+        bh=rvtwpOY2qZD5jY9Rm8wCR7/h5Zars/46CGP8FGSjJ8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9bWoyrmW7V4YQ0H6Jqx39xTJwBcODRABD3xKko0AW+0uoM1XMHAimfRu4rce1xuE
-         gHfQAoghN1YHOgO0JFkLdpKtqmf5YR6KmDNipBJjXiH3OyGM0qZ5hrnQCF5Kzy/ae6
-         DvvcJy6twVoLCcyL1gQKixd9L4RpvVKLYohmX+5A=
+        b=AtHlzR9woZYT4wY5DO/Odnu3W+TymcexuF8GVZoJBNu34NaTF4stqGbgJJ6bExk3G
+         z5BmxbML7DO408lDTBebp+Un3jpVmGuVm9JIRLm6CgNsIZjYt2J13DhAfwjpaBZi39
+         45vIapS1A1xcpqApfrl8W+NOIw0FAIRyJakCZnos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.4 125/158] HID: logitech-dj: Fix an error in mse_bluetooth_descriptor
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.9 47/47] x86/microcode/intel: Check patch signature before saving microcode for early loading
 Date:   Mon, 23 Nov 2020 13:22:33 +0100
-Message-Id: <20201123121825.963444706@linuxfoundation.org>
+Message-Id: <20201123121807.829684525@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +42,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chen Yu <yu.c.chen@intel.com>
 
-commit eec231e060fb79923c349f6e89f022b286f32c1e upstream.
+commit 1a371e67dc77125736cc56d3a0893f06b75855b6 upstream.
 
-Fix an error in the mouse / INPUT(2) descriptor used for quad/bt2.0 combo
-receivers. Replace INPUT with INPUT (Data,Var,Abs) for the field for the
-4 extra buttons which share their report-byte with the low-res hwheel.
+Currently, scan_microcode() leverages microcode_matches() to check
+if the microcode matches the CPU by comparing the family and model.
+However, the processor stepping and flags of the microcode signature
+should also be considered when saving a microcode patch for early
+update.
 
-This is likely a copy and paste error. I've verified that the new
-0x81, 0x02 value matches both the mouse descriptor for the currently
-supported MX5000 / MX5500 receivers, as well as the INPUT(2) mouse
-descriptors for the Dinovo receivers for which support is being
-worked on.
+Use find_matching_signature() in scan_microcode() and get rid of the
+now-unused microcode_matches() which is a good cleanup in itself.
 
+Complete the verification of the patch being saved for early loading in
+save_microcode_patch() directly. This needs to be done there too because
+save_mc_for_early() will call save_microcode_patch() too.
+
+The second reason why this needs to be done is because the loader still
+tries to support, at least hypothetically, mixed-steppings systems and
+thus adds all patches to the cache that belong to the same CPU model
+albeit with different steppings.
+
+For example:
+
+  microcode: CPU: sig=0x906ec, pf=0x2, rev=0xd6
+  microcode: mc_saved[0]: sig=0x906e9, pf=0x2a, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[1]: sig=0x906ea, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[2]: sig=0x906eb, pf=0x2, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[3]: sig=0x906ec, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[4]: sig=0x906ed, pf=0x22, rev=0xd6, total size=0x19400, date = 2020-04-23
+
+The patch which is being saved for early loading, however, can only be
+the one which fits the CPU this runs on so do the signature verification
+before saving.
+
+ [ bp: Do signature verification in save_microcode_patch()
+       and rewrite commit message. ]
+
+Fixes: ec400ddeff20 ("x86/microcode_intel_early.c: Early update ucode on Intel's CPU")
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: f2113c3020ef ("HID: logitech-dj: add support for Logitech Bluetooth Mini-Receiver")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208535
+Link: https://lkml.kernel.org/r/20201113015923.13960-1-yu.c.chen@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/hid/hid-logitech-dj.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -328,7 +328,7 @@ static const char mse_bluetooth_descript
- 	0x25, 0x01,		/*      LOGICAL_MAX (1)                 */
- 	0x75, 0x01,		/*      REPORT_SIZE (1)                 */
- 	0x95, 0x04,		/*      REPORT_COUNT (4)                */
--	0x81, 0x06,		/*      INPUT                           */
-+	0x81, 0x02,		/*      INPUT (Data,Var,Abs)            */
- 	0xC0,			/*    END_COLLECTION                    */
- 	0xC0,			/*  END_COLLECTION                      */
- };
+---
+ arch/x86/kernel/cpu/microcode/intel.c |   48 +---------------------------------
+ 1 file changed, 2 insertions(+), 46 deletions(-)
+
+--- a/arch/x86/kernel/cpu/microcode/intel.c
++++ b/arch/x86/kernel/cpu/microcode/intel.c
+@@ -147,51 +147,6 @@ load_microcode(struct mc_saved_data *mcs
+ 	}
+ }
+ 
+-/*
+- * Given CPU signature and a microcode patch, this function finds if the
+- * microcode patch has matching family and model with the CPU.
+- */
+-static enum ucode_state
+-matching_model_microcode(struct microcode_header_intel *mc_header,
+-			unsigned long sig)
+-{
+-	unsigned int fam, model;
+-	unsigned int fam_ucode, model_ucode;
+-	struct extended_sigtable *ext_header;
+-	unsigned long total_size = get_totalsize(mc_header);
+-	unsigned long data_size = get_datasize(mc_header);
+-	int ext_sigcount, i;
+-	struct extended_signature *ext_sig;
+-
+-	fam   = x86_family(sig);
+-	model = x86_model(sig);
+-
+-	fam_ucode   = x86_family(mc_header->sig);
+-	model_ucode = x86_model(mc_header->sig);
+-
+-	if (fam == fam_ucode && model == model_ucode)
+-		return UCODE_OK;
+-
+-	/* Look for ext. headers: */
+-	if (total_size <= data_size + MC_HEADER_SIZE)
+-		return UCODE_NFOUND;
+-
+-	ext_header   = (void *) mc_header + data_size + MC_HEADER_SIZE;
+-	ext_sig      = (void *)ext_header + EXT_HEADER_SIZE;
+-	ext_sigcount = ext_header->count;
+-
+-	for (i = 0; i < ext_sigcount; i++) {
+-		fam_ucode   = x86_family(ext_sig->sig);
+-		model_ucode = x86_model(ext_sig->sig);
+-
+-		if (fam == fam_ucode && model == model_ucode)
+-			return UCODE_OK;
+-
+-		ext_sig++;
+-	}
+-	return UCODE_NFOUND;
+-}
+-
+ static int
+ save_microcode(struct mc_saved_data *mcs,
+ 	       struct microcode_intel **mc_saved_src,
+@@ -332,7 +287,8 @@ get_matching_model_microcode(unsigned lo
+ 		 * the platform, we need to find and save microcode patches
+ 		 * with the same family and model as the BSP.
+ 		 */
+-		if (matching_model_microcode(mc_header, uci->cpu_sig.sig) != UCODE_OK) {
++		if (!find_matching_signature(mc_header, uci->cpu_sig.sig,
++					     uci->cpu_sig.pf)) {
+ 			ucode_ptr += mc_size;
+ 			continue;
+ 		}
 
 
