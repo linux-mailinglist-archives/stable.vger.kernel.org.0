@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D1362C0836
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3912C0838
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732756AbgKWMqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:46:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60166 "EHLO mail.kernel.org"
+        id S1732762AbgKWMqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:46:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732754AbgKWMqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:46:33 -0500
+        id S1732758AbgKWMqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D31C02100A;
-        Mon, 23 Nov 2020 12:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50ADB20857;
+        Mon, 23 Nov 2020 12:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135593;
-        bh=FcQ2lWZ8l0PQE0qMcdwtHgkU+NqMLdt8Hnpc+Nd2D28=;
+        s=korg; t=1606135596;
+        bh=bF7j7kc1wI4juKfZsy39iL2//mp5XAyUOFzNMc18fuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lM6HEXK45Sj1GTyesaqVFSO2xe6DlINDaiUU4NiYgCr/j0IhD9Q3rzVK4CQQIYKJe
-         uYplfaV4JSkM+R6YXo6RHbIOsBV5Har+xOmdU8WAzF3D7qkGHvG358sZg4mCXhYbUz
-         xLvCK6Qbmaoys+1mpCvO6/YXFLNMGEt63I1Zz8Y4=
+        b=19d3Fr7I+e+7pV4Fdsp6A/kVcfjoKEvfZDt9dacxLGZ2F4u19AU+ZDkeXOi5BZJNT
+         OYDSpfonwK93xOUXFuHK8RNy6WgpmbDb4A+D013Sjv7OB81lXdUKTB4ppwAKoaLjh3
+         tJW3NEAPldRMLqakV1uSDEXf5MPe7GcfW/8sq1LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Liu <net147@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 125/252] drm: bridge: dw-hdmi: Avoid resetting force in the detect function
-Date:   Mon, 23 Nov 2020 13:21:15 +0100
-Message-Id: <20201123121841.625268664@linuxfoundation.org>
+Subject: [PATCH 5.9 126/252] tools, bpftool: Add missing close before bpftool net attach exit
+Date:   Mon, 23 Nov 2020 13:21:16 +0100
+Message-Id: <20201123121841.669972251@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,60 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Liu <net147@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit bc551d776b691022f49b5bb5379bd58f7c4eb76a ]
+[ Upstream commit 50431b45685b600fc2851a3f2b53e24643efe6d3 ]
 
-It has been observed that resetting force in the detect function can
-result in the PHY being powered down in response to hot-plug detect
-being asserted, even when the HDMI connector is forced on.
+progfd is created by prog_parse_fd() in do_attach() and before the latter
+returns in case of success, the file descriptor should be closed.
 
-Enabling debug messages and adding a call to dump_stack() in
-dw_hdmi_phy_power_off() shows the following in dmesg:
-[  160.637413] dwhdmi-rockchip ff940000.hdmi: EVENT=plugin
-[  160.637433] dwhdmi-rockchip ff940000.hdmi: PHY powered down in 0 iterations
-
-Call trace:
-dw_hdmi_phy_power_off
-dw_hdmi_phy_disable
-dw_hdmi_update_power
-dw_hdmi_detect
-dw_hdmi_connector_detect
-drm_helper_probe_detect_ctx
-drm_helper_hpd_irq_event
-dw_hdmi_irq
-irq_thread_fn
-irq_thread
-kthread
-ret_from_fork
-
-Fixes: 381f05a7a842 ("drm: bridge/dw_hdmi: add connector mode forcing")
-Signed-off-by: Jonathan Liu <net147@gmail.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201031081747.372599-1-net147@gmail.com
+Fixes: 04949ccc273e ("tools: bpftool: add net attach command to attach XDP on interface")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20201113115152.53178-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 6 ------
- 1 file changed, 6 deletions(-)
+ tools/bpf/bpftool/net.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index 748df1cacd2b7..0c79a9ba48bb6 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -2327,12 +2327,6 @@ static enum drm_connector_status dw_hdmi_detect(struct dw_hdmi *hdmi)
- {
- 	enum drm_connector_status result;
+diff --git a/tools/bpf/bpftool/net.c b/tools/bpf/bpftool/net.c
+index 56c3a2bae3ef2..029c8188a2f90 100644
+--- a/tools/bpf/bpftool/net.c
++++ b/tools/bpf/bpftool/net.c
+@@ -313,8 +313,8 @@ static int do_attach(int argc, char **argv)
  
--	mutex_lock(&hdmi->mutex);
--	hdmi->force = DRM_FORCE_UNSPECIFIED;
--	dw_hdmi_update_power(hdmi);
--	dw_hdmi_update_phy_mask(hdmi);
--	mutex_unlock(&hdmi->mutex);
+ 	ifindex = net_parse_dev(&argc, &argv);
+ 	if (ifindex < 1) {
+-		close(progfd);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto cleanup;
+ 	}
+ 
+ 	if (argc) {
+@@ -322,8 +322,8 @@ static int do_attach(int argc, char **argv)
+ 			overwrite = true;
+ 		} else {
+ 			p_err("expected 'overwrite', got: '%s'?", *argv);
+-			close(progfd);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto cleanup;
+ 		}
+ 	}
+ 
+@@ -331,17 +331,17 @@ static int do_attach(int argc, char **argv)
+ 	if (is_prefix("xdp", attach_type_strings[attach_type]))
+ 		err = do_attach_detach_xdp(progfd, attach_type, ifindex,
+ 					   overwrite);
 -
- 	result = hdmi->phy.ops->read_hpd(hdmi, hdmi->phy.data);
+-	if (err < 0) {
++	if (err) {
+ 		p_err("interface %s attach failed: %s",
+ 		      attach_type_strings[attach_type], strerror(-err));
+-		return err;
++		goto cleanup;
+ 	}
  
- 	mutex_lock(&hdmi->mutex);
+ 	if (json_output)
+ 		jsonw_null(json_wtr);
+-
+-	return 0;
++cleanup:
++	close(progfd);
++	return err;
+ }
+ 
+ static int do_detach(int argc, char **argv)
 -- 
 2.27.0
 
