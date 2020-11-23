@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084592C06FD
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0819B2C065D
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731686AbgKWMgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:36:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48508 "EHLO mail.kernel.org"
+        id S1730709AbgKWMaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731128AbgKWMgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:24 -0500
+        id S1729463AbgKWMaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11EE320721;
-        Mon, 23 Nov 2020 12:36:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57A4B208C3;
+        Mon, 23 Nov 2020 12:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134983;
-        bh=IhGgmv6GRH6dqQNgZnbLA6pljOrhQsyYQtqCzQ50IpM=;
+        s=korg; t=1606134612;
+        bh=oZDLj9l2yBLIC6hTfRyl2HIOnDTy2SLGywKsfrd3pNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oACjaH3F7EmtCJuYkY22VsQ0nJycaUE+4Nsy9jPT3E/gCdPGDdIk1FE3Fir83g9fq
-         ViVdPYhsqVW7QHl9Dxkx12b0usdc7qC+PcBv5gbbUOYAfQhOtT59VRrYvH6llOJxZE
-         a4JBmYlWab8wYQItT5yxppE0N/UHJZJh2siT3xRY=
+        b=yTvpO+w8KOysEnP5Th8ORgBjrerjea5VmtmLS2QcBaOGqaRynYGtNM0fEo5OK/nti
+         mNjZMKzv44tomIT4gDmXZCNRdyD/iAgGVEn84IAKZkNlRLlC3CJzoV08AZlkV0D29X
+         31i8eHLVZk2kF4HrEROeNMnjDXEG1jFX+ndcWxWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/158] ARM: dts: sun8i: h3: orangepi-plus2e: Enable RGMII RX/TX delay on Ethernet PHY
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 03/91] bnxt_en: read EEPROM A2h address using page 0
 Date:   Mon, 23 Nov 2020 13:21:23 +0100
-Message-Id: <20201123121822.590286725@linuxfoundation.org>
+Message-Id: <20201123121809.462289617@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-[ Upstream commit e080ab31a0aa126b0a7e4f67f2b01b371b852c88 ]
+[ Upstream commit 4260330b32b14330cfe427d568ac5f5b29b5be3d ]
 
-The Ethernet PHY on the Orange Pi Plus 2E has the RX and TX delays
-enabled on the PHY, using pull-ups on the RXDLY and TXDLY pins.
+The module eeprom address range returned by bnxt_get_module_eeprom()
+should be 256 bytes of A0h address space, the lower half of the A2h
+address space, and page 0 for the upper half of the A2h address space.
 
-Fix the phy-mode description to correct reflect this so that the
-implementation doesn't reconfigure the delays incorrectly. This
-happened with commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e
-rx/tx delay config").
+Fix the firmware call by passing page_number 0 for the A2h slave address
+space.
 
-Fixes: 4904337fe34f ("ARM: dts: sunxi: Restore EMAC changes (boards)")
-Fixes: 7a78ef92cdc5 ("ARM: sun8i: h3: Enable EMAC with external PHY on Orange Pi Plus 2E")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201024162515.30032-5-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 42ee18fe4ca2 ("bnxt_en: Add Support for ETHTOOL_GMODULEINFO and ETHTOOL_GMODULEEEPRO")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/sun8i-h3-orangepi-plus2e.dts | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-plus2e.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-plus2e.dts
-index 6dbf7b2e0c13c..b6ca45d18e511 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-plus2e.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-plus2e.dts
-@@ -67,7 +67,7 @@
- 	pinctrl-0 = <&emac_rgmii_pins>;
- 	phy-supply = <&reg_gmac_3v3>;
- 	phy-handle = <&ext_rgmii_phy>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
- 
--- 
-2.27.0
-
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2300,7 +2300,7 @@ static int bnxt_get_module_eeprom(struct
+ 	/* Read A2 portion of the EEPROM */
+ 	if (length) {
+ 		start -= ETH_MODULE_SFF_8436_LEN;
+-		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 1,
++		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 0,
+ 						      start, length, data);
+ 	}
+ 	return rc;
 
 
