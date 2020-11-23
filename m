@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A41A12C0AA2
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:54:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16F32C0AE9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729423AbgKWMXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:23:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S1730845AbgKWMbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:31:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726529AbgKWMX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:27 -0500
+        id S1730916AbgKWMbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:31:42 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E0D6208C3;
-        Mon, 23 Nov 2020 12:23:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A4C520781;
+        Mon, 23 Nov 2020 12:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134206;
-        bh=cIzDVHwSJvGivYly1xFLrVko9+GWcVrG2cO7U+O2F04=;
+        s=korg; t=1606134701;
+        bh=2SJF0xW/s368wSUMH5FRjmo7TsU0/ZJWqMCftbMkCu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXKCFj5Z0coFYOJqZmlUyTHhPdAdyGU6fhtdBnWeXEj9sBPKYVoKFa7pQCBVWNdlP
-         YY+FQIH/CS/porvS/yjkmFjnGHDv3jY/ZuC41cx1IViup4ZEYwkCpd1kYr7/dOQQBb
-         +CU1IaR/eg7kr9lUAfH9G+naEBGN7wmNyT5kCp+M=
+        b=r61iYQx1ZCFRR74/xs7VfcIi515yE+Pj0XVU3ywVwtoD2uOs29bAQJlxenmB9dYQX
+         fUinJ9W3LqliE1aeuAxiTgoQ+cGndoV5rQ2ro9fjRul34vgf2PwmrT4mNB2oH7Lcwy
+         OULl6/RioztyzYMZ4xLWKyfME2M/FXs2b/rbLbtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dja@axtens.net,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 26/38] [PATCH v4.4] powerpc/uaccess-flush: fix corenet64_smp_defconfig build
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Remigiusz=20Ko=C5=82=C5=82=C4=85taj?= 
+        <remigiusz.kollataj@mobica.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/91] can: mcba_usb: mcba_usb_start_xmit(): first fill skb, then pass to can_put_echo_skb()
 Date:   Mon, 23 Nov 2020 13:22:12 +0100
-Message-Id: <20201123121805.554244530@linuxfoundation.org>
+Message-Id: <20201123121811.850807835@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
-References: <20201123121804.306030358@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-Gunter reports problems with the corenet64_smp_defconfig:
+[ Upstream commit 81c9c8e0adef3285336b942f93287c554c89e6c6 ]
 
-In file included from arch/powerpc/kernel/ppc_ksyms.c:10:0:
-arch/powerpc/include/asm/book3s/64/kup-radix.h:11:29: error: redefinition of ‘allow_user_access’
- static __always_inline void allow_user_access(void __user *to, const void __user *from,
-			     ^~~~~~~~~~~~~~~~~
-In file included from arch/powerpc/include/asm/uaccess.h:12:0,
-		 from arch/powerpc/kernel/ppc_ksyms.c:8:
-arch/powerpc/include/asm/kup.h:12:20: note: previous definition of ‘allow_user_access’ was here
- static inline void allow_user_access(void __user *to, const void __user *from,
-		    ^~~~~~~~~~~~~~~~~
+The driver has to first fill the skb with data and then handle it to
+can_put_echo_skb(). This patch moves the can_put_echo_skb() down, right before
+sending the skb out via USB.
 
-This is because ppc_ksyms.c imports asm/book3s/64/kup-radix.h guarded by
-CONFIG_PPC64, rather than CONFIG_PPC_BOOK3S_64 which it should do.
-
-Fix it.
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Cc: Remigiusz Kołłątaj <remigiusz.kollataj@mobica.com>
+Link: https://lore.kernel.org/r/20201111221204.1639007-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/ppc_ksyms.c |    4 ++--
+ drivers/net/can/usb/mcba_usb.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/ppc_ksyms.c
-+++ b/arch/powerpc/kernel/ppc_ksyms.c
-@@ -6,7 +6,7 @@
- #include <asm/cacheflush.h>
- #include <asm/epapr_hcalls.h>
- #include <asm/uaccess.h>
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- #include <asm/book3s/64/kup-radix.h>
- #endif
+diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
+index 1b0afeaf1a3c2..896f5b0227295 100644
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -337,8 +337,6 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (!ctx)
+ 		return NETDEV_TX_BUSY;
  
-@@ -50,6 +50,6 @@ EXPORT_SYMBOL(current_stack_pointer);
+-	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
+-
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+ 		/* SIDH    | SIDL                 | EIDH   | EIDL
+ 		 * 28 - 21 | 20 19 18 x x x 17 16 | 15 - 8 | 7 - 0
+@@ -368,6 +366,8 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (cf->can_id & CAN_RTR_FLAG)
+ 		usb_msg.dlc |= MCBA_DLC_RTR_MASK;
  
- EXPORT_SYMBOL(__arch_clear_user);
- 
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- EXPORT_SYMBOL(do_uaccess_flush);
- #endif
++	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
++
+ 	err = mcba_usb_xmit(priv, (struct mcba_usb_msg *)&usb_msg, ctx);
+ 	if (err)
+ 		goto xmit_failed;
+-- 
+2.27.0
+
 
 
