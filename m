@@ -2,116 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D084F2C0322
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 11:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 333B92C0331
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 11:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbgKWKVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 05:21:49 -0500
-Received: from m42-4.mailgun.net ([69.72.42.4]:63006 "EHLO m42-4.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727895AbgKWKVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 05:21:47 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1606126907; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=ANmJoYuuswtZF1g4TGnjWKvS5jfl6v0C3i9XCSjNnmQ=; b=gxw0bKdyAM3rr6fFWbJAwxhSEJSAkJfkybwQVN8DrYmtCY74g2MkqSJf+EGNtFQgWm3pAugi
- 3Bxq/FYA0c/uI8BmTCwIwrq9T7Os8iglHhLJLiLRbRfIxAh6CLd/l0RQv8cnW2DPbsfozZSp
- uxP79tq/r64mpzOhZ+KwEBOyZzM=
-X-Mailgun-Sending-Ip: 69.72.42.4
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
- 5fbb8d380c9500dc7bad62be (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 23 Nov 2020 10:21:44
- GMT
-Sender: saiprakash.ranjan=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 3A547C43463; Mon, 23 Nov 2020 10:21:44 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: saiprakash.ranjan)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 20405C433C6;
-        Mon, 23 Nov 2020 10:21:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 20405C433C6
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=saiprakash.ranjan@codeaurora.org
-From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-To:     Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>
-Cc:     coresight@lists.linaro.org, Stephen Boyd <swboyd@chromium.org>,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Mao Jinlong <jinlmao@codeaurora.org>, stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Subject: [PATCH] coresight: tmc-etr: Check if page is valid before dma_map_page()
-Date:   Mon, 23 Nov 2020 15:51:33 +0530
-Message-Id: <20201123102133.18979-1-saiprakash.ranjan@codeaurora.org>
-X-Mailer: git-send-email 2.27.0
+        id S1726466AbgKWKY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 05:24:57 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:40237 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726416AbgKWKY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 05:24:56 -0500
+Received: by mail-lj1-f196.google.com with SMTP id y10so1922615ljc.7;
+        Mon, 23 Nov 2020 02:24:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nLzASMogujWGHnxanDIbXGOwPXzPxHu1wp2tIpWZ+rY=;
+        b=pV9IVeenhb3XcHX5SmmqLrDEesA34ABkNSqb6D78Zb2lJkNp73YrsXkTpcp1MRaAp2
+         jsc4318QBxZijOZng2KR9sBXGCAA8ewbFYn8j30Hpv2oMCexjUCh08wPqCAZuFocStJT
+         WaRVZYwHofBm2JWdDbguVEdccZ3OqSPSi7Tk7T+a7qq8vD+wSSfLDJhOz1iIeLTtKPdZ
+         hjeNHc72Wv7gZcz8BjekDfAntMTxqdz6IZGD8tToJyHX4VqCXIVS6wG1JCYHZ6UFeTMZ
+         E8E0Ntrx1TF7LmxjAQ7wkeCe3AKsw0AMZ2vsxwM0vmGtL1e/ehAOyqHlhD3Q61lPQKA6
+         PaQg==
+X-Gm-Message-State: AOAM5322xm4CgTz+y49i4y4yEyyFdhwe/GA1eiRXKMSChRSUlzFLx71L
+        kXDN7cfe7J3qXmRC1beKjj3cmbNivvFIUg==
+X-Google-Smtp-Source: ABdhPJyYDhPRmS+pUDfJXySNGbs8u+iD3A5Rxn1MCVE9KIYVyiRPbjl8qTUPb035OfDFqbthhcQK0w==
+X-Received: by 2002:a2e:7a0a:: with SMTP id v10mr13327749ljc.5.1606127094045;
+        Mon, 23 Nov 2020 02:24:54 -0800 (PST)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id n6sm429919lfi.106.2020.11.23.02.24.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2020 02:24:52 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@xi.terra>)
+        id 1kh91q-00027m-4N; Mon, 23 Nov 2020 11:25:02 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Frank Rowand <frowand.list@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Daniel Kurtz <djkurtz@chromium.org>,
+        linux-arch@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v2 1/8] of: fix linker-section match-table corruption
+Date:   Mon, 23 Nov 2020 11:23:12 +0100
+Message-Id: <20201123102319.8090-2-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201123102319.8090-1-johan@kernel.org>
+References: <20201123102319.8090-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Jinlong <jinlmao@codeaurora.org>
+Specify type alignment when declaring linker-section match-table entries
+to prevent gcc from increasing alignment and corrupting the various
+tables with padding (e.g. timers, irqchips, clocks, reserved memory).
 
-alloc_pages_node() return should be checked before calling
-dma_map_page() to make sure that valid page is mapped or
-else it can lead to aborts as below:
+This is specifically needed on x86 where gcc (typically) aligns larger
+objects like struct of_device_id with static extent on 32-byte
+boundaries which at best prevents matching on anything but the first
+entry. Specifying alignment when declaring variables suppresses this
+optimisation.
 
- Unable to handle kernel paging request at virtual address ffffffc008000000
- Mem abort info:
- <snip>...
- pc : __dma_inv_area+0x40/0x58
- lr : dma_direct_map_page+0xd8/0x1c8
+Here's a 64-bit example where all entries are corrupt as 16 bytes of
+padding has been inserted before the first entry:
 
- Call trace:
-  __dma_inv_area
-  tmc_pages_alloc
-  tmc_alloc_data_pages
-  tmc_alloc_sg_table
-  tmc_init_etr_sg_table
-  tmc_alloc_etr_buf
-  tmc_enable_etr_sink_sysfs
-  tmc_enable_etr_sink
-  coresight_enable_path
-  coresight_enable
-  enable_source_store
-  dev_attr_store
-  sysfs_kf_write
+	ffffffff8266b4b0 D __clk_of_table
+	ffffffff8266b4c0 d __of_table_fixed_factor_clk
+	ffffffff8266b5a0 d __of_table_fixed_clk
+	ffffffff8266b680 d __clk_of_table_sentinel
 
-Fixes: 99443ea19e8b ("coresight: Add generic TMC sg table framework")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mao Jinlong <jinlmao@codeaurora.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+And here's a 32-bit example where the 8-byte-aligned table happens to be
+placed on a 32-byte boundary so that all but the first entry are corrupt
+due to the 28 bytes of padding inserted between entries:
+
+	812b3ec0 D __irqchip_of_table
+	812b3ec0 d __of_table_irqchip1
+	812b3fa0 d __of_table_irqchip2
+	812b4080 d __of_table_irqchip3
+	812b4160 d irqchip_of_match_end
+
+Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
+alignment), and on arm using gcc-7.2.
+
+Note that there are no in-tree users of these tables on x86 currently
+(even if they are included in the image).
+
+Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
+Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
+Cc: stable <stable@vger.kernel.org>     # 3.9
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-tmc-etr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/of.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-tmc-etr.c b/drivers/hwtracing/coresight/coresight-tmc-etr.c
-index 525f0ecc129c..a31a4d7ae25e 100644
---- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
-@@ -217,6 +217,8 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
- 		} else {
- 			page = alloc_pages_node(node,
- 						GFP_KERNEL | __GFP_ZERO, 0);
-+			if (!page)
-+				goto err;
- 		}
- 		paddr = dma_map_page(real_dev, page, 0, PAGE_SIZE, dir);
- 		if (dma_mapping_error(real_dev, paddr))
-
-base-commit: c04e5d7bbf6f92a346d6b36770705e7f034df42d
+diff --git a/include/linux/of.h b/include/linux/of.h
+index 5d51891cbf1a..af655d264f10 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -1300,6 +1300,7 @@ static inline int of_get_available_child_count(const struct device_node *np)
+ #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
+ 	static const struct of_device_id __of_table_##name		\
+ 		__used __section("__" #table "_of_table")		\
++		__aligned(__alignof__(struct of_device_id))		\
+ 		 = { .compatible = compat,				\
+ 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
+ #else
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-of Code Aurora Forum, hosted by The Linux Foundation
+2.26.2
 
