@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375382C0927
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BCE2C0925
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387598AbgKWNEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:04:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35426 "EHLO mail.kernel.org"
+        id S2387612AbgKWNEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:04:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387614AbgKWMvE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:51:04 -0500
+        id S1732710AbgKWMvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:51:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEFA6204EF;
-        Mon, 23 Nov 2020 12:51:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88726208C3;
+        Mon, 23 Nov 2020 12:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135863;
-        bh=DyV3NMrTf54fo09w7VNMgr1zyAz6enWWvzekMq9V1QY=;
+        s=korg; t=1606135866;
+        bh=kDzxxjlNPG8HM5ihcmcN1lJ//PpCGJ83b9RItFHlA8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qt1E2jMVY2/0+TjcZykeoCLaVh0/COWvX/csTVdPxWbZmT2HQJ00lX9NoILpOI6wC
-         nLDoSOEVX3jAiXfaW2YqK0Kn152HVKPG7LziNm9hP4qAuREn7kmZhebrOWm04Wdfom
-         CyonkjQRFLpjfrmLxxue61vVRX6RcOhX5HoyacLg=
+        b=1hjqnVQyKzmyEKU8Zr0TrRl4jMeZ4aI4/CjLGLDDfgqBMAFo2VRSUKkBT972MsoDY
+         z9oHpt1LYrId8EmcJXTkI15R7ny1HSGYqLwSxEGs+M+ZM70oEbcqc1CCIt+4r3m6St
+         8lnFQMCetRK0aA/o122HiDI4FnzAJ0bWN7NoQqwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
         =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>
-Subject: [PATCH 5.9 223/252] regulator: fix memory leak with repeated set_machine_constraints()
-Date:   Mon, 23 Nov 2020 13:22:53 +0100
-Message-Id: <20201123121846.334515356@linuxfoundation.org>
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.9 224/252] regulator: avoid resolve_supply() infinite recursion
+Date:   Mon, 23 Nov 2020 13:22:54 +0100
+Message-Id: <20201123121846.383675098@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,100 +45,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 57a6ad482af256b2a13de14194fb8f67c1a65f10 upstream.
+commit 4b639e254d3d4f15ee4ff2b890a447204cfbeea9 upstream.
 
-Fixed commit introduced a possible second call to
-set_machine_constraints() and that allocates memory for
-rdev->constraints. Move the allocation to the caller so
-it's easier to manage and done once.
+When a regulator's name equals its supply's name the
+regulator_resolve_supply() recurses indefinitely. Add a check
+so that debugging the problem is easier. The "fixed" commit
+just exposed the problem.
 
 Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
 Cc: stable@vger.kernel.org
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
-Link: https://lore.kernel.org/r/78c3d4016cebc08d441aad18cb924b4e4d9cf9df.1605226675.git.mirq-linux@rere.qmqm.pl
+Link: https://lore.kernel.org/r/c6171057cfc0896f950c4d8cb82df0f9f1b89ad9.1605226675.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |   29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/regulator/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
 --- a/drivers/regulator/core.c
 +++ b/drivers/regulator/core.c
-@@ -1280,7 +1280,6 @@ static int _regulator_do_enable(struct r
- /**
-  * set_machine_constraints - sets regulator constraints
-  * @rdev: regulator source
-- * @constraints: constraints to apply
-  *
-  * Allows platform initialisation code to define and constrain
-  * regulator circuits e.g. valid voltage/current ranges, etc.  NOTE:
-@@ -1288,21 +1287,11 @@ static int _regulator_do_enable(struct r
-  * regulator operations to proceed i.e. set_voltage, set_current_limit,
-  * set_mode.
-  */
--static int set_machine_constraints(struct regulator_dev *rdev,
--	const struct regulation_constraints *constraints)
-+static int set_machine_constraints(struct regulator_dev *rdev)
- {
- 	int ret = 0;
- 	const struct regulator_ops *ops = rdev->desc->ops;
+@@ -1805,6 +1805,12 @@ static int regulator_resolve_supply(stru
+ 		}
+ 	}
  
--	if (constraints)
--		rdev->constraints = kmemdup(constraints, sizeof(*constraints),
--					    GFP_KERNEL);
--	else
--		rdev->constraints = kzalloc(sizeof(*constraints),
--					    GFP_KERNEL);
--	if (!rdev->constraints)
--		return -ENOMEM;
--
- 	ret = machine_constraints_voltage(rdev, rdev->constraints);
- 	if (ret != 0)
- 		return ret;
-@@ -5112,7 +5101,6 @@ struct regulator_dev *
- regulator_register(const struct regulator_desc *regulator_desc,
- 		   const struct regulator_config *cfg)
- {
--	const struct regulation_constraints *constraints = NULL;
- 	const struct regulator_init_data *init_data;
- 	struct regulator_config *config = NULL;
- 	static atomic_t regulator_no = ATOMIC_INIT(-1);
-@@ -5251,14 +5239,23 @@ regulator_register(const struct regulato
- 
- 	/* set regulator constraints */
- 	if (init_data)
--		constraints = &init_data->constraints;
-+		rdev->constraints = kmemdup(&init_data->constraints,
-+					    sizeof(*rdev->constraints),
-+					    GFP_KERNEL);
-+	else
-+		rdev->constraints = kzalloc(sizeof(*rdev->constraints),
-+					    GFP_KERNEL);
-+	if (!rdev->constraints) {
-+		ret = -ENOMEM;
-+		goto wash;
++	if (r == rdev) {
++		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
++			rdev->desc->name, rdev->supply_name);
++		return -EINVAL;
 +	}
- 
- 	if (init_data && init_data->supply_regulator)
- 		rdev->supply_name = init_data->supply_regulator;
- 	else if (regulator_desc->supply_name)
- 		rdev->supply_name = regulator_desc->supply_name;
- 
--	ret = set_machine_constraints(rdev, constraints);
-+	ret = set_machine_constraints(rdev);
- 	if (ret == -EPROBE_DEFER) {
- 		/* Regulator might be in bypass mode and so needs its supply
- 		 * to set the constraints */
-@@ -5267,7 +5264,7 @@ regulator_register(const struct regulato
- 		 * that is just being created */
- 		ret = regulator_resolve_supply(rdev);
- 		if (!ret)
--			ret = set_machine_constraints(rdev, constraints);
-+			ret = set_machine_constraints(rdev);
- 		else
- 			rdev_dbg(rdev, "unable to resolve supply early: %pe\n",
- 				 ERR_PTR(ret));
++
+ 	/*
+ 	 * If the supply's parent device is not the same as the
+ 	 * regulator's parent device, then ensure the parent device
 
 
