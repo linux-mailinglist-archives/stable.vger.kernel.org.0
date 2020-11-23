@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 694302C070B
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 920192C060B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731213AbgKWMhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49154 "EHLO mail.kernel.org"
+        id S1730210AbgKWM0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:26:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731852AbgKWMhB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:37:01 -0500
+        id S1730204AbgKWM0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:26:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09FD62076E;
-        Mon, 23 Nov 2020 12:36:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA36620781;
+        Mon, 23 Nov 2020 12:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135020;
-        bh=f31GyTFKZwGV9LB58bMPchShsBodOSwsNdYE+5SE1Ps=;
+        s=korg; t=1606134409;
+        bh=+CMwAKeIBf4w/ag11G0vWIlP8yGJgsq8f4J1Mse+Zjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwxTUjzGCD6tUDqtPGQJOwzb+u9u9EFNCvbgw4JmJzIZov2qmDOkTuqKcC0iTu2wV
-         2mqZD69XH7bvwVdWiOhv1SopemHU/QWo2OvRmZvo5lNAAFaA5YRSU5Z0O67u9RAkAv
-         QN9nReDrTqa3qqrPhYCdQiiarYBOT6L+a6jqF4qI=
+        b=XGXenFevQmAwJ0VKhbLI5OSlrtXN7y5mAgWA7xyLEWtBVQtyL7ENqK1MRqLesHYof
+         u1QZvT+nCBHHGkTGA/PT+gfBGrfHod7WbJ7SxfOijKtvY6M9QNPbIugzQZS9lsM73H
+         VHyps6HFgYdJu0Unc3XO44eV0lqbDXcio8Z1C7nA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 075/158] can: af_can: prevent potential access of uninitialized member in can_rcv()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 01/60] ah6: fix error return code in ah6_input()
 Date:   Mon, 23 Nov 2020 13:21:43 +0100
-Message-Id: <20201123121823.557093324@linuxfoundation.org>
+Message-Id: <20201123121805.103199804@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,68 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit c8c958a58fc67f353289986850a0edf553435702 ]
+[ Upstream commit a5ebcbdf34b65fcc07f38eaf2d60563b42619a59 ]
 
-In can_rcv(), cfd->len is uninitialized when skb->len = 0, and this
-uninitialized cfd->len is accessed nonetheless by pr_warn_once().
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fix this uninitialized variable access by checking cfd->len's validity
-condition (cfd->len > CAN_MAX_DLEN) separately after the skb->len's
-condition is checked, and appropriately modify the log messages that
-are generated as well.
-In case either of the required conditions fail, the skb is freed and
-NET_RX_DROP is returned, same as before.
-
-Fixes: 8cb68751c115 ("can: af_can: can_rcv(): replace WARN_ONCE by pr_warn_once")
-Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
-Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201103213906.24219-2-anant.thazhemadam@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1605581105-35295-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/af_can.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ net/ipv6/ah6.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/can/af_can.c b/net/can/af_can.c
-index 128d37a4c2e0b..09d2329719c17 100644
---- a/net/can/af_can.c
-+++ b/net/can/af_can.c
-@@ -675,16 +675,25 @@ static int can_rcv(struct sk_buff *skb, struct net_device *dev,
- {
- 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
+--- a/net/ipv6/ah6.c
++++ b/net/ipv6/ah6.c
+@@ -599,7 +599,8 @@ static int ah6_input(struct xfrm_state *
+ 	memcpy(auth_data, ah->auth_data, ahp->icv_trunc_len);
+ 	memset(ah->auth_data, 0, ahp->icv_trunc_len);
  
--	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU ||
--		     cfd->len > CAN_MAX_DLEN)) {
--		pr_warn_once("PF_CAN: dropped non conform CAN skbuf: dev type %d, len %d, datalen %d\n",
-+	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU)) {
-+		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d\n",
-+			     dev->type, skb->len);
-+		goto free_skb;
-+	}
-+
-+	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
-+	if (unlikely(cfd->len > CAN_MAX_DLEN)) {
-+		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d, datalen %d\n",
- 			     dev->type, skb->len, cfd->len);
--		kfree_skb(skb);
--		return NET_RX_DROP;
-+		goto free_skb;
- 	}
+-	if (ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN))
++	err = ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN);
++	if (err)
+ 		goto out_free;
  
- 	can_receive(skb, dev);
- 	return NET_RX_SUCCESS;
-+
-+free_skb:
-+	kfree_skb(skb);
-+	return NET_RX_DROP;
- }
- 
- static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
--- 
-2.27.0
-
+ 	ip6h->priority    = 0;
 
 
