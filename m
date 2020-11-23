@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 658772C060F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 778B62C0734
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730246AbgKWM1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:27:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36996 "EHLO mail.kernel.org"
+        id S1732025AbgKWMi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:38:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730256AbgKWM1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:27:06 -0500
+        id S1732092AbgKWMi0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:38:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60FAA20781;
-        Mon, 23 Nov 2020 12:27:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 704E72076E;
+        Mon, 23 Nov 2020 12:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134426;
-        bh=X//zobSDZ3L331AYD4tAv4j4HKY0XYtevooqjRZONoM=;
+        s=korg; t=1606135106;
+        bh=ZvAH1k7Ouwyd3QMqedfB2CKV4/JJlmCX0kVnLt7Ih4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yC66Z+u64lKoPKxB9Ul+4yey/JoOpuqcHpt+uG8pPcUORI16nFY9Y7JpufpuCl+mH
-         EII/fokBAosHdvFPVfSDGIVe+66hPx40hk4aXs02j+MdyXWViE7N6cE4yTPL7qSxtV
-         f5+t3yP4HsdDDNE4OWjBi+l0661u+wh1giNVJQ/g=
+        b=AVO92ocuKYoJnESscS47n9IVSGfbhlILIEuF8prt9ryT1P690jhDSGsnLTvykDHn/
+         9gUnd/zIm6DXvxt9d71W9faktHYGbYo7fTMHkAXTh4toBGPCEOSWIqRKZGb3Nvw7gg
+         Ijhg/TcIQb5mnK7Yf+5Cn4m9tasq6pgSejJyCUp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 15/60] qlcnic: fix error return code in qlcnic_83xx_restart_hw()
+        Wang Hai <wanghai38@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/158] selftests/bpf: Fix error return code in run_getsockopt_test()
 Date:   Mon, 23 Nov 2020 13:21:57 +0100
-Message-Id: <20201123121805.770379325@linuxfoundation.org>
+Message-Id: <20201123121824.226463079@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 3beb9be165083c2964eba1923601c3bfac0b02d4 ]
+[ Upstream commit 2acc3c1bc8e98bc66b1badec42e9ea205b4fcdaa ]
 
 Fix to return a negative error code from the error handling
 case instead of 0, as done elsewhere in this function.
 
-Fixes: 3ced0a88cd4c ("qlcnic: Add support to run firmware POST")
+Fixes: 65b4414a05eb ("selftests/bpf: add sockopt test that exercises BPF_F_ALLOW_MULTI")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1605248186-16013-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20201116101633.64627-1-wanghai38@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |    3 ++-
+ tools/testing/selftests/bpf/prog_tests/sockopt_multi.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2251,7 +2251,8 @@ static int qlcnic_83xx_restart_hw(struct
+diff --git a/tools/testing/selftests/bpf/prog_tests/sockopt_multi.c b/tools/testing/selftests/bpf/prog_tests/sockopt_multi.c
+index 29188d6f5c8de..51fac975b3163 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sockopt_multi.c
++++ b/tools/testing/selftests/bpf/prog_tests/sockopt_multi.c
+@@ -138,7 +138,8 @@ static int run_getsockopt_test(struct bpf_object *obj, int cg_parent,
+ 	 */
  
- 	/* Boot either flash image or firmware image from host file system */
- 	if (qlcnic_load_fw_file == 1) {
--		if (qlcnic_83xx_load_fw_image_from_host(adapter))
-+		err = qlcnic_83xx_load_fw_image_from_host(adapter);
-+		if (err)
- 			return err;
- 	} else {
- 		QLC_SHARED_REG_WR32(adapter, QLCNIC_FW_IMG_VALID,
+ 	buf = 0x40;
+-	if (setsockopt(sock_fd, SOL_IP, IP_TOS, &buf, 1) < 0) {
++	err = setsockopt(sock_fd, SOL_IP, IP_TOS, &buf, 1);
++	if (err < 0) {
+ 		log_err("Failed to call setsockopt(IP_TOS)");
+ 		goto detach;
+ 	}
+-- 
+2.27.0
+
 
 
