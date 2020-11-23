@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC8C2C07DD
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EA22C07DE
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbgKWMou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:44:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58092 "EHLO mail.kernel.org"
+        id S1730907AbgKWMoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:44:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730394AbgKWMos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:44:48 -0500
+        id S1730904AbgKWMoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:44:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB0B120888;
-        Mon, 23 Nov 2020 12:44:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FA2620857;
+        Mon, 23 Nov 2020 12:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135488;
-        bh=5ONfmuhu1eJSrJ5+DMlvqQn0ruu9+23QUEYy8h//tIw=;
+        s=korg; t=1606135493;
+        bh=Pld0y+BpjrJ3AOaf36DmjLFIQv6GGI7xcnt001j928o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFq5D29v3B8T834qUAkc9m3YEKOXUS7vYzOryQksFsS6niwZLiTpDhZ6KngR5f+aT
-         y8hnl1CCt/uSBXRUxJQ1PvzKor9IPSflWrqwc7d3AialK5a0wlm5VdQSazfdQDp4gp
-         +GiSnmCiRKBUmApNO56pwO6puq4vuGaN6jsWcZss=
+        b=meDIsjw91+VekyqkWRSlSS8ZDVwoto4hM6nvLte6u4JDlih8gcig38A9KvSZcVRei
+         IbzkNK0Cgs6mVB1fI0q8tcexywzCBtju22iCr7Y/jEyzL8GXWchSMYmENPKgH8hllk
+         ssF6iYy+/DM8xs9VU6be6pmq3N3tsBxyDd5u8wN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Maxime Ripard <maxime@cerno.tech>,
         Jernej Skrabec <jernej.skrabec@siol.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 087/252] ARM: dts: sun9i: Enable both RGMII RX/TX delay on Ethernet PHY
-Date:   Mon, 23 Nov 2020 13:20:37 +0100
-Message-Id: <20201123121839.792325002@linuxfoundation.org>
+Subject: [PATCH 5.9 089/252] arm64: dts: allwinner: h5: libretech-all-h5-cc: Enable RGMII RX/TX delay on PHY
+Date:   Mon, 23 Nov 2020 13:20:39 +0100
+Message-Id: <20201123121839.886769195@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,53 +46,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit b1064037e8ecf09d587b7b4966eebe0c362908e5 ]
+[ Upstream commit 2bd8570d20c88909b8be3251727a26476b02652c ]
 
-The Ethernet PHY on the Cubieboard 4 and A80 Optimus have the RX
-and TX delays enabled on the PHY, using pull-ups on the RXDLY and
-TXDLY pins.
+The Ethernet PHY on the Libre Computer ALL-H5-CC has the RX and TX
+delays enabled on the PHY, using pull-ups on the RXDLY and TXDLY pins.
 
 Fix the phy-mode description to correct reflect this so that the
 implementation doesn't reconfigure the delays incorrectly. This
 happened with commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e
 rx/tx delay config").
 
-Fixes: 98048143b7f8 ("ARM: dts: sun9i: cubieboard4: Enable GMAC")
-Fixes: bc9bd03a44f9 ("ARM: dts: sun9i: a80-optimus: Enable GMAC")
+Fixes: 60d0426d7603 ("arm64: dts: allwinner: h5: Add Libre Computer ALL-H5-CC H5 board")
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201024162515.30032-7-wens@kernel.org
+Link: https://lore.kernel.org/r/20201024162515.30032-9-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 2 +-
- arch/arm/boot/dts/sun9i-a80-optimus.dts     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h5-libretech-all-h5-cc.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index d3b337b043a15..484b93df20cb6 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -129,7 +129,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&gmac_rgmii_pins>;
- 	phy-handle = <&phy1>;
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5-libretech-all-h5-cc.dts b/arch/arm64/boot/dts/allwinner/sun50i-h5-libretech-all-h5-cc.dts
+index df1b9263ad0e2..6e30a564c87f6 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5-libretech-all-h5-cc.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5-libretech-all-h5-cc.dts
+@@ -36,7 +36,7 @@
+ 	pinctrl-0 = <&emac_rgmii_pins>;
+ 	phy-supply = <&reg_gmac_3v3>;
+ 	phy-handle = <&ext_rgmii_phy>;
 -	phy-mode = "rgmii";
 +	phy-mode = "rgmii-id";
- 	phy-supply = <&reg_cldo1>;
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index bbc6335e56314..5c3580d712e40 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -124,7 +124,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&gmac_rgmii_pins>;
- 	phy-handle = <&phy1>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-supply = <&reg_cldo1>;
+ 	/delete-property/ allwinner,leds-active-low;
  	status = "okay";
  };
 -- 
