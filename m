@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 774612C0754
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 665712C0756
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732350AbgKWMju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:39:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52622 "EHLO mail.kernel.org"
+        id S1732379AbgKWMj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:39:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732338AbgKWMjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:39:49 -0500
+        id S1732377AbgKWMjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:39:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A836208DB;
-        Mon, 23 Nov 2020 12:39:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569F220857;
+        Mon, 23 Nov 2020 12:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135188;
-        bh=H9uK/2MhtcSMf/LlP7tZgmppFmP/4GMIrxIkEpiOGQg=;
+        s=korg; t=1606135195;
+        bh=zwBQ3BKA4R2yhDU/TO/u//Nnyqnb33oJxj9u9oogg64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuUmrSrb199uxElUZzNJX2uICymqVdUas2uh0eykYh2SfU7QUG5rRh4d2mKuEKXrM
-         eaHu0BsXwxSNuUUh3UvYiGnqMuFbBh5lwMR1arCsvDXrD3pd+TFLQSxq48oOGAYuDm
-         ZM2E6CJvT07gbgeW2VNrrhjfKlpzxVE0m5/n85S8=
+        b=LIDhreyUoot85OJe0PlC5778ZdkwoNcdNTDRjiHkXwotmBzURtP8pTnIsGhqIYj3Q
+         K4QtN/FXNSaWeCPTaUlnPjR3yfbBIDqmkB51uB8vxKwsar+N2oMvo+JRHIIe9OgXom
+         YrOmFS+iiu5a6CmJWR5X3cP4O5DLKBj8uTw5KpJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 137/158] regulator: pfuze100: limit pfuze-support-disable-sw to pfuze{100,200}
-Date:   Mon, 23 Nov 2020 13:22:45 +0100
-Message-Id: <20201123121826.538738599@linuxfoundation.org>
+Subject: [PATCH 5.4 139/158] regulator: avoid resolve_supply() infinite recursion
+Date:   Mon, 23 Nov 2020 13:22:47 +0100
+Message-Id: <20201123121826.640186680@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -42,48 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 365ec8b61689bd64d6a61e129e0319bf71336407 upstream.
+commit 4b639e254d3d4f15ee4ff2b890a447204cfbeea9 upstream.
 
-Limit the fsl,pfuze-support-disable-sw to the pfuze100 and pfuze200
-variants.
-When enabling fsl,pfuze-support-disable-sw and using a pfuze3000 or
-pfuze3001, the driver would choose pfuze100_sw_disable_regulator_ops
-instead of the newly introduced and correct pfuze3000_sw_regulator_ops.
+When a regulator's name equals its supply's name the
+regulator_resolve_supply() recurses indefinitely. Add a check
+so that debugging the problem is easier. The "fixed" commit
+just exposed the problem.
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Fixes: 6f1cf5257acc ("regualtor: pfuze100: correct sw1a/sw2 on pfuze3000")
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201110174113.2066534-1-sean@geanix.com
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
+Link: https://lore.kernel.org/r/c6171057cfc0896f950c4d8cb82df0f9f1b89ad9.1605226675.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/pfuze100-regulator.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/regulator/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -833,11 +833,14 @@ static int pfuze100_regulator_probe(stru
- 		 * the switched regulator till yet.
- 		 */
- 		if (pfuze_chip->flags & PFUZE_FLAG_DISABLE_SW) {
--			if (pfuze_chip->regulator_descs[i].sw_reg) {
--				desc->ops = &pfuze100_sw_disable_regulator_ops;
--				desc->enable_val = 0x8;
--				desc->disable_val = 0x0;
--				desc->enable_time = 500;
-+			if (pfuze_chip->chip_id == PFUZE100 ||
-+				pfuze_chip->chip_id == PFUZE200) {
-+				if (pfuze_chip->regulator_descs[i].sw_reg) {
-+					desc->ops = &pfuze100_sw_disable_regulator_ops;
-+					desc->enable_val = 0x8;
-+					desc->disable_val = 0x0;
-+					desc->enable_time = 500;
-+				}
- 			}
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1800,6 +1800,12 @@ static int regulator_resolve_supply(stru
  		}
+ 	}
  
++	if (r == rdev) {
++		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
++			rdev->desc->name, rdev->supply_name);
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * If the supply's parent device is not the same as the
+ 	 * regulator's parent device, then ensure the parent device
 
 
