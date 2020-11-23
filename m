@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E9A2C0A9F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 349802C0AE8
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729584AbgKWMXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:23:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
+        id S1730872AbgKWMbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:31:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729572AbgKWMXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:18 -0500
+        id S1730194AbgKWMbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:31:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24BE620857;
-        Mon, 23 Nov 2020 12:23:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5A2721D7E;
+        Mon, 23 Nov 2020 12:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134197;
-        bh=6G96lTmXj/W6vNWEBzMKYkq9VDMFPXQwqddNz/jj3mU=;
+        s=korg; t=1606134693;
+        bh=tfAf0+7EwoYlWdov5kICKScbg39EvHobteHX7ndjaZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vbn7P8HKspjigULTPJtQoVdYHNvwsD2kCUwsIKcwomIEZKVLLpNkUwFR7lVWIXF//
-         nNkCowhjN6nazuYFsss8efcTgNvoCA+78lHmctHhUTQnTfHzKV/o5onkzpv50Ao/YL
-         eTq0Mc9CNLbJDS7R4VABYj+Si+gPxHAvqeyl3+E0=
+        b=2d69OnQFHU0t7mg8A8mlpkNiIPlkf8xU2+QL7JLkCoohjKZTuUy2VlFymQGba3tII
+         28dtq/anG6r4977YnE+rsXU6ipsGqP2Jt/IAefUoGB1QBbneGlzKo9dKz9ZznEnMat
+         WbSmnBaB4FGON8VjRsy6KvmklMPIYQD3rw4j35dQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 23/38] MIPS: Alchemy: Fix memleak in alchemy_clk_setup_cpu
+Subject: [PATCH 4.19 49/91] can: af_can: prevent potential access of uninitialized member in canfd_rcv()
 Date:   Mon, 23 Nov 2020 13:22:09 +0100
-Message-Id: <20201123121805.420534567@linuxfoundation.org>
+Message-Id: <20201123121811.703579099@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
-References: <20201123121804.306030358@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit ac3b57adf87ad9bac7e33ca26bbbb13fae1ed62b ]
+[ Upstream commit 9aa9379d8f868e91719333a7f063ccccc0579acc ]
 
-If the clk_register fails, we should free h before
-function returns to prevent memleak.
+In canfd_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
-Fixes: 474402291a0ad ("MIPS: Alchemy: clock framework integration of onchip clocks")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fix this uninitialized variable access by checking cfd->len's validity
+condition (cfd->len > CANFD_MAX_DLEN) separately after the skb->len's
+condition is checked, and appropriately modify the log messages that
+are generated as well.
+In case either of the required conditions fail, the skb is freed and
+NET_RX_DROP is returned, same as before.
+
+Fixes: d4689846881d ("can: af_can: canfd_rcv(): replace WARN_ONCE by pr_warn_once")
+Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
+Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201103213906.24219-3-anant.thazhemadam@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/alchemy/common/clock.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/can/af_can.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/alchemy/common/clock.c b/arch/mips/alchemy/common/clock.c
-index bd34f4093cd9f..7b0dec333c964 100644
---- a/arch/mips/alchemy/common/clock.c
-+++ b/arch/mips/alchemy/common/clock.c
-@@ -151,6 +151,7 @@ static struct clk __init *alchemy_clk_setup_cpu(const char *parent_name,
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 1201846dc07e3..b3edb80921248 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -748,16 +748,25 @@ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
  {
- 	struct clk_init_data id;
- 	struct clk_hw *h;
-+	struct clk *clk;
+ 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
  
- 	h = kzalloc(sizeof(*h), GFP_KERNEL);
- 	if (!h)
-@@ -163,7 +164,13 @@ static struct clk __init *alchemy_clk_setup_cpu(const char *parent_name,
- 	id.ops = &alchemy_clkops_cpu;
- 	h->init = &id;
- 
--	return clk_register(NULL, h);
-+	clk = clk_register(NULL, h);
-+	if (IS_ERR(clk)) {
-+		pr_err("failed to register clock\n");
-+		kfree(h);
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU ||
+-		     cfd->len > CANFD_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d\n",
++			     dev->type, skb->len);
++		goto free_skb;
 +	}
 +
-+	return clk;
++	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
++	if (unlikely(cfd->len > CANFD_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d, datalen %d\n",
+ 			     dev->type, skb->len, cfd->len);
+-		kfree_skb(skb);
+-		return NET_RX_DROP;
++		goto free_skb;
+ 	}
+ 
+ 	can_receive(skb, dev);
+ 	return NET_RX_SUCCESS;
++
++free_skb:
++	kfree_skb(skb);
++	return NET_RX_DROP;
  }
  
- /* AUXPLLs ************************************************************/
+ /*
 -- 
 2.27.0
 
