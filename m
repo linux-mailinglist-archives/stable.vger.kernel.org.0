@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C70E2C0602
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1390E2C072F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730149AbgKWM03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:26:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36272 "EHLO mail.kernel.org"
+        id S1732076AbgKWMiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:38:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730146AbgKWM02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:28 -0500
+        id S1730880AbgKWMiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:38:14 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 743BB2076E;
-        Mon, 23 Nov 2020 12:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEE9D20732;
+        Mon, 23 Nov 2020 12:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134387;
-        bh=frCVka9YuGqxr2RrDANFnW8tkhiq/VbNt2PTcU9GSGs=;
+        s=korg; t=1606135092;
+        bh=JQzplOilP0ia9M+WKKXpjJHYcWcB9m3Ymhw3AOXLLbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=he2CNP2JfSz3SRBG9V7gwEOPOCXY5CvTJCTBpfjMPVN1bbMSkLAwiYPL/3k3FqxmF
-         ICfkFkdY3JWioWoTZQMBC1Yc4y7wlrHkxM4Y5eXIiagCDWy5N+Ii0qv5y3S8VIf705
-         hSI0ex9rdXllik1LxtJRREQaskl6Wk0bMWGWh3is=
+        b=rcWUTN0iGWszKrPYMSkPPbHFkOEPcpfhEjzu8RgLx3bARvpCfyTXu9mE80biu0Orz
+         cZuec1B1e9McfXVacPKkJzPOShVXDiO06srIyw7FZltxNfP1xLpcG+VMRD3Od7dk8R
+         vAINp3G6btmeybrGueOxNwDxRgevIXl/XIW4nKlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/47] MIPS: export has_transparent_hugepage() for modules
-Date:   Mon, 23 Nov 2020 13:22:09 +0100
-Message-Id: <20201123121806.663159108@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 102/158] xfs: strengthen rmap record flags checking
+Date:   Mon, 23 Nov 2020 13:22:10 +0100
+Message-Id: <20201123121824.854798079@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 31b4d8e172f614adc53ddecb4b6b2f6411a49b84 ]
+[ Upstream commit 498fe261f0d6d5189f8e11d283705dd97b474b54 ]
 
-MIPS should export its local version of "has_transparent_hugepage"
-so that loadable modules (dax) can use it.
+We always know the correct state of the rmap record flags (attr, bmbt,
+unwritten) so check them by direct comparison.
 
-Fixes this build error:
-ERROR: modpost: "has_transparent_hugepage" [drivers/dax/dax.ko] undefined!
-
-Fixes: fd8cfd300019 ("arch: fix has_transparent_hugepage()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: linux-nvdimm@lists.01.org
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: d852657ccfc0 ("xfs: cross-reference reverse-mapping btree")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlb-r4k.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/scrub/bmap.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/mm/tlb-r4k.c b/arch/mips/mm/tlb-r4k.c
-index 0596505770dba..11985399c4695 100644
---- a/arch/mips/mm/tlb-r4k.c
-+++ b/arch/mips/mm/tlb-r4k.c
-@@ -424,6 +424,7 @@ int has_transparent_hugepage(void)
- 	}
- 	return mask == PM_HUGE_MASK;
- }
-+EXPORT_SYMBOL(has_transparent_hugepage);
+diff --git a/fs/xfs/scrub/bmap.c b/fs/xfs/scrub/bmap.c
+index ec580c0d70fa3..52892f41eb2d8 100644
+--- a/fs/xfs/scrub/bmap.c
++++ b/fs/xfs/scrub/bmap.c
+@@ -218,13 +218,13 @@ xchk_bmap_xref_rmap(
+ 	 * which doesn't track unwritten state.
+ 	 */
+ 	if (owner != XFS_RMAP_OWN_COW &&
+-	    irec->br_state == XFS_EXT_UNWRITTEN &&
+-	    !(rmap.rm_flags & XFS_RMAP_UNWRITTEN))
++	    !!(irec->br_state == XFS_EXT_UNWRITTEN) !=
++	    !!(rmap.rm_flags & XFS_RMAP_UNWRITTEN))
+ 		xchk_fblock_xref_set_corrupt(info->sc, info->whichfork,
+ 				irec->br_startoff);
  
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE  */
- 
+-	if (info->whichfork == XFS_ATTR_FORK &&
+-	    !(rmap.rm_flags & XFS_RMAP_ATTR_FORK))
++	if (!!(info->whichfork == XFS_ATTR_FORK) !=
++	    !!(rmap.rm_flags & XFS_RMAP_ATTR_FORK))
+ 		xchk_fblock_xref_set_corrupt(info->sc, info->whichfork,
+ 				irec->br_startoff);
+ 	if (rmap.rm_flags & XFS_RMAP_BMBT_BLOCK)
 -- 
 2.27.0
 
