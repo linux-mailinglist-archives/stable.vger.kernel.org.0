@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB5A2C0773
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A212C078B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732568AbgKWMlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:41:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54178 "EHLO mail.kernel.org"
+        id S1732580AbgKWMmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732622AbgKWMlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:41:11 -0500
+        id S1732649AbgKWMlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:41:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EF7D20732;
-        Mon, 23 Nov 2020 12:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79D152076E;
+        Mon, 23 Nov 2020 12:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135271;
-        bh=DAt5oMEL8wGO7kWrjuS7os4RE9HeZqc11z9UviTiBv0=;
+        s=korg; t=1606135279;
+        bh=qpZ4lN0hI29YLGGVP7/sOvtZ9R2wZvrWzs9gOJOWnik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKcltgNIvHyqH18EZ01ZVOh4708u9X0SbXG7fvWzEFdyDvnSM5LYQZ2InWIHAFQlt
-         VIceOb7T0heeSfeVE4Gvx5M4DwabN1dlVHxm/Hpgds1GTxd/wBjUrf1MbdSeKuj9a6
-         XMzY02X4KWnqcUKO1+3X679hXuaKgBz6eyGaO6WA=
+        b=rHi6XjXsOeQa1rv+lQJmwxQ2oQhwWrDk5YXUUiDbhptzLd0ZF4mGJRQGI1frrJnev
+         GqThRRndW1F3a1WJJwZrz9CS8Sc4ZQmAc/uc7wzAPmiXXSxmkF8CXuXcxJH0Qz1SEE
+         4R1Nqb/KF/0nfurzuF057HkOB+BXiO/poqRj6fdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        stable@vger.kernel.org, Chas Williams <3chas3@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 001/252] ah6: fix error return code in ah6_input()
-Date:   Mon, 23 Nov 2020 13:19:11 +0100
-Message-Id: <20201123121835.658103891@linuxfoundation.org>
+Subject: [PATCH 5.9 002/252] atm: nicstar: Unmap DMA on send error
+Date:   Mon, 23 Nov 2020 13:19:12 +0100
+Message-Id: <20201123121835.706351391@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,34 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit a5ebcbdf34b65fcc07f38eaf2d60563b42619a59 ]
+[ Upstream commit 6dceaa9f56e22d0f9b4c4ad2ed9e04e315ce7fe5 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+The `skb' is mapped for DMA in ns_send() but does not unmap DMA in case
+push_scqe() fails to submit the `skb'. The memory of the `skb' is
+released so only the DMA mapping is leaking.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1605581105-35295-1-git-send-email-zhangchangzhong@huawei.com
+Unmap the DMA mapping in case push_scqe() failed.
+
+Fixes: 864a3ff635fa7 ("atm: [nicstar] remove virt_to_bus() and support 64-bit platforms")
+Cc: Chas Williams <3chas3@gmail.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ah6.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/atm/nicstar.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -588,7 +588,8 @@ static int ah6_input(struct xfrm_state *
- 	memcpy(auth_data, ah->auth_data, ahp->icv_trunc_len);
- 	memset(ah->auth_data, 0, ahp->icv_trunc_len);
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -1706,6 +1706,8 @@ static int ns_send(struct atm_vcc *vcc,
  
--	if (ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN))
-+	err = ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN);
-+	if (err)
- 		goto out_free;
- 
- 	ip6h->priority    = 0;
+ 	if (push_scqe(card, vc, scq, &scqe, skb) != 0) {
+ 		atomic_inc(&vcc->stats->tx_err);
++		dma_unmap_single(&card->pcidev->dev, NS_PRV_DMA(skb), skb->len,
++				 DMA_TO_DEVICE);
+ 		dev_kfree_skb_any(skb);
+ 		return -EIO;
+ 	}
 
 
