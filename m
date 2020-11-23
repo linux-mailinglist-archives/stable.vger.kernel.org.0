@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E442C0B20
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC9D42C0B81
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732284AbgKWNT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:19:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52178 "EHLO mail.kernel.org"
+        id S1730458AbgKWNZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:25:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732273AbgKWMjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:39:31 -0500
+        id S1731143AbgKWMcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55B0120888;
-        Mon, 23 Nov 2020 12:39:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E382076E;
+        Mon, 23 Nov 2020 12:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135170;
-        bh=LVl9AgLF4EMvwg7O7NqXDbzsSL8wwpORgfCwtTvJvKU=;
+        s=korg; t=1606134774;
+        bh=p/BMhVuLgfQmPSua40UMbAp85aa9kbc6tWNh85jGz6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqCgQt/SOZz517WpROkZocbLY4NPUaIF9708BhY/Z7wsVTzmePANOXQE2dNdw8aQM
-         4Ofm0xkFCXWZaLTEPvZmisxjsVsmlAzK6jTlqmrr/5YWt9m98mBql3leUkmZbXl6/q
-         BmufDJXXZFy5bQZAGVnb1SNXzvwcWMksMwf/HY5o=
+        b=m/CajdNhScmR+8rdcqo6uKogWAmnR5gPxjLIU701NLY76gMIsdg3Ei9qcDLpq+DOH
+         jNl5IxriqAkbfi88+TG5UlGLhVXFjG+CtFg/jdBGrTJLBNzS7rfndxeq2uP1TaiK+D
+         KWVVlStsrFvJ7sqLhuQLa/bhVgM91peHYWeLK4Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 130/158] iio: accel: kxcjk1013: Replace is_smo8500_device with an acpi_type enum
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 78/91] regulator: pfuze100: limit pfuze-support-disable-sw to pfuze{100,200}
 Date:   Mon, 23 Nov 2020 13:22:38 +0100
-Message-Id: <20201123121826.198910030@linuxfoundation.org>
+Message-Id: <20201123121813.119234370@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Sean Nyekjaer <sean@geanix.com>
 
-commit 11e94f28c3de35d5ad1ac6a242a5b30f4378991a upstream.
+commit 365ec8b61689bd64d6a61e129e0319bf71336407 upstream.
 
-Replace the boolean is_smo8500_device variable with an acpi_type enum.
+Limit the fsl,pfuze-support-disable-sw to the pfuze100 and pfuze200
+variants.
+When enabling fsl,pfuze-support-disable-sw and using a pfuze3000 or
+pfuze3001, the driver would choose pfuze100_sw_disable_regulator_ops
+instead of the newly introduced and correct pfuze3000_sw_regulator_ops.
 
-For now this can be either ACPI_GENERIC or ACPI_SMO8500, this is a
-preparation patch for adding special handling for the KIOX010A ACPI HID,
-which will add a ACPI_KIOX010A acpi_type to the introduced enum.
-
-For stable as needed as precursor for next patch.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: 7f6232e69539 ("iio: accel: kxcjk1013: Add KIOX010A ACPI Hardware-ID")
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201110133835.129080-2-hdegoede@redhat.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Fixes: 6f1cf5257acc ("regualtor: pfuze100: correct sw1a/sw2 on pfuze3000")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201110174113.2066534-1-sean@geanix.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/accel/kxcjk-1013.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/regulator/pfuze100-regulator.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -126,6 +126,11 @@ enum kx_chipset {
- 	KX_MAX_CHIPS /* this must be last */
- };
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -755,11 +755,14 @@ static int pfuze100_regulator_probe(stru
+ 		 * the switched regulator till yet.
+ 		 */
+ 		if (pfuze_chip->flags & PFUZE_FLAG_DISABLE_SW) {
+-			if (pfuze_chip->regulator_descs[i].sw_reg) {
+-				desc->ops = &pfuze100_sw_disable_regulator_ops;
+-				desc->enable_val = 0x8;
+-				desc->disable_val = 0x0;
+-				desc->enable_time = 500;
++			if (pfuze_chip->chip_id == PFUZE100 ||
++				pfuze_chip->chip_id == PFUZE200) {
++				if (pfuze_chip->regulator_descs[i].sw_reg) {
++					desc->ops = &pfuze100_sw_disable_regulator_ops;
++					desc->enable_val = 0x8;
++					desc->disable_val = 0x0;
++					desc->enable_time = 500;
++				}
+ 			}
+ 		}
  
-+enum kx_acpi_type {
-+	ACPI_GENERIC,
-+	ACPI_SMO8500,
-+};
-+
- struct kxcjk1013_data {
- 	struct i2c_client *client;
- 	struct iio_trigger *dready_trig;
-@@ -142,7 +147,7 @@ struct kxcjk1013_data {
- 	bool motion_trigger_on;
- 	int64_t timestamp;
- 	enum kx_chipset chipset;
--	bool is_smo8500_device;
-+	enum kx_acpi_type acpi_type;
- };
- 
- enum kxcjk1013_axis {
-@@ -1233,7 +1238,7 @@ static irqreturn_t kxcjk1013_data_rdy_tr
- 
- static const char *kxcjk1013_match_acpi_device(struct device *dev,
- 					       enum kx_chipset *chipset,
--					       bool *is_smo8500_device)
-+					       enum kx_acpi_type *acpi_type)
- {
- 	const struct acpi_device_id *id;
- 
-@@ -1242,7 +1247,7 @@ static const char *kxcjk1013_match_acpi_
- 		return NULL;
- 
- 	if (strcmp(id->id, "SMO8500") == 0)
--		*is_smo8500_device = true;
-+		*acpi_type = ACPI_SMO8500;
- 
- 	*chipset = (enum kx_chipset)id->driver_data;
- 
-@@ -1278,7 +1283,7 @@ static int kxcjk1013_probe(struct i2c_cl
- 	} else if (ACPI_HANDLE(&client->dev)) {
- 		name = kxcjk1013_match_acpi_device(&client->dev,
- 						   &data->chipset,
--						   &data->is_smo8500_device);
-+						   &data->acpi_type);
- 	} else
- 		return -ENODEV;
- 
-@@ -1296,7 +1301,7 @@ static int kxcjk1013_probe(struct i2c_cl
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->info = &kxcjk1013_info;
- 
--	if (client->irq > 0 && !data->is_smo8500_device) {
-+	if (client->irq > 0 && data->acpi_type != ACPI_SMO8500) {
- 		ret = devm_request_threaded_irq(&client->dev, client->irq,
- 						kxcjk1013_data_rdy_trig_poll,
- 						kxcjk1013_event_handler,
 
 
