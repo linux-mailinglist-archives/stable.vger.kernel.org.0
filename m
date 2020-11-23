@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9072C093D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FB12C0939
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388475AbgKWNFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:05:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35210 "EHLO mail.kernel.org"
+        id S2387592AbgKWNFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:05:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387586AbgKWMuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:50:32 -0500
+        id S2387588AbgKWMud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:50:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1242E20657;
-        Mon, 23 Nov 2020 12:50:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0006421534;
+        Mon, 23 Nov 2020 12:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135825;
-        bh=MAc+WNZZZ1hzwgejSuwAHA9LY+zCNzoPtXauup4b8Zw=;
+        s=korg; t=1606135828;
+        bh=2/S5/5ujUmjXMubiZq8/HYV6HyrcOm5vFamNeArFYqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s36Lv7gN5WP2L/xd4gnL/c5qwvzWPmMAhNN4v6iRLO3/2LikoxirE0Nn4ZEsIWY/o
-         EqIr+zLIOKdqkzOydkqxbydgV04VGXLl/mLz99BtDhryPsaZufv2wtwHvtuEySVpoc
-         5qzbvK3CKeodmSDVKTjZ6iJCuostt9AUvy9d2n24=
+        b=ZjqpzRKVPDRzW35+bp5C557L1IMUGuxJOtCKIIztTnUwkf0Y0ty5NO4VgxGenqLEF
+         6uyYBoPzZ2wz5wWK7uU7DEWu2uJodG+JshYn9h3B712TyMQ0HKRmkKCyJD9z/JQ1At
+         Zls2YVS03Bs/0zotHEzALz7xTfneFZO94IyzNgOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 180/252] sched/fair: Fix overutilized update in enqueue_task_fair()
-Date:   Mon, 23 Nov 2020 13:22:10 +0100
-Message-Id: <20201123121844.282273364@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.9 181/252] sched: Fix data-race in wakeup
+Date:   Mon, 23 Nov 2020 13:22:11 +0100
+Message-Id: <20201123121844.330555813@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,50 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 8e1ac4299a6e8726de42310d9c1379f188140c71 ]
+[ Upstream commit f97bb5272d9e95d400d6c8643ebb146b3e3e7842 ]
 
-enqueue_task_fair() attempts to skip the overutilized update for new
-tasks as their util_avg is not accurate yet. However, the flag we check
-to do so is overwritten earlier on in the function, which makes the
-condition pretty much a nop.
+Mel reported that on some ARM64 platforms loadavg goes bananas and
+Will tracked it down to the following race:
 
-Fix this by saving the flag early on.
+  CPU0					CPU1
 
-Fixes: 2802bf3cd936 ("sched/fair: Add over-utilization/tipping point indicator")
-Reported-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
+  schedule()
+    prev->sched_contributes_to_load = X;
+    deactivate_task(prev);
+
+					try_to_wake_up()
+					  if (p->on_rq &&) // false
+					  if (smp_load_acquire(&p->on_cpu) && // true
+					      ttwu_queue_wakelist())
+					        p->sched_remote_wakeup = Y;
+
+    smp_store_release(prev->on_cpu, 0);
+
+where both p->sched_contributes_to_load and p->sched_remote_wakeup are
+in the same word, and thus the stores X and Y race (and can clobber
+one another's data).
+
+Whereas prior to commit c6e7bd7afaeb ("sched/core: Optimize ttwu()
+spinning on p->on_cpu") the p->on_cpu handoff serialized access to
+p->sched_remote_wakeup (just as it still does with
+p->sched_contributes_to_load) that commit broke that by calling
+ttwu_queue_wakelist() with p->on_cpu != 0.
+
+However, due to
+
+  p->XXX = X			ttwu()
+  schedule()			  if (p->on_rq && ...) // false
+    smp_mb__after_spinlock()	  if (smp_load_acquire(&p->on_cpu) &&
+    deactivate_task()		      ttwu_queue_wakelist())
+      p->on_rq = 0;		        p->sched_remote_wakeup = Y;
+
+We can be sure any 'current' store is complete and 'current' is
+guaranteed asleep. Therefore we can move p->sched_remote_wakeup into
+the current flags word.
+
+Note: while the observed failure was loadavg accounting gone wrong due
+to ttwu() cobbering p->sched_contributes_to_load, the reverse problem
+is also possible where schedule() clobbers p->sched_remote_wakeup,
+this could result in enqueue_entity() wrecking ->vruntime and causing
+scheduling artifacts.
+
+Fixes: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+Reported-by: Mel Gorman <mgorman@techsingularity.net>
+Debugged-by: Will Deacon <will@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20201112111201.2081902-1-qperret@google.com
+Link: https://lkml.kernel.org/r/20201117083016.GK3121392@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/sched.h | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 48a6d442b4443..c0c4d9ad7da8e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5473,6 +5473,7 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 	struct cfs_rq *cfs_rq;
- 	struct sched_entity *se = &p->se;
- 	int idle_h_nr_running = task_has_idle_policy(p);
-+	int task_new = !(flags & ENQUEUE_WAKEUP);
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 8bf2295ebee48..12aa57de8eea0 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -770,7 +770,6 @@ struct task_struct {
+ 	unsigned			sched_reset_on_fork:1;
+ 	unsigned			sched_contributes_to_load:1;
+ 	unsigned			sched_migrated:1;
+-	unsigned			sched_remote_wakeup:1;
+ #ifdef CONFIG_PSI
+ 	unsigned			sched_psi_wake_requeue:1;
+ #endif
+@@ -780,6 +779,21 @@ struct task_struct {
  
- 	/*
- 	 * The code below (indirectly) updates schedutil which looks at
-@@ -5545,7 +5546,7 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 	 * into account, but that is not straightforward to implement,
- 	 * and the following generally works well enough in practice.
- 	 */
--	if (flags & ENQUEUE_WAKEUP)
-+	if (!task_new)
- 		update_overutilized_status(rq);
+ 	/* Unserialized, strictly 'current' */
  
- enqueue_throttle:
++	/*
++	 * This field must not be in the scheduler word above due to wakelist
++	 * queueing no longer being serialized by p->on_cpu. However:
++	 *
++	 * p->XXX = X;			ttwu()
++	 * schedule()			  if (p->on_rq && ..) // false
++	 *   smp_mb__after_spinlock();	  if (smp_load_acquire(&p->on_cpu) && //true
++	 *   deactivate_task()		      ttwu_queue_wakelist())
++	 *     p->on_rq = 0;			p->sched_remote_wakeup = Y;
++	 *
++	 * guarantees all stores of 'current' are visible before
++	 * ->sched_remote_wakeup gets used, so it can be in this word.
++	 */
++	unsigned			sched_remote_wakeup:1;
++
+ 	/* Bit to tell LSMs we're in execve(): */
+ 	unsigned			in_execve:1;
+ 	unsigned			in_iowait:1;
 -- 
 2.27.0
 
