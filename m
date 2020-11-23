@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B762C0A09
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7272C0A06
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733210AbgKWNPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:15:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57064 "EHLO mail.kernel.org"
+        id S1733176AbgKWMoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:44:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733151AbgKWMnz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:43:55 -0500
+        id S1733168AbgKWMoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:44:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29BA820732;
-        Mon, 23 Nov 2020 12:43:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC34208C3;
+        Mon, 23 Nov 2020 12:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135435;
-        bh=a3dAFeRfIRntj4aVKEpriPVI7kmHgRtPoKBK04e9/0U=;
+        s=korg; t=1606135442;
+        bh=aYS2f1e6fLmruGW0G06TxwfCvJ1cA7p5SDkLwRweTKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwT2PqjMPhCV5F2Sou0TyzHv3ptq4co53ncAOuaXdm9qZ4COjtIr5IM5ttAFCVmhK
-         e11O2RMP0V+SqlmyCXHCZ3sEGuzAOIROAvxFjvWWJLS45IdiqpYtDbRVTDfNW88SX8
-         eHa4hBwM7Rm5nvALAWe9FxcIvUqgKLe40GP94qtw=
+        b=m+SN3pgJnUtEwfYfYDS6y24w6VWKh6y5mSj3TT8eXTbOu1F6LN3dK6esLSgWjdM15
+         wjpuecwMC9/m4aGGlZBxZVKsu4KEWlYXNTiGvYJP3c+YoU8qBU3qLiOt7m1EAFIISL
+         lMEkvUmpMG10N3M5xQnIIffzALGyPKHJh+wsjEYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Paul Barker <pbarker@konsulko.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 067/252] vfs: remove lockdep bogosity in __sb_start_write
-Date:   Mon, 23 Nov 2020 13:20:17 +0100
-Message-Id: <20201123121838.821829174@linuxfoundation.org>
+Subject: [PATCH 5.9 069/252] hwmon: (pwm-fan) Fix RPM calculation
+Date:   Mon, 23 Nov 2020 13:20:19 +0100
+Message-Id: <20201123121838.919203389@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,108 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Paul Barker <pbarker@konsulko.com>
 
-[ Upstream commit 22843291efc986ce7722610073fcf85a39b4cb13 ]
+[ Upstream commit fd8feec665fef840277515a5c2b9b7c3e3970fad ]
 
-__sb_start_write has some weird looking lockdep code that claims to
-exist to handle nested freeze locking requests from xfs.  The code as
-written seems broken -- if we think we hold a read lock on any of the
-higher freeze levels (e.g. we hold SB_FREEZE_WRITE and are trying to
-lock SB_FREEZE_PAGEFAULT), it converts a blocking lock attempt into a
-trylock.
+To convert the number of pulses counted into an RPM estimation, we need
+to divide by the width of our measurement interval instead of
+multiplying by it. If the width of the measurement interval is zero we
+don't update the RPM value to avoid dividing by zero.
 
-However, it's not correct to downgrade a blocking lock attempt to a
-trylock unless the downgrading code or the callers are prepared to deal
-with that situation.  Neither __sb_start_write nor its callers handle
-this at all.  For example:
+We also don't need to do 64-bit division, with 32-bits we can handle a
+fan running at over 4 million RPM.
 
-sb_start_pagefault ignores the return value completely, with the result
-that if xfs_filemap_fault loses a race with a different thread trying to
-fsfreeze, it will proceed without pagefault freeze protection (thereby
-breaking locking rules) and then unlocks the pagefault freeze lock that
-it doesn't own on its way out (thereby corrupting the lock state), which
-leads to a system hang shortly afterwards.
-
-Normally, this won't happen because our ownership of a read lock on a
-higher freeze protection level blocks fsfreeze from grabbing a write
-lock on that higher level.  *However*, if lockdep is offline,
-lock_is_held_type unconditionally returns 1, which means that
-percpu_rwsem_is_held returns 1, which means that __sb_start_write
-unconditionally converts blocking freeze lock attempts into trylocks,
-even when we *don't* hold anything that would block a fsfreeze.
-
-Apparently this all held together until 5.10-rc1, when bugs in lockdep
-caused lockdep to shut itself off early in an fstests run, and once
-fstests gets to the "race writes with freezer" tests, kaboom.  This
-might explain the long trail of vanishingly infrequent livelocks in
-fstests after lockdep goes offline that I've never been able to
-diagnose.
-
-We could fix it by spinning on the trylock if wait==true, but AFAICT the
-locking works fine if lockdep is not built at all (and I didn't see any
-complaints running fstests overnight), so remove this snippet entirely.
-
-NOTE: Commit f4b554af9931 in 2015 created the current weird logic (which
-used to exist in a different form in commit 5accdf82ba25c from 2012) in
-__sb_start_write.  XFS solved this whole problem in the late 2.6 era by
-creating a variant of transactions (XFS_TRANS_NO_WRITECOUNT) that don't
-grab intwrite freeze protection, thus making lockdep's solution
-unnecessary.  The commit claims that Dave Chinner explained that the
-trylock hack + comment could be removed, but nobody ever did.
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Paul Barker <pbarker@konsulko.com>
+Link: https://lore.kernel.org/r/20201111164643.7087-1-pbarker@konsulko.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/super.c | 33 ++++-----------------------------
- 1 file changed, 4 insertions(+), 29 deletions(-)
+ drivers/hwmon/pwm-fan.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 904459b351199..3a0777612c49b 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1645,36 +1645,11 @@ EXPORT_SYMBOL(__sb_end_write);
-  */
- int __sb_start_write(struct super_block *sb, int level, bool wait)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 17bb64299bfd8..3642086498d98 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -54,16 +54,18 @@ static irqreturn_t pulse_handler(int irq, void *dev_id)
+ static void sample_timer(struct timer_list *t)
  {
--	bool force_trylock = false;
--	int ret = 1;
-+	if (!wait)
-+		return percpu_down_read_trylock(sb->s_writers.rw_sem + level-1);
+ 	struct pwm_fan_ctx *ctx = from_timer(ctx, t, rpm_timer);
++	unsigned int delta = ktime_ms_delta(ktime_get(), ctx->sample_start);
+ 	int pulses;
+-	u64 tmp;
  
--#ifdef CONFIG_LOCKDEP
--	/*
--	 * We want lockdep to tell us about possible deadlocks with freezing
--	 * but it's it bit tricky to properly instrument it. Getting a freeze
--	 * protection works as getting a read lock but there are subtle
--	 * problems. XFS for example gets freeze protection on internal level
--	 * twice in some cases, which is OK only because we already hold a
--	 * freeze protection also on higher level. Due to these cases we have
--	 * to use wait == F (trylock mode) which must not fail.
--	 */
--	if (wait) {
--		int i;
--
--		for (i = 0; i < level - 1; i++)
--			if (percpu_rwsem_is_held(sb->s_writers.rw_sem + i)) {
--				force_trylock = true;
--				break;
--			}
--	}
--#endif
--	if (wait && !force_trylock)
--		percpu_down_read(sb->s_writers.rw_sem + level-1);
--	else
--		ret = percpu_down_read_trylock(sb->s_writers.rw_sem + level-1);
--
--	WARN_ON(force_trylock && !ret);
--	return ret;
-+	percpu_down_read(sb->s_writers.rw_sem + level-1);
-+	return 1;
+-	pulses = atomic_read(&ctx->pulses);
+-	atomic_sub(pulses, &ctx->pulses);
+-	tmp = (u64)pulses * ktime_ms_delta(ktime_get(), ctx->sample_start) * 60;
+-	do_div(tmp, ctx->pulses_per_revolution * 1000);
+-	ctx->rpm = tmp;
++	if (delta) {
++		pulses = atomic_read(&ctx->pulses);
++		atomic_sub(pulses, &ctx->pulses);
++		ctx->rpm = (unsigned int)(pulses * 1000 * 60) /
++			(ctx->pulses_per_revolution * delta);
++
++		ctx->sample_start = ktime_get();
++	}
+ 
+-	ctx->sample_start = ktime_get();
+ 	mod_timer(&ctx->rpm_timer, jiffies + HZ);
  }
- EXPORT_SYMBOL(__sb_start_write);
  
 -- 
 2.27.0
