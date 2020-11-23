@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AA382C07CB
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A402C07CF
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733199AbgKWMoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:44:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57526 "EHLO mail.kernel.org"
+        id S1733224AbgKWMo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733194AbgKWMoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:44:16 -0500
+        id S1733215AbgKWMoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:44:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F34A20857;
-        Mon, 23 Nov 2020 12:44:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FCA920857;
+        Mon, 23 Nov 2020 12:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135456;
-        bh=L7ABgRME1Vc96WG4/23UoEOOsHtXh1dUYdZRtjobXOo=;
+        s=korg; t=1606135464;
+        bh=rTMv1Ro2795ODx6+PQMVFDA0yI0tpHTuhGfbt8L2tvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fvqh4ma9RUnCoyT+enOer2/bjBsmbdKx+eYyrTeRx6gIbgHbjGxax2ii7mcrjd0PG
-         delVfUVUqfR5W6VQIwA4wgyqkDfuddLvcDKruTnkiUe7zSSlkzzmkJzqudNqyQEqX1
-         D1Au7JIlUnhhrEj9G12mID1oaM/Y306BuhFrxkM0=
+        b=sGcB5i2a7tRq+PO+6Ln7mOMHa9Xpa3NoL4IWH6zJ+EQBVdqdWSGWYO6AXhji9OWmy
+         iK0IaApnR+QQYiN6cw35bLsK2ladk00JYMQ1RxTpEleQeGyH10QmcjrEvqrNer8y91
+         f8vdO3JHvW6HLS28XE/al9ItobaxPn5fiT/xm9iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        kernel test robot <lkp@intel.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Kamal Mostafa <kamal@canonical.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 074/252] usb: dwc2: Avoid leaving the error_debugfs label unused
-Date:   Mon, 23 Nov 2020 13:20:24 +0100
-Message-Id: <20201123121839.163614494@linuxfoundation.org>
+Subject: [PATCH 5.9 076/252] arm64: dts: allwinner: Pine H64: Enable both RGMII RX/TX delay
+Date:   Mon, 23 Nov 2020 13:20:26 +0100
+Message-Id: <20201123121839.264007867@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -48,49 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit 190bb01b72d2d5c3654a03c42fb1ad0dc6114c79 upstream.
+[ Upstream commit 419c65f5000a6c25597ea52488528d75b287cbd0 ]
 
-The error_debugfs label is only used when either
-CONFIG_USB_DWC2_PERIPHERAL or CONFIG_USB_DWC2_DUAL_ROLE is enabled. Add
-the same #if to the error_debugfs label itself as the code which uses
-this label already has.
+Since commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay config"),
+the network is unusable on PineH64 model A.
 
-This avoids the following compiler warning:
-  warning: label ‘error_debugfs’ defined but not used [-Wunused-label]
+This is due to phy-mode incorrectly set to rgmii instead of rgmii-id.
 
-Fixes: e1c08cf23172ed ("usb: dwc2: Add missing cleanups when usb_add_gadget_udc() fails")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Cc: stable@vger.kernel.org # 5.9.x
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Fixes: 729e1ffcf47e ("arm64: allwinner: h6: add support for the Ethernet on Pine H64")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201019063449.33316-1-clabbe@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
-index b28e90e0b685d..8a7f86e1ef73a 100644
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -590,10 +590,13 @@ static int dwc2_driver_probe(struct platform_device *dev)
- #endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
- 	return 0;
- 
-+#if IS_ENABLED(CONFIG_USB_DWC2_PERIPHERAL) || \
-+	IS_ENABLED(CONFIG_USB_DWC2_DUAL_ROLE)
- error_debugfs:
- 	dwc2_debugfs_exit(hsotg);
- 	if (hsotg->hcd_enabled)
- 		dwc2_hcd_remove(hsotg);
-+#endif
- error_init:
- 	if (hsotg->params.activate_stm_id_vb_detection)
- 		regulator_disable(hsotg->usb33d);
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
+index af85b2074867f..961732c52aa0e 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
+@@ -100,7 +100,7 @@
+ &emac {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&ext_rgmii_pins>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ext_rgmii_phy>;
+ 	phy-supply = <&reg_gmac_3v3>;
+ 	allwinner,rx-delay-ps = <200>;
 -- 
 2.27.0
 
