@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 302262C0BB6
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5A32C0AA7
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389008AbgKWN3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:29:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
+        id S1729739AbgKWMYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:24:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730529AbgKWM27 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:59 -0500
+        id S1729784AbgKWMYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:24:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A4D220728;
-        Mon, 23 Nov 2020 12:28:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA54520888;
+        Mon, 23 Nov 2020 12:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134538;
-        bh=frCVka9YuGqxr2RrDANFnW8tkhiq/VbNt2PTcU9GSGs=;
+        s=korg; t=1606134260;
+        bh=NhW2l7iFTdAxLHami2bE1HItPltCxtUxuNThYSVGZXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVYWN0rb73jIECa6qB6AswUd341TO/WVOSR2msXks/78Zdi9TeFk7r2qdaSTutn2y
-         P4gCjCA+dgGSbQFXlCHbCEsbhG8NCRnzWVXwKjpsvLo8WTAWZy2CooQaBLIijX7E3z
-         Hji69cKs/R4knE5j3+VISqNnkZ+8rxVghNptIIuc=
+        b=YiAfg3suuvk0tEURHRjva/Ruv0oq8uQHKs9p0zLxNxz7R5EmonaOduFRC9nUotFKE
+         aFocgNWHAlOaYma3Jx5fT7SkRAVB/NwXogwRKTVeDmf2K5DSHMAoKVqQ6YkBWf/mmM
+         blk5C6AgxNM0idiXhEc9Ao2QWVYtLbQ6SVWZ3i/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/60] MIPS: export has_transparent_hugepage() for modules
+Subject: [PATCH 4.4 21/38] can: peak_usb: fix potential integer overflow on shift of a int
 Date:   Mon, 23 Nov 2020 13:22:07 +0100
-Message-Id: <20201123121806.241846338@linuxfoundation.org>
+Message-Id: <20201123121805.325118365@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 31b4d8e172f614adc53ddecb4b6b2f6411a49b84 ]
+[ Upstream commit 8a68cc0d690c9e5730d676b764c6f059343b842c ]
 
-MIPS should export its local version of "has_transparent_hugepage"
-so that loadable modules (dax) can use it.
+The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
+arithmetic and then assigned to a signed 64 bit variable. In the case where
+time_ref->adapter->ts_used_bits is 32 or more this can lead to an oveflow.
+Avoid this by shifting using the BIT_ULL macro instead.
 
-Fixes this build error:
-ERROR: modpost: "has_transparent_hugepage" [drivers/dax/dax.ko] undefined!
-
-Fixes: fd8cfd300019 ("arch: fix has_transparent_hugepage()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: linux-nvdimm@lists.01.org
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20201105112427.40688-1-colin.king@canonical.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlb-r4k.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/mm/tlb-r4k.c b/arch/mips/mm/tlb-r4k.c
-index 0596505770dba..11985399c4695 100644
---- a/arch/mips/mm/tlb-r4k.c
-+++ b/arch/mips/mm/tlb-r4k.c
-@@ -424,6 +424,7 @@ int has_transparent_hugepage(void)
- 	}
- 	return mask == PM_HUGE_MASK;
- }
-+EXPORT_SYMBOL(has_transparent_hugepage);
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index 22deddb2dbf5a..7b148174eb760 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -176,7 +176,7 @@ void peak_usb_get_ts_tv(struct peak_time_ref *time_ref, u32 ts,
+ 		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
+ 			/* case when event time (tsw) wraps */
+ 			if (ts < time_ref->ts_dev_1)
+-				delta_ts = 1 << time_ref->adapter->ts_used_bits;
++				delta_ts = BIT_ULL(time_ref->adapter->ts_used_bits);
  
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE  */
+ 		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
+ 		 * handle case when event time (tsn) hasn't.
+@@ -188,7 +188,7 @@ void peak_usb_get_ts_tv(struct peak_time_ref *time_ref, u32 ts,
+ 		 *              tsn            ts
+ 		 */
+ 		} else if (time_ref->ts_dev_1 < ts) {
+-			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
++			delta_ts = -BIT_ULL(time_ref->adapter->ts_used_bits);
+ 		}
  
+ 		/* add delay between last sync and event timestamps */
 -- 
 2.27.0
 
