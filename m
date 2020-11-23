@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C822C08D1
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2EB2C08CF
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387855AbgKWNBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:01:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36836 "EHLO mail.kernel.org"
+        id S2387745AbgKWNBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:01:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387851AbgKWMxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387850AbgKWMxF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:53:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C457A21534;
-        Mon, 23 Nov 2020 12:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88E642158C;
+        Mon, 23 Nov 2020 12:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135948;
-        bh=KO/oSIr7KiWkP34qfoKSWjtSV23+odo3BU+VctyKVZo=;
+        s=korg; t=1606135951;
+        bh=0vNs47NWyxMSSFOM8q20R/1edd1DFFvLUkZ9WS85Ebg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gstDwAjPo1WONg7/BakDAFjUnneYauoZGhYcGaE+u7bFEGcEsDKsSbpaeREUhnG8y
-         ornUlJkF8Wf367LMShbJwok0dg1fvYuoFGOmnAmDcOCkWH/8Q8Ps5//N7nt/RcZIvN
-         fDB4HSCNkHbDVqcRND4YmZFMdmFoG/tCkxA9FaxI=
+        b=HsGhv3dDZf2pQljuqeF1tEUt08qSWOQm1vePpmTPxImVJi5i2bGQi8tnmk3x9rq04
+         ciXrftvOaXU/WVWOZJu4Jlqnv6XxwaLRR3R/a/0ZGnx+d65nRaEHz6e3qqzwKZfUM9
+         oioz3Ta6+qb41Ralvk+BNf80uovbrhFR4NzWUI+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Paris <eparis@redhat.com>, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         Kees Cook <keescook@chromium.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
         Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Will Drewry <wad@chromium.org>,
         =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
-Subject: [PATCH 5.9 245/252] ptrace: Set PF_SUPERPRIV when checking capability
-Date:   Mon, 23 Nov 2020 13:23:15 +0100
-Message-Id: <20201123121847.405177804@linuxfoundation.org>
+Subject: [PATCH 5.9 246/252] seccomp: Set PF_SUPERPRIV when checking capability
+Date:   Mon, 23 Nov 2020 13:23:16 +0100
+Message-Id: <20201123121847.456002356@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -50,81 +47,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mickaël Salaün <mic@linux.microsoft.com>
 
-commit cf23705244c947151179f929774fabf71e239eee upstream.
+commit fb14528e443646dd3fd02df4437fcf5265b66baa upstream.
 
-Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
-/proc/pid/stat") replaced the use of ns_capable() with
-has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
+Replace the use of security_capable(current_cred(), ...) with
+ns_capable_noaudit() which set PF_SUPERPRIV.
 
-Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in
-ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
-security_capable(), which doesn't set PF_SUPERPRIV neither.
+Since commit 98f368e9e263 ("kernel: Add noaudit variant of
+ns_capable()"), a new ns_capable_noaudit() helper is available.  Let's
+use it!
 
-Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()"), a
-new ns_capable_noaudit() helper is available.  Let's use it!
-
-As a result, the signature of ptrace_has_cap() is restored to its original one.
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Eric Paris <eparis@redhat.com>
 Cc: Jann Horn <jannh@google.com>
 Cc: Kees Cook <keescook@chromium.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Serge E. Hallyn <serge@hallyn.com>
 Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: Will Drewry <wad@chromium.org>
 Cc: stable@vger.kernel.org
-Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()")
-Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+Fixes: e2cfabdfd075 ("seccomp: add system call filtering using BPF")
 Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
 Reviewed-by: Jann Horn <jannh@google.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20201030123849.770769-2-mic@digikod.net
+Link: https://lore.kernel.org/r/20201030123849.770769-3-mic@digikod.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/ptrace.c |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ kernel/seccomp.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -264,17 +264,11 @@ static int ptrace_check_attach(struct ta
- 	return ret;
- }
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -38,7 +38,7 @@
+ #include <linux/filter.h>
+ #include <linux/pid.h>
+ #include <linux/ptrace.h>
+-#include <linux/security.h>
++#include <linux/capability.h>
+ #include <linux/tracehook.h>
+ #include <linux/uaccess.h>
+ #include <linux/anon_inodes.h>
+@@ -554,8 +554,7 @@ static struct seccomp_filter *seccomp_pr
+ 	 * behavior of privileged children.
+ 	 */
+ 	if (!task_no_new_privs(current) &&
+-	    security_capable(current_cred(), current_user_ns(),
+-				     CAP_SYS_ADMIN, CAP_OPT_NOAUDIT) != 0)
++			!ns_capable_noaudit(current_user_ns(), CAP_SYS_ADMIN))
+ 		return ERR_PTR(-EACCES);
  
--static bool ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
--			   unsigned int mode)
-+static bool ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
- {
--	int ret;
--
- 	if (mode & PTRACE_MODE_NOAUDIT)
--		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NOAUDIT);
--	else
--		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
--
--	return ret == 0;
-+		return ns_capable_noaudit(ns, CAP_SYS_PTRACE);
-+	return ns_capable(ns, CAP_SYS_PTRACE);
- }
- 
- /* Returns 0 on success, -errno on denial. */
-@@ -326,7 +320,7 @@ static int __ptrace_may_access(struct ta
- 	    gid_eq(caller_gid, tcred->sgid) &&
- 	    gid_eq(caller_gid, tcred->gid))
- 		goto ok;
--	if (ptrace_has_cap(cred, tcred->user_ns, mode))
-+	if (ptrace_has_cap(tcred->user_ns, mode))
- 		goto ok;
- 	rcu_read_unlock();
- 	return -EPERM;
-@@ -345,7 +339,7 @@ ok:
- 	mm = task->mm;
- 	if (mm &&
- 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
--	     !ptrace_has_cap(cred, mm->user_ns, mode)))
-+	     !ptrace_has_cap(mm->user_ns, mode)))
- 	    return -EPERM;
- 
- 	return security_ptrace_access_check(task, mode);
+ 	/* Allocate a new seccomp_filter */
 
 
