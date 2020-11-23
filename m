@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA4442C01AE
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EECF02C01B3
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726884AbgKWIvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 03:51:15 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:36841 "EHLO
+        id S1726982AbgKWIvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 03:51:42 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55629 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725275AbgKWIvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:51:15 -0500
+        by vger.kernel.org with ESMTP id S1725275AbgKWIvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:51:41 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 904CDE20;
-        Mon, 23 Nov 2020 03:51:14 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:51:14 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 9BC3B3AF;
+        Mon, 23 Nov 2020 03:51:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:51:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=FbCwb8
-        hJb7jw/XXRL9trvEAqY5jpy0j7hDQw0nCX3YQ=; b=AmRSPuoWZ3QC0dG4WwY78E
-        jJ3GWk4/o+0VElYed0tmctLyL39RbsfoCBCEjySnu64oneU4Mu6SffXsBJrHpOY6
-        ahv92xPDNQNYO3mSmObuXx+39SqLAEhsLTuRAt9jBynDlWPq5q6nl/g9tSQ8PvJL
-        Hfb4FIWegDfzA3RwvFmKyLK6Wjwvwq7nDicH9SGl5UyAVZTD2VNzacba07BfkGtx
-        F/TuvgdfdcsGMEqE9kEL+dHokrCROQ2dvWY7935txF2rFjA/Xugh/X3JPKmLAmfW
-        Wp6fqgwCkzMg5u6U2/ICQ/o1KMwRT+cWVsQDKPTAmXBj/BpUq6n0+gDn1DNVb3GQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fDqcly
+        FdbJaz692mdWXC1+wZBPl2HkZsdHGdMMbfgSI=; b=ThNVF5mM5pPhVuxfiuAHyX
+        7g28V3J9tFHF7Uo3NRzmvMZwRLqgn9cmNMlRJY+PJbrb0H2U0EeJCOfXm7CHz3AM
+        G8+TAaFOf2H/2jShxVcvg7pVt/i0+EVVCpcIHm6muwp8ZrAMNevMP10nqos0OtGZ
+        jeNMAWnD7Ae7hkzGjNrqROoWg0r+eLXnpc2+tGh8mgj4JGvjuJa7+4WUp3FKWmXA
+        HfviuRxhkC0wCjtsfTHp2W8efzb9TWyAcfTAP7M34a8ua5j2V5pkX63MxLTpNrOy
+        1Wcx5x8RD/503L0bfweEj4i3mGR6zM3qRjcVcFlaiIZwghyD/g04Ppkc4BU+NmCQ
         ==
-X-ME-Sender: <xms:Ani7Xx2Ins-JtY5vMNOmFvILczc3YDv8iIAoIRM3cUMjMWeQFa1XDw>
-    <xme:Ani7X4EefL2-i0_SyPaPE9SKsXvCBh5zRmiSBPJk0NVxUTbFggx6vXhqof5TAy_lh
-    2__Hn-NvurEBg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvudcutefuodetggdotefrod
+X-ME-Sender: <xms:G3i7X8up_bO_grqCAQljGDZbMs6zqzV9J-A5CT8rQGJ7o7fYtOEMdg>
+    <xme:G3i7X5fJp2LOovVywXDfv6c8Pw_6EWbbFRtc7N5Iqu9qf7RmEcckbu8dgWkqhZ336
+    5YGQ0XSk9EQbQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:Ani7Xx47jSVUmy7BVSwHfp8e5zAqLbvu_Xra9_MjpBwzcfNjM14zow>
-    <xmx:Ani7X-2LyqjS6J3f9LtRPaQvadxWheLLDZecbOv1AVRr8QSjpb-acw>
-    <xmx:Ani7X0FGtJjx7ueOeB--0Zzz8NDPldeIN05ar5E1_Jf-DacviFGUNw>
-    <xmx:Ani7X_Ndj-TICkzVDoBuwjEVQgjh043wyeM8MdWiqxPgXcGE2D3HSD-IFcY>
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:G3i7X3zXIoF0mPk-J0zhKaMXkvWwuL4GJv5ToI4I3UnX2QVBlSckZA>
+    <xmx:G3i7X_OTorwfoOagHUMNTbM-MwdcYtv-SrbTzQNq_nQcQhzWQ2RJsg>
+    <xmx:G3i7X88UbbwyxA_bylYm3tdiZR9-EusS25er-uKHZsJ-SAQsCsA3rw>
+    <xmx:HHi7X-JMsln3UUOHgA9tmp4wAhUdUQ1smb392ktoEvlqD1cQwKDsANXJP-Y>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CB5363280065;
-        Mon, 23 Nov 2020 03:51:13 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: Fix qspi node compatible" failed to apply to 5.4-stable tree
-To:     dinguyen@kernel.org, vigneshr@ti.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 82BBB3064AA6;
+        Mon, 23 Nov 2020 03:51:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] spi: bcm-qspi: Fix use-after-free on unbind" failed to apply to 4.9-stable tree
+To:     lukas@wunner.de, broonie@kernel.org, f.fainelli@gmail.com,
+        kdasu.kdev@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 09:52:16 +0100
-Message-ID: <1606121536895@kroah.com>
+Date:   Mon, 23 Nov 2020 09:52:50 +0100
+Message-ID: <16061215704518@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,56 +71,130 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f126b6702e7354d6247a36f20b9172457af5c15a Mon Sep 17 00:00:00 2001
-From: Dinh Nguyen <dinguyen@kernel.org>
-Date: Sun, 1 Nov 2020 14:02:56 -0600
-Subject: [PATCH] arm64: dts: agilex/stratix10: Fix qspi node compatible
+From 63c5395bb7a9777a33f0e7b5906f2c0170a23692 Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Wed, 11 Nov 2020 20:07:40 +0100
+Subject: [PATCH] spi: bcm-qspi: Fix use-after-free on unbind
 
-The QSPI flash node needs to have the required "jedec,spi-nor"
-in the compatible string.
+bcm_qspi_remove() calls spi_unregister_master() even though
+bcm_qspi_probe() calls devm_spi_register_master().  The spi_master is
+therefore unregistered and freed twice on unbind.
 
-Fixes: 0cb140d07fc7 ("arm64: dts: stratix10: Add QSPI support for Stratix10")
-Cc: stable@vger.kernel.org
-Suggested-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Moreover, since commit 0392727c261b ("spi: bcm-qspi: Handle clock probe
+deferral"), bcm_qspi_probe() leaks the spi_master allocation if the call
+to devm_clk_get_optional() fails.
 
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
-index feadd21bc0dc..46e558ab7729 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
-@@ -159,7 +159,7 @@ &qspi {
- 	flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00a";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound and also
+avoids the spi_master leak on probe.
+
+While at it, fix an ordering issue in bcm_qspi_remove() wherein
+spi_unregister_master() is called after uninitializing the hardware,
+disabling the clock and freeing an IRQ data structure.  The correct
+order is to call spi_unregister_master() *before* those teardown steps
+because bus accesses may still be ongoing until that function returns.
+
+Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.9+: 123456789abc: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/5e31a9a59fd1c0d0b795b2fe219f25e5ee855f9d.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+
+diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
+index 14c9d0133bce..c028446c7460 100644
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -1327,7 +1327,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
  
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-index c07966740e14..f9b4a39683cf 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-@@ -192,7 +192,7 @@ &qspi {
- 	flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00a";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
+ 	data = of_id->data;
  
-diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts b/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
-index 96c50d48289d..a7a83f29f00b 100644
---- a/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
-@@ -110,7 +110,7 @@ &qspi {
- 	flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "mt25qu02g";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
+-	master = spi_alloc_master(dev, sizeof(struct bcm_qspi));
++	master = devm_spi_alloc_master(dev, sizeof(struct bcm_qspi));
+ 	if (!master) {
+ 		dev_err(dev, "error allocating spi_master\n");
+ 		return -ENOMEM;
+@@ -1367,21 +1367,17 @@ int bcm_qspi_probe(struct platform_device *pdev,
  
+ 	if (res) {
+ 		qspi->base[MSPI]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[MSPI])) {
+-			ret = PTR_ERR(qspi->base[MSPI]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[MSPI]))
++			return PTR_ERR(qspi->base[MSPI]);
+ 	} else {
+-		goto qspi_resource_err;
++		return 0;
+ 	}
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "bspi");
+ 	if (res) {
+ 		qspi->base[BSPI]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[BSPI])) {
+-			ret = PTR_ERR(qspi->base[BSPI]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[BSPI]))
++			return PTR_ERR(qspi->base[BSPI]);
+ 		qspi->bspi_mode = true;
+ 	} else {
+ 		qspi->bspi_mode = false;
+@@ -1392,18 +1388,14 @@ int bcm_qspi_probe(struct platform_device *pdev,
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "cs_reg");
+ 	if (res) {
+ 		qspi->base[CHIP_SELECT]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[CHIP_SELECT])) {
+-			ret = PTR_ERR(qspi->base[CHIP_SELECT]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[CHIP_SELECT]))
++			return PTR_ERR(qspi->base[CHIP_SELECT]);
+ 	}
+ 
+ 	qspi->dev_ids = kcalloc(num_irqs, sizeof(struct bcm_qspi_dev_id),
+ 				GFP_KERNEL);
+-	if (!qspi->dev_ids) {
+-		ret = -ENOMEM;
+-		goto qspi_resource_err;
+-	}
++	if (!qspi->dev_ids)
++		return -ENOMEM;
+ 
+ 	for (val = 0; val < num_irqs; val++) {
+ 		irq = -1;
+@@ -1484,7 +1476,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
+ 	qspi->xfer_mode.addrlen = -1;
+ 	qspi->xfer_mode.hp = -1;
+ 
+-	ret = devm_spi_register_master(&pdev->dev, master);
++	ret = spi_register_master(master);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can't register master\n");
+ 		goto qspi_reg_err;
+@@ -1497,8 +1489,6 @@ int bcm_qspi_probe(struct platform_device *pdev,
+ 	clk_disable_unprepare(qspi->clk);
+ qspi_probe_err:
+ 	kfree(qspi->dev_ids);
+-qspi_resource_err:
+-	spi_master_put(master);
+ 	return ret;
+ }
+ /* probe function to be called by SoC specific platform driver probe */
+@@ -1508,10 +1498,10 @@ int bcm_qspi_remove(struct platform_device *pdev)
+ {
+ 	struct bcm_qspi *qspi = platform_get_drvdata(pdev);
+ 
++	spi_unregister_master(qspi->master);
+ 	bcm_qspi_hw_uninit(qspi);
+ 	clk_disable_unprepare(qspi->clk);
+ 	kfree(qspi->dev_ids);
+-	spi_unregister_master(qspi->master);
+ 
+ 	return 0;
+ }
 
