@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4732D2C0B43
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 601A92C0B41
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388968AbgKWNWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:22:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49048 "EHLO mail.kernel.org"
+        id S1731836AbgKWNWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:22:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731812AbgKWMgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:49 -0500
+        id S1731825AbgKWMgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:36:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A7992076E;
-        Mon, 23 Nov 2020 12:36:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 843D72065E;
+        Mon, 23 Nov 2020 12:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135009;
-        bh=iyLc2Xp9CAtOzka8BC8tnDHk5JEE1wHkizSzbrrYD1I=;
+        s=korg; t=1606135012;
+        bh=zRbcK81dP3lykh7Lie0sKi3uPFLovLliutkdOcjLtpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iv9oHY0GiZySikqbk35nI9YRekvDBokM++gMQPrlnMSB2vtyDBGqtfth8ISHpN+rv
-         dC4MtBEIdWphh8aQnHfZNRKlBBflhnsoRG9+GDZoorXNKQTyJ41nKpeZO6u8M8MycW
-         U1FLCzHskq1SyhO950CqrT/YVVyhur/vY+rKe/SE=
+        b=isgLhMp2RCOYxX0PJd+AB9viDQ7BFe4usTDN+ueRCYyebCQIiiDxSVrc8Jf7utC14
+         DuPXOsaK0vXWvpNlQquSDNm/RxFAlJ7qP1pjiJBjGpmjGtPJTFW20JVQijEcmtaofx
+         h/WW7GHgvuzR+rXXglvf+gaDvRj/YcHrfLWogmN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/158] perf lock: Dont free "lock_seq_stat" if read_count isnt zero
-Date:   Mon, 23 Nov 2020 13:21:40 +0100
-Message-Id: <20201123121823.412221847@linuxfoundation.org>
+Subject: [PATCH 5.4 073/158] tools, bpftool: Add missing close before bpftool net attach exit
+Date:   Mon, 23 Nov 2020 13:21:41 +0100
+Message-Id: <20201123121823.460500486@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -44,52 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit b0e5a05cc9e37763c7f19366d94b1a6160c755bc ]
+[ Upstream commit 50431b45685b600fc2851a3f2b53e24643efe6d3 ]
 
-When execute command "perf lock report", it hits failure and outputs log
-as follows:
+progfd is created by prog_parse_fd() in do_attach() and before the latter
+returns in case of success, the file descriptor should be closed.
 
-  perf: builtin-lock.c:623: report_lock_release_event: Assertion `!(seq->read_count < 0)' failed.
-  Aborted
-
-This is an imbalance issue.  The locking sequence structure
-"lock_seq_stat" contains the reader counter and it is used to check if
-the locking sequence is balance or not between acquiring and releasing.
-
-If the tool wrongly frees "lock_seq_stat" when "read_count" isn't zero,
-the "read_count" will be reset to zero when allocate a new structure at
-the next time; thus it causes the wrong counting for reader and finally
-results in imbalance issue.
-
-To fix this issue, if detects "read_count" is not zero (means still have
-read user in the locking sequence), goto the "end" tag to skip freeing
-structure "lock_seq_stat".
-
-Fixes: e4cef1f65061 ("perf lock: Fix state machine to recognize lock sequence")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/r/20201104094229.17509-2-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 04949ccc273e ("tools: bpftool: add net attach command to attach XDP on interface")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20201113115152.53178-1-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-lock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/bpf/bpftool/net.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
-index 474dfd59d7eb2..d06665077dfe0 100644
---- a/tools/perf/builtin-lock.c
-+++ b/tools/perf/builtin-lock.c
-@@ -621,7 +621,7 @@ static int report_lock_release_event(struct evsel *evsel,
- 	case SEQ_STATE_READ_ACQUIRED:
- 		seq->read_count--;
- 		BUG_ON(seq->read_count < 0);
--		if (!seq->read_count) {
-+		if (seq->read_count) {
- 			ls->nr_release++;
- 			goto end;
+diff --git a/tools/bpf/bpftool/net.c b/tools/bpf/bpftool/net.c
+index 4f52d31516166..bb311ccc6c487 100644
+--- a/tools/bpf/bpftool/net.c
++++ b/tools/bpf/bpftool/net.c
+@@ -312,8 +312,8 @@ static int do_attach(int argc, char **argv)
+ 
+ 	ifindex = net_parse_dev(&argc, &argv);
+ 	if (ifindex < 1) {
+-		close(progfd);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto cleanup;
+ 	}
+ 
+ 	if (argc) {
+@@ -321,8 +321,8 @@ static int do_attach(int argc, char **argv)
+ 			overwrite = true;
+ 		} else {
+ 			p_err("expected 'overwrite', got: '%s'?", *argv);
+-			close(progfd);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto cleanup;
  		}
+ 	}
+ 
+@@ -330,17 +330,17 @@ static int do_attach(int argc, char **argv)
+ 	if (is_prefix("xdp", attach_type_strings[attach_type]))
+ 		err = do_attach_detach_xdp(progfd, attach_type, ifindex,
+ 					   overwrite);
+-
+-	if (err < 0) {
++	if (err) {
+ 		p_err("interface %s attach failed: %s",
+ 		      attach_type_strings[attach_type], strerror(-err));
+-		return err;
++		goto cleanup;
+ 	}
+ 
+ 	if (json_output)
+ 		jsonw_null(json_wtr);
+-
+-	return 0;
++cleanup:
++	close(progfd);
++	return err;
+ }
+ 
+ static int do_detach(int argc, char **argv)
 -- 
 2.27.0
 
