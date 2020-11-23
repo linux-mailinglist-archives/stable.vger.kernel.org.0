@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA57E2C0717
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2C7F2C0670
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731932AbgKWMh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:37:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
+        id S1730798AbgKWMa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731929AbgKWMh0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:37:26 -0500
+        id S1730794AbgKWMa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:56 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 329DA2065E;
-        Mon, 23 Nov 2020 12:37:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30EA20728;
+        Mon, 23 Nov 2020 12:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135044;
-        bh=5ONfmuhu1eJSrJ5+DMlvqQn0ruu9+23QUEYy8h//tIw=;
+        s=korg; t=1606134656;
+        bh=JHOkdHneU6K9rN6Z3OdWcTQ1VvNMJHF9q5RVuEQdrNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C007nIkNn6qPGPSJ5CuGHbQ/iqDYmvIdauEHzSN5M01hbJY4asGhq6aiclfATGYjR
-         9TbMA0Mdt8wgjGoipsS2RCayaSmbb4TbzPcMmpjSAk2kCsfaBNW010xWKT8K8Qs5R0
-         TJpD2jPUTG77IA9HdmG2Vy9IfBrPSOWj+rdk47h0=
+        b=pN2rbTsvH0NK/7yDd/5V5yz1BQtVsmlyeK2zey3+tTYNziigT8ivURlaHGy+3Fl78
+         l3yG4rrxrq+bgIz8SqahlvAK1TXb+1RKztD3yR+RN7gol8aNbd6mlLeNeFA2RLBDOV
+         zUm18Yy2oGFkn7GwY78YjlrGlyXgtZD+1bynLPwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/158] ARM: dts: sun9i: Enable both RGMII RX/TX delay on Ethernet PHY
-Date:   Mon, 23 Nov 2020 13:21:25 +0100
-Message-Id: <20201123121822.688835494@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 06/91] lan743x: fix issue causing intermittent kernel log warnings
+Date:   Mon, 23 Nov 2020 13:21:26 +0100
+Message-Id: <20201123121809.610632710@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +42,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit b1064037e8ecf09d587b7b4966eebe0c362908e5 ]
+[ Upstream commit e35df62e04cc6fc4b9d90d054732f138349ff9b1 ]
 
-The Ethernet PHY on the Cubieboard 4 and A80 Optimus have the RX
-and TX delays enabled on the PHY, using pull-ups on the RXDLY and
-TXDLY pins.
+When running this chip on arm imx6, we intermittently observe
+the following kernel warning in the log, especially when the
+system is under high load:
 
-Fix the phy-mode description to correct reflect this so that the
-implementation doesn't reconfigure the delays incorrectly. This
-happened with commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e
-rx/tx delay config").
+[   50.119484] ------------[ cut here ]------------
+[   50.124377] WARNING: CPU: 0 PID: 303 at kernel/softirq.c:169 __local_bh_enable_ip+0x100/0x184
+[   50.132925] IRQs not enabled as expected
+[   50.159250] CPU: 0 PID: 303 Comm: rngd Not tainted 5.7.8 #1
+[   50.164837] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[   50.171395] [<c0111a38>] (unwind_backtrace) from [<c010be28>] (show_stack+0x10/0x14)
+[   50.179162] [<c010be28>] (show_stack) from [<c05b9dec>] (dump_stack+0xac/0xd8)
+[   50.186408] [<c05b9dec>] (dump_stack) from [<c0122e40>] (__warn+0xd0/0x10c)
+[   50.193391] [<c0122e40>] (__warn) from [<c0123238>] (warn_slowpath_fmt+0x98/0xc4)
+[   50.200892] [<c0123238>] (warn_slowpath_fmt) from [<c012b010>] (__local_bh_enable_ip+0x100/0x184)
+[   50.209860] [<c012b010>] (__local_bh_enable_ip) from [<bf09ecbc>] (destroy_conntrack+0x48/0xd8 [nf_conntrack])
+[   50.220038] [<bf09ecbc>] (destroy_conntrack [nf_conntrack]) from [<c0ac9b58>] (nf_conntrack_destroy+0x94/0x168)
+[   50.230160] [<c0ac9b58>] (nf_conntrack_destroy) from [<c0a4aaa0>] (skb_release_head_state+0xa0/0xd0)
+[   50.239314] [<c0a4aaa0>] (skb_release_head_state) from [<c0a4aadc>] (skb_release_all+0xc/0x24)
+[   50.247946] [<c0a4aadc>] (skb_release_all) from [<c0a4b4cc>] (consume_skb+0x74/0x17c)
+[   50.255796] [<c0a4b4cc>] (consume_skb) from [<c081a2dc>] (lan743x_tx_release_desc+0x120/0x124)
+[   50.264428] [<c081a2dc>] (lan743x_tx_release_desc) from [<c081a98c>] (lan743x_tx_napi_poll+0x5c/0x18c)
+[   50.273755] [<c081a98c>] (lan743x_tx_napi_poll) from [<c0a6b050>] (net_rx_action+0x118/0x4a4)
+[   50.282306] [<c0a6b050>] (net_rx_action) from [<c0101364>] (__do_softirq+0x13c/0x53c)
+[   50.290157] [<c0101364>] (__do_softirq) from [<c012b29c>] (irq_exit+0x150/0x17c)
+[   50.297575] [<c012b29c>] (irq_exit) from [<c0196a08>] (__handle_domain_irq+0x60/0xb0)
+[   50.305423] [<c0196a08>] (__handle_domain_irq) from [<c05d44fc>] (gic_handle_irq+0x4c/0x90)
+[   50.313790] [<c05d44fc>] (gic_handle_irq) from [<c0100ed4>] (__irq_usr+0x54/0x80)
+[   50.321287] Exception stack(0xecd99fb0 to 0xecd99ff8)
+[   50.326355] 9fa0:                                     1cf1aa74 00000001 00000001 00000000
+[   50.334547] 9fc0: 00000001 00000000 00000000 00000000 00000000 00000000 00004097 b6d17d14
+[   50.342738] 9fe0: 00000001 b6d17c60 00000000 b6e71f94 800b0010 ffffffff
+[   50.349364] irq event stamp: 2525027
+[   50.352955] hardirqs last  enabled at (2525026): [<c0a6afec>] net_rx_action+0xb4/0x4a4
+[   50.360892] hardirqs last disabled at (2525027): [<c0d6d2fc>] _raw_spin_lock_irqsave+0x1c/0x50
+[   50.369517] softirqs last  enabled at (2524660): [<c01015b4>] __do_softirq+0x38c/0x53c
+[   50.377446] softirqs last disabled at (2524693): [<c012b29c>] irq_exit+0x150/0x17c
+[   50.385027] ---[ end trace c0b571db4bc8087d ]---
 
-Fixes: 98048143b7f8 ("ARM: dts: sun9i: cubieboard4: Enable GMAC")
-Fixes: bc9bd03a44f9 ("ARM: dts: sun9i: a80-optimus: Enable GMAC")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201024162515.30032-7-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The driver is calling dev_kfree_skb() from code inside a spinlock,
+where h/w interrupts are disabled. This is forbidden, as documented
+in include/linux/netdevice.h. The correct function to use
+dev_kfree_skb_irq(), or dev_kfree_skb_any().
+
+Fix by using the correct dev_kfree_skb_xxx() functions:
+
+in lan743x_tx_release_desc():
+  called by lan743x_tx_release_completed_descriptors()
+    called by in lan743x_tx_napi_poll()
+    which holds a spinlock
+  called by lan743x_tx_release_all_descriptors()
+    called by lan743x_tx_close()
+    which can-sleep
+conclusion: use dev_kfree_skb_any()
+
+in lan743x_tx_xmit_frame():
+  which holds a spinlock
+conclusion: use dev_kfree_skb_irq()
+
+in lan743x_tx_close():
+  which can-sleep
+conclusion: use dev_kfree_skb()
+
+in lan743x_rx_release_ring_element():
+  called by lan743x_rx_close()
+    which can-sleep
+  called by lan743x_rx_open()
+    which can-sleep
+conclusion: use dev_kfree_skb()
+
+Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
+Link: https://lore.kernel.org/r/20201112185949.11315-1-TheSven73@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 2 +-
- arch/arm/boot/dts/sun9i-a80-optimus.dts     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_main.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-index d3b337b043a15..484b93df20cb6 100644
---- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
-@@ -129,7 +129,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&gmac_rgmii_pins>;
- 	phy-handle = <&phy1>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-supply = <&reg_cldo1>;
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-index bbc6335e56314..5c3580d712e40 100644
---- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
-+++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
-@@ -124,7 +124,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&gmac_rgmii_pins>;
- 	phy-handle = <&phy1>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	phy-supply = <&reg_cldo1>;
- 	status = "okay";
- };
--- 
-2.27.0
-
+--- a/drivers/net/ethernet/microchip/lan743x_main.c
++++ b/drivers/net/ethernet/microchip/lan743x_main.c
+@@ -1245,13 +1245,13 @@ clean_up_data_descriptor:
+ 		goto clear_active;
+ 
+ 	if (!(buffer_info->flags & TX_BUFFER_INFO_FLAG_TIMESTAMP_REQUESTED)) {
+-		dev_kfree_skb(buffer_info->skb);
++		dev_kfree_skb_any(buffer_info->skb);
+ 		goto clear_skb;
+ 	}
+ 
+ 	if (cleanup) {
+ 		lan743x_ptp_unrequest_tx_timestamp(tx->adapter);
+-		dev_kfree_skb(buffer_info->skb);
++		dev_kfree_skb_any(buffer_info->skb);
+ 	} else {
+ 		ignore_sync = (buffer_info->flags &
+ 			       TX_BUFFER_INFO_FLAG_IGNORE_SYNC) != 0;
+@@ -1561,7 +1561,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
+ 	if (required_number_of_descriptors >
+ 		lan743x_tx_get_avail_desc(tx)) {
+ 		if (required_number_of_descriptors > (tx->ring_size - 1)) {
+-			dev_kfree_skb(skb);
++			dev_kfree_skb_irq(skb);
+ 		} else {
+ 			/* save to overflow buffer */
+ 			tx->overflow_skb = skb;
+@@ -1594,7 +1594,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
+ 				   start_frame_length,
+ 				   do_timestamp,
+ 				   skb->ip_summed == CHECKSUM_PARTIAL)) {
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_irq(skb);
+ 		goto unlock;
+ 	}
+ 
+@@ -1614,7 +1614,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
+ 			 * frame assembler clean up was performed inside
+ 			 *	lan743x_tx_frame_add_fragment
+ 			 */
+-			dev_kfree_skb(skb);
++			dev_kfree_skb_irq(skb);
+ 			goto unlock;
+ 		}
+ 	}
 
 
