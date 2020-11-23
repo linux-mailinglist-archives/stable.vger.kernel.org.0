@@ -2,106 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CC52BFE79
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 03:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B012BFE95
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 04:18:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbgKWC62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 21:58:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726630AbgKWC62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 21:58:28 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE73C0613CF
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 18:58:26 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id w16so534711pga.9
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 18:58:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=axtens.net; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Kws2Ui1UJXk8SsYl5hFV2TeU+bmMFXhPsXoMlrffbmc=;
-        b=Q3ZfnDvDb+d/wmSvSrXiWiOv5lsHIxAMTT+7fKMHTGuLMNhNk8EFfPFCPUQHxXs5l0
-         qO8qwO1q8esyTLf1lJCJjjzDCcEa6CHw9BxXkCkKCbaUB7vAAjsTUmWaRw4g+x73jat+
-         yNFLfbxX3ykyrhLVYRu6q5kxZ+OM6MtN6W1Ow=
+        id S1727923AbgKWDSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 22:18:00 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:44560 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727911AbgKWDSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 22:18:00 -0500
+Received: by mail-pf1-f193.google.com with SMTP id y7so13570163pfq.11;
+        Sun, 22 Nov 2020 19:17:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Kws2Ui1UJXk8SsYl5hFV2TeU+bmMFXhPsXoMlrffbmc=;
-        b=sunsY0XF4FTWecQKvdaDK3X17Fv6B4geu6bJ3+KrroYiMxjdX0dOLgx05enBGrjHqV
-         AmyZALMVOEzLaWvQ6LjsODugm/XOsME2zG9Rr+rHA8guGnzEUiKB1z+UHCy2mt+RXsuK
-         OGLBH15iDO5ia1+XrlTWD1wOPnjITLrLQ5/GOSLW2Q1MqkIXuXX406IM9aWPMOaQRbpA
-         EbHy1VnEFteQh12Euk7LjdAas3ctO5Y6VONEcDN2ylQZ1aCi7ML3RNjWNOL2tXfbtgKw
-         kBMQVO2A7mnNEX77Ny7ANVnMTpS9aSut0NUboCMJzPxaAsRmZCUIjqVB1DwIJ0mpagF7
-         gEYA==
-X-Gm-Message-State: AOAM532BVVjKD5FeiAKInJlItf5DmJytKjZLTEreczItj54IT5vzoVlO
-        fygT+HfDRGnYVhx2mnvt9nPTAJv3m3svgg==
-X-Google-Smtp-Source: ABdhPJyNkhXycSSN5eLTsf24hE+pK47PnDbHhhe9rwXDVyLfrLSf6yMIWe6K5RQPL1Dxc3AsUfOOuw==
-X-Received: by 2002:a65:5907:: with SMTP id f7mr25596252pgu.445.1606100306160;
-        Sun, 22 Nov 2020 18:58:26 -0800 (PST)
-Received: from localhost (2001-44b8-1113-6700-7c33-03c1-9b47-98b6.static.ipv6.internode.on.net. [2001:44b8:1113:6700:7c33:3c1:9b47:98b6])
-        by smtp.gmail.com with ESMTPSA id f6sm9075795pgi.70.2020.11.22.18.58.25
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=NS2/LWJgfKnaWgsdnGvEKSQ6HreXoy5m6pflViridOg=;
+        b=mPLpC1/5vBOjn4dQmMC00QMR9G5ANFc9SvPtKAMRxq4vabnmIT0Bg50aCHxsm6cFGz
+         1F7Jya1T0zDAhYizm5mOwx2C1fTHpfqMf6YG91L+dq3JeXwTaijWuix2tQACyBpjFKiq
+         YfFWyubTVa/A2ODv7Z6OdgK9Vc13CMxC5L5gjbDoLCovvNMfzGNQpHWRBzPe0QyogtKQ
+         rZkFITJPJVPlmZGaD0dHtoOJcu/VnzFE9nrMivUEl5E3EOJCKw+jYShkrQ4uJB+Hruzk
+         +isW2RRT+lEzKFvvmajJnT3ORAtHVsdO/GIe3C8hr5fJ8eYJF3sPKDSynL+SNLfmiDmc
+         Sfbg==
+X-Gm-Message-State: AOAM531pB12p49HqzRZvdRIEx1jT6cr/75WzIGF5lZZ3mKbiMwht+G8o
+        Ja0l5eppQ7DMoznHvkrWneE=
+X-Google-Smtp-Source: ABdhPJzrjluYfs7/aZf3abR/AZ1d+Cy6V5LXlpx5SjvPdL7rra3+1TiI3+YBdyWDqYgU0bC9zGkMkw==
+X-Received: by 2002:a65:679a:: with SMTP id e26mr6737241pgr.394.1606101478901;
+        Sun, 22 Nov 2020 19:17:58 -0800 (PST)
+Received: from asus.hsd1.ca.comcast.net (c-73-241-217-19.hsd1.ca.comcast.net. [73.241.217.19])
+        by smtp.gmail.com with ESMTPSA id w12sm3578751pfn.136.2020.11.22.19.17.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2020 18:58:25 -0800 (PST)
-From:   Daniel Axtens <dja@axtens.net>
-To:     stable@vger.kernel.org
-Cc:     dja@axtens.net
-Subject: [PATCH v4.4] powerpc/uaccess-flush: fix corenet64_smp_defconfig build
-Date:   Mon, 23 Nov 2020 13:58:22 +1100
-Message-Id: <20201123025822.458568-1-dja@axtens.net>
-X-Mailer: git-send-email 2.25.1
+        Sun, 22 Nov 2020 19:17:58 -0800 (PST)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc:     "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>, linux-scsi@vger.kernel.org,
+        linux-block@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        stable <stable@vger.kernel.org>, Can Guo <cang@codeaurora.org>
+Subject: [PATCH v3 1/9] block: Fix a race in the runtime power management code
+Date:   Sun, 22 Nov 2020 19:17:41 -0800
+Message-Id: <20201123031749.14912-2-bvanassche@acm.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201123031749.14912-1-bvanassche@acm.org>
+References: <20201123031749.14912-1-bvanassche@acm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Gunter reports problems with the corenet64_smp_defconfig:
+With the current implementation the following race can happen:
+* blk_pre_runtime_suspend() calls blk_freeze_queue_start() and
+  blk_mq_unfreeze_queue().
+* blk_queue_enter() calls blk_queue_pm_only() and that function returns
+  true.
+* blk_queue_enter() calls blk_pm_request_resume() and that function does
+  not call pm_request_resume() because the queue runtime status is
+  RPM_ACTIVE.
+* blk_pre_runtime_suspend() changes the queue status into RPM_SUSPENDING.
 
-In file included from arch/powerpc/kernel/ppc_ksyms.c:10:0:
-arch/powerpc/include/asm/book3s/64/kup-radix.h:11:29: error: redefinition of ‘allow_user_access’
- static __always_inline void allow_user_access(void __user *to, const void __user *from,
-			     ^~~~~~~~~~~~~~~~~
-In file included from arch/powerpc/include/asm/uaccess.h:12:0,
-		 from arch/powerpc/kernel/ppc_ksyms.c:8:
-arch/powerpc/include/asm/kup.h:12:20: note: previous definition of ‘allow_user_access’ was here
- static inline void allow_user_access(void __user *to, const void __user *from,
-		    ^~~~~~~~~~~~~~~~~
+Fix this race by changing the queue runtime status into RPM_SUSPENDING
+before switching q_usage_counter to atomic mode.
 
-This is because ppc_ksyms.c imports asm/book3s/64/kup-radix.h guarded by
-CONFIG_PPC64, rather than CONFIG_PPC_BOOK3S_64 which it should do.
-
-Fix it.
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 986d413b7c15 ("blk-mq: Enable support for runtime power management")
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- arch/powerpc/kernel/ppc_ksyms.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-pm.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/kernel/ppc_ksyms.c b/arch/powerpc/kernel/ppc_ksyms.c
-index 80eb47113d5d..0f05c85cbde3 100644
---- a/arch/powerpc/kernel/ppc_ksyms.c
-+++ b/arch/powerpc/kernel/ppc_ksyms.c
-@@ -6,7 +6,7 @@
- #include <asm/cacheflush.h>
- #include <asm/epapr_hcalls.h>
- #include <asm/uaccess.h>
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- #include <asm/book3s/64/kup-radix.h>
- #endif
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index b85234d758f7..17bd020268d4 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -67,6 +67,10 @@ int blk_pre_runtime_suspend(struct request_queue *q)
  
-@@ -50,6 +50,6 @@ EXPORT_SYMBOL(current_stack_pointer);
+ 	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
  
- EXPORT_SYMBOL(__arch_clear_user);
++	spin_lock_irq(&q->queue_lock);
++	q->rpm_status = RPM_SUSPENDING;
++	spin_unlock_irq(&q->queue_lock);
++
+ 	/*
+ 	 * Increase the pm_only counter before checking whether any
+ 	 * non-PM blk_queue_enter() calls are in progress to avoid that any
+@@ -89,15 +93,14 @@ int blk_pre_runtime_suspend(struct request_queue *q)
+ 	/* Switch q_usage_counter back to per-cpu mode. */
+ 	blk_mq_unfreeze_queue(q);
  
--#ifdef CONFIG_PPC64
-+#ifdef CONFIG_PPC_BOOK3S_64
- EXPORT_SYMBOL(do_uaccess_flush);
- #endif
--- 
-2.25.1
-
+-	spin_lock_irq(&q->queue_lock);
+-	if (ret < 0)
++	if (ret < 0) {
++		spin_lock_irq(&q->queue_lock);
++		q->rpm_status = RPM_ACTIVE;
+ 		pm_runtime_mark_last_busy(q->dev);
+-	else
+-		q->rpm_status = RPM_SUSPENDING;
+-	spin_unlock_irq(&q->queue_lock);
++		spin_unlock_irq(&q->queue_lock);
+ 
+-	if (ret)
+ 		blk_clear_pm_only(q);
++	}
+ 
+ 	return ret;
+ }
