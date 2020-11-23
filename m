@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DAC72C06A5
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2872C0646
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731162AbgKWMdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:33:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
+        id S1730601AbgKWM3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730604AbgKWMdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:04 -0500
+        id S1730593AbgKWM33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C61020781;
-        Mon, 23 Nov 2020 12:33:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EA7420781;
+        Mon, 23 Nov 2020 12:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134782;
-        bh=GC0u43jDMd+oYqXZg0Rqvq7bb73dAQcDjjuq/lrF9js=;
+        s=korg; t=1606134566;
+        bh=DoUrGNENtK2xPC80298SmksnySDye6Bqr8dnb4i0WN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rl+bz/54TDsUAl3MVDKiiUDZiFm0fuAszHPCFBxRXGofHhz/T2GpUdf8wXbefUgJx
-         zwRQ+XXvY0UK2beb0IdeapZaXp6ZtjzvuICour3OWOp4oFIwVBh5yrIdK/bBs8NlXT
-         Wp2ppJX3/gGXTIOFRf/pc1htYKvke/MyjLh6R4Kk=
+        b=JfmvA0NemEzSItKHZKVWvD5G5t47qC+qd5VgObfX9Q5kqv6klsvcRz0zoZ5sWFqCJ
+         rI0ip2JNdHaMO7UAEVIXj2egdEdVyr3rMEwVItTN9MggMU2/OfulouzuwvFrGIIc6d
+         h+izz4GHukWq7izXflbUbqB0dwLIibXJGj8pbVPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 81/91] regulator: workaround self-referent regulators
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 59/60] s390/dasd: fix null pointer dereference for ERP requests
 Date:   Mon, 23 Nov 2020 13:22:41 +0100
-Message-Id: <20201123121813.266386748@linuxfoundation.org>
+Message-Id: <20201123121807.905897115@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit f5c042b23f7429e5c2ac987b01a31c69059a978b upstream.
+commit 6f117cb854a44a79898d844e6ae3fd23bd94e786 upstream.
 
-Workaround regulators whose supply name happens to be the same as its
-own name. This fixes boards that used to work before the early supply
-resolving was removed. The error message is left in place so that
-offending drivers can be detected.
+When requeueing all requests on the device request queue to the blocklayer
+we might get to an ERP (error recovery) request that is a copy of an
+original CQR.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
-Link: https://lore.kernel.org/r/d703acde2a93100c3c7a81059d716c50ad1b1f52.1605226675.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Those requests do not have blocklayer request information or a pointer to
+the dasd_queue set. When trying to access those data it will lead to a
+null pointer dereference in dasd_requeue_all_requests().
+
+Fix by checking if the request is an ERP request that can simply be
+ignored. The blocklayer request will be requeued by the original CQR that
+is on the device queue right behind the ERP request.
+
+Fixes: 9487cfd3430d ("s390/dasd: fix handling of internal requests")
+Cc: <stable@vger.kernel.org> #4.16
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/s390/block/dasd.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1598,7 +1598,10 @@ static int regulator_resolve_supply(stru
- 	if (r == rdev) {
- 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
- 			rdev->desc->name, rdev->supply_name);
--		return -EINVAL;
-+		if (!have_full_constraints())
-+			return -EINVAL;
-+		r = dummy_regulator_rdev;
-+		get_device(&r->dev);
- 	}
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2891,6 +2891,12 @@ static int _dasd_requeue_request(struct
  
- 	/*
+ 	if (!block)
+ 		return -EINVAL;
++	/*
++	 * If the request is an ERP request there is nothing to requeue.
++	 * This will be done with the remaining original request.
++	 */
++	if (cqr->refers)
++		return 0;
+ 	spin_lock_irq(&cqr->dq->lock);
+ 	req = (struct request *) cqr->callback_data;
+ 	blk_mq_requeue_request(req, false);
 
 
