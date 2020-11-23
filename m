@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDA82C072A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3D62C0609
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732051AbgKWMiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:38:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50502 "EHLO mail.kernel.org"
+        id S1730200AbgKWM0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:26:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732043AbgKWMiD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:38:03 -0500
+        id S1730198AbgKWM0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:26:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3D122065E;
-        Mon, 23 Nov 2020 12:38:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AF112076E;
+        Mon, 23 Nov 2020 12:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135082;
-        bh=Rx2/1H7YeV5ykEuIKvCuZtHIT5BWvbhD02Gt7L0XEFA=;
+        s=korg; t=1606134406;
+        bh=2+XmEO8S4+lvvRzWTX7xb5yQHXcNi5CcYkX10CRXRjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1n2J89JjVLmpwChCocTfsJp7evrEllFtjZURUUdDkTKN9LLLrddJdtQt4mkbNCRIo
-         Yreol/r+2J+v1NwcAam2F8bPNlEoOYSfz4Nz2AZLUZyRRm1cRx1wS5u1Z82xHmepUy
-         hLPBgsiZre98GdnZP/abTlpleyutI6yYVWFbgMyc=
+        b=nwimZsnNdLeN+x1rLEQqLzxtOUpvvCJmCVcStW3EJe7vE12RLrGd9mMpLwTieezCS
+         5N6ZHjh8IacYWFy8woIB/UtBtlIeeO5IEDa3JSL00902UKca79otPyYGglqUBv7j59
+         /LKWWZ/pnxr2NLWXKRFZCRacTNxML43rinfpiTiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Lukasz Hawrylko <lukasz.hawrylko@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/158] iommu/vt-d: Avoid panic if iommu init fails in tboot system
+Subject: [PATCH 4.9 20/47] arm64: psci: Avoid printing in cpu_psci_cpu_die()
 Date:   Mon, 23 Nov 2020 13:22:06 +0100
-Message-Id: <20201123121824.661709561@linuxfoundation.org>
+Message-Id: <20201123121806.515821576@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 4d213e76a359e540ca786ee937da7f35faa8e5f8 ]
+[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
 
-"intel_iommu=off" command line is used to disable iommu but iommu is force
-enabled in a tboot system for security reason.
+cpu_psci_cpu_die() is called in the context of the dying CPU, which
+will no longer be online or tracked by RCU. It is therefore not generally
+safe to call printk() if the PSCI "cpu off" request fails, so remove the
+pr_crit() invocation.
 
-However for better performance on high speed network device, a new option
-"intel_iommu=tboot_noforce" is introduced to disable the force on.
-
-By default kernel should panic if iommu init fail in tboot for security
-reason, but it's unnecessory if we use "intel_iommu=tboot_noforce,off".
-
-Fix the code setting force_on and move intel_iommu_tboot_noforce
-from tboot code to intel iommu code.
-
-Fixes: 7304e8f28bb2 ("iommu/vt-d: Correctly disable Intel IOMMU force on")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Tested-by: Lukasz Hawrylko <lukasz.hawrylko@linux.intel.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20201110071908.3133-1-zhenzhong.duan@gmail.com
+Cc: Qian Cai <cai@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tboot.c     | 3 ---
- drivers/iommu/intel-iommu.c | 5 +++--
- include/linux/intel-iommu.h | 1 -
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ arch/arm64/kernel/psci.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/tboot.c b/arch/x86/kernel/tboot.c
-index a49fe1dcb47e8..bded81591ad95 100644
---- a/arch/x86/kernel/tboot.c
-+++ b/arch/x86/kernel/tboot.c
-@@ -512,9 +512,6 @@ int tboot_force_iommu(void)
- 	if (!tboot_enabled())
- 		return 0;
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index e3713d6fb8e00..bf6142a80cf1a 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -68,7 +68,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
  
--	if (intel_iommu_tboot_noforce)
--		return 1;
+ static void cpu_psci_cpu_die(unsigned int cpu)
+ {
+-	int ret;
+ 	/*
+ 	 * There are no known implementations of PSCI actually using the
+ 	 * power state field, pass a sensible default for now.
+@@ -76,9 +75,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
+ 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
+ 
+-	ret = psci_ops.cpu_off(state);
 -
- 	if (no_iommu || swiotlb || dmar_disabled)
- 		pr_warning("Forcing Intel-IOMMU to enabled\n");
+-	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++	psci_ops.cpu_off(state);
+ }
  
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 1147626f0d253..984c7a6ea4fe8 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -179,7 +179,7 @@ static int rwbf_quirk;
-  * (used when kernel is launched w/ TXT)
-  */
- static int force_on = 0;
--int intel_iommu_tboot_noforce;
-+static int intel_iommu_tboot_noforce;
- static int no_platform_optin;
- 
- #define ROOT_ENTRY_NR (VTD_PAGE_SIZE/sizeof(struct root_entry))
-@@ -4927,7 +4927,8 @@ int __init intel_iommu_init(void)
- 	 * Intel IOMMU is required for a TXT/tboot launch or platform
- 	 * opt in, so enforce that.
- 	 */
--	force_on = tboot_force_iommu() || platform_optin_force_iommu();
-+	force_on = (!intel_iommu_tboot_noforce && tboot_force_iommu()) ||
-+		    platform_optin_force_iommu();
- 
- 	if (iommu_init_mempool()) {
- 		if (force_on)
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index e54d51308f6f5..6b559d25a84ee 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -706,7 +706,6 @@ extern int iommu_calculate_agaw(struct intel_iommu *iommu);
- extern int iommu_calculate_max_sagaw(struct intel_iommu *iommu);
- extern int dmar_disabled;
- extern int intel_iommu_enabled;
--extern int intel_iommu_tboot_noforce;
- extern int intel_iommu_gfx_mapped;
- #else
- static inline int iommu_calculate_agaw(struct intel_iommu *iommu)
+ static int cpu_psci_cpu_kill(unsigned int cpu)
 -- 
 2.27.0
 
