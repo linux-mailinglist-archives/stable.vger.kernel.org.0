@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 486C22C09C7
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E732C09C0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732749AbgKWNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:12:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59910 "EHLO mail.kernel.org"
+        id S1732869AbgKWNLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:11:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732493AbgKWMqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:46:17 -0500
+        id S2387498AbgKWMqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E02A7208C3;
-        Mon, 23 Nov 2020 12:46:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9187420888;
+        Mon, 23 Nov 2020 12:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135577;
-        bh=q0VLpvB7HxT6vWYXRYJri8y5O6VinuArtNAHQuLFrIE=;
+        s=korg; t=1606135607;
+        bh=24dlhfo0QHSKAATcXgMbqRNnoBGhj+Hb2zHLXJ3gRpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WP2twSGQ9B4dMGD+NynBiiOyqY0rSz4K2ONH8tJjk7Yh709vNlDnQcQ7RZVtF1n6Q
-         p8oukte2cHydZr4GQTna+2VEqmrIpigOhYiK3AngGpM6fe9otcAf3isml3O2YWSjOE
-         hxqVenAGUnjLCJpU3z0q+NOIDiUfuv8fERx1Eolg=
+        b=rBoyGCz7a8ASd/7uEIkZS4gv02EcidZ30sQXtOquAGVI9vQk1rno3ooheIy6DyzeY
+         RG2Dzacwll2px1v5YPGzLFiGOc+tXDjvW49QHLBeGEouudIdcyAmGDOgT3SoyLP+Mz
+         2QxOskm/MpYOHHL6D4Bx79YFQjxuxwD2k+TH4EfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 111/252] arm64: dts: imx8mm: fix voltage for 1.6GHz CPU operating point
-Date:   Mon, 23 Nov 2020 13:21:01 +0100
-Message-Id: <20201123121840.949202839@linuxfoundation.org>
+Subject: [PATCH 5.9 112/252] ARM: dts: imx50-evk: Fix the chip select 1 IOMUX
+Date:   Mon, 23 Nov 2020 13:21:02 +0100
+Message-Id: <20201123121840.997191197@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,36 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit d19d2152ca055baf20339cfacbf039c2cfb8d936 ]
+[ Upstream commit 33d0d843872c5ddbe28457a92fc6f2487315fb9f ]
 
-The datasheet for both the industrial and consumer variant of the
-SoC lists a typical voltage of 0.95V for the 1.6GHz CPU operating
-point.
+The SPI chip selects are represented as:
 
-Fixes: e85c9d0faa75 (arm64: dts: imx8mm: Add cpufreq properties)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
+cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>, <&gpio4 13 GPIO_ACTIVE_LOW>;
+
+, which means that they are used in GPIO function instead of native
+SPI mode.
+
+Fix the IOMUX for the chip select 1 to use GPIO4_13 instead of
+the native CSPI_SSI function.
+
+Fixes: c605cbf5e135 ("ARM: dts: imx: add device tree support for Freescale imx50evk board")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm.dtsi | 2 +-
+ arch/arm/boot/dts/imx50-evk.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm.dtsi b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-index 76f040e4be5e9..7cc2a810831ab 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-@@ -129,7 +129,7 @@
+diff --git a/arch/arm/boot/dts/imx50-evk.dts b/arch/arm/boot/dts/imx50-evk.dts
+index a25da415cb02e..907339bc81e54 100644
+--- a/arch/arm/boot/dts/imx50-evk.dts
++++ b/arch/arm/boot/dts/imx50-evk.dts
+@@ -59,7 +59,7 @@
+ 				MX50_PAD_CSPI_MISO__CSPI_MISO		0x00
+ 				MX50_PAD_CSPI_MOSI__CSPI_MOSI		0x00
+ 				MX50_PAD_CSPI_SS0__GPIO4_11		0xc4
+-				MX50_PAD_ECSPI1_MOSI__CSPI_SS1		0xf4
++				MX50_PAD_ECSPI1_MOSI__GPIO4_13		0x84
+ 			>;
+ 		};
  
- 		opp-1600000000 {
- 			opp-hz = /bits/ 64 <1600000000>;
--			opp-microvolt = <900000>;
-+			opp-microvolt = <950000>;
- 			opp-supported-hw = <0xc>, <0x7>;
- 			clock-latency-ns = <150000>;
- 			opp-suspend;
 -- 
 2.27.0
 
