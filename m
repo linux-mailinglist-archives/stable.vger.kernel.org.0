@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CDC2C0604
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AED2C063D
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729496AbgKWM0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:26:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36452 "EHLO mail.kernel.org"
+        id S1730547AbgKWM3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730154AbgKWM0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:30 -0500
+        id S1730544AbgKWM3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D90A20781;
-        Mon, 23 Nov 2020 12:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A9C20781;
+        Mon, 23 Nov 2020 12:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134390;
-        bh=5iHJVBCrO4OWFLwOLqTNlOglaLqh9Bh6J993w5LCR3o=;
+        s=korg; t=1606134545;
+        bh=NGE/0HDnAS+V8bvF7zR6cxDjXawGPNrEPal/aIYCHsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDUY22ufEQ4icVDT/QxF77LhAuhwciEWAUk8nRSnJcwH87i6QGOT8h2L8n7xXCKar
-         mJplaZ4JKzeKofNGly/DlHeCoSiSM30Khetq8+vFx0Eu/m+Tac1HHGkRtYZ7Gw7u4d
-         fLttJF9MqCoa/WSDcfjkInoJGLfoRI1wKeaDua6Q=
+        b=NdFDRIn4Ir9ZAT297g9pig8cWDRYYySzfstnv4JCOof2dg/Kisj1x9GmYmNFuql+M
+         D/4Z+q3Ezgtt4FECpMo598sXRlgJuSSRueH3PfrW01ZpbkpV+jMVpIyMGcPC6utYEP
+         +5DYagX6jZPY8ZcAdB4hVCtyLcSstjJS5odXm1s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Matyukevich <geomatsi@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 24/47] arm: dts: imx6qdl-udoo: fix rgmii phy-mode for ksz9031 phy
+Subject: [PATCH 4.14 28/60] perf lock: Dont free "lock_seq_stat" if read_count isnt zero
 Date:   Mon, 23 Nov 2020 13:22:10 +0100
-Message-Id: <20201123121806.718202475@linuxfoundation.org>
+Message-Id: <20201123121806.393806213@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <geomatsi@gmail.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 7dd8f0ba88fce98e2953267a66af74c6f4792a56 ]
+[ Upstream commit b0e5a05cc9e37763c7f19366d94b1a6160c755bc ]
 
-Commit bcf3440c6dd7 ("net: phy: micrel: add phy-mode support for the
-KSZ9031 PHY") fixed micrel phy driver adding proper support for phy
-modes. Adapt imx6q-udoo board phy settings : explicitly set required
-delay configuration using "rgmii-id".
+When execute command "perf lock report", it hits failure and outputs log
+as follows:
 
-Fixes: cbd54fe0b2bc ("ARM: dts: imx6dl-udoo: Add board support based off imx6q-udoo")
-Signed-off-by: Sergey Matyukevich <geomatsi@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+  perf: builtin-lock.c:623: report_lock_release_event: Assertion `!(seq->read_count < 0)' failed.
+  Aborted
+
+This is an imbalance issue.  The locking sequence structure
+"lock_seq_stat" contains the reader counter and it is used to check if
+the locking sequence is balance or not between acquiring and releasing.
+
+If the tool wrongly frees "lock_seq_stat" when "read_count" isn't zero,
+the "read_count" will be reset to zero when allocate a new structure at
+the next time; thus it causes the wrong counting for reader and finally
+results in imbalance issue.
+
+To fix this issue, if detects "read_count" is not zero (means still have
+read user in the locking sequence), goto the "end" tag to skip freeing
+structure "lock_seq_stat".
+
+Fixes: e4cef1f65061 ("perf lock: Fix state machine to recognize lock sequence")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/r/20201104094229.17509-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-udoo.dtsi | 2 +-
+ tools/perf/builtin-lock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index c96c91d836785..fc4ae2e423bd7 100644
---- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -94,7 +94,7 @@
- &fec {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_enet>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
- 
+diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
+index fe69cd6b89e1a..6140b0548ad7d 100644
+--- a/tools/perf/builtin-lock.c
++++ b/tools/perf/builtin-lock.c
+@@ -620,7 +620,7 @@ static int report_lock_release_event(struct perf_evsel *evsel,
+ 	case SEQ_STATE_READ_ACQUIRED:
+ 		seq->read_count--;
+ 		BUG_ON(seq->read_count < 0);
+-		if (!seq->read_count) {
++		if (seq->read_count) {
+ 			ls->nr_release++;
+ 			goto end;
+ 		}
 -- 
 2.27.0
 
