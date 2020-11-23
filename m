@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D83E2C09C3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B02642C09BF
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732849AbgKWNMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:12:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60266 "EHLO mail.kernel.org"
+        id S1729740AbgKWNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732774AbgKWMqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:46:42 -0500
+        id S2387479AbgKWMqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C6220732;
-        Mon, 23 Nov 2020 12:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE70420732;
+        Mon, 23 Nov 2020 12:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135601;
-        bh=10krJURYQv2XMjKlG9rvjvaw2hYlBDetE3uY3TJNerw=;
+        s=korg; t=1606135604;
+        bh=Q2tktbQWVvEjAmzEWLNB3ISvsraxqRZMtLHyZWZhV7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2Qkpcq4yFDuES6WHHNIUM49hxnx/ZRshC35gycAGqijHnsXehSuFVyd2Xjw3OpUG
-         7nkqSLJITDQiZGFj6UVzhngBPsbdtTexT8+9F8OvoIuoLuXLrLfHgPnUXFR1h7Lstv
-         9D5DPL2YrY3ebnMp0Z7KQ6YwOGED2HJzrACPzByc=
+        b=ek7Ffv6igQIxdXvumIhKdD2G2B4YlJN/pFTe8t/8PBp/X7hXslJBUSljA9WSGMZLW
+         PxjoPXw+JcrK52DoD5W3cfjd1LrDRqHuf/lBQ/sh7S3Ef24KKI8+6wa3XqgxbMXPu2
+         6F8qYOu8MAhVlYMcPZ4YTOdr1MoZLTL+wDSytgd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi-Hung Wei <yihung.wei@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 128/252] ip_tunnels: Set tunnel option flag when tunnel metadata is present
-Date:   Mon, 23 Nov 2020 13:21:18 +0100
-Message-Id: <20201123121841.771307186@linuxfoundation.org>
+Subject: [PATCH 5.9 129/252] can: af_can: prevent potential access of uninitialized member in can_rcv()
+Date:   Mon, 23 Nov 2020 13:21:19 +0100
+Message-Id: <20201123121841.820343692@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,68 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi-Hung Wei <yihung.wei@gmail.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 9c2e14b48119b39446031d29d994044ae958d8fc ]
+[ Upstream commit c8c958a58fc67f353289986850a0edf553435702 ]
 
-Currently, we may set the tunnel option flag when the size of metadata
-is zero.  For example, we set TUNNEL_GENEVE_OPT in the receive function
-no matter the geneve option is present or not.  As this may result in
-issues on the tunnel flags consumers, this patch fixes the issue.
+In can_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
-Related discussion:
-* https://lore.kernel.org/netdev/1604448694-19351-1-git-send-email-yihung.wei@gmail.com/T/#u
+Fix this uninitialized variable access by checking cfd->len's validity
+condition (cfd->len > CAN_MAX_DLEN) separately after the skb->len's
+condition is checked, and appropriately modify the log messages that
+are generated as well.
+In case either of the required conditions fail, the skb is freed and
+NET_RX_DROP is returned, same as before.
 
-Fixes: 256c87c17c53 ("net: check tunnel option type in tunnel flags")
-Signed-off-by: Yi-Hung Wei <yihung.wei@gmail.com>
-Link: https://lore.kernel.org/r/1605053800-74072-1-git-send-email-yihung.wei@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8cb68751c115 ("can: af_can: can_rcv(): replace WARN_ONCE by pr_warn_once")
+Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
+Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201103213906.24219-2-anant.thazhemadam@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/geneve.c     | 3 +--
- include/net/ip_tunnels.h | 7 ++++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ net/can/af_can.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index 974a244f45ba0..67c86ebfa7da2 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -225,8 +225,7 @@ static void geneve_rx(struct geneve_dev *geneve, struct geneve_sock *gs,
- 	if (ip_tunnel_collect_metadata() || gs->collect_md) {
- 		__be16 flags;
- 
--		flags = TUNNEL_KEY | TUNNEL_GENEVE_OPT |
--			(gnvh->oam ? TUNNEL_OAM : 0) |
-+		flags = TUNNEL_KEY | (gnvh->oam ? TUNNEL_OAM : 0) |
- 			(gnvh->critical ? TUNNEL_CRIT_OPT : 0);
- 
- 		tun_dst = udp_tun_rx_dst(skb, geneve_get_sk_family(gs), flags,
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index 02ccd32542d0a..61620677b0347 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -478,9 +478,11 @@ static inline void ip_tunnel_info_opts_set(struct ip_tunnel_info *info,
- 					   const void *from, int len,
- 					   __be16 flags)
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 5c06404bdf3e7..c7106daadd0c7 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -677,16 +677,25 @@ static int can_rcv(struct sk_buff *skb, struct net_device *dev,
  {
--	memcpy(ip_tunnel_info_opts(info), from, len);
- 	info->options_len = len;
--	info->key.tun_flags |= flags;
-+	if (len > 0) {
-+		memcpy(ip_tunnel_info_opts(info), from, len);
-+		info->key.tun_flags |= flags;
+ 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
+ 
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU ||
+-		     cfd->len > CAN_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d\n",
++			     dev->type, skb->len);
++		goto free_skb;
 +	}
++
++	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
++	if (unlikely(cfd->len > CAN_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d, datalen %d\n",
+ 			     dev->type, skb->len, cfd->len);
+-		kfree_skb(skb);
+-		return NET_RX_DROP;
++		goto free_skb;
+ 	}
+ 
+ 	can_receive(skb, dev);
+ 	return NET_RX_SUCCESS;
++
++free_skb:
++	kfree_skb(skb);
++	return NET_RX_DROP;
  }
  
- static inline struct ip_tunnel_info *lwt_tun_info(struct lwtunnel_state *lwtstate)
-@@ -526,7 +528,6 @@ static inline void ip_tunnel_info_opts_set(struct ip_tunnel_info *info,
- 					   __be16 flags)
- {
- 	info->options_len = 0;
--	info->key.tun_flags |= flags;
- }
- 
- #endif /* CONFIG_INET */
+ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
 -- 
 2.27.0
 
