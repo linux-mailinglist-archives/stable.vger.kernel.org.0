@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34ED72C074F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DAC72C06A5
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732301AbgKWMji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:39:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52246 "EHLO mail.kernel.org"
+        id S1731162AbgKWMdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:33:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732163AbgKWMjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:39:36 -0500
+        id S1730604AbgKWMdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B54D920857;
-        Mon, 23 Nov 2020 12:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C61020781;
+        Mon, 23 Nov 2020 12:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135176;
-        bh=1b0Aao5rEShUAKqxO8dzn14MSNbOZz2LQvNYSXrlzeg=;
+        s=korg; t=1606134782;
+        bh=GC0u43jDMd+oYqXZg0Rqvq7bb73dAQcDjjuq/lrF9js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQuzIfLU50N3/WVQD6FZ4mnrwSUtdwkmIbb6+DGhBu/KEpwejdTeo9RFQyE+jgSpM
-         RnRfUdPPSEuHnJhBUClK6KdLXQ9tt5EcPFSL679pUfiFQMki7DfTVnYmvCuNVZuo4o
-         zXuFf+tQSov1fc5l/8RGaISKQvL3FM6na0Yk2UKk=
+        b=Rl+bz/54TDsUAl3MVDKiiUDZiFm0fuAszHPCFBxRXGofHhz/T2GpUdf8wXbefUgJx
+         zwRQ+XXvY0UK2beb0IdeapZaXp6ZtjzvuICour3OWOp4oFIwVBh5yrIdK/bBs8NlXT
+         Wp2ppJX3/gGXTIOFRf/pc1htYKvke/MyjLh6R4Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 132/158] iio: adc: mediatek: fix unset field
-Date:   Mon, 23 Nov 2020 13:22:40 +0100
-Message-Id: <20201123121826.295492447@linuxfoundation.org>
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 81/91] regulator: workaround self-referent regulators
+Date:   Mon, 23 Nov 2020 13:22:41 +0100
+Message-Id: <20201123121813.266386748@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 15207a92e019803d62687455d8aa2ff9eb3dc82c upstream.
+commit f5c042b23f7429e5c2ac987b01a31c69059a978b upstream.
 
-dev_comp field is used in a couple of places but it is never set. This
-results in kernel oops when dereferencing a NULL pointer. Set the
-`dev_comp` field correctly in the probe function.
+Workaround regulators whose supply name happens to be the same as its
+own name. This fixes boards that used to work before the early supply
+resolving was removed. The error message is left in place so that
+offending drivers can be detected.
 
-Fixes: 6d97024dce23 ("iio: adc: mediatek: mt6577-auxadc, add mt6765 support")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201018194644.3366846-1-fparent@baylibre.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Cc: stable@vger.kernel.org
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
+Link: https://lore.kernel.org/r/d703acde2a93100c3c7a81059d716c50ad1b1f52.1605226675.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/mt6577_auxadc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/regulator/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/mt6577_auxadc.c
-+++ b/drivers/iio/adc/mt6577_auxadc.c
-@@ -9,9 +9,9 @@
- #include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/of.h>
--#include <linux/of_device.h>
-+#include <linux/mod_devicetable.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/iopoll.h>
- #include <linux/io.h>
- #include <linux/iio/iio.h>
-@@ -279,6 +279,8 @@ static int mt6577_auxadc_probe(struct pl
- 		goto err_disable_clk;
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1598,7 +1598,10 @@ static int regulator_resolve_supply(stru
+ 	if (r == rdev) {
+ 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
+ 			rdev->desc->name, rdev->supply_name);
+-		return -EINVAL;
++		if (!have_full_constraints())
++			return -EINVAL;
++		r = dummy_regulator_rdev;
++		get_device(&r->dev);
  	}
  
-+	adc_dev->dev_comp = device_get_match_data(&pdev->dev);
-+
- 	mutex_init(&adc_dev->lock);
- 
- 	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_MISC,
+ 	/*
 
 
