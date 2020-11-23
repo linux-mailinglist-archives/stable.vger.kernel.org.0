@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 634A22C05A0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CDA42C05A2
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729717AbgKWMYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:24:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33204 "EHLO mail.kernel.org"
+        id S1729712AbgKWMYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:24:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729392AbgKWMX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:58 -0500
+        id S1729706AbgKWMYC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:24:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE73020728;
-        Mon, 23 Nov 2020 12:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39FA220728;
+        Mon, 23 Nov 2020 12:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134236;
-        bh=JLV7i0iE59znI1YTofn4MT2DrRVEgleQSnPTsDnKlxI=;
+        s=korg; t=1606134241;
+        bh=qoFZcs952dIVzRftkmt9QH5dLbkFvIP1Y0DN+B3Lo/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvjM/TXfkBBKhkodEoQgH1Revr4zkyCRd/7qU1dEhyTJYK59fpGwAUu1l9KlAF1ah
-         e99jzBZXq9MIsnc8vjua7VB2P+/vu6yabRGB+FS+XKmTmiD5fEBqGEmCysurEbPgCn
-         J46DjD4Ya3MzGbUn+mELhKTWsdOYX3akj82HVuJ4=
+        b=ssTJvgE5yp2OgjPPbrBNSi12AyOjIf9WMWeC3mX/7wfEqVCChth6QDf5RN/3XIhgn
+         zNikjZon9mdDPx3ZvJlVM/Uy/3bHaHDJlIBZzNuMI/mEONTN4geMnRTjd0HetT6OmL
+         hF1SKVWH6TqRSoqyNzM1GCEJwH1Py6t+oDKRBuO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com,
-        syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com,
-        syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com,
-        syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com,
-        syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com,
-        syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 36/38] mac80211: free sta in sta_info_insert_finish() on errors
-Date:   Mon, 23 Nov 2020 13:22:22 +0100
-Message-Id: <20201123121806.020431361@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.4 38/38] x86/microcode/intel: Check patch signature before saving microcode for early loading
+Date:   Mon, 23 Nov 2020 13:22:24 +0100
+Message-Id: <20201123121806.118856434@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -48,72 +42,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Chen Yu <yu.c.chen@intel.com>
 
-commit 7bc40aedf24d31d8bea80e1161e996ef4299fb10 upstream.
+commit 1a371e67dc77125736cc56d3a0893f06b75855b6 upstream.
 
-If sta_info_insert_finish() fails, we currently keep the station
-around and free it only in the caller, but there's only one such
-caller and it always frees it immediately.
+Currently, scan_microcode() leverages microcode_matches() to check
+if the microcode matches the CPU by comparing the family and model.
+However, the processor stepping and flags of the microcode signature
+should also be considered when saving a microcode patch for early
+update.
 
-As syzbot found, another consequence of this split is that we can
-put things that sleep only into __cleanup_single_sta() and not in
-sta_info_free(), but this is the only place that requires such of
-sta_info_free() now.
+Use find_matching_signature() in scan_microcode() and get rid of the
+now-unused microcode_matches() which is a good cleanup in itself.
 
-Change this to free the station in sta_info_insert_finish(), in
-which case we can still sleep. This will also let us unify the
-cleanup code later.
+Complete the verification of the patch being saved for early loading in
+save_microcode_patch() directly. This needs to be done there too because
+save_mc_for_early() will call save_microcode_patch() too.
 
+The second reason why this needs to be done is because the loader still
+tries to support, at least hypothetically, mixed-steppings systems and
+thus adds all patches to the cache that belong to the same CPU model
+albeit with different steppings.
+
+For example:
+
+  microcode: CPU: sig=0x906ec, pf=0x2, rev=0xd6
+  microcode: mc_saved[0]: sig=0x906e9, pf=0x2a, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[1]: sig=0x906ea, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[2]: sig=0x906eb, pf=0x2, rev=0xd6, total size=0x19400, date = 2020-04-23
+  microcode: mc_saved[3]: sig=0x906ec, pf=0x22, rev=0xd6, total size=0x19000, date = 2020-04-27
+  microcode: mc_saved[4]: sig=0x906ed, pf=0x22, rev=0xd6, total size=0x19400, date = 2020-04-23
+
+The patch which is being saved for early loading, however, can only be
+the one which fits the CPU this runs on so do the signature verification
+before saving.
+
+ [ bp: Do signature verification in save_microcode_patch()
+       and rewrite commit message. ]
+
+Fixes: ec400ddeff20 ("x86/microcode_intel_early.c: Early update ucode on Intel's CPU")
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: dcd479e10a05 ("mac80211: always wind down STA state")
-Reported-by: syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com
-Reported-by: syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com
-Reported-by: syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com
-Reported-by: syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com
-Reported-by: syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com
-Reported-by: syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20201112112201.ee6b397b9453.I9c31d667a0ea2151441cc64ed6613d36c18a48e0@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208535
+Link: https://lkml.kernel.org/r/20201113015923.13960-1-yu.c.chen@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- net/mac80211/sta_info.c |   14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
 
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -583,7 +583,7 @@ static int sta_info_insert_finish(struct
-  out_drop_sta:
- 	local->num_sta--;
- 	synchronize_net();
--	__cleanup_single_sta(sta);
-+	cleanup_single_sta(sta);
-  out_err:
- 	mutex_unlock(&local->sta_mtx);
- 	kfree(sinfo);
-@@ -602,19 +602,13 @@ int sta_info_insert_rcu(struct sta_info
- 
- 	err = sta_info_insert_check(sta);
- 	if (err) {
-+		sta_info_free(local, sta);
- 		mutex_unlock(&local->sta_mtx);
- 		rcu_read_lock();
--		goto out_free;
-+		return err;
+---
+ arch/x86/kernel/cpu/microcode/intel.c |   49 +---------------------------------
+ 1 file changed, 2 insertions(+), 47 deletions(-)
+
+--- a/arch/x86/kernel/cpu/microcode/intel.c
++++ b/arch/x86/kernel/cpu/microcode/intel.c
+@@ -132,51 +132,6 @@ load_microcode(struct mc_saved_data *mc_
  	}
- 
--	err = sta_info_insert_finish(sta);
--	if (err)
--		goto out_free;
--
--	return 0;
-- out_free:
--	sta_info_free(local, sta);
--	return err;
-+	return sta_info_insert_finish(sta);
  }
  
- int sta_info_insert(struct sta_info *sta)
+-/*
+- * Given CPU signature and a microcode patch, this function finds if the
+- * microcode patch has matching family and model with the CPU.
+- */
+-static enum ucode_state
+-matching_model_microcode(struct microcode_header_intel *mc_header,
+-			unsigned long sig)
+-{
+-	unsigned int fam, model;
+-	unsigned int fam_ucode, model_ucode;
+-	struct extended_sigtable *ext_header;
+-	unsigned long total_size = get_totalsize(mc_header);
+-	unsigned long data_size = get_datasize(mc_header);
+-	int ext_sigcount, i;
+-	struct extended_signature *ext_sig;
+-
+-	fam   = __x86_family(sig);
+-	model = x86_model(sig);
+-
+-	fam_ucode   = __x86_family(mc_header->sig);
+-	model_ucode = x86_model(mc_header->sig);
+-
+-	if (fam == fam_ucode && model == model_ucode)
+-		return UCODE_OK;
+-
+-	/* Look for ext. headers: */
+-	if (total_size <= data_size + MC_HEADER_SIZE)
+-		return UCODE_NFOUND;
+-
+-	ext_header   = (void *) mc_header + data_size + MC_HEADER_SIZE;
+-	ext_sig      = (void *)ext_header + EXT_HEADER_SIZE;
+-	ext_sigcount = ext_header->count;
+-
+-	for (i = 0; i < ext_sigcount; i++) {
+-		fam_ucode   = __x86_family(ext_sig->sig);
+-		model_ucode = x86_model(ext_sig->sig);
+-
+-		if (fam == fam_ucode && model == model_ucode)
+-			return UCODE_OK;
+-
+-		ext_sig++;
+-	}
+-	return UCODE_NFOUND;
+-}
+-
+ static int
+ save_microcode(struct mc_saved_data *mc_saved_data,
+ 	       struct microcode_intel **mc_saved_src,
+@@ -321,8 +276,8 @@ get_matching_model_microcode(int cpu, un
+ 		 * the platform, we need to find and save microcode patches
+ 		 * with the same family and model as the BSP.
+ 		 */
+-		if (matching_model_microcode(mc_header, uci->cpu_sig.sig) !=
+-			 UCODE_OK) {
++		if (!find_matching_signature(mc_header, uci->cpu_sig.sig,
++					     uci->cpu_sig.pf)) {
+ 			ucode_ptr += mc_size;
+ 			continue;
+ 		}
 
 
