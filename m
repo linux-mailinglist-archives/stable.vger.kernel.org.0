@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B87D2C086F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBDE2C0929
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733230AbgKWMvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:51:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
+        id S2388106AbgKWNEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387606AbgKWMvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:51:02 -0500
+        id S1731784AbgKWMvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:51:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3580020657;
-        Mon, 23 Nov 2020 12:50:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E283120857;
+        Mon, 23 Nov 2020 12:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135857;
-        bh=bLd/IA/GBN91CmWxjZ77W/baBskahdfQejsxLh0CS6A=;
+        s=korg; t=1606135860;
+        bh=wmsH9Jol7uf6ve/fT/xaXiPtiVNo8a6u7Aw4v2ekE6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olNZ3LldWaiatKaMMPb0PcSAMm9XBClAQyvXY7V9LnmBtY9GwOODyLX4sCxXRADDj
-         NwwcACcS8bagHzapo2jIplYiFjoqTOwhP/Go8E5NJhMlxqGnALOBm/l2qUij6SZMIJ
-         hvb1wr4hUlocIHLCyrhj75nnJDbISgPhL/WZ1SrI=
+        b=f6pMEV/0g6svbO2mCheekV3bN9JMOoh0cjMk5j9yEIYgcGQ0b1XMa4dlklDD4qmdW
+         VdOvr0oecyNc3oA5Ar6zh9gmOlnRVtFDXmD4W4rxizUEXWp8phlVTg2AVXdN9Qb8Xa
+         NfoPoiAKlqJjzM/Yeerc4wv7YLgdMWnF6FRCxLBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.9 221/252] spi: bcm2835aux: Fix use-after-free on unbind
-Date:   Mon, 23 Nov 2020 13:22:51 +0100
-Message-Id: <20201123121846.236048984@linuxfoundation.org>
+Subject: [PATCH 5.9 222/252] regulator: pfuze100: limit pfuze-support-disable-sw to pfuze{100,200}
+Date:   Mon, 23 Nov 2020 13:22:52 +0100
+Message-Id: <20201123121846.285461461@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -42,85 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Sean Nyekjaer <sean@geanix.com>
 
-commit e13ee6cc4781edaf8c7321bee19217e3702ed481 upstream.
+commit 365ec8b61689bd64d6a61e129e0319bf71336407 upstream.
 
-bcm2835aux_spi_remove() accesses the driver's private data after calling
-spi_unregister_master() even though that function releases the last
-reference on the spi_master and thereby frees the private data.
+Limit the fsl,pfuze-support-disable-sw to the pfuze100 and pfuze200
+variants.
+When enabling fsl,pfuze-support-disable-sw and using a pfuze3000 or
+pfuze3001, the driver would choose pfuze100_sw_disable_regulator_ops
+instead of the newly introduced and correct pfuze3000_sw_regulator_ops.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
-
-Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.4+: 123456789abc: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
-Cc: <stable@vger.kernel.org> # v4.4+
-Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Fixes: 6f1cf5257acc ("regualtor: pfuze100: correct sw1a/sw2 on pfuze3000")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201110174113.2066534-1-sean@geanix.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm2835aux.c |   21 +++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
+ drivers/regulator/pfuze100-regulator.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -494,7 +494,7 @@ static int bcm2835aux_spi_probe(struct p
- 	unsigned long clk_hz;
- 	int err;
- 
--	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
-+	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
- 	if (!master)
- 		return -ENOMEM;
- 
-@@ -524,29 +524,24 @@ static int bcm2835aux_spi_probe(struct p
- 
- 	/* the main area */
- 	bs->regs = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(bs->regs)) {
--		err = PTR_ERR(bs->regs);
--		goto out_master_put;
--	}
-+	if (IS_ERR(bs->regs))
-+		return PTR_ERR(bs->regs);
- 
- 	bs->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(bs->clk)) {
--		err = PTR_ERR(bs->clk);
- 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
--		goto out_master_put;
-+		return PTR_ERR(bs->clk);
- 	}
- 
- 	bs->irq = platform_get_irq(pdev, 0);
--	if (bs->irq <= 0) {
--		err = bs->irq ? bs->irq : -ENODEV;
--		goto out_master_put;
--	}
-+	if (bs->irq <= 0)
-+		return bs->irq ? bs->irq : -ENODEV;
- 
- 	/* this also enables the HW block */
- 	err = clk_prepare_enable(bs->clk);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
--		goto out_master_put;
-+		return err;
- 	}
- 
- 	/* just checking if the clock returns a sane value */
-@@ -581,8 +576,6 @@ static int bcm2835aux_spi_probe(struct p
- 
- out_clk_disable:
- 	clk_disable_unprepare(bs->clk);
--out_master_put:
--	spi_master_put(master);
- 	return err;
- }
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -836,11 +836,14 @@ static int pfuze100_regulator_probe(stru
+ 		 * the switched regulator till yet.
+ 		 */
+ 		if (pfuze_chip->flags & PFUZE_FLAG_DISABLE_SW) {
+-			if (pfuze_chip->regulator_descs[i].sw_reg) {
+-				desc->ops = &pfuze100_sw_disable_regulator_ops;
+-				desc->enable_val = 0x8;
+-				desc->disable_val = 0x0;
+-				desc->enable_time = 500;
++			if (pfuze_chip->chip_id == PFUZE100 ||
++				pfuze_chip->chip_id == PFUZE200) {
++				if (pfuze_chip->regulator_descs[i].sw_reg) {
++					desc->ops = &pfuze100_sw_disable_regulator_ops;
++					desc->enable_val = 0x8;
++					desc->disable_val = 0x0;
++					desc->enable_time = 500;
++				}
+ 			}
+ 		}
  
 
 
