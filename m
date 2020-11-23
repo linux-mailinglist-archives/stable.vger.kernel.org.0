@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7BB2C079A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D222C07A5
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732945AbgKWMme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
+        id S1732980AbgKWMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732939AbgKWMmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:42:32 -0500
+        id S1732975AbgKWMmu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E422208FE;
-        Mon, 23 Nov 2020 12:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F0F52065E;
+        Mon, 23 Nov 2020 12:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135352;
-        bh=glmf3rwlgCIycDDhruSNvopWtMzWAaMpZbp2MagjPNc=;
+        s=korg; t=1606135369;
+        bh=a2aHZVi2/AC8uKmNZH1jKDGXkdvpT2rflTqU3gGLQ7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrNxKS/TdIDpLkVzjlbFiVKMtGhs3xd7eZS3bVoY3E+rWALUZ/6K56vWsd42dOZVJ
-         Xj3rznrvujpP9u7dyBby402XIibQv9OgjODU4T0X5fsimypAgDwe+I3VBE6cKiMVat
-         YUaH+62vrka3b0UbM39iFn+nRkALiEaKOnk/8Ak4=
+        b=JwB97qRneCdz/bKFZO3bmmoSWOiPqVsOF6bnxBHLf6I1r/I1x5JkO13fkJXobG6I8
+         xVMbpsuqLcfiphsjqAAu8DFy4i1Vif3IP+q5J2bCzMiuYIlwHTTTwYXhII1nHzhtUY
+         VQXysDHlzdXw8p5NCjZGpXPhl5//6mjKQtPCBtZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Andra Paraschiv <andraprs@amazon.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 037/252] qed: fix error return code in qed_iwarp_ll2_start()
-Date:   Mon, 23 Nov 2020 13:19:47 +0100
-Message-Id: <20201123121837.373808256@linuxfoundation.org>
+Subject: [PATCH 5.9 042/252] vsock: forward all packets to the host when no H2G is registered
+Date:   Mon, 23 Nov 2020 13:19:52 +0100
+Message-Id: <20201123121837.613422356@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,60 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit cb47d16ea21045c66eebbf5ed792e74a8537e27a ]
+[ Upstream commit 65b422d9b61ba12c08150784e8012fa1892ad03e ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Before commit c0cfa2d8a788 ("vsock: add multi-transports support"),
+if a G2H transport was loaded (e.g. virtio transport), every packets
+was forwarded to the host, regardless of the destination CID.
+The H2G transports implemented until then (vhost-vsock, VMCI) always
+responded with an error, if the destination CID was not
+VMADDR_CID_HOST.
 
-Fixes: 469981b17a4f ("qed: Add unaligned and packed packet processing")
-Fixes: fcb39f6c10b2 ("qed: Add mpa buffer descriptors for storing and processing mpa fpdus")
-Fixes: 1e28eaad07ea ("qed: Add iWARP support for fpdu spanned over more than two tcp packets")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Link: https://lore.kernel.org/r/1605532033-27373-1-git-send-email-zhangchangzhong@huawei.com
+>From that commit, we are using the remote CID to decide which
+transport to use, so packets with remote CID > VMADDR_CID_HOST(2)
+are sent only through H2G transport. If no H2G is available, packets
+are discarded directly in the guest.
+
+Some use cases (e.g. Nitro Enclaves [1]) rely on the old behaviour
+to implement sibling VMs communication, so we restore the old
+behavior when no H2G is registered.
+It will be up to the host to discard packets if the destination is
+not the right one. As it was already implemented before adding
+multi-transport support.
+
+Tested with nested QEMU/KVM by me and Nitro Enclaves by Andra.
+
+[1] Documentation/virt/ne_overview.rst
+
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+Reported-by: Andra Paraschiv <andraprs@amazon.com>
+Tested-by: Andra Paraschiv <andraprs@amazon.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20201112133837.34183-1-sgarzare@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_iwarp.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ net/vmw_vsock/af_vsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
-@@ -2754,14 +2754,18 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_h
- 	iwarp_info->partial_fpdus = kcalloc((u16)p_hwfn->p_rdma_info->num_qps,
- 					    sizeof(*iwarp_info->partial_fpdus),
- 					    GFP_KERNEL);
--	if (!iwarp_info->partial_fpdus)
-+	if (!iwarp_info->partial_fpdus) {
-+		rc = -ENOMEM;
- 		goto err;
-+	}
- 
- 	iwarp_info->max_num_partial_fpdus = (u16)p_hwfn->p_rdma_info->num_qps;
- 
- 	iwarp_info->mpa_intermediate_buf = kzalloc(buff_size, GFP_KERNEL);
--	if (!iwarp_info->mpa_intermediate_buf)
-+	if (!iwarp_info->mpa_intermediate_buf) {
-+		rc = -ENOMEM;
- 		goto err;
-+	}
- 
- 	/* The mpa_bufs array serves for pending RX packets received on the
- 	 * mpa ll2 that don't have place on the tx ring and require later
-@@ -2771,8 +2775,10 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_h
- 	iwarp_info->mpa_bufs = kcalloc(data.input.rx_num_desc,
- 				       sizeof(*iwarp_info->mpa_bufs),
- 				       GFP_KERNEL);
--	if (!iwarp_info->mpa_bufs)
-+	if (!iwarp_info->mpa_bufs) {
-+		rc = -ENOMEM;
- 		goto err;
-+	}
- 
- 	INIT_LIST_HEAD(&iwarp_info->mpa_buf_pending_list);
- 	INIT_LIST_HEAD(&iwarp_info->mpa_buf_list);
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -438,7 +438,7 @@ int vsock_assign_transport(struct vsock_
+ 	case SOCK_STREAM:
+ 		if (vsock_use_local_transport(remote_cid))
+ 			new_transport = transport_local;
+-		else if (remote_cid <= VMADDR_CID_HOST)
++		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g)
+ 			new_transport = transport_g2h;
+ 		else
+ 			new_transport = transport_h2g;
 
 
