@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF6E2C0BFE
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 711E62C0B8B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729756AbgKWNey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:34:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33254 "EHLO mail.kernel.org"
+        id S1731834AbgKWN0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:26:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729713AbgKWMX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:59 -0500
+        id S1731061AbgKWMcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 915A92076E;
-        Mon, 23 Nov 2020 12:23:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3A422076E;
+        Mon, 23 Nov 2020 12:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134239;
-        bh=aheUR8BdLnRwTwuMCdOH5VMxLk5EdkoELalPBNjEmZg=;
+        s=korg; t=1606134740;
+        bh=Z5JMkm7C9kNof7AufHhAzVITBeL4cSYnwBaAICVj3l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibujwRDrwB8ZnAeALI1YR6DD2jTKgtX9xGE3yp/9TLz/KUZ9uUeGSco0aZKudQ0iF
-         rh8QMBE2zUtZxXfRsrpitA3Eu16u4mQAedRQi2PUocBjTItbHChh2LYAAc62VH6AAu
-         VWejgXArWfBTRrP0JJCFE2tuLuH+ldARNrrHzF60=
+        b=CNbfLpsNohGfdpdOIc6Tph2HVpFf1zCWa3z6rBRELCm+alyzUcGXzlYE9x3HoXD53
+         VtyPwXxMaDU/murl3klOCCIUNKcbwwuGR7CdnJpGIQ8CwjyRUsVHfGvXcwmQ3aeoGf
+         FQ61YwF1M5OIT/4GgejcRFYfP+yT1MLnzXLJbWPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.4 37/38] s390/cpum_sf.c: fix file permission for cpum_sfb_size
-Date:   Mon, 23 Nov 2020 13:22:23 +0100
-Message-Id: <20201123121806.070380991@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 64/91] efi/x86: Free efi_pgd with free_pages()
+Date:   Mon, 23 Nov 2020 13:22:24 +0100
+Message-Id: <20201123121812.432161315@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
-References: <20201123121804.306030358@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit 78d732e1f326f74f240d416af9484928303d9951 upstream.
+[ Upstream commit c2fe61d8be491ff8188edaf22e838f819999146b ]
 
-This file is installed by the s390 CPU Measurement sampling
-facility device driver to export supported minimum and
-maximum sample buffer sizes.
-This file is read by lscpumf tool to display the details
-of the device driver capabilities. The lscpumf tool might
-be invoked by a non-root user. In this case it does not
-print anything because the file contents can not be read.
+Commit
 
-Fix this by allowing read access for all users. Reading
-the file contents is ok, changing the file contents is
-left to the root user only.
+  d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
 
-For further reference and details see:
- [1] https://github.com/ibm-s390-tools/s390-tools/issues/97
+changed the PGD allocation to allocate PGD_ALLOCATION_ORDER pages, so in
+the error path it should be freed using free_pages() rather than
+free_page().
 
-Fixes: 69f239ed335a ("s390/cpum_sf: Dynamically extend the sampling buffer if overflows occur")
-Cc: <stable@vger.kernel.org> # 3.14
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit
 
+    06ace26f4e6f ("x86/efi: Free efi_pgd with free_pages()")
+
+fixed one instance of this, but missed another.
+
+Move the freeing out-of-line to avoid code duplication and fix this bug.
+
+Fixes: d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
+Link: https://lore.kernel.org/r/20201110163919.1134431-1-nivedita@alum.mit.edu
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/platform/efi/efi_64.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1666,4 +1666,4 @@ out:
- 	return err;
+diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
+index 52dd59af873ee..77d05b56089a2 100644
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -214,28 +214,30 @@ int __init efi_alloc_page_tables(void)
+ 	gfp_mask = GFP_KERNEL | __GFP_ZERO;
+ 	efi_pgd = (pgd_t *)__get_free_pages(gfp_mask, PGD_ALLOCATION_ORDER);
+ 	if (!efi_pgd)
+-		return -ENOMEM;
++		goto fail;
+ 
+ 	pgd = efi_pgd + pgd_index(EFI_VA_END);
+ 	p4d = p4d_alloc(&init_mm, pgd, EFI_VA_END);
+-	if (!p4d) {
+-		free_page((unsigned long)efi_pgd);
+-		return -ENOMEM;
+-	}
++	if (!p4d)
++		goto free_pgd;
+ 
+ 	pud = pud_alloc(&init_mm, p4d, EFI_VA_END);
+-	if (!pud) {
+-		if (pgtable_l5_enabled())
+-			free_page((unsigned long) pgd_page_vaddr(*pgd));
+-		free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
+-		return -ENOMEM;
+-	}
++	if (!pud)
++		goto free_p4d;
+ 
+ 	efi_mm.pgd = efi_pgd;
+ 	mm_init_cpumask(&efi_mm);
+ 	init_new_context(NULL, &efi_mm);
+ 
+ 	return 0;
++
++free_p4d:
++	if (pgtable_l5_enabled())
++		free_page((unsigned long)pgd_page_vaddr(*pgd));
++free_pgd:
++	free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
++fail:
++	return -ENOMEM;
  }
- arch_initcall(init_cpum_sampling_pmu);
--core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
-+core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
+ 
+ /*
+-- 
+2.27.0
+
 
 
