@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DB82C0617
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 160002C0666
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729349AbgKWM1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:27:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37608 "EHLO mail.kernel.org"
+        id S1730620AbgKWMaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730310AbgKWM1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:27:34 -0500
+        id S1730391AbgKWMai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6F232076E;
-        Mon, 23 Nov 2020 12:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B47D4208C3;
+        Mon, 23 Nov 2020 12:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134452;
-        bh=NHmPMnESY0zBAZW3SwxeKcuHVYiDhqTz+NIMx+Ucv38=;
+        s=korg; t=1606134637;
+        bh=yDBmillITIeh+0Z2HXRpHRFZQiN1aSNucR1lA1ape74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRhMjqnqsLc3KnUmVK8miCi5xpdi9mQpOeeKzTCKYi8AiAbAALffDAh2tfQSCyQo/
-         q0+EBzGRUnEbydbC2rHJ9XaqimlUJHIdDsSS5/hrx7SVnG5mqBQ2QDA3TeUEuaLnPj
-         3LnZmyxTN9bxRr7tgKf1sd8tt3ZIWyrmhd+8Lfxs=
+        b=cKJwqC23fvtctN0wajM0PRgW0TRkelu/HYVpfFroNu89ew2lBuY9AMmAxxu5i1Thk
+         tENFXfnyJ3aU1D2o4w0G6X4Ar8ksQZQm5av9FwZBTJNyjaM8Zb+GROwuRT0gWyzCOM
+         rR6L7ff6cLk8AghjV2AY5LtCKpFbIHPabMEhJ5To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 07/60] net: b44: fix error return code in b44_init_one()
+        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
+        Alexander Graf <graf@amazon.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 29/91] selftests: kvm: Fix the segment descriptor layout to match the actual layout
 Date:   Mon, 23 Nov 2020 13:21:49 +0100
-Message-Id: <20201123121805.393027445@linuxfoundation.org>
+Message-Id: <20201123121810.742493688@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Aaron Lewis <aaronlewis@google.com>
 
-[ Upstream commit 7b027c249da54f492699c43e26cba486cfd48035 ]
+[ Upstream commit df11f7dd5834146defa448acba097e8d7703cc42 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Fix the layout of 'struct desc64' to match the layout described in the
+SDM Vol 3, Chapter 3 "Protected-Mode Memory Management", section 3.4.5
+"Segment Descriptors", Figure 3-8 "Segment Descriptor".  The test added
+later in this series relies on this and crashes if this layout is not
+correct.
 
-Fixes: 39a6f4bce6b4 ("b44: replace the ssb_dma API with the generic DMA API")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1605582131-36735-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Reviewed-by: Alexander Graf <graf@amazon.com>
+Message-Id: <20201012194716.3950330-2-aaronlewis@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/b44.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/kvm/include/x86.h | 2 +-
+ tools/testing/selftests/kvm/lib/x86.c     | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/b44.c
-+++ b/drivers/net/ethernet/broadcom/b44.c
-@@ -2391,7 +2391,8 @@ static int b44_init_one(struct ssb_devic
- 		goto err_out_free_dev;
- 	}
- 
--	if (dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30))) {
-+	err = dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30));
-+	if (err) {
- 		dev_err(sdev->dev,
- 			"Required 30BIT DMA mask unsupported by the system\n");
- 		goto err_out_powerdown;
+diff --git a/tools/testing/selftests/kvm/include/x86.h b/tools/testing/selftests/kvm/include/x86.h
+index 42c3596815b83..a7667a613bbc7 100644
+--- a/tools/testing/selftests/kvm/include/x86.h
++++ b/tools/testing/selftests/kvm/include/x86.h
+@@ -59,7 +59,7 @@ enum x86_register {
+ struct desc64 {
+ 	uint16_t limit0;
+ 	uint16_t base0;
+-	unsigned base1:8, s:1, type:4, dpl:2, p:1;
++	unsigned base1:8, type:4, s:1, dpl:2, p:1;
+ 	unsigned limit1:4, avl:1, l:1, db:1, g:1, base2:8;
+ 	uint32_t base3;
+ 	uint32_t zero1;
+diff --git a/tools/testing/selftests/kvm/lib/x86.c b/tools/testing/selftests/kvm/lib/x86.c
+index 4d35eba73dc97..800fe36064f9a 100644
+--- a/tools/testing/selftests/kvm/lib/x86.c
++++ b/tools/testing/selftests/kvm/lib/x86.c
+@@ -449,11 +449,12 @@ static void kvm_seg_fill_gdt_64bit(struct kvm_vm *vm, struct kvm_segment *segp)
+ 	desc->limit0 = segp->limit & 0xFFFF;
+ 	desc->base0 = segp->base & 0xFFFF;
+ 	desc->base1 = segp->base >> 16;
+-	desc->s = segp->s;
+ 	desc->type = segp->type;
++	desc->s = segp->s;
+ 	desc->dpl = segp->dpl;
+ 	desc->p = segp->present;
+ 	desc->limit1 = segp->limit >> 16;
++	desc->avl = segp->avl;
+ 	desc->l = segp->l;
+ 	desc->db = segp->db;
+ 	desc->g = segp->g;
+-- 
+2.27.0
+
 
 
