@@ -2,107 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210FB2C031A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 11:19:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D084F2C0322
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 11:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbgKWKSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 05:18:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726528AbgKWKSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 05:18:32 -0500
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CCB1C061A4D
-        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 02:18:32 -0800 (PST)
-Received: by mail-qk1-x749.google.com with SMTP id q25so14215697qkm.17
-        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 02:18:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:to:cc;
-        bh=GcoK8qMUEnSHSoEFmuVB5/ee/Q6gnGTRAARyiXTD6tI=;
-        b=Y2WSGSmKWTFuCwZhuqKamV56JvCiFkSsxzG93yVes9093uv8zSLlS0dLZukooaKrtE
-         JZCR+4fRPl934bAFi362BH+N5WT48tWWKCi0ay0kIzl7sWoLtDcVO/iYPluEQQ2zr4SL
-         O974e8MIJ7fGvBIL3ubSCGGccfXQsKp9cutcdIodRUK7CeVQ5XPGb8gZ4cy0iL0Oxst1
-         iGbP9UfV3uTD7HqBqDjUuI2Enj/j2rjFB1fAwgDFQlfJBB/ZgxDAOmmyIKKKIXIBAnSw
-         d/+qJFTQW13K0meXuA+GL5E44Ho5Ukn4U09oAcnRpB3xX7bej1D9Cp26ysg7qITGB0hm
-         1BpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :to:cc;
-        bh=GcoK8qMUEnSHSoEFmuVB5/ee/Q6gnGTRAARyiXTD6tI=;
-        b=Hh42c/FXwupN8skElq9Fa/CRK965vp9heAIwjhjqw+EggDhn0KDcjqKAWZG3MVtzJk
-         jAwfjVdwGj3CX8Fm9MtPY4S7Ky3lfexKQab1oluuGTcW+6RoNM/CVfKr34L30gAg9MOP
-         4TQqirBO9OLw/X5BlCnycvL5pLRGgCp3SiLYnfwnG7xVBNfNUuHw2K5LfJXV7czsIwMl
-         e0WbPzyL51tCdjFGs0L7Gi0ec2sZkHSvhQe83r1rk5BerqyxIMObk5qq44HxF2g6gvJ8
-         7VV6//AiguGMqRsoRONeP7FAoW5vlpa1YsWM2YtYh2jQ2CIjY9OVoF6ANJhI218QxIZp
-         PiiQ==
-X-Gm-Message-State: AOAM530A8wc4v+T+9O1fAWm+cVExmyavX34qRT9cnx0FXjKg8nDvJqRY
-        OOz4clHKFrwGzW+itTqg9r7Y4YrRhrpdRoa3388hbUDzxMrNSJALMRpHpZVNzdkbBmsGc44/uqQ
-        XlszOTUkRMG5cSIenT91x+p/XUMzpUx7jSgf6xGwzSv3MkQL9h9YKsIclhHanMQom
-X-Google-Smtp-Source: ABdhPJx0vjckV+KAnRUFHC+odUrCif66jUn0bm1E5yfYglf15c9GHKgO6trAQu9hBrkIRayxcFJtpXchvYdF
-Sender: "qperret via sendgmr" <qperret@luke.lon.corp.google.com>
-X-Received: from luke.lon.corp.google.com ([2a00:79e0:d:210:f693:9fff:fef4:a7ef])
- (user=qperret job=sendgmr) by 2002:ad4:5621:: with SMTP id
- cb1mr2041817qvb.12.1606126711573; Mon, 23 Nov 2020 02:18:31 -0800 (PST)
-Date:   Mon, 23 Nov 2020 10:18:27 +0000
-Message-Id: <20201123101827.451304-1-qperret@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.29.2.454.gaff20da3a2-goog
-Subject: [PATCH 5.4] sched/fair: Fix overutilized update in enqueue_task_fair()
-From:   Quentin Perret <qperret@google.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        sashal@kernel.org
-Cc:     Quentin Perret <qperret@google.com>, Rick Yiu <rickyiu@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727724AbgKWKVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 05:21:49 -0500
+Received: from m42-4.mailgun.net ([69.72.42.4]:63006 "EHLO m42-4.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727895AbgKWKVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 05:21:47 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1606126907; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=ANmJoYuuswtZF1g4TGnjWKvS5jfl6v0C3i9XCSjNnmQ=; b=gxw0bKdyAM3rr6fFWbJAwxhSEJSAkJfkybwQVN8DrYmtCY74g2MkqSJf+EGNtFQgWm3pAugi
+ 3Bxq/FYA0c/uI8BmTCwIwrq9T7Os8iglHhLJLiLRbRfIxAh6CLd/l0RQv8cnW2DPbsfozZSp
+ uxP79tq/r64mpzOhZ+KwEBOyZzM=
+X-Mailgun-Sending-Ip: 69.72.42.4
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
+ 5fbb8d380c9500dc7bad62be (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 23 Nov 2020 10:21:44
+ GMT
+Sender: saiprakash.ranjan=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 3A547C43463; Mon, 23 Nov 2020 10:21:44 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: saiprakash.ranjan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 20405C433C6;
+        Mon, 23 Nov 2020 10:21:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 20405C433C6
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=saiprakash.ranjan@codeaurora.org
+From:   Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+To:     Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mike Leach <mike.leach@linaro.org>
+Cc:     coresight@lists.linaro.org, Stephen Boyd <swboyd@chromium.org>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Mao Jinlong <jinlmao@codeaurora.org>, stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Subject: [PATCH] coresight: tmc-etr: Check if page is valid before dma_map_page()
+Date:   Mon, 23 Nov 2020 15:51:33 +0530
+Message-Id: <20201123102133.18979-1-saiprakash.ranjan@codeaurora.org>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8e1ac4299a6e8726de42310d9c1379f188140c71 ]
+From: Mao Jinlong <jinlmao@codeaurora.org>
 
-enqueue_task_fair() attempts to skip the overutilized update for new
-tasks as their util_avg is not accurate yet. However, the flag we check
-to do so is overwritten earlier on in the function, which makes the
-condition pretty much a nop.
+alloc_pages_node() return should be checked before calling
+dma_map_page() to make sure that valid page is mapped or
+else it can lead to aborts as below:
 
-Fix this by saving the flag early on.
+ Unable to handle kernel paging request at virtual address ffffffc008000000
+ Mem abort info:
+ <snip>...
+ pc : __dma_inv_area+0x40/0x58
+ lr : dma_direct_map_page+0xd8/0x1c8
 
-Fixes: 2802bf3cd936 ("sched/fair: Add over-utilization/tipping point indicator")
-Reported-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20201112111201.2081902-1-qperret@google.com
+ Call trace:
+  __dma_inv_area
+  tmc_pages_alloc
+  tmc_alloc_data_pages
+  tmc_alloc_sg_table
+  tmc_init_etr_sg_table
+  tmc_alloc_etr_buf
+  tmc_enable_etr_sink_sysfs
+  tmc_enable_etr_sink
+  coresight_enable_path
+  coresight_enable
+  enable_source_store
+  dev_attr_store
+  sysfs_kf_write
+
+Fixes: 99443ea19e8b ("coresight: Add generic TMC sg table framework")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mao Jinlong <jinlmao@codeaurora.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 ---
- kernel/sched/fair.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-tmc-etr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index dddaf61378f6..200e12110109 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5228,6 +5228,7 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 	struct cfs_rq *cfs_rq;
- 	struct sched_entity *se = &p->se;
- 	int idle_h_nr_running = task_has_idle_policy(p);
-+	int task_new = !(flags & ENQUEUE_WAKEUP);
- 
- 	/*
- 	 * The code below (indirectly) updates schedutil which looks at
-@@ -5299,7 +5300,7 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 		 * into account, but that is not straightforward to implement,
- 		 * and the following generally works well enough in practice.
- 		 */
--		if (flags & ENQUEUE_WAKEUP)
-+		if (!task_new)
- 			update_overutilized_status(rq);
- 
- 	}
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etr.c b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+index 525f0ecc129c..a31a4d7ae25e 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+@@ -217,6 +217,8 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
+ 		} else {
+ 			page = alloc_pages_node(node,
+ 						GFP_KERNEL | __GFP_ZERO, 0);
++			if (!page)
++				goto err;
+ 		}
+ 		paddr = dma_map_page(real_dev, page, 0, PAGE_SIZE, dir);
+ 		if (dma_mapping_error(real_dev, paddr))
+
+base-commit: c04e5d7bbf6f92a346d6b36770705e7f034df42d
 -- 
-2.29.2.454.gaff20da3a2-goog
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
 
