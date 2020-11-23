@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB6F2C0972
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7602C0959
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388679AbgKWNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33888 "EHLO mail.kernel.org"
+        id S1733001AbgKWNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:06:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730930AbgKWMtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730942AbgKWMtI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:49:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B672C208C3;
-        Mon, 23 Nov 2020 12:48:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B88E2137B;
+        Mon, 23 Nov 2020 12:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135733;
-        bh=RXU4H0CDypkczO1YozbRulrRctyn8Yk3HjDP1voUK8A=;
+        s=korg; t=1606135735;
+        bh=brmv+xcIbzNPrUtEwrCykpe+azBF4ZSawaykY07SGZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/IRnT0vGNTuEfOMNoh4BM/cJvgxt7LQywKunnz33DenEQcwve6hjvWX8vyjmlgaf
-         ZvWndbR/y+JsF8NP51ErDI+Cfpw/mjqPDif4ITFsJjUlxStLz9hZafNkz9MMtMzbv5
-         uzSCwtUK5s8rUXwIuY+sQsSfrT/dX/61KTDGl9dQ=
+        b=afPFe9xCi8HEzQVa+Pi1wI5w6Bdgpp+YqY9prOJbAN9QvLWZdFr7MbZtQlobZpkkg
+         yfBeMH0nrwymR0NDTxUKDhtH+MDKkMzT7MdJpXe1vdRGeAB3O+HaT/5gsQyvE3sfkN
+         gWinYoB1luR4+KVnFU0PNVlMijnBj6rb3UBB/Vo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Daniel Borkman <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 174/252] bpf, sockmap: On receive programs try to fast track SK_PASS ingress
-Date:   Mon, 23 Nov 2020 13:22:04 +0100
-Message-Id: <20201123121843.989114063@linuxfoundation.org>
+Subject: [PATCH 5.9 175/252] bpf, sockmap: Use truesize with sk_rmem_schedule()
+Date:   Mon, 23 Nov 2020 13:22:05 +0100
+Message-Id: <20201123121844.038953695@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -45,68 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit 9ecbfb06a078c4911fb444203e8e41d93d22f886 ]
+[ Upstream commit 70796fb751f1d34cc650e640572a174faf009cd4 ]
 
-When we receive an skb and the ingress skb verdict program returns
-SK_PASS we currently set the ingress flag and put it on the workqueue
-so it can be turned into a sk_msg and put on the sk_msg ingress queue.
-Then finally telling userspace with data_ready hook.
+We use skb->size with sk_rmem_scheduled() which is not correct. Instead
+use truesize to align with socket and tcp stack usage of sk_rmem_schedule.
 
-Here we observe that if the workqueue is empty then we can try to
-convert into a sk_msg type and call data_ready directly without
-bouncing through a workqueue. Its a common pattern to have a recv
-verdict program for visibility that always returns SK_PASS. In this
-case unless there is an ENOMEM error or we overrun the socket we
-can avoid the workqueue completely only using it when we fall back
-to error cases caused by memory pressure.
-
-By doing this we eliminate another case where data may be dropped
-if errors occur on memory limits in workqueue.
-
-Fixes: 51199405f9672 ("bpf: skb_verdict, support SK_PASS on RX BPF path")
+Suggested-by: Daniel Borkman <daniel@iogearbox.net>
 Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/160226859704.5692.12929678876744977669.stgit@john-Precision-5820-Tower
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/160556570616.73229.17003722112077507863.stgit@john-XPS-13-9370
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ net/core/skmsg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index aa78784292a7e..eaf9c90389517 100644
+index eaf9c90389517..4ac112cc490c5 100644
 --- a/net/core/skmsg.c
 +++ b/net/core/skmsg.c
-@@ -764,6 +764,7 @@ static void sk_psock_verdict_apply(struct sk_psock *psock,
- {
- 	struct tcp_skb_cb *tcp;
- 	struct sock *sk_other;
-+	int err = -EIO;
- 
- 	switch (verdict) {
- 	case __SK_PASS:
-@@ -775,8 +776,20 @@ static void sk_psock_verdict_apply(struct sk_psock *psock,
- 
- 		tcp = TCP_SKB_CB(skb);
- 		tcp->bpf.flags |= BPF_F_INGRESS;
--		skb_queue_tail(&psock->ingress_skb, skb);
--		schedule_work(&psock->work);
-+
-+		/* If the queue is empty then we can submit directly
-+		 * into the msg queue. If its not empty we have to
-+		 * queue work otherwise we may get OOO data. Otherwise,
-+		 * if sk_psock_skb_ingress errors will be handled by
-+		 * retrying later from workqueue.
-+		 */
-+		if (skb_queue_empty(&psock->ingress_skb)) {
-+			err = sk_psock_skb_ingress(psock, skb);
-+		}
-+		if (err < 0) {
-+			skb_queue_tail(&psock->ingress_skb, skb);
-+			schedule_work(&psock->work);
-+		}
- 		break;
- 	case __SK_REDIRECT:
- 		sk_psock_skb_redirect(skb);
+@@ -411,7 +411,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
+ 	if (unlikely(!msg))
+ 		return -EAGAIN;
+-	if (!sk_rmem_schedule(sk, skb, skb->len)) {
++	if (!sk_rmem_schedule(sk, skb, skb->truesize)) {
+ 		kfree(msg);
+ 		return -EAGAIN;
+ 	}
 -- 
 2.27.0
 
