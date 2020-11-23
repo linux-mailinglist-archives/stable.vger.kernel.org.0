@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E7152C0AED
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCB12C0AB5
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731021AbgKWMcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:32:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        id S1730026AbgKWMZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:25:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731028AbgKWMcK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:32:10 -0500
+        id S1730018AbgKWMZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:25:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 302F72076E;
-        Mon, 23 Nov 2020 12:32:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0706E20888;
+        Mon, 23 Nov 2020 12:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134729;
-        bh=WnoWaPOliwfCDnB34vVQAmgvOEREp88/2DhlefrORCw=;
+        s=korg; t=1606134337;
+        bh=g0Z9YKrnT37hyMKFikh2HEqbEut8RzhJW4ly7DsIS9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqYRfAPx0b5PKGaic6gatV1Qk/4BULBkASq3KjLp095u7sbcYngSmf9gknTdqZZzJ
-         z8bV842HzZtRqS3CsR2Qtn+yPakfpfSW9lVLyFdwWVn+TPGZZgZl9OwGG8SYQbOFnH
-         wnA9kdVLvLS4ML7/3JI2DpbfQ2xEk8Ed+Ic6n0WM=
+        b=UQgLUheWW2r+pMfYeQ3p7a7H8yj3TKVc233SzlhCsh5xE7TGhKvdLekufgkjIatfC
+         Et7B32bFlxLsFqAKA5X60lzXxqk6r1IpVxSKpVQB4VHOqNHG2wSFlOXNu7WAnrF0d2
+         YblYL+5+fFdvY9yukKhX1je8P+BldNGEQtZYd+7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Nishanth Menon <nm@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 61/91] regulator: ti-abb: Fix array out of bound read access on the first transition
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 35/47] ALSA: ctl: fix error path at adding user-defined element set
 Date:   Mon, 23 Nov 2020 13:22:21 +0100
-Message-Id: <20201123121812.287151293@linuxfoundation.org>
+Message-Id: <20201123121807.252955915@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 2ba546ebe0ce2af47833d8912ced9b4a579f13cb ]
+commit 95a793c3bc75cf888e0e641d656e7d080f487d8b upstream.
 
-At the start of driver initialization, we do not know what bias
-setting the bootloader has configured the system for and we only know
-for certain the very first time we do a transition.
+When processing request to add/replace user-defined element set, check
+of given element identifier and decision of numeric identifier is done
+in "__snd_ctl_add_replace()" helper function. When the result of check
+is wrong, the helper function returns error code. The error code shall
+be returned to userspace application.
 
-However, since the initial value of the comparison index is -EINVAL,
-this negative value results in an array out of bound access on the
-very first transition.
+Current implementation includes bug to return zero to userspace application
+regardless of the result. This commit fixes the bug.
 
-Since we don't know what the setting is, we just set the bias
-configuration as there is nothing to compare against. This prevents
-the array out of bound access.
+Cc: <stable@vger.kernel.org>
+Fixes: e1a7bfe38079 ("ALSA: control: Fix race between adding and removing a user element")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20201113092043.16148-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-NOTE: Even though we could use a more relaxed check of "< 0" the only
-valid values(ignoring cosmic ray induced bitflips) are -EINVAL, 0+.
-
-Fixes: 40b1936efebd ("regulator: Introduce TI Adaptive Body Bias(ABB) on-chip LDO driver")
-Link: https://lore.kernel.org/linux-mm/CA+G9fYuk4imvhyCN7D7T6PMDH6oNp6HDCRiTUKMQ6QXXjBa4ag@mail.gmail.com/
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20201118145009.10492-1-nm@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ sound/core/control.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index 89b9314d64c9d..016330f909c09 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -342,8 +342,17 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
- 		return ret;
- 	}
+--- a/sound/core/control.c
++++ b/sound/core/control.c
+@@ -1381,7 +1381,7 @@ static int snd_ctl_elem_add(struct snd_c
  
--	/* If data is exactly the same, then just update index, no change */
- 	info = &abb->info[sel];
-+	/*
-+	 * When Linux kernel is starting up, we are'nt sure of the
-+	 * Bias configuration that bootloader has configured.
-+	 * So, we get to know the actual setting the first time
-+	 * we are asked to transition.
-+	 */
-+	if (abb->current_info_idx == -EINVAL)
-+		goto just_set_abb;
-+
-+	/* If data is exactly the same, then just update index, no change */
- 	oinfo = &abb->info[abb->current_info_idx];
- 	if (!memcmp(info, oinfo, sizeof(*info))) {
- 		dev_dbg(dev, "%s: Same data new idx=%d, old idx=%d\n", __func__,
-@@ -351,6 +360,7 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
- 		goto out;
- 	}
+  unlock:
+ 	up_write(&card->controls_rwsem);
+-	return 0;
++	return err;
+ }
  
-+just_set_abb:
- 	ret = ti_abb_set_opp(rdev, abb, info);
- 
- out:
--- 
-2.27.0
-
+ static int snd_ctl_elem_add_user(struct snd_ctl_file *file,
 
 
