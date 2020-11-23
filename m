@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB742C0781
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE1E2C07B1
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732638AbgKWMlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54244 "EHLO mail.kernel.org"
+        id S1733053AbgKWMnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:43:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732642AbgKWMlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:41:16 -0500
+        id S1733050AbgKWMnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:43:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF07720857;
-        Mon, 23 Nov 2020 12:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 866D02076E;
+        Mon, 23 Nov 2020 12:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135276;
-        bh=Zpf06lZblr7OLaCgJRhX292y++gpfWm3Ljl+hF9PsU4=;
+        s=korg; t=1606135394;
+        bh=Vlflz4S5UuU79PFz/XLQj3y3sHe0RbpyB1hvs/40RZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0A8sPrVGPinqZH/a81Fy7eMkKKbs37BgIS+KQm39rtqCnZVdEltg8kp+/1ODktrv
-         HnVEEeXMiA0zq3ohi9r8UdPru7Zsu310exzdQR0wbTUsugNbmKfVTT+xDCDktDvH5M
-         U7beiW7DFo7b70dm08nHxljIOUmsXGGPfmOjID1I=
+        b=Nq47GgFAPmJYcElUw1cOEQwB919KZkbLpYJRp1mw9sSOsM6cTDjSEduWCbUI/K82U
+         iyYKyUV0jRWcEh+JpPJwg+QP2aMlg+uzRhEuXfzx6Hx456lnIs52wCZpCADPoI+ANH
+         rUWMjW0LL2i8EEmrc0ZgO9aKGf4Tjai+VZuuz2dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Yulevich <denisyu@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 011/252] mlxsw: core: Use variable timeout for EMAD retries
-Date:   Mon, 23 Nov 2020 13:19:21 +0100
-Message-Id: <20201123121836.134702790@linuxfoundation.org>
+Subject: [PATCH 5.9 012/252] net: b44: fix error return code in b44_init_one()
+Date:   Mon, 23 Nov 2020 13:19:22 +0100
+Message-Id: <20201123121836.183117675@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,43 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 1f492eab67bced119a0ac7db75ef2047e29a30c6 ]
+[ Upstream commit 7b027c249da54f492699c43e26cba486cfd48035 ]
 
-The driver sends Ethernet Management Datagram (EMAD) packets to the
-device for configuration purposes and waits for up to 200ms for a reply.
-A request is retried up to 5 times.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-When the system is under heavy load, replies are not always processed in
-time and EMAD transactions fail.
-
-Make the process more robust to such delays by using exponential
-backoff. First wait for up to 200ms, then retransmit and wait for up to
-400ms and so on.
-
-Fixes: caf7297e7ab5 ("mlxsw: core: Introduce support for asynchronous EMAD register access")
-Reported-by: Denis Yulevich <denisyu@nvidia.com>
-Tested-by: Denis Yulevich <denisyu@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Fixes: 39a6f4bce6b4 ("b44: replace the ssb_dma API with the generic DMA API")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/1605582131-36735-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core.c |    3 ++-
+ drivers/net/ethernet/broadcom/b44.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -558,7 +558,8 @@ static void mlxsw_emad_trans_timeout_sch
- 	if (trans->core->fw_flash_in_progress)
- 		timeout = msecs_to_jiffies(MLXSW_EMAD_TIMEOUT_DURING_FW_FLASH_MS);
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -2383,7 +2383,8 @@ static int b44_init_one(struct ssb_devic
+ 		goto err_out_free_dev;
+ 	}
  
--	queue_delayed_work(trans->core->emad_wq, &trans->timeout_dw, timeout);
-+	queue_delayed_work(trans->core->emad_wq, &trans->timeout_dw,
-+			   timeout << trans->retries);
- }
- 
- static int mlxsw_emad_transmit(struct mlxsw_core *mlxsw_core,
+-	if (dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30))) {
++	err = dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30));
++	if (err) {
+ 		dev_err(sdev->dev,
+ 			"Required 30BIT DMA mask unsupported by the system\n");
+ 		goto err_out_powerdown;
 
 
