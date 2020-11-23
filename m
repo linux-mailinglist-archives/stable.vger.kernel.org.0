@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5809C2C0792
+	by mail.lfdr.de (Postfix) with ESMTP id C66832C0793
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbgKWMmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55134 "EHLO mail.kernel.org"
+        id S1732664AbgKWMmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732559AbgKWMmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:42:09 -0500
+        id S1732612AbgKWMmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2173D20732;
-        Mon, 23 Nov 2020 12:42:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBFE92065E;
+        Mon, 23 Nov 2020 12:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135327;
-        bh=qGEgzGUdE440kVRun1AaeUuUOkyfqYNrJ2XkRFpb260=;
+        s=korg; t=1606135333;
+        bh=fbKZ/v1f/Y69Fi5kPOfTz3hmzaxaZOrXbwLaHvmEm0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thnYlwmj1c29bjT0gLKEIBCruRewKsNjx8idawk2ZPKaEX9+WYBlnZQIn4zVXHhlW
-         r7Ea/1+ZPTJ6h6Kn04WX/wgvvF+r77aJUnm9fqFnqL3mc6EcIV6/K37ZMvxdRzO8Vz
-         EPSLURXpE/w06LoIZprKKQRA+yAPinVecjnJ6fLE=
+        b=AvEYgGfN1soqFPmBoUOUAsBG9ER/suu1irXyxaEgKBPxsTxv6LtdC6OPpcjwuK5cq
+         yJWUwBqkgbjciJ5fxp49mRao3iWk6wHe/PMPVtpg3xB/ba59E+wJTdYXympE/wauev
+         IAfSIXO8f7QiGAyAnFL7JArHfa7FrgOziZNSbNWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
+        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 029/252] net/ncsi: Fix netlink registration
-Date:   Mon, 23 Nov 2020 13:19:39 +0100
-Message-Id: <20201123121836.995530313@linuxfoundation.org>
+Subject: [PATCH 5.9 031/252] net: qualcomm: rmnet: Fix incorrect receive packet handling during cleanup
+Date:   Mon, 23 Nov 2020 13:19:41 +0100
+Message-Id: <20201123121837.094686724@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,129 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 
-[ Upstream commit 1922a46b8c18cb09d33e06a6cc2e43844ac1b9d0 ]
+[ Upstream commit fc70f5bf5e525dde81565f0a30d5e39168062eba ]
 
-If a user unbinds and re-binds a NC-SI aware driver the kernel will
-attempt to register the netlink interface at runtime. The structure is
-marked __ro_after_init so registration fails spectacularly at this point.
+During rmnet unregistration, the real device rx_handler is first cleared
+followed by the removal of rx_handler_data after the rcu synchronization.
 
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/unbind
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/bind
-  ftgmac100 1e660000.ethernet: Read MAC address 52:54:00:12:34:56 from chip
-  ftgmac100 1e660000.ethernet: Using NCSI interface
-  8<--- cut here ---
-  Unable to handle kernel paging request at virtual address 80a8f858
-  pgd = 8c768dd6
-  [80a8f858] *pgd=80a0841e(bad)
-  Internal error: Oops: 80d [#1] SMP ARM
-  CPU: 0 PID: 116 Comm: sh Not tainted 5.10.0-rc3-next-20201111-00003-gdd25b227ec1e #51
-  Hardware name: Generic DT based system
-  PC is at genl_register_family+0x1f8/0x6d4
-  LR is at 0xff26ffff
-  pc : [<8073f930>]    lr : [<ff26ffff>]    psr: 20000153
-  sp : 8553bc80  ip : 81406244  fp : 8553bd04
-  r10: 8085d12c  r9 : 80a8f73c  r8 : 85739000
-  r7 : 00000017  r6 : 80a8f860  r5 : 80c8ab98  r4 : 80a8f858
-  r3 : 00000000  r2 : 00000000  r1 : 81406130  r0 : 00000017
-  Flags: nzCv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-  Control: 00c5387d  Table: 85524008  DAC: 00000051
-  Process sh (pid: 116, stack limit = 0x1f1988d6)
- ...
-  Backtrace:
-  [<8073f738>] (genl_register_family) from [<80860ac0>] (ncsi_init_netlink+0x20/0x48)
-   r10:8085d12c r9:80c8fb0c r8:85739000 r7:00000000 r6:81218000 r5:85739000
-   r4:8121c000
-  [<80860aa0>] (ncsi_init_netlink) from [<8085d740>] (ncsi_register_dev+0x1b0/0x210)
-   r5:8121c400 r4:8121c000
-  [<8085d590>] (ncsi_register_dev) from [<805a8060>] (ftgmac100_probe+0x6e0/0x778)
-   r10:00000004 r9:80950228 r8:8115bc10 r7:8115ab00 r6:9eae2c24 r5:813b6f88
-   r4:85739000
-  [<805a7980>] (ftgmac100_probe) from [<805355ec>] (platform_drv_probe+0x58/0xa8)
-   r9:80c76bb0 r8:00000000 r7:80cd4974 r6:80c76bb0 r5:8115bc10 r4:00000000
-  [<80535594>] (platform_drv_probe) from [<80532d58>] (really_probe+0x204/0x514)
-   r7:80cd4974 r6:00000000 r5:80cd4868 r4:8115bc10
+Any packets in the receive path may observe that the rx_handler is NULL.
+However, there is no check when dereferencing this value to use the
+rmnet_port information.
 
-Jakub pointed out that ncsi_register_dev is obviously broken, because
-there is only one family so it would never work if there was more than
-one ncsi netdev.
+This fixes following splat by adding the NULL check.
 
-Fix the crash by registering the netlink family once on boot, and drop
-the code to unregister it.
+Unable to handle kernel NULL pointer dereference at virtual
+address 000000000000000d
+pc : rmnet_rx_handler+0x124/0x284
+lr : rmnet_rx_handler+0x124/0x284
+ rmnet_rx_handler+0x124/0x284
+ __netif_receive_skb_core+0x758/0xd74
+ __netif_receive_skb+0x50/0x17c
+ process_backlog+0x15c/0x1b8
+ napi_poll+0x88/0x284
+ net_rx_action+0xbc/0x23c
+ __do_softirq+0x20c/0x48c
 
-Fixes: 955dc68cb9b2 ("net/ncsi: Add generic netlink family")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
-Link: https://lore.kernel.org/r/20201112061210.914621-1-joel@jms.id.au
+Fixes: ceed73a2cf4a ("drivers: net: ethernet: qualcomm: rmnet: Initial implementation")
+Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
+Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+Link: https://lore.kernel.org/r/1605298325-3705-1-git-send-email-subashab@codeaurora.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ncsi/ncsi-manage.c  |    5 -----
- net/ncsi/ncsi-netlink.c |   22 +++-------------------
- net/ncsi/ncsi-netlink.h |    3 ---
- 3 files changed, 3 insertions(+), 27 deletions(-)
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/ncsi/ncsi-manage.c
-+++ b/net/ncsi/ncsi-manage.c
-@@ -1726,9 +1726,6 @@ struct ncsi_dev *ncsi_register_dev(struc
- 	ndp->ptype.dev = dev;
- 	dev_add_pack(&ndp->ptype);
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c
+@@ -188,6 +188,11 @@ rx_handler_result_t rmnet_rx_handler(str
  
--	/* Set up generic netlink interface */
--	ncsi_init_netlink(dev);
--
- 	pdev = to_platform_device(dev->dev.parent);
- 	if (pdev) {
- 		np = pdev->dev.of_node;
-@@ -1892,8 +1889,6 @@ void ncsi_unregister_dev(struct ncsi_dev
- 	list_del_rcu(&ndp->node);
- 	spin_unlock_irqrestore(&ncsi_dev_lock, flags);
+ 	dev = skb->dev;
+ 	port = rmnet_get_port_rcu(dev);
++	if (unlikely(!port)) {
++		atomic_long_inc(&skb->dev->rx_nohandler);
++		kfree_skb(skb);
++		goto done;
++	}
  
--	ncsi_unregister_netlink(nd->dev);
--
- 	kfree(ndp);
- }
- EXPORT_SYMBOL_GPL(ncsi_unregister_dev);
---- a/net/ncsi/ncsi-netlink.c
-+++ b/net/ncsi/ncsi-netlink.c
-@@ -766,24 +766,8 @@ static struct genl_family ncsi_genl_fami
- 	.n_ops = ARRAY_SIZE(ncsi_ops),
- };
- 
--int ncsi_init_netlink(struct net_device *dev)
-+static int __init ncsi_init_netlink(void)
- {
--	int rc;
--
--	rc = genl_register_family(&ncsi_genl_family);
--	if (rc)
--		netdev_err(dev, "ncsi: failed to register netlink family\n");
--
--	return rc;
--}
--
--int ncsi_unregister_netlink(struct net_device *dev)
--{
--	int rc;
--
--	rc = genl_unregister_family(&ncsi_genl_family);
--	if (rc)
--		netdev_err(dev, "ncsi: failed to unregister netlink family\n");
--
--	return rc;
-+	return genl_register_family(&ncsi_genl_family);
- }
-+subsys_initcall(ncsi_init_netlink);
---- a/net/ncsi/ncsi-netlink.h
-+++ b/net/ncsi/ncsi-netlink.h
-@@ -22,7 +22,4 @@ int ncsi_send_netlink_err(struct net_dev
- 			  struct nlmsghdr *nlhdr,
- 			  int err);
- 
--int ncsi_init_netlink(struct net_device *dev);
--int ncsi_unregister_netlink(struct net_device *dev);
--
- #endif /* __NCSI_NETLINK_H__ */
+ 	switch (port->rmnet_mode) {
+ 	case RMNET_EPMODE_VND:
 
 
