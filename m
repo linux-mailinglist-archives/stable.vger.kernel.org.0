@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3776E2C058C
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F7B52C058E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729602AbgKWMXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:23:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60294 "EHLO mail.kernel.org"
+        id S1728895AbgKWMXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:23:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729601AbgKWMXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:21 -0500
+        id S1726529AbgKWMXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:23:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC7CC2076E;
-        Mon, 23 Nov 2020 12:23:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D90BA2137B;
+        Mon, 23 Nov 2020 12:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134200;
-        bh=93VrMVYKxpRP0ORf3ecOd7y7hC7tY7W+PyTw58cxmMg=;
+        s=korg; t=1606134203;
+        bh=vfkvJNd1tRHOibulvnIWtgRVDfCN7kcbl9HlsaYcNGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyr4r+Nd42BISqzk7GwXv+u76nGbKohV9U8OmDC+IF/jZ5cpElQOSMRgEB+V1+ej0
-         J7wqw63YbahLu6o2KrRzVyQnAqHih0PoH9wvJLQJgO/LS3Bb2O1CVjAVjJ/KX3+2ad
-         AjKaYAMay8BEG0mSyQ+jr80k/AG3gHUXMdHcz33w=
+        b=1JwkofPsLbtdjlYUaAbGA+fascnAN/Hwa7PfPxez8VdfxosQCNYnTZWzH6YFl06t9
+         If6x3vtBQYC2eWFadpQB2fkACuPjJTFWJqGijfdNrVO7YvzAUJlOOOHffmk1ODcQPi
+         /jYV0pqPufGe2XV5ZWCcLRcmguQAgm/+WvEgnB2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Nishanth Menon <nm@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/38] regulator: ti-abb: Fix array out of bound read access on the first transition
-Date:   Mon, 23 Nov 2020 13:22:10 +0100
-Message-Id: <20201123121805.463420839@linuxfoundation.org>
+Subject: [PATCH 4.4 25/38] libfs: fix error cast of negative value in simple_attr_write()
+Date:   Mon, 23 Nov 2020 13:22:11 +0100
+Message-Id: <20201123121805.503998800@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -44,68 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 2ba546ebe0ce2af47833d8912ced9b4a579f13cb ]
+[ Upstream commit 488dac0c9237647e9b8f788b6a342595bfa40bda ]
 
-At the start of driver initialization, we do not know what bias
-setting the bootloader has configured the system for and we only know
-for certain the very first time we do a transition.
+The attr->set() receive a value of u64, but simple_strtoll() is used for
+doing the conversion.  It will lead to the error cast if user inputs a
+negative value.
 
-However, since the initial value of the comparison index is -EINVAL,
-this negative value results in an array out of bound access on the
-very first transition.
+Use kstrtoull() instead of simple_strtoll() to convert a string got from
+the user to an unsigned value.  The former will return '-EINVAL' if it
+gets a negetive value, but the latter can't handle the situation
+correctly.  Make 'val' unsigned long long as what kstrtoull() takes,
+this will eliminate the compile warning on no 64-bit architectures.
 
-Since we don't know what the setting is, we just set the bias
-configuration as there is nothing to compare against. This prevents
-the array out of bound access.
-
-NOTE: Even though we could use a more relaxed check of "< 0" the only
-valid values(ignoring cosmic ray induced bitflips) are -EINVAL, 0+.
-
-Fixes: 40b1936efebd ("regulator: Introduce TI Adaptive Body Bias(ABB) on-chip LDO driver")
-Link: https://lore.kernel.org/linux-mm/CA+G9fYuk4imvhyCN7D7T6PMDH6oNp6HDCRiTUKMQ6QXXjBa4ag@mail.gmail.com/
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20201118145009.10492-1-nm@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f7b88631a897 ("fs/libfs.c: fix simple_attr_write() on 32bit machines")
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/1605341356-11872-1-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/libfs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index 6d17357b3a248..5f5f63eb8c762 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -342,8 +342,17 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
- 		return ret;
- 	}
+diff --git a/fs/libfs.c b/fs/libfs.c
+index a33e95f8729bf..01e9cae5b1601 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -827,7 +827,7 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 			  size_t len, loff_t *ppos)
+ {
+ 	struct simple_attr *attr;
+-	u64 val;
++	unsigned long long val;
+ 	size_t size;
+ 	ssize_t ret;
  
--	/* If data is exactly the same, then just update index, no change */
- 	info = &abb->info[sel];
-+	/*
-+	 * When Linux kernel is starting up, we are'nt sure of the
-+	 * Bias configuration that bootloader has configured.
-+	 * So, we get to know the actual setting the first time
-+	 * we are asked to transition.
-+	 */
-+	if (abb->current_info_idx == -EINVAL)
-+		goto just_set_abb;
-+
-+	/* If data is exactly the same, then just update index, no change */
- 	oinfo = &abb->info[abb->current_info_idx];
- 	if (!memcmp(info, oinfo, sizeof(*info))) {
- 		dev_dbg(dev, "%s: Same data new idx=%d, old idx=%d\n", __func__,
-@@ -351,6 +360,7 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
+@@ -845,7 +845,9 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
  		goto out;
- 	}
  
-+just_set_abb:
- 	ret = ti_abb_set_opp(rdev, abb, info);
- 
- out:
+ 	attr->set_buf[size] = '\0';
+-	val = simple_strtoll(attr->set_buf, NULL, 0);
++	ret = kstrtoull(attr->set_buf, 0, &val);
++	if (ret)
++		goto out;
+ 	ret = attr->set(attr->data, val);
+ 	if (ret == 0)
+ 		ret = len; /* on success, claim we got the whole input */
 -- 
 2.27.0
 
