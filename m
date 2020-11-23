@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40EE62C0AC0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2756B2C0B3C
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730281AbgKWM1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:27:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37480 "EHLO mail.kernel.org"
+        id S1732570AbgKWNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:21:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730285AbgKWM1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:27:22 -0500
+        id S1731836AbgKWMhF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E32021534;
-        Mon, 23 Nov 2020 12:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FECE2076E;
+        Mon, 23 Nov 2020 12:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134441;
-        bh=6yKjH2jxaBey7XOj/CkFxPbG7DdHI7BDp49L8Aicsqc=;
+        s=korg; t=1606135025;
+        bh=Fc+q8plv77TCEO0lkPydaAS+X4W4FvBQ8GetlqcipGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtLSlPCLPigYGM0M87VkWxRrTCUW5U9ptqLlXRqZRbDlInDkhVGDp8Hpvtl1OhBRR
-         W2hoJjqwdW8Jjwh5qnuGwAsH75Qr8y2lTYcrFw8BvQc57vzMEd030KMSS+1lAAj47p
-         ua2Doer0LaU85+1DjvEOZbeLF6vQPI4bQpGqQp+M=
+        b=uqLyNM5iUoFV3blwLP6taebPn7Q8R8Uodw1T+c+YljX2OO3hpLmK69rtk7wlIvp5w
+         BHKU/80Caa/lVuhpmaVQ1eaqrtVcfOrA+fN8KywMCB6AjPeQfXPuJbvYGVEM+OMKSD
+         Q/CXrmNGHhbqFrc8iJrcSuM/RmeE5BZXOJ7VmhRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 03/60] bnxt_en: read EEPROM A2h address using page 0
+        stable@vger.kernel.org,
+        Loris Fauster <loris.fauster@ttcontrol.com>,
+        Alejandro Concepcion Rodriguez <alejandro@acoro.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 077/158] can: dev: can_restart(): post buffer from the right context
 Date:   Mon, 23 Nov 2020 13:21:45 +0100
-Message-Id: <20201123121805.202166850@linuxfoundation.org>
+Message-Id: <20201123121823.653901394@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Alejandro Concepcion Rodriguez <alejandro@acoro.eu>
 
-[ Upstream commit 4260330b32b14330cfe427d568ac5f5b29b5be3d ]
+[ Upstream commit a1e654070a60d5d4f7cce59c38f4ca790bb79121 ]
 
-The module eeprom address range returned by bnxt_get_module_eeprom()
-should be 256 bytes of A0h address space, the lower half of the A2h
-address space, and page 0 for the upper half of the A2h address space.
+netif_rx() is meant to be called from interrupt contexts. can_restart() may be
+called by can_restart_work(), which is called from a worqueue, so it may run in
+process context. Use netif_rx_ni() instead.
 
-Fix the firmware call by passing page_number 0 for the A2h slave address
-space.
-
-Fixes: 42ee18fe4ca2 ("bnxt_en: Add Support for ETHTOOL_GMODULEINFO and ETHTOOL_GMODULEEEPRO")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
+Co-developed-by: Loris Fauster <loris.fauster@ttcontrol.com>
+Signed-off-by: Loris Fauster <loris.fauster@ttcontrol.com>
+Signed-off-by: Alejandro Concepcion Rodriguez <alejandro@acoro.eu>
+Link: https://lore.kernel.org/r/4e84162b-fb31-3a73-fa9a-9438b4bd5234@acoro.eu
+[mkl: use netif_rx_ni() instead of netif_rx_any_context()]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    2 +-
+ drivers/net/can/dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -2168,7 +2168,7 @@ static int bnxt_get_module_eeprom(struct
- 	/* Read A2 portion of the EEPROM */
- 	if (length) {
- 		start -= ETH_MODULE_SFF_8436_LEN;
--		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 1,
-+		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 0,
- 						      start, length, data);
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 448d1548cca39..5b8791135de13 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -567,7 +567,7 @@ static void can_restart(struct net_device *dev)
  	}
- 	return rc;
+ 	cf->can_id |= CAN_ERR_RESTARTED;
+ 
+-	netif_rx(skb);
++	netif_rx_ni(skb);
+ 
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += cf->can_dlc;
+-- 
+2.27.0
+
 
 
