@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255682C0268
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:43:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B9B2C026B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 10:43:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726306AbgKWJlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 04:41:39 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:60509 "EHLO
+        id S1727927AbgKWJnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 04:43:21 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:34019 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725275AbgKWJlj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:41:39 -0500
+        by vger.kernel.org with ESMTP id S1725275AbgKWJnU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 04:43:20 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 00B875EB;
-        Mon, 23 Nov 2020 04:41:37 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 7CD36EAC;
+        Mon, 23 Nov 2020 04:43:19 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:41:38 -0500
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 04:43:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rgAsO/
-        gorxicbifR/wo7Rg93VYD9ciFzV3ekwYSNyBE=; b=fjDWhnukpSNnvwpOFox+yW
-        JZKkspXB6nLnCkDfL8YMH8jfbERCa1K+RawafE9/K2gQJvy8yUFacigvEnxoWESd
-        n5H1epzRIut+TG9yBS3NbiSlNANiY4/Sj1rx+VP8Y8+q2RD/HLbA6PrzTaGhVfjy
-        ogNREIS5HbBV6JwByziYsCkEwSE9sdyYDJ0U/80YmHnigBGzSDRgPKmRRQtt4GUG
-        N7p0zFf3DSSVmHhVFJ7Bt6iUfnXMWpq9d15zrYFckl6Cj6wkNB2ZjCQlKtXqF2cr
-        GV1JJFWnajBIU8JQF/jSOqd4M+CntXUxuhm7ncO+Waxq6m+SLPPKFEJUuFUQQ2lg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5n9UYK
+        iLDTyN3dlBdy454qpwj3lMjeMyboxysHJBIpk=; b=KCxWtmG9XUOxx+y+Unwt/z
+        dfTR+VQoReoZTJj9jogiD9XYrcQ0qGpwU4ZM+8IUWeRy6ELvzoufK0u6UUiRY7eM
+        QhyiNqCZ1vUvSVDTAhlYl4ba5AGDD5WGFKf1HZ1cblqi+WMuflOZYrqTfHnl2RbC
+        WPM+e4zXfZYEojOqjm6tQt8EDDrNuOZOAd9aQgKyhO70hesB/cp4P6y2wQhTq4mI
+        is7HjGe446Uby8ibpZFvZc3wdcwnxomu42zoBqT7tzJQuFdylCwBNMl4DqU1Cj9X
+        /JTV7LgXFG+5PoU7wBIie4mXHzBD+PWnPHVd0plXgVMH9clnTUK0UAUzBZXdaXdw
         ==
-X-ME-Sender: <xms:0YO7X4HOlfJyVCMXrZqk-BdhL_grLwCKLwTrgUYxA8R9uOo9Jn2WGQ>
-    <xme:0YO7XxXvMmZhCg9hu6KE96Dx-Lzl0jWuPANV_zhjXNPB95QBEBlwu596vPPUMfZHX
-    s4bSaAW0bY6VA>
+X-ME-Sender: <xms:NoS7XwCRlnius5UQg4gaJKjRk15Z-7h84wFh2i-zS400MMzmx6kL3g>
+    <xme:NoS7XyjZV5LMFt3H9OzIUp9ovn9i4M6_R7wTkPZ7pTOulVnw3KPM2W1BTlA0af16O
+    cCtW3oCsbFiKg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudegiedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:0YO7XyICOdteBv0eKkR1X0ufxzhp1S6CfjPmlgDJckIHyLUliXJ2Bw>
-    <xmx:0YO7X6Hga0fyQg2ua91T7sva4kIGgcuR4WEddDbt5qQ9CdfiBaUpxQ>
-    <xmx:0YO7X-UOb0NyB7mq2xOcqkJmg0JR4DAfc0dqgpSjyb4Pu9ymnQ84gg>
-    <xmx:0YO7X3eB4z8_mi42161Rt1-hUCiN2yql0_PCsaPrlt_Ae017PkwvcrCUS20>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepkeejgffftefgveeggeehudfgleehkedthedtiefhie
+    elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:NoS7Xzm-wRSbwzG4SNODHcG2HhecU7lPQERdJ_JsAa_DXwCi1BTd3Q>
+    <xmx:NoS7X2yg1PbRpRLxCftHoKEPO5_J0__ciWYMZZqkLN8h6iwZV1qZew>
+    <xmx:NoS7X1Qafej1QfyOOrW7E6lyeLl9vW9wbQEJXieOycstDVX4s_573A>
+    <xmx:N4S7X0E2yioHHGNZ8qjlzPzm1fpzBaz9kchMIaR1ub5hgmfHzhGMqseg1Yo>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E00B23280066;
-        Mon, 23 Nov 2020 04:41:36 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: order refnode recycling" failed to apply to 5.9-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id 620CA328005E;
+        Mon, 23 Nov 2020 04:43:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ptrace: Set PF_SUPERPRIV when checking capability" failed to apply to 4.14-stable tree
+To:     mic@linux.microsoft.com, christian.brauner@ubuntu.com,
+        eparis@redhat.com, jannh@google.com, keescook@chromium.org,
+        oleg@redhat.com, serge@hallyn.com, tyhicks@linux.microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 10:42:48 +0100
-Message-ID: <16061245683720@kroah.com>
+Date:   Mon, 23 Nov 2020 10:44:29 +0100
+Message-ID: <1606124669198129@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,102 +72,83 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e297822b20e7fe683e107aea46e6402adcf99c70 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Wed, 18 Nov 2020 14:56:26 +0000
-Subject: [PATCH] io_uring: order refnode recycling
+From cf23705244c947151179f929774fabf71e239eee Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
+Date: Fri, 30 Oct 2020 13:38:48 +0100
+Subject: [PATCH] ptrace: Set PF_SUPERPRIV when checking capability
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Don't recycle a refnode until we're done with all requests of nodes
-ejected before.
+Commit 69f594a38967 ("ptrace: do not audit capability check when outputing
+/proc/pid/stat") replaced the use of ns_capable() with
+has_ns_capability{,_noaudit}() which doesn't set PF_SUPERPRIV.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Commit 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in
+ptrace_has_cap()") replaced has_ns_capability{,_noaudit}() with
+security_capable(), which doesn't set PF_SUPERPRIV neither.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5cb194ca4fce..7d4b755ab451 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -205,6 +205,7 @@ struct fixed_file_ref_node {
- 	struct list_head		file_list;
- 	struct fixed_file_data		*file_data;
- 	struct llist_node		llist;
-+	bool				done;
- };
- 
- struct fixed_file_data {
-@@ -7323,10 +7324,6 @@ static void __io_file_put_work(struct fixed_file_ref_node *ref_node)
- 		kfree(pfile);
- 	}
- 
--	spin_lock(&file_data->lock);
--	list_del(&ref_node->node);
--	spin_unlock(&file_data->lock);
--
- 	percpu_ref_exit(&ref_node->refs);
- 	kfree(ref_node);
- 	percpu_ref_put(&file_data->refs);
-@@ -7353,17 +7350,32 @@ static void io_file_put_work(struct work_struct *work)
- static void io_file_data_ref_zero(struct percpu_ref *ref)
- {
- 	struct fixed_file_ref_node *ref_node;
-+	struct fixed_file_data *data;
- 	struct io_ring_ctx *ctx;
--	bool first_add;
-+	bool first_add = false;
- 	int delay = HZ;
- 
- 	ref_node = container_of(ref, struct fixed_file_ref_node, refs);
--	ctx = ref_node->file_data->ctx;
-+	data = ref_node->file_data;
-+	ctx = data->ctx;
-+
-+	spin_lock(&data->lock);
-+	ref_node->done = true;
-+
-+	while (!list_empty(&data->ref_list)) {
-+		ref_node = list_first_entry(&data->ref_list,
-+					struct fixed_file_ref_node, node);
-+		/* recycle ref nodes in order */
-+		if (!ref_node->done)
-+			break;
-+		list_del(&ref_node->node);
-+		first_add |= llist_add(&ref_node->llist, &ctx->file_put_llist);
-+	}
-+	spin_unlock(&data->lock);
- 
--	if (percpu_ref_is_dying(&ctx->file_data->refs))
-+	if (percpu_ref_is_dying(&data->refs))
- 		delay = 0;
- 
--	first_add = llist_add(&ref_node->llist, &ctx->file_put_llist);
- 	if (!delay)
- 		mod_delayed_work(system_wq, &ctx->file_put_work, 0);
- 	else if (first_add)
-@@ -7387,6 +7399,7 @@ static struct fixed_file_ref_node *alloc_fixed_file_ref_node(
- 	INIT_LIST_HEAD(&ref_node->node);
- 	INIT_LIST_HEAD(&ref_node->file_list);
- 	ref_node->file_data = ctx->file_data;
-+	ref_node->done = false;
- 	return ref_node;
+Since commit 98f368e9e263 ("kernel: Add noaudit variant of ns_capable()"), a
+new ns_capable_noaudit() helper is available.  Let's use it!
+
+As a result, the signature of ptrace_has_cap() is restored to its original one.
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Eric Paris <eparis@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Serge E. Hallyn <serge@hallyn.com>
+Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: stable@vger.kernel.org
+Fixes: 6b3ad6649a4c ("ptrace: reintroduce usage of subjective credentials in ptrace_has_cap()")
+Fixes: 69f594a38967 ("ptrace: do not audit capability check when outputing /proc/pid/stat")
+Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+Reviewed-by: Jann Horn <jannh@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20201030123849.770769-2-mic@digikod.net
+
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index 43d6179508d6..79de1294f8eb 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -264,17 +264,11 @@ static int ptrace_check_attach(struct task_struct *child, bool ignore_state)
+ 	return ret;
  }
  
-@@ -7482,7 +7495,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+-static bool ptrace_has_cap(const struct cred *cred, struct user_namespace *ns,
+-			   unsigned int mode)
++static bool ptrace_has_cap(struct user_namespace *ns, unsigned int mode)
+ {
+-	int ret;
+-
+ 	if (mode & PTRACE_MODE_NOAUDIT)
+-		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NOAUDIT);
+-	else
+-		ret = security_capable(cred, ns, CAP_SYS_PTRACE, CAP_OPT_NONE);
+-
+-	return ret == 0;
++		return ns_capable_noaudit(ns, CAP_SYS_PTRACE);
++	return ns_capable(ns, CAP_SYS_PTRACE);
+ }
  
- 	file_data->node = ref_node;
- 	spin_lock(&file_data->lock);
--	list_add(&ref_node->node, &file_data->ref_list);
-+	list_add_tail(&ref_node->node, &file_data->ref_list);
- 	spin_unlock(&file_data->lock);
- 	percpu_ref_get(&file_data->refs);
- 	return ret;
-@@ -7641,7 +7654,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
- 		spin_lock(&data->lock);
--		list_add(&ref_node->node, &data->ref_list);
-+		list_add_tail(&ref_node->node, &data->ref_list);
- 		data->node = ref_node;
- 		spin_unlock(&data->lock);
- 		percpu_ref_get(&ctx->file_data->refs);
+ /* Returns 0 on success, -errno on denial. */
+@@ -326,7 +320,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	    gid_eq(caller_gid, tcred->sgid) &&
+ 	    gid_eq(caller_gid, tcred->gid))
+ 		goto ok;
+-	if (ptrace_has_cap(cred, tcred->user_ns, mode))
++	if (ptrace_has_cap(tcred->user_ns, mode))
+ 		goto ok;
+ 	rcu_read_unlock();
+ 	return -EPERM;
+@@ -345,7 +339,7 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	mm = task->mm;
+ 	if (mm &&
+ 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
+-	     !ptrace_has_cap(cred, mm->user_ns, mode)))
++	     !ptrace_has_cap(mm->user_ns, mode)))
+ 	    return -EPERM;
+ 
+ 	return security_ptrace_access_check(task, mode);
 
