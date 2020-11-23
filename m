@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D51862C0719
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF24B2C066C
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731941AbgKWMha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
+        id S1730776AbgKWMaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731933AbgKWMh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:37:27 -0500
+        id S1730762AbgKWMav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE25520721;
-        Mon, 23 Nov 2020 12:37:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9447920888;
+        Mon, 23 Nov 2020 12:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135047;
-        bh=lZvBpeRjlI/VW97KSB7IlHBYVy1l46kdMCQZECCsG1U=;
+        s=korg; t=1606134648;
+        bh=1uRssq3GslaarJs5II8b6WsQ8G7v74YWY+xgS3R4vWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnCWxDFI/rYwj1N3CmS4PMgx3nriXPikDROS0YolJLwqkFV+GeuB1mUd9NH3kWjtJ
-         8mcGKOVycdsfiX5m21JxbZsBmeIuuGoXq7pAwc0QQjRaF3cajvtD81IQCIuD10tIMU
-         dWHK6rrKX5rPzNeLt3GM0dr6nt5m6Qo61OpPOcjI=
+        b=m7c8CAihUC94t9nKdgPNU/tD6ZL0TAOyOqXNQ2bcu1bsW4PQcBmipqUIZBjx/hSoJ
+         epW7H5hjpoT+CoMXL9tYB5c23oG2GBVmPtbme+HunkaKgWhBddFCWvECOqC7R3Ojlr
+         sC7lYX72pvTpA0eZjczT+77Zuih0ukyOTkW32j/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/158] can: tcan4x5x: tcan4x5x_can_remove(): fix order of deregistration
+Subject: [PATCH 4.19 32/91] vfs: remove lockdep bogosity in __sb_start_write
 Date:   Mon, 23 Nov 2020 13:21:52 +0100
-Message-Id: <20201123121823.987303756@linuxfoundation.org>
+Message-Id: <20201123121810.885615538@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit c81d0b6ca665477c761f227807010762630b089f ]
+[ Upstream commit 22843291efc986ce7722610073fcf85a39b4cb13 ]
 
-Change the order in tcan4x5x_can_remove() to be the exact inverse of
-tcan4x5x_can_probe(). First m_can_class_unregister(), then power down the
-device.
+__sb_start_write has some weird looking lockdep code that claims to
+exist to handle nested freeze locking requests from xfs.  The code as
+written seems broken -- if we think we hold a read lock on any of the
+higher freeze levels (e.g. we hold SB_FREEZE_WRITE and are trying to
+lock SB_FREEZE_PAGEFAULT), it converts a blocking lock attempt into a
+trylock.
 
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Cc: Dan Murphy <dmurphy@ti.com>
-Link: http://lore.kernel.org/r/20201019154233.1262589-10-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+However, it's not correct to downgrade a blocking lock attempt to a
+trylock unless the downgrading code or the callers are prepared to deal
+with that situation.  Neither __sb_start_write nor its callers handle
+this at all.  For example:
+
+sb_start_pagefault ignores the return value completely, with the result
+that if xfs_filemap_fault loses a race with a different thread trying to
+fsfreeze, it will proceed without pagefault freeze protection (thereby
+breaking locking rules) and then unlocks the pagefault freeze lock that
+it doesn't own on its way out (thereby corrupting the lock state), which
+leads to a system hang shortly afterwards.
+
+Normally, this won't happen because our ownership of a read lock on a
+higher freeze protection level blocks fsfreeze from grabbing a write
+lock on that higher level.  *However*, if lockdep is offline,
+lock_is_held_type unconditionally returns 1, which means that
+percpu_rwsem_is_held returns 1, which means that __sb_start_write
+unconditionally converts blocking freeze lock attempts into trylocks,
+even when we *don't* hold anything that would block a fsfreeze.
+
+Apparently this all held together until 5.10-rc1, when bugs in lockdep
+caused lockdep to shut itself off early in an fstests run, and once
+fstests gets to the "race writes with freezer" tests, kaboom.  This
+might explain the long trail of vanishingly infrequent livelocks in
+fstests after lockdep goes offline that I've never been able to
+diagnose.
+
+We could fix it by spinning on the trylock if wait==true, but AFAICT the
+locking works fine if lockdep is not built at all (and I didn't see any
+complaints running fstests overnight), so remove this snippet entirely.
+
+NOTE: Commit f4b554af9931 in 2015 created the current weird logic (which
+used to exist in a different form in commit 5accdf82ba25c from 2012) in
+__sb_start_write.  XFS solved this whole problem in the late 2.6 era by
+creating a variant of transactions (XFS_TRANS_NO_WRITECOUNT) that don't
+grab intwrite freeze protection, thus making lockdep's solution
+unnecessary.  The commit claims that Dave Chinner explained that the
+trylock hack + comment could be removed, but nobody ever did.
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/super.c | 33 ++++-----------------------------
+ 1 file changed, 4 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
-index 11c223a534887..681bb861de05e 100644
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -501,10 +501,10 @@ static int tcan4x5x_can_remove(struct spi_device *spi)
+diff --git a/fs/super.c b/fs/super.c
+index f3a8c008e1643..9fb4553c46e63 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -1360,36 +1360,11 @@ EXPORT_SYMBOL(__sb_end_write);
+  */
+ int __sb_start_write(struct super_block *sb, int level, bool wait)
  {
- 	struct tcan4x5x_priv *priv = spi_get_drvdata(spi);
+-	bool force_trylock = false;
+-	int ret = 1;
++	if (!wait)
++		return percpu_down_read_trylock(sb->s_writers.rw_sem + level-1);
  
--	tcan4x5x_power_enable(priv->power, 0);
+-#ifdef CONFIG_LOCKDEP
+-	/*
+-	 * We want lockdep to tell us about possible deadlocks with freezing
+-	 * but it's it bit tricky to properly instrument it. Getting a freeze
+-	 * protection works as getting a read lock but there are subtle
+-	 * problems. XFS for example gets freeze protection on internal level
+-	 * twice in some cases, which is OK only because we already hold a
+-	 * freeze protection also on higher level. Due to these cases we have
+-	 * to use wait == F (trylock mode) which must not fail.
+-	 */
+-	if (wait) {
+-		int i;
 -
- 	m_can_class_unregister(priv->mcan_dev);
- 
-+	tcan4x5x_power_enable(priv->power, 0);
-+
- 	return 0;
+-		for (i = 0; i < level - 1; i++)
+-			if (percpu_rwsem_is_held(sb->s_writers.rw_sem + i)) {
+-				force_trylock = true;
+-				break;
+-			}
+-	}
+-#endif
+-	if (wait && !force_trylock)
+-		percpu_down_read(sb->s_writers.rw_sem + level-1);
+-	else
+-		ret = percpu_down_read_trylock(sb->s_writers.rw_sem + level-1);
+-
+-	WARN_ON(force_trylock && !ret);
+-	return ret;
++	percpu_down_read(sb->s_writers.rw_sem + level-1);
++	return 1;
  }
+ EXPORT_SYMBOL(__sb_start_write);
  
 -- 
 2.27.0
