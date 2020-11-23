@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D2D2C0ACA
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E68C02C0AEE
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730431AbgKWM2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38652 "EHLO mail.kernel.org"
+        id S1731046AbgKWMcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:32:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730424AbgKWM2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:20 -0500
+        id S1731043AbgKWMcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA75420781;
-        Mon, 23 Nov 2020 12:28:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A9C02076E;
+        Mon, 23 Nov 2020 12:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134499;
-        bh=9TNSILEiZYYklOtuCxbobqHGVG427ZMFU/vmbkl3gqM=;
+        s=korg; t=1606134735;
+        bh=zTqSVl6e/CwJ8uAp5qgjjh0A/0uAZHROmGN2twz+niA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJK3+LdHx8eY6BZqmf//ges3ya2i2LOUQcZ188TVmjAhbcPWIInAxmv5Qix+8T8qf
-         kwf8Zg1M/38yu+sdjZ2KikJJFDCecBzHhe2VlVDSgWTZTOHsI5MvIHADMb2jGrCNAJ
-         QAEhYfLT8wS/craXLeTG5z6gPvERvO7SmDi4q3e8=
+        b=ZsxnOwBQ+rJp5YILwKcn5jYwd7hTXeYUbXVdMfLHOtXvvpRs65coaxPk8CHYr6ybp
+         PYLEm5oUJ4I41BhLge8IuuRhO+5uSBUY/d1YIerSwCsuv/vSQgqhDamRQ98zZQH1MV
+         mH50UoK7Q8leG1hQHSbXmOYWxIplfyOwu3RWizPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Daniel Axtens <dja@axtens.net>
-Subject: [PATCH 4.14 41/60] powerpc/uaccess-flush: fix missing includes in kup-radix.h
+        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 63/91] xfs: revert "xfs: fix rmap key and record comparison functions"
 Date:   Mon, 23 Nov 2020 13:22:23 +0100
-Message-Id: <20201123121807.031623016@linuxfoundation.org>
+Message-Id: <20201123121812.382866887@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-Guenter reports a build failure on cell_defconfig and maple_defconfg:
+[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
 
-In file included from arch/powerpc/include/asm/kup.h:10:0,
-		 from arch/powerpc/include/asm/uaccess.h:12,
-		 from arch/powerpc/lib/checksum_wrappers.c:24:
-arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: data definition has no type or storage class [-Werror]
- DECLARE_STATIC_KEY_FALSE(uaccess_flush_key);
- ^~~~~~~~~~~~~~~~~~~~~~~~
-arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: type defaults to ‘int’ in declaration of ‘DECLARE_STATIC_KEY_FALSE’ [-Werror=implicit-int]
-arch/powerpc/include/asm/book3s/64/kup-radix.h:5:1: error: parameter names (without types) in function declaration [-Werror]
-arch/powerpc/include/asm/book3s/64/kup-radix.h: In function ‘prevent_user_access’:
-arch/powerpc/include/asm/book3s/64/kup-radix.h:18:6: error: implicit declaration of function ‘static_branch_unlikely’ [-Werror=implicit-function-declaration]
-  if (static_branch_unlikely(&uaccess_flush_key))
-      ^~~~~~~~~~~~~~~~~~~~~~
-arch/powerpc/include/asm/book3s/64/kup-radix.h:18:30: error: ‘uaccess_flush_key’ undeclared (first use in this function); did you mean
-‘do_uaccess_flush’?
-  if (static_branch_unlikely(&uaccess_flush_key))
-			      ^~~~~~~~~~~~~~~~~
-			      do_uaccess_flush
-arch/powerpc/include/asm/book3s/64/kup-radix.h:18:30: note: each undeclared identifier is reported only once for each function it appears in
-cc1: all warnings being treated as errors
+This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
 
-This is because I failed to include linux/jump_label.h in kup-radix.h. Include it.
+Your maintainer committed a major braino in the rmap code by adding the
+attr fork, bmbt, and unwritten extent usage bits into rmap record key
+comparisons.  While XFS uses the usage bits *in the rmap records* for
+cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
+the owner and offset information to distinguish between reverse mappings
+of the same physical extent into the data fork of a file at multiple
+offsets.  The other bits are not important for key comparisons for index
+lookups, and never have been.
 
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Eric Sandeen reports that this causes regressions in generic/299, so
+undo this patch before it does more damage.
+
+Reported-by: Eric Sandeen <sandeen@sandeen.net>
+Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/kup-radix.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/powerpc/include/asm/book3s/64/kup-radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/kup-radix.h
-@@ -1,6 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- #ifndef _ASM_POWERPC_BOOK3S_64_KUP_RADIX_H
- #define _ASM_POWERPC_BOOK3S_64_KUP_RADIX_H
-+#include <linux/jump_label.h>
+diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
+index 77528f413286b..f79cf040d7450 100644
+--- a/fs/xfs/libxfs/xfs_rmap_btree.c
++++ b/fs/xfs/libxfs/xfs_rmap_btree.c
+@@ -247,8 +247,8 @@ xfs_rmapbt_key_diff(
+ 	else if (y > x)
+ 		return -1;
  
- DECLARE_STATIC_KEY_FALSE(uaccess_flush_key);
+-	x = be64_to_cpu(kp->rm_offset);
+-	y = xfs_rmap_irec_offset_pack(rec);
++	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
++	y = rec->rm_offset;
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -279,8 +279,8 @@ xfs_rmapbt_diff_two_keys(
+ 	else if (y > x)
+ 		return -1;
  
+-	x = be64_to_cpu(kp1->rm_offset);
+-	y = be64_to_cpu(kp2->rm_offset);
++	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
++	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -393,8 +393,8 @@ xfs_rmapbt_keys_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = be64_to_cpu(k1->rmap.rm_offset);
+-	b = be64_to_cpu(k2->rmap.rm_offset);
++	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
++	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+@@ -423,8 +423,8 @@ xfs_rmapbt_recs_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = be64_to_cpu(r1->rmap.rm_offset);
+-	b = be64_to_cpu(r2->rmap.rm_offset);
++	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
++	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+-- 
+2.27.0
+
 
 
