@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC7B2C067F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E8D2C072B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730862AbgKWMba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:31:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42352 "EHLO mail.kernel.org"
+        id S1732066AbgKWMiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:38:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730846AbgKWMb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:31:29 -0500
+        id S1732049AbgKWMiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:38:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 486972158C;
-        Mon, 23 Nov 2020 12:31:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DC1D20732;
+        Mon, 23 Nov 2020 12:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134687;
-        bh=auOGuJEDLaPCw2VKr2jkrhSJZxgBd7PTB515B4OxbrA=;
+        s=korg; t=1606135084;
+        bh=DrJb/ry/H3aPSpWFoAtR8cOM79J66ZPdh5HPDRRvztY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QyM1Fk28cgOogdKx1lWDuODe/wUtGF5RXRTPfly4b7wM9w2hT0eUR0W3Yfrgp7oxX
-         PydFwZAzD7/rU9JMKfAlciVtZ+O7RieRKuhcCjynTqM9/w5JoBnKaMyAsPPSwOC1iF
-         +rqijopkhEM3yngYsSHPJdVpkZIEiaQ7YPvmcShQ=
+        b=TQZ7b6rZjNYmXM0ibYS46E2Mtg/sU4FXUqq0CzXcoSTtUvSn4szW57u1N9dDTRodU
+         6TxT1K2juyxxvreUwMW8isAuM97ii1TnDa1u7QfHgSF89PJ6kgYQOS4x14Vn7cQi1y
+         IA/DgAyXCTfN8WSR85J5OhkB8bzTEkJ2PPJgaPx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi-Hung Wei <yihung.wei@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 47/91] ip_tunnels: Set tunnel option flag when tunnel metadata is present
+Subject: [PATCH 5.4 099/158] can: flexcan: flexcan_chip_start(): fix erroneous flexcan_transceiver_enable() during bus-off recovery
 Date:   Mon, 23 Nov 2020 13:22:07 +0100
-Message-Id: <20201123121811.605089318@linuxfoundation.org>
+Message-Id: <20201123121824.710096846@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi-Hung Wei <yihung.wei@gmail.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 9c2e14b48119b39446031d29d994044ae958d8fc ]
+[ Upstream commit cd9f13c59461351d7a5fd07924264fb49b287359 ]
 
-Currently, we may set the tunnel option flag when the size of metadata
-is zero.  For example, we set TUNNEL_GENEVE_OPT in the receive function
-no matter the geneve option is present or not.  As this may result in
-issues on the tunnel flags consumers, this patch fixes the issue.
+If the CAN controller goes into bus off, the do_set_mode() callback with
+CAN_MODE_START can be used to recover the controller, which then calls
+flexcan_chip_start(). If configured, this is done automatically by the
+framework or manually by the user.
 
-Related discussion:
-* https://lore.kernel.org/netdev/1604448694-19351-1-git-send-email-yihung.wei@gmail.com/T/#u
+In flexcan_chip_start() there is an explicit call to
+flexcan_transceiver_enable(), which does a regulator_enable() on the
+transceiver regulator. This results in a net usage counter increase, as there
+is no corresponding flexcan_transceiver_disable() in the bus off code path.
+This further leads to the transceiver stuck enabled, even if the CAN interface
+is shut down.
 
-Fixes: 256c87c17c53 ("net: check tunnel option type in tunnel flags")
-Signed-off-by: Yi-Hung Wei <yihung.wei@gmail.com>
-Link: https://lore.kernel.org/r/1605053800-74072-1-git-send-email-yihung.wei@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+To fix this problem the
+flexcan_transceiver_enable()/flexcan_transceiver_disable() are moved out of
+flexcan_chip_start()/flexcan_chip_stop() into flexcan_open()/flexcan_close().
+
+Fixes: e955cead0311 ("CAN: Add Flexcan CAN controller driver")
+Link: https://lore.kernel.org/r/20201118150148.2664024-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/geneve.c     | 3 +--
- include/net/ip_tunnels.h | 7 ++++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/can/flexcan.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index d0b5844c8a315..2e2afc824a6a8 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -223,8 +223,7 @@ static void geneve_rx(struct geneve_dev *geneve, struct geneve_sock *gs,
- 	if (ip_tunnel_collect_metadata() || gs->collect_md) {
- 		__be16 flags;
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index b22cd8d14716a..1bd955e4c7d66 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1202,14 +1202,10 @@ static int flexcan_chip_start(struct net_device *dev)
+ 		priv->write(reg_mecr, &regs->mecr);
+ 	}
  
--		flags = TUNNEL_KEY | TUNNEL_GENEVE_OPT |
--			(gnvh->oam ? TUNNEL_OAM : 0) |
-+		flags = TUNNEL_KEY | (gnvh->oam ? TUNNEL_OAM : 0) |
- 			(gnvh->critical ? TUNNEL_CRIT_OPT : 0);
+-	err = flexcan_transceiver_enable(priv);
+-	if (err)
+-		goto out_chip_disable;
+-
+ 	/* synchronize with the can bus */
+ 	err = flexcan_chip_unfreeze(priv);
+ 	if (err)
+-		goto out_transceiver_disable;
++		goto out_chip_disable;
  
- 		tun_dst = udp_tun_rx_dst(skb, geneve_get_sk_family(gs), flags,
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index e11423530d642..f8873c4eb003a 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -489,9 +489,11 @@ static inline void ip_tunnel_info_opts_set(struct ip_tunnel_info *info,
- 					   const void *from, int len,
- 					   __be16 flags)
- {
--	memcpy(ip_tunnel_info_opts(info), from, len);
- 	info->options_len = len;
--	info->key.tun_flags |= flags;
-+	if (len > 0) {
-+		memcpy(ip_tunnel_info_opts(info), from, len);
-+		info->key.tun_flags |= flags;
-+	}
- }
+ 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
  
- static inline struct ip_tunnel_info *lwt_tun_info(struct lwtunnel_state *lwtstate)
-@@ -537,7 +539,6 @@ static inline void ip_tunnel_info_opts_set(struct ip_tunnel_info *info,
- 					   __be16 flags)
- {
- 	info->options_len = 0;
--	info->key.tun_flags |= flags;
- }
+@@ -1226,8 +1222,6 @@ static int flexcan_chip_start(struct net_device *dev)
  
- #endif /* CONFIG_INET */
+ 	return 0;
+ 
+- out_transceiver_disable:
+-	flexcan_transceiver_disable(priv);
+  out_chip_disable:
+ 	flexcan_chip_disable(priv);
+ 	return err;
+@@ -1257,7 +1251,6 @@ static int __flexcan_chip_stop(struct net_device *dev, bool disable_on_error)
+ 	priv->write(priv->reg_ctrl_default & ~FLEXCAN_CTRL_ERR_ALL,
+ 		    &regs->ctrl);
+ 
+-	flexcan_transceiver_disable(priv);
+ 	priv->can.state = CAN_STATE_STOPPED;
+ 
+ 	return 0;
+@@ -1293,10 +1286,14 @@ static int flexcan_open(struct net_device *dev)
+ 	if (err)
+ 		goto out_runtime_put;
+ 
+-	err = request_irq(dev->irq, flexcan_irq, IRQF_SHARED, dev->name, dev);
++	err = flexcan_transceiver_enable(priv);
+ 	if (err)
+ 		goto out_close;
+ 
++	err = request_irq(dev->irq, flexcan_irq, IRQF_SHARED, dev->name, dev);
++	if (err)
++		goto out_transceiver_disable;
++
+ 	priv->mb_size = sizeof(struct flexcan_mb) + CAN_MAX_DLEN;
+ 	priv->mb_count = (sizeof(priv->regs->mb[0]) / priv->mb_size) +
+ 			 (sizeof(priv->regs->mb[1]) / priv->mb_size);
+@@ -1352,6 +1349,8 @@ static int flexcan_open(struct net_device *dev)
+ 	can_rx_offload_del(&priv->offload);
+  out_free_irq:
+ 	free_irq(dev->irq, dev);
++ out_transceiver_disable:
++	flexcan_transceiver_disable(priv);
+  out_close:
+ 	close_candev(dev);
+  out_runtime_put:
+@@ -1370,6 +1369,7 @@ static int flexcan_close(struct net_device *dev)
+ 
+ 	can_rx_offload_del(&priv->offload);
+ 	free_irq(dev->irq, dev);
++	flexcan_transceiver_disable(priv);
+ 
+ 	close_candev(dev);
+ 	pm_runtime_put(priv->dev);
 -- 
 2.27.0
 
