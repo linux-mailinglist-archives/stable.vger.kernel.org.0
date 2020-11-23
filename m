@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C27D92C05A7
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B18E82C05A9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729767AbgKWMYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:24:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33742 "EHLO mail.kernel.org"
+        id S1729770AbgKWMYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:24:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729764AbgKWMYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:24:12 -0500
+        id S1729771AbgKWMYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:24:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF9B620781;
-        Mon, 23 Nov 2020 12:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E6220728;
+        Mon, 23 Nov 2020 12:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134252;
-        bh=8zuK+EHkzGHFrY+j+zhJ+t4rmPsnmwXt3TG/2VbhS7w=;
+        s=korg; t=1606134255;
+        bh=76l3zAfG964D45CtF8vkuHVfmhTKm31v6OXflPeosIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gN+V4q0kKl6CXfulDnaTmrHJ2uuI+SNzthGHhpab6jFOetgJzKhojFJ2zyliBbn6L
-         /2vUrr7q4pK461ebFqT5nzXwnwUDXhF+TVjViyKgH/W9NRY8UEX/UwukZV/TdBaNrx
-         zlXCgQ+xYf1mqdc2Pp8F/BKqBhPCTiQ63ldGeato=
+        b=HIaLvUA91/MUB3jqP6tDwfqbhg9/ql/9mO8zGmia1tZFOF2pCTG9JqenNPOztLm4C
+         7dsdTn/WL5WOQnE3Yz7dFQKcJjd6bdUgQPkpGtJJIXEqMEXzGxI4/Py01TyC3Pslfy
+         pv54ofW9EoUFT9mAIovfKk7Bx1LI8OU0pJ5O/BsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 18/38] ARM: dts: imx50-evk: Fix the chip select 1 IOMUX
-Date:   Mon, 23 Nov 2020 13:22:04 +0100
-Message-Id: <20201123121805.181129732@linuxfoundation.org>
+Subject: [PATCH 4.4 19/38] perf lock: Dont free "lock_seq_stat" if read_count isnt zero
+Date:   Mon, 23 Nov 2020 13:22:05 +0100
+Message-Id: <20201123121805.230222756@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -43,41 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 33d0d843872c5ddbe28457a92fc6f2487315fb9f ]
+[ Upstream commit b0e5a05cc9e37763c7f19366d94b1a6160c755bc ]
 
-The SPI chip selects are represented as:
+When execute command "perf lock report", it hits failure and outputs log
+as follows:
 
-cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>, <&gpio4 13 GPIO_ACTIVE_LOW>;
+  perf: builtin-lock.c:623: report_lock_release_event: Assertion `!(seq->read_count < 0)' failed.
+  Aborted
 
-, which means that they are used in GPIO function instead of native
-SPI mode.
+This is an imbalance issue.  The locking sequence structure
+"lock_seq_stat" contains the reader counter and it is used to check if
+the locking sequence is balance or not between acquiring and releasing.
 
-Fix the IOMUX for the chip select 1 to use GPIO4_13 instead of
-the native CSPI_SSI function.
+If the tool wrongly frees "lock_seq_stat" when "read_count" isn't zero,
+the "read_count" will be reset to zero when allocate a new structure at
+the next time; thus it causes the wrong counting for reader and finally
+results in imbalance issue.
 
-Fixes: c605cbf5e135 ("ARM: dts: imx: add device tree support for Freescale imx50evk board")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+To fix this issue, if detects "read_count" is not zero (means still have
+read user in the locking sequence), goto the "end" tag to skip freeing
+structure "lock_seq_stat".
+
+Fixes: e4cef1f65061 ("perf lock: Fix state machine to recognize lock sequence")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/r/20201104094229.17509-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx50-evk.dts | 2 +-
+ tools/perf/builtin-lock.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx50-evk.dts b/arch/arm/boot/dts/imx50-evk.dts
-index 27d763c7a307d..4dbd180e72ba6 100644
---- a/arch/arm/boot/dts/imx50-evk.dts
-+++ b/arch/arm/boot/dts/imx50-evk.dts
-@@ -66,7 +66,7 @@
- 				MX50_PAD_CSPI_MISO__CSPI_MISO		0x00
- 				MX50_PAD_CSPI_MOSI__CSPI_MOSI		0x00
- 				MX50_PAD_CSPI_SS0__GPIO4_11		0xc4
--				MX50_PAD_ECSPI1_MOSI__CSPI_SS1		0xf4
-+				MX50_PAD_ECSPI1_MOSI__GPIO4_13		0x84
- 			>;
- 		};
- 
+diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
+index de16aaed516e6..daf2dc0232450 100644
+--- a/tools/perf/builtin-lock.c
++++ b/tools/perf/builtin-lock.c
+@@ -616,7 +616,7 @@ static int report_lock_release_event(struct perf_evsel *evsel,
+ 	case SEQ_STATE_READ_ACQUIRED:
+ 		seq->read_count--;
+ 		BUG_ON(seq->read_count < 0);
+-		if (!seq->read_count) {
++		if (seq->read_count) {
+ 			ls->nr_release++;
+ 			goto end;
+ 		}
 -- 
 2.27.0
 
