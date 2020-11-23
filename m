@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645AB2C06D4
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC8C2C07DD
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731438AbgKWMet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:34:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
+        id S1730892AbgKWMou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:44:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731436AbgKWMes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:48 -0500
+        id S1730394AbgKWMos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:44:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5046720857;
-        Mon, 23 Nov 2020 12:34:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB0B120888;
+        Mon, 23 Nov 2020 12:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134887;
-        bh=oWESSb/KESHk/7RZ6Qu/BgrRa8Q1K148M9X3dlhSkyw=;
+        s=korg; t=1606135488;
+        bh=5ONfmuhu1eJSrJ5+DMlvqQn0ruu9+23QUEYy8h//tIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGgh0OvYgN0DjDR8MSF25tVFei7NHRGp5qQyrf0WFni+5KPLB4vEprFNFOzojqBeT
-         9RCHzKYZg5EbMhvp6GSGsib6p3XbXzSIuVegW7osXtwKm0/o0MyVpy64xDjJCrQyQG
-         0ZcyOHe3E9hMljDQnieD7bxgPvvNNnAA8I4e4MN0=
+        b=SFq5D29v3B8T834qUAkc9m3YEKOXUS7vYzOryQksFsS6niwZLiTpDhZ6KngR5f+aT
+         y8hnl1CCt/uSBXRUxJQ1PvzKor9IPSflWrqwc7d3AialK5a0wlm5VdQSazfdQDp4gp
+         +GiSnmCiRKBUmApNO56pwO6puq4vuGaN6jsWcZss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 009/158] lan743x: prevent entire kernel HANG on open, for some platforms
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 087/252] ARM: dts: sun9i: Enable both RGMII RX/TX delay on Ethernet PHY
 Date:   Mon, 23 Nov 2020 13:20:37 +0100
-Message-Id: <20201123121820.388363311@linuxfoundation.org>
+Message-Id: <20201123121839.792325002@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
+References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 796a2665ca3e91ebaba7222f76fd9a035714e2d8 ]
+[ Upstream commit b1064037e8ecf09d587b7b4966eebe0c362908e5 ]
 
-On arm imx6, when opening the chip's netdev, the whole Linux
-kernel intermittently hangs/freezes.
+The Ethernet PHY on the Cubieboard 4 and A80 Optimus have the RX
+and TX delays enabled on the PHY, using pull-ups on the RXDLY and
+TXDLY pins.
 
-This is caused by a bug in the driver code which tests if pcie
-interrupts are working correctly, using the software interrupt:
+Fix the phy-mode description to correct reflect this so that the
+implementation doesn't reconfigure the delays incorrectly. This
+happened with commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e
+rx/tx delay config").
 
-1. open: enable the software interrupt
-2. open: tell the chip to assert the software interrupt
-3. open: wait for flag
-4. ISR: acknowledge s/w interrupt, set flag
-5. open: notice flag, disable the s/w interrupt, continue
-
-Unfortunately the ISR only acknowledges the s/w interrupt, but
-does not disable it. This will re-trigger the ISR in a tight
-loop.
-
-On some (lucky) platforms, open proceeds to disable the s/w
-interrupt even while the ISR is 'spinning'. On arm imx6,
-the spinning ISR does not allow open to proceed, resulting
-in a hung Linux kernel.
-
-Fix minimally by disabling the s/w interrupt in the ISR, which
-will prevent it from spinning. This won't break anything because
-the s/w interrupt is used as a one-shot interrupt.
-
-Note that this is a minimal fix, overlooking many possible
-cleanups, e.g.:
-- lan743x_intr_software_isr() is completely redundant and reads
-  INT_STS twice for no apparent reason
-- disabling the s/w interrupt in lan743x_intr_test_isr() is now
-  redundant, but harmless
-- waiting on software_isr_flag can be converted from a sleeping
-  poll loop to wait_event_timeout()
-
-Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
-Tested-by: Sven Van Asbroeck <thesven73@gmail.com> # arm imx6 lan7430
-Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
-Link: https://lore.kernel.org/r/20201112204741.12375-1-TheSven73@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 98048143b7f8 ("ARM: dts: sun9i: cubieboard4: Enable GMAC")
+Fixes: bc9bd03a44f9 ("ARM: dts: sun9i: a80-optimus: Enable GMAC")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://lore.kernel.org/r/20201024162515.30032-7-wens@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/sun9i-a80-cubieboard4.dts | 2 +-
+ arch/arm/boot/dts/sun9i-a80-optimus.dts     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -145,7 +145,8 @@ static void lan743x_intr_software_isr(vo
- 
- 	int_sts = lan743x_csr_read(adapter, INT_STS);
- 	if (int_sts & INT_BIT_SW_GP_) {
--		lan743x_csr_write(adapter, INT_STS, INT_BIT_SW_GP_);
-+		/* disable the interrupt to prevent repeated re-triggering */
-+		lan743x_csr_write(adapter, INT_EN_CLR, INT_BIT_SW_GP_);
- 		intr->software_isr_flag = 1;
- 	}
- }
+diff --git a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+index d3b337b043a15..484b93df20cb6 100644
+--- a/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
++++ b/arch/arm/boot/dts/sun9i-a80-cubieboard4.dts
+@@ -129,7 +129,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&gmac_rgmii_pins>;
+ 	phy-handle = <&phy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-supply = <&reg_cldo1>;
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/sun9i-a80-optimus.dts b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+index bbc6335e56314..5c3580d712e40 100644
+--- a/arch/arm/boot/dts/sun9i-a80-optimus.dts
++++ b/arch/arm/boot/dts/sun9i-a80-optimus.dts
+@@ -124,7 +124,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&gmac_rgmii_pins>;
+ 	phy-handle = <&phy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-supply = <&reg_cldo1>;
+ 	status = "okay";
+ };
+-- 
+2.27.0
+
 
 
