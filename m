@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD80F2C0795
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2E52C0797
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732905AbgKWMmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55230 "EHLO mail.kernel.org"
+        id S1732931AbgKWMm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732901AbgKWMmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:42:22 -0500
+        id S1732923AbgKWMm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:42:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF318208C3;
-        Mon, 23 Nov 2020 12:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8980020732;
+        Mon, 23 Nov 2020 12:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135341;
-        bh=APMwNvLMuXo23SHMJmAKotbo0FcG9tdlvq9d7IOVkyA=;
+        s=korg; t=1606135347;
+        bh=0FYHQNFx7ZyqFjkyrVQaysNhgOjMjrF5grbxhWxyDdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3UDAtW/g+S43QPSyOGYhLFMMAGpoSo0kkIkVoEcikprnWOurykNiSo50nO2w3jnF
-         ABlBX1QPjBaLYVa0N+G/mohfRZoukOBcFZvldMm6V0hEZSwMDRFvYmjKDXR/vyh+be
-         tmG5h3AutD5CNMKE2FYAsi8shW4jMz/PttLppdfg=
+        b=nVRae5gY8OvB7CabNSaFWoKphdltst+S5iGTJ2fPCM2wjoPb1IQmnWFdrn+5dLkxg
+         3FRbxVJtbPv0gLt2T5vRuQ0SxFPqMa1YVAaL/3loZjb4kr6wZ6pJD0Yb9dHp+Lo7Vg
+         i8fXcobGI0B4HmzJi2L28g1O1NE3YtuObhRO+Brk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe ROULLIER <christophe.roullier@st.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>,
-        Wong Vee Khee <vee.khee.wong@intel.com>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 033/252] net: stmmac: Use rtnl_lock/unlock on netif_set_real_num_rx_queues() call
-Date:   Mon, 23 Nov 2020 13:19:43 +0100
-Message-Id: <20201123121837.188095386@linuxfoundation.org>
+Subject: [PATCH 5.9 035/252] net: x25: Increase refcnt of "struct x25_neigh" in x25_rx_call_request
+Date:   Mon, 23 Nov 2020 13:19:45 +0100
+Message-Id: <20201123121837.277421862@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,43 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wong Vee Khee <vee.khee.wong@intel.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 8e5debed39017836a850c6c7bfacc93299d19bad ]
+[ Upstream commit 4ee18c179e5e815fa5575e0d2db0c05795a804ee ]
 
-Fix an issue where dump stack is printed on suspend resume flow due to
-netif_set_real_num_rx_queues() is not called with rtnl_lock held().
+The x25_disconnect function in x25_subr.c would decrease the refcount of
+"x25->neighbour" (struct x25_neigh) and reset this pointer to NULL.
 
-Fixes: 686cff3d7022 ("net: stmmac: Fix incorrect location to set real_num_rx|tx_queues")
-Reported-by: Christophe ROULLIER <christophe.roullier@st.com>
-Tested-by: Christophe ROULLIER <christophe.roullier@st.com>
-Cc: Alexandre TORGUE <alexandre.torgue@st.com>
-Reviewed-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
-Link: https://lore.kernel.org/r/20201115074210.23605-1-vee.khee.wong@intel.com
+However, the x25_rx_call_request function in af_x25.c, which is called
+when we receive a connection request, does not increase the refcount when
+it assigns the pointer.
+
+Fix this issue by increasing the refcount of "struct x25_neigh" in
+x25_rx_call_request.
+
+This patch fixes frequent kernel crashes when using AF_X25 sockets.
+
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201112103506.5875-1-xie.he.0141@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/x25/af_x25.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -5170,6 +5170,7 @@ int stmmac_resume(struct device *dev)
- 			return ret;
- 	}
- 
-+	rtnl_lock();
- 	mutex_lock(&priv->lock);
- 
- 	stmmac_reset_queues_param(priv);
-@@ -5185,6 +5186,7 @@ int stmmac_resume(struct device *dev)
- 	stmmac_enable_all_queues(priv);
- 
- 	mutex_unlock(&priv->lock);
-+	rtnl_unlock();
- 
- 	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
- 		rtnl_lock();
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1050,6 +1050,7 @@ int x25_rx_call_request(struct sk_buff *
+ 	makex25->lci           = lci;
+ 	makex25->dest_addr     = dest_addr;
+ 	makex25->source_addr   = source_addr;
++	x25_neigh_hold(nb);
+ 	makex25->neighbour     = nb;
+ 	makex25->facilities    = facilities;
+ 	makex25->dte_facilities= dte_facilities;
 
 
