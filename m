@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC752C09A5
+	by mail.lfdr.de (Postfix) with ESMTP id 5E43F2C09A4
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387754AbgKWNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387746AbgKWNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 23 Nov 2020 08:09:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732822AbgKWMrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732787AbgKWMrw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:47:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACDDE20732;
-        Mon, 23 Nov 2020 12:47:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C00520857;
+        Mon, 23 Nov 2020 12:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135659;
-        bh=nyEAM/T93w3SVehLVpWVXIzl2+tDCjr73kJfPBWfMY0=;
+        s=korg; t=1606135661;
+        bh=qnB0Bf3vqkZ8fgNbCV84Gux2fouuo+ZpSnPuL5K/AWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rflpnU5gppjDEAYeZwGPQD20w5MHVkPx8IBSY9ZD4cTVSpNePiG869F+JlU4SpifL
-         9HtOyLZq2O9u44lDyIIdEbvTjiYCzwGMgxbHLq6iJHWAH7T9GJLk0H22B9VxD02WCN
-         EpjqGPThclEb8G1K/wIPFcoxyNs/YQcmQSaZ4j3M=
+        b=SPBwx64nDXQBaRm4kHBp4HxmbUrnYk7rdCOGNROE+BsEH/p7hUa63xvWAJGICQBsq
+         LqVoCecbEgJtbPCvv9s32UMkhq41qV9Jh6j1ifCkh12XjLIZJYO+27v5W+IcXDDPwh
+         4wBXJ+XYszkNf0puWVh2d5+53e+2j/OtMwgJVc4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingle Wu <jingle.wu@emc.com.tw>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 118/252] Input: elan_i2c - fix firmware update on newer ICs
-Date:   Mon, 23 Nov 2020 13:21:08 +0100
-Message-Id: <20201123121841.286864053@linuxfoundation.org>
+Subject: [PATCH 5.9 119/252] rfkill: Fix use-after-free in rfkill_resume()
+Date:   Mon, 23 Nov 2020 13:21:09 +0100
+Message-Id: <20201123121841.336339106@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,112 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jingle.wu <jingle.wu@emc.com.tw>
+From: Claire Chang <tientzu@chromium.org>
 
-[ Upstream commit ae3d6083acf60116d4f409677452399547ed2009 ]
+[ Upstream commit 94e2bd0b259ed39a755fdded47e6734acf1ce464 ]
 
-The argument to iap page type command depends on the firmware page size.
+If a device is getting removed or reprobed during resume, use-after-free
+might happen. For example, h5_btrtl_resume() schedules a work queue for
+device reprobing, which of course requires removal first.
 
-Fixes: bfd9b92bc8f9 ("Input: elan_i2c - handle firmware updated on newer ICs")
-Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+If the removal happens in parallel with the device_resume() and wins the
+race to acquire device_lock(), removal may remove the device from the PM
+lists and all, but device_resume() is already running and will continue
+when the lock can be acquired, thus calling rfkill_resume().
+
+During this, if rfkill_set_block() is then called after the corresponding
+*_unregister() and kfree() are called, there will be an use-after-free
+in hci_rfkill_set_block():
+
+BUG: KASAN: use-after-free in hci_rfkill_set_block+0x58/0xc0 [bluetooth]
+...
+Call trace:
+  dump_backtrace+0x0/0x154
+  show_stack+0x20/0x2c
+  dump_stack+0xbc/0x12c
+  print_address_description+0x88/0x4b0
+  __kasan_report+0x144/0x168
+  kasan_report+0x10/0x18
+  check_memory_region+0x19c/0x1ac
+  __kasan_check_write+0x18/0x24
+  hci_rfkill_set_block+0x58/0xc0 [bluetooth]
+  rfkill_set_block+0x9c/0x120
+  rfkill_resume+0x34/0x70
+  dpm_run_callback+0xf0/0x1f4
+  device_resume+0x210/0x22c
+
+Fix this by checking rfkill->registered in rfkill_resume(). device_del()
+in rfkill_unregister() requires device_lock() and the whole rfkill_resume()
+is also protected by the same lock via device_resume(), we can make sure
+either the rfkill->registered is false before rfkill_resume() starts or the
+rfkill device won't be unregistered before rfkill_resume() returns.
+
+As async_resume() holds a reference to the device, at this level there can
+be no use-after-free; only in the user that doesn't expect this scenario.
+
+Fixes: 8589086f4efd ("Bluetooth: hci_h5: Turn off RTL8723BS on suspend, reprobe on resume")
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Link: https://lore.kernel.org/r/20201110084908.219088-1-tientzu@chromium.org
+[edit commit message for clarity and add more info provided later]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elan_i2c.h       |  2 +-
- drivers/input/mouse/elan_i2c_core.c  |  3 ++-
- drivers/input/mouse/elan_i2c_i2c.c   | 10 +++++-----
- drivers/input/mouse/elan_i2c_smbus.c |  2 +-
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ net/rfkill/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-index c75b00c45d750..36e3cd9086716 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -78,7 +78,7 @@ struct elan_transport_ops {
- 	int (*iap_reset)(struct i2c_client *client);
+diff --git a/net/rfkill/core.c b/net/rfkill/core.c
+index 971c73c7d34cb..97101c55763d7 100644
+--- a/net/rfkill/core.c
++++ b/net/rfkill/core.c
+@@ -876,6 +876,9 @@ static int rfkill_resume(struct device *dev)
  
- 	int (*prepare_fw_update)(struct i2c_client *client, u16 ic_type,
--				 u8 iap_version);
-+				 u8 iap_version, u16 fw_page_size);
- 	int (*write_fw_block)(struct i2c_client *client, u16 fw_page_size,
- 			      const u8 *page, u16 checksum, int idx);
- 	int (*finish_fw_update)(struct i2c_client *client,
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index c599e21a84784..61ed3f5ca2199 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -497,7 +497,8 @@ static int __elan_update_firmware(struct elan_tp_data *data,
- 	u16 sw_checksum = 0, fw_checksum = 0;
+ 	rfkill->suspended = false;
  
- 	error = data->ops->prepare_fw_update(client, data->ic_type,
--					     data->iap_version);
-+					     data->iap_version,
-+					     data->fw_page_size);
- 	if (error)
- 		return error;
- 
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-index 5a496d4ffa491..13dc097eb6c65 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -517,7 +517,7 @@ static int elan_i2c_set_flash_key(struct i2c_client *client)
- 	return 0;
- }
- 
--static int elan_read_write_iap_type(struct i2c_client *client)
-+static int elan_read_write_iap_type(struct i2c_client *client, u16 fw_page_size)
- {
- 	int error;
- 	u16 constant;
-@@ -526,7 +526,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- 
- 	do {
- 		error = elan_i2c_write_cmd(client, ETP_I2C_IAP_TYPE_CMD,
--					   ETP_I2C_IAP_TYPE_REG);
-+					   fw_page_size / 2);
- 		if (error) {
- 			dev_err(&client->dev,
- 				"cannot write iap type: %d\n", error);
-@@ -543,7 +543,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- 		constant = le16_to_cpup((__le16 *)val);
- 		dev_dbg(&client->dev, "iap type reg: 0x%04x\n", constant);
- 
--		if (constant == ETP_I2C_IAP_TYPE_REG)
-+		if (constant == fw_page_size / 2)
- 			return 0;
- 
- 	} while (--retry > 0);
-@@ -553,7 +553,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- }
- 
- static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
--				      u8 iap_version)
-+				      u8 iap_version, u16 fw_page_size)
- {
- 	struct device *dev = &client->dev;
- 	int error;
-@@ -594,7 +594,7 @@ static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
- 	}
- 
- 	if (ic_type >= 0x0D && iap_version >= 1) {
--		error = elan_read_write_iap_type(client);
-+		error = elan_read_write_iap_type(client, fw_page_size);
- 		if (error)
- 			return error;
- 	}
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 8ff823751f3ba..1820f1cfc1dc4 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -340,7 +340,7 @@ static int elan_smbus_set_flash_key(struct i2c_client *client)
- }
- 
- static int elan_smbus_prepare_fw_update(struct i2c_client *client, u16 ic_type,
--					u8 iap_version)
-+					u8 iap_version, u16 fw_page_size)
- {
- 	struct device *dev = &client->dev;
- 	int len;
++	if (!rfkill->registered)
++		return 0;
++
+ 	if (!rfkill->persistent) {
+ 		cur = !!(rfkill->state & RFKILL_BLOCK_SW);
+ 		rfkill_set_block(rfkill, cur);
 -- 
 2.27.0
 
