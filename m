@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1B22C05E3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 658772C060F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729962AbgKWMZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
+        id S1730246AbgKWM1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:27:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729959AbgKWMZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:16 -0500
+        id S1730256AbgKWM1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A802076E;
-        Mon, 23 Nov 2020 12:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60FAA20781;
+        Mon, 23 Nov 2020 12:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134315;
-        bh=xxIG4K1nh1XeCmCuWiYrpl+6cMWyFasS2EvxgBLY4Jk=;
+        s=korg; t=1606134426;
+        bh=X//zobSDZ3L331AYD4tAv4j4HKY0XYtevooqjRZONoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znYhLX/7gHtAPtNdaAmfqPed3+vcNOAJG27AOEu4znNlD7+a0e81FIFXePVK11DFq
-         WYfrJjt0TFwehQNl2V0UHBeA32FH9bn1b/nE4qJpy87w/M0ejm7adQVMblQCBxq4j5
-         x3jZjclTlCZnWbuupmmrHykeWFRkbQXFehvvyd2Y=
+        b=yC66Z+u64lKoPKxB9Ul+4yey/JoOpuqcHpt+uG8pPcUORI16nFY9Y7JpufpuCl+mH
+         EII/fokBAosHdvFPVfSDGIVe+66hPx40hk4aXs02j+MdyXWViE7N6cE4yTPL7qSxtV
+         f5+t3yP4HsdDDNE4OWjBi+l0661u+wh1giNVJQ/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 09/47] netlabel: fix our progress tracking in netlbl_unlabel_staticlist()
-Date:   Mon, 23 Nov 2020 13:21:55 +0100
-Message-Id: <20201123121806.003190480@linuxfoundation.org>
+Subject: [PATCH 4.14 15/60] qlcnic: fix error return code in qlcnic_83xx_restart_hw()
+Date:   Mon, 23 Nov 2020 13:21:57 +0100
+Message-Id: <20201123121805.770379325@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 866358ec331f8faa394995fb4b511af1db0247c8 ]
+[ Upstream commit 3beb9be165083c2964eba1923601c3bfac0b02d4 ]
 
-The current NetLabel code doesn't correctly keep track of the netlink
-dump state in some cases, in particular when multiple interfaces with
-large configurations are loaded.  The problem manifests itself by not
-reporting the full configuration to userspace, even though it is
-loaded and active in the kernel.  This patch fixes this by ensuring
-that the dump state is properly reset when necessary inside the
-netlbl_unlabel_staticlist() function.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 8cc44579d1bd ("NetLabel: Introduce static network labels for unlabeled connections")
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Link: https://lore.kernel.org/r/160484450633.3752.16512718263560813473.stgit@sifl
+Fixes: 3ced0a88cd4c ("qlcnic: Add support to run firmware POST")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1605248186-16013-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_unlabeled.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -1185,12 +1185,13 @@ static int netlbl_unlabel_staticlist(str
- 	struct netlbl_unlhsh_walk_arg cb_arg;
- 	u32 skip_bkt = cb->args[0];
- 	u32 skip_chain = cb->args[1];
--	u32 iter_bkt;
--	u32 iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
-+	u32 skip_addr4 = cb->args[2];
-+	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
- 	struct netlbl_unlhsh_iface *iface;
- 	struct list_head *iter_list;
- 	struct netlbl_af4list *addr4;
- #if IS_ENABLED(CONFIG_IPV6)
-+	u32 skip_addr6 = cb->args[3];
- 	struct netlbl_af6list *addr6;
- #endif
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -2251,7 +2251,8 @@ static int qlcnic_83xx_restart_hw(struct
  
-@@ -1201,7 +1202,7 @@ static int netlbl_unlabel_staticlist(str
- 	rcu_read_lock();
- 	for (iter_bkt = skip_bkt;
- 	     iter_bkt < rcu_dereference(netlbl_unlhsh)->size;
--	     iter_bkt++, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0) {
-+	     iter_bkt++) {
- 		iter_list = &rcu_dereference(netlbl_unlhsh)->tbl[iter_bkt];
- 		list_for_each_entry_rcu(iface, iter_list, list) {
- 			if (!iface->valid ||
-@@ -1209,7 +1210,7 @@ static int netlbl_unlabel_staticlist(str
- 				continue;
- 			netlbl_af4list_foreach_rcu(addr4,
- 						   &iface->addr4_list) {
--				if (iter_addr4++ < cb->args[2])
-+				if (iter_addr4++ < skip_addr4)
- 					continue;
- 				if (netlbl_unlabel_staticlist_gen(
- 					      NLBL_UNLABEL_C_STATICLIST,
-@@ -1222,10 +1223,12 @@ static int netlbl_unlabel_staticlist(str
- 					goto unlabel_staticlist_return;
- 				}
- 			}
-+			iter_addr4 = 0;
-+			skip_addr4 = 0;
- #if IS_ENABLED(CONFIG_IPV6)
- 			netlbl_af6list_foreach_rcu(addr6,
- 						   &iface->addr6_list) {
--				if (iter_addr6++ < cb->args[3])
-+				if (iter_addr6++ < skip_addr6)
- 					continue;
- 				if (netlbl_unlabel_staticlist_gen(
- 					      NLBL_UNLABEL_C_STATICLIST,
-@@ -1238,8 +1241,12 @@ static int netlbl_unlabel_staticlist(str
- 					goto unlabel_staticlist_return;
- 				}
- 			}
-+			iter_addr6 = 0;
-+			skip_addr6 = 0;
- #endif /* IPv6 */
- 		}
-+		iter_chain = 0;
-+		skip_chain = 0;
- 	}
- 
- unlabel_staticlist_return:
+ 	/* Boot either flash image or firmware image from host file system */
+ 	if (qlcnic_load_fw_file == 1) {
+-		if (qlcnic_83xx_load_fw_image_from_host(adapter))
++		err = qlcnic_83xx_load_fw_image_from_host(adapter);
++		if (err)
+ 			return err;
+ 	} else {
+ 		QLC_SHARED_REG_WR32(adapter, QLCNIC_FW_IMG_VALID,
 
 
