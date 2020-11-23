@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B738F2C0931
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB362C0861
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387988AbgKWNFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35382 "EHLO mail.kernel.org"
+        id S1733102AbgKWMt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:49:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731770AbgKWMup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:50:45 -0500
+        id S1732886AbgKWMtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:49:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52F5120657;
-        Mon, 23 Nov 2020 12:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8364020657;
+        Mon, 23 Nov 2020 12:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135844;
-        bh=imT+JltpomhiFbYZe8PtgkoELMt8T63ngpHXQdhz0EA=;
+        s=korg; t=1606135757;
+        bh=e/9RmL65GabLycN58Tjmo7Bmxt74EK95SdaR3fKmy38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5xPnFrxPke6XkW/1UiVxYTAHvzQsEGxsP4AW7GDMHZKz46iuF0bGIngC0obtc2C1
-         zg7Gbt9GKF9U2UkDJIjur1oGbP7iXJRqJparB9Oamcc5LsFjaMC4SDiF00pCGqU3Qw
-         q3huI7VmDFos7/BXEeU5VOMbxw/5IfhVa6n4kxEw=
+        b=jWDhxPGPpcef4b5KdtHjcDx3qGXh+e46VqED2i1/pGlY98kG+lsmW5f/OqaN4GUn0
+         zX+Q10GnJfx/Ut117TmqqSKvkLimMDMZmELnA8GOMf4tX4iXSvg8JamFcfg1HIP1Bf
+         1tf0OXMsaCR1tk100w6ARE1RNwXErTtK4H0PLgRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 176/252] bpf, sockmap: Avoid returning unneeded EAGAIN when redirecting to self
-Date:   Mon, 23 Nov 2020 13:22:06 +0100
-Message-Id: <20201123121844.090715330@linuxfoundation.org>
+Subject: [PATCH 5.9 177/252] efi/arm: set HSCTLR Thumb2 bit correctly for HVC calls from HYP
+Date:   Mon, 23 Nov 2020 13:22:07 +0100
+Message-Id: <20201123121844.138489055@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,159 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 6fa9201a898983da731fca068bb4b5c941537588 ]
+[ Upstream commit fbc81ec5b85d43a4b22e49ec0e643fa7dec2ea40 ]
 
-If a socket redirects to itself and it is under memory pressure it is
-possible to get a socket stuck so that recv() returns EAGAIN and the
-socket can not advance for some time. This happens because when
-redirecting a skb to the same socket we received the skb on we first
-check if it is OK to enqueue the skb on the receiving socket by checking
-memory limits. But, if the skb is itself the object holding the memory
-needed to enqueue the skb we will keep retrying from kernel side
-and always fail with EAGAIN. Then userspace will get a recv() EAGAIN
-error if there are no skbs in the psock ingress queue. This will continue
-until either some skbs get kfree'd causing the memory pressure to
-reduce far enough that we can enqueue the pending packet or the
-socket is destroyed. In some cases its possible to get a socket
-stuck for a noticeable amount of time if the socket is only receiving
-skbs from sk_skb verdict programs. To reproduce I make the socket
-memory limits ridiculously low so sockets are always under memory
-pressure. More often though if under memory pressure it looks like
-a spurious EAGAIN error on user space side causing userspace to retry
-and typically enough has moved on the memory side that it works.
+Commit
 
-To fix skip memory checks and skb_orphan if receiving on the same
-sock as already assigned.
+  db227c19e68db353 ("ARM: 8985/1: efi/decompressor: deal with HYP mode boot gracefully")
 
-For SK_PASS cases this is easy, its always the same socket so we
-can just omit the orphan/set_owner pair.
+updated the EFI entry code to permit firmware to invoke the EFI stub
+loader in HYP mode, with the MMU either enabled or disabled, neither
+of which is permitted by the EFI spec, but which does happen in the
+field.
 
-For backlog cases we need to check skb->sk and decide if the orphan
-and set_owner pair are needed.
+In the MMU on case, we remain in HYP mode as configured by the firmware,
+and rely on the fact that any HVC instruction issued in this mode will
+be dispatched via the SVC slot in the HYP vector table. However, this
+slot will point to a Thumb2 symbol if the kernel is built in Thumb2
+mode, and so we have to configure HSCTLR to ensure that the exception
+handlers are invoked in Thumb2 mode as well.
 
-Fixes: 51199405f9672 ("bpf: skb_verdict, support SK_PASS on RX BPF path")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/160556572660.73229.12566203819812939627.stgit@john-XPS-13-9370
+Fixes: db227c19e68db353 ("ARM: 8985/1: efi/decompressor: deal with HYP mode boot gracefully")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 72 +++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 53 insertions(+), 19 deletions(-)
+ arch/arm/boot/compressed/head.S | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 4ac112cc490c5..97f4c11a2ea7a 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -399,38 +399,38 @@ out:
- }
- EXPORT_SYMBOL_GPL(sk_msg_memcopy_from_iter);
- 
--static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
-+static struct sk_msg *sk_psock_create_ingress_msg(struct sock *sk,
-+						  struct sk_buff *skb)
- {
--	struct sock *sk = psock->sk;
--	int copied = 0, num_sge;
- 	struct sk_msg *msg;
- 
- 	if (atomic_read(&sk->sk_rmem_alloc) > sk->sk_rcvbuf)
--		return -EAGAIN;
-+		return NULL;
-+
-+	if (!sk_rmem_schedule(sk, skb, skb->truesize))
-+		return NULL;
- 
- 	msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
- 	if (unlikely(!msg))
--		return -EAGAIN;
--	if (!sk_rmem_schedule(sk, skb, skb->truesize)) {
--		kfree(msg);
--		return -EAGAIN;
--	}
-+		return NULL;
- 
- 	sk_msg_init(msg);
--	num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
-+	return msg;
-+}
-+
-+static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
-+					struct sk_psock *psock,
-+					struct sock *sk,
-+					struct sk_msg *msg)
-+{
-+	int num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
-+	int copied;
-+
- 	if (unlikely(num_sge < 0)) {
- 		kfree(msg);
- 		return num_sge;
- 	}
- 
--	/* This will transition ownership of the data from the socket where
--	 * the BPF program was run initiating the redirect to the socket
--	 * we will eventually receive this data on. The data will be released
--	 * from skb_consume found in __tcp_bpf_recvmsg() after its been copied
--	 * into user buffers.
--	 */
--	skb_set_owner_r(skb, sk);
--
- 	copied = skb->len;
- 	msg->sg.start = 0;
- 	msg->sg.size = copied;
-@@ -442,6 +442,40 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
- 	return copied;
- }
- 
-+static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
-+{
-+	struct sock *sk = psock->sk;
-+	struct sk_msg *msg;
-+
-+	msg = sk_psock_create_ingress_msg(sk, skb);
-+	if (!msg)
-+		return -EAGAIN;
-+
-+	/* This will transition ownership of the data from the socket where
-+	 * the BPF program was run initiating the redirect to the socket
-+	 * we will eventually receive this data on. The data will be released
-+	 * from skb_consume found in __tcp_bpf_recvmsg() after its been copied
-+	 * into user buffers.
-+	 */
-+	skb_set_owner_r(skb, sk);
-+	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+}
-+
-+/* Puts an skb on the ingress queue of the socket already assigned to the
-+ * skb. In this case we do not need to check memory limits or skb_set_owner_r
-+ * because the skb is already accounted for here.
-+ */
-+static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb)
-+{
-+	struct sk_msg *msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
-+	struct sock *sk = psock->sk;
-+
-+	if (unlikely(!msg))
-+		return -EAGAIN;
-+	sk_msg_init(msg);
-+	return sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
-+}
-+
- static int sk_psock_handle_skb(struct sk_psock *psock, struct sk_buff *skb,
- 			       u32 off, u32 len, bool ingress)
- {
-@@ -784,7 +818,7 @@ static void sk_psock_verdict_apply(struct sk_psock *psock,
- 		 * retrying later from workqueue.
- 		 */
- 		if (skb_queue_empty(&psock->ingress_skb)) {
--			err = sk_psock_skb_ingress(psock, skb);
-+			err = sk_psock_skb_ingress_self(psock, skb);
- 		}
- 		if (err < 0) {
- 			skb_queue_tail(&psock->ingress_skb, skb);
+diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
+index 434a16982e344..19499d636bc88 100644
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -1476,6 +1476,9 @@ ENTRY(efi_enter_kernel)
+ 		@ issued from HYP mode take us to the correct handler code. We
+ 		@ will disable the MMU before jumping to the kernel proper.
+ 		@
++ ARM(		bic	r1, r1, #(1 << 30)	) @ clear HSCTLR.TE
++ THUMB(		orr	r1, r1, #(1 << 30)	) @ set HSCTLR.TE
++		mcr	p15, 4, r1, c1, c0, 0
+ 		adr	r0, __hyp_reentry_vectors
+ 		mcr	p15, 4, r0, c12, c0, 0	@ set HYP vector base (HVBAR)
+ 		isb
 -- 
 2.27.0
 
