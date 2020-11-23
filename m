@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04492C0B97
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF192C0BE5
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731421AbgKWN1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:27:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42944 "EHLO mail.kernel.org"
+        id S1730265AbgKWNci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:32:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730973AbgKWMbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:31:47 -0500
+        id S1730241AbgKWM1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB8720781;
-        Mon, 23 Nov 2020 12:31:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ABFC20728;
+        Mon, 23 Nov 2020 12:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134707;
-        bh=NS0+aJRhIytqEg4VHWmLaSaF8gUuzPFm1DxGh3/6YjY=;
+        s=korg; t=1606134423;
+        bh=nzfg4Je3v8X3FMgIxzuCOwLQWyWWxmVyGSEI3map3KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h53TbbpCq05PcdZWXmFUTb4/Vr8jWNXk/rOnOmw04I3AP66e0tj7Nl+u1cllthGC8
-         p+vc3Cobccy51QJew20jzWbwARrWkl4WrXOjeHpT8nWGNnSAK6ur66wDdgHFX/UN1V
-         Y2zYvEv+CpvwhybnCYpjZ9ByEw+DaRgUSt97jdnA=
+        b=YGw0oXHWMCtDpZ5mpcNizaRZxRSDzvpedsnAwW24xrUaJlVC+D41FoCsibnxy/L/T
+         tA7Z2wAblanBFOFXRkpSyFEdjvJZ20bsW/YyzPfqz9Nu1UfemDQ26PuIpinJuNJnml
+         MU91u6yeyoJXBYgNMDiQJjuJEtLhvtsqYoVVKU5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/91] Revert "arm: sun8i: orangepi-pc-plus: Set EMAC activity LEDs to active high"
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 14/60] net: x25: Increase refcnt of "struct x25_neigh" in x25_rx_call_request
 Date:   Mon, 23 Nov 2020 13:21:56 +0100
-Message-Id: <20201123121811.073523972@linuxfoundation.org>
+Message-Id: <20201123121805.721776206@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 8d80e2f00a42ef10b54e1b2d9e97314f8fd046c0 ]
+[ Upstream commit 4ee18c179e5e815fa5575e0d2db0c05795a804ee ]
 
-This reverts commit 75ee680cbd2e4d0156b94f9fec50076361ab12f2.
+The x25_disconnect function in x25_subr.c would decrease the refcount of
+"x25->neighbour" (struct x25_neigh) and reset this pointer to NULL.
 
-Turns out the activity and link LEDs on the RJ45 port are active low,
-just like on the Orange Pi PC.
+However, the x25_rx_call_request function in af_x25.c, which is called
+when we receive a connection request, does not increase the refcount when
+it assigns the pointer.
 
-Revert the commit that says otherwise.
+Fix this issue by increasing the refcount of "struct x25_neigh" in
+x25_rx_call_request.
 
-Fixes: 75ee680cbd2e ("arm: sun8i: orangepi-pc-plus: Set EMAC activity LEDs to active high")
-Fixes: 4904337fe34f ("ARM: dts: sunxi: Restore EMAC changes (boards)")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201024162515.30032-1-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes frequent kernel crashes when using AF_X25 sockets.
+
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201112103506.5875-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts | 5 -----
- 1 file changed, 5 deletions(-)
+ net/x25/af_x25.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
-index 71fb732089397..babf4cf1b2f68 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-pc-plus.dts
-@@ -53,11 +53,6 @@
- 	};
- };
- 
--&emac {
--	/* LEDs changed to active high on the plus */
--	/delete-property/ allwinner,leds-active-low;
--};
--
- &mmc1 {
- 	vmmc-supply = <&reg_vcc3v3>;
- 	bus-width = <4>;
--- 
-2.27.0
-
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1048,6 +1048,7 @@ int x25_rx_call_request(struct sk_buff *
+ 	makex25->lci           = lci;
+ 	makex25->dest_addr     = dest_addr;
+ 	makex25->source_addr   = source_addr;
++	x25_neigh_hold(nb);
+ 	makex25->neighbour     = nb;
+ 	makex25->facilities    = facilities;
+ 	makex25->dte_facilities= dte_facilities;
 
 
