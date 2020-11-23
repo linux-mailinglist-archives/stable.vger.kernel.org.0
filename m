@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C476F2C0AFB
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDEF2C0AF9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731336AbgKWMeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731340AbgKWMeU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 23 Nov 2020 07:34:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731326AbgKWMeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:13 -0500
+        id S1731328AbgKWMeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:34:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 586902065E;
-        Mon, 23 Nov 2020 12:34:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1142820721;
+        Mon, 23 Nov 2020 12:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134852;
-        bh=nkMEbw7y4uctaWp/3Yr/LsCUmBn1Twxw2ozfR+zNMnY=;
+        s=korg; t=1606134855;
+        bh=ChFTd4UevgyoLFuqHEffVVU0+91cGatDPh6lse5N6c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+iSASYg5fW3nP6FQP1ncNsoS6+rZHCicPLP2N0L5gw/IYXqW53wbzNs212WipmLN
-         0yE+JhEkEA6ExH1CJSpNzQq35/ZRLMfzfJjtPProne1rcM97qfpfBkFLB0sbvcdEga
-         o+Gihzx/W11rkivAi29uC6UhS/DU3lSJQb4U7QZQ=
+        b=PcG9wIco9g24hEQNtUdJpg9XiQaNIRceRrW3SypRmIFYvofXdwH4rwTYngnBekkGi
+         AlEfA7BM8LXdp3zLOA8ntfaylXlYEMKD3rv1YStWQ5hLBYiEjL+RV4gIIjZffSi6+A
+         s+9HHH7cE+Y9bfGpsE5f4RUudWgd1MSmwiN/NUHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 014/158] net: ethernet: ti: cpsw: fix error return code in cpsw_probe()
-Date:   Mon, 23 Nov 2020 13:20:42 +0100
-Message-Id: <20201123121820.626225773@linuxfoundation.org>
+Subject: [PATCH 5.4 015/158] net: Have netpoll bring-up DSA management interface
+Date:   Mon, 23 Nov 2020 13:20:43 +0100
+Message-Id: <20201123121820.672444155@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -43,32 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 35f735c665114840dcd3142f41148d07870f51f7 ]
+[ Upstream commit 1532b9778478577152201adbafa7738b1e844868 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+DSA network devices rely on having their DSA management interface up and
+running otherwise their ndo_open() will return -ENETDOWN. Without doing
+this it would not be possible to use DSA devices as netconsole when
+configured on the command line. These devices also do not utilize the
+upper/lower linking so the check about the netpoll device having upper
+is not going to be a problem.
 
-Fixes: 83a8471ba255 ("net: ethernet: ti: cpsw: refactor probe to group common hw initialization")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1605250173-18438-1-git-send-email-zhangchangzhong@huawei.com
+The solution adopted here is identical to the one done for
+net/ipv4/ipconfig.c with 728c02089a0e ("net: ipv4: handle DSA enabled
+master network devices"), with the network namespace scope being
+restricted to that of the process configuring netpoll.
+
+Fixes: 04ff53f96a93 ("net: dsa: Add netconsole support")
+Tested-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20201117035236.22658-1-f.fainelli@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/netpoll.c |   22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -2876,6 +2876,7 @@ static int cpsw_probe(struct platform_de
- 				       CPSW_MAX_QUEUES, CPSW_MAX_QUEUES);
- 	if (!ndev) {
- 		dev_err(dev, "error allocating net_device\n");
-+		ret = -ENOMEM;
- 		goto clean_cpts;
- 	}
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -29,6 +29,7 @@
+ #include <linux/slab.h>
+ #include <linux/export.h>
+ #include <linux/if_vlan.h>
++#include <net/dsa.h>
+ #include <net/tcp.h>
+ #include <net/udp.h>
+ #include <net/addrconf.h>
+@@ -637,15 +638,15 @@ EXPORT_SYMBOL_GPL(__netpoll_setup);
  
+ int netpoll_setup(struct netpoll *np)
+ {
+-	struct net_device *ndev = NULL;
++	struct net_device *ndev = NULL, *dev = NULL;
++	struct net *net = current->nsproxy->net_ns;
+ 	struct in_device *in_dev;
+ 	int err;
+ 
+ 	rtnl_lock();
+-	if (np->dev_name[0]) {
+-		struct net *net = current->nsproxy->net_ns;
++	if (np->dev_name[0])
+ 		ndev = __dev_get_by_name(net, np->dev_name);
+-	}
++
+ 	if (!ndev) {
+ 		np_err(np, "%s doesn't exist, aborting\n", np->dev_name);
+ 		err = -ENODEV;
+@@ -653,6 +654,19 @@ int netpoll_setup(struct netpoll *np)
+ 	}
+ 	dev_hold(ndev);
+ 
++	/* bring up DSA management network devices up first */
++	for_each_netdev(net, dev) {
++		if (!netdev_uses_dsa(dev))
++			continue;
++
++		err = dev_change_flags(dev, dev->flags | IFF_UP, NULL);
++		if (err < 0) {
++			np_err(np, "%s failed to open %s\n",
++			       np->dev_name, dev->name);
++			goto put;
++		}
++	}
++
+ 	if (netdev_master_upper_dev_get(ndev)) {
+ 		np_err(np, "%s is a slave device, aborting\n", np->dev_name);
+ 		err = -EBUSY;
 
 
