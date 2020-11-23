@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45A022C0AD7
+	by mail.lfdr.de (Postfix) with ESMTP id B29752C0AD8
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730584AbgKWM3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:29:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
+        id S1730582AbgKWM32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730582AbgKWM3X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:29:23 -0500
+        id S1730589AbgKWM30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFC11208C3;
-        Mon, 23 Nov 2020 12:29:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E828E20728;
+        Mon, 23 Nov 2020 12:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134561;
-        bh=Gn5WVvQ6ZdDM+36FkyPSDh0KOXeEH7zLNSX8Px5UhNA=;
+        s=korg; t=1606134564;
+        bh=r/hVYxxV5KNm6KWW6ckHa52dmxcRaifvQfh2Ev3F/Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp5U1xVko9Ky4pddGZb+/6q18Gcunrky28EJwdwL6Mujma734k/bUAvOVx1RWJDsO
-         VRG6It6/3P/EmtNyzAVYn01i+OIDuW+8jx1TOiYoISGDxfhnQFBSccv+/WLc720rjh
-         FBWlrqRrB2Den9/IelIPHcm5SaQLjpBSckY7FfDs=
+        b=lbjuVUMF9pyhF3e2KKueLcxSyZ5296C2PJhsJ+3XfO/CAlmuHr4690KXrbrQeA3hg
+         xW9VlKPQMSgWghNq+9+CH22yBcQ2+uiQ0W7CnnTCzR46wRzO2E+v4O5T9z69paTQay
+         cWR+Lq1dwHxa+zdgdOifr+f1zRhXKP7EMBkde0gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com,
-        syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com,
-        syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com,
-        syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com,
-        syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com,
-        syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 57/60] mac80211: free sta in sta_info_insert_finish() on errors
-Date:   Mon, 23 Nov 2020 13:22:39 +0100
-Message-Id: <20201123121807.803959448@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.14 58/60] s390/cpum_sf.c: fix file permission for cpum_sfb_size
+Date:   Mon, 23 Nov 2020 13:22:40 +0100
+Message-Id: <20201123121807.853909478@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
 References: <20201123121805.028396732@linuxfoundation.org>
@@ -48,72 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-commit 7bc40aedf24d31d8bea80e1161e996ef4299fb10 upstream.
+commit 78d732e1f326f74f240d416af9484928303d9951 upstream.
 
-If sta_info_insert_finish() fails, we currently keep the station
-around and free it only in the caller, but there's only one such
-caller and it always frees it immediately.
+This file is installed by the s390 CPU Measurement sampling
+facility device driver to export supported minimum and
+maximum sample buffer sizes.
+This file is read by lscpumf tool to display the details
+of the device driver capabilities. The lscpumf tool might
+be invoked by a non-root user. In this case it does not
+print anything because the file contents can not be read.
 
-As syzbot found, another consequence of this split is that we can
-put things that sleep only into __cleanup_single_sta() and not in
-sta_info_free(), but this is the only place that requires such of
-sta_info_free() now.
+Fix this by allowing read access for all users. Reading
+the file contents is ok, changing the file contents is
+left to the root user only.
 
-Change this to free the station in sta_info_insert_finish(), in
-which case we can still sleep. This will also let us unify the
-cleanup code later.
+For further reference and details see:
+ [1] https://github.com/ibm-s390-tools/s390-tools/issues/97
 
-Cc: stable@vger.kernel.org
-Fixes: dcd479e10a05 ("mac80211: always wind down STA state")
-Reported-by: syzbot+32c6c38c4812d22f2f0b@syzkaller.appspotmail.com
-Reported-by: syzbot+4c81fe92e372d26c4246@syzkaller.appspotmail.com
-Reported-by: syzbot+6a7fe9faf0d1d61bc24a@syzkaller.appspotmail.com
-Reported-by: syzbot+abed06851c5ffe010921@syzkaller.appspotmail.com
-Reported-by: syzbot+b7aeb9318541a1c709f1@syzkaller.appspotmail.com
-Reported-by: syzbot+d5a9416c6cafe53b5dd0@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20201112112201.ee6b397b9453.I9c31d667a0ea2151441cc64ed6613d36c18a48e0@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 69f239ed335a ("s390/cpum_sf: Dynamically extend the sampling buffer if overflows occur")
+Cc: <stable@vger.kernel.org> # 3.14
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/sta_info.c |   14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -607,7 +607,7 @@ static int sta_info_insert_finish(struct
-  out_drop_sta:
- 	local->num_sta--;
- 	synchronize_net();
--	__cleanup_single_sta(sta);
-+	cleanup_single_sta(sta);
-  out_err:
- 	mutex_unlock(&local->sta_mtx);
- 	kfree(sinfo);
-@@ -626,19 +626,13 @@ int sta_info_insert_rcu(struct sta_info
- 
- 	err = sta_info_insert_check(sta);
- 	if (err) {
-+		sta_info_free(local, sta);
- 		mutex_unlock(&local->sta_mtx);
- 		rcu_read_lock();
--		goto out_free;
-+		return err;
- 	}
- 
--	err = sta_info_insert_finish(sta);
--	if (err)
--		goto out_free;
--
--	return 0;
-- out_free:
--	sta_info_free(local, sta);
--	return err;
-+	return sta_info_insert_finish(sta);
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1662,4 +1662,4 @@ out:
+ 	return err;
  }
- 
- int sta_info_insert(struct sta_info *sta)
+ arch_initcall(init_cpum_sampling_pmu);
+-core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
++core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
 
 
