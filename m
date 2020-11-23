@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46342C0735
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F632C061D
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732096AbgKWMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:38:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50948 "EHLO mail.kernel.org"
+        id S1730376AbgKWM1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:27:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732088AbgKWMiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:38:25 -0500
+        id S1730372AbgKWM1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8B5520732;
-        Mon, 23 Nov 2020 12:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 057E620728;
+        Mon, 23 Nov 2020 12:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135103;
-        bh=UJbGeuYFgadsRuccy3h6n8w/9sIDpknlvd1+gVU1ie4=;
+        s=korg; t=1606134473;
+        bh=2o+IrL6ls186owsVIYjGju/S/on1RIVKXwdFhgF2Bds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+Dj/tIyxVm9EJdhKhFmKYGTiTUjZguaVsj6BGCq78ncWwEhyXLGzGlkXElwBakVx
-         F/uTp8pWAQ203aiBaAET46xb9ZuWvZoEfGISe73OQ3Xue1O8Ag4l4q91cVuXyELT7f
-         YVfef4hKjs2p4Y/ghIrxvIcAiWYlBWBon2uNIIAs=
+        b=uNlwF7DLmoDqbzMNgDvVGIlBrLRh1uiJJpsciQMCABCUSrQhaVAeBEohh0Ls2WHwh
+         kirvb0T0EX7hGNrVIZhGOyL41dhMRBHt5SfCYMZYSWWDJ7fOR9fxwAaZARk+79RkC0
+         VN2AcFCmpg+rBCdSVBCLWtE2GSjUMwFleWJLfhfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Remigiusz=20Ko=C5=82=C5=82=C4=85taj?= 
+        <remigiusz.kollataj@mobica.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/158] xfs: revert "xfs: fix rmap key and record comparison functions"
-Date:   Mon, 23 Nov 2020 13:22:14 +0100
-Message-Id: <20201123121825.053072051@linuxfoundation.org>
+Subject: [PATCH 4.14 33/60] can: mcba_usb: mcba_usb_start_xmit(): first fill skb, then pass to can_put_echo_skb()
+Date:   Mon, 23 Nov 2020 13:22:15 +0100
+Message-Id: <20201123121806.640458250@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
+[ Upstream commit 81c9c8e0adef3285336b942f93287c554c89e6c6 ]
 
-This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
+The driver has to first fill the skb with data and then handle it to
+can_put_echo_skb(). This patch moves the can_put_echo_skb() down, right before
+sending the skb out via USB.
 
-Your maintainer committed a major braino in the rmap code by adding the
-attr fork, bmbt, and unwritten extent usage bits into rmap record key
-comparisons.  While XFS uses the usage bits *in the rmap records* for
-cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
-the owner and offset information to distinguish between reverse mappings
-of the same physical extent into the data fork of a file at multiple
-offsets.  The other bits are not important for key comparisons for index
-lookups, and never have been.
-
-Eric Sandeen reports that this causes regressions in generic/299, so
-undo this patch before it does more damage.
-
-Reported-by: Eric Sandeen <sandeen@sandeen.net>
-Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Cc: Remigiusz Kołłątaj <remigiusz.kollataj@mobica.com>
+Link: https://lore.kernel.org/r/20201111221204.1639007-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/can/usb/mcba_usb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index 3780609c7860c..fc78efa52c94e 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -243,8 +243,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
+diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
+index 070e1ba797369..a09e3f6c2c504 100644
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -337,8 +337,6 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (!ctx)
+ 		return NETDEV_TX_BUSY;
  
--	x = be64_to_cpu(kp->rm_offset);
--	y = xfs_rmap_irec_offset_pack(rec);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
-+	y = rec->rm_offset;
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -275,8 +275,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
+-	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
+-
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+ 		/* SIDH    | SIDL                 | EIDH   | EIDL
+ 		 * 28 - 21 | 20 19 18 x x x 17 16 | 15 - 8 | 7 - 0
+@@ -368,6 +366,8 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (cf->can_id & CAN_RTR_FLAG)
+ 		usb_msg.dlc |= MCBA_DLC_RTR_MASK;
  
--	x = be64_to_cpu(kp1->rm_offset);
--	y = be64_to_cpu(kp2->rm_offset);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
-+	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -390,8 +390,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(k1->rmap.rm_offset);
--	b = be64_to_cpu(k2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -420,8 +420,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(r1->rmap.rm_offset);
--	b = be64_to_cpu(r2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
++	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
++
+ 	err = mcba_usb_xmit(priv, (struct mcba_usb_msg *)&usb_msg, ctx);
+ 	if (err)
+ 		goto xmit_failed;
 -- 
 2.27.0
 
