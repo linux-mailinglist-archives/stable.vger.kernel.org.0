@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE8D2C0625
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 952B92C05EE
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730409AbgKWM2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38422 "EHLO mail.kernel.org"
+        id S1730032AbgKWMZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730405AbgKWM2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:11 -0500
+        id S1730029AbgKWMZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:25:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D8C620728;
-        Mon, 23 Nov 2020 12:28:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB70520857;
+        Mon, 23 Nov 2020 12:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134491;
-        bh=3i3BNRwgTngmXQDGhlJTZWn4AqkcOujRVWgiWIW22+I=;
+        s=korg; t=1606134340;
+        bh=YoQDnUTsqVY+WKspD6+ZqPA26Klmis3QpVjN5O9GZjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcIzOjSr+ypbt84MfRb6rcKGRdsMpQK1Lx70BqaODG2Ew0pdcWwqbjiZ+cs+8gfOP
-         sIGIn+khdmtjRdrBN7OsVx91MoGQLM/RuQMro1OuywPHzkycwvi//8bGLfvj/wONmc
-         DNaFqapTfL8/4mGtn4Rvlc3pMWLpJX2wMJRpaeSQ=
+        b=Hu31+kegdXVDR6AU4vE0AlCXWpASJjCepSzoTvVuzcTk1v9AyBCC4xzizK5D72Wu8
+         hFR1lL3V1uagM6hLXVTA3Gc7086/Wx+Pm8FNj3KHthBDxInwSl7zevj8MZAq9iHdkm
+         ghqGJVqLpZNAPr8Gw7xvsrQGWvtRWtlLhqMpfkvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/60] xfs: revert "xfs: fix rmap key and record comparison functions"
-Date:   Mon, 23 Nov 2020 13:22:21 +0100
-Message-Id: <20201123121806.937808906@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 36/47] ALSA: mixart: Fix mutex deadlock
+Date:   Mon, 23 Nov 2020 13:22:22 +0100
+Message-Id: <20201123121807.301191486@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
+commit d21b96c8ed2aea7e6b7bf4735e1d2503cfbf4072 upstream.
 
-This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
+The code change for switching to non-atomic mode brought the
+unexpected mutex deadlock in get_msg().  It converted the spinlock
+with the existing mutex, but there were calls with the already holding
+the mutex.  Since the only place that needs the extra lock is the code
+path from snd_mixart_send_msg(), remove the mutex lock in get_msg()
+and apply in the caller side for fixing the mutex deadlock.
 
-Your maintainer committed a major braino in the rmap code by adding the
-attr fork, bmbt, and unwritten extent usage bits into rmap record key
-comparisons.  While XFS uses the usage bits *in the rmap records* for
-cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
-the owner and offset information to distinguish between reverse mappings
-of the same physical extent into the data fork of a file at multiple
-offsets.  The other bits are not important for key comparisons for index
-lookups, and never have been.
+Fixes: 8d3a8b5cb57d ("ALSA: mixart: Use nonatomic PCM ops")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201119121440.18945-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Eric Sandeen reports that this causes regressions in generic/299, so
-undo this patch before it does more damage.
-
-Reported-by: Eric Sandeen <sandeen@sandeen.net>
-Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/pci/mixart/mixart_core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index cd689d21d3af8..9d9c9192584c9 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
+--- a/sound/pci/mixart/mixart_core.c
++++ b/sound/pci/mixart/mixart_core.c
+@@ -83,7 +83,6 @@ static int get_msg(struct mixart_mgr *mg
+ 	unsigned int i;
+ #endif
  
--	x = be64_to_cpu(kp->rm_offset);
--	y = xfs_rmap_irec_offset_pack(rec);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
-+	y = rec->rm_offset;
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
+-	mutex_lock(&mgr->msg_lock);
+ 	err = 0;
  
--	x = be64_to_cpu(kp1->rm_offset);
--	y = be64_to_cpu(kp2->rm_offset);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
-+	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -400,8 +400,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(k1->rmap.rm_offset);
--	b = be64_to_cpu(k2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -430,8 +430,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(r1->rmap.rm_offset);
--	b = be64_to_cpu(r2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
--- 
-2.27.0
-
+ 	/* copy message descriptor from miXart to driver */
+@@ -132,8 +131,6 @@ static int get_msg(struct mixart_mgr *mg
+ 	writel_be(headptr, MIXART_MEM(mgr, MSG_OUTBOUND_FREE_HEAD));
+ 
+  _clean_exit:
+-	mutex_unlock(&mgr->msg_lock);
+-
+ 	return err;
+ }
+ 
+@@ -271,7 +268,9 @@ int snd_mixart_send_msg(struct mixart_mg
+ 	resp.data = resp_data;
+ 	resp.size = max_resp_size;
+ 
++	mutex_lock(&mgr->msg_lock);
+ 	err = get_msg(mgr, &resp, msg_frame);
++	mutex_unlock(&mgr->msg_lock);
+ 
+ 	if( request->message_id != resp.message_id )
+ 		dev_err(&mgr->pci->dev, "RESPONSE ERROR!\n");
 
 
