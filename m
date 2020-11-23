@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 018D02C0A3F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0042C0868
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732509AbgKWMke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:40:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53464 "EHLO mail.kernel.org"
+        id S2387590AbgKWMuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732506AbgKWMke (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:40:34 -0500
+        id S1731767AbgKWMuF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:50:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 211CE2065E;
-        Mon, 23 Nov 2020 12:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E1932100A;
+        Mon, 23 Nov 2020 12:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135233;
-        bh=kgtcLmtm9wHjRma6lXp+oE0OFan3yDGUTvzn8LDgpPM=;
+        s=korg; t=1606135803;
+        bh=YQxTo3qZOqu7l7wv1ojl0FFp11250/mb0j4+Kd3/Xoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odHFKuzJrDXFUdsKjMg5N0BOY4yzX0dzqLMgZOCp60nrFf88inUJHeN7gHH7Hyy/U
-         HLiqu1rCr6qk0IN6Da9DX6pgsN3P1s//xNSv2rdisW82gdu89LOKJZUol8+YcJ6EuO
-         YJYFO30rWP6EZFUEOofgaCfo16wB0+B+e43rLxZI=
+        b=aIvaOMWGYXO2DLgRdybda4SSbYtz8DZ+nssB9STuzFZgsJHmVInYjciSpa+go8WT0
+         hvpx+suQseiKHY7uiSAvs3kmWYgRWxrpmk7/YHyfRL9/QLnxHiKGTRD/wbfcVRPXaj
+         A8cTPcS+ArT//EP6SGa+JaQgEXoER01FBoMME7rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Sam Nobs <samuel.nobs@taitradio.com>
-Subject: [PATCH 5.4 123/158] tty: serial: imx: fix potential deadlock
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.9 201/252] efivarfs: fix memory leak in efivarfs_create()
 Date:   Mon, 23 Nov 2020 13:22:31 +0100
-Message-Id: <20201123121825.867390771@linuxfoundation.org>
+Message-Id: <20201123121845.278414671@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
+References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Nobs <samuel.nobs@taitradio.com>
+From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
 
-commit 33f16855dcb973f745c51882d0e286601ff3be2b upstream.
+commit fe5186cf12e30facfe261e9be6c7904a170bd822 upstream.
 
-Enabling the lock dependency validator has revealed
-that the way spinlocks are used in the IMX serial
-port could result in a deadlock.
+kmemleak report:
+  unreferenced object 0xffff9b8915fcb000 (size 4096):
+  comm "efivarfs.sh", pid 2360, jiffies 4294920096 (age 48.264s)
+  hex dump (first 32 bytes):
+    2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  -...............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000cc4d897c>] kmem_cache_alloc_trace+0x155/0x4b0
+    [<000000007d1dfa72>] efivarfs_create+0x6e/0x1a0
+    [<00000000e6ee18fc>] path_openat+0xe4b/0x1120
+    [<000000000ad0414f>] do_filp_open+0x91/0x100
+    [<00000000ce93a198>] do_sys_openat2+0x20c/0x2d0
+    [<000000002a91be6d>] do_sys_open+0x46/0x80
+    [<000000000a854999>] __x64_sys_openat+0x20/0x30
+    [<00000000c50d89c9>] do_syscall_64+0x38/0x90
+    [<00000000cecd6b5f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Specifically, imx_uart_int() acquires a spinlock
-without disabling the interrupts, meaning that another
-interrupt could come along and try to acquire the same
-spinlock, potentially causing the two to wait for each
-other indefinitely.
+In efivarfs_create(), inode->i_private is setup with efivar_entry
+object which is never freed.
 
-Use spin_lock_irqsave() instead to disable interrupts
-upon acquisition of the spinlock.
-
-Fixes: c974991d2620 ("tty:serial:imx: use spin_lock instead of spin_lock_irqsave in isr")
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Sam Nobs <samuel.nobs@taitradio.com>
-Link: https://lore.kernel.org/r/1604955006-9363-1-git-send-email-samuel.nobs@taitradio.com
-Cc: stable <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+Link: https://lore.kernel.org/r/20201023115429.GA2479@cosmos
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/imx.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/efivarfs/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -877,8 +877,14 @@ static irqreturn_t imx_uart_int(int irq,
- 	struct imx_port *sport = dev_id;
- 	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
- 	irqreturn_t ret = IRQ_NONE;
-+	unsigned long flags = 0;
- 
--	spin_lock(&sport->port.lock);
-+	/*
-+	 * IRQs might not be disabled upon entering this interrupt handler,
-+	 * e.g. when interrupt handlers are forced to be threaded. To support
-+	 * this scenario as well, disable IRQs when acquiring the spinlock.
-+	 */
-+	spin_lock_irqsave(&sport->port.lock, flags);
- 
- 	usr1 = imx_uart_readl(sport, USR1);
- 	usr2 = imx_uart_readl(sport, USR2);
-@@ -946,7 +952,7 @@ static irqreturn_t imx_uart_int(int irq,
- 		ret = IRQ_HANDLED;
- 	}
- 
--	spin_unlock(&sport->port.lock);
-+	spin_unlock_irqrestore(&sport->port.lock, flags);
- 
- 	return ret;
+--- a/fs/efivarfs/super.c
++++ b/fs/efivarfs/super.c
+@@ -21,6 +21,7 @@ LIST_HEAD(efivarfs_list);
+ static void efivarfs_evict_inode(struct inode *inode)
+ {
+ 	clear_inode(inode);
++	kfree(inode->i_private);
  }
+ 
+ static const struct super_operations efivarfs_ops = {
 
 
