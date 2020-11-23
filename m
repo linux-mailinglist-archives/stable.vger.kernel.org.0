@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDE72C06D3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 645AB2C06D4
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731434AbgKWMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:34:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46526 "EHLO mail.kernel.org"
+        id S1731438AbgKWMet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:34:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731413AbgKWMeq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:46 -0500
+        id S1731436AbgKWMes (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:34:48 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF29D2076E;
-        Mon, 23 Nov 2020 12:34:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5046720857;
+        Mon, 23 Nov 2020 12:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134885;
-        bh=NR4QffJgWnqziSK33rz/QL1hBCZRglECqqGQ45k8GKI=;
+        s=korg; t=1606134887;
+        bh=oWESSb/KESHk/7RZ6Qu/BgrRa8Q1K148M9X3dlhSkyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2hc/qfXzyWy05rYnwzZp/HBWjMg6aF5IryNkxPiPph509unNLL7p8d0eaOr0oqPP
-         1OS91D0+ymgZ8ohmstsolVbiELxTX7BirqYpxJjCELOHZD3ZPJuPyp17ySTtmmupry
-         qqsYmI0txueX7GPpyNH1PiLvyTW8A/qM+tHSvWqs=
+        b=LGgh0OvYgN0DjDR8MSF25tVFei7NHRGp5qQyrf0WFni+5KPLB4vEprFNFOzojqBeT
+         9RCHzKYZg5EbMhvp6GSGsib6p3XbXzSIuVegW7osXtwKm0/o0MyVpy64xDjJCrQyQG
+         0ZcyOHe3E9hMljDQnieD7bxgPvvNNnAA8I4e4MN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 008/158] lan743x: fix issue causing intermittent kernel log warnings
-Date:   Mon, 23 Nov 2020 13:20:36 +0100
-Message-Id: <20201123121820.341600565@linuxfoundation.org>
+Subject: [PATCH 5.4 009/158] lan743x: prevent entire kernel HANG on open, for some platforms
+Date:   Mon, 23 Nov 2020 13:20:37 +0100
+Message-Id: <20201123121820.388363311@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -44,130 +44,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit e35df62e04cc6fc4b9d90d054732f138349ff9b1 ]
+[ Upstream commit 796a2665ca3e91ebaba7222f76fd9a035714e2d8 ]
 
-When running this chip on arm imx6, we intermittently observe
-the following kernel warning in the log, especially when the
-system is under high load:
+On arm imx6, when opening the chip's netdev, the whole Linux
+kernel intermittently hangs/freezes.
 
-[   50.119484] ------------[ cut here ]------------
-[   50.124377] WARNING: CPU: 0 PID: 303 at kernel/softirq.c:169 __local_bh_enable_ip+0x100/0x184
-[   50.132925] IRQs not enabled as expected
-[   50.159250] CPU: 0 PID: 303 Comm: rngd Not tainted 5.7.8 #1
-[   50.164837] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-[   50.171395] [<c0111a38>] (unwind_backtrace) from [<c010be28>] (show_stack+0x10/0x14)
-[   50.179162] [<c010be28>] (show_stack) from [<c05b9dec>] (dump_stack+0xac/0xd8)
-[   50.186408] [<c05b9dec>] (dump_stack) from [<c0122e40>] (__warn+0xd0/0x10c)
-[   50.193391] [<c0122e40>] (__warn) from [<c0123238>] (warn_slowpath_fmt+0x98/0xc4)
-[   50.200892] [<c0123238>] (warn_slowpath_fmt) from [<c012b010>] (__local_bh_enable_ip+0x100/0x184)
-[   50.209860] [<c012b010>] (__local_bh_enable_ip) from [<bf09ecbc>] (destroy_conntrack+0x48/0xd8 [nf_conntrack])
-[   50.220038] [<bf09ecbc>] (destroy_conntrack [nf_conntrack]) from [<c0ac9b58>] (nf_conntrack_destroy+0x94/0x168)
-[   50.230160] [<c0ac9b58>] (nf_conntrack_destroy) from [<c0a4aaa0>] (skb_release_head_state+0xa0/0xd0)
-[   50.239314] [<c0a4aaa0>] (skb_release_head_state) from [<c0a4aadc>] (skb_release_all+0xc/0x24)
-[   50.247946] [<c0a4aadc>] (skb_release_all) from [<c0a4b4cc>] (consume_skb+0x74/0x17c)
-[   50.255796] [<c0a4b4cc>] (consume_skb) from [<c081a2dc>] (lan743x_tx_release_desc+0x120/0x124)
-[   50.264428] [<c081a2dc>] (lan743x_tx_release_desc) from [<c081a98c>] (lan743x_tx_napi_poll+0x5c/0x18c)
-[   50.273755] [<c081a98c>] (lan743x_tx_napi_poll) from [<c0a6b050>] (net_rx_action+0x118/0x4a4)
-[   50.282306] [<c0a6b050>] (net_rx_action) from [<c0101364>] (__do_softirq+0x13c/0x53c)
-[   50.290157] [<c0101364>] (__do_softirq) from [<c012b29c>] (irq_exit+0x150/0x17c)
-[   50.297575] [<c012b29c>] (irq_exit) from [<c0196a08>] (__handle_domain_irq+0x60/0xb0)
-[   50.305423] [<c0196a08>] (__handle_domain_irq) from [<c05d44fc>] (gic_handle_irq+0x4c/0x90)
-[   50.313790] [<c05d44fc>] (gic_handle_irq) from [<c0100ed4>] (__irq_usr+0x54/0x80)
-[   50.321287] Exception stack(0xecd99fb0 to 0xecd99ff8)
-[   50.326355] 9fa0:                                     1cf1aa74 00000001 00000001 00000000
-[   50.334547] 9fc0: 00000001 00000000 00000000 00000000 00000000 00000000 00004097 b6d17d14
-[   50.342738] 9fe0: 00000001 b6d17c60 00000000 b6e71f94 800b0010 ffffffff
-[   50.349364] irq event stamp: 2525027
-[   50.352955] hardirqs last  enabled at (2525026): [<c0a6afec>] net_rx_action+0xb4/0x4a4
-[   50.360892] hardirqs last disabled at (2525027): [<c0d6d2fc>] _raw_spin_lock_irqsave+0x1c/0x50
-[   50.369517] softirqs last  enabled at (2524660): [<c01015b4>] __do_softirq+0x38c/0x53c
-[   50.377446] softirqs last disabled at (2524693): [<c012b29c>] irq_exit+0x150/0x17c
-[   50.385027] ---[ end trace c0b571db4bc8087d ]---
+This is caused by a bug in the driver code which tests if pcie
+interrupts are working correctly, using the software interrupt:
 
-The driver is calling dev_kfree_skb() from code inside a spinlock,
-where h/w interrupts are disabled. This is forbidden, as documented
-in include/linux/netdevice.h. The correct function to use
-dev_kfree_skb_irq(), or dev_kfree_skb_any().
+1. open: enable the software interrupt
+2. open: tell the chip to assert the software interrupt
+3. open: wait for flag
+4. ISR: acknowledge s/w interrupt, set flag
+5. open: notice flag, disable the s/w interrupt, continue
 
-Fix by using the correct dev_kfree_skb_xxx() functions:
+Unfortunately the ISR only acknowledges the s/w interrupt, but
+does not disable it. This will re-trigger the ISR in a tight
+loop.
 
-in lan743x_tx_release_desc():
-  called by lan743x_tx_release_completed_descriptors()
-    called by in lan743x_tx_napi_poll()
-    which holds a spinlock
-  called by lan743x_tx_release_all_descriptors()
-    called by lan743x_tx_close()
-    which can-sleep
-conclusion: use dev_kfree_skb_any()
+On some (lucky) platforms, open proceeds to disable the s/w
+interrupt even while the ISR is 'spinning'. On arm imx6,
+the spinning ISR does not allow open to proceed, resulting
+in a hung Linux kernel.
 
-in lan743x_tx_xmit_frame():
-  which holds a spinlock
-conclusion: use dev_kfree_skb_irq()
+Fix minimally by disabling the s/w interrupt in the ISR, which
+will prevent it from spinning. This won't break anything because
+the s/w interrupt is used as a one-shot interrupt.
 
-in lan743x_tx_close():
-  which can-sleep
-conclusion: use dev_kfree_skb()
-
-in lan743x_rx_release_ring_element():
-  called by lan743x_rx_close()
-    which can-sleep
-  called by lan743x_rx_open()
-    which can-sleep
-conclusion: use dev_kfree_skb()
+Note that this is a minimal fix, overlooking many possible
+cleanups, e.g.:
+- lan743x_intr_software_isr() is completely redundant and reads
+  INT_STS twice for no apparent reason
+- disabling the s/w interrupt in lan743x_intr_test_isr() is now
+  redundant, but harmless
+- waiting on software_isr_flag can be converted from a sleeping
+  poll loop to wait_event_timeout()
 
 Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+Tested-by: Sven Van Asbroeck <thesven73@gmail.com> # arm imx6 lan7430
 Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
-Link: https://lore.kernel.org/r/20201112185949.11315-1-TheSven73@gmail.com
+Link: https://lore.kernel.org/r/20201112204741.12375-1-TheSven73@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/microchip/lan743x_main.c
 +++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -1242,13 +1242,13 @@ clean_up_data_descriptor:
- 		goto clear_active;
+@@ -145,7 +145,8 @@ static void lan743x_intr_software_isr(vo
  
- 	if (!(buffer_info->flags & TX_BUFFER_INFO_FLAG_TIMESTAMP_REQUESTED)) {
--		dev_kfree_skb(buffer_info->skb);
-+		dev_kfree_skb_any(buffer_info->skb);
- 		goto clear_skb;
+ 	int_sts = lan743x_csr_read(adapter, INT_STS);
+ 	if (int_sts & INT_BIT_SW_GP_) {
+-		lan743x_csr_write(adapter, INT_STS, INT_BIT_SW_GP_);
++		/* disable the interrupt to prevent repeated re-triggering */
++		lan743x_csr_write(adapter, INT_EN_CLR, INT_BIT_SW_GP_);
+ 		intr->software_isr_flag = 1;
  	}
- 
- 	if (cleanup) {
- 		lan743x_ptp_unrequest_tx_timestamp(tx->adapter);
--		dev_kfree_skb(buffer_info->skb);
-+		dev_kfree_skb_any(buffer_info->skb);
- 	} else {
- 		ignore_sync = (buffer_info->flags &
- 			       TX_BUFFER_INFO_FLAG_IGNORE_SYNC) != 0;
-@@ -1558,7 +1558,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
- 	if (required_number_of_descriptors >
- 		lan743x_tx_get_avail_desc(tx)) {
- 		if (required_number_of_descriptors > (tx->ring_size - 1)) {
--			dev_kfree_skb(skb);
-+			dev_kfree_skb_irq(skb);
- 		} else {
- 			/* save to overflow buffer */
- 			tx->overflow_skb = skb;
-@@ -1591,7 +1591,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
- 				   start_frame_length,
- 				   do_timestamp,
- 				   skb->ip_summed == CHECKSUM_PARTIAL)) {
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
- 		goto unlock;
- 	}
- 
-@@ -1610,7 +1610,7 @@ static netdev_tx_t lan743x_tx_xmit_frame
- 			 * frame assembler clean up was performed inside
- 			 *	lan743x_tx_frame_add_fragment
- 			 */
--			dev_kfree_skb(skb);
-+			dev_kfree_skb_irq(skb);
- 			goto unlock;
- 		}
- 	}
+ }
 
 
