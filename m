@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4DB72C0AAD
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0682C0AA4
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729853AbgKWMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:24:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34068 "EHLO mail.kernel.org"
+        id S1729661AbgKWMXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:23:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729838AbgKWMYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:24:39 -0500
+        id S1729399AbgKWMXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:23:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6A8720888;
-        Mon, 23 Nov 2020 12:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67A31208C3;
+        Mon, 23 Nov 2020 12:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134279;
-        bh=u09HClKE/pSZqA8eQIFr9l42pW5YcJHQe2nBZg92pG4=;
+        s=korg; t=1606134222;
+        bh=LgOf4RUUX2aOzmRVCY4k7EOzBrEF5eZj+47Nx5X8j3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6psFogiXQQm/L8/nx9jBA9/HxibhlfKlZLSBCkjyfa9qdJzgXvOxPFeBm5jqFenp
-         Td1YMMITrNChex+78RIgM67osQtDUGp1FeIp9bsnM3oCDRlBKJ3CefEvHUENltoSZd
-         3kBVt2qksDGzc/mOlzVn/hIR7bBerv/jhLtwgisU=
+        b=AsRzksry6BCS5foRcJIHpD6luBDt6k9twyLnR9ZR7SC4taNXqCtFNyEcjvfhQQRNN
+         GtKnYGKIF1Q3pYSY4W5FjFmvPqAvBxlkC7Ca/7IZ+jLYv+8JbCcvBfYcKj8Je7Qlec
+         sHq06WqBomDst0V/gQUtGYQgUUVUv0dw/GbTf0FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 14/47] sctp: change to hold/put transport for proto_unreach_timer
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 14/38] arm64: psci: Avoid printing in cpu_psci_cpu_die()
 Date:   Mon, 23 Nov 2020 13:22:00 +0100
-Message-Id: <20201123121806.228891947@linuxfoundation.org>
+Message-Id: <20201123121804.994617906@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 057a10fa1f73d745c8e69aa54ab147715f5630ae ]
+[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
 
-A call trace was found in Hangbin's Codenomicon testing with debug kernel:
+cpu_psci_cpu_die() is called in the context of the dying CPU, which
+will no longer be online or tracked by RCU. It is therefore not generally
+safe to call printk() if the PSCI "cpu off" request fails, so remove the
+pr_crit() invocation.
 
-  [ 2615.981988] ODEBUG: free active (active state 0) object type: timer_list hint: sctp_generate_proto_unreach_event+0x0/0x3a0 [sctp]
-  [ 2615.995050] WARNING: CPU: 17 PID: 0 at lib/debugobjects.c:328 debug_print_object+0x199/0x2b0
-  [ 2616.095934] RIP: 0010:debug_print_object+0x199/0x2b0
-  [ 2616.191533] Call Trace:
-  [ 2616.194265]  <IRQ>
-  [ 2616.202068]  debug_check_no_obj_freed+0x25e/0x3f0
-  [ 2616.207336]  slab_free_freelist_hook+0xeb/0x140
-  [ 2616.220971]  kfree+0xd6/0x2c0
-  [ 2616.224293]  rcu_do_batch+0x3bd/0xc70
-  [ 2616.243096]  rcu_core+0x8b9/0xd00
-  [ 2616.256065]  __do_softirq+0x23d/0xacd
-  [ 2616.260166]  irq_exit+0x236/0x2a0
-  [ 2616.263879]  smp_apic_timer_interrupt+0x18d/0x620
-  [ 2616.269138]  apic_timer_interrupt+0xf/0x20
-  [ 2616.273711]  </IRQ>
-
-This is because it holds asoc when transport->proto_unreach_timer starts
-and puts asoc when the timer stops, and without holding transport the
-transport could be freed when the timer is still running.
-
-So fix it by holding/putting transport instead for proto_unreach_timer
-in transport, just like other timers in transport.
-
-v1->v2:
-  - Also use sctp_transport_put() for the "out_unlock:" path in
-    sctp_generate_proto_unreach_event(), as Marcelo noticed.
-
-Fixes: 50b5d6ad6382 ("sctp: Fix a race between ICMP protocol unreachable and connect()")
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Link: https://lore.kernel.org/r/102788809b554958b13b95d33440f5448113b8d6.1605331373.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Qian Cai <cai@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c         |    4 ++--
- net/sctp/sm_sideeffect.c |    4 ++--
- net/sctp/transport.c     |    2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/psci.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -449,7 +449,7 @@ void sctp_icmp_proto_unreachable(struct
- 		else {
- 			if (!mod_timer(&t->proto_unreach_timer,
- 						jiffies + (HZ/20)))
--				sctp_association_hold(asoc);
-+				sctp_transport_hold(t);
- 		}
- 	} else {
- 		struct net *net = sock_net(sk);
-@@ -458,7 +458,7 @@ void sctp_icmp_proto_unreachable(struct
- 			 "encountered!\n", __func__);
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index e6ad81556575c..ae91d202b7475 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -136,7 +136,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
  
- 		if (del_timer(&t->proto_unreach_timer))
--			sctp_association_put(asoc);
-+			sctp_transport_put(t);
+ static void cpu_psci_cpu_die(unsigned int cpu)
+ {
+-	int ret;
+ 	/*
+ 	 * There are no known implementations of PSCI actually using the
+ 	 * power state field, pass a sensible default for now.
+@@ -144,9 +143,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
+ 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
  
- 		sctp_do_sm(net, SCTP_EVENT_T_OTHER,
- 			   SCTP_ST_OTHER(SCTP_EVENT_ICMP_PROTO_UNREACH),
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -417,7 +417,7 @@ void sctp_generate_proto_unreach_event(u
- 		/* Try again later.  */
- 		if (!mod_timer(&transport->proto_unreach_timer,
- 				jiffies + (HZ/20)))
--			sctp_association_hold(asoc);
-+			sctp_transport_hold(transport);
- 		goto out_unlock;
- 	}
- 
-@@ -433,7 +433,7 @@ void sctp_generate_proto_unreach_event(u
- 
- out_unlock:
- 	bh_unlock_sock(sk);
--	sctp_association_put(asoc);
-+	sctp_transport_put(transport);
+-	ret = psci_ops.cpu_off(state);
+-
+-	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++	psci_ops.cpu_off(state);
  }
  
- 
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -146,7 +146,7 @@ void sctp_transport_free(struct sctp_tra
- 
- 	/* Delete the ICMP proto unreachable timer if it's active. */
- 	if (del_timer(&transport->proto_unreach_timer))
--		sctp_association_put(transport->asoc);
-+		sctp_transport_put(transport);
- 
- 	sctp_transport_put(transport);
- }
+ static int cpu_psci_cpu_kill(unsigned int cpu)
+-- 
+2.27.0
+
 
 
