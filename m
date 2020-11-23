@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DCD2C0B1A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D6D2C0AA0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732062AbgKWMiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:38:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50560 "EHLO mail.kernel.org"
+        id S1729367AbgKWMXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:23:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732025AbgKWMiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:38:07 -0500
+        id S1729577AbgKWMXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:23:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4AB7208C3;
-        Mon, 23 Nov 2020 12:38:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6419B2076E;
+        Mon, 23 Nov 2020 12:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135087;
-        bh=+/XInTxqoknupdebruEVQIZZbeJa9DLxTBHjIGoaWDs=;
+        s=korg; t=1606134194;
+        bh=fpRHnWk875PicaKG9ODEDzkL8KyVZHCkv1aQOYD+ftY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T06t+Df02z3kICeIOnO6Qks/Cptyavgrn2iUpTZNVT8SRPW1qWnttxDwEaHGS77+c
-         mk4xf2Ps8iGZKupteYCJAzD44Ygc0JKdNwPYhgrwPgSPhLVuwRdtD40iNpJM409KSt
-         FQKxvIiyFXRIXC6fVRmbGl/VhABaczJLKhVNDKzs=
+        b=eLEzadH90JQMaDVwU7xTUQmwEk80QFblPbUC0v62tOnTfQFdh12jEKAcJyV3hZe3i
+         nV/0gIf9BShb6KwfldbgZ/f1QXdcXynehuD0CFeJbdCJKPiLQaam/Aspv8ve/G1Nxy
+         3vMtOZnf/HGbSlYMC2ljuEziwMgC0o836ZARWY0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        stable@vger.kernel.org, Wu Bo <wubo.oduw@gmail.com>,
+        Dan Murphy <dmurphy@ti.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/158] can: m_can: process interrupt only when not runtime suspended
+Subject: [PATCH 4.4 22/38] can: m_can: m_can_handle_state_change(): fix state change
 Date:   Mon, 23 Nov 2020 13:22:08 +0100
-Message-Id: <20201123121824.756406776@linuxfoundation.org>
+Message-Id: <20201123121805.370011806@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Wu Bo <wubo.oduw@gmail.com>
 
-[ Upstream commit a1f634463aaf2c94dfa13001dbdea011303124cc ]
+[ Upstream commit cd0d83eab2e0c26fe87a10debfedbb23901853c1 ]
 
-Avoid processing bogus interrupt statuses when the HW is runtime suspended and
-the M_CAN_IR register read may get all bits 1's. Handler can be called if the
-interrupt request is shared with other peripherals or at the end of free_irq().
+m_can_handle_state_change() is called with the new_state as an argument.
 
-Therefore check the runtime suspended status before processing.
+In the switch statements for CAN_STATE_ERROR_ACTIVE, the comment and the
+following code indicate that a CAN_STATE_ERROR_WARNING is handled.
 
-Fixes: cdf8259d6573 ("can: m_can: Add PM Support")
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Link: https://lore.kernel.org/r/20200915134715.696303-1-jarkko.nikula@linux.intel.com
+This patch fixes this problem by changing the case to CAN_STATE_ERROR_WARNING.
+
+Signed-off-by: Wu Bo <wubo.oduw@gmail.com>
+Link: http://lore.kernel.org/r/20200129022330.21248-2-wubo.oduw@gmail.com
+Cc: Dan Murphy <dmurphy@ti.com>
+Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/m_can/m_can.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 661db85d569ce..246fa2657d744 100644
+index 195f15edb32e3..0bd7e71647964 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
-@@ -913,6 +913,8 @@ static irqreturn_t m_can_isr(int irq, void *dev_id)
- 	struct net_device_stats *stats = &dev->stats;
- 	u32 ir;
+@@ -572,7 +572,7 @@ static int m_can_handle_state_change(struct net_device *dev,
+ 	unsigned int ecr;
  
-+	if (pm_runtime_suspended(cdev->dev))
-+		return IRQ_NONE;
- 	ir = m_can_read(cdev, M_CAN_IR);
- 	if (!ir)
- 		return IRQ_NONE;
+ 	switch (new_state) {
+-	case CAN_STATE_ERROR_ACTIVE:
++	case CAN_STATE_ERROR_WARNING:
+ 		/* error warning state */
+ 		priv->can.can_stats.error_warning++;
+ 		priv->can.state = CAN_STATE_ERROR_WARNING;
+@@ -601,7 +601,7 @@ static int m_can_handle_state_change(struct net_device *dev,
+ 	__m_can_get_berr_counter(dev, &bec);
+ 
+ 	switch (new_state) {
+-	case CAN_STATE_ERROR_ACTIVE:
++	case CAN_STATE_ERROR_WARNING:
+ 		/* error warning state */
+ 		cf->can_id |= CAN_ERR_CRTL;
+ 		cf->data[1] = (bec.txerr > bec.rxerr) ?
 -- 
 2.27.0
 
