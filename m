@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A99812C0686
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E46342C0735
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730974AbgKWMbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:31:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
+        id S1732096AbgKWMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:38:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730955AbgKWMbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:31:46 -0500
+        id S1732088AbgKWMiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:38:25 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20A0720728;
-        Mon, 23 Nov 2020 12:31:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8B5520732;
+        Mon, 23 Nov 2020 12:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134704;
-        bh=O2zs6xZVKt3P/jhYF3aKxMr2zr6vIlrWT9ptOBoFddo=;
+        s=korg; t=1606135103;
+        bh=UJbGeuYFgadsRuccy3h6n8w/9sIDpknlvd1+gVU1ie4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0RQ5puIQtJKKbhCS2YXRsV6bt5rCaMpi6MSEMN1EEz2ko9qeqlXv83BjfO2QTNnd
-         1yV5Ru5QeMVbwrVo4xLjgmEJqB5A/l+yVYS1cQkP5dqMRZ8g3NrvkVnpoR80eWmqaz
-         8KdQLcr1Sp6Z1TpmSfGrkEJqt/eDOKuSZ+dymOYw=
+        b=L+Dj/tIyxVm9EJdhKhFmKYGTiTUjZguaVsj6BGCq78ncWwEhyXLGzGlkXElwBakVx
+         F/uTp8pWAQ203aiBaAET46xb9ZuWvZoEfGISe73OQ3Xue1O8Ag4l4q91cVuXyELT7f
+         YVfef4hKjs2p4Y/ghIrxvIcAiWYlBWBon2uNIIAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/91] can: peak_usb: fix potential integer overflow on shift of a int
-Date:   Mon, 23 Nov 2020 13:22:13 +0100
-Message-Id: <20201123121811.897954128@linuxfoundation.org>
+Subject: [PATCH 5.4 106/158] xfs: revert "xfs: fix rmap key and record comparison functions"
+Date:   Mon, 23 Nov 2020 13:22:14 +0100
+Message-Id: <20201123121825.053072051@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 8a68cc0d690c9e5730d676b764c6f059343b842c ]
+[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
 
-The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
-arithmetic and then assigned to a signed 64 bit variable. In the case where
-time_ref->adapter->ts_used_bits is 32 or more this can lead to an oveflow.
-Avoid this by shifting using the BIT_ULL macro instead.
+This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
 
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20201105112427.40688-1-colin.king@canonical.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Your maintainer committed a major braino in the rmap code by adding the
+attr fork, bmbt, and unwritten extent usage bits into rmap record key
+comparisons.  While XFS uses the usage bits *in the rmap records* for
+cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
+the owner and offset information to distinguish between reverse mappings
+of the same physical extent into the data fork of a file at multiple
+offsets.  The other bits are not important for key comparisons for index
+lookups, and never have been.
+
+Eric Sandeen reports that this causes regressions in generic/299, so
+undo this patch before it does more damage.
+
+Reported-by: Eric Sandeen <sandeen@sandeen.net>
+Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index db156a11e6db5..f7d653d48a1e4 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -164,7 +164,7 @@ void peak_usb_get_ts_time(struct peak_time_ref *time_ref, u32 ts, ktime_t *time)
- 		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
- 			/* case when event time (tsw) wraps */
- 			if (ts < time_ref->ts_dev_1)
--				delta_ts = 1 << time_ref->adapter->ts_used_bits;
-+				delta_ts = BIT_ULL(time_ref->adapter->ts_used_bits);
+diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
+index 3780609c7860c..fc78efa52c94e 100644
+--- a/fs/xfs/libxfs/xfs_rmap_btree.c
++++ b/fs/xfs/libxfs/xfs_rmap_btree.c
+@@ -243,8 +243,8 @@ xfs_rmapbt_key_diff(
+ 	else if (y > x)
+ 		return -1;
  
- 		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
- 		 * handle case when event time (tsn) hasn't.
-@@ -176,7 +176,7 @@ void peak_usb_get_ts_time(struct peak_time_ref *time_ref, u32 ts, ktime_t *time)
- 		 *              tsn            ts
- 		 */
- 		} else if (time_ref->ts_dev_1 < ts) {
--			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
-+			delta_ts = -BIT_ULL(time_ref->adapter->ts_used_bits);
- 		}
+-	x = be64_to_cpu(kp->rm_offset);
+-	y = xfs_rmap_irec_offset_pack(rec);
++	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
++	y = rec->rm_offset;
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -275,8 +275,8 @@ xfs_rmapbt_diff_two_keys(
+ 	else if (y > x)
+ 		return -1;
  
- 		/* add delay between last sync and event timestamps */
+-	x = be64_to_cpu(kp1->rm_offset);
+-	y = be64_to_cpu(kp2->rm_offset);
++	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
++	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
+ 	if (x > y)
+ 		return 1;
+ 	else if (y > x)
+@@ -390,8 +390,8 @@ xfs_rmapbt_keys_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = be64_to_cpu(k1->rmap.rm_offset);
+-	b = be64_to_cpu(k2->rmap.rm_offset);
++	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
++	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
+@@ -420,8 +420,8 @@ xfs_rmapbt_recs_inorder(
+ 		return 1;
+ 	else if (a > b)
+ 		return 0;
+-	a = be64_to_cpu(r1->rmap.rm_offset);
+-	b = be64_to_cpu(r2->rmap.rm_offset);
++	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
++	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
+ 	if (a <= b)
+ 		return 1;
+ 	return 0;
 -- 
 2.27.0
 
