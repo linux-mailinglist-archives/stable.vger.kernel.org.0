@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA71C2C05FC
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD662C0786
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730128AbgKWM0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:26:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36038 "EHLO mail.kernel.org"
+        id S1732535AbgKWMkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:40:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730124AbgKWM0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:17 -0500
+        id S1732529AbgKWMkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:40:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00CBB20728;
-        Mon, 23 Nov 2020 12:26:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EA0820857;
+        Mon, 23 Nov 2020 12:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134376;
-        bh=wQ1TyObfG32LMLIkGARaz6FYbdsTTvXeJfm+PwZb1bA=;
+        s=korg; t=1606135238;
+        bh=4tkJfRLL+x/vtIR/vHVvnhcoeEplKQ4liZAcFlzeWA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDW1Zh6aeiQMam7OvL2paimI7uSnMd5kduMr1pJ/xR5c/3SIJp3dOoqgG2TOG/TXv
-         ttWuU52RFyxbYjAkp4kxQ8/3KF7NlfjLugbYITEtKTKFVG2qHKLUTYLIxIfmj4dr2f
-         BUO5HoBsphWciFMY/l+kclSQaXae/A4u/qcJao0E=
+        b=s9bWoyrmW7V4YQ0H6Jqx39xTJwBcODRABD3xKko0AW+0uoM1XMHAimfRu4rce1xuE
+         gHfQAoghN1YHOgO0JFkLdpKtqmf5YR6KmDNipBJjXiH3OyGM0qZ5hrnQCF5Kzy/ae6
+         DvvcJy6twVoLCcyL1gQKixd9L4RpvVKLYohmX+5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.9 46/47] s390/cpum_sf.c: fix file permission for cpum_sfb_size
-Date:   Mon, 23 Nov 2020 13:22:32 +0100
-Message-Id: <20201123121807.776859423@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.4 125/158] HID: logitech-dj: Fix an error in mse_bluetooth_descriptor
+Date:   Mon, 23 Nov 2020 13:22:33 +0100
+Message-Id: <20201123121825.963444706@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 78d732e1f326f74f240d416af9484928303d9951 upstream.
+commit eec231e060fb79923c349f6e89f022b286f32c1e upstream.
 
-This file is installed by the s390 CPU Measurement sampling
-facility device driver to export supported minimum and
-maximum sample buffer sizes.
-This file is read by lscpumf tool to display the details
-of the device driver capabilities. The lscpumf tool might
-be invoked by a non-root user. In this case it does not
-print anything because the file contents can not be read.
+Fix an error in the mouse / INPUT(2) descriptor used for quad/bt2.0 combo
+receivers. Replace INPUT with INPUT (Data,Var,Abs) for the field for the
+4 extra buttons which share their report-byte with the low-res hwheel.
 
-Fix this by allowing read access for all users. Reading
-the file contents is ok, changing the file contents is
-left to the root user only.
+This is likely a copy and paste error. I've verified that the new
+0x81, 0x02 value matches both the mouse descriptor for the currently
+supported MX5000 / MX5500 receivers, as well as the INPUT(2) mouse
+descriptors for the Dinovo receivers for which support is being
+worked on.
 
-For further reference and details see:
- [1] https://github.com/ibm-s390-tools/s390-tools/issues/97
-
-Fixes: 69f239ed335a ("s390/cpum_sf: Dynamically extend the sampling buffer if overflows occur")
-Cc: <stable@vger.kernel.org> # 3.14
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: f2113c3020ef ("HID: logitech-dj: add support for Logitech Bluetooth Mini-Receiver")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/perf_cpum_sf.c |    2 +-
+ drivers/hid/hid-logitech-dj.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1663,4 +1663,4 @@ out:
- 	return err;
- }
- arch_initcall(init_cpum_sampling_pmu);
--core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
-+core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -328,7 +328,7 @@ static const char mse_bluetooth_descript
+ 	0x25, 0x01,		/*      LOGICAL_MAX (1)                 */
+ 	0x75, 0x01,		/*      REPORT_SIZE (1)                 */
+ 	0x95, 0x04,		/*      REPORT_COUNT (4)                */
+-	0x81, 0x06,		/*      INPUT                           */
++	0x81, 0x02,		/*      INPUT (Data,Var,Abs)            */
+ 	0xC0,			/*    END_COLLECTION                    */
+ 	0xC0,			/*  END_COLLECTION                      */
+ };
 
 
