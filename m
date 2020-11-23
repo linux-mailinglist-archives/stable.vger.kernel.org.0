@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CE62C064A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3E02C0782
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730597AbgKWM3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:29:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40102 "EHLO mail.kernel.org"
+        id S1732558AbgKWMkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:40:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730608AbgKWM3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:29:33 -0500
+        id S1732553AbgKWMkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:40:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C6042076E;
-        Mon, 23 Nov 2020 12:29:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8507320732;
+        Mon, 23 Nov 2020 12:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134572;
-        bh=nWJFekxCQQWcyriOam+/655/HOR41O4x6atCU4ufR38=;
+        s=korg; t=1606135247;
+        bh=ymHBzHjZBKjhUiOdIHUAkAUL3+rX6EiiTK+jwWixTVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Et0LaGTDudAxgFQSGqeM7m5sGEXQ6Dx5+dE9GunfwUjEvHXg95tgeTfs+OHGsEWDD
-         S/VcgNLcFQj7mEMsLDw5VoFltvsMK4RaI7NbaBa+r6hcV2c9pTeSesyenxkGUpfK3u
-         gZrsyw7te3+4dNbUKTYyfJqyhcM87gntTRwZLq3g=
+        b=FNDXzjxcMSbeeIt2LT+frfgD1yhaikN3RDMa2KrcsUNBtzVWrOXJym2anRSFlQqSm
+         CE0RZqzGW6fXum521FFdZtMdRjW8v5MezL8eqh5TEs/jxUJniTMrZzvpj1ExODG5kv
+         ENknouFe7Og78508KXsoPlajVSSYYtNl+is4LGy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 53/60] regulator: workaround self-referent regulators
-Date:   Mon, 23 Nov 2020 13:22:35 +0100
-Message-Id: <20201123121807.620514311@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 128/158] iio: light: fix kconfig dependency bug for VCNL4035
+Date:   Mon, 23 Nov 2020 13:22:36 +0100
+Message-Id: <20201123121826.109321732@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-commit f5c042b23f7429e5c2ac987b01a31c69059a978b upstream.
+commit 44a146a44f656fc03d368c1b9248d29a128cd053 upstream.
 
-Workaround regulators whose supply name happens to be the same as its
-own name. This fixes boards that used to work before the early supply
-resolving was removed. The error message is left in place so that
-offending drivers can be detected.
+When VCNL4035 is enabled and IIO_BUFFER is disabled, it results in the
+following Kbuild warning:
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
-Link: https://lore.kernel.org/r/d703acde2a93100c3c7a81059d716c50ad1b1f52.1605226675.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+WARNING: unmet direct dependencies detected for IIO_TRIGGERED_BUFFER
+  Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
+  Selected by [y]:
+  - VCNL4035 [=y] && IIO [=y] && I2C [=y]
+
+The reason is that VCNL4035 selects IIO_TRIGGERED_BUFFER without depending
+on or selecting IIO_BUFFER while IIO_TRIGGERED_BUFFER depends on
+IIO_BUFFER. This can also fail building the kernel.
+
+Honor the kconfig dependency to remove unmet direct dependency warnings
+and avoid any potential build failures.
+
+Fixes: 55707294c4eb ("iio: light: Add support for vishay vcnl4035")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209883
+Link: https://lore.kernel.org/r/20201102223523.572461-1-fazilyildiran@gmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/light/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1547,7 +1547,10 @@ static int regulator_resolve_supply(stru
- 	if (r == rdev) {
- 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
- 			rdev->desc->name, rdev->supply_name);
--		return -EINVAL;
-+		if (!have_full_constraints())
-+			return -EINVAL;
-+		r = dummy_regulator_rdev;
-+		get_device(&r->dev);
- 	}
+--- a/drivers/iio/light/Kconfig
++++ b/drivers/iio/light/Kconfig
+@@ -485,6 +485,7 @@ config VCNL4000
  
- 	/*
+ config VCNL4035
+ 	tristate "VCNL4035 combined ALS and proximity sensor"
++	select IIO_BUFFER
+ 	select IIO_TRIGGERED_BUFFER
+ 	select REGMAP_I2C
+ 	depends on I2C
 
 
