@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9762C062E
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3312C069E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730459AbgKWM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
+        id S1731141AbgKWMcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:32:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729945AbgKWM2e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:34 -0500
+        id S1731130AbgKWMct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:49 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0E8A20857;
-        Mon, 23 Nov 2020 12:28:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 860BF20728;
+        Mon, 23 Nov 2020 12:32:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134513;
-        bh=lYUHFsfMSCvVN1o385q1QZefOqjlrdDMMZNDJSIOhaE=;
+        s=korg; t=1606134769;
+        bh=KfiVTUPDn9XdCvl5t8yWBT3EQmYTDUqEzT1mSrp4Bcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmGULx0iz+5pJbpBAITzXTr/sMo2299jG8GZ5in0g6HTVHmzDaZAFMDPr27NKd1Kq
-         /uVibMdcmfUzOLfyLHaY3qbgyBjPZT4M/nKPx6bbDlD14fdHZVY1AjZW8GuLkOooU6
-         rsQ/ymLiOrBXott60KapQvLZt3Np6oQ/wyqO4VrI=
+        b=A/1oHFaGyUZvcT8BZ74C1oNQ9fUoJloQtUdtdfno1sMuiv9Dhouy9uCNi8AeYAdDv
+         D2XL66M4LnOidMbWo1qFcyy4NV7FKXvT1YJVCPtXPds/0m38zKzKLL+7IG5yxHJRk1
+         7J7HnhTlDlUdFkEKHdyUfuYyP2U3Tf3Tjtbk3CwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.14 46/60] efivarfs: fix memory leak in efivarfs_create()
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 68/91] ALSA: usb-audio: Add delay quirk for all Logitech USB devices
 Date:   Mon, 23 Nov 2020 13:22:28 +0100
-Message-Id: <20201123121807.280526457@linuxfoundation.org>
+Message-Id: <20201123121812.628822307@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit fe5186cf12e30facfe261e9be6c7904a170bd822 upstream.
+commit 54a2a3898f469a915510038fe84ef4f083131d3e upstream.
 
-kmemleak report:
-  unreferenced object 0xffff9b8915fcb000 (size 4096):
-  comm "efivarfs.sh", pid 2360, jiffies 4294920096 (age 48.264s)
-  hex dump (first 32 bytes):
-    2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  -...............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000cc4d897c>] kmem_cache_alloc_trace+0x155/0x4b0
-    [<000000007d1dfa72>] efivarfs_create+0x6e/0x1a0
-    [<00000000e6ee18fc>] path_openat+0xe4b/0x1120
-    [<000000000ad0414f>] do_filp_open+0x91/0x100
-    [<00000000ce93a198>] do_sys_openat2+0x20c/0x2d0
-    [<000000002a91be6d>] do_sys_open+0x46/0x80
-    [<000000000a854999>] __x64_sys_openat+0x20/0x30
-    [<00000000c50d89c9>] do_syscall_64+0x38/0x90
-    [<00000000cecd6b5f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Found one more Logitech device, BCC950 ConferenceCam, which needs
+the same delay here. This makes 3 out of 3 devices I have tried.
 
-In efivarfs_create(), inode->i_private is setup with efivar_entry
-object which is never freed.
+Therefore, add a delay for all Logitech devices as it does not hurt.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Link: https://lore.kernel.org/r/20201023115429.GA2479@cosmos
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc: <stable@vger.kernel.org> # 4.19.y, 5.4.y
+Link: https://lore.kernel.org/r/20201117122803.24310-1-joakim.tjernlund@infinera.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/efivarfs/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/quirks.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,6 +23,7 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
-+	kfree(inode->i_private);
- }
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1338,13 +1338,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
  
- static const struct super_operations efivarfs_ops = {
+-	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
+-	 *  needs a tiny delay here, otherwise requests like get/set
+-	 *  frequency return as failed despite actually succeeding.
++	/* Zoom R16/24, many Logitech(at least H650e/H570e/BCC950),
++	 * Jabra 550a, Kingston HyperX needs a tiny delay here,
++	 * otherwise requests like get/set frequency return
++	 * as failed despite actually succeeding.
+ 	 */
+ 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
+-	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
+-	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
++	     USB_ID_VENDOR(chip->usb_id) == 0x046d  || /* Logitech */
+ 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
+ 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 
 
