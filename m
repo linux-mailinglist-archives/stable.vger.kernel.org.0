@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A21132C0B87
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFF72C0BFA
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731113AbgKWN0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:26:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
+        id S1730341AbgKWNed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731111AbgKWMci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:32:38 -0500
+        id S1729392AbgKWMYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:24:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D45220781;
-        Mon, 23 Nov 2020 12:32:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C6AE208C3;
+        Mon, 23 Nov 2020 12:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134757;
-        bh=frCVka9YuGqxr2RrDANFnW8tkhiq/VbNt2PTcU9GSGs=;
+        s=korg; t=1606134247;
+        bh=zVq/UhSpo+wwOKmNI02tM31g0NVlvNP7AgVGE8ogwg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEnQ8s0DclkmafjqjkMrlvXR0eN8FJgAA2dvRwg/is+5+XYMnommutoit+Cnam4c7
-         /WNcy+PfvOj17AWcXFhTYMXpEZgDP8K4lvbfzl4s1+VwKxDghZlPAISepE5/nIKGTS
-         OXthZJGXgV6CxH+XgoXkYeKca9N7HUYSMwDjGIes=
+        b=kgGcnBTNPyLLglSeRCHgU1Qv+Tq1uoRDa6yONv33Uve2syakOzGHUooMj1GUqxRuP
+         C+Emb0L0syHOizooXeE3uO42oOYely5eXok/Q9vNG5/Iu0uh6fzFfqlDO1C3B8976H
+         5cx+mMZWdnYgASQJ3GpNjKsYIPQnKZ4BgcyKeeMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/91] MIPS: export has_transparent_hugepage() for modules
-Date:   Mon, 23 Nov 2020 13:22:01 +0100
-Message-Id: <20201123121811.308455172@linuxfoundation.org>
+Subject: [PATCH 4.4 16/38] Input: adxl34x - clean up a data type in adxl34x_probe()
+Date:   Mon, 23 Nov 2020 13:22:02 +0100
+Message-Id: <20201123121805.093068558@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 31b4d8e172f614adc53ddecb4b6b2f6411a49b84 ]
+[ Upstream commit 33b6c39e747c552fa770eecebd1776f1f4a222b1 ]
 
-MIPS should export its local version of "has_transparent_hugepage"
-so that loadable modules (dax) can use it.
+The "revid" is used to store negative error codes so it should be an int
+type.
 
-Fixes this build error:
-ERROR: modpost: "has_transparent_hugepage" [drivers/dax/dax.ko] undefined!
-
-Fixes: fd8cfd300019 ("arch: fix has_transparent_hugepage()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: linux-nvdimm@lists.01.org
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: e27c729219ad ("Input: add driver for ADXL345/346 Digital Accelerometers")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Link: https://lore.kernel.org/r/20201026072824.GA1620546@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlb-r4k.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/misc/adxl34x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/mm/tlb-r4k.c b/arch/mips/mm/tlb-r4k.c
-index 0596505770dba..11985399c4695 100644
---- a/arch/mips/mm/tlb-r4k.c
-+++ b/arch/mips/mm/tlb-r4k.c
-@@ -424,6 +424,7 @@ int has_transparent_hugepage(void)
- 	}
- 	return mask == PM_HUGE_MASK;
- }
-+EXPORT_SYMBOL(has_transparent_hugepage);
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+index 2b2d02f408bbb..2e189646d8fe2 100644
+--- a/drivers/input/misc/adxl34x.c
++++ b/drivers/input/misc/adxl34x.c
+@@ -696,7 +696,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+ 	struct input_dev *input_dev;
+ 	const struct adxl34x_platform_data *pdata;
+ 	int err, range, i;
+-	unsigned char revid;
++	int revid;
  
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE  */
- 
+ 	if (!irq) {
+ 		dev_err(dev, "no IRQ?\n");
 -- 
 2.27.0
 
