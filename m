@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 159F62C0AB0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A172C0B14
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729943AbgKWMZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34664 "EHLO mail.kernel.org"
+        id S1731933AbgKWMhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:37:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729940AbgKWMZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:10 -0500
+        id S1731950AbgKWMhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08E3520857;
-        Mon, 23 Nov 2020 12:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6292720721;
+        Mon, 23 Nov 2020 12:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134309;
-        bh=vEveepjJECq8Q7QmV4F3VjVF9TjNSLIX4IXXka6cj1Y=;
+        s=korg; t=1606135052;
+        bh=fad5RsFsDcYmx3WnNjUYtph/NtbsRCcpG5eDcMmES1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oz61t1Pb9LCYaoSc04y9px8bG66faNfm76MxqtXp7vwJDMPdwrvHWmlT+KN9TIePH
-         SI/2PInEyuPmc/EFmMNKJIj4txzF/Vuuhoq6Dq3k/qIu2qR1Mi6+cc7/LbBc9hFKXa
-         uORHhkbg6EZQgDvCiLBw593cP1tf8Fna/wyUnqrw=
+        b=krKHszm1YuQZy+c6hQ23X3E5+K3rOcneJTyhd7CQj7YWgZb7Vb/7itoDzFlhmcfGA
+         n8tFs81A5smizW9HlbdizzvTTMz3acG9hlfHTkDFDiFwGyJv/lI7L0jfg7HWatuXdx
+         S11sgCx4okIe/zXqLcYSDL3NsRTJ4ziUPscovHvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 07/47] net: bridge: add missing counters to ndo_get_stats64 callback
-Date:   Mon, 23 Nov 2020 13:21:53 +0100
-Message-Id: <20201123121805.904214183@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Dan Murphy <dmurphy@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 086/158] can: m_can: m_can_class_free_dev(): introduce new function
+Date:   Mon, 23 Nov 2020 13:21:54 +0100
+Message-Id: <20201123121824.084377619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Dan Murphy <dmurphy@ti.com>
 
-[ Upstream commit 7a30ecc9237681bb125cbd30eee92bef7e86293d ]
+[ Upstream commit a8c22f5b0c689a29f45ef4a110d09fd391debcbc ]
 
-In br_forward.c and br_input.c fields dev->stats.tx_dropped and
-dev->stats.multicast are populated, but they are ignored in
-ndo_get_stats64.
+This patch creates a common function that peripherials can call to free the
+netdev device when failures occur.
 
-Fixes: 28172739f0a2 ("net: fix 64 bit counters on 32 bit arches")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/58ea9963-77ad-a7cf-8dfd-fc95ab95f606@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Link: http://lore.kernel.org/r/20200227183829.21854-2-dmurphy@ti.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_device.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/m_can/m_can.c | 6 ++++++
+ drivers/net/can/m_can/m_can.h | 1 +
+ 2 files changed, 7 insertions(+)
 
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -177,6 +177,7 @@ static struct rtnl_link_stats64 *br_get_
- 		sum.rx_packets += tmp.rx_packets;
- 	}
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 20f025b4f6d4c..85e3df24e7bfb 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1764,6 +1764,12 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(m_can_class_allocate_dev);
  
-+	netdev_stats_to_stats64(stats, &dev->stats);
- 	stats->tx_bytes   = sum.tx_bytes;
- 	stats->tx_packets = sum.tx_packets;
- 	stats->rx_bytes   = sum.rx_bytes;
++void m_can_class_free_dev(struct net_device *net)
++{
++	free_candev(net);
++}
++EXPORT_SYMBOL_GPL(m_can_class_free_dev);
++
+ int m_can_class_register(struct m_can_classdev *m_can_dev)
+ {
+ 	int ret;
+diff --git a/drivers/net/can/m_can/m_can.h b/drivers/net/can/m_can/m_can.h
+index 49f42b50627a1..b2699a7c99973 100644
+--- a/drivers/net/can/m_can/m_can.h
++++ b/drivers/net/can/m_can/m_can.h
+@@ -99,6 +99,7 @@ struct m_can_classdev {
+ };
+ 
+ struct m_can_classdev *m_can_class_allocate_dev(struct device *dev);
++void m_can_class_free_dev(struct net_device *net);
+ int m_can_class_register(struct m_can_classdev *cdev);
+ void m_can_class_unregister(struct m_can_classdev *cdev);
+ int m_can_class_get_clocks(struct m_can_classdev *cdev);
+-- 
+2.27.0
+
 
 
