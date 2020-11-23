@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE8E2C071D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC8A2C0672
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731963AbgKWMhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:37:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49772 "EHLO mail.kernel.org"
+        id S1730804AbgKWMa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731958AbgKWMhg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:37:36 -0500
+        id S1730799AbgKWMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:59 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F8292065E;
-        Mon, 23 Nov 2020 12:37:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E43220728;
+        Mon, 23 Nov 2020 12:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135055;
-        bh=/rai50xeOA7HLIO6nuXCOz9GFE7NmCzYduUg7qqQIEY=;
+        s=korg; t=1606134658;
+        bh=oWESSb/KESHk/7RZ6Qu/BgrRa8Q1K148M9X3dlhSkyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSvCRfbA+Zkul1nvETrV6hBl08XSPUTRUMww4249IPOHLsseSXO6sXas8b+DgDXi4
-         8BC6hDLqSz6ct1JT6VYtGgv2gUfM2j5RLk1GPwi+iAXlUDnkt1VJcqc2EL4GdkUhh4
-         eRj8fYvTI/+3huNlYYQtccJpmvDwnJxK6Y+W8J8w=
+        b=zai45BnD8cd3HRYWnouPTR0NguEVxX34Q8/IO3RTdSnpbQZCCQ1RpI0dyRUMc/RB6
+         JNl4mGmBcZVoP/F7VUlZeJyfXTwvONaKIPirXQvxUT8QS2cyb9rgYvoOfK+VF7QmQ3
+         dT5kGGoBr2OcMQ7EOUUHoUPkTJTsw2C98ZGBYFZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/158] ARM: dts: sunxi: bananapi-m2-plus: Enable RGMII RX/TX delay on Ethernet PHY
-Date:   Mon, 23 Nov 2020 13:21:26 +0100
-Message-Id: <20201123121822.738180911@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 07/91] lan743x: prevent entire kernel HANG on open, for some platforms
+Date:   Mon, 23 Nov 2020 13:21:27 +0100
+Message-Id: <20201123121809.660731035@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit 3914160ffc0bf762d6d605d4b27036b7b89367ea ]
+[ Upstream commit 796a2665ca3e91ebaba7222f76fd9a035714e2d8 ]
 
-The Ethernet PHY on the Bananapi M2+ has the RX and TX delays
-enabled on the PHY, using pull-ups on the RXDLY and TXDLY pins.
+On arm imx6, when opening the chip's netdev, the whole Linux
+kernel intermittently hangs/freezes.
 
-Fix the phy-mode description to correct reflect this so that the
-implementation doesn't reconfigure the delays incorrectly. This
-happened with commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e
-rx/tx delay config").
+This is caused by a bug in the driver code which tests if pcie
+interrupts are working correctly, using the software interrupt:
 
-Fixes: 8c7ba536e709 ("ARM: sun8i: bananapi-m2-plus: Enable dwmac-sun8i")
-Fixes: 4904337fe34f ("ARM: dts: sunxi: Restore EMAC changes (boards)")
-Fixes: aa8fee415f46 ("ARM: dts: sun8i: h3: Split out non-SoC-specific parts of Bananapi M2 Plus")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201024162515.30032-8-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1. open: enable the software interrupt
+2. open: tell the chip to assert the software interrupt
+3. open: wait for flag
+4. ISR: acknowledge s/w interrupt, set flag
+5. open: notice flag, disable the s/w interrupt, continue
+
+Unfortunately the ISR only acknowledges the s/w interrupt, but
+does not disable it. This will re-trigger the ISR in a tight
+loop.
+
+On some (lucky) platforms, open proceeds to disable the s/w
+interrupt even while the ISR is 'spinning'. On arm imx6,
+the spinning ISR does not allow open to proceed, resulting
+in a hung Linux kernel.
+
+Fix minimally by disabling the s/w interrupt in the ISR, which
+will prevent it from spinning. This won't break anything because
+the s/w interrupt is used as a one-shot interrupt.
+
+Note that this is a minimal fix, overlooking many possible
+cleanups, e.g.:
+- lan743x_intr_software_isr() is completely redundant and reads
+  INT_STS twice for no apparent reason
+- disabling the s/w interrupt in lan743x_intr_test_isr() is now
+  redundant, but harmless
+- waiting on software_isr_flag can be converted from a sleeping
+  poll loop to wait_event_timeout()
+
+Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+Tested-by: Sven Van Asbroeck <thesven73@gmail.com> # arm imx6 lan7430
+Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
+Link: https://lore.kernel.org/r/20201112204741.12375-1-TheSven73@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/sunxi-bananapi-m2-plus.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/microchip/lan743x_main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sunxi-bananapi-m2-plus.dtsi b/arch/arm/boot/dts/sunxi-bananapi-m2-plus.dtsi
-index 39263e74fbb53..8e5cb3b3fd686 100644
---- a/arch/arm/boot/dts/sunxi-bananapi-m2-plus.dtsi
-+++ b/arch/arm/boot/dts/sunxi-bananapi-m2-plus.dtsi
-@@ -126,7 +126,7 @@
- 	pinctrl-0 = <&emac_rgmii_pins>;
- 	phy-supply = <&reg_gmac_3v3>;
- 	phy-handle = <&ext_rgmii_phy>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
+--- a/drivers/net/ethernet/microchip/lan743x_main.c
++++ b/drivers/net/ethernet/microchip/lan743x_main.c
+@@ -145,7 +145,8 @@ static void lan743x_intr_software_isr(vo
  
- 	status = "okay";
- };
--- 
-2.27.0
-
+ 	int_sts = lan743x_csr_read(adapter, INT_STS);
+ 	if (int_sts & INT_BIT_SW_GP_) {
+-		lan743x_csr_write(adapter, INT_STS, INT_BIT_SW_GP_);
++		/* disable the interrupt to prevent repeated re-triggering */
++		lan743x_csr_write(adapter, INT_EN_CLR, INT_BIT_SW_GP_);
+ 		intr->software_isr_flag = 1;
+ 	}
+ }
 
 
