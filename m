@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C51312C057C
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8F32C057E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729493AbgKWMWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:22:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59950 "EHLO mail.kernel.org"
+        id S1729504AbgKWMW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:22:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729339AbgKWMWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:22:53 -0500
+        id S1729339AbgKWMWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:22:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 536D320728;
-        Mon, 23 Nov 2020 12:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4160D20728;
+        Mon, 23 Nov 2020 12:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134172;
-        bh=1XQtK25VGHgRdqoJbM3T5/nHKTbMxev+gICu3bVRwTI=;
+        s=korg; t=1606134174;
+        bh=xxIG4K1nh1XeCmCuWiYrpl+6cMWyFasS2EvxgBLY4Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cISI/1s+bakS+PPCjb0ani6p1TZj/yE55D4eVmhpmS4jj7RMDSQzYOtg/WgCOmsLt
-         sDqfGZFrNH8lu/4wwq2DVrhWD0GDRI8V4vWt/Waner9GzuvBztRwSbTVlcfaxnWktm
-         ShIBvK+6a0qLely6ydHcVEAj4Md6IAyMYiIGJdzE=
+        b=ypPUNNuGZ/OdB0xehrf4wvKt6GnGiDGl3sGW3ZkuJnqMSx0Qan187LuTbgwuNbqtm
+         2olKzsybp3APPt833eZPf44OJa173FKC4DvDvyQO5Jfq1KptVuRx4UJscl+WQkmn1H
+         EjMJSX9ndo05nNNlP4ZDhn72lQQHpipBLkRFywvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 04/38] net: bridge: add missing counters to ndo_get_stats64 callback
-Date:   Mon, 23 Nov 2020 13:21:50 +0100
-Message-Id: <20201123121804.529864052@linuxfoundation.org>
+Subject: [PATCH 4.4 05/38] netlabel: fix our progress tracking in netlbl_unlabel_staticlist()
+Date:   Mon, 23 Nov 2020 13:21:51 +0100
+Message-Id: <20201123121804.580648525@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -42,32 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 7a30ecc9237681bb125cbd30eee92bef7e86293d ]
+[ Upstream commit 866358ec331f8faa394995fb4b511af1db0247c8 ]
 
-In br_forward.c and br_input.c fields dev->stats.tx_dropped and
-dev->stats.multicast are populated, but they are ignored in
-ndo_get_stats64.
+The current NetLabel code doesn't correctly keep track of the netlink
+dump state in some cases, in particular when multiple interfaces with
+large configurations are loaded.  The problem manifests itself by not
+reporting the full configuration to userspace, even though it is
+loaded and active in the kernel.  This patch fixes this by ensuring
+that the dump state is properly reset when necessary inside the
+netlbl_unlabel_staticlist() function.
 
-Fixes: 28172739f0a2 ("net: fix 64 bit counters on 32 bit arches")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/58ea9963-77ad-a7cf-8dfd-fc95ab95f606@gmail.com
+Fixes: 8cc44579d1bd ("NetLabel: Introduce static network labels for unlabeled connections")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/160484450633.3752.16512718263560813473.stgit@sifl
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_device.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/netlabel/netlabel_unlabeled.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -166,6 +166,7 @@ static struct rtnl_link_stats64 *br_get_
- 		sum.rx_packets += tmp.rx_packets;
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -1185,12 +1185,13 @@ static int netlbl_unlabel_staticlist(str
+ 	struct netlbl_unlhsh_walk_arg cb_arg;
+ 	u32 skip_bkt = cb->args[0];
+ 	u32 skip_chain = cb->args[1];
+-	u32 iter_bkt;
+-	u32 iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
++	u32 skip_addr4 = cb->args[2];
++	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
+ 	struct netlbl_unlhsh_iface *iface;
+ 	struct list_head *iter_list;
+ 	struct netlbl_af4list *addr4;
+ #if IS_ENABLED(CONFIG_IPV6)
++	u32 skip_addr6 = cb->args[3];
+ 	struct netlbl_af6list *addr6;
+ #endif
+ 
+@@ -1201,7 +1202,7 @@ static int netlbl_unlabel_staticlist(str
+ 	rcu_read_lock();
+ 	for (iter_bkt = skip_bkt;
+ 	     iter_bkt < rcu_dereference(netlbl_unlhsh)->size;
+-	     iter_bkt++, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0) {
++	     iter_bkt++) {
+ 		iter_list = &rcu_dereference(netlbl_unlhsh)->tbl[iter_bkt];
+ 		list_for_each_entry_rcu(iface, iter_list, list) {
+ 			if (!iface->valid ||
+@@ -1209,7 +1210,7 @@ static int netlbl_unlabel_staticlist(str
+ 				continue;
+ 			netlbl_af4list_foreach_rcu(addr4,
+ 						   &iface->addr4_list) {
+-				if (iter_addr4++ < cb->args[2])
++				if (iter_addr4++ < skip_addr4)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1222,10 +1223,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr4 = 0;
++			skip_addr4 = 0;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 			netlbl_af6list_foreach_rcu(addr6,
+ 						   &iface->addr6_list) {
+-				if (iter_addr6++ < cb->args[3])
++				if (iter_addr6++ < skip_addr6)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1238,8 +1241,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr6 = 0;
++			skip_addr6 = 0;
+ #endif /* IPv6 */
+ 		}
++		iter_chain = 0;
++		skip_chain = 0;
  	}
  
-+	netdev_stats_to_stats64(stats, &dev->stats);
- 	stats->tx_bytes   = sum.tx_bytes;
- 	stats->tx_packets = sum.tx_packets;
- 	stats->rx_bytes   = sum.rx_bytes;
+ unlabel_staticlist_return:
 
 
