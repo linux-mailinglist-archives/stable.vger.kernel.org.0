@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952B92C05EE
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B642C068D
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730032AbgKWMZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
+        id S1731038AbgKWMcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:32:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730029AbgKWMZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:41 -0500
+        id S1731032AbgKWMcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:32:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB70520857;
-        Mon, 23 Nov 2020 12:25:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEE2E20728;
+        Mon, 23 Nov 2020 12:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134340;
-        bh=YoQDnUTsqVY+WKspD6+ZqPA26Klmis3QpVjN5O9GZjk=;
+        s=korg; t=1606134732;
+        bh=Hrlo2lAbbS55pQYUuoVLUfNGdkI2Lf8nN1Ho2P/gnSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hu31+kegdXVDR6AU4vE0AlCXWpASJjCepSzoTvVuzcTk1v9AyBCC4xzizK5D72Wu8
-         hFR1lL3V1uagM6hLXVTA3Gc7086/Wx+Pm8FNj3KHthBDxInwSl7zevj8MZAq9iHdkm
-         ghqGJVqLpZNAPr8Gw7xvsrQGWvtRWtlLhqMpfkvY=
+        b=Q6ebDEGKtlmQkrqCsbtJQoOqVtsNaTGDPFGRS+TXaiiRqtQtgEBwEY5DMiSsMCrCb
+         evhMNFEMz7njwhRtXJavcI5oLw3GWwYhWxPheUrn9017zlFwac2LJqC5mFPjLmhEX9
+         KO8p2BmdUtP2UlIcQQQfLosS20Q3sPj0w6V3aKg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 36/47] ALSA: mixart: Fix mutex deadlock
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Luo Meng <luomeng12@huawei.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 62/91] fail_function: Remove a redundant mutex unlock
 Date:   Mon, 23 Nov 2020 13:22:22 +0100
-Message-Id: <20201123121807.301191486@linuxfoundation.org>
+Message-Id: <20201123121812.334090693@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Luo Meng <luomeng12@huawei.com>
 
-commit d21b96c8ed2aea7e6b7bf4735e1d2503cfbf4072 upstream.
+[ Upstream commit 2801a5da5b25b7af9dd2addd19b2315c02d17b64 ]
 
-The code change for switching to non-atomic mode brought the
-unexpected mutex deadlock in get_msg().  It converted the spinlock
-with the existing mutex, but there were calls with the already holding
-the mutex.  Since the only place that needs the extra lock is the code
-path from snd_mixart_send_msg(), remove the mutex lock in get_msg()
-and apply in the caller side for fixing the mutex deadlock.
+Fix a mutex_unlock() issue where before copy_from_user() is
+not called mutex_locked.
 
-Fixes: 8d3a8b5cb57d ("ALSA: mixart: Use nonatomic PCM ops")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201119121440.18945-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4b1a29a7f542 ("error-injection: Support fault injection framework")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/bpf/160570737118.263807.8358435412898356284.stgit@devnote2
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/mixart/mixart_core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/fail_function.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/pci/mixart/mixart_core.c
-+++ b/sound/pci/mixart/mixart_core.c
-@@ -83,7 +83,6 @@ static int get_msg(struct mixart_mgr *mg
- 	unsigned int i;
- #endif
+diff --git a/kernel/fail_function.c b/kernel/fail_function.c
+index bc80a4e268c0b..a52151a2291fb 100644
+--- a/kernel/fail_function.c
++++ b/kernel/fail_function.c
+@@ -261,7 +261,7 @@ static ssize_t fei_write(struct file *file, const char __user *buffer,
  
--	mutex_lock(&mgr->msg_lock);
- 	err = 0;
- 
- 	/* copy message descriptor from miXart to driver */
-@@ -132,8 +131,6 @@ static int get_msg(struct mixart_mgr *mg
- 	writel_be(headptr, MIXART_MEM(mgr, MSG_OUTBOUND_FREE_HEAD));
- 
-  _clean_exit:
--	mutex_unlock(&mgr->msg_lock);
--
- 	return err;
+ 	if (copy_from_user(buf, buffer, count)) {
+ 		ret = -EFAULT;
+-		goto out;
++		goto out_free;
+ 	}
+ 	buf[count] = '\0';
+ 	sym = strstrip(buf);
+@@ -315,8 +315,9 @@ static ssize_t fei_write(struct file *file, const char __user *buffer,
+ 		ret = count;
+ 	}
+ out:
+-	kfree(buf);
+ 	mutex_unlock(&fei_lock);
++out_free:
++	kfree(buf);
+ 	return ret;
  }
  
-@@ -271,7 +268,9 @@ int snd_mixart_send_msg(struct mixart_mg
- 	resp.data = resp_data;
- 	resp.size = max_resp_size;
- 
-+	mutex_lock(&mgr->msg_lock);
- 	err = get_msg(mgr, &resp, msg_frame);
-+	mutex_unlock(&mgr->msg_lock);
- 
- 	if( request->message_id != resp.message_id )
- 		dev_err(&mgr->pci->dev, "RESPONSE ERROR!\n");
+-- 
+2.27.0
+
 
 
