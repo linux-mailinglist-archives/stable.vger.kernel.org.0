@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B02642C09BF
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6BA2C09BB
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729740AbgKWNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:11:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
+        id S1732718AbgKWNLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:11:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387479AbgKWMqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:46:45 -0500
+        id S2387548AbgKWMqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:46:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE70420732;
-        Mon, 23 Nov 2020 12:46:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F98E20732;
+        Mon, 23 Nov 2020 12:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135604;
-        bh=Q2tktbQWVvEjAmzEWLNB3ISvsraxqRZMtLHyZWZhV7g=;
+        s=korg; t=1606135609;
+        bh=IxPR1NDeVmPr78jiZTosxr2usgTMCWbXg82nFTFFK5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ek7Ffv6igQIxdXvumIhKdD2G2B4YlJN/pFTe8t/8PBp/X7hXslJBUSljA9WSGMZLW
-         PxjoPXw+JcrK52DoD5W3cfjd1LrDRqHuf/lBQ/sh7S3Ef24KKI8+6wa3XqgxbMXPu2
-         6F8qYOu8MAhVlYMcPZ4YTOdr1MoZLTL+wDSytgd0=
+        b=VLEVSbqE5p2gwPHbJWySQ1b1GgNHxjkefaoGzcy/b/+MRmno4kVnMaKEe612OlnCZ
+         5xbWkAmV9fe9wb7oMhEuluCOAUU5lHseKNqrbkxTeS2Pw4WatutPqLjsx1HwYU37b8
+         fvS2y1Xmh/gTrWYSo6jqZGW8nmm28302qMjHejh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Anant Thazhemadam <anant.thazhemadam@gmail.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 129/252] can: af_can: prevent potential access of uninitialized member in can_rcv()
-Date:   Mon, 23 Nov 2020 13:21:19 +0100
-Message-Id: <20201123121841.820343692@linuxfoundation.org>
+Subject: [PATCH 5.9 130/252] can: af_can: prevent potential access of uninitialized member in canfd_rcv()
+Date:   Mon, 23 Nov 2020 13:21:20 +0100
+Message-Id: <20201123121841.868964561@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -47,23 +47,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit c8c958a58fc67f353289986850a0edf553435702 ]
+[ Upstream commit 9aa9379d8f868e91719333a7f063ccccc0579acc ]
 
-In can_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+In canfd_rcv(), cfd->len is uninitialized when skb->len = 0, and this
 uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
 Fix this uninitialized variable access by checking cfd->len's validity
-condition (cfd->len > CAN_MAX_DLEN) separately after the skb->len's
+condition (cfd->len > CANFD_MAX_DLEN) separately after the skb->len's
 condition is checked, and appropriately modify the log messages that
 are generated as well.
 In case either of the required conditions fail, the skb is freed and
 NET_RX_DROP is returned, same as before.
 
-Fixes: 8cb68751c115 ("can: af_can: can_rcv(): replace WARN_ONCE by pr_warn_once")
+Fixes: d4689846881d ("can: af_can: canfd_rcv(): replace WARN_ONCE by pr_warn_once")
 Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
 Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201103213906.24219-2-anant.thazhemadam@gmail.com
+Link: https://lore.kernel.org/r/20201103213906.24219-3-anant.thazhemadam@gmail.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -71,25 +71,25 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 5 deletions(-)
 
 diff --git a/net/can/af_can.c b/net/can/af_can.c
-index 5c06404bdf3e7..c7106daadd0c7 100644
+index c7106daadd0c7..0e71e0164ab3b 100644
 --- a/net/can/af_can.c
 +++ b/net/can/af_can.c
-@@ -677,16 +677,25 @@ static int can_rcv(struct sk_buff *skb, struct net_device *dev,
+@@ -703,16 +703,25 @@ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
  {
  	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
  
--	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU ||
--		     cfd->len > CAN_MAX_DLEN)) {
--		pr_warn_once("PF_CAN: dropped non conform CAN skbuf: dev type %d, len %d, datalen %d\n",
-+	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CAN_MTU)) {
-+		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d\n",
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU ||
+-		     cfd->len > CANFD_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d\n",
 +			     dev->type, skb->len);
 +		goto free_skb;
 +	}
 +
 +	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
-+	if (unlikely(cfd->len > CAN_MAX_DLEN)) {
-+		pr_warn_once("PF_CAN: dropped non conform CAN skbuff: dev type %d, len %d, datalen %d\n",
++	if (unlikely(cfd->len > CANFD_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d, datalen %d\n",
  			     dev->type, skb->len, cfd->len);
 -		kfree_skb(skb);
 -		return NET_RX_DROP;
@@ -104,7 +104,7 @@ index 5c06404bdf3e7..c7106daadd0c7 100644
 +	return NET_RX_DROP;
  }
  
- static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
+ /* af_can protocol functions */
 -- 
 2.27.0
 
