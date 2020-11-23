@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 759E72C07B5
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA482C07B7
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733069AbgKWMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:43:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56496 "EHLO mail.kernel.org"
+        id S1733088AbgKWMnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:43:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733064AbgKWMnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:43:22 -0500
+        id S1733084AbgKWMn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:43:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 840572078E;
-        Mon, 23 Nov 2020 12:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 349392078E;
+        Mon, 23 Nov 2020 12:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135402;
-        bh=rHyctRfZhyusAX1YcbUnm/XQFHRH3I2TLqDIyDvESXU=;
+        s=korg; t=1606135407;
+        bh=eXBZTuWuecVg6kmx2fimqIY7rN4w6sZwcFXaJAoB4Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuBUzg8UZ2V4AajCUCKaJaoElhXxdnSt34hJY5pbWABsG7w5DMFGehh0Wb7gcrBN1
-         aA3aHJ7HlWSsHX6LUH3k8noYMQ1+xvnmrXuWU+asaagCCsFBirBBNU2eLT11Qt3K+n
-         KRhWD9fwG6txqOf6i6RH2/ZrPfF1Hpl1xxt1U5E0=
+        b=nA03re9/jUn14KuVyuUJi+4a1UynN3eiDxUDkQZ/mXYU6sj2Uf/5s1i5fi/nQ8LI9
+         HQkbYRE9xWWxWXH98TbTKtVHG085RCI9PaoVltVteeRphhUAvatvyETAuNiuOKm1Wc
+         lW2KT/3e0UEfJ3PDO8yAKUrZ58kT6QamTxk07cZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Hongwu Su <hongwus@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 056/252] habanalabs/gaudi: mask WDT error in QMAN
-Date:   Mon, 23 Nov 2020 13:20:06 +0100
-Message-Id: <20201123121838.295017374@linuxfoundation.org>
+Subject: [PATCH 5.9 058/252] scsi: ufs: Fix unbalanced scsi_block_reqs_cnt caused by ufshcd_hold()
+Date:   Mon, 23 Nov 2020 13:20:08 +0100
+Message-Id: <20201123121838.390620702@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -42,31 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit f83f3a31b2972ddc907fbb286c6446dd9db6e198 ]
+[ Upstream commit da3fecb0040324c08f1587e5bff1f15f36be1872 ]
 
-This interrupt cause is not relevant because of how the user use the
-QMAN arbitration mechanism. We must mask it as the log explodes with it.
+The scsi_block_reqs_cnt increased in ufshcd_hold() is supposed to be
+decreased back in ufshcd_ungate_work() in a paired way. However, if
+specific ufshcd_hold/release sequences are met, it is possible that
+scsi_block_reqs_cnt is increased twice but only one ungate work is
+queued. To make sure scsi_block_reqs_cnt is handled by ufshcd_hold() and
+ufshcd_ungate_work() in a paired way, increase it only if queue_work()
+returns true.
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Link: https://lore.kernel.org/r/1604384682-15837-2-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/include/gaudi/gaudi_masks.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/include/gaudi/gaudi_masks.h b/drivers/misc/habanalabs/include/gaudi/gaudi_masks.h
-index 3510c42d24e31..b734b650fccf7 100644
---- a/drivers/misc/habanalabs/include/gaudi/gaudi_masks.h
-+++ b/drivers/misc/habanalabs/include/gaudi/gaudi_masks.h
-@@ -452,7 +452,6 @@ enum axi_id {
- 
- #define QM_ARB_ERR_MSG_EN_MASK		(\
- 					QM_ARB_ERR_MSG_EN_CHOISE_OVF_MASK |\
--					QM_ARB_ERR_MSG_EN_CHOISE_WDT_MASK |\
- 					QM_ARB_ERR_MSG_EN_AXI_LBW_ERR_MASK)
- 
- #define PCIE_AUX_FLR_CTRL_HW_CTRL_MASK                               0x1
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 316b861305eae..0cb3e71f30ffb 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1617,12 +1617,12 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 		 */
+ 		fallthrough;
+ 	case CLKS_OFF:
+-		ufshcd_scsi_block_requests(hba);
+ 		hba->clk_gating.state = REQ_CLKS_ON;
+ 		trace_ufshcd_clk_gating(dev_name(hba->dev),
+ 					hba->clk_gating.state);
+-		queue_work(hba->clk_gating.clk_gating_workq,
+-			   &hba->clk_gating.ungate_work);
++		if (queue_work(hba->clk_gating.clk_gating_workq,
++			       &hba->clk_gating.ungate_work))
++			ufshcd_scsi_block_requests(hba);
+ 		/*
+ 		 * fall through to check if we should wait for this
+ 		 * work to be done or not.
 -- 
 2.27.0
 
