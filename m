@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDBA2C05EB
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DC72C0623
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730009AbgKWMZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35184 "EHLO mail.kernel.org"
+        id S1730399AbgKWM2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:28:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730004AbgKWMZb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:31 -0500
+        id S1730402AbgKWM2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:28:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99E6A208C3;
-        Mon, 23 Nov 2020 12:25:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96F8B20781;
+        Mon, 23 Nov 2020 12:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134329;
-        bh=FbYjCcFgH13+aR0FILk3APvv0Ipo0ugCQsr3w2WVPdI=;
+        s=korg; t=1606134488;
+        bh=93VrMVYKxpRP0ORf3ecOd7y7hC7tY7W+PyTw58cxmMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tT4xIi88Gs9tHjXUtOH9BnNGpdd7Q6dgOBUdYQMVFovTlYyNO4Wh/Rn3BmjJRwu+h
-         DTAaHKaPx/eGNo4swiPrRKQRdPtChrIkhOCMaVqEnddBuvoHu7pb8liQ8GMAgch1Lo
-         9bnrPXf9vBYw0pnXyf+/gFOdz1OjUsom37qdVEok=
+        b=q5y6HtfuH58sT/a6NbnSPjA45W5/uH+7MzhIEL1OGgaNsnhDFC3+VqUyqcMKHToWO
+         Ziyxh+3WGNjlAjVyzXOJ8aDqLu2oScLpQNOta31HF82hqu/neJ/b9OpYzrnFeQHzG9
+         C7gfzh3dxffOi/ItIBUxnjU7nMOHLRITjlHn2/jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <sandeen@sandeen.net>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Eric Sandeen <sandeen@redhat.com>,
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Nishanth Menon <nm@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 32/47] xfs: revert "xfs: fix rmap key and record comparison functions"
-Date:   Mon, 23 Nov 2020 13:22:18 +0100
-Message-Id: <20201123121807.107263523@linuxfoundation.org>
+Subject: [PATCH 4.14 38/60] regulator: ti-abb: Fix array out of bound read access on the first transition
+Date:   Mon, 23 Nov 2020 13:22:20 +0100
+Message-Id: <20201123121806.889509136@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit eb8409071a1d47e3593cfe077107ac46853182ab ]
+[ Upstream commit 2ba546ebe0ce2af47833d8912ced9b4a579f13cb ]
 
-This reverts commit 6ff646b2ceb0eec916101877f38da0b73e3a5b7f.
+At the start of driver initialization, we do not know what bias
+setting the bootloader has configured the system for and we only know
+for certain the very first time we do a transition.
 
-Your maintainer committed a major braino in the rmap code by adding the
-attr fork, bmbt, and unwritten extent usage bits into rmap record key
-comparisons.  While XFS uses the usage bits *in the rmap records* for
-cross-referencing metadata in xfs_scrub and xfs_repair, it only needs
-the owner and offset information to distinguish between reverse mappings
-of the same physical extent into the data fork of a file at multiple
-offsets.  The other bits are not important for key comparisons for index
-lookups, and never have been.
+However, since the initial value of the comparison index is -EINVAL,
+this negative value results in an array out of bound access on the
+very first transition.
 
-Eric Sandeen reports that this causes regressions in generic/299, so
-undo this patch before it does more damage.
+Since we don't know what the setting is, we just set the bias
+configuration as there is nothing to compare against. This prevents
+the array out of bound access.
 
-Reported-by: Eric Sandeen <sandeen@sandeen.net>
-Fixes: 6ff646b2ceb0 ("xfs: fix rmap key and record comparison functions")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+NOTE: Even though we could use a more relaxed check of "< 0" the only
+valid values(ignoring cosmic ray induced bitflips) are -EINVAL, 0+.
+
+Fixes: 40b1936efebd ("regulator: Introduce TI Adaptive Body Bias(ABB) on-chip LDO driver")
+Link: https://lore.kernel.org/linux-mm/CA+G9fYuk4imvhyCN7D7T6PMDH6oNp6HDCRiTUKMQ6QXXjBa4ag@mail.gmail.com/
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20201118145009.10492-1-nm@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_rmap_btree.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/regulator/ti-abb-regulator.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_rmap_btree.c b/fs/xfs/libxfs/xfs_rmap_btree.c
-index c5a24b80c7f72..33a28efc3085b 100644
---- a/fs/xfs/libxfs/xfs_rmap_btree.c
-+++ b/fs/xfs/libxfs/xfs_rmap_btree.c
-@@ -262,8 +262,8 @@ xfs_rmapbt_key_diff(
- 	else if (y > x)
- 		return -1;
+diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
+index 6d17357b3a248..5f5f63eb8c762 100644
+--- a/drivers/regulator/ti-abb-regulator.c
++++ b/drivers/regulator/ti-abb-regulator.c
+@@ -342,8 +342,17 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
+ 		return ret;
+ 	}
  
--	x = be64_to_cpu(kp->rm_offset);
--	y = xfs_rmap_irec_offset_pack(rec);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp->rm_offset));
-+	y = rec->rm_offset;
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -294,8 +294,8 @@ xfs_rmapbt_diff_two_keys(
- 	else if (y > x)
- 		return -1;
+-	/* If data is exactly the same, then just update index, no change */
+ 	info = &abb->info[sel];
++	/*
++	 * When Linux kernel is starting up, we are'nt sure of the
++	 * Bias configuration that bootloader has configured.
++	 * So, we get to know the actual setting the first time
++	 * we are asked to transition.
++	 */
++	if (abb->current_info_idx == -EINVAL)
++		goto just_set_abb;
++
++	/* If data is exactly the same, then just update index, no change */
+ 	oinfo = &abb->info[abb->current_info_idx];
+ 	if (!memcmp(info, oinfo, sizeof(*info))) {
+ 		dev_dbg(dev, "%s: Same data new idx=%d, old idx=%d\n", __func__,
+@@ -351,6 +360,7 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
+ 		goto out;
+ 	}
  
--	x = be64_to_cpu(kp1->rm_offset);
--	y = be64_to_cpu(kp2->rm_offset);
-+	x = XFS_RMAP_OFF(be64_to_cpu(kp1->rm_offset));
-+	y = XFS_RMAP_OFF(be64_to_cpu(kp2->rm_offset));
- 	if (x > y)
- 		return 1;
- 	else if (y > x)
-@@ -401,8 +401,8 @@ xfs_rmapbt_keys_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(k1->rmap.rm_offset);
--	b = be64_to_cpu(k2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(k1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(k2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
-@@ -431,8 +431,8 @@ xfs_rmapbt_recs_inorder(
- 		return 1;
- 	else if (a > b)
- 		return 0;
--	a = be64_to_cpu(r1->rmap.rm_offset);
--	b = be64_to_cpu(r2->rmap.rm_offset);
-+	a = XFS_RMAP_OFF(be64_to_cpu(r1->rmap.rm_offset));
-+	b = XFS_RMAP_OFF(be64_to_cpu(r2->rmap.rm_offset));
- 	if (a <= b)
- 		return 1;
- 	return 0;
++just_set_abb:
+ 	ret = ti_abb_set_opp(rdev, abb, info);
+ 
+ out:
 -- 
 2.27.0
 
