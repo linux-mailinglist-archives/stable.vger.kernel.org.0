@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0819B2C065D
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C812C066E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730709AbgKWMaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:30:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40946 "EHLO mail.kernel.org"
+        id S1730788AbgKWMay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbgKWMaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:30:13 -0500
+        id S1730784AbgKWMax (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57A4B208C3;
-        Mon, 23 Nov 2020 12:30:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 086B820781;
+        Mon, 23 Nov 2020 12:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134612;
-        bh=oZDLj9l2yBLIC6hTfRyl2HIOnDTy2SLGywKsfrd3pNo=;
+        s=korg; t=1606134653;
+        bh=RNDdpvsr4AnaQ92wC0CyQ0rGz2EMONacs4D4j72Ur+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTvpO+w8KOysEnP5Th8ORgBjrerjea5VmtmLS2QcBaOGqaRynYGtNM0fEo5OK/nti
-         mNjZMKzv44tomIT4gDmXZCNRdyD/iAgGVEn84IAKZkNlRLlC3CJzoV08AZlkV0D29X
-         31i8eHLVZk2kF4HrEROeNMnjDXEG1jFX+ndcWxWM=
+        b=AV6Pl/awyqQllf7+v2zFLWIq58OUmbS9TC37np9zGSCl0JPpA2zh6x38v8/hffaOb
+         D9O82NqdYUS707t6KwODmttJyuQlUm9yphtHfzhUiapJcI2aDzw1vPqteDSJybKpZS
+         d/vjmxVxaWaTIAqUDww2j4mwQ0kSowxucePLNu/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 03/91] bnxt_en: read EEPROM A2h address using page 0
-Date:   Mon, 23 Nov 2020 13:21:23 +0100
-Message-Id: <20201123121809.462289617@linuxfoundation.org>
+Subject: [PATCH 4.19 05/91] inet_diag: Fix error path to cancel the meseage in inet_req_diag_fill()
+Date:   Mon, 23 Nov 2020 13:21:25 +0100
+Message-Id: <20201123121809.560228074@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
 References: <20201123121809.285416732@linuxfoundation.org>
@@ -43,36 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 4260330b32b14330cfe427d568ac5f5b29b5be3d ]
+[ Upstream commit e33de7c5317e2827b2ba6fd120a505e9eb727b05 ]
 
-The module eeprom address range returned by bnxt_get_module_eeprom()
-should be 256 bytes of A0h address space, the lower half of the A2h
-address space, and page 0 for the upper half of the A2h address space.
+nlmsg_cancel() needs to be called in the error path of
+inet_req_diag_fill to cancel the message.
 
-Fix the firmware call by passing page_number 0 for the A2h slave address
-space.
-
-Fixes: 42ee18fe4ca2 ("bnxt_en: Add Support for ETHTOOL_GMODULEINFO and ETHTOOL_GMODULEEEPRO")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: d545caca827b ("net: inet: diag: expose the socket mark to privileged processes.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20201116082018.16496-1-wanghai38@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_diag.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -2300,7 +2300,7 @@ static int bnxt_get_module_eeprom(struct
- 	/* Read A2 portion of the EEPROM */
- 	if (length) {
- 		start -= ETH_MODULE_SFF_8436_LEN;
--		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 1,
-+		rc = bnxt_read_sfp_module_eeprom_info(bp, I2C_DEV_ADDR_A2, 0,
- 						      start, length, data);
- 	}
- 	return rc;
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -392,8 +392,10 @@ static int inet_req_diag_fill(struct soc
+ 	r->idiag_inode	= 0;
+ 
+ 	if (net_admin && nla_put_u32(skb, INET_DIAG_MARK,
+-				     inet_rsk(reqsk)->ir_mark))
++				     inet_rsk(reqsk)->ir_mark)) {
++		nlmsg_cancel(skb, nlh);
+ 		return -EMSGSIZE;
++	}
+ 
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
 
 
