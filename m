@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1385E2C085D
+	by mail.lfdr.de (Postfix) with ESMTP id 807BA2C085E
 	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732942AbgKWMtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:49:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
+        id S1731755AbgKWMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:49:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732872AbgKWMtK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:49:10 -0500
+        id S1732876AbgKWMtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:49:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6515E20888;
-        Mon, 23 Nov 2020 12:49:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 445182158C;
+        Mon, 23 Nov 2020 12:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135749;
-        bh=04QVacp8napUxMxpdkgCb8jqM0aRr4/f56mR8ELNaSU=;
+        s=korg; t=1606135751;
+        bh=JmS8CxDV314MF4Bfjg+ViKziSFyaKBDWi0Zl/JzIv/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IggGRh5+WgTEYpNYuHt5OEYAcjGm7X8kXEqebY7GwE/6UuSReB8KQKhuXJwgp14Rv
-         kvgKAw7diIO8M/hl2qg7rABPKoCNonpDSHIfECbTa9B0tTEZANpjoDZ5vJMNJGd8SG
-         k0R54+pC8obhqlKTdmnhr5qco+SLZS5trIszScHI=
+        b=2sStCZNhXkbgL1TTK4xuvM5aC6+BNoEJSJxCR3jM4TK4gnPfWSFwkwTGshHtDepaZ
+         zsj0NnoX4TxnozCWfCp5vTADM5KM0vdmmDCRc5zfoFTUJxFerFhcEWj9LKs8G43j8C
+         HzLSn4ENxA+yfteh+1Yi1R3pS+AnNZ7IAYpQybGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 151/252] bpf, sockmap: Fix partial copy_page_to_iter so progress can still be made
-Date:   Mon, 23 Nov 2020 13:21:41 +0100
-Message-Id: <20201123121842.877150236@linuxfoundation.org>
+Subject: [PATCH 5.9 152/252] bpf, sockmap: Ensure SO_RCVBUF memory is observed on ingress redirect
+Date:   Mon, 23 Nov 2020 13:21:42 +0100
+Message-Id: <20201123121842.926766955@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,87 +46,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit c9c89dcd872ea33327673fcb97398993a1f22736 ]
+[ Upstream commit 36cd0e696a832a00247fca522034703566ac8885 ]
 
-If copy_page_to_iter() fails or even partially completes, but with fewer
-bytes copied than expected we currently reset sg.start and return EFAULT.
-This proves problematic if we already copied data into the user buffer
-before we return an error. Because we leave the copied data in the user
-buffer and fail to unwind the scatterlist so kernel side believes data
-has been copied and user side believes data has _not_ been received.
+Fix sockmap sk_skb programs so that they observe sk_rcvbuf limits. This
+allows users to tune SO_RCVBUF and sockmap will honor them.
 
-Expected behavior should be to return number of bytes copied and then
-on the next read we need to return the error assuming its still there. This
-can happen if we have a copy length spanning multiple scatterlist elements
-and one or more complete before the error is hit.
+We can refactor the if(charge) case out in later patches. But, keep this
+fix to the point.
 
-The error is rare enough though that my normal testing with server side
-programs, such as nginx, httpd, envoy, etc., I have never seen this. The
-only reliable way to reproduce that I've found is to stream movies over
-my browser for a day or so and wait for it to hang. Not very scientific,
-but with a few extra WARN_ON()s in the code the bug was obvious.
-
-When we review the errors from copy_page_to_iter() it seems we are hitting
-a page fault from copy_page_to_iter_iovec() where the code checks
-fault_in_pages_writeable(buf, copy) where buf is the user buffer. It
-also seems typical server applications don't hit this case.
-
-The other way to try and reproduce this is run the sockmap selftest tool
-test_sockmap with data verification enabled, but it doesn't reproduce the
-fault. Perhaps we can trigger this case artificially somehow from the
-test tools. I haven't sorted out a way to do that yet though.
-
-Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Fixes: 51199405f9672 ("bpf: skb_verdict, support SK_PASS on RX BPF path")
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
 Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/160556566659.73229.15694973114605301063.stgit@john-XPS-13-9370
+Link: https://lore.kernel.org/bpf/160556568657.73229.8404601585878439060.stgit@john-XPS-13-9370
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ net/core/skmsg.c   | 20 ++++++++++++++++----
+ net/ipv4/tcp_bpf.c |  3 ++-
+ 2 files changed, 18 insertions(+), 5 deletions(-)
 
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 30ddca6db6c6b..f41b06e60ad90 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -170,10 +170,12 @@ static int sk_msg_free_elem(struct sock *sk, struct sk_msg *msg, u32 i,
+ 	struct scatterlist *sge = sk_msg_elem(msg, i);
+ 	u32 len = sge->length;
+ 
+-	if (charge)
+-		sk_mem_uncharge(sk, len);
+-	if (!msg->skb)
++	/* When the skb owns the memory we free it from consume_skb path. */
++	if (!msg->skb) {
++		if (charge)
++			sk_mem_uncharge(sk, len);
+ 		put_page(sg_page(sge));
++	}
+ 	memset(sge, 0, sizeof(*sge));
+ 	return len;
+ }
+@@ -403,6 +405,9 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	int copied = 0, num_sge;
+ 	struct sk_msg *msg;
+ 
++	if (atomic_read(&sk->sk_rmem_alloc) > sk->sk_rcvbuf)
++		return -EAGAIN;
++
+ 	msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
+ 	if (unlikely(!msg))
+ 		return -EAGAIN;
+@@ -418,7 +423,14 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 		return num_sge;
+ 	}
+ 
+-	sk_mem_charge(sk, skb->len);
++	/* This will transition ownership of the data from the socket where
++	 * the BPF program was run initiating the redirect to the socket
++	 * we will eventually receive this data on. The data will be released
++	 * from skb_consume found in __tcp_bpf_recvmsg() after its been copied
++	 * into user buffers.
++	 */
++	skb_set_owner_r(skb, sk);
++
+ 	copied = skb->len;
+ 	msg->sg.start = 0;
+ 	msg->sg.size = copied;
 diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 7aa68f4aae6c3..d85ba32dc6e7a 100644
+index d85ba32dc6e7a..24e1be45d4cd7 100644
 --- a/net/ipv4/tcp_bpf.c
 +++ b/net/ipv4/tcp_bpf.c
-@@ -15,8 +15,8 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
- {
- 	struct iov_iter *iter = &msg->msg_iter;
- 	int peek = flags & MSG_PEEK;
--	int i, ret, copied = 0;
- 	struct sk_msg *msg_rx;
-+	int i, copied = 0;
- 
- 	msg_rx = list_first_entry_or_null(&psock->ingress_msg,
- 					  struct sk_msg, list);
-@@ -37,11 +37,9 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
- 			page = sg_page(sge);
- 			if (copied + copy > len)
- 				copy = len - copied;
--			ret = copy_page_to_iter(page, sge->offset, copy, iter);
--			if (ret != copy) {
--				msg_rx->sg.start = i;
--				return -EFAULT;
--			}
-+			copy = copy_page_to_iter(page, sge->offset, copy, iter);
-+			if (!copy)
-+				return copied ? copied : -EFAULT;
- 
- 			copied += copy;
+@@ -45,7 +45,8 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
  			if (likely(!peek)) {
-@@ -56,6 +54,11 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
- 						put_page(page);
- 				}
- 			} else {
-+				/* Lets not optimize peek case if copy_page_to_iter
-+				 * didn't copy the entire length lets just break.
-+				 */
-+				if (copy != sge->length)
-+					return copied;
- 				sk_msg_iter_var_next(i);
- 			}
+ 				sge->offset += copy;
+ 				sge->length -= copy;
+-				sk_mem_uncharge(sk, copy);
++				if (!msg_rx->skb)
++					sk_mem_uncharge(sk, copy);
+ 				msg_rx->sg.size -= copy;
  
+ 				if (!sge->length) {
 -- 
 2.27.0
 
