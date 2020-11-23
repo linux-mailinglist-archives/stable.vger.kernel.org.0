@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2ADC2C0750
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D418A2C06A8
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732318AbgKWMjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:39:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52308 "EHLO mail.kernel.org"
+        id S1731171AbgKWMdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:33:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732313AbgKWMjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:39:41 -0500
+        id S1731170AbgKWMdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEABF20888;
-        Mon, 23 Nov 2020 12:39:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D0652065E;
+        Mon, 23 Nov 2020 12:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135181;
-        bh=MDAiDae0YmpPfgSaHJR8FIa5GczWD7a861IYeBTIlXI=;
+        s=korg; t=1606134791;
+        bh=a5VPfCgx+ZvYrOxZ08N88GWvxf4bGUowlK9tjl2ZcCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oC3IHIApdt72hpGhwElQowi6ojYY0iiduCJPLJgv6ljgELVg40V9DInnYKs8ZT/8S
-         VU/b+4/zmYOyX3HMP/Yji1oos5b2/RA/Fn7gO7LHObfveS8pBdo0GPFrU9zyHtYKfc
-         jI0shy5QHFmAU7GpU9ElRcdDFkPY8r3ATcFrAW2w=
+        b=0tGckBqwmtUXMqJ8txrzlvXGICr3RLZoaKBwmorhjgpfg6KDFrtE6nfjJbXR9+3M6
+         K8BuTM1b3kgVx/iOXx1HEptS8MSH2m+mIB6VL3Bz/XWrscLYFM2hSl3m5cvuPiUab7
+         K1qmG2KP6NS1Yx1tFunQP36yMpIozHg6nbTFlxWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 134/158] spi: Introduce device-managed SPI controller allocation
-Date:   Mon, 23 Nov 2020 13:22:42 +0100
-Message-Id: <20201123121826.397150233@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 84/91] mac80211: minstrel: fix tx status processing corner case
+Date:   Mon, 23 Nov 2020 13:22:44 +0100
+Message-Id: <20201123121813.406089581@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,168 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 5e844cc37a5cbaa460e68f9a989d321d63088a89 upstream.
+commit b2911a84396f72149dce310a3b64d8948212c1b3 upstream.
 
-SPI driver probing currently comprises two steps, whereas removal
-comprises only one step:
+Some drivers fill the status rate list without setting the rate index after
+the final rate to -1. minstrel_ht already deals with this, but minstrel
+doesn't, which causes it to get stuck at the lowest rate on these drivers.
 
-    spi_alloc_master()
-    spi_register_controller()
+Fix this by checking the count as well.
 
-    spi_unregister_controller()
-
-That's because spi_unregister_controller() calls device_unregister()
-instead of device_del(), thereby releasing the reference on the
-spi_controller which was obtained by spi_alloc_master().
-
-An SPI driver's private data is contained in the same memory allocation
-as the spi_controller struct.  Thus, once spi_unregister_controller()
-has been called, the private data is inaccessible.  But some drivers
-need to access it after spi_unregister_controller() to perform further
-teardown steps.
-
-Introduce devm_spi_alloc_master() and devm_spi_alloc_slave(), which
-release a reference on the spi_controller struct only after the driver
-has unbound, thereby keeping the memory allocation accessible.  Change
-spi_unregister_controller() to not release a reference if the
-spi_controller was allocated by one of these new devm functions.
-
-The present commit is small enough to be backportable to stable.
-It allows fixing drivers which use the private data in their ->remove()
-hook after it's been freed.  It also allows fixing drivers which neglect
-to release a reference on the spi_controller in the probe error path.
-
-Long-term, most SPI drivers shall be moved over to the devm functions
-introduced herein.  The few that can't shall be changed in a treewide
-commit to explicitly release the last reference on the controller.
-That commit shall amend spi_unregister_controller() to no longer release
-a reference, thereby completing the migration.
-
-As a result, the behaviour will be less surprising and more consistent
-with subsystems such as IIO, which also includes the private data in the
-allocation of the generic iio_dev struct, but calls device_del() in
-iio_device_unregister().
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/272bae2ef08abd21388c98e23729886663d19192.1605121038.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: cccf129f820e ("mac80211: add the 'minstrel' rate control algorithm")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20201111183359.43528-3-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi.c       |   58 +++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/spi/spi.h |   19 +++++++++++++++
- 2 files changed, 76 insertions(+), 1 deletion(-)
+ net/mac80211/rc80211_minstrel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2257,6 +2257,49 @@ struct spi_controller *__spi_alloc_contr
- }
- EXPORT_SYMBOL_GPL(__spi_alloc_controller);
+--- a/net/mac80211/rc80211_minstrel.c
++++ b/net/mac80211/rc80211_minstrel.c
+@@ -276,7 +276,7 @@ minstrel_tx_status(void *priv, struct ie
+ 	success = !!(info->flags & IEEE80211_TX_STAT_ACK);
  
-+static void devm_spi_release_controller(struct device *dev, void *ctlr)
-+{
-+	spi_controller_put(*(struct spi_controller **)ctlr);
-+}
-+
-+/**
-+ * __devm_spi_alloc_controller - resource-managed __spi_alloc_controller()
-+ * @dev: physical device of SPI controller
-+ * @size: how much zeroed driver-private data to allocate
-+ * @slave: whether to allocate an SPI master (false) or SPI slave (true)
-+ * Context: can sleep
-+ *
-+ * Allocate an SPI controller and automatically release a reference on it
-+ * when @dev is unbound from its driver.  Drivers are thus relieved from
-+ * having to call spi_controller_put().
-+ *
-+ * The arguments to this function are identical to __spi_alloc_controller().
-+ *
-+ * Return: the SPI controller structure on success, else NULL.
-+ */
-+struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
-+						   unsigned int size,
-+						   bool slave)
-+{
-+	struct spi_controller **ptr, *ctlr;
-+
-+	ptr = devres_alloc(devm_spi_release_controller, sizeof(*ptr),
-+			   GFP_KERNEL);
-+	if (!ptr)
-+		return NULL;
-+
-+	ctlr = __spi_alloc_controller(dev, size, slave);
-+	if (ctlr) {
-+		*ptr = ctlr;
-+		devres_add(dev, ptr);
-+	} else {
-+		devres_free(ptr);
-+	}
-+
-+	return ctlr;
-+}
-+EXPORT_SYMBOL_GPL(__devm_spi_alloc_controller);
-+
- #ifdef CONFIG_OF
- static int of_spi_get_gpio_numbers(struct spi_controller *ctlr)
- {
-@@ -2576,6 +2619,11 @@ int devm_spi_register_controller(struct
- }
- EXPORT_SYMBOL_GPL(devm_spi_register_controller);
+ 	for (i = 0; i < IEEE80211_TX_MAX_RATES; i++) {
+-		if (ar[i].idx < 0)
++		if (ar[i].idx < 0 || !ar[i].count)
+ 			break;
  
-+static int devm_spi_match_controller(struct device *dev, void *res, void *ctlr)
-+{
-+	return *(struct spi_controller **)res == ctlr;
-+}
-+
- static int __unregister(struct device *dev, void *null)
- {
- 	spi_unregister_device(to_spi_device(dev));
-@@ -2617,7 +2665,15 @@ void spi_unregister_controller(struct sp
- 	list_del(&ctlr->list);
- 	mutex_unlock(&board_lock);
- 
--	device_unregister(&ctlr->dev);
-+	device_del(&ctlr->dev);
-+
-+	/* Release the last reference on the controller if its driver
-+	 * has not yet been converted to devm_spi_alloc_master/slave().
-+	 */
-+	if (!devres_find(ctlr->dev.parent, devm_spi_release_controller,
-+			 devm_spi_match_controller, ctlr))
-+		put_device(&ctlr->dev);
-+
- 	/* free bus id */
- 	mutex_lock(&board_lock);
- 	if (found == ctlr)
---- a/include/linux/spi/spi.h
-+++ b/include/linux/spi/spi.h
-@@ -663,6 +663,25 @@ static inline struct spi_controller *spi
- 	return __spi_alloc_controller(host, size, true);
- }
- 
-+struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
-+						   unsigned int size,
-+						   bool slave);
-+
-+static inline struct spi_controller *devm_spi_alloc_master(struct device *dev,
-+							   unsigned int size)
-+{
-+	return __devm_spi_alloc_controller(dev, size, false);
-+}
-+
-+static inline struct spi_controller *devm_spi_alloc_slave(struct device *dev,
-+							  unsigned int size)
-+{
-+	if (!IS_ENABLED(CONFIG_SPI_SLAVE))
-+		return NULL;
-+
-+	return __devm_spi_alloc_controller(dev, size, true);
-+}
-+
- extern int spi_register_controller(struct spi_controller *ctlr);
- extern int devm_spi_register_controller(struct device *dev,
- 					struct spi_controller *ctlr);
+ 		ndx = rix_to_ndx(mi, ar[i].idx);
 
 
