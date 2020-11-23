@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB932C0706
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 326632C0659
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731805AbgKWMgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:36:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48682 "EHLO mail.kernel.org"
+        id S1730144AbgKWMaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731724AbgKWMgk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:36:40 -0500
+        id S1730680AbgKWMaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C8252065E;
-        Mon, 23 Nov 2020 12:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E13320857;
+        Mon, 23 Nov 2020 12:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134998;
-        bh=sK4olq0KBy5MHExu9roPZP0tGBsa83kpaUElyyUOPsw=;
+        s=korg; t=1606134600;
+        bh=AOB30L8ww43v7wr6brdJId+AsaRQj64ltkSfM+gFsw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOx2NXzPdsURwQ7K46xCO6IpPxsCNz28dHXpw3t1TgQ/ZMfhUDyw8Y5RMVHS8Mc8h
-         kshzNF7NsXw/zmUpi1uTx40dyz3X1QRaBiKtT2cuebiWHqTLfpJ51Bc9hapC/3wWqm
-         mwcdULEhUpprFbllXkOn/LrKComxhAWKIZqeP6wc=
+        b=FyEeMsJ9u4F9F9XBypC30J0Mp442l/x/mGVQ1Ho2O3hzwxBg+ySG4aeayQp4LtLzb
+         OYIGI6y48la3nI3MkQh1aocEBpB8kjyQQkHUvh+/1CN/iqkabziM2tD6MkLOnaCkCf
+         S9OTkRH4aE86pdFI4QDlAwl5JEIAZpidQ6OipaNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/158] Input: resistive-adc-touch - fix kconfig dependency on IIO_BUFFER
-Date:   Mon, 23 Nov 2020 13:21:36 +0100
-Message-Id: <20201123121823.216612745@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 17/91] net: x25: Increase refcnt of "struct x25_neigh" in x25_rx_call_request
+Date:   Mon, 23 Nov 2020 13:21:37 +0100
+Message-Id: <20201123121810.143254246@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 676650d007e06fddcf3fe38238251d71bd179641 ]
+[ Upstream commit 4ee18c179e5e815fa5575e0d2db0c05795a804ee ]
 
-When TOUCHSCREEN_ADC is enabled and IIO_BUFFER is disabled, it results
-in the following Kbuild warning:
+The x25_disconnect function in x25_subr.c would decrease the refcount of
+"x25->neighbour" (struct x25_neigh) and reset this pointer to NULL.
 
-WARNING: unmet direct dependencies detected for IIO_BUFFER_CB
-  Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
-  Selected by [y]:
-  - TOUCHSCREEN_ADC [=y] && !UML && INPUT [=y] && INPUT_TOUCHSCREEN [=y] && IIO [=y]
+However, the x25_rx_call_request function in af_x25.c, which is called
+when we receive a connection request, does not increase the refcount when
+it assigns the pointer.
 
-The reason is that TOUCHSCREEN_ADC selects IIO_BUFFER_CB without depending
-on or selecting IIO_BUFFER while IIO_BUFFER_CB depends on IIO_BUFFER. This
-can also fail building the kernel.
+Fix this issue by increasing the refcount of "struct x25_neigh" in
+x25_rx_call_request.
 
-Honor the kconfig dependency to remove unmet direct dependency warnings
-and avoid any potential build failures.
+This patch fixes frequent kernel crashes when using AF_X25 sockets.
 
-Fixes: aa132ffb6b0a ("input: touchscreen: resistive-adc-touch: add generic resistive ADC touchscreen")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/20201102221504.541279-1-fazilyildiran@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Link: https://lore.kernel.org/r/20201112103506.5875-1-xie.he.0141@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/Kconfig | 1 +
+ net/x25/af_x25.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 46ad9090493bb..1e812a193ce7a 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -96,6 +96,7 @@ config TOUCHSCREEN_AD7879_SPI
- config TOUCHSCREEN_ADC
- 	tristate "Generic ADC based resistive touchscreen"
- 	depends on IIO
-+	select IIO_BUFFER
- 	select IIO_BUFFER_CB
- 	help
- 	  Say Y here if you want to use the generic ADC
--- 
-2.27.0
-
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1049,6 +1049,7 @@ int x25_rx_call_request(struct sk_buff *
+ 	makex25->lci           = lci;
+ 	makex25->dest_addr     = dest_addr;
+ 	makex25->source_addr   = source_addr;
++	x25_neigh_hold(nb);
+ 	makex25->neighbour     = nb;
+ 	makex25->facilities    = facilities;
+ 	makex25->dte_facilities= dte_facilities;
 
 
