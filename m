@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F92D2C0B6F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BCB2C0B6E
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389074AbgKWNYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:24:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45008 "EHLO mail.kernel.org"
+        id S1732229AbgKWNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:24:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730411AbgKWMdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:44 -0500
+        id S1730549AbgKWMdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95A0420857;
-        Mon, 23 Nov 2020 12:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5805720888;
+        Mon, 23 Nov 2020 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134822;
-        bh=ZvWrrcQNEE5eUf/tjnCMpPYPD4YLRNF3vF6Auw5LeLY=;
+        s=korg; t=1606134824;
+        bh=lYUHFsfMSCvVN1o385q1QZefOqjlrdDMMZNDJSIOhaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKGnnxQU5kuaYrdznHLHPasl35i2Tn8Mdab320YvXdhly4kSDplQBHAq9Vj61pefs
-         3Taya9hd8FxE3LYZ3ycQnXkNUenF/eg8D7Gf2beyTSCK9ylg+PcQSBwE/ZkR0ZxLQt
-         48hyl5wLu4MSJIW4ItCPdO1j6cvCaLPSUjqx5y74=
+        b=p5HxP0zi21e/kjp/W+Z6FG9N82ha5U1vmJw3u5UNHDQUG13gCn5aWLRVVOphuO0ZI
+         Anbkh2SCXtiwD7DdvPlzK0l4Hss4NIxqEQaVJmjOTP8OSqWpC+/WMdXZz1AdMkdtep
+         RGaBV1jme4nKKr2NA1bu9nPe5/V9vFTDDwrLFvGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Fugang Duan <fugang.duan@nxp.com>
-Subject: [PATCH 4.19 72/91] tty: serial: imx: keep console clocks always on
-Date:   Mon, 23 Nov 2020 13:22:32 +0100
-Message-Id: <20201123121812.821192416@linuxfoundation.org>
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.19 73/91] efivarfs: fix memory leak in efivarfs_create()
+Date:   Mon, 23 Nov 2020 13:22:33 +0100
+Message-Id: <20201123121812.868073417@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
 References: <20201123121809.285416732@linuxfoundation.org>
@@ -43,88 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
 
-commit e67c139c488e84e7eae6c333231e791f0e89b3fb upstream.
+commit fe5186cf12e30facfe261e9be6c7904a170bd822 upstream.
 
-For below code, there has chance to cause deadlock in SMP system:
-Thread 1:
-clk_enable_lock();
-pr_info("debug message");
-clk_enable_unlock();
+kmemleak report:
+  unreferenced object 0xffff9b8915fcb000 (size 4096):
+  comm "efivarfs.sh", pid 2360, jiffies 4294920096 (age 48.264s)
+  hex dump (first 32 bytes):
+    2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  -...............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000cc4d897c>] kmem_cache_alloc_trace+0x155/0x4b0
+    [<000000007d1dfa72>] efivarfs_create+0x6e/0x1a0
+    [<00000000e6ee18fc>] path_openat+0xe4b/0x1120
+    [<000000000ad0414f>] do_filp_open+0x91/0x100
+    [<00000000ce93a198>] do_sys_openat2+0x20c/0x2d0
+    [<000000002a91be6d>] do_sys_open+0x46/0x80
+    [<000000000a854999>] __x64_sys_openat+0x20/0x30
+    [<00000000c50d89c9>] do_syscall_64+0x38/0x90
+    [<00000000cecd6b5f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Thread 2:
-imx_uart_console_write()
-	clk_enable()
-		clk_enable_lock();
+In efivarfs_create(), inode->i_private is setup with efivar_entry
+object which is never freed.
 
-Thread 1:
-Acuired clk enable_lock -> printk -> console_trylock_spinning
-Thread 2:
-console_unlock() -> imx_uart_console_write -> clk_disable -> Acquite clk enable_lock
-
-So the patch is to keep console port clocks always on like
-other console drivers.
-
-Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20201111025136.29818-1-fugang.duan@nxp.com
-Cc: stable <stable@vger.kernel.org>
-[fix up build warning - gregkh]
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+Link: https://lore.kernel.org/r/20201023115429.GA2479@cosmos
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/imx.c |   20 +++-----------------
- 1 file changed, 3 insertions(+), 17 deletions(-)
+ fs/efivarfs/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1915,16 +1915,6 @@ imx_uart_console_write(struct console *c
- 	unsigned int ucr1;
- 	unsigned long flags = 0;
- 	int locked = 1;
--	int retval;
--
--	retval = clk_enable(sport->clk_per);
--	if (retval)
--		return;
--	retval = clk_enable(sport->clk_ipg);
--	if (retval) {
--		clk_disable(sport->clk_per);
--		return;
--	}
- 
- 	if (sport->port.sysrq)
- 		locked = 0;
-@@ -1960,9 +1950,6 @@ imx_uart_console_write(struct console *c
- 
- 	if (locked)
- 		spin_unlock_irqrestore(&sport->port.lock, flags);
--
--	clk_disable(sport->clk_ipg);
--	clk_disable(sport->clk_per);
+--- a/fs/efivarfs/super.c
++++ b/fs/efivarfs/super.c
+@@ -23,6 +23,7 @@ LIST_HEAD(efivarfs_list);
+ static void efivarfs_evict_inode(struct inode *inode)
+ {
+ 	clear_inode(inode);
++	kfree(inode->i_private);
  }
  
- /*
-@@ -2063,15 +2050,14 @@ imx_uart_console_setup(struct console *c
- 
- 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
- 
--	clk_disable(sport->clk_ipg);
- 	if (retval) {
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 		goto error_console;
- 	}
- 
--	retval = clk_prepare(sport->clk_per);
-+	retval = clk_prepare_enable(sport->clk_per);
- 	if (retval)
--		clk_unprepare(sport->clk_ipg);
-+		clk_disable_unprepare(sport->clk_ipg);
- 
- error_console:
- 	return retval;
+ static const struct super_operations efivarfs_ops = {
 
 
