@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 248FE2C0BE0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E82F12C0AC6
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731900AbgKWNcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:32:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36586 "EHLO mail.kernel.org"
+        id S1729627AbgKWM1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:27:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730157AbgKWM0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:26:33 -0500
+        id S1730339AbgKWM1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 476F520888;
-        Mon, 23 Nov 2020 12:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CADB820728;
+        Mon, 23 Nov 2020 12:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134392;
-        bh=8zuK+EHkzGHFrY+j+zhJ+t4rmPsnmwXt3TG/2VbhS7w=;
+        s=korg; t=1606134465;
+        bh=YALBh/z15FkwH/doGEmq1VORVzp2qpo7cGYWdPtnTvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRdEVCkWbYs3Ecab9MwlWINPB/0T2zx543xOocM8Sr0aCP0K9xcB2uzzhLpJ6J7zC
-         laz2SYlRsU3fjDzDMzuWsHhGoVExsly6X4YsQV/h5rH0EcVlvf82mcEUqe9/CpF7vK
-         4TREN+Rm5qu+BphhKtxKcQRn5GW1O+yaIeZL3HIg=
+        b=XIPHb/lmwEJ1niSnunarUoaEvpcksH4TJwtBSABcWlgR3ALHAHg3KvGPiMHYJkKU6
+         ESahk/l5UboV8GMnKiBQ+i/83Ay/IpKJwjcmpztuss8BuLl+Nc3+Z4wzlvm6grVQ8s
+         +7+N3R299vk8NNHsYXMauLaauKYmsyLEB9Q1OcXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/47] ARM: dts: imx50-evk: Fix the chip select 1 IOMUX
-Date:   Mon, 23 Nov 2020 13:22:11 +0100
-Message-Id: <20201123121806.766422455@linuxfoundation.org>
+Subject: [PATCH 4.14 30/60] can: af_can: prevent potential access of uninitialized member in canfd_rcv()
+Date:   Mon, 23 Nov 2020 13:22:12 +0100
+Message-Id: <20201123121806.497034301@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 33d0d843872c5ddbe28457a92fc6f2487315fb9f ]
+[ Upstream commit 9aa9379d8f868e91719333a7f063ccccc0579acc ]
 
-The SPI chip selects are represented as:
+In canfd_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
-cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>, <&gpio4 13 GPIO_ACTIVE_LOW>;
+Fix this uninitialized variable access by checking cfd->len's validity
+condition (cfd->len > CANFD_MAX_DLEN) separately after the skb->len's
+condition is checked, and appropriately modify the log messages that
+are generated as well.
+In case either of the required conditions fail, the skb is freed and
+NET_RX_DROP is returned, same as before.
 
-, which means that they are used in GPIO function instead of native
-SPI mode.
-
-Fix the IOMUX for the chip select 1 to use GPIO4_13 instead of
-the native CSPI_SSI function.
-
-Fixes: c605cbf5e135 ("ARM: dts: imx: add device tree support for Freescale imx50evk board")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: d4689846881d ("can: af_can: canfd_rcv(): replace WARN_ONCE by pr_warn_once")
+Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
+Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201103213906.24219-3-anant.thazhemadam@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx50-evk.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/af_can.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx50-evk.dts b/arch/arm/boot/dts/imx50-evk.dts
-index 27d763c7a307d..4dbd180e72ba6 100644
---- a/arch/arm/boot/dts/imx50-evk.dts
-+++ b/arch/arm/boot/dts/imx50-evk.dts
-@@ -66,7 +66,7 @@
- 				MX50_PAD_CSPI_MISO__CSPI_MISO		0x00
- 				MX50_PAD_CSPI_MOSI__CSPI_MOSI		0x00
- 				MX50_PAD_CSPI_SS0__GPIO4_11		0xc4
--				MX50_PAD_ECSPI1_MOSI__CSPI_SS1		0xf4
-+				MX50_PAD_ECSPI1_MOSI__GPIO4_13		0x84
- 			>;
- 		};
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index e1cf5c300bacc..ec04a33cd333c 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -748,16 +748,25 @@ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
  
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU ||
+-		     cfd->len > CANFD_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d\n",
++			     dev->type, skb->len);
++		goto free_skb;
++	}
++
++	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
++	if (unlikely(cfd->len > CANFD_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d, datalen %d\n",
+ 			     dev->type, skb->len, cfd->len);
+-		kfree_skb(skb);
+-		return NET_RX_DROP;
++		goto free_skb;
+ 	}
+ 
+ 	can_receive(skb, dev);
+ 	return NET_RX_SUCCESS;
++
++free_skb:
++	kfree_skb(skb);
++	return NET_RX_DROP;
+ }
+ 
+ /*
 -- 
 2.27.0
 
