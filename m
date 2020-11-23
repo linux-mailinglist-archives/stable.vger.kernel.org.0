@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 631822C0A18
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B332C0A36
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733298AbgKWNQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:16:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56400 "EHLO mail.kernel.org"
+        id S1732610AbgKWMmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:42:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733034AbgKWMnL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:43:11 -0500
+        id S1732775AbgKWMlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:41:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4FC92076E;
-        Mon, 23 Nov 2020 12:43:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EB992065E;
+        Mon, 23 Nov 2020 12:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135391;
-        bh=U+PWM3KpCoYO+F+eqLUV807roXBml933kxKLRoz9efM=;
+        s=korg; t=1606135314;
+        bh=h7/Xx0WvMMsdZKjUT9fOgCQnebkFs0C7WZHTgd+ngwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11gytlXVOrMSjq9uC7M5X6D15K0XaT+20mc6mAkzqzyxFtQOaHg8n6xIR1uW1cWE2
-         ZCdDSy02rRWhC1Cd59joc/5DcpgiUSwu+tP3n0B2RikbuYch6ll/JnmyS8xAzcdf+3
-         bLIUzjBG2+r3iokcj5NBcdICWffZkq/eBIvKqVXM=
+        b=yrMZARUqW6ex1eqcWGYLeljfORwV66PKokibTZ2rZHFDWijeZiRPO4U6O+a9Rmo2A
+         cbYBfK1ewE2qYMS1igkIZ3iFzyCXV4/v7p8KScE3lK5BJ1kHMju1NqPpXrTfeBK1Rl
+         zY1DDElUZ1UQQk9uYRY7UiM3NJjX5GPIFbWtzWCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 021/252] net: ftgmac100: Fix crash when removing driver
-Date:   Mon, 23 Nov 2020 13:19:31 +0100
-Message-Id: <20201123121836.621577940@linuxfoundation.org>
+Subject: [PATCH 5.9 024/252] netlabel: fix our progress tracking in netlbl_unlabel_staticlist()
+Date:   Mon, 23 Nov 2020 13:19:34 +0100
+Message-Id: <20201123121836.764577872@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -42,68 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 3d5179458d22dc0b4fdc724e4bed4231a655112a ]
+[ Upstream commit 866358ec331f8faa394995fb4b511af1db0247c8 ]
 
-When removing the driver we would hit BUG_ON(!list_empty(&dev->ptype_specific))
-in net/core/dev.c due to still having the NC-SI packet handler
-registered.
+The current NetLabel code doesn't correctly keep track of the netlink
+dump state in some cases, in particular when multiple interfaces with
+large configurations are loaded.  The problem manifests itself by not
+reporting the full configuration to userspace, even though it is
+loaded and active in the kernel.  This patch fixes this by ensuring
+that the dump state is properly reset when necessary inside the
+netlbl_unlabel_staticlist() function.
 
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/unbind
-  ------------[ cut here ]------------
-  kernel BUG at net/core/dev.c:10254!
-  Internal error: Oops - BUG: 0 [#1] SMP ARM
-  CPU: 0 PID: 115 Comm: sh Not tainted 5.10.0-rc3-next-20201111-00007-g02e0365710c4 #46
-  Hardware name: Generic DT based system
-  PC is at netdev_run_todo+0x314/0x394
-  LR is at cpumask_next+0x20/0x24
-  pc : [<806f5830>]    lr : [<80863cb0>]    psr: 80000153
-  sp : 855bbd58  ip : 00000001  fp : 855bbdac
-  r10: 80c03d00  r9 : 80c06228  r8 : 81158c54
-  r7 : 00000000  r6 : 80c05dec  r5 : 80c05d18  r4 : 813b9280
-  r3 : 813b9054  r2 : 8122c470  r1 : 00000002  r0 : 00000002
-  Flags: Nzcv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-  Control: 00c5387d  Table: 85514008  DAC: 00000051
-  Process sh (pid: 115, stack limit = 0x7cb5703d)
- ...
-  Backtrace:
-  [<806f551c>] (netdev_run_todo) from [<80707eec>] (rtnl_unlock+0x18/0x1c)
-   r10:00000051 r9:854ed710 r8:81158c54 r7:80c76bb0 r6:81158c10 r5:8115b410
-   r4:813b9000
-  [<80707ed4>] (rtnl_unlock) from [<806f5db8>] (unregister_netdev+0x2c/0x30)
-  [<806f5d8c>] (unregister_netdev) from [<805a8180>] (ftgmac100_remove+0x20/0xa8)
-   r5:8115b410 r4:813b9000
-  [<805a8160>] (ftgmac100_remove) from [<805355e4>] (platform_drv_remove+0x34/0x4c)
-
-Fixes: bd466c3fb5a4 ("net/faraday: Support NCSI mode")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20201117024448.1170761-1-joel@jms.id.au
+Fixes: 8cc44579d1bd ("NetLabel: Introduce static network labels for unlabeled connections")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/160484450633.3752.16512718263560813473.stgit@sifl
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/netlabel/netlabel_unlabeled.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1907,6 +1907,8 @@ err_register_netdev:
- 	clk_disable_unprepare(priv->rclk);
- 	clk_disable_unprepare(priv->clk);
- err_ncsi_dev:
-+	if (priv->ndev)
-+		ncsi_unregister_dev(priv->ndev);
- 	ftgmac100_destroy_mdio(netdev);
- err_setup_mdio:
- 	iounmap(priv->base);
-@@ -1926,6 +1928,8 @@ static int ftgmac100_remove(struct platf
- 	netdev = platform_get_drvdata(pdev);
- 	priv = netdev_priv(netdev);
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -1166,12 +1166,13 @@ static int netlbl_unlabel_staticlist(str
+ 	struct netlbl_unlhsh_walk_arg cb_arg;
+ 	u32 skip_bkt = cb->args[0];
+ 	u32 skip_chain = cb->args[1];
+-	u32 iter_bkt;
+-	u32 iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
++	u32 skip_addr4 = cb->args[2];
++	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
+ 	struct netlbl_unlhsh_iface *iface;
+ 	struct list_head *iter_list;
+ 	struct netlbl_af4list *addr4;
+ #if IS_ENABLED(CONFIG_IPV6)
++	u32 skip_addr6 = cb->args[3];
+ 	struct netlbl_af6list *addr6;
+ #endif
  
-+	if (priv->ndev)
-+		ncsi_unregister_dev(priv->ndev);
- 	unregister_netdev(netdev);
+@@ -1182,7 +1183,7 @@ static int netlbl_unlabel_staticlist(str
+ 	rcu_read_lock();
+ 	for (iter_bkt = skip_bkt;
+ 	     iter_bkt < rcu_dereference(netlbl_unlhsh)->size;
+-	     iter_bkt++, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0) {
++	     iter_bkt++) {
+ 		iter_list = &rcu_dereference(netlbl_unlhsh)->tbl[iter_bkt];
+ 		list_for_each_entry_rcu(iface, iter_list, list) {
+ 			if (!iface->valid ||
+@@ -1190,7 +1191,7 @@ static int netlbl_unlabel_staticlist(str
+ 				continue;
+ 			netlbl_af4list_foreach_rcu(addr4,
+ 						   &iface->addr4_list) {
+-				if (iter_addr4++ < cb->args[2])
++				if (iter_addr4++ < skip_addr4)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1203,10 +1204,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr4 = 0;
++			skip_addr4 = 0;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 			netlbl_af6list_foreach_rcu(addr6,
+ 						   &iface->addr6_list) {
+-				if (iter_addr6++ < cb->args[3])
++				if (iter_addr6++ < skip_addr6)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1219,8 +1222,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr6 = 0;
++			skip_addr6 = 0;
+ #endif /* IPv6 */
+ 		}
++		iter_chain = 0;
++		skip_chain = 0;
+ 	}
  
- 	clk_disable_unprepare(priv->rclk);
+ unlabel_staticlist_return:
 
 
