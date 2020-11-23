@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF552C086C
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D84882C08D9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733218AbgKWMvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:51:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35182 "EHLO mail.kernel.org"
+        id S1732739AbgKWNCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:02:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387585AbgKWMuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:50:32 -0500
+        id S2387810AbgKWMwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:52:13 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F5532100A;
-        Mon, 23 Nov 2020 12:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0463F2168B;
+        Mon, 23 Nov 2020 12:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135823;
-        bh=uFJsSGwd2OXnVl1xi4TGrsfTL2nOokD6AoShrLsFdX4=;
+        s=korg; t=1606135932;
+        bh=t48Fk7y6e31vreDfy66nKUHstMM67OHS6UVFPC91zxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EaZunY43ExV4Zc+EdWLfmf9Z/t2X2hqHycxE+uoobIh3ajt7acNpCVH46p7f9VPEt
-         P3ZVRuIK3kEHlC9As4MVSaY2TQ2IzAc+MnjVz1Jw6b5ylrUEruyCkiu4cU7gxACE5U
-         xza30RA7KDaWlw6wwSK7euIIPoonOmcrAgOKp8MY=
+        b=PVAUX8yXAV1G24WBUTaShZq8EE8TAq3dtYmYzgAqvbaYpkdZgTEAuEgj0zriNHI9G
+         mPAkg8c4P6f6a4IyO2MdNkx2e0bkkfGCcVk94lWWzOv7bYWNUt6sAQ93ts2VYNjlpa
+         2sgx3xMBtf9PcJfKvyrLGD4c4AuJAwlXrZZD2ErI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.9 207/252] ACPI: fan: Initialize performance state sysfs attribute
-Date:   Mon, 23 Nov 2020 13:22:37 +0100
-Message-Id: <20201123121845.553889393@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.9 208/252] iio: accel: kxcjk1013: Replace is_smo8500_device with an acpi_type enum
+Date:   Mon, 23 Nov 2020 13:22:38 +0100
+Message-Id: <20201123121845.605212231@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -42,45 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 7dc7a8b04f3da8aa3c3be514e155e2fa094e976f upstream.
+commit 11e94f28c3de35d5ad1ac6a242a5b30f4378991a upstream.
 
-The following warning is reported if lock debugging is enabled.
+Replace the boolean is_smo8500_device variable with an acpi_type enum.
 
-DEBUG_LOCKS_WARN_ON(1)
-WARNING: CPU: 1 PID: 1 at kernel/locking/lockdep.c:4617 lockdep_init_map_waits+0x141/0x222
-...
-Call Trace:
- __kernfs_create_file+0x7a/0xd8
- sysfs_add_file_mode_ns+0x135/0x189
- sysfs_create_file_ns+0x70/0xa0
- acpi_fan_probe+0x547/0x621
- platform_drv_probe+0x67/0x8b
- ...
+For now this can be either ACPI_GENERIC or ACPI_SMO8500, this is a
+preparation patch for adding special handling for the KIOX010A ACPI HID,
+which will add a ACPI_KIOX010A acpi_type to the introduced enum.
 
-Dynamically allocated sysfs attributes need to be initialized to avoid
-the warning.
+For stable as needed as precursor for next patch.
 
-Fixes: d19e470b6605 ("ACPI: fan: Expose fan performance state information")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: 5.6+ <stable@vger.kernel.org> # 5.6+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 7f6232e69539 ("iio: accel: kxcjk1013: Add KIOX010A ACPI Hardware-ID")
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201110133835.129080-2-hdegoede@redhat.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/fan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/kxcjk-1013.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/acpi/fan.c
-+++ b/drivers/acpi/fan.c
-@@ -351,6 +351,7 @@ static int acpi_fan_get_fps(struct acpi_
- 		struct acpi_fan_fps *fps = &fan->fps[i];
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -126,6 +126,11 @@ enum kx_chipset {
+ 	KX_MAX_CHIPS /* this must be last */
+ };
  
- 		snprintf(fps->name, ACPI_FPS_NAME_LEN, "state%d", i);
-+		sysfs_attr_init(&fps->dev_attr.attr);
- 		fps->dev_attr.show = show_state;
- 		fps->dev_attr.store = NULL;
- 		fps->dev_attr.attr.name = fps->name;
++enum kx_acpi_type {
++	ACPI_GENERIC,
++	ACPI_SMO8500,
++};
++
+ struct kxcjk1013_data {
+ 	struct i2c_client *client;
+ 	struct iio_trigger *dready_trig;
+@@ -143,7 +148,7 @@ struct kxcjk1013_data {
+ 	bool motion_trigger_on;
+ 	int64_t timestamp;
+ 	enum kx_chipset chipset;
+-	bool is_smo8500_device;
++	enum kx_acpi_type acpi_type;
+ };
+ 
+ enum kxcjk1013_axis {
+@@ -1247,7 +1252,7 @@ static irqreturn_t kxcjk1013_data_rdy_tr
+ 
+ static const char *kxcjk1013_match_acpi_device(struct device *dev,
+ 					       enum kx_chipset *chipset,
+-					       bool *is_smo8500_device)
++					       enum kx_acpi_type *acpi_type)
+ {
+ 	const struct acpi_device_id *id;
+ 
+@@ -1256,7 +1261,7 @@ static const char *kxcjk1013_match_acpi_
+ 		return NULL;
+ 
+ 	if (strcmp(id->id, "SMO8500") == 0)
+-		*is_smo8500_device = true;
++		*acpi_type = ACPI_SMO8500;
+ 
+ 	*chipset = (enum kx_chipset)id->driver_data;
+ 
+@@ -1299,7 +1304,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ 	} else if (ACPI_HANDLE(&client->dev)) {
+ 		name = kxcjk1013_match_acpi_device(&client->dev,
+ 						   &data->chipset,
+-						   &data->is_smo8500_device);
++						   &data->acpi_type);
+ 	} else
+ 		return -ENODEV;
+ 
+@@ -1316,7 +1321,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->info = &kxcjk1013_info;
+ 
+-	if (client->irq > 0 && !data->is_smo8500_device) {
++	if (client->irq > 0 && data->acpi_type != ACPI_SMO8500) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kxcjk1013_data_rdy_trig_poll,
+ 						kxcjk1013_event_handler,
 
 
