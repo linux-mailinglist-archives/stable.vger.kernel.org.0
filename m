@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E5A2C0B11
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9B32C0AE0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731893AbgKWMhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:37:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49290 "EHLO mail.kernel.org"
+        id S1730174AbgKWMag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731865AbgKWMhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:37:11 -0500
+        id S1730260AbgKWMaf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5F4420888;
-        Mon, 23 Nov 2020 12:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6ACD221F7;
+        Mon, 23 Nov 2020 12:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135031;
-        bh=uAl/Hj/W/wcK0yBx/8xKCDgjvvm9J8Ad/jZllIuEMww=;
+        s=korg; t=1606134634;
+        bh=/MUdipLcb4JkvDppPS27UAP/oB9I9J9uiNiR54nSO1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAx2+BVKvdqGU38wDChYU18546RA1B65r7fdw7icZR8X3USbjuxTXcaBxQ6qxyB4p
-         1Al2yRgZv7ipu4FgKdOfyL/fTj5dha9BoZ6gA55039H5TkJMLoWL37oSZHNRMbtvYi
-         d1l+DgM/ynvMpHRHc7xXmBkwwIbkWBKG6W4QafXc=
+        b=zaxcQydZApjPWuI0ZbK/I2qiLaHv84E1+8iiYBG+fURcmuixzBaSl4AlKj1ukfKeJ
+         DTeivLJ7T+Myvxiiku7CyGgY/2BQzz/DTKjBOmap59GGm4X4R/bDeU1upIADUXwp6A
+         9eBSrTnMy4DkhUbSw4XikKD88YWGJqNyqFdPsWUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Remigiusz=20Ko=C5=82=C5=82=C4=85taj?= 
-        <remigiusz.kollataj@mobica.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Hongwu Su <hongwus@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 079/158] can: mcba_usb: mcba_usb_start_xmit(): first fill skb, then pass to can_put_echo_skb()
-Date:   Mon, 23 Nov 2020 13:21:47 +0100
-Message-Id: <20201123121823.750193611@linuxfoundation.org>
+Subject: [PATCH 4.19 28/91] scsi: ufs: Fix unbalanced scsi_block_reqs_cnt caused by ufshcd_hold()
+Date:   Mon, 23 Nov 2020 13:21:48 +0100
+Message-Id: <20201123121810.692132832@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 81c9c8e0adef3285336b942f93287c554c89e6c6 ]
+[ Upstream commit da3fecb0040324c08f1587e5bff1f15f36be1872 ]
 
-The driver has to first fill the skb with data and then handle it to
-can_put_echo_skb(). This patch moves the can_put_echo_skb() down, right before
-sending the skb out via USB.
+The scsi_block_reqs_cnt increased in ufshcd_hold() is supposed to be
+decreased back in ufshcd_ungate_work() in a paired way. However, if
+specific ufshcd_hold/release sequences are met, it is possible that
+scsi_block_reqs_cnt is increased twice but only one ungate work is
+queued. To make sure scsi_block_reqs_cnt is handled by ufshcd_hold() and
+ufshcd_ungate_work() in a paired way, increase it only if queue_work()
+returns true.
 
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Cc: Remigiusz Kołłątaj <remigiusz.kollataj@mobica.com>
-Link: https://lore.kernel.org/r/20201111221204.1639007-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/1604384682-15837-2-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/mcba_usb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
-index 21faa2ec46327..8f785c199e220 100644
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -326,8 +326,6 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
- 	if (!ctx)
- 		return NETDEV_TX_BUSY;
- 
--	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
--
- 	if (cf->can_id & CAN_EFF_FLAG) {
- 		/* SIDH    | SIDL                 | EIDH   | EIDL
- 		 * 28 - 21 | 20 19 18 x x x 17 16 | 15 - 8 | 7 - 0
-@@ -357,6 +355,8 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
- 	if (cf->can_id & CAN_RTR_FLAG)
- 		usb_msg.dlc |= MCBA_DLC_RTR_MASK;
- 
-+	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
-+
- 	err = mcba_usb_xmit(priv, (struct mcba_usb_msg *)&usb_msg, ctx);
- 	if (err)
- 		goto xmit_failed;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b2cbdd01ab10b..a63119c35fde8 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1592,12 +1592,12 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 		 * work and to enable clocks.
+ 		 */
+ 	case CLKS_OFF:
+-		ufshcd_scsi_block_requests(hba);
+ 		hba->clk_gating.state = REQ_CLKS_ON;
+ 		trace_ufshcd_clk_gating(dev_name(hba->dev),
+ 					hba->clk_gating.state);
+-		queue_work(hba->clk_gating.clk_gating_workq,
+-			   &hba->clk_gating.ungate_work);
++		if (queue_work(hba->clk_gating.clk_gating_workq,
++			       &hba->clk_gating.ungate_work))
++			ufshcd_scsi_block_requests(hba);
+ 		/*
+ 		 * fall through to check if we should wait for this
+ 		 * work to be done or not.
 -- 
 2.27.0
 
