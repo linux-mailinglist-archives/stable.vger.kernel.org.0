@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD022C05B6
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C27D92C05A7
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgKWMYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:24:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+        id S1729767AbgKWMYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:24:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729873AbgKWMYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:24:48 -0500
+        id S1729764AbgKWMYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:24:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D13EB208C3;
-        Mon, 23 Nov 2020 12:24:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF9B620781;
+        Mon, 23 Nov 2020 12:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134287;
-        bh=BiAw6D5upIknAsiTBPJxn6Y4Z84CYEgSqf9Jodop7hg=;
+        s=korg; t=1606134252;
+        bh=8zuK+EHkzGHFrY+j+zhJ+t4rmPsnmwXt3TG/2VbhS7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7DSXpnKp74UbBcz7TqPRpq21QSyB8ptrVrYrZTjo5JcO84LvLppPYPsQGgisjGf0
-         awFj35HTCizoUZG+r/Wvncl7GdWsLB/pvSb6QqUvpyii3IfTgfDL4CoeyIgg1QXwlg
-         ySzrZPlLWipj6clY1FQkelf+Am49j+NqMJ4hvaA4=
+        b=gN+V4q0kKl6CXfulDnaTmrHJ2uuI+SNzthGHhpab6jFOetgJzKhojFJ2zyliBbn6L
+         /2vUrr7q4pK461ebFqT5nzXwnwUDXhF+TVjViyKgH/W9NRY8UEX/UwukZV/TdBaNrx
+         zlXCgQ+xYf1mqdc2Pp8F/BKqBhPCTiQ63ldGeato=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 17/47] net: ftgmac100: Fix crash when removing driver
-Date:   Mon, 23 Nov 2020 13:22:03 +0100
-Message-Id: <20201123121806.376312467@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 18/38] ARM: dts: imx50-evk: Fix the chip select 1 IOMUX
+Date:   Mon, 23 Nov 2020 13:22:04 +0100
+Message-Id: <20201123121805.181129732@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
+References: <20201123121804.306030358@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 3d5179458d22dc0b4fdc724e4bed4231a655112a ]
+[ Upstream commit 33d0d843872c5ddbe28457a92fc6f2487315fb9f ]
 
-When removing the driver we would hit BUG_ON(!list_empty(&dev->ptype_specific))
-in net/core/dev.c due to still having the NC-SI packet handler
-registered.
+The SPI chip selects are represented as:
 
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/unbind
-  ------------[ cut here ]------------
-  kernel BUG at net/core/dev.c:10254!
-  Internal error: Oops - BUG: 0 [#1] SMP ARM
-  CPU: 0 PID: 115 Comm: sh Not tainted 5.10.0-rc3-next-20201111-00007-g02e0365710c4 #46
-  Hardware name: Generic DT based system
-  PC is at netdev_run_todo+0x314/0x394
-  LR is at cpumask_next+0x20/0x24
-  pc : [<806f5830>]    lr : [<80863cb0>]    psr: 80000153
-  sp : 855bbd58  ip : 00000001  fp : 855bbdac
-  r10: 80c03d00  r9 : 80c06228  r8 : 81158c54
-  r7 : 00000000  r6 : 80c05dec  r5 : 80c05d18  r4 : 813b9280
-  r3 : 813b9054  r2 : 8122c470  r1 : 00000002  r0 : 00000002
-  Flags: Nzcv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-  Control: 00c5387d  Table: 85514008  DAC: 00000051
-  Process sh (pid: 115, stack limit = 0x7cb5703d)
- ...
-  Backtrace:
-  [<806f551c>] (netdev_run_todo) from [<80707eec>] (rtnl_unlock+0x18/0x1c)
-   r10:00000051 r9:854ed710 r8:81158c54 r7:80c76bb0 r6:81158c10 r5:8115b410
-   r4:813b9000
-  [<80707ed4>] (rtnl_unlock) from [<806f5db8>] (unregister_netdev+0x2c/0x30)
-  [<806f5d8c>] (unregister_netdev) from [<805a8180>] (ftgmac100_remove+0x20/0xa8)
-   r5:8115b410 r4:813b9000
-  [<805a8160>] (ftgmac100_remove) from [<805355e4>] (platform_drv_remove+0x34/0x4c)
+cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>, <&gpio4 13 GPIO_ACTIVE_LOW>;
 
-Fixes: bd466c3fb5a4 ("net/faraday: Support NCSI mode")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20201117024448.1170761-1-joel@jms.id.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+, which means that they are used in GPIO function instead of native
+SPI mode.
+
+Fix the IOMUX for the chip select 1 to use GPIO4_13 instead of
+the native CSPI_SSI function.
+
+Fixes: c605cbf5e135 ("ARM: dts: imx: add device tree support for Freescale imx50evk board")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/imx50-evk.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1444,6 +1444,8 @@ static int ftgmac100_probe(struct platfo
- 	return 0;
+diff --git a/arch/arm/boot/dts/imx50-evk.dts b/arch/arm/boot/dts/imx50-evk.dts
+index 27d763c7a307d..4dbd180e72ba6 100644
+--- a/arch/arm/boot/dts/imx50-evk.dts
++++ b/arch/arm/boot/dts/imx50-evk.dts
+@@ -66,7 +66,7 @@
+ 				MX50_PAD_CSPI_MISO__CSPI_MISO		0x00
+ 				MX50_PAD_CSPI_MOSI__CSPI_MOSI		0x00
+ 				MX50_PAD_CSPI_SS0__GPIO4_11		0xc4
+-				MX50_PAD_ECSPI1_MOSI__CSPI_SS1		0xf4
++				MX50_PAD_ECSPI1_MOSI__GPIO4_13		0x84
+ 			>;
+ 		};
  
- err_ncsi_dev:
-+	if (priv->ndev)
-+		ncsi_unregister_dev(priv->ndev);
- err_register_netdev:
- 	ftgmac100_destroy_mdio(netdev);
- err_setup_mdio:
-@@ -1465,6 +1467,8 @@ static int __exit ftgmac100_remove(struc
- 	netdev = platform_get_drvdata(pdev);
- 	priv = netdev_priv(netdev);
- 
-+	if (priv->ndev)
-+		ncsi_unregister_dev(priv->ndev);
- 	unregister_netdev(netdev);
- 	ftgmac100_destroy_mdio(netdev);
- 
+-- 
+2.27.0
+
 
 
