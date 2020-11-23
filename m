@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D0D2C0785
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9896B2C0636
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732538AbgKWMkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:40:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
+        id S1730514AbgKWM2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:28:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732514AbgKWMkl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:40:41 -0500
+        id S1730505AbgKWM2x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:28:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3398F20732;
-        Mon, 23 Nov 2020 12:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F36A208C3;
+        Mon, 23 Nov 2020 12:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135241;
-        bh=YQxTo3qZOqu7l7wv1ojl0FFp11250/mb0j4+Kd3/Xoc=;
+        s=korg; t=1606134532;
+        bh=VuyvZYt7tiW6cnbKZoAd1d133XO0JO4Y79UtkO3Huu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vMeh6E9DN6/vEDtJR5/Xpkqfka5Z/pJf2HiDSScEi0ClvGUMntoIMq6t+OCc/jssp
-         ovQyQu2CTtcG0Bv/khq5r7Pjk930cgWqXjQj+anmxURMCrXUwB6G8Pydc/eSrL8bki
-         25zCOST/IsviSjFCbGlJNOIMOwl4H9ouvxhXLYHA=
+        b=SPZVnXHKmhSgZQSdiDmY20/y4CLrLUW+TeIEkUkLRDUo5wXW1plvPXpaZ1k4EXH/4
+         gjsbeKIbeA0cZN+tSJcg/Acd/i7kYKgV1r/I4JxTquTMScmsQZZuk9YvygxuW1heHZ
+         qZVS2kHHx7kFHhxMfhpbHg+yYZl1NATZRWFbGtGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.4 126/158] efivarfs: fix memory leak in efivarfs_create()
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 52/60] regulator: avoid resolve_supply() infinite recursion
 Date:   Mon, 23 Nov 2020 13:22:34 +0100
-Message-Id: <20201123121826.012554780@linuxfoundation.org>
+Message-Id: <20201123121807.569599051@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit fe5186cf12e30facfe261e9be6c7904a170bd822 upstream.
+commit 4b639e254d3d4f15ee4ff2b890a447204cfbeea9 upstream.
 
-kmemleak report:
-  unreferenced object 0xffff9b8915fcb000 (size 4096):
-  comm "efivarfs.sh", pid 2360, jiffies 4294920096 (age 48.264s)
-  hex dump (first 32 bytes):
-    2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  -...............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000cc4d897c>] kmem_cache_alloc_trace+0x155/0x4b0
-    [<000000007d1dfa72>] efivarfs_create+0x6e/0x1a0
-    [<00000000e6ee18fc>] path_openat+0xe4b/0x1120
-    [<000000000ad0414f>] do_filp_open+0x91/0x100
-    [<00000000ce93a198>] do_sys_openat2+0x20c/0x2d0
-    [<000000002a91be6d>] do_sys_open+0x46/0x80
-    [<000000000a854999>] __x64_sys_openat+0x20/0x30
-    [<00000000c50d89c9>] do_syscall_64+0x38/0x90
-    [<00000000cecd6b5f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+When a regulator's name equals its supply's name the
+regulator_resolve_supply() recurses indefinitely. Add a check
+so that debugging the problem is easier. The "fixed" commit
+just exposed the problem.
 
-In efivarfs_create(), inode->i_private is setup with efivar_entry
-object which is never freed.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Link: https://lore.kernel.org/r/20201023115429.GA2479@cosmos
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Cc: stable@vger.kernel.org
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
+Link: https://lore.kernel.org/r/c6171057cfc0896f950c4d8cb82df0f9f1b89ad9.1605226675.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/efivarfs/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -21,6 +21,7 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
-+	kfree(inode->i_private);
- }
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1544,6 +1544,12 @@ static int regulator_resolve_supply(stru
+ 		}
+ 	}
  
- static const struct super_operations efivarfs_ops = {
++	if (r == rdev) {
++		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
++			rdev->desc->name, rdev->supply_name);
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * If the supply's parent device is not the same as the
+ 	 * regulator's parent device, then ensure the parent device
 
 
