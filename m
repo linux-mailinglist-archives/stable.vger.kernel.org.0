@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C31F2C05E0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D51862C0719
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729939AbgKWMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34620 "EHLO mail.kernel.org"
+        id S1731941AbgKWMha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729933AbgKWMZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:08 -0500
+        id S1731933AbgKWMh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4032B20728;
-        Mon, 23 Nov 2020 12:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE25520721;
+        Mon, 23 Nov 2020 12:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134306;
-        bh=WeYy9fuvJ9LpbzTwBeMlFziLQMDzl1r1zC/bHgwzFEc=;
+        s=korg; t=1606135047;
+        bh=lZvBpeRjlI/VW97KSB7IlHBYVy1l46kdMCQZECCsG1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUhmAGVpo9TffNz796GMCH0PVeUP1PintfAx/bGtRjNb5dX5HsJ3sYpGTnlJLUs6f
-         cj5OOPTHy9k8elnZQVlBqnAtT9mtC0zgVSlVaX4mcitE++f3jBJOBQkM5Wfz86MNkI
-         TA6LbqHZQER8RRPNLkK0+fn1FS31yobmBdpqhhJk=
+        b=KnCWxDFI/rYwj1N3CmS4PMgx3nriXPikDROS0YolJLwqkFV+GeuB1mUd9NH3kWjtJ
+         8mcGKOVycdsfiX5m21JxbZsBmeIuuGoXq7pAwc0QQjRaF3cajvtD81IQCIuD10tIMU
+         dWHK6rrKX5rPzNeLt3GM0dr6nt5m6Qo61OpPOcjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 06/47] net: b44: fix error return code in b44_init_one()
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/158] can: tcan4x5x: tcan4x5x_can_remove(): fix order of deregistration
 Date:   Mon, 23 Nov 2020 13:21:52 +0100
-Message-Id: <20201123121805.858893655@linuxfoundation.org>
+Message-Id: <20201123121823.987303756@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 7b027c249da54f492699c43e26cba486cfd48035 ]
+[ Upstream commit c81d0b6ca665477c761f227807010762630b089f ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Change the order in tcan4x5x_can_remove() to be the exact inverse of
+tcan4x5x_can_probe(). First m_can_class_unregister(), then power down the
+device.
 
-Fixes: 39a6f4bce6b4 ("b44: replace the ssb_dma API with the generic DMA API")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1605582131-36735-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Cc: Dan Murphy <dmurphy@ti.com>
+Link: http://lore.kernel.org/r/20201019154233.1262589-10-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/b44.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/can/m_can/tcan4x5x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/b44.c
-+++ b/drivers/net/ethernet/broadcom/b44.c
-@@ -2390,7 +2390,8 @@ static int b44_init_one(struct ssb_devic
- 		goto err_out_free_dev;
- 	}
+diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
+index 11c223a534887..681bb861de05e 100644
+--- a/drivers/net/can/m_can/tcan4x5x.c
++++ b/drivers/net/can/m_can/tcan4x5x.c
+@@ -501,10 +501,10 @@ static int tcan4x5x_can_remove(struct spi_device *spi)
+ {
+ 	struct tcan4x5x_priv *priv = spi_get_drvdata(spi);
  
--	if (dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30))) {
-+	err = dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30));
-+	if (err) {
- 		dev_err(sdev->dev,
- 			"Required 30BIT DMA mask unsupported by the system\n");
- 		goto err_out_powerdown;
+-	tcan4x5x_power_enable(priv->power, 0);
+-
+ 	m_can_class_unregister(priv->mcan_dev);
+ 
++	tcan4x5x_power_enable(priv->power, 0);
++
+ 	return 0;
+ }
+ 
+-- 
+2.27.0
+
 
 
