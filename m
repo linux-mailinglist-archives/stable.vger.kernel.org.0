@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC2D2C0739
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0692C0621
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732112AbgKWMig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:38:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
+        id S1730397AbgKWM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:28:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732108AbgKWMie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:38:34 -0500
+        id S1730392AbgKWM2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:28:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 243AD20857;
-        Mon, 23 Nov 2020 12:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF6A420888;
+        Mon, 23 Nov 2020 12:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135114;
-        bh=Lr8yG7a/h9lNCCfxshKz1kSJ4UUgtX6WFQHKFkf/oco=;
+        s=korg; t=1606134482;
+        bh=B/eNGlAHvi5dC+mgfYnFNNUWf9A5JS+agK/HNgpTLEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkGldUN4pYG6FKyNOIpYe2mIpZErgUkVATz2IsMkIei3kETqP2Ryyb0BHCw+SVJJk
-         PmZ18nff5chkQ7ti6oJ2K5UaqFtobcepshSBRRg6HiNvqB2B/5n/XTd3qcB5gyTF6Y
-         PQUWjpwjbEQU7ygSWyM2//QzdgJ+5CvL1ohwZzO0=
+        b=CHz+jdt1Ea5vs3VLpuGeXUln8AobG6fTfQwY8O/6RUd+sVCPFOkd5Fuf2O1uCbErc
+         RemL5sK55vfwncDD7/o6Sn6S8dOFeNsGsSUoNzQS4UY6aX6DJ/CNkTVToaTMbJ/Jd/
+         coflTngms9Mr6vwUwhhnEe49Zobct9vXGJVJRJTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkman <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        V Sujith Kumar Reddy <vsujithk@codeaurora.org>,
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/158] bpf, sockmap: Use truesize with sk_rmem_schedule()
-Date:   Mon, 23 Nov 2020 13:22:17 +0100
-Message-Id: <20201123121825.196763523@linuxfoundation.org>
+Subject: [PATCH 4.14 36/60] ASoC: qcom: lpass-platform: Fix memory leak
+Date:   Mon, 23 Nov 2020 13:22:18 +0100
+Message-Id: <20201123121806.793993057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
 
-[ Upstream commit 70796fb751f1d34cc650e640572a174faf009cd4 ]
+[ Upstream commit bd6327fda2f3ded85b69b3c3125c99aaa51c7881 ]
 
-We use skb->size with sk_rmem_scheduled() which is not correct. Instead
-use truesize to align with socket and tcp stack usage of sk_rmem_schedule.
+lpass_pcm_data is not freed in error paths. Free it in
+error paths to avoid memory leak.
 
-Suggested-by: Daniel Borkman <daniel@iogearbox.net>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/160556570616.73229.17003722112077507863.stgit@john-XPS-13-9370
+Fixes: 022d00ee0b55 ("ASoC: lpass-platform: Fix broken pcm data usage")
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: V Sujith Kumar Reddy <vsujithk@codeaurora.org>
+Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Link: https://lore.kernel.org/r/1605416210-14530-1-git-send-email-srivasam@codeaurora.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/qcom/lpass-platform.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 4fad59ee3df0b..ddb1b7d94c998 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -411,7 +411,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
- 	msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
- 	if (unlikely(!msg))
- 		return -EAGAIN;
--	if (!sk_rmem_schedule(sk, skb, skb->len)) {
-+	if (!sk_rmem_schedule(sk, skb, skb->truesize)) {
- 		kfree(msg);
- 		return -EAGAIN;
- 	}
+diff --git a/sound/soc/qcom/lpass-platform.c b/sound/soc/qcom/lpass-platform.c
+index b8f8cb906d805..35c49fc9602b6 100644
+--- a/sound/soc/qcom/lpass-platform.c
++++ b/sound/soc/qcom/lpass-platform.c
+@@ -80,8 +80,10 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
+ 	else
+ 		dma_ch = 0;
+ 
+-	if (dma_ch < 0)
++	if (dma_ch < 0) {
++		kfree(data);
+ 		return dma_ch;
++	}
+ 
+ 	drvdata->substream[dma_ch] = substream;
+ 
+@@ -102,6 +104,7 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
+ 	ret = snd_pcm_hw_constraint_integer(runtime,
+ 			SNDRV_PCM_HW_PARAM_PERIODS);
+ 	if (ret < 0) {
++		kfree(data);
+ 		dev_err(soc_runtime->dev, "setting constraints failed: %d\n",
+ 			ret);
+ 		return -EINVAL;
 -- 
 2.27.0
 
