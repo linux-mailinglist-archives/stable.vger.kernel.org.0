@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D2D2C0BC5
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 084642C0B32
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731073AbgKWNaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:30:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S2388881AbgKWNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:21:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730393AbgKWM2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:06 -0500
+        id S1732120AbgKWMik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:38:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0CAE2076E;
-        Mon, 23 Nov 2020 12:28:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14E312065E;
+        Mon, 23 Nov 2020 12:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134485;
-        bh=rRe3oLOUUy5i3lGVHMGNXUm0uBu10nVJPmb/8p3hSGk=;
+        s=korg; t=1606135120;
+        bh=2FsW2JYiM5WYfvtAH7r0oJxW60XfTiC3NmMqGW7LjtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xydnwRY1I/ze6ERxWr8t2DDin80oQ43MwvtojzoD72byXsXEsFOnXk4C6q5tHky4b
-         ml8DEcVxkCGRKU6UL+SlZdoHFoQ3hEiD8LlavltiGsNP56U6WpStn8G3AM8T8KzElL
-         C63+/Me1ENJrzaugM0K9roxuXFEjIiuk6vytRkyA=
+        b=0ywxc6yqZRDTPzxLSsUqSWIrTmVZJt8/X+vGbId8Ob4AODN27uxZ9eYC/uoENSe3K
+         1jpI55mtWdOVcOvcd0uuXrop1QsaPhQc1LYcbe7xlQeigSRkoVLq1SpTiN+/BxdYsy
+         VSJF3MosgriZ+WxBeVWsnFwTk0bCaWqOODPfOZmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 37/60] MIPS: Alchemy: Fix memleak in alchemy_clk_setup_cpu
+Subject: [PATCH 5.4 111/158] efi/x86: Free efi_pgd with free_pages()
 Date:   Mon, 23 Nov 2020 13:22:19 +0100
-Message-Id: <20201123121806.841644915@linuxfoundation.org>
+Message-Id: <20201123121825.295716679@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit ac3b57adf87ad9bac7e33ca26bbbb13fae1ed62b ]
+[ Upstream commit c2fe61d8be491ff8188edaf22e838f819999146b ]
 
-If the clk_register fails, we should free h before
-function returns to prevent memleak.
+Commit
 
-Fixes: 474402291a0ad ("MIPS: Alchemy: clock framework integration of onchip clocks")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+  d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
+
+changed the PGD allocation to allocate PGD_ALLOCATION_ORDER pages, so in
+the error path it should be freed using free_pages() rather than
+free_page().
+
+Commit
+
+    06ace26f4e6f ("x86/efi: Free efi_pgd with free_pages()")
+
+fixed one instance of this, but missed another.
+
+Move the freeing out-of-line to avoid code duplication and fix this bug.
+
+Fixes: d9e9a6418065 ("x86/mm/pti: Allocate a separate user PGD")
+Link: https://lore.kernel.org/r/20201110163919.1134431-1-nivedita@alum.mit.edu
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/alchemy/common/clock.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/platform/efi/efi_64.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/arch/mips/alchemy/common/clock.c b/arch/mips/alchemy/common/clock.c
-index a83c7b7e2eb1f..c5e49bb79c004 100644
---- a/arch/mips/alchemy/common/clock.c
-+++ b/arch/mips/alchemy/common/clock.c
-@@ -152,6 +152,7 @@ static struct clk __init *alchemy_clk_setup_cpu(const char *parent_name,
- {
- 	struct clk_init_data id;
- 	struct clk_hw *h;
-+	struct clk *clk;
+diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
+index e39c930cfbd1e..5283978181103 100644
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -217,28 +217,30 @@ int __init efi_alloc_page_tables(void)
+ 	gfp_mask = GFP_KERNEL | __GFP_ZERO;
+ 	efi_pgd = (pgd_t *)__get_free_pages(gfp_mask, PGD_ALLOCATION_ORDER);
+ 	if (!efi_pgd)
+-		return -ENOMEM;
++		goto fail;
  
- 	h = kzalloc(sizeof(*h), GFP_KERNEL);
- 	if (!h)
-@@ -164,7 +165,13 @@ static struct clk __init *alchemy_clk_setup_cpu(const char *parent_name,
- 	id.ops = &alchemy_clkops_cpu;
- 	h->init = &id;
+ 	pgd = efi_pgd + pgd_index(EFI_VA_END);
+ 	p4d = p4d_alloc(&init_mm, pgd, EFI_VA_END);
+-	if (!p4d) {
+-		free_page((unsigned long)efi_pgd);
+-		return -ENOMEM;
+-	}
++	if (!p4d)
++		goto free_pgd;
  
--	return clk_register(NULL, h);
-+	clk = clk_register(NULL, h);
-+	if (IS_ERR(clk)) {
-+		pr_err("failed to register clock\n");
-+		kfree(h);
-+	}
+ 	pud = pud_alloc(&init_mm, p4d, EFI_VA_END);
+-	if (!pud) {
+-		if (pgtable_l5_enabled())
+-			free_page((unsigned long) pgd_page_vaddr(*pgd));
+-		free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
+-		return -ENOMEM;
+-	}
++	if (!pud)
++		goto free_p4d;
+ 
+ 	efi_mm.pgd = efi_pgd;
+ 	mm_init_cpumask(&efi_mm);
+ 	init_new_context(NULL, &efi_mm);
+ 
+ 	return 0;
 +
-+	return clk;
++free_p4d:
++	if (pgtable_l5_enabled())
++		free_page((unsigned long)pgd_page_vaddr(*pgd));
++free_pgd:
++	free_pages((unsigned long)efi_pgd, PGD_ALLOCATION_ORDER);
++fail:
++	return -ENOMEM;
  }
  
- /* AUXPLLs ************************************************************/
+ /*
 -- 
 2.27.0
 
