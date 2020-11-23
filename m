@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC112C05DE
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E76AE2C066A
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729929AbgKWMZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:25:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
+        id S1730667AbgKWMas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:30:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729926AbgKWMZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:25:05 -0500
+        id S1730766AbgKWMaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:30:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EE4820781;
-        Mon, 23 Nov 2020 12:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D9920728;
+        Mon, 23 Nov 2020 12:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134303;
-        bh=/PwlTpAU5qAoLDl081SBW7xd/jTS7nlN9sZUV7cwFso=;
+        s=korg; t=1606134645;
+        bh=0A66eNDJ2aZU+lf9L5muAqnCOkTKeAP0usRGZ3A0xHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qL//9yL0k0iEp0e2wuQHkylFlMtduLhPnTketQDM8ebrjL13unSzPw+8gAHNGjM5M
-         LOO+iVLiejzrhG5mSSKs3JV722kLb0Y5+Z2dSgISAFZPNqLkbBahs/4/e0X+CZRNXI
-         3OaYuCp8IqpXSyLks+zgHdWXjRnU9R91VEzRO6hg=
+        b=w0gCgWlIb9MVTtC96tE9XgAW5hDAVYe8MoqZxbrMQtT2pN2MMKHJb1bX+5PtBUg21
+         J1p7MFQn26gdrdL0h1SEHV4qm9ts9oL5Zw4hz9jRgGkJQaLUQgNA4dCxIlHkezksLV
+         79KjEp50oTFbx/lpK2fVLrZPScb0+ndm8nkp+TdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 05/47] inet_diag: Fix error path to cancel the meseage in inet_req_diag_fill()
+        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/91] arm64: psci: Avoid printing in cpu_psci_cpu_die()
 Date:   Mon, 23 Nov 2020 13:21:51 +0100
-Message-Id: <20201123121805.809486290@linuxfoundation.org>
+Message-Id: <20201123121810.837992909@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
-References: <20201123121805.530891002@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit e33de7c5317e2827b2ba6fd120a505e9eb727b05 ]
+[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
 
-nlmsg_cancel() needs to be called in the error path of
-inet_req_diag_fill to cancel the message.
+cpu_psci_cpu_die() is called in the context of the dying CPU, which
+will no longer be online or tracked by RCU. It is therefore not generally
+safe to call printk() if the PSCI "cpu off" request fails, so remove the
+pr_crit() invocation.
 
-Fixes: d545caca827b ("net: inet: diag: expose the socket mark to privileged processes.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20201116082018.16496-1-wanghai38@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Qian Cai <cai@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_diag.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/psci.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/ipv4/inet_diag.c
-+++ b/net/ipv4/inet_diag.c
-@@ -355,8 +355,10 @@ static int inet_req_diag_fill(struct soc
- 	r->idiag_inode	= 0;
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index 3856d51c645b5..3ebb2a56e5f7b 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -69,7 +69,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
  
- 	if (net_admin && nla_put_u32(skb, INET_DIAG_MARK,
--				     inet_rsk(reqsk)->ir_mark))
-+				     inet_rsk(reqsk)->ir_mark)) {
-+		nlmsg_cancel(skb, nlh);
- 		return -EMSGSIZE;
-+	}
+ static void cpu_psci_cpu_die(unsigned int cpu)
+ {
+-	int ret;
+ 	/*
+ 	 * There are no known implementations of PSCI actually using the
+ 	 * power state field, pass a sensible default for now.
+@@ -77,9 +76,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+ 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
+ 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
  
- 	nlmsg_end(skb, nlh);
- 	return 0;
+-	ret = psci_ops.cpu_off(state);
+-
+-	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
++	psci_ops.cpu_off(state);
+ }
+ 
+ static int cpu_psci_cpu_kill(unsigned int cpu)
+-- 
+2.27.0
+
 
 
