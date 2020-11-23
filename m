@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31522C0AE3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426D52C0BD3
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730779AbgKWMax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41778 "EHLO mail.kernel.org"
+        id S1729586AbgKWNbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:31:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730772AbgKWMav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:30:51 -0500
+        id S1730209AbgKWM0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:26:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E4C920728;
-        Mon, 23 Nov 2020 12:30:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07BE120888;
+        Mon, 23 Nov 2020 12:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134650;
-        bh=/CuCIyqCGWl1pj0qaP1PVDXHdanIKYc2bl6650nmA0w=;
+        s=korg; t=1606134414;
+        bh=tW+TLAeov768jDsPmbg6pb66torvsqfj+KJgR8LR+HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXTGNhMF+tE0D7tP6XZpyMZNkQ5hMiHNNGAo0ssIFkcsHolwA5IFN9X2sTIe2jCPz
-         KHAOPIuY0HnBdYIyb1OPJ6Y0dxbEWCqZDpBEqC5ncz1PXsPhzgJDbUsW2oF9ZLm8Pb
-         XbREB5J2vR4RAghxpX28qKpqQjFsQOMUbz6M1wzw=
+        b=nlQvh+sN37+Up0JabrruoMyH0BHj5md/fQQqbhi4v+6DnEkcAfcBSmbz3onuTLamW
+         KSOyBrZOa+p/fmnwF4y43+cnqdyJ5jc+O6LkGVBDfrC+r+qn9O+y1spn+Q+YePMEsL
+         W51kM04vZFPqDcpb5YV3bksCHjploXmtJfQX/v68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/91] arm64: dts: allwinner: a64: Pine64 Plus: Fix ethernet node
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 11/60] netlabel: fix our progress tracking in netlbl_unlabel_staticlist()
 Date:   Mon, 23 Nov 2020 13:21:53 +0100
-Message-Id: <20201123121810.927279546@linuxfoundation.org>
+Message-Id: <20201123121805.575699865@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 927f42fcc1b4f7d04a2ac5cf02f25612aa8923a4 ]
+[ Upstream commit 866358ec331f8faa394995fb4b511af1db0247c8 ]
 
-According to board schematic, PHY provides both, RX and TX delays.
-However, according to "fix" Realtek provided for this board, only TX
-delay should be provided by PHY.
-Tests show that both variants work but TX only PHY delay works
-slightly better.
+The current NetLabel code doesn't correctly keep track of the netlink
+dump state in some cases, in particular when multiple interfaces with
+large configurations are loaded.  The problem manifests itself by not
+reporting the full configuration to userspace, even though it is
+loaded and active in the kernel.  This patch fixes this by ensuring
+that the dump state is properly reset when necessary inside the
+netlbl_unlabel_staticlist() function.
 
-Update ethernet node to reflect the fact that PHY provides TX delay.
-
-Fixes: 94f442886711 ("arm64: dts: allwinner: A64: Restore EMAC changes")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20201022211301.3548422-1-jernej.skrabec@siol.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8cc44579d1bd ("NetLabel: Introduce static network labels for unlabeled connections")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/160484450633.3752.16512718263560813473.stgit@sifl
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-plus.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netlabel/netlabel_unlabeled.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-plus.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-plus.dts
-index d5b6e8159a335..5d0905f0f1c1d 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-plus.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-plus.dts
-@@ -52,7 +52,7 @@
- &emac {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&rgmii_pins>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-txid";
- 	phy-handle = <&ext_rgmii_phy>;
- 	status = "okay";
- };
--- 
-2.27.0
-
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -1179,12 +1179,13 @@ static int netlbl_unlabel_staticlist(str
+ 	struct netlbl_unlhsh_walk_arg cb_arg;
+ 	u32 skip_bkt = cb->args[0];
+ 	u32 skip_chain = cb->args[1];
+-	u32 iter_bkt;
+-	u32 iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0;
++	u32 skip_addr4 = cb->args[2];
++	u32 iter_bkt, iter_chain, iter_addr4 = 0, iter_addr6 = 0;
+ 	struct netlbl_unlhsh_iface *iface;
+ 	struct list_head *iter_list;
+ 	struct netlbl_af4list *addr4;
+ #if IS_ENABLED(CONFIG_IPV6)
++	u32 skip_addr6 = cb->args[3];
+ 	struct netlbl_af6list *addr6;
+ #endif
+ 
+@@ -1195,7 +1196,7 @@ static int netlbl_unlabel_staticlist(str
+ 	rcu_read_lock();
+ 	for (iter_bkt = skip_bkt;
+ 	     iter_bkt < rcu_dereference(netlbl_unlhsh)->size;
+-	     iter_bkt++, iter_chain = 0, iter_addr4 = 0, iter_addr6 = 0) {
++	     iter_bkt++) {
+ 		iter_list = &rcu_dereference(netlbl_unlhsh)->tbl[iter_bkt];
+ 		list_for_each_entry_rcu(iface, iter_list, list) {
+ 			if (!iface->valid ||
+@@ -1203,7 +1204,7 @@ static int netlbl_unlabel_staticlist(str
+ 				continue;
+ 			netlbl_af4list_foreach_rcu(addr4,
+ 						   &iface->addr4_list) {
+-				if (iter_addr4++ < cb->args[2])
++				if (iter_addr4++ < skip_addr4)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1216,10 +1217,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr4 = 0;
++			skip_addr4 = 0;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 			netlbl_af6list_foreach_rcu(addr6,
+ 						   &iface->addr6_list) {
+-				if (iter_addr6++ < cb->args[3])
++				if (iter_addr6++ < skip_addr6)
+ 					continue;
+ 				if (netlbl_unlabel_staticlist_gen(
+ 					      NLBL_UNLABEL_C_STATICLIST,
+@@ -1232,8 +1235,12 @@ static int netlbl_unlabel_staticlist(str
+ 					goto unlabel_staticlist_return;
+ 				}
+ 			}
++			iter_addr6 = 0;
++			skip_addr6 = 0;
+ #endif /* IPv6 */
+ 		}
++		iter_chain = 0;
++		skip_chain = 0;
+ 	}
+ 
+ unlabel_staticlist_return:
 
 
