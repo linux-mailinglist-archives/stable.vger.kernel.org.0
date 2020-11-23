@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045082C0845
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1FE2C09B0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732805AbgKWMrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:47:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
+        id S2387822AbgKWNKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:10:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732721AbgKWMrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732718AbgKWMrA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:47:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8FD72100A;
-        Mon, 23 Nov 2020 12:46:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E6EC20888;
+        Mon, 23 Nov 2020 12:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135615;
-        bh=96Ig/gGRerfzv0ZjBacyI+loKSft5qgvRfL/yMC9LqI=;
+        s=korg; t=1606135618;
+        bh=uAl/Hj/W/wcK0yBx/8xKCDgjvvm9J8Ad/jZllIuEMww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqyIXE8g6t8Y2VSBkbGZcAYiVw4C5Fa9hJDga2fAaa3SQbwvyvJOoBhcPf6RSbbMu
-         nJuTI8dNqPwMW4gupEkmziY5QYmDfbQYzjPSH7J8iElYobxftpJ1x4HB17f8IrdJ4/
-         DkG6M9+72DqfDam7nOB5YHxSclOWWxLYRHbJjX8M=
+        b=Yc22hEjrkqjQ6uElSLvvyynyC29pez2Ls0Ni1+RZoHdufITC7u41peCr1tDHHd2lt
+         wy3JPMlMha3EHkwj5YPixRchJhde0FR6dB6jXatFpnwH2zzhUegWX7cNnYgLROggdU
+         HkwsOwP3KojKRwC2AYStYN6t+/wGYNCVhR/QD8U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Remigiusz=20Ko=C5=82=C5=82=C4=85taj?= 
+        <remigiusz.kollataj@mobica.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 132/252] can: ti_hecc: Fix memleak in ti_hecc_probe
-Date:   Mon, 23 Nov 2020 13:21:22 +0100
-Message-Id: <20201123121841.966798321@linuxfoundation.org>
+Subject: [PATCH 5.9 133/252] can: mcba_usb: mcba_usb_start_xmit(): first fill skb, then pass to can_put_echo_skb()
+Date:   Mon, 23 Nov 2020 13:21:23 +0100
+Message-Id: <20201123121842.015096980@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,72 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 7968c7c79d3be8987feb8021f0c46e6866831408 ]
+[ Upstream commit 81c9c8e0adef3285336b942f93287c554c89e6c6 ]
 
-In the error handling, we should goto the probe_exit_candev
-to free ndev to prevent memory leak.
+The driver has to first fill the skb with data and then handle it to
+can_put_echo_skb(). This patch moves the can_put_echo_skb() down, right before
+sending the skb out via USB.
 
-Fixes: dabf54dd1c63 ("can: ti_hecc: Convert TI HECC driver to DT only driver")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201114111708.3465543-1-zhangqilong3@huawei.com
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Cc: Remigiusz Kołłątaj <remigiusz.kollataj@mobica.com>
+Link: https://lore.kernel.org/r/20201111221204.1639007-1-mkl@pengutronix.de
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/ti_hecc.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/can/usb/mcba_usb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/ti_hecc.c b/drivers/net/can/ti_hecc.c
-index 228ecd45ca6c1..0e8b5df7e9830 100644
---- a/drivers/net/can/ti_hecc.c
-+++ b/drivers/net/can/ti_hecc.c
-@@ -887,7 +887,8 @@ static int ti_hecc_probe(struct platform_device *pdev)
- 	priv->base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(priv->base)) {
- 		dev_err(&pdev->dev, "hecc ioremap failed\n");
--		return PTR_ERR(priv->base);
-+		err = PTR_ERR(priv->base);
-+		goto probe_exit_candev;
- 	}
+diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
+index 21faa2ec46327..8f785c199e220 100644
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -326,8 +326,6 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (!ctx)
+ 		return NETDEV_TX_BUSY;
  
- 	/* handle hecc-ram memory */
-@@ -900,7 +901,8 @@ static int ti_hecc_probe(struct platform_device *pdev)
- 	priv->hecc_ram = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(priv->hecc_ram)) {
- 		dev_err(&pdev->dev, "hecc-ram ioremap failed\n");
--		return PTR_ERR(priv->hecc_ram);
-+		err = PTR_ERR(priv->hecc_ram);
-+		goto probe_exit_candev;
- 	}
+-	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
+-
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+ 		/* SIDH    | SIDL                 | EIDH   | EIDL
+ 		 * 28 - 21 | 20 19 18 x x x 17 16 | 15 - 8 | 7 - 0
+@@ -357,6 +355,8 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (cf->can_id & CAN_RTR_FLAG)
+ 		usb_msg.dlc |= MCBA_DLC_RTR_MASK;
  
- 	/* handle mbx memory */
-@@ -913,13 +915,14 @@ static int ti_hecc_probe(struct platform_device *pdev)
- 	priv->mbx = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(priv->mbx)) {
- 		dev_err(&pdev->dev, "mbx ioremap failed\n");
--		return PTR_ERR(priv->mbx);
-+		err = PTR_ERR(priv->mbx);
-+		goto probe_exit_candev;
- 	}
- 
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!irq) {
- 		dev_err(&pdev->dev, "No irq resource\n");
--		goto probe_exit;
-+		goto probe_exit_candev;
- 	}
- 
- 	priv->ndev = ndev;
-@@ -983,7 +986,7 @@ probe_exit_release_clk:
- 	clk_put(priv->clk);
- probe_exit_candev:
- 	free_candev(ndev);
--probe_exit:
++	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
 +
- 	return err;
- }
- 
+ 	err = mcba_usb_xmit(priv, (struct mcba_usb_msg *)&usb_msg, ctx);
+ 	if (err)
+ 		goto xmit_failed;
 -- 
 2.27.0
 
