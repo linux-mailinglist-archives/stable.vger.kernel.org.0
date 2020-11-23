@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0342C0620
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B682C05E9
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729862AbgKWM2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S1729959AbgKWMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:25:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730390AbgKWM2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:01 -0500
+        id S1729995AbgKWMZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:25:28 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1E2F20728;
-        Mon, 23 Nov 2020 12:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D49112076E;
+        Mon, 23 Nov 2020 12:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134479;
-        bh=YxspgIcfsGSxpHBOzsNLR95d45ufnwb0/diUX2ysqO8=;
+        s=korg; t=1606134326;
+        bh=93VrMVYKxpRP0ORf3ecOd7y7hC7tY7W+PyTw58cxmMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLJ0BAD9LrRpBx/LUQYQayXR2LJBRhdSij9F6vjiVfj435dQAO7V0dEqZiALTA8x7
-         Dy2cZaqQYZSY64zYX10DQ1Ze+W6OCpDEXdLFnbyWeI711UFwrWbVASvKT8ML03XLZM
-         zkqIs+0ZNnH6ZLQvey8BjyhjEOby32XeVCFgEUps=
+        b=Wo4CIZQF9VZiz0zjH+6mNoTGbWT4Q0z03ryhxVb8RtzTk+fbdWI+9rxRCVBr3uxfT
+         Eo528dwvxkviRSwAerq/6u+yhR5axyW8rguagVg0+9ImnVNR8A//CbmMS62s2uYWhO
+         ISOgspe8qOvu7hR32Tc9Pf+XRpojbXM5CjBeyyQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo.oduw@gmail.com>,
-        Dan Murphy <dmurphy@ti.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Nishanth Menon <nm@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/60] can: m_can: m_can_handle_state_change(): fix state change
+Subject: [PATCH 4.9 31/47] regulator: ti-abb: Fix array out of bound read access on the first transition
 Date:   Mon, 23 Nov 2020 13:22:17 +0100
-Message-Id: <20201123121806.741802085@linuxfoundation.org>
+Message-Id: <20201123121807.058405502@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo.oduw@gmail.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit cd0d83eab2e0c26fe87a10debfedbb23901853c1 ]
+[ Upstream commit 2ba546ebe0ce2af47833d8912ced9b4a579f13cb ]
 
-m_can_handle_state_change() is called with the new_state as an argument.
+At the start of driver initialization, we do not know what bias
+setting the bootloader has configured the system for and we only know
+for certain the very first time we do a transition.
 
-In the switch statements for CAN_STATE_ERROR_ACTIVE, the comment and the
-following code indicate that a CAN_STATE_ERROR_WARNING is handled.
+However, since the initial value of the comparison index is -EINVAL,
+this negative value results in an array out of bound access on the
+very first transition.
 
-This patch fixes this problem by changing the case to CAN_STATE_ERROR_WARNING.
+Since we don't know what the setting is, we just set the bias
+configuration as there is nothing to compare against. This prevents
+the array out of bound access.
 
-Signed-off-by: Wu Bo <wubo.oduw@gmail.com>
-Link: http://lore.kernel.org/r/20200129022330.21248-2-wubo.oduw@gmail.com
-Cc: Dan Murphy <dmurphy@ti.com>
-Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+NOTE: Even though we could use a more relaxed check of "< 0" the only
+valid values(ignoring cosmic ray induced bitflips) are -EINVAL, 0+.
+
+Fixes: 40b1936efebd ("regulator: Introduce TI Adaptive Body Bias(ABB) on-chip LDO driver")
+Link: https://lore.kernel.org/linux-mm/CA+G9fYuk4imvhyCN7D7T6PMDH6oNp6HDCRiTUKMQ6QXXjBa4ag@mail.gmail.com/
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20201118145009.10492-1-nm@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/regulator/ti-abb-regulator.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index ebad93ac8f118..680ee8345211f 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -671,7 +671,7 @@ static int m_can_handle_state_change(struct net_device *dev,
- 	unsigned int ecr;
+diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
+index 6d17357b3a248..5f5f63eb8c762 100644
+--- a/drivers/regulator/ti-abb-regulator.c
++++ b/drivers/regulator/ti-abb-regulator.c
+@@ -342,8 +342,17 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
+ 		return ret;
+ 	}
  
- 	switch (new_state) {
--	case CAN_STATE_ERROR_ACTIVE:
-+	case CAN_STATE_ERROR_WARNING:
- 		/* error warning state */
- 		priv->can.can_stats.error_warning++;
- 		priv->can.state = CAN_STATE_ERROR_WARNING;
-@@ -700,7 +700,7 @@ static int m_can_handle_state_change(struct net_device *dev,
- 	__m_can_get_berr_counter(dev, &bec);
+-	/* If data is exactly the same, then just update index, no change */
+ 	info = &abb->info[sel];
++	/*
++	 * When Linux kernel is starting up, we are'nt sure of the
++	 * Bias configuration that bootloader has configured.
++	 * So, we get to know the actual setting the first time
++	 * we are asked to transition.
++	 */
++	if (abb->current_info_idx == -EINVAL)
++		goto just_set_abb;
++
++	/* If data is exactly the same, then just update index, no change */
+ 	oinfo = &abb->info[abb->current_info_idx];
+ 	if (!memcmp(info, oinfo, sizeof(*info))) {
+ 		dev_dbg(dev, "%s: Same data new idx=%d, old idx=%d\n", __func__,
+@@ -351,6 +360,7 @@ static int ti_abb_set_voltage_sel(struct regulator_dev *rdev, unsigned sel)
+ 		goto out;
+ 	}
  
- 	switch (new_state) {
--	case CAN_STATE_ERROR_ACTIVE:
-+	case CAN_STATE_ERROR_WARNING:
- 		/* error warning state */
- 		cf->can_id |= CAN_ERR_CRTL;
- 		cf->data[1] = (bec.txerr > bec.rxerr) ?
++just_set_abb:
+ 	ret = ti_abb_set_opp(rdev, abb, info);
+ 
+ out:
 -- 
 2.27.0
 
