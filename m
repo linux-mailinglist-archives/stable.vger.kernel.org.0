@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13AAC2C0AF5
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07EFD2C0C2B
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731255AbgKWMdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:33:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44924 "EHLO mail.kernel.org"
+        id S1732772AbgKWNua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:50:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731240AbgKWMde (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:34 -0500
+        id S1730656AbgKWNu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 08:50:29 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 153D32065E;
-        Mon, 23 Nov 2020 12:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C9FA206F1;
+        Mon, 23 Nov 2020 13:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134813;
-        bh=PwLfbBqgGzz6Ly0Nf8aQXizElWKPdsHNO1kb7/SjCH8=;
+        s=korg; t=1606139428;
+        bh=pz37Gn97ch7Lk3IMpVMcl1eN/9hIUcnk2VqStcv/jlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oje1MLwtR8CHeJgKThmx4IBADCfRmfk6jqfXNwFVLGeB5KrYsmCpNHnJyxagCoVeN
-         RkpErFXgGYQyS0vBxwiu5HK+PfgD3IM1diKO+YN5ncOQ4nwfQpBVUurVg+rNAujLL0
-         AZxj2zM6zlKff68fkBq3F+MyxtOGyO5Ov3rgaR+Q=
+        b=1p48ovJYKWZoOZdRAY0wIqnwLMn5xiqmzDLsbqzXQdY6qNg1pQ1z3Ar+o+OVwOx9E
+         cPtbgF/yL2rbWV5D6SDueyliN0xXcjr4BhxPvl6Hi0WHMU84zaUjy1oA+/IkxgvMkD
+         T0I8dxiSy61qrEgIe9SCbzACftb1TxYi7OtIUU6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 91/91] mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
-Date:   Mon, 23 Nov 2020 13:22:51 +0100
-Message-Id: <20201123121813.744695905@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        stable@vger.kernel.org, Dale B Stimson <dale.b.stimson@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>
+Subject: [PATCH 5.9 238/252] drm/i915/tgl: Fix Media power gate sequence.
+Date:   Mon, 23 Nov 2020 13:23:08 +0100
+Message-Id: <20201123121847.066523510@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
+References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,159 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-commit bfe8cc1db02ab243c62780f17fc57f65bde0afe1 upstream.
+commit 85a12d7eb8fe449cf38f1aa9ead5ca744729a98f upstream.
 
-Alexander reported a syzkaller / KASAN finding on s390, see below for
-complete output.
+Some media power gates are disabled by default. commit 5d86923060fc
+("drm/i915/tgl: Enable VD HCP/MFX sub-pipe power gating")
+tried to enable it, but it duplicated an existent register.
+So, the main PG setup sequences ended up overwriting it.
 
-In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be
-freed in some cases.  In the case of userfaultfd_missing(), this will
-happen after calling handle_userfault(), which might have released the
-mmap_lock.  Therefore, the following pte_free(vma->vm_mm, pgtable) will
-access an unstable vma->vm_mm, which could have been freed or re-used
-already.
+So, let's now merge this to the main PG setup sequence.
 
-For all architectures other than s390 this will go w/o any negative
-impact, because pte_free() simply frees the page and ignores the
-passed-in mm.  The implementation for SPARC32 would also access
-mm->page_table_lock for pte_free(), but there is no THP support in
-SPARC32, so the buggy code path will not be used there.
+v2: (Chris): s/BIT/REG_BIT, remove useless comment,
+    	     remove useless =0, use the right gt,
+	     remove rc6 sequence doubt from commit message.
 
-For s390, the mm->context.pgtable_list is being used to maintain the 2K
-pagetable fragments, and operating on an already freed or even re-used
-mm could result in various more or less subtle bugs due to list /
-pagetable corruption.
-
-Fix this by calling pte_free() before handle_userfault(), similar to how
-it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
-non-huge_zero_page case.
-
-Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
-userfaultfd_missing() faults") actually introduced both, the
-do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
-changes wrt to calling handle_userfault(), but only in the latter case
-it put the pte_free() before calling handle_userfault().
-
-  BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
-  Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
-
-  CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
-  Hardware name: IBM 3906 M04 701 (KVM/Linux)
-  Call Trace:
-    do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
-    create_huge_pmd mm/memory.c:4256 [inline]
-    __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
-    handle_mm_fault+0x288/0x748 mm/memory.c:4607
-    do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
-    do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
-    pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
-    copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
-    raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
-    _copy_from_user+0x48/0xa8 lib/usercopy.c:16
-    copy_from_user include/linux/uaccess.h:192 [inline]
-    __do_sys_sigaltstack kernel/signal.c:4064 [inline]
-    __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
-    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-  Allocated by task 9334:
-    slab_alloc_node mm/slub.c:2891 [inline]
-    slab_alloc mm/slub.c:2899 [inline]
-    kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
-    vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
-    __split_vma+0xba/0x560 mm/mmap.c:2742
-    split_vma+0xca/0x108 mm/mmap.c:2800
-    mlock_fixup+0x4ae/0x600 mm/mlock.c:550
-    apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
-    do_mlock+0x1aa/0x718 mm/mlock.c:711
-    __do_sys_mlock2 mm/mlock.c:738 [inline]
-    __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
-    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-  Freed by task 9333:
-    slab_free mm/slub.c:3142 [inline]
-    kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
-    __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
-    vma_merge+0x87e/0xce0 mm/mmap.c:1209
-    userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
-    __fput+0x22c/0x7a8 fs/file_table.c:281
-    task_work_run+0x200/0x320 kernel/task_work.c:151
-    tracehook_notify_resume include/linux/tracehook.h:188 [inline]
-    do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
-    system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
-
-  The buggy address belongs to the object at 00000000962d6948 which belongs to the cache vm_area_struct of size 200
-  The buggy address is located 64 bytes inside of 200-byte region [00000000962d6948, 00000000962d6a10)
-  The buggy address belongs to the page: page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6 flags: 0x3ffff00000000200(slab)
-  raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
-  raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
-  page dumped because: kasan: bad access detected
-  page->mem_cgroup:0000000096959501
-
-  Memory state around the buggy address:
-   00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
-  >00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                        ^
-   00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
-   00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ==================================================================
-
-Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
-Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[4.3+]
-Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5d86923060fc ("drm/i915/tgl: Enable VD HCP/MFX sub-pipe power gating")
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: stable@vger.kernel.org#v5.5+
+Cc: Dale B Stimson <dale.b.stimson@intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201111072859.1186070-1-rodrigo.vivi@intel.com
+(cherry picked from commit 695dc55b573985569259e18f8e6261a77924342b)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/huge_memory.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_rc6.c |   22 +++++++++++++++++-----
+ drivers/gpu/drm/i915/i915_reg.h     |   12 +++++-------
+ drivers/gpu/drm/i915/intel_pm.c     |   13 -------------
+ 3 files changed, 22 insertions(+), 25 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -694,7 +694,6 @@ vm_fault_t do_huge_pmd_anonymous_page(st
- 			transparent_hugepage_use_zero_page()) {
- 		pgtable_t pgtable;
- 		struct page *zero_page;
--		bool set;
- 		vm_fault_t ret;
- 		pgtable = pte_alloc_one(vma->vm_mm, haddr);
- 		if (unlikely(!pgtable))
-@@ -707,25 +706,25 @@ vm_fault_t do_huge_pmd_anonymous_page(st
- 		}
- 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
- 		ret = 0;
--		set = false;
- 		if (pmd_none(*vmf->pmd)) {
- 			ret = check_stable_address_space(vma->vm_mm);
- 			if (ret) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 			} else if (userfaultfd_missing(vma)) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
- 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
- 			} else {
- 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
- 						   haddr, vmf->pmd, zero_page);
- 				spin_unlock(vmf->ptl);
--				set = true;
- 			}
--		} else
-+		} else {
- 			spin_unlock(vmf->ptl);
--		if (!set)
- 			pte_free(vma->vm_mm, pgtable);
-+		}
- 		return ret;
- 	}
- 	gfp = alloc_hugepage_direct_gfpmask(vma);
+--- a/drivers/gpu/drm/i915/gt/intel_rc6.c
++++ b/drivers/gpu/drm/i915/gt/intel_rc6.c
+@@ -56,9 +56,12 @@ static inline void set(struct intel_unco
+ 
+ static void gen11_rc6_enable(struct intel_rc6 *rc6)
+ {
+-	struct intel_uncore *uncore = rc6_to_uncore(rc6);
++	struct intel_gt *gt = rc6_to_gt(rc6);
++	struct intel_uncore *uncore = gt->uncore;
+ 	struct intel_engine_cs *engine;
+ 	enum intel_engine_id id;
++	u32 pg_enable;
++	int i;
+ 
+ 	/* 2b: Program RC6 thresholds.*/
+ 	set(uncore, GEN6_RC6_WAKE_RATE_LIMIT, 54 << 16 | 85);
+@@ -102,10 +105,19 @@ static void gen11_rc6_enable(struct inte
+ 		GEN6_RC_CTL_RC6_ENABLE |
+ 		GEN6_RC_CTL_EI_MODE(1);
+ 
+-	set(uncore, GEN9_PG_ENABLE,
+-	    GEN9_RENDER_PG_ENABLE |
+-	    GEN9_MEDIA_PG_ENABLE |
+-	    GEN11_MEDIA_SAMPLER_PG_ENABLE);
++	pg_enable =
++		GEN9_RENDER_PG_ENABLE |
++		GEN9_MEDIA_PG_ENABLE |
++		GEN11_MEDIA_SAMPLER_PG_ENABLE;
++
++	if (INTEL_GEN(gt->i915) >= 12) {
++		for (i = 0; i < I915_MAX_VCS; i++)
++			if (HAS_ENGINE(gt, _VCS(i)))
++				pg_enable |= (VDN_HCP_POWERGATE_ENABLE(i) |
++					      VDN_MFX_POWERGATE_ENABLE(i));
++	}
++
++	set(uncore, GEN9_PG_ENABLE, pg_enable);
+ }
+ 
+ static void gen9_rc6_enable(struct intel_rc6 *rc6)
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -8974,10 +8974,6 @@ enum {
+ #define   GEN9_PWRGT_MEDIA_STATUS_MASK		(1 << 0)
+ #define   GEN9_PWRGT_RENDER_STATUS_MASK		(1 << 1)
+ 
+-#define POWERGATE_ENABLE			_MMIO(0xa210)
+-#define    VDN_HCP_POWERGATE_ENABLE(n)		BIT(((n) * 2) + 3)
+-#define    VDN_MFX_POWERGATE_ENABLE(n)		BIT(((n) * 2) + 4)
+-
+ #define  GTFIFODBG				_MMIO(0x120000)
+ #define    GT_FIFO_SBDEDICATE_FREE_ENTRY_CHV	(0x1f << 20)
+ #define    GT_FIFO_FREE_ENTRIES_CHV		(0x7f << 13)
+@@ -9117,9 +9113,11 @@ enum {
+ #define GEN9_MEDIA_PG_IDLE_HYSTERESIS		_MMIO(0xA0C4)
+ #define GEN9_RENDER_PG_IDLE_HYSTERESIS		_MMIO(0xA0C8)
+ #define GEN9_PG_ENABLE				_MMIO(0xA210)
+-#define GEN9_RENDER_PG_ENABLE			REG_BIT(0)
+-#define GEN9_MEDIA_PG_ENABLE			REG_BIT(1)
+-#define GEN11_MEDIA_SAMPLER_PG_ENABLE		REG_BIT(2)
++#define   GEN9_RENDER_PG_ENABLE			REG_BIT(0)
++#define   GEN9_MEDIA_PG_ENABLE			REG_BIT(1)
++#define   GEN11_MEDIA_SAMPLER_PG_ENABLE		REG_BIT(2)
++#define   VDN_HCP_POWERGATE_ENABLE(n)		REG_BIT(3 + 2 * (n))
++#define   VDN_MFX_POWERGATE_ENABLE(n)		REG_BIT(4 + 2 * (n))
+ #define GEN8_PUSHBUS_CONTROL			_MMIO(0xA248)
+ #define GEN8_PUSHBUS_ENABLE			_MMIO(0xA250)
+ #define GEN8_PUSHBUS_SHIFT			_MMIO(0xA25C)
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -7124,23 +7124,10 @@ static void icl_init_clock_gating(struct
+ 
+ static void tgl_init_clock_gating(struct drm_i915_private *dev_priv)
+ {
+-	u32 vd_pg_enable = 0;
+-	unsigned int i;
+-
+ 	/* Wa_1409120013:tgl */
+ 	I915_WRITE(ILK_DPFC_CHICKEN,
+ 		   ILK_DPFC_CHICKEN_COMP_DUMMY_PIXEL);
+ 
+-	/* This is not a WA. Enable VD HCP & MFX_ENC powergate */
+-	for (i = 0; i < I915_MAX_VCS; i++) {
+-		if (HAS_ENGINE(&dev_priv->gt, _VCS(i)))
+-			vd_pg_enable |= VDN_HCP_POWERGATE_ENABLE(i) |
+-					VDN_MFX_POWERGATE_ENABLE(i);
+-	}
+-
+-	I915_WRITE(POWERGATE_ENABLE,
+-		   I915_READ(POWERGATE_ENABLE) | vd_pg_enable);
+-
+ 	/* Wa_1409825376:tgl (pre-prod)*/
+ 	if (IS_TGL_REVID(dev_priv, TGL_REVID_A0, TGL_REVID_A0))
+ 		I915_WRITE(GEN9_CLKGATE_DIS_3, I915_READ(GEN9_CLKGATE_DIS_3) |
 
 
