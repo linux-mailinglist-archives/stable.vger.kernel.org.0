@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B62B62C084E
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A6D2C084F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732785AbgKWMrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:47:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32898 "EHLO mail.kernel.org"
+        id S1732827AbgKWMsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:48:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732736AbgKWMrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:47:32 -0500
+        id S1732739AbgKWMrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:47:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83CAC20732;
-        Mon, 23 Nov 2020 12:47:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E8F720857;
+        Mon, 23 Nov 2020 12:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135651;
-        bh=ocowNOY67OESTHjQ6GUvDU++pqmKCXEJDlJ8wR1J/8g=;
+        s=korg; t=1606135654;
+        bh=Wx4aAopEPeMi9SyJGjP6Wf7lSuewaz+2mw/2jDpp6dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zix0FTOf0GUlaSjmegidiPk7OhYLtnAIy0iPcbBUgGR9Dazkk9yTP2BkxkJteTk5F
-         oJ4fb3DU2qUtF8CTe/kb/zcdDAaQzGQeYRMOyo+ZgMVn3igCvaa0mzWGwzKcboVwVI
-         wWnaUpsZtrUR1sA68zqfafP5gsfu/64FkDWKdIcM=
+        b=r3AtSgon71LazbThIvlwuRBwA1vLjcYFJe26qY9NOUTqNAX+2W9h++EqJ7v/qoAeG
+         JMHPCtwbetGJLm7ITJ8XHQ4XWIOXfOCGA9HS3tMm4Al9iUzQqjuvrrUeqzPFID37QE
+         GFSevSv3pQbz5aqkde1zfr43YtxwppC+mud+3Z3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com,
-        syzbot+f04854e1c5c9e913cc27@syzkaller.appspotmail.com,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Sven Van Asbroeck <thesven73@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 115/252] rcu: Dont invoke try_invoke_on_locked_down_task() with irqs disabled
-Date:   Mon, 23 Nov 2020 13:21:05 +0100
-Message-Id: <20201123121841.144605557@linuxfoundation.org>
+Subject: [PATCH 5.9 116/252] spi: fix client driver breakages when using GPIO descriptors
+Date:   Mon, 23 Nov 2020 13:21:06 +0100
+Message-Id: <20201123121841.191927365@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -46,106 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit c583bcb8f5edd48c1798798e341f78afb9bf4f6f ]
+[ Upstream commit 766c6b63aa044e84b045803b40b14754d69a2a1d ]
 
-The try_invoke_on_locked_down_task() function requires that
-interrupts be enabled, but it is called with interrupts disabled from
-rcu_print_task_stall(), resulting in an "IRQs not enabled as expected"
-diagnostic.  This commit therefore updates rcu_print_task_stall()
-to accumulate a list of the first few tasks while holding the current
-leaf rcu_node structure's ->lock, then releases that lock and only then
-uses try_invoke_on_locked_down_task() to attempt to obtain per-task
-detailed information.  Of course, as soon as ->lock is released, the
-task might exit, so the get_task_struct() function is used to prevent
-the task structure from going away in the meantime.
+Commit f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+introduced the optional use of GPIO descriptors for chip selects.
 
-Link: https://lore.kernel.org/lkml/000000000000903d5805ab908fc4@google.com/
-Fixes: 5bef8da66a9c ("rcu: Add per-task state to RCU CPU stall warnings")
-Reported-by: syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com
-Reported-by: syzbot+f04854e1c5c9e913cc27@syzkaller.appspotmail.com
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+A side-effect of this change: when a SPI bus uses GPIO descriptors,
+all its client devices have SPI_CS_HIGH set in spi->mode. This flag is
+required for the SPI bus to operate correctly.
+
+This unfortunately breaks many client drivers, which use the following
+pattern to configure their underlying SPI bus:
+
+static int client_device_probe(struct spi_device *spi)
+{
+	...
+	spi->mode = SPI_MODE_0;
+	spi->bits_per_word = 8;
+	err = spi_setup(spi);
+	..
+}
+
+In short, many client drivers overwrite the SPI_CS_HIGH bit in
+spi->mode, and break the underlying SPI bus driver.
+
+This is especially true for Freescale/NXP imx ecspi, where large
+numbers of spi client drivers now no longer work.
+
+Proposed fix:
+-------------
+When using gpio descriptors, depend on gpiolib to handle CS polarity.
+Existing quirks in gpiolib ensure that this is handled correctly.
+
+Existing gpiolib behaviour will force the polarity of any chip-select
+gpiod to active-high (if 'spi-active-high' devicetree prop present) or
+active-low (if 'spi-active-high' absent). Irrespective of whether
+the gpio is marked GPIO_ACTIVE_[HIGH|LOW] in the devicetree.
+
+Loose ends:
+-----------
+If this fix is applied:
+- is commit 138c9c32f090
+  ("spi: spidev: Fix CS polarity if GPIO descriptors are used")
+  still necessary / correct ?
+
+Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+Signed-off-by: Sven Van Asbroeck <thesven73@gmail.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20201106150706.29089-1-TheSven73@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_stall.h | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/spi/spi.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index b5d3b4794db48..e3c0f6fb5806d 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -249,13 +249,16 @@ static bool check_slow_task(struct task_struct *t, void *arg)
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 0cab239d8e7fc..7566482c052c8 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -812,18 +812,16 @@ static void spi_set_cs(struct spi_device *spi, bool enable)
+ 		enable = !enable;
  
- /*
-  * Scan the current list of tasks blocked within RCU read-side critical
-- * sections, printing out the tid of each.
-+ * sections, printing out the tid of each of the first few of them.
-  */
--static int rcu_print_task_stall(struct rcu_node *rnp)
-+static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
-+	__releases(rnp->lock)
- {
-+	int i = 0;
- 	int ndetected = 0;
- 	struct rcu_stall_chk_rdr rscr;
- 	struct task_struct *t;
-+	struct task_struct *ts[8];
- 
- 	if (!rcu_preempt_blocked_readers_cgp(rnp))
- 		return 0;
-@@ -264,6 +267,14 @@ static int rcu_print_task_stall(struct rcu_node *rnp)
- 	t = list_entry(rnp->gp_tasks->prev,
- 		       struct task_struct, rcu_node_entry);
- 	list_for_each_entry_continue(t, &rnp->blkd_tasks, rcu_node_entry) {
-+		get_task_struct(t);
-+		ts[i++] = t;
-+		if (i >= ARRAY_SIZE(ts))
-+			break;
-+	}
-+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
-+	for (i--; i; i--) {
-+		t = ts[i];
- 		if (!try_invoke_on_locked_down_task(t, check_slow_task, &rscr))
- 			pr_cont(" P%d", t->pid);
- 		else
-@@ -273,6 +284,7 @@ static int rcu_print_task_stall(struct rcu_node *rnp)
- 				".q"[rscr.rs.b.need_qs],
- 				".e"[rscr.rs.b.exp_hint],
- 				".l"[rscr.on_blkd_list]);
-+		put_task_struct(t);
- 		ndetected++;
- 	}
- 	pr_cont("\n");
-@@ -293,8 +305,9 @@ static void rcu_print_detail_task_stall_rnp(struct rcu_node *rnp)
-  * Because preemptible RCU does not exist, we never have to check for
-  * tasks blocked within RCU read-side critical sections.
-  */
--static int rcu_print_task_stall(struct rcu_node *rnp)
-+static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
- {
-+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 	return 0;
- }
- #endif /* #else #ifdef CONFIG_PREEMPT_RCU */
-@@ -472,7 +485,6 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
- 	pr_err("INFO: %s detected stalls on CPUs/tasks:\n", rcu_state.name);
- 	rcu_for_each_leaf_node(rnp) {
- 		raw_spin_lock_irqsave_rcu_node(rnp, flags);
--		ndetected += rcu_print_task_stall(rnp);
- 		if (rnp->qsmask != 0) {
- 			for_each_leaf_node_possible_cpu(rnp, cpu)
- 				if (rnp->qsmask & leaf_node_cpu_bit(rnp, cpu)) {
-@@ -480,7 +492,7 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
- 					ndetected++;
- 				}
+ 	if (spi->cs_gpiod || gpio_is_valid(spi->cs_gpio)) {
+-		/*
+-		 * Honour the SPI_NO_CS flag and invert the enable line, as
+-		 * active low is default for SPI. Execution paths that handle
+-		 * polarity inversion in gpiolib (such as device tree) will
+-		 * enforce active high using the SPI_CS_HIGH resulting in a
+-		 * double inversion through the code above.
+-		 */
+ 		if (!(spi->mode & SPI_NO_CS)) {
+ 			if (spi->cs_gpiod)
++				/* polarity handled by gpiolib */
+ 				gpiod_set_value_cansleep(spi->cs_gpiod,
+-							 !enable);
++							 enable1);
+ 			else
++				/*
++				 * invert the enable line, as active low is
++				 * default for SPI.
++				 */
+ 				gpio_set_value_cansleep(spi->cs_gpio, !enable);
  		}
--		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
-+		ndetected += rcu_print_task_stall(rnp, flags); // Releases rnp->lock.
+ 		/* Some SPI masters need both GPIO CS & slave_select */
+@@ -1992,15 +1990,6 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
  	}
+ 	spi->chip_select = value;
  
- 	for_each_possible_cpu(cpu)
+-	/*
+-	 * For descriptors associated with the device, polarity inversion is
+-	 * handled in the gpiolib, so all gpio chip selects are "active high"
+-	 * in the logical sense, the gpiolib will invert the line if need be.
+-	 */
+-	if ((ctlr->use_gpio_descriptors) && ctlr->cs_gpiods &&
+-	    ctlr->cs_gpiods[spi->chip_select])
+-		spi->mode |= SPI_CS_HIGH;
+-
+ 	/* Device speed */
+ 	if (!of_property_read_u32(nc, "spi-max-frequency", &value))
+ 		spi->max_speed_hz = value;
 -- 
 2.27.0
 
