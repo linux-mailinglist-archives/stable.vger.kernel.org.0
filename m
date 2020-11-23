@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A632C06B9
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CE62C064A
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731272AbgKWMdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S1730597AbgKWM3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:29:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730692AbgKWMdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:51 -0500
+        id S1730608AbgKWM3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:29:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D88D921D81;
-        Mon, 23 Nov 2020 12:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C6042076E;
+        Mon, 23 Nov 2020 12:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134830;
-        bh=37b9SwBXqdn7aBCirDJE6xJiEpowKTByt76BKdgsQGw=;
+        s=korg; t=1606134572;
+        bh=nWJFekxCQQWcyriOam+/655/HOR41O4x6atCU4ufR38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNEZEcouHXDEvQxoDS1Da6d5RagbMnv8VcKoXCXi2Q927LQxEI5/2O22SzX2jfCBr
-         DmgVN1HMZGxVNMvckPCdRpZjbepCQgw1rPI/scCk1sPm0iF09z1TsvJQLKPQ+U7P1K
-         Jq8RcnbyOa2wKQDdA2nvIfcb03Y8YforAfAPipuk=
+        b=Et0LaGTDudAxgFQSGqeM7m5sGEXQ6Dx5+dE9GunfwUjEvHXg95tgeTfs+OHGsEWDD
+         S/VcgNLcFQj7mEMsLDw5VoFltvsMK4RaI7NbaBa+r6hcV2c9pTeSesyenxkGUpfK3u
+         gZrsyw7te3+4dNbUKTYyfJqyhcM87gntTRwZLq3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
-        Eric Biggers <ebiggers@google.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.19 75/91] ext4: fix bogus warning in ext4_update_dx_flag()
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 53/60] regulator: workaround self-referent regulators
 Date:   Mon, 23 Nov 2020 13:22:35 +0100
-Message-Id: <20201123121812.968882108@linuxfoundation.org>
+Message-Id: <20201123121807.620514311@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit f902b216501094495ff75834035656e8119c537f upstream.
+commit f5c042b23f7429e5c2ac987b01a31c69059a978b upstream.
 
-The idea of the warning in ext4_update_dx_flag() is that we should warn
-when we are clearing EXT4_INODE_INDEX on a filesystem with metadata
-checksums enabled since after clearing the flag, checksums for internal
-htree nodes will become invalid. So there's no need to warn (or actually
-do anything) when EXT4_INODE_INDEX is not set.
+Workaround regulators whose supply name happens to be the same as its
+own name. This fixes boards that used to work before the early supply
+resolving was removed. The error message is left in place so that
+offending drivers can be detected.
 
-Link: https://lore.kernel.org/r/20201118153032.17281-1-jack@suse.cz
-Fixes: 48a34311953d ("ext4: fix checksum errors with indexed dirs")
-Reported-by: Eric Biggers <ebiggers@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Cc: stable@vger.kernel.org
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
+Link: https://lore.kernel.org/r/d703acde2a93100c3c7a81059d716c50ad1b1f52.1605226675.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2427,7 +2427,8 @@ void ext4_insert_dentry(struct inode *in
- 			struct ext4_filename *fname);
- static inline void ext4_update_dx_flag(struct inode *inode)
- {
--	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-+	if (!ext4_has_feature_dir_index(inode->i_sb) &&
-+	    ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) {
- 		/* ext4_iget() should have caught this... */
- 		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
- 		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1547,7 +1547,10 @@ static int regulator_resolve_supply(stru
+ 	if (r == rdev) {
+ 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
+ 			rdev->desc->name, rdev->supply_name);
+-		return -EINVAL;
++		if (!have_full_constraints())
++			return -EINVAL;
++		r = dummy_regulator_rdev;
++		get_device(&r->dev);
+ 	}
+ 
+ 	/*
 
 
