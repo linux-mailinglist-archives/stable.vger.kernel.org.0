@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EECF02C01B3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:51:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 053D82C01B4
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbgKWIvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 03:51:42 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55629 "EHLO
+        id S1726860AbgKWIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 03:52:53 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:39537 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725275AbgKWIvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:51:41 -0500
+        by vger.kernel.org with ESMTP id S1726776AbgKWIwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:52:53 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 9BC3B3AF;
-        Mon, 23 Nov 2020 03:51:40 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id A5969E46;
+        Mon, 23 Nov 2020 03:52:52 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:51:40 -0500
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:52:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fDqcly
-        FdbJaz692mdWXC1+wZBPl2HkZsdHGdMMbfgSI=; b=ThNVF5mM5pPhVuxfiuAHyX
-        7g28V3J9tFHF7Uo3NRzmvMZwRLqgn9cmNMlRJY+PJbrb0H2U0EeJCOfXm7CHz3AM
-        G8+TAaFOf2H/2jShxVcvg7pVt/i0+EVVCpcIHm6muwp8ZrAMNevMP10nqos0OtGZ
-        jeNMAWnD7Ae7hkzGjNrqROoWg0r+eLXnpc2+tGh8mgj4JGvjuJa7+4WUp3FKWmXA
-        HfviuRxhkC0wCjtsfTHp2W8efzb9TWyAcfTAP7M34a8ua5j2V5pkX63MxLTpNrOy
-        1Wcx5x8RD/503L0bfweEj4i3mGR6zM3qRjcVcFlaiIZwghyD/g04Ppkc4BU+NmCQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=j2fM7H
+        aDZ5xA1jfjKwU4HCoVzWkw6E2D7CXZYRQnYoc=; b=rnDD+Y0J6Ja/WcP6KaRvkU
+        V3klmFSfrSdQXdzY9Ij0IEceF+wN0f7/qhsD0bic+qiDXD1FaHmk/TBudOFKWCQb
+        6CS3CU2c7BsNrKI1tGcRKb2G9ySWfYnn51DybxrLNe2XYsw08qbYfwtU0s0b2YAu
+        5r4C2c8+ppTttBgm9HY+QwG5bBxERYHu9FpcrUkfmpXk/T5b7g0z4fozuH7MDoAa
+        hVruL3GpPCFZJ/iYNERusR2dfxDN6gI+z9GwfEJ9LrDUE1VlUcJ6T/TxFIpQduaK
+        ghbhFgVfFh41yKHuORwyY0dNNeSJego471itw0du8zpMotasDfYiibnzWhuT2N6w
         ==
-X-ME-Sender: <xms:G3i7X8up_bO_grqCAQljGDZbMs6zqzV9J-A5CT8rQGJ7o7fYtOEMdg>
-    <xme:G3i7X5fJp2LOovVywXDfv6c8Pw_6EWbbFRtc7N5Iqu9qf7RmEcckbu8dgWkqhZ336
-    5YGQ0XSk9EQbQ>
+X-ME-Sender: <xms:ZHi7XxROtmRKt6HfQZHLjGu7jq8vZ9OdudodMSfLY3fjIxhtvPYFzQ>
+    <xme:ZHi7X6xSK0Y95Oe2nL_RwJd9ijX289TcHAelvfcLvmN_cWkXk6aMlQlKg_4bzCVHH
+    y6h71bZuHjXPA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:G3i7X3zXIoF0mPk-J0zhKaMXkvWwuL4GJv5ToI4I3UnX2QVBlSckZA>
-    <xmx:G3i7X_OTorwfoOagHUMNTbM-MwdcYtv-SrbTzQNq_nQcQhzWQ2RJsg>
-    <xmx:G3i7X88UbbwyxA_bylYm3tdiZR9-EusS25er-uKHZsJ-SAQsCsA3rw>
-    <xmx:HHi7X-JMsln3UUOHgA9tmp4wAhUdUQ1smb392ktoEvlqD1cQwKDsANXJP-Y>
+X-ME-Proxy: <xmx:ZHi7X20TqSIUFPpqerlOiZSERHF9Nsim3hZ5m4yyne-BDVpbwqtp0Q>
+    <xmx:ZHi7X5Cf0FyqRu00HSBpMoPms8Ghm7aC7CwqSxUPhu8g4pdfkP-nag>
+    <xmx:ZHi7X6gUMykCIRjKZw4HG0xn7tLthIfSwn2cVSeJjIo3uOXVh5UqPg>
+    <xmx:ZHi7XyJR6iT4tl28X8eBKI1Xt71BQhPcjFw35tFRburJGbhUcvMgXf7Y7JY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 82BBB3064AA6;
-        Mon, 23 Nov 2020 03:51:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] spi: bcm-qspi: Fix use-after-free on unbind" failed to apply to 4.9-stable tree
-To:     lukas@wunner.de, broonie@kernel.org, f.fainelli@gmail.com,
-        kdasu.kdev@gmail.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id E5D163064AAF;
+        Mon, 23 Nov 2020 03:52:51 -0500 (EST)
+Subject: FAILED: patch "[PATCH] spi: bcm2835aux: Fix use-after-free on unbind" failed to apply to 4.4-stable tree
+To:     lukas@wunner.de, broonie@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 09:52:50 +0100
-Message-ID: <16061215704518@kroah.com>
+Date:   Mon, 23 Nov 2020 09:54:02 +0100
+Message-ID: <160612164211937@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,130 +70,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 63c5395bb7a9777a33f0e7b5906f2c0170a23692 Mon Sep 17 00:00:00 2001
+From e13ee6cc4781edaf8c7321bee19217e3702ed481 Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
-Date: Wed, 11 Nov 2020 20:07:40 +0100
-Subject: [PATCH] spi: bcm-qspi: Fix use-after-free on unbind
+Date: Wed, 11 Nov 2020 20:07:30 +0100
+Subject: [PATCH] spi: bcm2835aux: Fix use-after-free on unbind
 
-bcm_qspi_remove() calls spi_unregister_master() even though
-bcm_qspi_probe() calls devm_spi_register_master().  The spi_master is
-therefore unregistered and freed twice on unbind.
-
-Moreover, since commit 0392727c261b ("spi: bcm-qspi: Handle clock probe
-deferral"), bcm_qspi_probe() leaks the spi_master allocation if the call
-to devm_clk_get_optional() fails.
+bcm2835aux_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
 Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound and also
-avoids the spi_master leak on probe.
+keeps the private data accessible until the driver has unbound.
 
-While at it, fix an ordering issue in bcm_qspi_remove() wherein
-spi_unregister_master() is called after uninitializing the hardware,
-disabling the clock and freeing an IRQ data structure.  The correct
-order is to call spi_unregister_master() *before* those teardown steps
-because bus accesses may still be ongoing until that function returns.
-
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
+Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.9+: 123456789abc: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/5e31a9a59fd1c0d0b795b2fe219f25e5ee855f9d.1605121038.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v4.4+: 123456789abc: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 14c9d0133bce..c028446c7460 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1327,7 +1327,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index 03b034c15d2b..fd58547110e6 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -494,7 +494,7 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
+ 	unsigned long clk_hz;
+ 	int err;
  
- 	data = of_id->data;
- 
--	master = spi_alloc_master(dev, sizeof(struct bcm_qspi));
-+	master = devm_spi_alloc_master(dev, sizeof(struct bcm_qspi));
- 	if (!master) {
- 		dev_err(dev, "error allocating spi_master\n");
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master)
  		return -ENOMEM;
-@@ -1367,21 +1367,17 @@ int bcm_qspi_probe(struct platform_device *pdev,
  
- 	if (res) {
- 		qspi->base[MSPI]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[MSPI])) {
--			ret = PTR_ERR(qspi->base[MSPI]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[MSPI]))
-+			return PTR_ERR(qspi->base[MSPI]);
- 	} else {
--		goto qspi_resource_err;
-+		return 0;
- 	}
+@@ -524,29 +524,24 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
  
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "bspi");
- 	if (res) {
- 		qspi->base[BSPI]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[BSPI])) {
--			ret = PTR_ERR(qspi->base[BSPI]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[BSPI]))
-+			return PTR_ERR(qspi->base[BSPI]);
- 		qspi->bspi_mode = true;
- 	} else {
- 		qspi->bspi_mode = false;
-@@ -1392,18 +1388,14 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "cs_reg");
- 	if (res) {
- 		qspi->base[CHIP_SELECT]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[CHIP_SELECT])) {
--			ret = PTR_ERR(qspi->base[CHIP_SELECT]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[CHIP_SELECT]))
-+			return PTR_ERR(qspi->base[CHIP_SELECT]);
- 	}
- 
- 	qspi->dev_ids = kcalloc(num_irqs, sizeof(struct bcm_qspi_dev_id),
- 				GFP_KERNEL);
--	if (!qspi->dev_ids) {
--		ret = -ENOMEM;
--		goto qspi_resource_err;
+ 	/* the main area */
+ 	bs->regs = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
 -	}
-+	if (!qspi->dev_ids)
-+		return -ENOMEM;
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
  
- 	for (val = 0; val < num_irqs; val++) {
- 		irq = -1;
-@@ -1484,7 +1476,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	qspi->xfer_mode.addrlen = -1;
- 	qspi->xfer_mode.hp = -1;
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(bs->clk)) {
+-		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return PTR_ERR(bs->clk);
+ 	}
  
--	ret = devm_spi_register_master(&pdev->dev, master);
-+	ret = spi_register_master(master);
- 	if (ret < 0) {
- 		dev_err(dev, "can't register master\n");
- 		goto qspi_reg_err;
-@@ -1497,8 +1489,6 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	clk_disable_unprepare(qspi->clk);
- qspi_probe_err:
- 	kfree(qspi->dev_ids);
--qspi_resource_err:
+ 	bs->irq = platform_get_irq(pdev, 0);
+-	if (bs->irq <= 0) {
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
+-	}
++	if (bs->irq <= 0)
++		return bs->irq ? bs->irq : -ENODEV;
+ 
+ 	/* this also enables the HW block */
+ 	err = clk_prepare_enable(bs->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	/* just checking if the clock returns a sane value */
+@@ -581,8 +576,6 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
 -	spi_master_put(master);
- 	return ret;
+ 	return err;
  }
- /* probe function to be called by SoC specific platform driver probe */
-@@ -1508,10 +1498,10 @@ int bcm_qspi_remove(struct platform_device *pdev)
- {
- 	struct bcm_qspi *qspi = platform_get_drvdata(pdev);
  
-+	spi_unregister_master(qspi->master);
- 	bcm_qspi_hw_uninit(qspi);
- 	clk_disable_unprepare(qspi->clk);
- 	kfree(qspi->dev_ids);
--	spi_unregister_master(qspi->master);
- 
- 	return 0;
- }
 
