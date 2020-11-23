@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958142BFF08
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 05:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 730A02BFF17
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 05:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727434AbgKWEjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Nov 2020 23:39:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39950 "EHLO
+        id S1727001AbgKWEpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Nov 2020 23:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727388AbgKWEjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 23:39:23 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF2DC0613CF
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 20:39:22 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id c66so13745552pfa.4
-        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 20:39:22 -0800 (PST)
+        with ESMTP id S1726963AbgKWEpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Nov 2020 23:45:11 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A73C0613CF
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 20:45:11 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id w4so13069613pgg.13
+        for <stable@vger.kernel.org>; Sun, 22 Nov 2020 20:45:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=6O9tTZiciXa+A2c4TI7AK5QjC1q+v0czK7RN9U7lYo4=;
-        b=VaPoQkmlI2wCGxuMKkyxyivpoyOdNyvGnc2vrkUtNd1EqlPMjuOJo5ELo2rImQhv8+
-         tu98ty4ybco9EIGGk+9ZTzwBZTiWJxMRqs5FbRJpwX7LZd+uHF4ZIRWsWj5MNk7mLLko
-         ybEnyvWuSJT3e32RxQo6VVKSXD2QQiXd1IaPg=
+        b=QKpZ3Aqh7g5seIa2JLfMvINswtL0fXwSXEeR1mQgLIVqlN5VQuLh+uhMHMJMnhbwUW
+         sc4+M0xTROyNFID43Us6ebBGRN2wZSC2n8fRVIeBtdnrPvYSOBrbPBLL3Zi+pOVHF+Ed
+         LnVswCphznyhRyh63ULBK+8XP2XTHu4uKUfmI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=6O9tTZiciXa+A2c4TI7AK5QjC1q+v0czK7RN9U7lYo4=;
-        b=d+lIQ+OnUXqh7uZEb/Od8xJYschIu1e+fHqS5b4d8w6Pum9ZTkC2amB8yb5VqXr5Jv
-         neFFFV1llxzWJ4GKeWY6/uug5Lacr5vbDrYB+36zvvxxydL2yuaFMcgB+5HJrtGnOfwx
-         rSEL37xAqbJ6W8HnugRZFTqmt5SlxPFtXu53OxbglX32umT3cdZoyG7g3yCNq4wDZBur
-         Pm6BL4u+1NGJmSGTav0D8TUnF2UjqSS4TmwrPZK7WNipbqZALKy3xcQa+m/C7UjH9Xr2
-         A8HIGBCypC6cAlXYJL690meMz8e22IGvPWEUdSuyca+2Npl9xP8jPRulR9yr2WcdXsKB
-         UKXA==
-X-Gm-Message-State: AOAM530aDrWnc5GmPSe0o5+F1nEbVQZTlhUYCc8NTVrprZBP1CFa6jLt
-        +LZqjz5xscCE9Dhe6efnNNv0zMuXuzukZA==
-X-Google-Smtp-Source: ABdhPJwJvMkmYSuvnCumIePeQFJ3FkY1uqfZ/UsK9OHvInCCMxZToIcVpw0FwYRHXtpOgnvFqCyfvw==
-X-Received: by 2002:a17:90a:8805:: with SMTP id s5mr21180935pjn.116.1606106361112;
-        Sun, 22 Nov 2020 20:39:21 -0800 (PST)
+        b=rarIpVyXz8HVx9AdDSFWNLYqrLuZuruocK7WbL0QIOmGKk5DiccPOVrSwpKnQNhuXR
+         0X744hKQUwl8z59recE+Po/GMIcucHYDVPinCevOr+aFCg2bUwCAWeFAY1XDD5XqHA64
+         6MeZrI7WOXCpvktrvcJGnXZVu36B/CEUwJUWm9sHfIoYowXcUvkhnTsTf9l0yxFpnED4
+         PsQwnb6cnMqT6pzrcP2+r3OADsQ8bQdWulogT7SGSGeQGqgD32o0nGuFEcSzuWIaLZbD
+         ++ZHTJfrP1wrMWm4hGP38SI+qN2cpj8pPBAnJQzsUjG2LnrZ4Xx23iI69mIQ1G0YIn+u
+         0V9Q==
+X-Gm-Message-State: AOAM533VkQmi03Ql6UY8rsxLpxP3+PN+MvJc1uIcJ5FXXGzcCj3MpJxn
+        1czqad2yzLSWOtMouVCjDU+u4VqsCPgxkA==
+X-Google-Smtp-Source: ABdhPJxsL/cuQ+2BApGRiNuuqNZfsVzR0427XIxFl0OPk3WqC63Zb2hxwSO8YbOtjMwYa/KDM4Ta3Q==
+X-Received: by 2002:a17:90a:be0a:: with SMTP id a10mr9261148pjs.15.1606106710828;
+        Sun, 22 Nov 2020 20:45:10 -0800 (PST)
 Received: from localhost (2001-44b8-111e-5c00-d5b2-1708-a25b-d6aa.static.ipv6.internode.on.net. [2001:44b8:111e:5c00:d5b2:1708:a25b:d6aa])
-        by smtp.gmail.com with ESMTPSA id 204sm6671158pfy.59.2020.11.22.20.39.19
+        by smtp.gmail.com with ESMTPSA id t16sm9178808pga.51.2020.11.22.20.45.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2020 20:39:20 -0800 (PST)
+        Sun, 22 Nov 2020 20:45:10 -0800 (PST)
 From:   Daniel Axtens <dja@axtens.net>
 To:     stable@vger.kernel.org
 Cc:     dja@axtens.net, linux@roeck-us.net
-Subject: [PATCH v4.9] powerpc/uaccess-flush: fix missing includes in kup-radix.h
-Date:   Mon, 23 Nov 2020 15:39:16 +1100
-Message-Id: <20201123043916.463870-1-dja@axtens.net>
+Subject: [PATCH v4.14] powerpc/uaccess-flush: fix missing includes in kup-radix.h
+Date:   Mon, 23 Nov 2020 15:45:07 +1100
+Message-Id: <20201123044507.464364-1-dja@axtens.net>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
