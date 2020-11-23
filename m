@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF192C0BE5
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 584472C0B37
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730265AbgKWNci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:32:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
+        id S2388150AbgKWNV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730241AbgKWM1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:27:03 -0500
+        id S1732022AbgKWMhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ABFC20728;
-        Mon, 23 Nov 2020 12:27:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C36D20721;
+        Mon, 23 Nov 2020 12:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134423;
-        bh=nzfg4Je3v8X3FMgIxzuCOwLQWyWWxmVyGSEI3map3KQ=;
+        s=korg; t=1606135073;
+        bh=dKkCF0eo92s5dRaLsiofgW2ogBbvSLH3PZZi5Ejhj4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGw0oXHWMCtDpZ5mpcNizaRZxRSDzvpedsnAwW24xrUaJlVC+D41FoCsibnxy/L/T
-         tA7Z2wAblanBFOFXRkpSyFEdjvJZ20bsW/YyzPfqz9Nu1UfemDQ26PuIpinJuNJnml
-         MU91u6yeyoJXBYgNMDiQJjuJEtLhvtsqYoVVKU5s=
+        b=zzwf782sLwI4+oT4FvVG92fCiasJI1pXYWppbvNq9cUAW1+rPohBwZKyRcNC7grsx
+         /fwNFP8GNNHl8NINQqkqzssxIyLU2zPutBzyc58FPn9qn5aZ1bxRO4zoUmfvBPIqOO
+         x6yh+BH6dJ2criN6JnwFvjRLlAaWsuu+ZiILc2F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 14/60] net: x25: Increase refcnt of "struct x25_neigh" in x25_rx_call_request
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        V Sujith Kumar Reddy <vsujithk@codeaurora.org>,
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/158] ASoC: qcom: lpass-platform: Fix memory leak
 Date:   Mon, 23 Nov 2020 13:21:56 +0100
-Message-Id: <20201123121805.721776206@linuxfoundation.org>
+Message-Id: <20201123121824.180055724@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
 
-[ Upstream commit 4ee18c179e5e815fa5575e0d2db0c05795a804ee ]
+[ Upstream commit bd6327fda2f3ded85b69b3c3125c99aaa51c7881 ]
 
-The x25_disconnect function in x25_subr.c would decrease the refcount of
-"x25->neighbour" (struct x25_neigh) and reset this pointer to NULL.
+lpass_pcm_data is not freed in error paths. Free it in
+error paths to avoid memory leak.
 
-However, the x25_rx_call_request function in af_x25.c, which is called
-when we receive a connection request, does not increase the refcount when
-it assigns the pointer.
-
-Fix this issue by increasing the refcount of "struct x25_neigh" in
-x25_rx_call_request.
-
-This patch fixes frequent kernel crashes when using AF_X25 sockets.
-
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Link: https://lore.kernel.org/r/20201112103506.5875-1-xie.he.0141@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 022d00ee0b55 ("ASoC: lpass-platform: Fix broken pcm data usage")
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: V Sujith Kumar Reddy <vsujithk@codeaurora.org>
+Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Link: https://lore.kernel.org/r/1605416210-14530-1-git-send-email-srivasam@codeaurora.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/qcom/lpass-platform.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1048,6 +1048,7 @@ int x25_rx_call_request(struct sk_buff *
- 	makex25->lci           = lci;
- 	makex25->dest_addr     = dest_addr;
- 	makex25->source_addr   = source_addr;
-+	x25_neigh_hold(nb);
- 	makex25->neighbour     = nb;
- 	makex25->facilities    = facilities;
- 	makex25->dte_facilities= dte_facilities;
+diff --git a/sound/soc/qcom/lpass-platform.c b/sound/soc/qcom/lpass-platform.c
+index 9acaef81dd74c..b1981d84ac18c 100644
+--- a/sound/soc/qcom/lpass-platform.c
++++ b/sound/soc/qcom/lpass-platform.c
+@@ -73,8 +73,10 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
+ 	else
+ 		dma_ch = 0;
+ 
+-	if (dma_ch < 0)
++	if (dma_ch < 0) {
++		kfree(data);
+ 		return dma_ch;
++	}
+ 
+ 	drvdata->substream[dma_ch] = substream;
+ 
+@@ -95,6 +97,7 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
+ 	ret = snd_pcm_hw_constraint_integer(runtime,
+ 			SNDRV_PCM_HW_PARAM_PERIODS);
+ 	if (ret < 0) {
++		kfree(data);
+ 		dev_err(soc_runtime->dev, "setting constraints failed: %d\n",
+ 			ret);
+ 		return -EINVAL;
+-- 
+2.27.0
+
 
 
