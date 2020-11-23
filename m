@@ -2,132 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 034E62C12ED
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 19:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D522C132F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 19:33:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgKWSKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 13:10:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52102 "EHLO
+        id S1728553AbgKWSbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 13:31:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726771AbgKWSKf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 13:10:35 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D242DC061A4D
-        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 10:10:33 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id m9so14990718pgb.4
-        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 10:10:33 -0800 (PST)
+        with ESMTP id S1729121AbgKWSbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 13:31:22 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D230DC061A4D
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 10:31:21 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id m9so15047641pgb.4
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 10:31:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=tRbLdzf7nLLz965yR1ha5WkHs6UoOY/QLZBKsNoJJPw=;
-        b=dBR+tZy0iwKF0n70gHF7fsfCdf7eCjAXKFECem0f7+fzYnRqlcFKu2nna8sZxB5fqO
-         HQmgb5dGJ1nYydgHUNJ+S60UjWo0s71gwQnUHGcVX3k7+EkDeHVXZxYAW0nun2eplQHZ
-         SdU2ZBORtFe5tLv9EqdiEXNxhTLA1a8beMbo70cKjaGCgc+LEFyiwfPLNd6rQwKJCk50
-         lEaXAsOZYTaBJR8gnETNpLRrpRFoIKvTsdn4Dt4R8z13KzJWKK6c4ZW6HOP3zq0Td/rT
-         25sYuiDGRLJQC3CVHe5xXbCHebr19ml5FCvbwoZduMmu5UYzfIcrcpAv3wAGos7FbcEe
-         OpRw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GtsXyovkQ24MNl8aC+lmA/AQ0EZdim/KFPinJ6iekIY=;
+        b=ZKdbyuYa3NBPgyJ1UvPCx1/DfKfQIPDzEMsww1gBhs33Y7LM2MaVu+kMOSGL9NeIaT
+         E1s0lofMOrf8w7dImvZZD3BLwd79FgBiog3iAFkQqa2gaf1xqRCUHcZr/BTpsFvDs7yR
+         2aOtqghWBYVte9Ao31KDGGcc3VGakr83xlRjHeoW3PoUyQnvWbG/HYSnZlRs9+Tfgk9r
+         e+cUSyacpNaphIGv45qpxslMH0ybaqpdgtZKPA7AFSNpQCZAKn88ybuxMVNFbbT5r8q2
+         AeN69oC2uknIGiMEweez6yyx0glSRV+wXM4Aixwp63DF7Lfki1AIbOLizMRXp52QCdm5
+         cJWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tRbLdzf7nLLz965yR1ha5WkHs6UoOY/QLZBKsNoJJPw=;
-        b=GBM811G/lrkK1GXrxMG2rEzwfiC6+ZxiS9RISjUPue54OVeox9Z7zDinQ2X5GCo9cy
-         l5NRZynLBqf8YtoQxylGT1Tivlm37YHTXdRV4ok1+W/D+x1i8AbD8Utb7rvZL3UXcj4F
-         b5ZUo0t5xksxm+3fMiOMpPDykFNgyE81n+BSnufk7JmsQTNdH4xtnsKPT5Hg91xHJSj/
-         1pMOYEB04Y0ueK0Nnc11FHsV6qSAPWJ5AbeLeTaDgjY1YTl3v+gPhAbfkI0w+jnczLjX
-         xX+d4DltSV6flFFTFQvB3+TT8I+rvCGg87YclUoE2Urz9BEAIiIJ5FO6TQJNW17TRpni
-         icsg==
-X-Gm-Message-State: AOAM530CrshS9M8k4C+2b1rPyBcHCmEaK128iTXAnDnrkdLwtHi5fXNV
-        3F9+tAKyQ8qTRr4x34d2nhKu4w==
-X-Google-Smtp-Source: ABdhPJym/gHWmBKhfNnY+QXBIt8h3XPbN2i4XuOzwwQ9PQi36roQV7CkKC0mi5sPARxPwudyuwUxEg==
-X-Received: by 2002:a62:1686:0:b029:197:5d15:2733 with SMTP id 128-20020a6216860000b02901975d152733mr582322pfw.81.1606155033298;
-        Mon, 23 Nov 2020 10:10:33 -0800 (PST)
-Received: from xps15 (S0106889e681aac74.cg.shawcable.net. [68.147.0.187])
-        by smtp.gmail.com with ESMTPSA id b17sm12688815pfi.61.2020.11.23.10.10.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2020 10:10:32 -0800 (PST)
-Date:   Mon, 23 Nov 2020 11:10:30 -0700
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mike Leach <mike.leach@linaro.org>, coresight@lists.linaro.org,
-        Stephen Boyd <swboyd@chromium.org>,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Mao Jinlong <jinlmao@codeaurora.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] coresight: tmc-etr: Check if page is valid before
- dma_map_page()
-Message-ID: <20201123181030.GC104873@xps15>
-References: <20201123102133.18979-1-saiprakash.ranjan@codeaurora.org>
- <ad83c4bd-dc24-c412-c5f7-b51ca1f22588@arm.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GtsXyovkQ24MNl8aC+lmA/AQ0EZdim/KFPinJ6iekIY=;
+        b=nhd0QaY6k0Dx2xK3gGZTX0iTof/vQ0WJ6GOf3qbKEHSQc8PnUfLZEGbJWv5MLWDqrz
+         8EcAOxkNi5WElMwFbiLfdfvbkN3f65033Y9T1MlYLTxardv2BxnVgoXZarIua9QUjHAS
+         z3LnVH0fjE9HCXjlqtQlXMVhY6vXwfpyHKOss7v2i2uk5JZYtGCCnKjdVFuqjbL1oJAk
+         5XJfD/3oM9g+ZSFgxbG/oHKN7BrBJhxfoQU5/z4Zd1TS5yihKzs0EGcuPmfrEtSAPggz
+         F11xTcZkEKPx1FiWTyxJuYef5h2kRrIP8HwPRpmI2sSXl1fTdVBPmWlbw3Vhkd4E3xne
+         eNkg==
+X-Gm-Message-State: AOAM531gwnq594tlws9LtR4dskjoz75QL0D+6zp9Fcs6+u8Bkqzce0es
+        W51ftcnL3nkXNJYvRtcbCZpHPm+zpZdeYqCQ9J6fNQC7j3x13w==
+X-Google-Smtp-Source: ABdhPJwTCWlrGAoulcXiTu9f9xpkhjcWmeAyOr0brrz2ozaqFV4zsGrTrQA/z3rhWpl4PUtSr4PlcRnXVl/rFS8cvmc=
+X-Received: by 2002:a62:1896:0:b029:197:491c:be38 with SMTP id
+ 144-20020a6218960000b0290197491cbe38mr689584pfy.15.1606156281177; Mon, 23 Nov
+ 2020 10:31:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ad83c4bd-dc24-c412-c5f7-b51ca1f22588@arm.com>
+References: <20201123121819.943135899@linuxfoundation.org> <20201123121822.053682010@linuxfoundation.org>
+In-Reply-To: <20201123121822.053682010@linuxfoundation.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 23 Nov 2020 10:31:10 -0800
+Message-ID: <CAKwvOdmX_M6wn-UUO39EqRZNbHCn22dsNND6sZ6q+Tzjyez=7A@mail.gmail.com>
+Subject: Re: [PATCH 5.4 044/158] compiler.h: fix barrier_data() on clang
+To:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Randy Dunlap <rdunlap@infradead.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 23, 2020 at 10:46:56AM +0000, Suzuki K Poulose wrote:
-> On 11/23/20 10:21 AM, Sai Prakash Ranjan wrote:
-> > From: Mao Jinlong <jinlmao@codeaurora.org>
-> > 
-> > alloc_pages_node() return should be checked before calling
-> > dma_map_page() to make sure that valid page is mapped or
-> > else it can lead to aborts as below:
-> > 
-> >   Unable to handle kernel paging request at virtual address ffffffc008000000
-> >   Mem abort info:
-> >   <snip>...
-> >   pc : __dma_inv_area+0x40/0x58
-> >   lr : dma_direct_map_page+0xd8/0x1c8
-> > 
-> >   Call trace:
-> >    __dma_inv_area
-> >    tmc_pages_alloc
-> >    tmc_alloc_data_pages
-> >    tmc_alloc_sg_table
-> >    tmc_init_etr_sg_table
-> >    tmc_alloc_etr_buf
-> >    tmc_enable_etr_sink_sysfs
-> >    tmc_enable_etr_sink
-> >    coresight_enable_path
-> >    coresight_enable
-> >    enable_source_store
-> >    dev_attr_store
-> >    sysfs_kf_write
-> > 
-> > Fixes: 99443ea19e8b ("coresight: Add generic TMC sg table framework")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Mao Jinlong <jinlmao@codeaurora.org>
-> > Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-> 
-> Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> 
+Doesn't this depend on a v2 of
+https://lore.kernel.org/lkml/fe040988-c076-8dec-8268-3fbaa8b39c0f@infradead.org/
+? Oh, looks like v1 got picked up:
+https://lore.kernel.org/lkml/mhng-8c56f671-512a-45e7-9c94-fa39a80451da@palmerdabbelt-glaptop1/.
+Won't this break RISCV VDSO?
 
-Applied - thanks
+On Mon, Nov 23, 2020 at 4:35 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Arvind Sankar <nivedita@alum.mit.edu>
+>
+> [ Upstream commit 3347acc6fcd4ee71ad18a9ff9d9dac176b517329 ]
+>
+> Commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
+> mutually exclusive") neglected to copy barrier_data() from
+> compiler-gcc.h into compiler-clang.h.
+>
+> The definition in compiler-gcc.h was really to work around clang's more
+> aggressive optimization, so this broke barrier_data() on clang, and
+> consequently memzero_explicit() as well.
+>
+> For example, this results in at least the memzero_explicit() call in
+> lib/crypto/sha256.c:sha256_transform() being optimized away by clang.
+>
+> Fix this by moving the definition of barrier_data() into compiler.h.
+>
+> Also move the gcc/clang definition of barrier() into compiler.h,
+> __memory_barrier() is icc-specific (and barrier() is already defined
+> using it in compiler-intel.h) and doesn't belong in compiler.h.
+>
+> [rdunlap@infradead.org: fix ALPHA builds when SMP is not enabled]
+>
+> Link: https://lkml.kernel.org/r/20201101231835.4589-1-rdunlap@infradead.org
+> Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+> Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Cc: <stable@vger.kernel.org>
+> Link: https://lkml.kernel.org/r/20201014212631.207844-1-nivedita@alum.mit.edu
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  include/linux/compiler-clang.h |  5 -----
+>  include/linux/compiler-gcc.h   | 19 -------------------
+>  include/linux/compiler.h       | 18 ++++++++++++++++--
+>  3 files changed, 16 insertions(+), 26 deletions(-)
+>
+> diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+> index 333a6695a918c..9b89141604ed0 100644
+> --- a/include/linux/compiler-clang.h
+> +++ b/include/linux/compiler-clang.h
+> @@ -37,8 +37,3 @@
+>  #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+>  #endif
+>
+> -/* The following are for compatibility with GCC, from compiler-gcc.h,
+> - * and may be redefined here because they should not be shared with other
+> - * compilers, like ICC.
+> - */
+> -#define barrier() __asm__ __volatile__("" : : : "memory")
+> diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+> index e8579412ad214..d8fab3ecf5120 100644
+> --- a/include/linux/compiler-gcc.h
+> +++ b/include/linux/compiler-gcc.h
+> @@ -14,25 +14,6 @@
+>  # error Sorry, your compiler is too old - please upgrade it.
+>  #endif
+>
+> -/* Optimization barrier */
+> -
+> -/* The "volatile" is due to gcc bugs */
+> -#define barrier() __asm__ __volatile__("": : :"memory")
+> -/*
+> - * This version is i.e. to prevent dead stores elimination on @ptr
+> - * where gcc and llvm may behave differently when otherwise using
+> - * normal barrier(): while gcc behavior gets along with a normal
+> - * barrier(), llvm needs an explicit input variable to be assumed
+> - * clobbered. The issue is as follows: while the inline asm might
+> - * access any memory it wants, the compiler could have fit all of
+> - * @ptr into memory registers instead, and since @ptr never escaped
+> - * from that, it proved that the inline asm wasn't touching any of
+> - * it. This version works well with both compilers, i.e. we're telling
+> - * the compiler that the inline asm absolutely may see the contents
+> - * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
+> - */
+> -#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+> -
+>  /*
+>   * This macro obfuscates arithmetic on a variable address so that gcc
+>   * shouldn't recognize the original var, and make assumptions about it.
+> diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+> index 448c91bf543b7..f164a9b12813f 100644
+> --- a/include/linux/compiler.h
+> +++ b/include/linux/compiler.h
+> @@ -80,11 +80,25 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+>
+>  /* Optimization barrier */
+>  #ifndef barrier
+> -# define barrier() __memory_barrier()
+> +/* The "volatile" is due to gcc bugs */
+> +# define barrier() __asm__ __volatile__("": : :"memory")
+>  #endif
+>
+>  #ifndef barrier_data
+> -# define barrier_data(ptr) barrier()
+> +/*
+> + * This version is i.e. to prevent dead stores elimination on @ptr
+> + * where gcc and llvm may behave differently when otherwise using
+> + * normal barrier(): while gcc behavior gets along with a normal
+> + * barrier(), llvm needs an explicit input variable to be assumed
+> + * clobbered. The issue is as follows: while the inline asm might
+> + * access any memory it wants, the compiler could have fit all of
+> + * @ptr into memory registers instead, and since @ptr never escaped
+> + * from that, it proved that the inline asm wasn't touching any of
+> + * it. This version works well with both compilers, i.e. we're telling
+> + * the compiler that the inline asm absolutely may see the contents
+> + * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
+> + */
+> +# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+>  #endif
+>
+>  /* workaround for GCC PR82365 if needed */
+> --
+> 2.27.0
+>
+>
+>
 
-Mathieu
 
-> > ---
-> >   drivers/hwtracing/coresight/coresight-tmc-etr.c | 2 ++
-> >   1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/hwtracing/coresight/coresight-tmc-etr.c b/drivers/hwtracing/coresight/coresight-tmc-etr.c
-> > index 525f0ecc129c..a31a4d7ae25e 100644
-> > --- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
-> > +++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
-> > @@ -217,6 +217,8 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
-> >   		} else {
-> >   			page = alloc_pages_node(node,
-> >   						GFP_KERNEL | __GFP_ZERO, 0);
-> > +			if (!page)
-> > +				goto err;
-> >   		}
-> >   		paddr = dma_map_page(real_dev, page, 0, PAGE_SIZE, dir);
-> >   		if (dma_mapping_error(real_dev, paddr))
-> > 
-> > base-commit: c04e5d7bbf6f92a346d6b36770705e7f034df42d
-> > 
-> 
+-- 
+Thanks,
+~Nick Desaulniers
