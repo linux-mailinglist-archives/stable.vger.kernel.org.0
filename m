@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E232C0AD3
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F0C2C0B6C
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730563AbgKWM3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:29:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39604 "EHLO mail.kernel.org"
+        id S1732380AbgKWNYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:24:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729690AbgKWM3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:29:14 -0500
+        id S1731277AbgKWMdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16EF420781;
-        Mon, 23 Nov 2020 12:29:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D116520888;
+        Mon, 23 Nov 2020 12:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134553;
-        bh=17XM+x+BSMdMb/jJ7ByVbll6woXgIqnGpsDv23YlgPk=;
+        s=korg; t=1606134833;
+        bh=WBAvjVB0ZU3IAXX2vBAN67JB9f8nQYR74PsalvQo9PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TesbYc3U/SBNcgcQsOUNemTYhVazhNk5VPmAp77fspOulI43hW/0bxIys8PUeYhtI
-         Hqb9zxSTMSbtXAoFG2GjlyBgsyojXZVPUmX8HWZ2q5G2XN/3vAm/EplnJkkClEQ46o
-         xFzE10Anpqs18EA75Ajt8FyBigmNCdXhXFyzofj4=
+        b=eYXTYNlQfXE0o6FZ6dRYYoZpQ+ZcZn595q42aBLk6XJ1Yzb7fLRXbIFO+uuTtwkoX
+         xp9Jf0uhnsfh93sNWbzm50TSky826IMRbXeAt6kaMVOTaOO7nRO9YAI200NFRia0K9
+         bx7YyNroGG9FWVPVhyUOb6gumOdh3fhCNhk2Zfrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.14 54/60] xtensa: disable preemption around cache alias management calls
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 76/91] iio: accel: kxcjk1013: Replace is_smo8500_device with an acpi_type enum
 Date:   Mon, 23 Nov 2020 13:22:36 +0100
-Message-Id: <20201123121807.665937166@linuxfoundation.org>
+Message-Id: <20201123121813.018064320@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 3a860d165eb5f4d7cf0bf81ef6a5b5c5e1754422 upstream.
+commit 11e94f28c3de35d5ad1ac6a242a5b30f4378991a upstream.
 
-Although cache alias management calls set up and tear down TLB entries
-and fast_second_level_miss is able to restore TLB entry should it be
-evicted they absolutely cannot preempt each other because they use the
-same TLBTEMP area for different purposes.
-Disable preemption around all cache alias management calls to enforce
-that.
+Replace the boolean is_smo8500_device variable with an acpi_type enum.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+For now this can be either ACPI_GENERIC or ACPI_SMO8500, this is a
+preparation patch for adding special handling for the KIOX010A ACPI HID,
+which will add a ACPI_KIOX010A acpi_type to the introduced enum.
+
+For stable as needed as precursor for next patch.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 7f6232e69539 ("iio: accel: kxcjk1013: Add KIOX010A ACPI Hardware-ID")
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201110133835.129080-2-hdegoede@redhat.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/xtensa/mm/cache.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/iio/accel/kxcjk-1013.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/xtensa/mm/cache.c
-+++ b/arch/xtensa/mm/cache.c
-@@ -74,8 +74,10 @@ static inline void kmap_invalidate_coher
- 			kvaddr = TLBTEMP_BASE_1 +
- 				(page_to_phys(page) & DCACHE_ALIAS_MASK);
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -134,6 +134,11 @@ enum kx_chipset {
+ 	KX_MAX_CHIPS /* this must be last */
+ };
  
-+			preempt_disable();
- 			__invalidate_dcache_page_alias(kvaddr,
- 						       page_to_phys(page));
-+			preempt_enable();
- 		}
- 	}
- }
-@@ -160,6 +162,7 @@ void flush_dcache_page(struct page *page
- 		if (!alias && !mapping)
- 			return;
++enum kx_acpi_type {
++	ACPI_GENERIC,
++	ACPI_SMO8500,
++};
++
+ struct kxcjk1013_data {
+ 	struct i2c_client *client;
+ 	struct iio_trigger *dready_trig;
+@@ -150,7 +155,7 @@ struct kxcjk1013_data {
+ 	bool motion_trigger_on;
+ 	int64_t timestamp;
+ 	enum kx_chipset chipset;
+-	bool is_smo8500_device;
++	enum kx_acpi_type acpi_type;
+ };
  
-+		preempt_disable();
- 		virt = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(virt, phys);
+ enum kxcjk1013_axis {
+@@ -1241,7 +1246,7 @@ static irqreturn_t kxcjk1013_data_rdy_tr
  
-@@ -170,6 +173,7 @@ void flush_dcache_page(struct page *page
+ static const char *kxcjk1013_match_acpi_device(struct device *dev,
+ 					       enum kx_chipset *chipset,
+-					       bool *is_smo8500_device)
++					       enum kx_acpi_type *acpi_type)
+ {
+ 	const struct acpi_device_id *id;
  
- 		if (mapping)
- 			__invalidate_icache_page_alias(virt, phys);
-+		preempt_enable();
- 	}
+@@ -1250,7 +1255,7 @@ static const char *kxcjk1013_match_acpi_
+ 		return NULL;
  
- 	/* There shouldn't be an entry in the cache for this page anymore. */
-@@ -203,8 +207,10 @@ void local_flush_cache_page(struct vm_ar
- 	unsigned long phys = page_to_phys(pfn_to_page(pfn));
- 	unsigned long virt = TLBTEMP_BASE_1 + (address & DCACHE_ALIAS_MASK);
+ 	if (strcmp(id->id, "SMO8500") == 0)
+-		*is_smo8500_device = true;
++		*acpi_type = ACPI_SMO8500;
  
-+	preempt_disable();
- 	__flush_invalidate_dcache_page_alias(virt, phys);
- 	__invalidate_icache_page_alias(virt, phys);
-+	preempt_enable();
- }
- EXPORT_SYMBOL(local_flush_cache_page);
+ 	*chipset = (enum kx_chipset)id->driver_data;
  
-@@ -231,11 +237,13 @@ update_mmu_cache(struct vm_area_struct *
- 		unsigned long phys = page_to_phys(page);
- 		unsigned long tmp;
+@@ -1286,7 +1291,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ 	} else if (ACPI_HANDLE(&client->dev)) {
+ 		name = kxcjk1013_match_acpi_device(&client->dev,
+ 						   &data->chipset,
+-						   &data->is_smo8500_device);
++						   &data->acpi_type);
+ 	} else
+ 		return -ENODEV;
  
-+		preempt_disable();
- 		tmp = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(tmp, phys);
- 		tmp = TLBTEMP_BASE_1 + (addr & DCACHE_ALIAS_MASK);
- 		__flush_invalidate_dcache_page_alias(tmp, phys);
- 		__invalidate_icache_page_alias(tmp, phys);
-+		preempt_enable();
+@@ -1304,7 +1309,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->info = &kxcjk1013_info;
  
- 		clear_bit(PG_arch_1, &page->flags);
- 	}
-@@ -269,7 +277,9 @@ void copy_to_user_page(struct vm_area_st
- 
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
-+		preempt_disable();
- 		__flush_invalidate_dcache_page_alias(t, phys);
-+		preempt_enable();
- 	}
- 
- 	/* Copy data */
-@@ -284,9 +294,11 @@ void copy_to_user_page(struct vm_area_st
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
- 
-+		preempt_disable();
- 		__flush_invalidate_dcache_range((unsigned long) dst, len);
- 		if ((vma->vm_flags & VM_EXEC) != 0)
- 			__invalidate_icache_page_alias(t, phys);
-+		preempt_enable();
- 
- 	} else if ((vma->vm_flags & VM_EXEC) != 0) {
- 		__flush_dcache_range((unsigned long)dst,len);
-@@ -308,7 +320,9 @@ extern void copy_from_user_page(struct v
- 
- 	if (alias) {
- 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
-+		preempt_disable();
- 		__flush_invalidate_dcache_page_alias(t, phys);
-+		preempt_enable();
- 	}
- 
- 	memcpy(dst, src, len);
+-	if (client->irq > 0 && !data->is_smo8500_device) {
++	if (client->irq > 0 && data->acpi_type != ACPI_SMO8500) {
+ 		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						kxcjk1013_data_rdy_trig_poll,
+ 						kxcjk1013_event_handler,
 
 
