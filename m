@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E39B2C06DA
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5082C2C06DE
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731465AbgKWMe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:34:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46672 "EHLO mail.kernel.org"
+        id S1731457AbgKWMfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:35:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731457AbgKWMe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:58 -0500
+        id S1731487AbgKWMfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:35:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 732342065E;
-        Mon, 23 Nov 2020 12:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C4B62065E;
+        Mon, 23 Nov 2020 12:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134898;
-        bh=bEbapw5/VVp1IRlz7gDCpdXyeD9oqpWUXCEzLsHBmhA=;
+        s=korg; t=1606134908;
+        bh=qA9fL4rqujlpZBdsl3uGA3WgnfkXV4SHUiZeGzIiW58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PvP2aOhfT5owBeTqfOxqQc1i1JkSgtogT8WcRUFiKcP5ZxSp26Q5jXK/DO6IbYLx
-         Mcw8SllyldwdOevTiuEJzth22mv32gPa+MWVa6jW0ejJnOPFN776P0l9Y4uaxlYZ8E
-         KjLV2LaviMypTS4FfmkiXIiLf2nAZavsaONA7WuQ=
+        b=EfSMS7Ak5z14eZeIOJ3qJ4i3cNFkUMTcm+I+oXyCbzZXv8t4KcARsfXQ9rOLwWKr1
+         GfpkOtALY93XYboKtj+NY+VhE6J/ppGfCyIvZtBruCEnrqhOpdkW7YYuulQJpdAyBP
+         LKBReFDsi6GGOH3bLb8z0t/ZfYLKdmqxtbe0q8BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 032/158] net/ncsi: Fix netlink registration
-Date:   Mon, 23 Nov 2020 13:21:00 +0100
-Message-Id: <20201123121821.486700156@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
+        Alexander Graf <graf@amazon.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 036/158] selftests: kvm: Fix the segment descriptor layout to match the actual layout
+Date:   Mon, 23 Nov 2020 13:21:04 +0100
+Message-Id: <20201123121821.677400596@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
 References: <20201123121819.943135899@linuxfoundation.org>
@@ -43,129 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Aaron Lewis <aaronlewis@google.com>
 
-[ Upstream commit 1922a46b8c18cb09d33e06a6cc2e43844ac1b9d0 ]
+[ Upstream commit df11f7dd5834146defa448acba097e8d7703cc42 ]
 
-If a user unbinds and re-binds a NC-SI aware driver the kernel will
-attempt to register the netlink interface at runtime. The structure is
-marked __ro_after_init so registration fails spectacularly at this point.
+Fix the layout of 'struct desc64' to match the layout described in the
+SDM Vol 3, Chapter 3 "Protected-Mode Memory Management", section 3.4.5
+"Segment Descriptors", Figure 3-8 "Segment Descriptor".  The test added
+later in this series relies on this and crashes if this layout is not
+correct.
 
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/unbind
- # echo 1e660000.ethernet > /sys/bus/platform/drivers/ftgmac100/bind
-  ftgmac100 1e660000.ethernet: Read MAC address 52:54:00:12:34:56 from chip
-  ftgmac100 1e660000.ethernet: Using NCSI interface
-  8<--- cut here ---
-  Unable to handle kernel paging request at virtual address 80a8f858
-  pgd = 8c768dd6
-  [80a8f858] *pgd=80a0841e(bad)
-  Internal error: Oops: 80d [#1] SMP ARM
-  CPU: 0 PID: 116 Comm: sh Not tainted 5.10.0-rc3-next-20201111-00003-gdd25b227ec1e #51
-  Hardware name: Generic DT based system
-  PC is at genl_register_family+0x1f8/0x6d4
-  LR is at 0xff26ffff
-  pc : [<8073f930>]    lr : [<ff26ffff>]    psr: 20000153
-  sp : 8553bc80  ip : 81406244  fp : 8553bd04
-  r10: 8085d12c  r9 : 80a8f73c  r8 : 85739000
-  r7 : 00000017  r6 : 80a8f860  r5 : 80c8ab98  r4 : 80a8f858
-  r3 : 00000000  r2 : 00000000  r1 : 81406130  r0 : 00000017
-  Flags: nzCv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment none
-  Control: 00c5387d  Table: 85524008  DAC: 00000051
-  Process sh (pid: 116, stack limit = 0x1f1988d6)
- ...
-  Backtrace:
-  [<8073f738>] (genl_register_family) from [<80860ac0>] (ncsi_init_netlink+0x20/0x48)
-   r10:8085d12c r9:80c8fb0c r8:85739000 r7:00000000 r6:81218000 r5:85739000
-   r4:8121c000
-  [<80860aa0>] (ncsi_init_netlink) from [<8085d740>] (ncsi_register_dev+0x1b0/0x210)
-   r5:8121c400 r4:8121c000
-  [<8085d590>] (ncsi_register_dev) from [<805a8060>] (ftgmac100_probe+0x6e0/0x778)
-   r10:00000004 r9:80950228 r8:8115bc10 r7:8115ab00 r6:9eae2c24 r5:813b6f88
-   r4:85739000
-  [<805a7980>] (ftgmac100_probe) from [<805355ec>] (platform_drv_probe+0x58/0xa8)
-   r9:80c76bb0 r8:00000000 r7:80cd4974 r6:80c76bb0 r5:8115bc10 r4:00000000
-  [<80535594>] (platform_drv_probe) from [<80532d58>] (really_probe+0x204/0x514)
-   r7:80cd4974 r6:00000000 r5:80cd4868 r4:8115bc10
-
-Jakub pointed out that ncsi_register_dev is obviously broken, because
-there is only one family so it would never work if there was more than
-one ncsi netdev.
-
-Fix the crash by registering the netlink family once on boot, and drop
-the code to unregister it.
-
-Fixes: 955dc68cb9b2 ("net/ncsi: Add generic netlink family")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
-Link: https://lore.kernel.org/r/20201112061210.914621-1-joel@jms.id.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Reviewed-by: Alexander Graf <graf@amazon.com>
+Message-Id: <20201012194716.3950330-2-aaronlewis@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ncsi/ncsi-manage.c  |    5 -----
- net/ncsi/ncsi-netlink.c |   22 +++-------------------
- net/ncsi/ncsi-netlink.h |    3 ---
- 3 files changed, 3 insertions(+), 27 deletions(-)
+ tools/testing/selftests/kvm/include/x86_64/processor.h | 2 +-
+ tools/testing/selftests/kvm/lib/x86_64/processor.c     | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ncsi/ncsi-manage.c
-+++ b/net/ncsi/ncsi-manage.c
-@@ -1667,9 +1667,6 @@ struct ncsi_dev *ncsi_register_dev(struc
- 	ndp->ptype.dev = dev;
- 	dev_add_pack(&ndp->ptype);
- 
--	/* Set up generic netlink interface */
--	ncsi_init_netlink(dev);
--
- 	return nd;
- }
- EXPORT_SYMBOL_GPL(ncsi_register_dev);
-@@ -1826,8 +1823,6 @@ void ncsi_unregister_dev(struct ncsi_dev
- 	list_del_rcu(&ndp->node);
- 	spin_unlock_irqrestore(&ncsi_dev_lock, flags);
- 
--	ncsi_unregister_netlink(nd->dev);
--
- 	kfree(ndp);
- }
- EXPORT_SYMBOL_GPL(ncsi_unregister_dev);
---- a/net/ncsi/ncsi-netlink.c
-+++ b/net/ncsi/ncsi-netlink.c
-@@ -766,24 +766,8 @@ static struct genl_family ncsi_genl_fami
- 	.n_ops = ARRAY_SIZE(ncsi_ops),
- };
- 
--int ncsi_init_netlink(struct net_device *dev)
-+static int __init ncsi_init_netlink(void)
- {
--	int rc;
--
--	rc = genl_register_family(&ncsi_genl_family);
--	if (rc)
--		netdev_err(dev, "ncsi: failed to register netlink family\n");
--
--	return rc;
--}
--
--int ncsi_unregister_netlink(struct net_device *dev)
--{
--	int rc;
--
--	rc = genl_unregister_family(&ncsi_genl_family);
--	if (rc)
--		netdev_err(dev, "ncsi: failed to unregister netlink family\n");
--
--	return rc;
-+	return genl_register_family(&ncsi_genl_family);
- }
-+subsys_initcall(ncsi_init_netlink);
---- a/net/ncsi/ncsi-netlink.h
-+++ b/net/ncsi/ncsi-netlink.h
-@@ -22,7 +22,4 @@ int ncsi_send_netlink_err(struct net_dev
- 			  struct nlmsghdr *nlhdr,
- 			  int err);
- 
--int ncsi_init_netlink(struct net_device *dev);
--int ncsi_unregister_netlink(struct net_device *dev);
--
- #endif /* __NCSI_NETLINK_H__ */
+diff --git a/tools/testing/selftests/kvm/include/x86_64/processor.h b/tools/testing/selftests/kvm/include/x86_64/processor.h
+index ff234018219cf..aead07c24afcf 100644
+--- a/tools/testing/selftests/kvm/include/x86_64/processor.h
++++ b/tools/testing/selftests/kvm/include/x86_64/processor.h
+@@ -57,7 +57,7 @@ enum x86_register {
+ struct desc64 {
+ 	uint16_t limit0;
+ 	uint16_t base0;
+-	unsigned base1:8, s:1, type:4, dpl:2, p:1;
++	unsigned base1:8, type:4, s:1, dpl:2, p:1;
+ 	unsigned limit1:4, avl:1, l:1, db:1, g:1, base2:8;
+ 	uint32_t base3;
+ 	uint32_t zero1;
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+index 6698cb741e10a..7d8f7fc736467 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+@@ -446,11 +446,12 @@ static void kvm_seg_fill_gdt_64bit(struct kvm_vm *vm, struct kvm_segment *segp)
+ 	desc->limit0 = segp->limit & 0xFFFF;
+ 	desc->base0 = segp->base & 0xFFFF;
+ 	desc->base1 = segp->base >> 16;
+-	desc->s = segp->s;
+ 	desc->type = segp->type;
++	desc->s = segp->s;
+ 	desc->dpl = segp->dpl;
+ 	desc->p = segp->present;
+ 	desc->limit1 = segp->limit >> 16;
++	desc->avl = segp->avl;
+ 	desc->l = segp->l;
+ 	desc->db = segp->db;
+ 	desc->g = segp->g;
+-- 
+2.27.0
+
 
 
