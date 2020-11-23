@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9622C0ACC
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D552C0AF6
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730471AbgKWM2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:28:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38838 "EHLO mail.kernel.org"
+        id S1731253AbgKWMdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:33:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730465AbgKWM2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:28:38 -0500
+        id S1731244AbgKWMdh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:37 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3C2D20857;
-        Mon, 23 Nov 2020 12:28:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96A320721;
+        Mon, 23 Nov 2020 12:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134516;
-        bh=xxIhqiOudQ5Kf1+DO5Myb14GNh1kgYu4KqzrbyLi84w=;
+        s=korg; t=1606134816;
+        bh=YoQDnUTsqVY+WKspD6+ZqPA26Klmis3QpVjN5O9GZjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMrn+W9kozXak+r5FkZmzUm2ZAK4vcjZ6MMcV3w5cnvZ6xG+KcMCNzx0GTleQCNJ8
-         gfu2ig3J9NAUvNI4yw/CKQCZThvPVoaKAvt7WzNO4PK6D8lykO37tizLIDNw434Gbr
-         JtwA/TEpkbJAFapLsPdKIwxwM0xsuZL9zhosQO94=
+        b=0ksHPcheyuBYaYosHiKznGlGizn8WFqy5SxI1P2rPdhfL048raqZWzUjhdUeDYB3D
+         KO1glFF1KayKc9VAyLpybxVrjjwrDDMjNDHT+kCZJnsKD2toW9jIrI+BUrMouiW+gD
+         vFvSkdfK5a3JL+9/Dsn0BVJBitw94dePaXXuOMoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian OKeefe <bokeefe@alum.wpi.edu>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.14 47/60] staging: rtl8723bs: Add 024c:0627 to the list of SDIO device-ids
-Date:   Mon, 23 Nov 2020 13:22:29 +0100
-Message-Id: <20201123121807.330753227@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 70/91] ALSA: mixart: Fix mutex deadlock
+Date:   Mon, 23 Nov 2020 13:22:30 +0100
+Message-Id: <20201123121812.727253198@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
-References: <20201123121805.028396732@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian O'Keefe <bokeefe@alum.wpi.edu>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit aee9dccc5b64e878cf1b18207436e73f66d74157 upstream.
+commit d21b96c8ed2aea7e6b7bf4735e1d2503cfbf4072 upstream.
 
-Add 024c:0627 to the list of SDIO device-ids, based on hardware found in
-the wild. This hardware exists on at least some Acer SW1-011 tablets.
+The code change for switching to non-atomic mode brought the
+unexpected mutex deadlock in get_msg().  It converted the spinlock
+with the existing mutex, but there were calls with the already holding
+the mutex.  Since the only place that needs the extra lock is the code
+path from snd_mixart_send_msg(), remove the mutex lock in get_msg()
+and apply in the caller side for fixing the mutex deadlock.
 
-Signed-off-by: Brian O'Keefe <bokeefe@alum.wpi.edu>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/b9e1523f-2ba7-fb82-646a-37f095b4440e@alum.wpi.edu
-Cc: stable <stable@vger.kernel.org>
+Fixes: 8d3a8b5cb57d ("ALSA: mixart: Use nonatomic PCM ops")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201119121440.18945-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8723bs/os_dep/sdio_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/mixart/mixart_core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
-+++ b/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
-@@ -28,6 +28,7 @@ static const struct sdio_device_id sdio_
- 	{ SDIO_DEVICE(0x024c, 0x0525), },
- 	{ SDIO_DEVICE(0x024c, 0x0623), },
- 	{ SDIO_DEVICE(0x024c, 0x0626), },
-+	{ SDIO_DEVICE(0x024c, 0x0627), },
- 	{ SDIO_DEVICE(0x024c, 0xb723), },
- 	{ /* end: all zeroes */				},
- };
+--- a/sound/pci/mixart/mixart_core.c
++++ b/sound/pci/mixart/mixart_core.c
+@@ -83,7 +83,6 @@ static int get_msg(struct mixart_mgr *mg
+ 	unsigned int i;
+ #endif
+ 
+-	mutex_lock(&mgr->msg_lock);
+ 	err = 0;
+ 
+ 	/* copy message descriptor from miXart to driver */
+@@ -132,8 +131,6 @@ static int get_msg(struct mixart_mgr *mg
+ 	writel_be(headptr, MIXART_MEM(mgr, MSG_OUTBOUND_FREE_HEAD));
+ 
+  _clean_exit:
+-	mutex_unlock(&mgr->msg_lock);
+-
+ 	return err;
+ }
+ 
+@@ -271,7 +268,9 @@ int snd_mixart_send_msg(struct mixart_mg
+ 	resp.data = resp_data;
+ 	resp.size = max_resp_size;
+ 
++	mutex_lock(&mgr->msg_lock);
+ 	err = get_msg(mgr, &resp, msg_frame);
++	mutex_unlock(&mgr->msg_lock);
+ 
+ 	if( request->message_id != resp.message_id )
+ 		dev_err(&mgr->pci->dev, "RESPONSE ERROR!\n");
 
 
