@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE04C2C0BA8
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D20D2C0B10
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731218AbgKWN2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:28:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S1731873AbgKWMhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:37:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730737AbgKWMaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:30:25 -0500
+        id S1731865AbgKWMhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F862076E;
-        Mon, 23 Nov 2020 12:30:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F19B20857;
+        Mon, 23 Nov 2020 12:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134623;
-        bh=GREe4+dIe5+PgkEen7fAPcgRYBz5qrxYPEAp7Km37kM=;
+        s=korg; t=1606135023;
+        bh=zelI9qISChEmsFl8mPD3a6x6uPrLQJBo1vYVh5JyRFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3XNtGhgpPulbdLhraGuYLJqO9+2f7StTrFVa2mWxmmr9cLOXEOW9q7ofL7+z+R7R
-         eAh6uboCpi/QHgqFnvtZTrvm8440mvU+ORAFa0Bv5Y27+IbiHp/WJK8R5sceZukZzu
-         OlC4nLHqByDTBj1iocTCjEnQKEtgcH17Zj7H8WTE=
+        b=SpV4LGmU0Z55grJ8R8I52fUq35s4f1dpqKemMmhGzCZFqS609B0fODHfcoR34/B5X
+         b09ZQY5L1Nv6uO+1oR0Wi4Z/RI+49VEycaBnyqBZyvNSaYdGoBPppB7GDcBAXySj7J
+         7K+IoDuxJSIWK9ZV76iqlQl5V81J530bMutLCvLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filip Moc <dev@moc6.cz>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 24/91] net: usb: qmi_wwan: Set DTR quirk for MR400
+        stable@vger.kernel.org,
+        syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 076/158] can: af_can: prevent potential access of uninitialized member in canfd_rcv()
 Date:   Mon, 23 Nov 2020 13:21:44 +0100
-Message-Id: <20201123121810.492708354@linuxfoundation.org>
+Message-Id: <20201123121823.606181448@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filip Moc <dev@moc6.cz>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit df8d85d8c69d6837817e54dcb73c84a8b5a13877 ]
+[ Upstream commit 9aa9379d8f868e91719333a7f063ccccc0579acc ]
 
-LTE module MR400 embedded in TL-MR6400 v4 requires DTR to be set.
+In canfd_rcv(), cfd->len is uninitialized when skb->len = 0, and this
+uninitialized cfd->len is accessed nonetheless by pr_warn_once().
 
-Signed-off-by: Filip Moc <dev@moc6.cz>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20201117173631.GA550981@moc6.cz
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this uninitialized variable access by checking cfd->len's validity
+condition (cfd->len > CANFD_MAX_DLEN) separately after the skb->len's
+condition is checked, and appropriately modify the log messages that
+are generated as well.
+In case either of the required conditions fail, the skb is freed and
+NET_RX_DROP is returned, same as before.
+
+Fixes: d4689846881d ("can: af_can: canfd_rcv(): replace WARN_ONCE by pr_warn_once")
+Reported-by: syzbot+9bcb0c9409066696d3aa@syzkaller.appspotmail.com
+Tested-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201103213906.24219-3-anant.thazhemadam@gmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/af_can.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1029,7 +1029,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x05c6, 0x9011, 4)},
- 	{QMI_FIXED_INTF(0x05c6, 0x9021, 1)},
- 	{QMI_FIXED_INTF(0x05c6, 0x9022, 2)},
--	{QMI_FIXED_INTF(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE  (China Mobile) */
-+	{QMI_QUIRK_SET_DTR(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE (China Mobile) */
- 	{QMI_FIXED_INTF(0x05c6, 0x9026, 3)},
- 	{QMI_FIXED_INTF(0x05c6, 0x902e, 5)},
- 	{QMI_FIXED_INTF(0x05c6, 0x9031, 5)},
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 09d2329719c17..fd6ef6d26846f 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -701,16 +701,25 @@ static int canfd_rcv(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	struct canfd_frame *cfd = (struct canfd_frame *)skb->data;
+ 
+-	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU ||
+-		     cfd->len > CANFD_MAX_DLEN)) {
+-		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuf: dev type %d, len %d, datalen %d\n",
++	if (unlikely(dev->type != ARPHRD_CAN || skb->len != CANFD_MTU)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d\n",
++			     dev->type, skb->len);
++		goto free_skb;
++	}
++
++	/* This check is made separately since cfd->len would be uninitialized if skb->len = 0. */
++	if (unlikely(cfd->len > CANFD_MAX_DLEN)) {
++		pr_warn_once("PF_CAN: dropped non conform CAN FD skbuff: dev type %d, len %d, datalen %d\n",
+ 			     dev->type, skb->len, cfd->len);
+-		kfree_skb(skb);
+-		return NET_RX_DROP;
++		goto free_skb;
+ 	}
+ 
+ 	can_receive(skb, dev);
+ 	return NET_RX_SUCCESS;
++
++free_skb:
++	kfree_skb(skb);
++	return NET_RX_DROP;
+ }
+ 
+ /* af_can protocol functions */
+-- 
+2.27.0
+
 
 
