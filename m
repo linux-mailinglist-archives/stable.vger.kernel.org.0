@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A49E42C0928
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B87D2C086F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387611AbgKWNEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:04:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S1733230AbgKWMvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:51:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387605AbgKWMvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387606AbgKWMvC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:51:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B99B20732;
-        Mon, 23 Nov 2020 12:50:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3580020657;
+        Mon, 23 Nov 2020 12:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135855;
-        bh=zhvzN87Fa32w8zG5NZxmYcOn+hF5t93T3wTMiQDu4+w=;
+        s=korg; t=1606135857;
+        bh=bLd/IA/GBN91CmWxjZ77W/baBskahdfQejsxLh0CS6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/fwkrCIZdiRgdBBooTi7KMtTVwAJ64Fzv28qMBaXkim8q1r9mii24RvUJt1Rqpao
-         DS9FPdkYlf5COXZfrqIsO59L05yOiVHTNQjiH6el1b6co8sxFd8sXjQOvfB/SGZLeC
-         kuGTz7ogL2CVd20gfdO7OTxiJOm1EplBRYC2WdbY=
+        b=olNZ3LldWaiatKaMMPb0PcSAMm9XBClAQyvXY7V9LnmBtY9GwOODyLX4sCxXRADDj
+         NwwcACcS8bagHzapo2jIplYiFjoqTOwhP/Go8E5NJhMlxqGnALOBm/l2qUij6SZMIJ
+         hvb1wr4hUlocIHLCyrhj75nnJDbISgPhL/WZ1SrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Tomer Maimon <tmaimon77@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.9 220/252] spi: npcm-fiu: Dont leak SPI master in probe error path
-Date:   Mon, 23 Nov 2020 13:22:50 +0100
-Message-Id: <20201123121846.191628060@linuxfoundation.org>
+Subject: [PATCH 5.9 221/252] spi: bcm2835aux: Fix use-after-free on unbind
+Date:   Mon, 23 Nov 2020 13:22:51 +0100
+Message-Id: <20201123121846.236048984@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -45,38 +44,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 04a9cd51d3f3308a98cbc6adc07acb12fbade011 upstream.
+commit e13ee6cc4781edaf8c7321bee19217e3702ed481 upstream.
 
-If the calls to of_match_device(), of_alias_get_id(),
-devm_ioremap_resource(), devm_regmap_init_mmio() or devm_clk_get()
-fail on probe of the NPCM FIU SPI driver, the spi_controller struct is
-erroneously not freed.
+bcm2835aux_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Fix by switching over to the new devm_spi_alloc_master() helper.
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-Fixes: ace55c411b11 ("spi: npcm-fiu: add NPCM FIU controller driver")
+Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v5.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Tomer Maimon <tmaimon77@gmail.com>
-Link: https://lore.kernel.org/r/a420c23a363a3bc9aa684c6e790c32a8af106d17.1605512876.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v4.4+: 123456789abc: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-npcm-fiu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-bcm2835aux.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
---- a/drivers/spi/spi-npcm-fiu.c
-+++ b/drivers/spi/spi-npcm-fiu.c
-@@ -680,7 +680,7 @@ static int npcm_fiu_probe(struct platfor
- 	int ret;
- 	int id;
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -494,7 +494,7 @@ static int bcm2835aux_spi_probe(struct p
+ 	unsigned long clk_hz;
+ 	int err;
  
--	ctrl = spi_alloc_master(dev, sizeof(*fiu));
-+	ctrl = devm_spi_alloc_master(dev, sizeof(*fiu));
- 	if (!ctrl)
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master)
  		return -ENOMEM;
+ 
+@@ -524,29 +524,24 @@ static int bcm2835aux_spi_probe(struct p
+ 
+ 	/* the main area */
+ 	bs->regs = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
+ 
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(bs->clk)) {
+-		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return PTR_ERR(bs->clk);
+ 	}
+ 
+ 	bs->irq = platform_get_irq(pdev, 0);
+-	if (bs->irq <= 0) {
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
+-	}
++	if (bs->irq <= 0)
++		return bs->irq ? bs->irq : -ENODEV;
+ 
+ 	/* this also enables the HW block */
+ 	err = clk_prepare_enable(bs->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	/* just checking if the clock returns a sane value */
+@@ -581,8 +576,6 @@ static int bcm2835aux_spi_probe(struct p
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
+-	spi_master_put(master);
+ 	return err;
+ }
  
 
 
