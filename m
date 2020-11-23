@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE7C2C0AE4
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D572C0B17
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730821AbgKWMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:31:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41948 "EHLO mail.kernel.org"
+        id S1731999AbgKWMhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730812AbgKWMbH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:31:07 -0500
+        id S1731987AbgKWMhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E60D20728;
-        Mon, 23 Nov 2020 12:31:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B62BC22203;
+        Mon, 23 Nov 2020 12:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134666;
-        bh=vwlZFy4zbL3jhkYWPf5ntfpkxyvkxTmd7Tz9BRz0e4k=;
+        s=korg; t=1606135063;
+        bh=CNiP+4Hj3vw6UmF5OummcB34I0ZbFbNNqimg2SA/Qck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp5CfzWwrlXlj45SbLFSJgepbzFdOG9DThCQP3STNQHHWxfOvCwunJpmUyNcJJWvy
-         peT/pV+2AvpbrO97WYPXWIZOeCDYHg9xp8cIGPHsaumgO/VlB+OLgh7XhWCLnJglma
-         KTE//bedb6QlbX6g61qAAzbToG2jeIiRdnp/Oz+4=
+        b=PbYyFxYx9zsF9B7BazhOEw5ZmzNUEg4LHSgHjn/D/1zs2tg84HMNVKljwA+Pxvi7F
+         uuK1nnGcUBLz8TeSK30E2PfHXdFGXQq4dH8EEq9qAX20/8lO/Hj/lpJdAFSLx0DPVp
+         Frg3dgdHs0n6cV+wsvdbInhJ6MK49xAQ5ADobgTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Yulevich <denisyu@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 08/91] mlxsw: core: Use variable timeout for EMAD retries
-Date:   Mon, 23 Nov 2020 13:21:28 +0100
-Message-Id: <20201123121809.710985744@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 061/158] MIPS: export has_transparent_hugepage() for modules
+Date:   Mon, 23 Nov 2020 13:21:29 +0100
+Message-Id: <20201123121822.882979950@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 1f492eab67bced119a0ac7db75ef2047e29a30c6 ]
+[ Upstream commit 31b4d8e172f614adc53ddecb4b6b2f6411a49b84 ]
 
-The driver sends Ethernet Management Datagram (EMAD) packets to the
-device for configuration purposes and waits for up to 200ms for a reply.
-A request is retried up to 5 times.
+MIPS should export its local version of "has_transparent_hugepage"
+so that loadable modules (dax) can use it.
 
-When the system is under heavy load, replies are not always processed in
-time and EMAD transactions fail.
+Fixes this build error:
+ERROR: modpost: "has_transparent_hugepage" [drivers/dax/dax.ko] undefined!
 
-Make the process more robust to such delays by using exponential
-backoff. First wait for up to 200ms, then retransmit and wait for up to
-400ms and so on.
-
-Fixes: caf7297e7ab5 ("mlxsw: core: Introduce support for asynchronous EMAD register access")
-Reported-by: Denis Yulevich <denisyu@nvidia.com>
-Tested-by: Denis Yulevich <denisyu@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fd8cfd300019 ("arch: fix has_transparent_hugepage()")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: linux-nvdimm@lists.01.org
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/mm/tlb-r4k.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
-@@ -439,7 +439,8 @@ static void mlxsw_emad_trans_timeout_sch
- 	if (trans->core->fw_flash_in_progress)
- 		timeout = msecs_to_jiffies(MLXSW_EMAD_TIMEOUT_DURING_FW_FLASH_MS);
- 
--	queue_delayed_work(trans->core->emad_wq, &trans->timeout_dw, timeout);
-+	queue_delayed_work(trans->core->emad_wq, &trans->timeout_dw,
-+			   timeout << trans->retries);
+diff --git a/arch/mips/mm/tlb-r4k.c b/arch/mips/mm/tlb-r4k.c
+index c13e46ced4252..60046445122b3 100644
+--- a/arch/mips/mm/tlb-r4k.c
++++ b/arch/mips/mm/tlb-r4k.c
+@@ -437,6 +437,7 @@ int has_transparent_hugepage(void)
+ 	}
+ 	return mask == PM_HUGE_MASK;
  }
++EXPORT_SYMBOL(has_transparent_hugepage);
  
- static int mlxsw_emad_transmit(struct mlxsw_core *mlxsw_core,
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE  */
+ 
+-- 
+2.27.0
+
 
 
