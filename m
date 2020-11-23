@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4142C0688
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E50172C061F
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730981AbgKWMbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:31:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43038 "EHLO mail.kernel.org"
+        id S1730371AbgKWM16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730977AbgKWMbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:31:53 -0500
+        id S1730381AbgKWM15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90F62208C3;
-        Mon, 23 Nov 2020 12:31:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A9362076E;
+        Mon, 23 Nov 2020 12:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134713;
-        bh=Kxkbz6p5C8ddsZHzcx9DhxBj5YlWHjwKKCXZG2Rjsvc=;
+        s=korg; t=1606134476;
+        bh=MyHEBUeDHBGuj3YLSxyV0vX64dd0nNgvUcg3vxgRKlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6waMkF5UmZtUJuMcw8F0832JaXnxYBWe30C1JCb87rawYI5jo4RUNHvkBsb62Ufw
-         jHi8+9xKMMyJGv+blZIsA9xWbaOqPHKCR1cwSEvNLrI98Z95FsHBHdd6u2HRiIKD3m
-         CdnA2XMTd0pzDldjY+s4MzMVxp4puBjEp3ToGdbA=
+        b=WGFZlZL5UBZkxze127/50cae2HIYHqRe+i1iCPDZgNBLZaCroQl1o4U8DnlbkcIgT
+         a5mMrDwAgTP8Ugf59TQe09AaoqWTa752jof3VtFDhVpwzqklZxmN59bdc57LiOHIQY
+         T3BAq/XYEcFnj3EfUxiZtL8QoyvxRYYmq2QS4Yq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        V Sujith Kumar Reddy <vsujithk@codeaurora.org>,
-        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/91] ASoC: qcom: lpass-platform: Fix memory leak
-Date:   Mon, 23 Nov 2020 13:22:15 +0100
-Message-Id: <20201123121811.998040731@linuxfoundation.org>
+Subject: [PATCH 4.14 34/60] can: peak_usb: fix potential integer overflow on shift of a int
+Date:   Mon, 23 Nov 2020 13:22:16 +0100
+Message-Id: <20201123121806.691720950@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit bd6327fda2f3ded85b69b3c3125c99aaa51c7881 ]
+[ Upstream commit 8a68cc0d690c9e5730d676b764c6f059343b842c ]
 
-lpass_pcm_data is not freed in error paths. Free it in
-error paths to avoid memory leak.
+The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
+arithmetic and then assigned to a signed 64 bit variable. In the case where
+time_ref->adapter->ts_used_bits is 32 or more this can lead to an oveflow.
+Avoid this by shifting using the BIT_ULL macro instead.
 
-Fixes: 022d00ee0b55 ("ASoC: lpass-platform: Fix broken pcm data usage")
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: V Sujith Kumar Reddy <vsujithk@codeaurora.org>
-Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
-Link: https://lore.kernel.org/r/1605416210-14530-1-git-send-email-srivasam@codeaurora.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20201105112427.40688-1-colin.king@canonical.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-platform.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-platform.c b/sound/soc/qcom/lpass-platform.c
-index 2f29672477892..1d06e2b7bb635 100644
---- a/sound/soc/qcom/lpass-platform.c
-+++ b/sound/soc/qcom/lpass-platform.c
-@@ -81,8 +81,10 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
- 	else
- 		dma_ch = 0;
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index 9d78ba7776140..c9d86d50bf886 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -180,7 +180,7 @@ void peak_usb_get_ts_tv(struct peak_time_ref *time_ref, u32 ts,
+ 		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
+ 			/* case when event time (tsw) wraps */
+ 			if (ts < time_ref->ts_dev_1)
+-				delta_ts = 1 << time_ref->adapter->ts_used_bits;
++				delta_ts = BIT_ULL(time_ref->adapter->ts_used_bits);
  
--	if (dma_ch < 0)
-+	if (dma_ch < 0) {
-+		kfree(data);
- 		return dma_ch;
-+	}
+ 		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
+ 		 * handle case when event time (tsn) hasn't.
+@@ -192,7 +192,7 @@ void peak_usb_get_ts_tv(struct peak_time_ref *time_ref, u32 ts,
+ 		 *              tsn            ts
+ 		 */
+ 		} else if (time_ref->ts_dev_1 < ts) {
+-			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
++			delta_ts = -BIT_ULL(time_ref->adapter->ts_used_bits);
+ 		}
  
- 	drvdata->substream[dma_ch] = substream;
- 
-@@ -103,6 +105,7 @@ static int lpass_platform_pcmops_open(struct snd_pcm_substream *substream)
- 	ret = snd_pcm_hw_constraint_integer(runtime,
- 			SNDRV_PCM_HW_PARAM_PERIODS);
- 	if (ret < 0) {
-+		kfree(data);
- 		dev_err(soc_runtime->dev, "setting constraints failed: %d\n",
- 			ret);
- 		return -EINVAL;
+ 		/* add delay between last sync and event timestamps */
 -- 
 2.27.0
 
