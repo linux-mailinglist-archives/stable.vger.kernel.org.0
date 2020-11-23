@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7272C0A06
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3332C0A04
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733176AbgKWMoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:44:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57126 "EHLO mail.kernel.org"
+        id S2387455AbgKWNPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:15:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733168AbgKWMoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:44:02 -0500
+        id S1733210AbgKWMoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:44:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC34208C3;
-        Mon, 23 Nov 2020 12:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01946208C3;
+        Mon, 23 Nov 2020 12:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135442;
-        bh=aYS2f1e6fLmruGW0G06TxwfCvJ1cA7p5SDkLwRweTKk=;
+        s=korg; t=1606135461;
+        bh=GFngvZlCCkdakne/1GK39sREPmtwgAIQPPaTVAjHOls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+SN3pgJnUtEwfYfYDS6y24w6VWKh6y5mSj3TT8eXTbOu1F6LN3dK6esLSgWjdM15
-         wjpuecwMC9/m4aGGlZBxZVKsu4KEWlYXNTiGvYJP3c+YoU8qBU3qLiOt7m1EAFIISL
-         lMEkvUmpMG10N3M5xQnIIffzALGyPKHJh+wsjEYQ=
+        b=NdCVTFtQfQRXAAft3h3T5cEJHmBgRurkRNGvPIWHoBcbz8ZlKCfSI4pAcv/k76jvY
+         hjMxEPsPZ76gwuae+ES2JNloZ1qa1263aQbF3iRP0WFgHF+rZSYGwDf7KZlyjsb0a0
+         0qaIcUqbu8QyroKrYyyOjRo7+jj/gJ2T7dQI+d00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Barker <pbarker@konsulko.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 069/252] hwmon: (pwm-fan) Fix RPM calculation
-Date:   Mon, 23 Nov 2020 13:20:19 +0100
-Message-Id: <20201123121838.919203389@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 075/252] arm64: dts: allwinner: beelink-gs1: Enable both RGMII RX/TX delay
+Date:   Mon, 23 Nov 2020 13:20:25 +0100
+Message-Id: <20201123121839.214493666@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,56 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Barker <pbarker@konsulko.com>
+From: Clément Péron <peron.clem@gmail.com>
 
-[ Upstream commit fd8feec665fef840277515a5c2b9b7c3e3970fad ]
+[ Upstream commit 97a38c1c213b162aa577299de698f39c18ba696b ]
 
-To convert the number of pulses counted into an RPM estimation, we need
-to divide by the width of our measurement interval instead of
-multiplying by it. If the width of the measurement interval is zero we
-don't update the RPM value to avoid dividing by zero.
+Before the commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx
+delay config"), the software overwrite for RX/TX delays of the RTL8211e
+were not working properly and the Beelink GS1 had both RX/TX delay of RGMII
+interface set using pull-up on the TXDLY and RXDLY pins.
 
-We also don't need to do 64-bit division, with 32-bits we can handle a
-fan running at over 4 million RPM.
+Now that these delays are working properly they overwrite the HW
+config and set this to 'rgmii' meaning no delay on both RX/TX.
+This makes the ethernet of this board not working anymore.
 
-Signed-off-by: Paul Barker <pbarker@konsulko.com>
-Link: https://lore.kernel.org/r/20201111164643.7087-1-pbarker@konsulko.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Set the phy-mode to 'rgmii-id' meaning RGMII with RX/TX delays
+in the device-tree to keep the correct configuration.
+
+Fixes: 089bee8dd119 ("arm64: dts: allwinner: h6: Introduce Beelink GS1 board")
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20201018172409.1754775-1-peron.clem@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pwm-fan.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index 17bb64299bfd8..3642086498d98 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -54,16 +54,18 @@ static irqreturn_t pulse_handler(int irq, void *dev_id)
- static void sample_timer(struct timer_list *t)
- {
- 	struct pwm_fan_ctx *ctx = from_timer(ctx, t, rpm_timer);
-+	unsigned int delta = ktime_ms_delta(ktime_get(), ctx->sample_start);
- 	int pulses;
--	u64 tmp;
- 
--	pulses = atomic_read(&ctx->pulses);
--	atomic_sub(pulses, &ctx->pulses);
--	tmp = (u64)pulses * ktime_ms_delta(ktime_get(), ctx->sample_start) * 60;
--	do_div(tmp, ctx->pulses_per_revolution * 1000);
--	ctx->rpm = tmp;
-+	if (delta) {
-+		pulses = atomic_read(&ctx->pulses);
-+		atomic_sub(pulses, &ctx->pulses);
-+		ctx->rpm = (unsigned int)(pulses * 1000 * 60) /
-+			(ctx->pulses_per_revolution * delta);
-+
-+		ctx->sample_start = ktime_get();
-+	}
- 
--	ctx->sample_start = ktime_get();
- 	mod_timer(&ctx->rpm_timer, jiffies + HZ);
- }
- 
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
+index 3f7ceeb1a767a..7c9dbde645b52 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-beelink-gs1.dts
+@@ -97,7 +97,7 @@
+ &emac {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&ext_rgmii_pins>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	phy-handle = <&ext_rgmii_phy>;
+ 	phy-supply = <&reg_aldo2>;
+ 	status = "okay";
 -- 
 2.27.0
 
