@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76AE2C066A
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C31F2C05E0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730667AbgKWMas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:30:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41700 "EHLO mail.kernel.org"
+        id S1729939AbgKWMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:25:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbgKWMaq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:30:46 -0500
+        id S1729933AbgKWMZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:25:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D9920728;
-        Mon, 23 Nov 2020 12:30:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4032B20728;
+        Mon, 23 Nov 2020 12:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134645;
-        bh=0A66eNDJ2aZU+lf9L5muAqnCOkTKeAP0usRGZ3A0xHs=;
+        s=korg; t=1606134306;
+        bh=WeYy9fuvJ9LpbzTwBeMlFziLQMDzl1r1zC/bHgwzFEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0gCgWlIb9MVTtC96tE9XgAW5hDAVYe8MoqZxbrMQtT2pN2MMKHJb1bX+5PtBUg21
-         J1p7MFQn26gdrdL0h1SEHV4qm9ts9oL5Zw4hz9jRgGkJQaLUQgNA4dCxIlHkezksLV
-         79KjEp50oTFbx/lpK2fVLrZPScb0+ndm8nkp+TdQ=
+        b=ZUhmAGVpo9TffNz796GMCH0PVeUP1PintfAx/bGtRjNb5dX5HsJ3sYpGTnlJLUs6f
+         cj5OOPTHy9k8elnZQVlBqnAtT9mtC0zgVSlVaX4mcitE++f3jBJOBQkM5Wfz86MNkI
+         TA6LbqHZQER8RRPNLkK0+fn1FS31yobmBdpqhhJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 31/91] arm64: psci: Avoid printing in cpu_psci_cpu_die()
-Date:   Mon, 23 Nov 2020 13:21:51 +0100
-Message-Id: <20201123121810.837992909@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 06/47] net: b44: fix error return code in b44_init_one()
+Date:   Mon, 23 Nov 2020 13:21:52 +0100
+Message-Id: <20201123121805.858893655@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.530891002@linuxfoundation.org>
+References: <20201123121805.530891002@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 891deb87585017d526b67b59c15d38755b900fea ]
+[ Upstream commit 7b027c249da54f492699c43e26cba486cfd48035 ]
 
-cpu_psci_cpu_die() is called in the context of the dying CPU, which
-will no longer be online or tracked by RCU. It is therefore not generally
-safe to call printk() if the PSCI "cpu off" request fails, so remove the
-pr_crit() invocation.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Cc: Qian Cai <cai@redhat.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201106103602.9849-2-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 39a6f4bce6b4 ("b44: replace the ssb_dma API with the generic DMA API")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/1605582131-36735-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/psci.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/b44.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
-index 3856d51c645b5..3ebb2a56e5f7b 100644
---- a/arch/arm64/kernel/psci.c
-+++ b/arch/arm64/kernel/psci.c
-@@ -69,7 +69,6 @@ static int cpu_psci_cpu_disable(unsigned int cpu)
+--- a/drivers/net/ethernet/broadcom/b44.c
++++ b/drivers/net/ethernet/broadcom/b44.c
+@@ -2390,7 +2390,8 @@ static int b44_init_one(struct ssb_devic
+ 		goto err_out_free_dev;
+ 	}
  
- static void cpu_psci_cpu_die(unsigned int cpu)
- {
--	int ret;
- 	/*
- 	 * There are no known implementations of PSCI actually using the
- 	 * power state field, pass a sensible default for now.
-@@ -77,9 +76,7 @@ static void cpu_psci_cpu_die(unsigned int cpu)
- 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
- 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
- 
--	ret = psci_ops.cpu_off(state);
--
--	pr_crit("unable to power off CPU%u (%d)\n", cpu, ret);
-+	psci_ops.cpu_off(state);
- }
- 
- static int cpu_psci_cpu_kill(unsigned int cpu)
--- 
-2.27.0
-
+-	if (dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30))) {
++	err = dma_set_mask_and_coherent(sdev->dma_dev, DMA_BIT_MASK(30));
++	if (err) {
+ 		dev_err(sdev->dev,
+ 			"Required 30BIT DMA mask unsupported by the system\n");
+ 		goto err_out_powerdown;
 
 
