@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D972C0696
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85402C0612
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731109AbgKWMch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:32:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43900 "EHLO mail.kernel.org"
+        id S1730271AbgKWM1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:27:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729564AbgKWMcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:32:35 -0500
+        id S1730264AbgKWM1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:27:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6DC920728;
-        Mon, 23 Nov 2020 12:32:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 854872076E;
+        Mon, 23 Nov 2020 12:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134755;
-        bh=MBo+IX/ML+jkCXfW30TJxNyDNIrE5kK8+sEyXfS/fdo=;
+        s=korg; t=1606134434;
+        bh=GREe4+dIe5+PgkEen7fAPcgRYBz5qrxYPEAp7Km37kM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOvRqqrcXvFwNeRHzdb6Mm+WY/pI23nQVbPqE4VkLdVRtdoSavQzNqdVt6aBjtCPy
-         sxT3kS74DUoLAq+Ccesohv+dfDQByiA9IU8p4LfI7HCpj4SXMNlzkqkaH4uKcX9clY
-         qtmebNNcMmW5kStbVT2vPivdJHIkvp8wHVgcWcmA=
+        b=JwnnrGUg/fFj3XbAysfRJld3SltSatQ1LY+Nq4KCms0A1n+8mPxmEz2F9rEQ2KBzH
+         REdAHJsxgYL/3hKbquKH8pfOCRBF510XUveIW8JHP01gIITn14iDmZE7vEbg3wwTTm
+         AMxhX1yDvx4ihyX7oGbecxKpWFzQYWBuMphdFYAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/91] Input: adxl34x - clean up a data type in adxl34x_probe()
+        stable@vger.kernel.org, Filip Moc <dev@moc6.cz>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 18/60] net: usb: qmi_wwan: Set DTR quirk for MR400
 Date:   Mon, 23 Nov 2020 13:22:00 +0100
-Message-Id: <20201123121811.262599370@linuxfoundation.org>
+Message-Id: <20201123121805.900880334@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121805.028396732@linuxfoundation.org>
+References: <20201123121805.028396732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Filip Moc <dev@moc6.cz>
 
-[ Upstream commit 33b6c39e747c552fa770eecebd1776f1f4a222b1 ]
+[ Upstream commit df8d85d8c69d6837817e54dcb73c84a8b5a13877 ]
 
-The "revid" is used to store negative error codes so it should be an int
-type.
+LTE module MR400 embedded in TL-MR6400 v4 requires DTR to be set.
 
-Fixes: e27c729219ad ("Input: add driver for ADXL345/346 Digital Accelerometers")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Link: https://lore.kernel.org/r/20201026072824.GA1620546@mwanda
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Filip Moc <dev@moc6.cz>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20201117173631.GA550981@moc6.cz
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/misc/adxl34x.c | 2 +-
+ drivers/net/usb/qmi_wwan.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-index a3e79bf5a04b0..3695dd7dbb9b4 100644
---- a/drivers/input/misc/adxl34x.c
-+++ b/drivers/input/misc/adxl34x.c
-@@ -696,7 +696,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
- 	struct input_dev *input_dev;
- 	const struct adxl34x_platform_data *pdata;
- 	int err, range, i;
--	unsigned char revid;
-+	int revid;
- 
- 	if (!irq) {
- 		dev_err(dev, "no IRQ?\n");
--- 
-2.27.0
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1029,7 +1029,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x05c6, 0x9011, 4)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9021, 1)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9022, 2)},
+-	{QMI_FIXED_INTF(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE  (China Mobile) */
++	{QMI_QUIRK_SET_DTR(0x05c6, 0x9025, 4)},	/* Alcatel-sbell ASB TL131 TDD LTE (China Mobile) */
+ 	{QMI_FIXED_INTF(0x05c6, 0x9026, 3)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x902e, 5)},
+ 	{QMI_FIXED_INTF(0x05c6, 0x9031, 5)},
 
 
