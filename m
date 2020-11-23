@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 513132C0BA7
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E5A2C0B11
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729821AbgKWN2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:28:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
+        id S1731893AbgKWMhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:37:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730090AbgKWMac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:30:32 -0500
+        id S1731865AbgKWMhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:37:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C81520781;
-        Mon, 23 Nov 2020 12:30:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5F4420888;
+        Mon, 23 Nov 2020 12:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134631;
-        bh=jiXUb3dHuj6wF3mgnGob5udyk4xvwnvCnIdVrrxyCAY=;
+        s=korg; t=1606135031;
+        bh=uAl/Hj/W/wcK0yBx/8xKCDgjvvm9J8Ad/jZllIuEMww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lx8H3oObPqNDoT3A5W4WKhnpQ5Er+laEhHfeeqaCVcrLmQD8AmI7qxE1h/jvYbSrr
-         qvuMCclcDaz2Df8GS0UtEldqWrouOh2AvgAW/W0/XoAnzEN3ZM7VG+nTFU9yXNzCVI
-         kPutJdhyv+AIwMYJ1i7Q7oi1fIFI+VZ8sFavLBys=
+        b=ZAx2+BVKvdqGU38wDChYU18546RA1B65r7fdw7icZR8X3USbjuxTXcaBxQ6qxyB4p
+         1Al2yRgZv7ipu4FgKdOfyL/fTj5dha9BoZ6gA55039H5TkJMLoWL37oSZHNRMbtvYi
+         d1l+DgM/ynvMpHRHc7xXmBkwwIbkWBKG6W4QafXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianqun Xu <jay.xu@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Kever Yang <kever.yang@rock-chips.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Remigiusz=20Ko=C5=82=C5=82=C4=85taj?= 
+        <remigiusz.kollataj@mobica.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/91] pinctrl: rockchip: enable gpio pclk for rockchip_gpio_to_irq
+Subject: [PATCH 5.4 079/158] can: mcba_usb: mcba_usb_start_xmit(): first fill skb, then pass to can_put_echo_skb()
 Date:   Mon, 23 Nov 2020 13:21:47 +0100
-Message-Id: <20201123121810.643571132@linuxfoundation.org>
+Message-Id: <20201123121823.750193611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
-References: <20201123121809.285416732@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+References: <20201123121819.943135899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianqun Xu <jay.xu@rock-chips.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 63fbf8013b2f6430754526ef9594f229c7219b1f ]
+[ Upstream commit 81c9c8e0adef3285336b942f93287c554c89e6c6 ]
 
-There need to enable pclk_gpio when do irq_create_mapping, since it will
-do access to gpio controller.
+The driver has to first fill the skb with data and then handle it to
+can_put_echo_skb(). This patch moves the can_put_echo_skb() down, right before
+sending the skb out via USB.
 
-Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Kever Yang<kever.yang@rock-chips.com>
-Link: https://lore.kernel.org/r/20201013063731.3618-3-jay.xu@rock-chips.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Cc: Remigiusz Kołłątaj <remigiusz.kollataj@mobica.com>
+Link: https://lore.kernel.org/r/20201111221204.1639007-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/usb/mcba_usb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 005df24f5b3f1..4d3b62707524a 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2778,7 +2778,9 @@ static int rockchip_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
- 	if (!bank->domain)
- 		return -ENXIO;
+diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
+index 21faa2ec46327..8f785c199e220 100644
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -326,8 +326,6 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (!ctx)
+ 		return NETDEV_TX_BUSY;
  
-+	clk_enable(bank->clk);
- 	virq = irq_create_mapping(bank->domain, offset);
-+	clk_disable(bank->clk);
+-	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
+-
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+ 		/* SIDH    | SIDL                 | EIDH   | EIDL
+ 		 * 28 - 21 | 20 19 18 x x x 17 16 | 15 - 8 | 7 - 0
+@@ -357,6 +355,8 @@ static netdev_tx_t mcba_usb_start_xmit(struct sk_buff *skb,
+ 	if (cf->can_id & CAN_RTR_FLAG)
+ 		usb_msg.dlc |= MCBA_DLC_RTR_MASK;
  
- 	return (virq) ? : -ENXIO;
- }
++	can_put_echo_skb(skb, priv->netdev, ctx->ndx);
++
+ 	err = mcba_usb_xmit(priv, (struct mcba_usb_msg *)&usb_msg, ctx);
+ 	if (err)
+ 		goto xmit_failed;
 -- 
 2.27.0
 
