@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E35CC2C0592
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0072C0593
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729624AbgKWMXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:23:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60758 "EHLO mail.kernel.org"
+        id S1729633AbgKWMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:23:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729618AbgKWMXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:23:32 -0500
+        id S1729628AbgKWMXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:23:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09DB920888;
-        Mon, 23 Nov 2020 12:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE08820728;
+        Mon, 23 Nov 2020 12:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134211;
-        bh=YoQDnUTsqVY+WKspD6+ZqPA26Klmis3QpVjN5O9GZjk=;
+        s=korg; t=1606134214;
+        bh=bqw6qU+5X5MmwD9qU7kwwgdLK1D7iiI5JKFbbpQqt1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paXbZNWalU2raF8wKMqFMEuR2XRTu1P3YbahAm/8joVZsAGJ8Z44r+YKaGa+u8zOq
-         EPKCb7MAmqOTnGcLIB8sZG7VcaTCVIsHPhzf9eo1avIC8FpDxAlFNfv889jEWB7Ga5
-         BrgqkCR7HtnkAPKYCAGkg3e+z+EtBB5ujwIl4gaM=
+        b=jDE4BRZOx/wCt3VDeSuWzhOxfo3iXI9XbZErcE/8mCQIC7kv4uR3TiKzyfDCZJpAb
+         uLyC/uJHgDv7jaXrHV3GhskcK9yIrxSRABWbNa8CG++SEaaiorCwJ2rK7MhL/8swwr
+         p/faDL5q5nfDZqjindKrbje5XTFFSakVFnXExyqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 28/38] ALSA: mixart: Fix mutex deadlock
-Date:   Mon, 23 Nov 2020 13:22:14 +0100
-Message-Id: <20201123121805.650696712@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Fugang Duan <fugang.duan@nxp.com>
+Subject: [PATCH 4.4 29/38] tty: serial: imx: keep console clocks always on
+Date:   Mon, 23 Nov 2020 13:22:15 +0100
+Message-Id: <20201123121805.699690339@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121804.306030358@linuxfoundation.org>
 References: <20201123121804.306030358@linuxfoundation.org>
@@ -42,56 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-commit d21b96c8ed2aea7e6b7bf4735e1d2503cfbf4072 upstream.
+commit e67c139c488e84e7eae6c333231e791f0e89b3fb upstream.
 
-The code change for switching to non-atomic mode brought the
-unexpected mutex deadlock in get_msg().  It converted the spinlock
-with the existing mutex, but there were calls with the already holding
-the mutex.  Since the only place that needs the extra lock is the code
-path from snd_mixart_send_msg(), remove the mutex lock in get_msg()
-and apply in the caller side for fixing the mutex deadlock.
+For below code, there has chance to cause deadlock in SMP system:
+Thread 1:
+clk_enable_lock();
+pr_info("debug message");
+clk_enable_unlock();
 
-Fixes: 8d3a8b5cb57d ("ALSA: mixart: Use nonatomic PCM ops")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201119121440.18945-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Thread 2:
+imx_uart_console_write()
+	clk_enable()
+		clk_enable_lock();
+
+Thread 1:
+Acuired clk enable_lock -> printk -> console_trylock_spinning
+Thread 2:
+console_unlock() -> imx_uart_console_write -> clk_disable -> Acquite clk enable_lock
+
+So the patch is to keep console port clocks always on like
+other console drivers.
+
+Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Link: https://lore.kernel.org/r/20201111025136.29818-1-fugang.duan@nxp.com
+Cc: stable <stable@vger.kernel.org>
+[fix up build warning - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/mixart/mixart_core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/imx.c |   20 +++-----------------
+ 1 file changed, 3 insertions(+), 17 deletions(-)
 
---- a/sound/pci/mixart/mixart_core.c
-+++ b/sound/pci/mixart/mixart_core.c
-@@ -83,7 +83,6 @@ static int get_msg(struct mixart_mgr *mg
- 	unsigned int i;
- #endif
- 
--	mutex_lock(&mgr->msg_lock);
- 	err = 0;
- 
- 	/* copy message descriptor from miXart to driver */
-@@ -132,8 +131,6 @@ static int get_msg(struct mixart_mgr *mg
- 	writel_be(headptr, MIXART_MEM(mgr, MSG_OUTBOUND_FREE_HEAD));
- 
-  _clean_exit:
--	mutex_unlock(&mgr->msg_lock);
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -1628,16 +1628,6 @@ imx_console_write(struct console *co, co
+ 	unsigned int ucr1;
+ 	unsigned long flags = 0;
+ 	int locked = 1;
+-	int retval;
 -
- 	return err;
+-	retval = clk_enable(sport->clk_per);
+-	if (retval)
+-		return;
+-	retval = clk_enable(sport->clk_ipg);
+-	if (retval) {
+-		clk_disable(sport->clk_per);
+-		return;
+-	}
+ 
+ 	if (sport->port.sysrq)
+ 		locked = 0;
+@@ -1673,9 +1663,6 @@ imx_console_write(struct console *co, co
+ 
+ 	if (locked)
+ 		spin_unlock_irqrestore(&sport->port.lock, flags);
+-
+-	clk_disable(sport->clk_ipg);
+-	clk_disable(sport->clk_per);
  }
  
-@@ -271,7 +268,9 @@ int snd_mixart_send_msg(struct mixart_mg
- 	resp.data = resp_data;
- 	resp.size = max_resp_size;
+ /*
+@@ -1776,15 +1763,14 @@ imx_console_setup(struct console *co, ch
  
-+	mutex_lock(&mgr->msg_lock);
- 	err = get_msg(mgr, &resp, msg_frame);
-+	mutex_unlock(&mgr->msg_lock);
+ 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
  
- 	if( request->message_id != resp.message_id )
- 		dev_err(&mgr->pci->dev, "RESPONSE ERROR!\n");
+-	clk_disable(sport->clk_ipg);
+ 	if (retval) {
+-		clk_unprepare(sport->clk_ipg);
++		clk_disable_unprepare(sport->clk_ipg);
+ 		goto error_console;
+ 	}
+ 
+-	retval = clk_prepare(sport->clk_per);
++	retval = clk_prepare_enable(sport->clk_per);
+ 	if (retval)
+-		clk_unprepare(sport->clk_ipg);
++		clk_disable_unprepare(sport->clk_ipg);
+ 
+ error_console:
+ 	return retval;
 
 
