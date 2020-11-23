@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 895382C0B7B
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A34342C0B79
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388637AbgKWNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:25:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
+        id S2388833AbgKWNZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:25:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731186AbgKWMdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:33:17 -0500
+        id S1731201AbgKWMdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:33:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04C7D20781;
-        Mon, 23 Nov 2020 12:33:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9732F2065E;
+        Mon, 23 Nov 2020 12:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134796;
-        bh=hGOvM+UbelrgnnRhqf7+ey2enxKSgSfta3sURtrdvfE=;
+        s=korg; t=1606134802;
+        bh=C7Hi/j+sT6uRjChEQkAIbxhoq7Od5Wrx1G5HbFvn2Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPsVhr2ipP1mhuRpG0dFugeKb27021dBf4h/XvGpGTLlyXpGigOURU6FA727ZzFFf
-         Reu0tRXezbTy/5zuG9LJCI2FexfGZH4RwZuoC1yQZkkRONNjALsQgRwsb6bNZ8YVJy
-         hvsKIUA7eEs2r/Jj8akw+GLAqn1+4sBwqV4m9wjw=
+        b=zuj38VqwW7qE6XWXHhISD7lUL1VVaHCKxVTQ+PcQWlRmQlyYKiF8RvRZtWPOdwuNh
+         8geJJ8hANrZG/tXfdyfmtjskVgLwTN9yhzc3IIgwBsLnFkLBcD4WrPVJv4KI/Erckh
+         2HjNZHGtlCQt4Xe+u/wfbPZyrwvN6Ka22e5EwLBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.19 86/91] s390/cpum_sf.c: fix file permission for cpum_sfb_size
-Date:   Mon, 23 Nov 2020 13:22:46 +0100
-Message-Id: <20201123121813.496144355@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 87/91] s390/dasd: fix null pointer dereference for ERP requests
+Date:   Mon, 23 Nov 2020 13:22:47 +0100
+Message-Id: <20201123121813.545971397@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
 References: <20201123121809.285416732@linuxfoundation.org>
@@ -43,43 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 78d732e1f326f74f240d416af9484928303d9951 upstream.
+commit 6f117cb854a44a79898d844e6ae3fd23bd94e786 upstream.
 
-This file is installed by the s390 CPU Measurement sampling
-facility device driver to export supported minimum and
-maximum sample buffer sizes.
-This file is read by lscpumf tool to display the details
-of the device driver capabilities. The lscpumf tool might
-be invoked by a non-root user. In this case it does not
-print anything because the file contents can not be read.
+When requeueing all requests on the device request queue to the blocklayer
+we might get to an ERP (error recovery) request that is a copy of an
+original CQR.
 
-Fix this by allowing read access for all users. Reading
-the file contents is ok, changing the file contents is
-left to the root user only.
+Those requests do not have blocklayer request information or a pointer to
+the dasd_queue set. When trying to access those data it will lead to a
+null pointer dereference in dasd_requeue_all_requests().
 
-For further reference and details see:
- [1] https://github.com/ibm-s390-tools/s390-tools/issues/97
+Fix by checking if the request is an ERP request that can simply be
+ignored. The blocklayer request will be requeued by the original CQR that
+is on the device queue right behind the ERP request.
 
-Fixes: 69f239ed335a ("s390/cpum_sf: Dynamically extend the sampling buffer if overflows occur")
-Cc: <stable@vger.kernel.org> # 3.14
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 9487cfd3430d ("s390/dasd: fix handling of internal requests")
+Cc: <stable@vger.kernel.org> #4.16
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/perf_cpum_sf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -2097,4 +2097,4 @@ out:
- 	return err;
- }
- arch_initcall(init_cpum_sampling_pmu);
--core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
-+core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2833,6 +2833,12 @@ static int _dasd_requeue_request(struct
+ 
+ 	if (!block)
+ 		return -EINVAL;
++	/*
++	 * If the request is an ERP request there is nothing to requeue.
++	 * This will be done with the remaining original request.
++	 */
++	if (cqr->refers)
++		return 0;
+ 	spin_lock_irq(&cqr->dq->lock);
+ 	req = (struct request *) cqr->callback_data;
+ 	blk_mq_requeue_request(req, false);
 
 
