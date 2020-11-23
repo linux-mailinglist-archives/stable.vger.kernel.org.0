@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4922C0732
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99812C0686
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:42:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732087AbgKWMiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:38:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50918 "EHLO mail.kernel.org"
+        id S1730974AbgKWMbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:31:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732081AbgKWMiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:38:20 -0500
+        id S1730955AbgKWMbq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:31:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CDB62065E;
-        Mon, 23 Nov 2020 12:38:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20A0720728;
+        Mon, 23 Nov 2020 12:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135100;
-        bh=/lnL4kKUQjvt0DPZxtlw/Bxo0DaHITp042FE3rTo8Js=;
+        s=korg; t=1606134704;
+        bh=O2zs6xZVKt3P/jhYF3aKxMr2zr6vIlrWT9ptOBoFddo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hg7RSZvVOaDcf1YSZBTU7uj6ENNH5D0TW64H3H+iqsZ7kBwqZo3E78OPosTlkjbAZ
-         14vLvD4fKiRvYYtpeghEqYQEdfDu7u/sM7ThPOubfgEQqKwKi46wJkE1qNF804fxfT
-         chL6YyOWfFjC13gQEZhXPCfmQD9sGEfY9dkMHLm0=
+        b=W0RQ5puIQtJKKbhCS2YXRsV6bt5rCaMpi6MSEMN1EEz2ko9qeqlXv83BjfO2QTNnd
+         1yV5Ru5QeMVbwrVo4xLjgmEJqB5A/l+yVYS1cQkP5dqMRZ8g3NrvkVnpoR80eWmqaz
+         8KdQLcr1Sp6Z1TpmSfGrkEJqt/eDOKuSZ+dymOYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Luo Meng <luomeng12@huawei.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/158] fail_function: Remove a redundant mutex unlock
+Subject: [PATCH 4.19 53/91] can: peak_usb: fix potential integer overflow on shift of a int
 Date:   Mon, 23 Nov 2020 13:22:13 +0100
-Message-Id: <20201123121825.003683165@linuxfoundation.org>
+Message-Id: <20201123121811.897954128@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121809.285416732@linuxfoundation.org>
+References: <20201123121809.285416732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 2801a5da5b25b7af9dd2addd19b2315c02d17b64 ]
+[ Upstream commit 8a68cc0d690c9e5730d676b764c6f059343b842c ]
 
-Fix a mutex_unlock() issue where before copy_from_user() is
-not called mutex_locked.
+The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
+arithmetic and then assigned to a signed 64 bit variable. In the case where
+time_ref->adapter->ts_used_bits is 32 or more this can lead to an oveflow.
+Avoid this by shifting using the BIT_ULL macro instead.
 
-Fixes: 4b1a29a7f542 ("error-injection: Support fault injection framework")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/bpf/160570737118.263807.8358435412898356284.stgit@devnote2
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20201105112427.40688-1-colin.king@canonical.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fail_function.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/fail_function.c b/kernel/fail_function.c
-index 63b349168da72..b0b1ad93fa957 100644
---- a/kernel/fail_function.c
-+++ b/kernel/fail_function.c
-@@ -253,7 +253,7 @@ static ssize_t fei_write(struct file *file, const char __user *buffer,
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index db156a11e6db5..f7d653d48a1e4 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -164,7 +164,7 @@ void peak_usb_get_ts_time(struct peak_time_ref *time_ref, u32 ts, ktime_t *time)
+ 		if (time_ref->ts_dev_1 < time_ref->ts_dev_2) {
+ 			/* case when event time (tsw) wraps */
+ 			if (ts < time_ref->ts_dev_1)
+-				delta_ts = 1 << time_ref->adapter->ts_used_bits;
++				delta_ts = BIT_ULL(time_ref->adapter->ts_used_bits);
  
- 	if (copy_from_user(buf, buffer, count)) {
- 		ret = -EFAULT;
--		goto out;
-+		goto out_free;
- 	}
- 	buf[count] = '\0';
- 	sym = strstrip(buf);
-@@ -307,8 +307,9 @@ static ssize_t fei_write(struct file *file, const char __user *buffer,
- 		ret = count;
- 	}
- out:
--	kfree(buf);
- 	mutex_unlock(&fei_lock);
-+out_free:
-+	kfree(buf);
- 	return ret;
- }
+ 		/* Otherwise, sync time counter (ts_dev_2) has wrapped:
+ 		 * handle case when event time (tsn) hasn't.
+@@ -176,7 +176,7 @@ void peak_usb_get_ts_time(struct peak_time_ref *time_ref, u32 ts, ktime_t *time)
+ 		 *              tsn            ts
+ 		 */
+ 		} else if (time_ref->ts_dev_1 < ts) {
+-			delta_ts = -(1 << time_ref->adapter->ts_used_bits);
++			delta_ts = -BIT_ULL(time_ref->adapter->ts_used_bits);
+ 		}
  
+ 		/* add delay between last sync and event timestamps */
 -- 
 2.27.0
 
