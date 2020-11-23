@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B502C091F
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:17:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1519D2C0870
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732349AbgKWNEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:04:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35630 "EHLO mail.kernel.org"
+        id S2387633AbgKWMvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733261AbgKWMvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:51:16 -0500
+        id S2387626AbgKWMvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:51:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7E0821534;
-        Mon, 23 Nov 2020 12:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A1FB204EF;
+        Mon, 23 Nov 2020 12:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135874;
-        bh=CNVyWDcJmxhiqIkKUnVmz5LTp9JQpGZhhdzVagJ5vW4=;
+        s=korg; t=1606135879;
+        bh=FJAQyiBhM9W/EBQENSyywhbVzcU8o+Z/vCHSH8dxzik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7xMQrhAapsYLD93MKNliEj4PNGGsMIXiuURIknVXwN06CEcuZs8J0QOmLwNEWzsB
-         w/TOte7ZEno4vuBnlwLwaKqYYyerbjPMcarABoGimS3vYUcMRP8R351cbjSK1W0aA0
-         qOYJK5aF9/seIc6Ajt06ttnRjaTcXvmJy6EfZ3fc=
+        b=FSwz3g1WZYFN7FV1cZuQ/Xh8ZzszZ8RUA4ndEJmePWMAzLLp3k7iyt4W6c9k4LJuq
+         JxvvJn7sm1tCKGR363PTrOUcrlVgKNMd5P9vi+NO1Xg6guPB0Px4bex8tKfxzgpTFJ
+         eyciIdXPeIDuu92mdinASVDrX2a9Qehk+QFp5OAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.9 227/252] xtensa: fix TLBTEMP area placement
-Date:   Mon, 23 Nov 2020 13:22:57 +0100
-Message-Id: <20201123121846.534657703@linuxfoundation.org>
+Subject: [PATCH 5.9 228/252] xtensa: disable preemption around cache alias management calls
+Date:   Mon, 23 Nov 2020 13:22:58 +0100
+Message-Id: <20201123121846.581403938@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,84 +43,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 481535c5b41d191b22775a6873de5ec0e1cdced1 upstream.
+commit 3a860d165eb5f4d7cf0bf81ef6a5b5c5e1754422 upstream.
 
-fast_second_level_miss handler for the TLBTEMP area has an assumption
-that page table directory entry for the TLBTEMP address range is 0. For
-it to be true the TLBTEMP area must be aligned to 4MB boundary and not
-share its 4MB region with anything that may use a page table. This is
-not true currently: TLBTEMP shares space with vmalloc space which
-results in the following kinds of runtime errors when
-fast_second_level_miss loads page table directory entry for the vmalloc
-space instead of fixing up the TLBTEMP area:
-
- Unable to handle kernel paging request at virtual address c7ff0e00
-  pc = d0009275, ra = 90009478
- Oops: sig: 9 [#1] PREEMPT
- CPU: 1 PID: 61 Comm: kworker/u9:2 Not tainted 5.10.0-rc3-next-20201110-00007-g1fe4962fa983-dirty #58
- Workqueue: xprtiod xs_stream_data_receive_workfn
- a00: 90009478 d11e1dc0 c7ff0e00 00000020 c7ff0000 00000001 7f8b8107 00000000
- a08: 900c5992 d11e1d90 d0cc88b8 5506e97c 00000000 5506e97c d06c8074 d11e1d90
- pc: d0009275, ps: 00060310, depc: 00000014, excvaddr: c7ff0e00
- lbeg: d0009275, lend: d0009287 lcount: 00000003, sar: 00000010
- Call Trace:
-   xs_stream_data_receive_workfn+0x43c/0x770
-   process_one_work+0x1a1/0x324
-   worker_thread+0x1cc/0x3c0
-   kthread+0x10d/0x124
-   ret_from_kernel_thread+0xc/0x18
+Although cache alias management calls set up and tear down TLB entries
+and fast_second_level_miss is able to restore TLB entry should it be
+evicted they absolutely cannot preempt each other because they use the
+same TLBTEMP area for different purposes.
+Disable preemption around all cache alias management calls to enforce
+that.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/xtensa/mmu.rst      |    9 ++++++---
- arch/xtensa/include/asm/pgtable.h |    2 +-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ arch/xtensa/mm/cache.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/Documentation/xtensa/mmu.rst
-+++ b/Documentation/xtensa/mmu.rst
-@@ -82,7 +82,8 @@ Default MMUv2-compatible layout::
-   +------------------+
-   | VMALLOC area     |  VMALLOC_START            0xc0000000  128MB - 64KB
-   +------------------+  VMALLOC_END
--  | Cache aliasing   |  TLBTEMP_BASE_1           0xc7ff0000  DCACHE_WAY_SIZE
-+  +------------------+
-+  | Cache aliasing   |  TLBTEMP_BASE_1           0xc8000000  DCACHE_WAY_SIZE
-   | remap area 1     |
-   +------------------+
-   | Cache aliasing   |  TLBTEMP_BASE_2                       DCACHE_WAY_SIZE
-@@ -124,7 +125,8 @@ Default MMUv2-compatible layout::
-   +------------------+
-   | VMALLOC area     |  VMALLOC_START            0xa0000000  128MB - 64KB
-   +------------------+  VMALLOC_END
--  | Cache aliasing   |  TLBTEMP_BASE_1           0xa7ff0000  DCACHE_WAY_SIZE
-+  +------------------+
-+  | Cache aliasing   |  TLBTEMP_BASE_1           0xa8000000  DCACHE_WAY_SIZE
-   | remap area 1     |
-   +------------------+
-   | Cache aliasing   |  TLBTEMP_BASE_2                       DCACHE_WAY_SIZE
-@@ -167,7 +169,8 @@ Default MMUv2-compatible layout::
-   +------------------+
-   | VMALLOC area     |  VMALLOC_START            0x90000000  128MB - 64KB
-   +------------------+  VMALLOC_END
--  | Cache aliasing   |  TLBTEMP_BASE_1           0x97ff0000  DCACHE_WAY_SIZE
-+  +------------------+
-+  | Cache aliasing   |  TLBTEMP_BASE_1           0x98000000  DCACHE_WAY_SIZE
-   | remap area 1     |
-   +------------------+
-   | Cache aliasing   |  TLBTEMP_BASE_2                       DCACHE_WAY_SIZE
---- a/arch/xtensa/include/asm/pgtable.h
-+++ b/arch/xtensa/include/asm/pgtable.h
-@@ -69,7 +69,7 @@
-  */
- #define VMALLOC_START		(XCHAL_KSEG_CACHED_VADDR - 0x10000000)
- #define VMALLOC_END		(VMALLOC_START + 0x07FEFFFF)
--#define TLBTEMP_BASE_1		(VMALLOC_END + 1)
-+#define TLBTEMP_BASE_1		(VMALLOC_START + 0x08000000)
- #define TLBTEMP_BASE_2		(TLBTEMP_BASE_1 + DCACHE_WAY_SIZE)
- #if 2 * DCACHE_WAY_SIZE > ICACHE_WAY_SIZE
- #define TLBTEMP_SIZE		(2 * DCACHE_WAY_SIZE)
+--- a/arch/xtensa/mm/cache.c
++++ b/arch/xtensa/mm/cache.c
+@@ -70,8 +70,10 @@ static inline void kmap_invalidate_coher
+ 			kvaddr = TLBTEMP_BASE_1 +
+ 				(page_to_phys(page) & DCACHE_ALIAS_MASK);
+ 
++			preempt_disable();
+ 			__invalidate_dcache_page_alias(kvaddr,
+ 						       page_to_phys(page));
++			preempt_enable();
+ 		}
+ 	}
+ }
+@@ -156,6 +158,7 @@ void flush_dcache_page(struct page *page
+ 		if (!alias && !mapping)
+ 			return;
+ 
++		preempt_disable();
+ 		virt = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
+ 		__flush_invalidate_dcache_page_alias(virt, phys);
+ 
+@@ -166,6 +169,7 @@ void flush_dcache_page(struct page *page
+ 
+ 		if (mapping)
+ 			__invalidate_icache_page_alias(virt, phys);
++		preempt_enable();
+ 	}
+ 
+ 	/* There shouldn't be an entry in the cache for this page anymore. */
+@@ -199,8 +203,10 @@ void local_flush_cache_page(struct vm_ar
+ 	unsigned long phys = page_to_phys(pfn_to_page(pfn));
+ 	unsigned long virt = TLBTEMP_BASE_1 + (address & DCACHE_ALIAS_MASK);
+ 
++	preempt_disable();
+ 	__flush_invalidate_dcache_page_alias(virt, phys);
+ 	__invalidate_icache_page_alias(virt, phys);
++	preempt_enable();
+ }
+ EXPORT_SYMBOL(local_flush_cache_page);
+ 
+@@ -227,11 +233,13 @@ update_mmu_cache(struct vm_area_struct *
+ 		unsigned long phys = page_to_phys(page);
+ 		unsigned long tmp;
+ 
++		preempt_disable();
+ 		tmp = TLBTEMP_BASE_1 + (phys & DCACHE_ALIAS_MASK);
+ 		__flush_invalidate_dcache_page_alias(tmp, phys);
+ 		tmp = TLBTEMP_BASE_1 + (addr & DCACHE_ALIAS_MASK);
+ 		__flush_invalidate_dcache_page_alias(tmp, phys);
+ 		__invalidate_icache_page_alias(tmp, phys);
++		preempt_enable();
+ 
+ 		clear_bit(PG_arch_1, &page->flags);
+ 	}
+@@ -265,7 +273,9 @@ void copy_to_user_page(struct vm_area_st
+ 
+ 	if (alias) {
+ 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
++		preempt_disable();
+ 		__flush_invalidate_dcache_page_alias(t, phys);
++		preempt_enable();
+ 	}
+ 
+ 	/* Copy data */
+@@ -280,9 +290,11 @@ void copy_to_user_page(struct vm_area_st
+ 	if (alias) {
+ 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
+ 
++		preempt_disable();
+ 		__flush_invalidate_dcache_range((unsigned long) dst, len);
+ 		if ((vma->vm_flags & VM_EXEC) != 0)
+ 			__invalidate_icache_page_alias(t, phys);
++		preempt_enable();
+ 
+ 	} else if ((vma->vm_flags & VM_EXEC) != 0) {
+ 		__flush_dcache_range((unsigned long)dst,len);
+@@ -304,7 +316,9 @@ extern void copy_from_user_page(struct v
+ 
+ 	if (alias) {
+ 		unsigned long t = TLBTEMP_BASE_1 + (vaddr & DCACHE_ALIAS_MASK);
++		preempt_disable();
+ 		__flush_invalidate_dcache_page_alias(t, phys);
++		preempt_enable();
+ 	}
+ 
+ 	memcpy(dst, src, len);
 
 
