@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 816F42C09A0
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 849162C0852
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733155AbgKWNJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:09:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33204 "EHLO mail.kernel.org"
+        id S1732852AbgKWMso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:48:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732824AbgKWMsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732825AbgKWMsg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:48:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC125208C3;
-        Mon, 23 Nov 2020 12:47:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64CA62100A;
+        Mon, 23 Nov 2020 12:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135669;
-        bh=M6L+Nawp5+EPafUv3Lj7DKn06qbCVDGJ6RaSKEWqFxc=;
+        s=korg; t=1606135671;
+        bh=5WeBFUD6vwEUlct8jF4tp60WXcAHD+mGFWdMxYEeyoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lwMi7ZU0/GRao6iI4gtBumXdk/TC5zn05mq3zW1ehIOCt1lld9Vsmu5A2hM42AJw
-         oPAMblL0l83cW8TC5+xQq7ZLSD/k3EGgqrDxzeXeSlPiiFgP3LYX3DKi6/IS13vriy
-         mSH0Yw2QkQYsANIYkSvJbzs9gFboPOxSyYKQQ1G4=
+        b=U8n6GmeiZ3MZeDMygCXhPKovNp48/Yec0HYq86JNIz5MvxAZ2v2LLM/JzNE5uRurO
+         UeMJK7Ln/yCM1NfGHrO8bbBelJryJ2aykhtLhHFaE9TA9jPKOA+QhRgP+hqZzGn+2l
+         fb5t2Frj1l7KhIvNfXCMbtP5hBJDDcrZ7idClPio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jimmy Assarsson <extja@kvaser.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 153/252] can: kvaser_pciefd: Fix KCAN bittiming limits
-Date:   Mon, 23 Nov 2020 13:21:43 +0100
-Message-Id: <20201123121842.977904989@linuxfoundation.org>
+Subject: [PATCH 5.9 154/252] can: kvaser_usb: kvaser_usb_hydra: Fix KCAN bittiming limits
+Date:   Mon, 23 Nov 2020 13:21:44 +0100
+Message-Id: <20201123121843.025524758@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -45,30 +45,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit 470e14c00c63752466ac44de392f584dfdddd82e ]
+[ Upstream commit d003868d7f8579838ed58b6429af91844039b6f8 ]
 
 Use correct bittiming limits for the KCAN CAN controller.
 
-Fixes: 26ad340e582d ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
 Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/r/20201115163027.16851-1-jimmyassarsson@gmail.com
+Link: https://lore.kernel.org/r/20201115163027.16851-2-jimmyassarsson@gmail.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/kvaser_pciefd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/kvaser_pciefd.c b/drivers/net/can/kvaser_pciefd.c
-index 6f766918211a4..72acd1ba162d2 100644
---- a/drivers/net/can/kvaser_pciefd.c
-+++ b/drivers/net/can/kvaser_pciefd.c
-@@ -287,12 +287,12 @@ struct kvaser_pciefd_tx_packet {
- static const struct can_bittiming_const kvaser_pciefd_bittiming_const = {
- 	.name = KVASER_PCIEFD_DRV_NAME,
- 	.tseg1_min = 1,
--	.tseg1_max = 255,
-+	.tseg1_max = 512,
- 	.tseg2_min = 1,
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index 7ab87a7587545..218fadc911558 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -367,7 +367,7 @@ static const struct can_bittiming_const kvaser_usb_hydra_kcan_bittiming_c = {
  	.tseg2_max = 32,
  	.sjw_max = 16,
  	.brp_min = 1,
