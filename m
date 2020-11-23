@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E59052C0993
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7B52C098A
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388765AbgKWNJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:09:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33622 "EHLO mail.kernel.org"
+        id S2388463AbgKWNJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 08:09:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732831AbgKWMsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732836AbgKWMsk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Nov 2020 07:48:40 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79F08204EF;
-        Mon, 23 Nov 2020 12:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F4220657;
+        Mon, 23 Nov 2020 12:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135680;
-        bh=wOLVgXt1BIm5JgZmu+pMVz9nGUgUHX7kubNWWTCShxY=;
+        s=korg; t=1606135682;
+        bh=PeGGLeZWDd1bXuKd/S9QaIkZt9wKXhUajYTdgQ2IT4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExpxgiObtVxWunAaHjR0hoUkrwktZJE54VmHCSElAMsV/6Tg7Nm3Tc+8IJEuXckPx
-         SlmnffK0Ec8srJtr9xbRbA5TdgqBmQkHUG2LIEsyWk9Fu4NkxW+dbDn4+VuFVtKG5K
-         Aqgbx68zJ6qeC89mDEsoD0uHwT9dsBvazZBGsp8s=
+        b=WHQIjx37ZeszOZB+QDDYj4KuH56wHOHurXhbUJZfBIuV8rlgowPgBnlgI7ZiD3TRf
+         x5KakmOZVHfuYM/CLOuYrQkgTSYE0vDws+7RHO35sW/GZPT0mlR2zj5vaDoo5GWadn
+         CxZcmQ2WoM6/Wkrr3SH6Y/5Ux0vwB3YxgYPTsT5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Lukasz Hawrylko <lukasz.hawrylko@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 157/252] iommu/vt-d: Avoid panic if iommu init fails in tboot system
-Date:   Mon, 23 Nov 2020 13:21:47 +0100
-Message-Id: <20201123121843.169617158@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 158/252] can: flexcan: flexcan_chip_start(): fix erroneous flexcan_transceiver_enable() during bus-off recovery
+Date:   Mon, 23 Nov 2020 13:21:48 +0100
+Message-Id: <20201123121843.215496069@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -44,84 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 4d213e76a359e540ca786ee937da7f35faa8e5f8 ]
+[ Upstream commit cd9f13c59461351d7a5fd07924264fb49b287359 ]
 
-"intel_iommu=off" command line is used to disable iommu but iommu is force
-enabled in a tboot system for security reason.
+If the CAN controller goes into bus off, the do_set_mode() callback with
+CAN_MODE_START can be used to recover the controller, which then calls
+flexcan_chip_start(). If configured, this is done automatically by the
+framework or manually by the user.
 
-However for better performance on high speed network device, a new option
-"intel_iommu=tboot_noforce" is introduced to disable the force on.
+In flexcan_chip_start() there is an explicit call to
+flexcan_transceiver_enable(), which does a regulator_enable() on the
+transceiver regulator. This results in a net usage counter increase, as there
+is no corresponding flexcan_transceiver_disable() in the bus off code path.
+This further leads to the transceiver stuck enabled, even if the CAN interface
+is shut down.
 
-By default kernel should panic if iommu init fail in tboot for security
-reason, but it's unnecessory if we use "intel_iommu=tboot_noforce,off".
+To fix this problem the
+flexcan_transceiver_enable()/flexcan_transceiver_disable() are moved out of
+flexcan_chip_start()/flexcan_chip_stop() into flexcan_open()/flexcan_close().
 
-Fix the code setting force_on and move intel_iommu_tboot_noforce
-from tboot code to intel iommu code.
-
-Fixes: 7304e8f28bb2 ("iommu/vt-d: Correctly disable Intel IOMMU force on")
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Tested-by: Lukasz Hawrylko <lukasz.hawrylko@linux.intel.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20201110071908.3133-1-zhenzhong.duan@gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e955cead0311 ("CAN: Add Flexcan CAN controller driver")
+Link: https://lore.kernel.org/r/20201118150148.2664024-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tboot.c     | 3 ---
- drivers/iommu/intel/iommu.c | 5 +++--
- include/linux/intel-iommu.h | 1 -
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/can/flexcan.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/tboot.c b/arch/x86/kernel/tboot.c
-index 992fb1415c0f1..420be871d9d45 100644
---- a/arch/x86/kernel/tboot.c
-+++ b/arch/x86/kernel/tboot.c
-@@ -514,9 +514,6 @@ int tboot_force_iommu(void)
- 	if (!tboot_enabled())
- 		return 0;
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 20a56f389c20c..4cbe8889f546f 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1229,14 +1229,10 @@ static int flexcan_chip_start(struct net_device *dev)
+ 		priv->write(reg_mecr, &regs->mecr);
+ 	}
  
--	if (intel_iommu_tboot_noforce)
--		return 1;
+-	err = flexcan_transceiver_enable(priv);
+-	if (err)
+-		goto out_chip_disable;
 -
- 	if (no_iommu || swiotlb || dmar_disabled)
- 		pr_warn("Forcing Intel-IOMMU to enabled\n");
+ 	/* synchronize with the can bus */
+ 	err = flexcan_chip_unfreeze(priv);
+ 	if (err)
+-		goto out_transceiver_disable;
++		goto out_chip_disable;
  
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index e58be1fe7585e..f67b7e6ddf1bc 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -179,7 +179,7 @@ static int rwbf_quirk;
-  * (used when kernel is launched w/ TXT)
-  */
- static int force_on = 0;
--int intel_iommu_tboot_noforce;
-+static int intel_iommu_tboot_noforce;
- static int no_platform_optin;
+ 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
  
- #define ROOT_ENTRY_NR (VTD_PAGE_SIZE/sizeof(struct root_entry))
-@@ -4846,7 +4846,8 @@ int __init intel_iommu_init(void)
- 	 * Intel IOMMU is required for a TXT/tboot launch or platform
- 	 * opt in, so enforce that.
- 	 */
--	force_on = tboot_force_iommu() || platform_optin_force_iommu();
-+	force_on = (!intel_iommu_tboot_noforce && tboot_force_iommu()) ||
-+		    platform_optin_force_iommu();
+@@ -1254,8 +1250,6 @@ static int flexcan_chip_start(struct net_device *dev)
  
- 	if (iommu_init_mempool()) {
- 		if (force_on)
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index 6a3ddaabf3f50..bdf80d7a70fb3 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -791,7 +791,6 @@ extern int iommu_calculate_agaw(struct intel_iommu *iommu);
- extern int iommu_calculate_max_sagaw(struct intel_iommu *iommu);
- extern int dmar_disabled;
- extern int intel_iommu_enabled;
--extern int intel_iommu_tboot_noforce;
- extern int intel_iommu_gfx_mapped;
- #else
- static inline int iommu_calculate_agaw(struct intel_iommu *iommu)
+ 	return 0;
+ 
+- out_transceiver_disable:
+-	flexcan_transceiver_disable(priv);
+  out_chip_disable:
+ 	flexcan_chip_disable(priv);
+ 	return err;
+@@ -1285,7 +1279,6 @@ static int __flexcan_chip_stop(struct net_device *dev, bool disable_on_error)
+ 	priv->write(priv->reg_ctrl_default & ~FLEXCAN_CTRL_ERR_ALL,
+ 		    &regs->ctrl);
+ 
+-	flexcan_transceiver_disable(priv);
+ 	priv->can.state = CAN_STATE_STOPPED;
+ 
+ 	return 0;
+@@ -1321,10 +1314,14 @@ static int flexcan_open(struct net_device *dev)
+ 	if (err)
+ 		goto out_runtime_put;
+ 
+-	err = request_irq(dev->irq, flexcan_irq, IRQF_SHARED, dev->name, dev);
++	err = flexcan_transceiver_enable(priv);
+ 	if (err)
+ 		goto out_close;
+ 
++	err = request_irq(dev->irq, flexcan_irq, IRQF_SHARED, dev->name, dev);
++	if (err)
++		goto out_transceiver_disable;
++
+ 	priv->mb_size = sizeof(struct flexcan_mb) + CAN_MAX_DLEN;
+ 	priv->mb_count = (sizeof(priv->regs->mb[0]) / priv->mb_size) +
+ 			 (sizeof(priv->regs->mb[1]) / priv->mb_size);
+@@ -1373,6 +1370,8 @@ static int flexcan_open(struct net_device *dev)
+ 	can_rx_offload_del(&priv->offload);
+  out_free_irq:
+ 	free_irq(dev->irq, dev);
++ out_transceiver_disable:
++	flexcan_transceiver_disable(priv);
+  out_close:
+ 	close_candev(dev);
+  out_runtime_put:
+@@ -1391,6 +1390,7 @@ static int flexcan_close(struct net_device *dev)
+ 
+ 	can_rx_offload_del(&priv->offload);
+ 	free_irq(dev->irq, dev);
++	flexcan_transceiver_disable(priv);
+ 
+ 	close_candev(dev);
+ 	pm_runtime_put(priv->dev);
 -- 
 2.27.0
 
