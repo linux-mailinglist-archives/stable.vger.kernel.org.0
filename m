@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B1852C0954
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF4F2C0863
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388530AbgKWNGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 08:06:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
+        id S1733284AbgKWMuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:50:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733007AbgKWMte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:49:34 -0500
+        id S1733010AbgKWMtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:49:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07B1920857;
-        Mon, 23 Nov 2020 12:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DC6020888;
+        Mon, 23 Nov 2020 12:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135772;
-        bh=Qy+vtlqeEmzxBXQXamrqE05vlNeqb6i/++oC1mB4eTg=;
+        s=korg; t=1606135775;
+        bh=3qWOBcilWx7oefDmsBuGTnYGJGvZcPFjIR8W0cCl+U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bh3XggP0XjA7FqMjIztq7mTz5ZS2giWYV63eW1m2CX6HasalEdQ4Q6w0naxWBCj1
-         jHXzegGsSlQvCdbyTgTmJM5SQOYWKDnE3s+yXtMKh5DQmrp9dWnThVjIoN+Jpe4rO2
-         DQ7EkpF9M0dqfqz5rkOt6Q9UlqvKbfrQdFnocD00=
+        b=sGvFKMaC2YaJOO9XQofmS2F1gAxxOyflFulpu4oCea8r6qUZAdqgTkjP7rlAY2s/m
+         Z31xFKFeMx67f3Fc3I45eidamBKZecJSAbKM95RCvbEEomtRNtKVdPzzxELZKtyJ8s
+         1HAZS9N+j7B2ygGC/WWIhCekfNPZaZMMRa+wwcyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 191/252] ALSA: usb-audio: Add delay quirk for all Logitech USB devices
-Date:   Mon, 23 Nov 2020 13:22:21 +0100
-Message-Id: <20201123121844.812086654@linuxfoundation.org>
+Subject: [PATCH 5.9 192/252] ALSA: ctl: fix error path at adding user-defined element set
+Date:   Mon, 23 Nov 2020 13:22:22 +0100
+Message-Id: <20201123121844.863697633@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -43,45 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 54a2a3898f469a915510038fe84ef4f083131d3e upstream.
+commit 95a793c3bc75cf888e0e641d656e7d080f487d8b upstream.
 
-Found one more Logitech device, BCC950 ConferenceCam, which needs
-the same delay here. This makes 3 out of 3 devices I have tried.
+When processing request to add/replace user-defined element set, check
+of given element identifier and decision of numeric identifier is done
+in "__snd_ctl_add_replace()" helper function. When the result of check
+is wrong, the helper function returns error code. The error code shall
+be returned to userspace application.
 
-Therefore, add a delay for all Logitech devices as it does not hurt.
+Current implementation includes bug to return zero to userspace application
+regardless of the result. This commit fixes the bug.
 
-Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Cc: <stable@vger.kernel.org> # 4.19.y, 5.4.y
-Link: https://lore.kernel.org/r/20201117122803.24310-1-joakim.tjernlund@infinera.com
+Cc: <stable@vger.kernel.org>
+Fixes: e1a7bfe38079 ("ALSA: control: Fix race between adding and removing a user element")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20201113092043.16148-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/core/control.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1678,13 +1678,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
- 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		msleep(20);
+--- a/sound/core/control.c
++++ b/sound/core/control.c
+@@ -1527,7 +1527,7 @@ static int snd_ctl_elem_add(struct snd_c
  
--	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
--	 *  needs a tiny delay here, otherwise requests like get/set
--	 *  frequency return as failed despite actually succeeding.
-+	/* Zoom R16/24, many Logitech(at least H650e/H570e/BCC950),
-+	 * Jabra 550a, Kingston HyperX needs a tiny delay here,
-+	 * otherwise requests like get/set frequency return
-+	 * as failed despite actually succeeding.
- 	 */
- 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
--	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
--	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
-+	     USB_ID_VENDOR(chip->usb_id) == 0x046d  || /* Logitech */
- 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
- 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+  unlock:
+ 	up_write(&card->controls_rwsem);
+-	return 0;
++	return err;
+ }
+ 
+ static int snd_ctl_elem_add_user(struct snd_ctl_file *file,
 
 
