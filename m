@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD132C0844
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 045082C0845
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732794AbgKWMrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:47:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60422 "EHLO mail.kernel.org"
+        id S1732805AbgKWMrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:47:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732699AbgKWMqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:46:54 -0500
+        id S1732721AbgKWMrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:47:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EF8820857;
-        Mon, 23 Nov 2020 12:46:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8FD72100A;
+        Mon, 23 Nov 2020 12:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135612;
-        bh=CAwhiPvP86xfdtL+5Ne4fVmSJpLKfyN3EYrEqMf7KwE=;
+        s=korg; t=1606135615;
+        bh=96Ig/gGRerfzv0ZjBacyI+loKSft5qgvRfL/yMC9LqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4RDBnMSI7Px/OSKWD1z7q3v0ltXRbyBQFogUCFDSSQHb1bBSPBrBajKznM9SsCYJ
-         6dlyO14+zF+Tsswrtu7s5fu5j/UnYBcZE4evHHXylbthQyJ+dNaSCxx0PJFEPwu9VO
-         YNe0w+MgUbPvmWVIq2F6e1CG/CgQ2ytypQfdoQ3U=
+        b=GqyIXE8g6t8Y2VSBkbGZcAYiVw4C5Fa9hJDga2fAaa3SQbwvyvJOoBhcPf6RSbbMu
+         nJuTI8dNqPwMW4gupEkmziY5QYmDfbQYzjPSH7J8iElYobxftpJ1x4HB17f8IrdJ4/
+         DkG6M9+72DqfDam7nOB5YHxSclOWWxLYRHbJjX8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Loris Fauster <loris.fauster@ttcontrol.com>,
-        Alejandro Concepcion Rodriguez <alejandro@acoro.eu>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 131/252] can: dev: can_restart(): post buffer from the right context
-Date:   Mon, 23 Nov 2020 13:21:21 +0100
-Message-Id: <20201123121841.917764715@linuxfoundation.org>
+Subject: [PATCH 5.9 132/252] can: ti_hecc: Fix memleak in ti_hecc_probe
+Date:   Mon, 23 Nov 2020 13:21:22 +0100
+Message-Id: <20201123121841.966798321@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
 References: <20201123121835.580259631@linuxfoundation.org>
@@ -45,39 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Concepcion Rodriguez <alejandro@acoro.eu>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit a1e654070a60d5d4f7cce59c38f4ca790bb79121 ]
+[ Upstream commit 7968c7c79d3be8987feb8021f0c46e6866831408 ]
 
-netif_rx() is meant to be called from interrupt contexts. can_restart() may be
-called by can_restart_work(), which is called from a worqueue, so it may run in
-process context. Use netif_rx_ni() instead.
+In the error handling, we should goto the probe_exit_candev
+to free ndev to prevent memory leak.
 
-Fixes: 39549eef3587 ("can: CAN Network device driver and Netlink interface")
-Co-developed-by: Loris Fauster <loris.fauster@ttcontrol.com>
-Signed-off-by: Loris Fauster <loris.fauster@ttcontrol.com>
-Signed-off-by: Alejandro Concepcion Rodriguez <alejandro@acoro.eu>
-Link: https://lore.kernel.org/r/4e84162b-fb31-3a73-fa9a-9438b4bd5234@acoro.eu
-[mkl: use netif_rx_ni() instead of netif_rx_any_context()]
+Fixes: dabf54dd1c63 ("can: ti_hecc: Convert TI HECC driver to DT only driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201114111708.3465543-1-zhangqilong3@huawei.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/ti_hecc.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-index d5e52ffc7ed25..4bc9aa6c34787 100644
---- a/drivers/net/can/dev.c
-+++ b/drivers/net/can/dev.c
-@@ -566,7 +566,7 @@ static void can_restart(struct net_device *dev)
+diff --git a/drivers/net/can/ti_hecc.c b/drivers/net/can/ti_hecc.c
+index 228ecd45ca6c1..0e8b5df7e9830 100644
+--- a/drivers/net/can/ti_hecc.c
++++ b/drivers/net/can/ti_hecc.c
+@@ -887,7 +887,8 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->base)) {
+ 		dev_err(&pdev->dev, "hecc ioremap failed\n");
+-		return PTR_ERR(priv->base);
++		err = PTR_ERR(priv->base);
++		goto probe_exit_candev;
+ 	}
  
- 	cf->can_id |= CAN_ERR_RESTARTED;
+ 	/* handle hecc-ram memory */
+@@ -900,7 +901,8 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 	priv->hecc_ram = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->hecc_ram)) {
+ 		dev_err(&pdev->dev, "hecc-ram ioremap failed\n");
+-		return PTR_ERR(priv->hecc_ram);
++		err = PTR_ERR(priv->hecc_ram);
++		goto probe_exit_candev;
+ 	}
  
--	netif_rx(skb);
-+	netif_rx_ni(skb);
+ 	/* handle mbx memory */
+@@ -913,13 +915,14 @@ static int ti_hecc_probe(struct platform_device *pdev)
+ 	priv->mbx = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->mbx)) {
+ 		dev_err(&pdev->dev, "mbx ioremap failed\n");
+-		return PTR_ERR(priv->mbx);
++		err = PTR_ERR(priv->mbx);
++		goto probe_exit_candev;
+ 	}
  
- 	stats->rx_packets++;
- 	stats->rx_bytes += cf->can_dlc;
+ 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (!irq) {
+ 		dev_err(&pdev->dev, "No irq resource\n");
+-		goto probe_exit;
++		goto probe_exit_candev;
+ 	}
+ 
+ 	priv->ndev = ndev;
+@@ -983,7 +986,7 @@ probe_exit_release_clk:
+ 	clk_put(priv->clk);
+ probe_exit_candev:
+ 	free_candev(ndev);
+-probe_exit:
++
+ 	return err;
+ }
+ 
 -- 
 2.27.0
 
