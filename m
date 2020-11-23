@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEFC2C06BE
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B4E2C07E5
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 13:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731294AbgKWMeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:34:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45672 "EHLO mail.kernel.org"
+        id S1730966AbgKWMpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:45:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731289AbgKWMeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:34:00 -0500
+        id S1730956AbgKWMpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:45:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 454E32076E;
-        Mon, 23 Nov 2020 12:33:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4805B20732;
+        Mon, 23 Nov 2020 12:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606134838;
-        bh=DAt5oMEL8wGO7kWrjuS7os4RE9HeZqc11z9UviTiBv0=;
+        s=korg; t=1606135518;
+        bh=jiifbgktABekOgHTteZXdhEsvNVSctBvb7XGC3R2klU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Abx5NTJlzl9EXAi4Zvg/BjNzJjDb9u1M81hPmQGx+R7H0BMYfck8fWpAACDvZvMYP
-         MhoHBhv0u1hbMkv0VWZV4XjeSf6f7eNK1buu0hAHZ02NGxQYsiGl0XHY5tiQRorubk
-         f1ZFx1M/pfuRaiCgeQPZpEKrgQezVqvkpts4nN7c=
+        b=pveJzvYT+mvQcxMv6WZeUJdi1L6B4sbvzSYrt4YsokujhfySom09Ku2KpZdUKorjU
+         dARg+qLN8ZeN49mjHr05/S/kxloqHk8jZwtTfaZI0USPVhQAd3kQ4UZtftxsv2rQBY
+         yyopqkUH71QMeFJIZ46fnaoQWYgQS9/Qexm43g1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 001/158] ah6: fix error return code in ah6_input()
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 079/252] arm64: dts: allwinner: h5: OrangePi PC2: Fix ethernet node
 Date:   Mon, 23 Nov 2020 13:20:29 +0100
-Message-Id: <20201123121820.019912042@linuxfoundation.org>
+Message-Id: <20201123121839.408269452@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
+References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,34 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit a5ebcbdf34b65fcc07f38eaf2d60563b42619a59 ]
+[ Upstream commit b34bf9f6a623ddb82600a5ed5c644224122395e1 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+RX and TX delay are provided by ethernet PHY. Reflect that in ethernet
+node.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1605581105-35295-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 44a94c7ef989 ("arm64: dts: allwinner: H5: Restore EMAC changes")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201023184858.3272918-1-jernej.skrabec@siol.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ah6.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h5-orangepi-pc2.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ah6.c
-+++ b/net/ipv6/ah6.c
-@@ -588,7 +588,8 @@ static int ah6_input(struct xfrm_state *
- 	memcpy(auth_data, ah->auth_data, ahp->icv_trunc_len);
- 	memset(ah->auth_data, 0, ahp->icv_trunc_len);
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5-orangepi-pc2.dts b/arch/arm64/boot/dts/allwinner/sun50i-h5-orangepi-pc2.dts
+index 7d7aad18f078b..8bf2db9dcbda0 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5-orangepi-pc2.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5-orangepi-pc2.dts
+@@ -123,7 +123,7 @@
+ 	pinctrl-0 = <&emac_rgmii_pins>;
+ 	phy-supply = <&reg_gmac_3v3>;
+ 	phy-handle = <&ext_rgmii_phy>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 	status = "okay";
+ };
  
--	if (ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN))
-+	err = ipv6_clear_mutable_options(ip6h, hdr_len, XFRM_POLICY_IN);
-+	if (err)
- 		goto out_free;
- 
- 	ip6h->priority    = 0;
+-- 
+2.27.0
+
 
 
