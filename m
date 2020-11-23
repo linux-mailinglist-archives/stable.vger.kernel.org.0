@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF4F2C01AA
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:51:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B83A2C01B0
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 09:51:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726051AbgKWIt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 03:49:57 -0500
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:42309 "EHLO
+        id S1725998AbgKWIvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 03:51:08 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52195 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725275AbgKWIt4 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 23 Nov 2020 03:49:56 -0500
+        by vger.kernel.org with ESMTP id S1725275AbgKWIvH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Nov 2020 03:51:07 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id C5854F1C;
-        Mon, 23 Nov 2020 03:49:55 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:49:56 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 35A5958A;
+        Mon, 23 Nov 2020 03:51:07 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 23 Nov 2020 03:51:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=FAHJkR
-        Z4jldacSC0mYJSI+urTw268BjIvoU0X160tBk=; b=ls3WWnbVotbnUMBPlq3BOZ
-        N6gKy4HVM5TdsSnRIdxJvL1+xiXN2m1q+ofM6Hh5HvSD288QjqC1BKfNK/DpN3xN
-        tJhYvtYxBpVDwBXaSRB/Di9phLm1E/GLowtcPHz2I/1u5O+rUiVVBMMNTE269+x8
-        EBHuREiOhAaGvs1mVTIBOUym1FnfgduWV5WcBWCaej7IxSxxnbuXc+81V2MgECxZ
-        sgiEdU++lTvKiOtHvJpSqF5VorXYgSKPYUlAKUVoHfHAAZ1OWHA19bKcCmY1orqj
-        OJNExm0EZ0/+oNtwfdXr6d7iZ0Y4/Qv75NmOiGIo4fggrQxBvcbrARsdxeGCHZ+w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=c2qMFF
+        CZKpMsbMO4Y4uWsWNRW6ubYzbGJXd+ZMmZu6Y=; b=MrAY3OkAOpBomlgZxWX08D
+        ozjy/H+/43FUBICupqOsKGLLAmH1iHEZc9pY1x72UeLuL/MHnZrRqC0pCR+HO8aw
+        5vzVWyFEYsxoAm6wPb7vo/oI/vDITZfvKH4ol0UpuW1+jvxYLTAIpZl2g/+f/ypg
+        PGttKD5FAsshPLzKJEuyuya6Mv8YdJq+1qWASyMDHfxDi9ShyK6T8Wn86Dh4Ih/L
+        MSCAYHNuyv816luqkrxeSW4vkKbYhD9UQKaxNh6PZ6ms2hgs9ALb86qjAzI6o6TH
+        d4GWTRieAkyxSrYCq726kI28uo//hudo8//FC+AK4yX2Sv60TwmrBTfX0bO97Blg
         ==
-X-ME-Sender: <xms:s3e7X1vkrct04do-PSKYrUXIt1mxP0huvtJ01aJkiICe59sxO3GuZw>
-    <xme:s3e7X-cYDqpk60Czgz6-g6JB-QAQ6zD6iNBQfgE3VKHtzncUCYEwoyBQMowAFKqeq
-    _VlHD874oKvYQ>
+X-ME-Sender: <xms:-ne7X5ewqTaAqnQJ_QYoQsyXtkfOSNdd8v0jnVWqXuneoQ-p0X8k0Q>
+    <xme:-ne7X3P2EcCrMrFjLiQfrLdOdplTg0u4yg69gOzS_NlEUPom7xXlzmfdVTav7yJIC
+    xfU3cDPY7wyaA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeghedguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:s3e7X4x8tFAmM71Ayj3trsBcyti8VbJSRJZVULAJIz0HBUE9l414bg>
-    <xmx:s3e7X8M7sgJ5uzyWgWZblEnF6_3-O-QJO1-bMsvkJbbv2__iW7KHYw>
-    <xmx:s3e7X19onLXmxuR0Ew3PNAiOfcVvsyJIhdmUYIzPY2bbakwLpvPJOA>
-    <xmx:s3e7X3ncnedNywDKg0zcjgTjV7gYW3VnITi01RdaOwVfs35tYb1ixuCL5O0>
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:-ne7XyiZdc58G1NxTH2sXgC_SoQX5YtGuCtOFUSZStiFuzFDh8IjgQ>
+    <xmx:-ne7Xy-Sb7Wh7P-u16Ki978K1LBnPghCBcx5Kcl99nxDyVgf6wu06A>
+    <xmx:-ne7X1s8bz9j84tNhoc_lfB0Wzzdp7us07Mgcjew-c3omLeydx8nzw>
+    <xmx:-ne7Xz2zXcq83CvsfkdCsXvx1tYECu3wiZ-nTUWmlE4h1g_SnHxqNOzqppQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A5C5E328005A;
-        Mon, 23 Nov 2020 03:49:54 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: cros_ec: Use default frequencies when EC returns invalid" failed to apply to 5.4-stable tree
-To:     gwendal@chromium.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, enric.balletbo@collabora.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 271193064AAE;
+        Mon, 23 Nov 2020 03:51:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] arm64: dts: agilex/stratix10: Fix qspi node compatible" failed to apply to 4.19-stable tree
+To:     dinguyen@kernel.org, vigneshr@ti.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Nov 2020 09:51:02 +0100
-Message-ID: <1606121462098@kroah.com>
+Date:   Mon, 23 Nov 2020 09:52:16 +0100
+Message-ID: <1606121536243112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,57 +70,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 56e4f2dda23c6d39d327944faa89efaa4eb290d1 Mon Sep 17 00:00:00 2001
-From: Gwendal Grignou <gwendal@chromium.org>
-Date: Tue, 30 Jun 2020 08:37:30 -0700
-Subject: [PATCH] iio: cros_ec: Use default frequencies when EC returns invalid
- information
+From f126b6702e7354d6247a36f20b9172457af5c15a Mon Sep 17 00:00:00 2001
+From: Dinh Nguyen <dinguyen@kernel.org>
+Date: Sun, 1 Nov 2020 14:02:56 -0600
+Subject: [PATCH] arm64: dts: agilex/stratix10: Fix qspi node compatible
 
-Minimal and maximal frequencies supported by a sensor is queried.
-On some older machines, these frequencies are not returned properly and
-the EC returns 0 instead.
-When returned maximal frequency is 0, ignore the information and use
-default frequencies instead.
+The QSPI flash node needs to have the required "jedec,spi-nor"
+in the compatible string.
 
-Fixes: ae7b02ad2f32 ("iio: common: cros_ec_sensors: Expose cros_ec_sensors frequency range via iio sysfs")
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Link: https://lore.kernel.org/r/20200630153730.3302889-1-gwendal@chromium.org
-CC: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 0cb140d07fc7 ("arm64: dts: stratix10: Add QSPI support for Stratix10")
+Cc: stable@vger.kernel.org
+Suggested-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 
-diff --git a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.c b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.c
-index c62cacc04672..e3f507771f17 100644
---- a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.c
-+++ b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.c
-@@ -256,7 +256,7 @@ int cros_ec_sensors_core_init(struct platform_device *pdev,
- 	struct cros_ec_sensorhub *sensor_hub = dev_get_drvdata(dev->parent);
- 	struct cros_ec_dev *ec = sensor_hub->ec;
- 	struct cros_ec_sensor_platform *sensor_platform = dev_get_platdata(dev);
--	u32 ver_mask;
-+	u32 ver_mask, temp;
- 	int frequencies[ARRAY_SIZE(state->frequencies) / 2] = { 0 };
- 	int ret, i;
+diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+index feadd21bc0dc..46e558ab7729 100644
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+@@ -159,7 +159,7 @@ &qspi {
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00a";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
  
-@@ -311,10 +311,16 @@ int cros_ec_sensors_core_init(struct platform_device *pdev,
- 						 &frequencies[2],
- 						 &state->fifo_max_event_count);
- 		} else {
--			frequencies[1] = state->resp->info_3.min_frequency;
--			frequencies[2] = state->resp->info_3.max_frequency;
--			state->fifo_max_event_count =
--			    state->resp->info_3.fifo_max_event_count;
-+			if (state->resp->info_3.max_frequency == 0) {
-+				get_default_min_max_freq(state->resp->info.type,
-+							 &frequencies[1],
-+							 &frequencies[2],
-+							 &temp);
-+			} else {
-+				frequencies[1] = state->resp->info_3.min_frequency;
-+				frequencies[2] = state->resp->info_3.max_frequency;
-+			}
-+			state->fifo_max_event_count = state->resp->info_3.fifo_max_event_count;
- 		}
- 		for (i = 0; i < ARRAY_SIZE(frequencies); i++) {
- 			state->frequencies[2 * i] = frequencies[i] / 1000;
+diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
+index c07966740e14..f9b4a39683cf 100644
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
+@@ -192,7 +192,7 @@ &qspi {
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00a";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts b/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
+index 96c50d48289d..a7a83f29f00b 100644
+--- a/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
++++ b/arch/arm64/boot/dts/intel/socfpga_agilex_socdk.dts
+@@ -110,7 +110,7 @@ &qspi {
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "mt25qu02g";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
 
