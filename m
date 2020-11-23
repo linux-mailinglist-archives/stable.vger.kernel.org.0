@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6D22C0A37
-	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:19:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA982C0882
+	for <lists+stable@lfdr.de>; Mon, 23 Nov 2020 14:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732606AbgKWMmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Nov 2020 07:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54108 "EHLO mail.kernel.org"
+        id S1732811AbgKWMw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Nov 2020 07:52:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732607AbgKWMlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 07:41:06 -0500
+        id S2387641AbgKWMvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 07:51:41 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45B3E20732;
-        Mon, 23 Nov 2020 12:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AF09204EF;
+        Mon, 23 Nov 2020 12:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606135265;
-        bh=0hvS3SBApzgsAyvRK+olxZamNr3ivgLb6WJc8oClCv4=;
+        s=korg; t=1606135899;
+        bh=R4wn6gK7iOkfdvgrwosRHQCHwNMuK+yF+5QHXGk5ato=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpBTK4eMF3YGlOtIpVVJenQZWRrMTfAoIxsFvsdyeMfFdjhABamlikU8DzGx/ELC+
-         RaI+VRe2dKC2pC4OhCRfHX9t72RHAUIOemD2J3TC2p1GXVGJTJQSFDRmi1AoKDjGNQ
-         +3oB++BV+l91vBiW3ZiafY5R587Jlu4Z8MfKUp60=
+        b=AaFdWQXYjNH1necMN7jKs4wW60jyOcs2lDhoTcESxD9cxo/hpO1n3TyAx+7+5s/r9
+         uQoknrRAwuTFc4T7ENm69kKixOck9OODHpxxEluptqB+xZVFkmblYmh66NqOhlKN91
+         Br3pOp82uoyH8J313jPLCwZx6zZm9wFvb/dGQcjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Subject: [PATCH 5.4 158/158] sched/fair: Fix overutilized update in enqueue_task_fair()
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 236/252] drm/amd/display: Add missing pflip irq for dcn2.0
 Date:   Mon, 23 Nov 2020 13:23:06 +0100
-Message-Id: <20201123121827.556725409@linuxfoundation.org>
+Message-Id: <20201123121846.970271542@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
-References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121835.580259631@linuxfoundation.org>
+References: <20201123121835.580259631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 8e1ac4299a6e8726de42310d9c1379f188140c71 upstream.
+commit 728321e53045d2668bf2b8627a8d61bc2c480d3b upstream.
 
-enqueue_task_fair() attempts to skip the overutilized update for new
-tasks as their util_avg is not accurate yet. However, the flag we check
-to do so is overwritten earlier on in the function, which makes the
-condition pretty much a nop.
+If we have more than 4 displays we will run
+into dummy irq calls or flip timout issues.
 
-Fix this by saving the flag early on.
-
-Fixes: 2802bf3cd936 ("sched/fair: Add over-utilization/tipping point indicator")
-Reported-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20201112111201.2081902-1-qperret@google.com
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/fair.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/irq/dcn20/irq_service_dcn20.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5228,6 +5228,7 @@ enqueue_task_fair(struct rq *rq, struct
- 	struct cfs_rq *cfs_rq;
- 	struct sched_entity *se = &p->se;
- 	int idle_h_nr_running = task_has_idle_policy(p);
-+	int task_new = !(flags & ENQUEUE_WAKEUP);
- 
- 	/*
- 	 * The code below (indirectly) updates schedutil which looks at
-@@ -5299,7 +5300,7 @@ enqueue_throttle:
- 		 * into account, but that is not straightforward to implement,
- 		 * and the following generally works well enough in practice.
- 		 */
--		if (flags & ENQUEUE_WAKEUP)
-+		if (!task_new)
- 			update_overutilized_status(rq);
- 
- 	}
+--- a/drivers/gpu/drm/amd/display/dc/irq/dcn20/irq_service_dcn20.c
++++ b/drivers/gpu/drm/amd/display/dc/irq/dcn20/irq_service_dcn20.c
+@@ -299,8 +299,8 @@ irq_source_info_dcn20[DAL_IRQ_SOURCES_NU
+ 	pflip_int_entry(1),
+ 	pflip_int_entry(2),
+ 	pflip_int_entry(3),
+-	[DC_IRQ_SOURCE_PFLIP5] = dummy_irq_entry(),
+-	[DC_IRQ_SOURCE_PFLIP6] = dummy_irq_entry(),
++	pflip_int_entry(4),
++	pflip_int_entry(5),
+ 	[DC_IRQ_SOURCE_PFLIP_UNDERLAY0] = dummy_irq_entry(),
+ 	gpio_pad_int_entry(0),
+ 	gpio_pad_int_entry(1),
 
 
