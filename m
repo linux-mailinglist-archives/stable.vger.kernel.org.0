@@ -2,82 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0784E2C29FE
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 15:46:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 594402C2A78
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 15:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389257AbgKXOpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 09:45:31 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:58966 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389056AbgKXOpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 09:45:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606229130;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pz513mSJDNIdupfQR9PNXZ8uSX6HJ6vNuuU0z0gMigg=;
-        b=MIV58pK4/IwGtUZb+tGWIpYkReu4xoadH+1rMrBMo2OLBEvpF5p+R2dxT+x5yCf7ui9KrQ
-        ivoJjOh7pWpM60QurWZ1XclI/jZxsLQ5GmcqGrNWxMKhN2h1Rb4U0KekLKaBtlCEZFTtRC
-        OXd/2kv3onMYB46QcXezhRnu/ijO8Mo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-580-AaP1Fq4oOh-Sueqrb2jkQg-1; Tue, 24 Nov 2020 09:45:23 -0500
-X-MC-Unique: AaP1Fq4oOh-Sueqrb2jkQg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5C390195D573;
-        Tue, 24 Nov 2020 14:45:03 +0000 (UTC)
-Received: from segfault.boston.devel.redhat.com (segfault.boston.devel.redhat.com [10.19.60.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A505F722D1;
-        Tue, 24 Nov 2020 14:45:02 +0000 (UTC)
-From:   Jeff Moyer <jmoyer@redhat.com>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+        id S2389316AbgKXOxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 09:53:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46900 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389315AbgKXOxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 09:53:39 -0500
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD328C0613D6
+        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 06:53:37 -0800 (PST)
+Received: by mail-pg1-x543.google.com with SMTP id w16so5316419pga.9
+        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 06:53:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=woDq3Idd77JT8bUgO/7z+pbsn29k605P65KY3W0bDLw=;
+        b=m+fHAbRXPX3B24JmOeqgROjKJU7sN2nSfF1m7Whk6xqMJmODIEqkjQr8BpUg1LGSr9
+         vb2UoOn5abU6oyg6XJ4sCYP4ZlBkv+4oanZYJiwkqBvQcjmvkZ2f+zxZH7AjC6vxtkrC
+         JFJgrwAOreM8jm9kUKEBYmaNdh0IOOLsukeALtC9C940XuFN1LP1LcOJxBPOsmHnxQX5
+         gYFWlOHT7DhMUFvH5rTWbuTY+I6jf4i885cMsS6g/pYYFVfoysRZJiSE5lygXMlW5YpG
+         FtiEZT9yndzfl42PutmKDMi12/ybYlsdQpGZiUXNI/qf5sHEhFKT9Hq+I0CEmfEHje8g
+         U2ow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=woDq3Idd77JT8bUgO/7z+pbsn29k605P65KY3W0bDLw=;
+        b=Xc8az+X2k+j2pVcIGR7W2E696kOR/xQpIxl8IqKDDJbzokTdMcm9js0u9+wcTTCKpB
+         13Tn06So678W3BXfNcXKovtQG4xoOoMcKcWrGdW8MxZZXbvAHwwKlrKWtWZw2SG5Sbw9
+         4tooqkYeEqeNnKSsXcBTSM4qKSZjC0dgjJSTvVkMkyQnbZdREqr2kJ9JYXTAJDeZKTSa
+         YfSz5Daib9fcVDM+ukEgH+2bPImB0GA8lzuFEvE/hp0KtQU/HV2KgW6yqZr7t5wMFX0g
+         t42zB+DK01/C1+IwnlbWofEAp10Al1KxoU+dyWY3u+VCHAPOkKWy60MNXitAakb2UOh1
+         9e3w==
+X-Gm-Message-State: AOAM532uMfk6/UE3XfRJYirRlucD/Mlmn5+0JuqG2OCLBTpbOgI4bO+H
+        FTVXxstflsiqo/63s12ST6nlaw==
+X-Google-Smtp-Source: ABdhPJz11qnukyjV3uaiIZNHAHkAKJQXYCr7OCY6IwFY8VyZVKEnR6ZQx2+qnStHaLnkpCSaj7AjiA==
+X-Received: by 2002:a63:389:: with SMTP id 131mr4080904pgd.128.1606229617169;
+        Tue, 24 Nov 2020 06:53:37 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id y81sm15808065pfc.25.2020.11.24.06.53.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Nov 2020 06:53:36 -0800 (PST)
 Subject: Re: [PATCH 5.10] io_uring: fix ITER_BVEC check
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org, David Howells <dhowells@redhat.com>
 References: <26e5446cb6252589a7edc4c3bbe4d8a503919bd8.1606172908.git.asml.silence@gmail.com>
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-Date:   Tue, 24 Nov 2020 09:45:06 -0500
-In-Reply-To: <26e5446cb6252589a7edc4c3bbe4d8a503919bd8.1606172908.git.asml.silence@gmail.com>
-        (Pavel Begunkov's message of "Mon, 23 Nov 2020 23:20:27 +0000")
-Message-ID: <x49mtz6izkd.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ee68dd26-b90e-e2fb-7fb6-28771920aba0@kernel.dk>
+Date:   Tue, 24 Nov 2020 07:53:37 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <26e5446cb6252589a7edc4c3bbe4d8a503919bd8.1606172908.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Pavel Begunkov <asml.silence@gmail.com> writes:
-
+On 11/23/20 4:20 PM, Pavel Begunkov wrote:
 > iov_iter::type is a bitmask that also keeps direction etc., so it
 > shouldn't be directly compared against ITER_*. Use proper helper.
->
-> Cc: <stable@vger.kernel.org> # 5.9
-> Reported-by: David Howells <dhowells@redhat.com>
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 
-Fixes: ff6165b2d7f6 ("io_uring: retain iov_iter state over io_read/io_write calls")
+Applied (with fixes added), thanks.
 
-> ---
->  fs/io_uring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 593dfef32b17..7c1f255807f5 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -3278,7 +3278,7 @@ static void io_req_map_rw(struct io_kiocb *req, const struct iovec *iovec,
->  	rw->free_iovec = iovec;
->  	rw->bytes_done = 0;
->  	/* can only be fixed buffers, no need to do anything */
-> -	if (iter->type == ITER_BVEC)
-> +	if (iov_iter_is_bvec(iter))
->  		return;
->  	if (!iovec) {
->  		unsigned iov_off = 0;
+-- 
+Jens Axboe
 
