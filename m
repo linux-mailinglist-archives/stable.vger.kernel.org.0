@@ -2,85 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6792C31C2
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 21:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B7C2C31CE
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 21:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730378AbgKXUMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 15:12:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730374AbgKXUMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Nov 2020 15:12:44 -0500
-Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 863502067D;
-        Tue, 24 Nov 2020 20:12:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606248763;
-        bh=5TYfcvnFUiyh+LyvW754Bv72A9suVLV+8VyJ1FtozTQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g1vhBSKxDZ4jWku4fHTxwF3C2s9zUfak8qyjECz+Erp+L8OQ7gqPs4QNuc38Lpwac
-         gRg5qnq284K+B5GZosZChB7AgI6675A4rpftZpareEDRepa+Wewvp97tQ/uC9xCMSW
-         XXEMq5DNjd1CoqsTGlz4TZhJLZJaY0ti12mXIYeM=
-Date:   Tue, 24 Nov 2020 21:12:40 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     Lukas Wunner <lukas@wunner.de>, Mark Brown <broonie@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, kdasu.kdev@gmail.com,
-        Stable <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] spi: bcm-qspi: Fix use-after-free on
- unbind" failed to apply to 5.4-stable tree
-Message-ID: <X71pOJT1L4M9iIRh@kroah.com>
-References: <160612300715987@kroah.com>
- <20201124134123.ie5jvzygygayajo5@debian>
- <X71Lv314xaqrtn9B@kroah.com>
- <CADVatmMFEYRSKcq4mkZqs0feVPSWX9miG49ffbCR0utLtFSgfA@mail.gmail.com>
- <CADVatmNVjKBAZPh2voCHaFdAaU3pz2fs0sdL58eLSD4d-W8LQg@mail.gmail.com>
+        id S1728617AbgKXUQZ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 24 Nov 2020 15:16:25 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:50768 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730519AbgKXUQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 15:16:25 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 23096642-1500050 
+        for multiple; Tue, 24 Nov 2020 20:16:14 +0000
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADVatmNVjKBAZPh2voCHaFdAaU3pz2fs0sdL58eLSD4d-W8LQg@mail.gmail.com>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20201124194629.GA719740@intel.com>
+References: <20201124183521.28623-1-chris@chris-wilson.co.uk> <20201124194629.GA719740@intel.com>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Limit frequency drop to RPe on parking
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Date:   Tue, 24 Nov 2020 20:16:13 +0000
+Message-ID: <160624897327.29168.2809064069456029586@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 24, 2020 at 07:28:44PM +0000, Sudip Mukherjee wrote:
-> On Tue, Nov 24, 2020 at 6:53 PM Sudip Mukherjee
-> <sudipm.mukherjee@gmail.com> wrote:
-> >
-> > Hi Greg,
-> >
-> > On Tue, Nov 24, 2020 at 6:06 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Tue, Nov 24, 2020 at 01:41:23PM +0000, Sudip Mukherjee wrote:
-> > > > Hi Greg,
-> > > >
-> > > > On Mon, Nov 23, 2020 at 10:16:47AM +0100, gregkh@linuxfoundation.org wrote:
-> > > > >
-> > > > > The patch below does not apply to the 5.4-stable tree.
-> > > > > If someone wants it applied there, or to any other stable or longterm
-> > > > > tree, then please email the backport, including the original git commit
-> > > > > id to <stable@vger.kernel.org>.
-> > > >
-> > > > Here is the backport for all the stable tree from v4.9.y to v5.4.y.
-> > >
-> > > THis didn't apply to 4.9.y, are you sure you tried that?
-> > >
-> > > Anyway, queued up for all other branches, thanks!
-> >
-> > I was modifying one of my script which pulls in the stablerc and
-> > stable-queue and I have completely messed up today  :(
-> > Please drop this from v4.14.y. It will fail to build there. I had been
-> > working on the version for v4.14.y and v4.9.y, but I will keep it
-> > aside for today.
-> > Really sorry for the confusion.
+Quoting Rodrigo Vivi (2020-11-24 19:46:29)
+> On Tue, Nov 24, 2020 at 06:35:21PM +0000, Chris Wilson wrote:
+> > We treat idling the GT (intel_rps_park) as a downclock event, and reduce
+> > the frequency we intend to restart the GT with. Since the two workloads
+> > are likely related (e.g. a compositor rendering every 16ms), we want to
+> > carry the frequency and load information from across the idling.
+> > However, we do also need to update the frequencies so that workloads
+> > that run for less than 1ms are autotuned by RPS (otherwise we leave
+> > compositors running at max clocks, draining excess power). Conversely,
+> > if we try to run too slowly, the next workload has to run longer. Since
+> > there is a hysteresis in the power graph, below a certain frequency
+> > running a short workload for longer consumes more energy than running it
+> > slightly higher for less time. The exact balance point is unknown
+> > beforehand, but measurements with 30fps media playback indicate that RPe
+> > is a better choice.
+> > 
+> > Reported-by: Edward Baker <edward.baker@intel.com>
+> > Fixes: 043cd2d14ede ("drm/i915/gt: Leave rps->cur_freq on unpark")
+> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > Cc: Edward Baker <edward.baker@intel.com>
+> > Cc: Andi Shyti <andi.shyti@intel.com>
+> > Cc: Lyude Paul <lyude@redhat.com>
+> > Cc: <stable@vger.kernel.org> # v5.8+
+> > ---
+> >  drivers/gpu/drm/i915/gt/intel_rps.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+> > index b13e7845d483..f74d5e09e176 100644
+> > --- a/drivers/gpu/drm/i915/gt/intel_rps.c
+> > +++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+> > @@ -907,6 +907,10 @@ void intel_rps_park(struct intel_rps *rps)
+> >               adj = -2;
+> >       rps->last_adj = adj;
+> >       rps->cur_freq = max_t(int, rps->cur_freq + adj, rps->min_freq);
+> > +     if (rps->cur_freq < rps->efficient_freq) {
+> > +             rps->cur_freq = rps->efficient_freq;
+> > +             rps->last_adj = 0;
 > 
-> v4.19.y also. :(
-> I have rechecked and only v5.4.y is ok.
+> this is indeed the smallest fix we can propagate:
+> 
+> 
+> Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> 
+> but I wonder now if we couldn't simply kill the last_adj now and always go
+> with the rpe on park/unpark
 
-Now dropped from both trees, my CI testing also just hit this :)
+Since we often have very bursty workloads that are less than 1ms, we do
+want to keep the frequency across idling, or else we incur more latency
+than is desired by the user (although unpark latency is no joke,
+although that is mostly the context switches). The compromise for always
+running shorter than an RPS interval is to "gradually" reduce the
+frequency (so that compositors do not get stuck at max clocks, yet those
+very same compositors also do require very quick autotuning so that
+animations are smooth from idle.) Compute is another one where they have
+both sustained and bursty workloads, and the shorter-than-RPS bursty
+workloads are naturally expected to be to low latency.
 
-thanks,
-
-gre gk-h
+So I still think keeping cur_freq is most often the best approach.
+-Chris
