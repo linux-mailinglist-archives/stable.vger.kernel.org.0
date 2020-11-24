@@ -2,128 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5B12C253A
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 13:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9672C259E
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 13:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733262AbgKXMDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 07:03:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48806 "EHLO
+        id S1733074AbgKXMZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 07:25:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733259AbgKXMDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 07:03:51 -0500
-X-Greylist: delayed 388 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 24 Nov 2020 04:03:51 PST
-Received: from mblankhorst.nl (mblankhorst.nl [IPv6:2a02:2308::216:3eff:fe92:dfa3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8C0C0613D6
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 04:03:51 -0800 (PST)
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        stable@vger.kernel.org,
-        Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
-Subject: [PATCH] dma-buf/dma-resv: Respect num_fences when initializing the shared fence list.
-Date:   Tue, 24 Nov 2020 12:57:07 +0100
-Message-Id: <20201124115707.406917-1-maarten.lankhorst@linux.intel.com>
-X-Mailer: git-send-email 2.29.2.222.g5d2a92d10f8
+        with ESMTP id S1733032AbgKXMZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 07:25:09 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94264C0613D6;
+        Tue, 24 Nov 2020 04:25:09 -0800 (PST)
+Date:   Tue, 24 Nov 2020 12:25:06 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1606220707;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TD1cXptQK69KKX0sVGEJyWh1TykVQLhdRkmPmKU6KG0=;
+        b=kGlnyeMIjhWp7OL8PwqCaMf8fG9ydvsNPWitOiPP+q6v1KP3WWHkj5Q2RAMo3DNMKtfGvq
+        9zdfHDE3lHKcEcYahvKxFIe38ukhBTPMbJpIOCKuhLPaWgfZ5cu3p/uZC2bFfLEx7yaYBK
+        L4Jq/B7F0I8/9SFYoMoySTkSy6BdKIFgUetL60mUuv0mSA5DirLqQdOYf5ggysqfblyAzn
+        Fc7d+Oq8O58KkOHpqUYgFY0otTiEYwRGGj8Sn1HG1ZJ0gl8pJEw9ohosSD5J6Jw4sdRLXa
+        5K3CAV/Xio6L8EiRXbLsyzmwjU3+s2NjiifPcJX0c97XVaqYiqlwQqHxkerJxA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1606220707;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TD1cXptQK69KKX0sVGEJyWh1TykVQLhdRkmPmKU6KG0=;
+        b=UimyM5YFEL2Wc/+p5JWLX2mBHQD/HYdl1dJm9tDwjf7sdwj6y8TD+9/nyY6tvKFWx2U2kj
+        kz5dB9O11eu/L7Bg==
+From:   "tip-bot2 for Xiaochen Shen" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/resctrl: Add necessary kernfs_put() calls to
+ prevent refcount leak
+Cc:     Willem de Bruijn <willemb@google.com>,
+        Xiaochen Shen <xiaochen.shen@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1604085088-31707-1-git-send-email-xiaochen.shen@intel.com>
+References: <1604085088-31707-1-git-send-email-xiaochen.shen@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160622070643.11115.8923839554293015216.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We hardcode the maximum number of shared fences to 4, instead of
-respecting num_fences. Use a minimum of 4, but more if num_fences
-is higher.
+The following commit has been merged into the x86/urgent branch of tip:
 
-This seems to have been an oversight when first implementing the
-api.
+Commit-ID:     758999246965eeb8b253d47e72f7bfe508804b16
+Gitweb:        https://git.kernel.org/tip/758999246965eeb8b253d47e72f7bfe508804b16
+Author:        Xiaochen Shen <xiaochen.shen@intel.com>
+AuthorDate:    Sat, 31 Oct 2020 03:11:28 +08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 24 Nov 2020 12:13:37 +01:00
 
-Fixes: 04a5faa8cbe5 ("reservation: update api and add some helpers")
-Cc: <stable@vger.kernel.org> # v3.17+
-Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak
+
+On resource group creation via a mkdir an extra kernfs_node reference is
+obtained by kernfs_get() to ensure that the rdtgroup structure remains
+accessible for the rdtgroup_kn_unlock() calls where it is removed on
+deletion. Currently the extra kernfs_node reference count is only
+dropped by kernfs_put() in rdtgroup_kn_unlock() while the rdtgroup
+structure is removed in a few other locations that lack the matching
+reference drop.
+
+In call paths of rmdir and umount, when a control group is removed,
+kernfs_remove() is called to remove the whole kernfs nodes tree of the
+control group (including the kernfs nodes trees of all child monitoring
+groups), and then rdtgroup structure is freed by kfree(). The rdtgroup
+structures of all child monitoring groups under the control group are
+freed by kfree() in free_all_child_rdtgrp().
+
+Before calling kfree() to free the rdtgroup structures, the kernfs node
+of the control group itself as well as the kernfs nodes of all child
+monitoring groups still take the extra references which will never be
+dropped to 0 and the kernfs nodes will never be freed. It leads to
+reference count leak and kernfs_node_cache memory leak.
+
+For example, reference count leak is observed in these two cases:
+  (1) mount -t resctrl resctrl /sys/fs/resctrl
+      mkdir /sys/fs/resctrl/c1
+      mkdir /sys/fs/resctrl/c1/mon_groups/m1
+      umount /sys/fs/resctrl
+
+  (2) mkdir /sys/fs/resctrl/c1
+      mkdir /sys/fs/resctrl/c1/mon_groups/m1
+      rmdir /sys/fs/resctrl/c1
+
+The same reference count leak issue also exists in the error exit paths
+of mkdir in mkdir_rdt_prepare() and rdtgroup_mkdir_ctrl_mon().
+
+Fix this issue by following changes to make sure the extra kernfs_node
+reference on rdtgroup is dropped before freeing the rdtgroup structure.
+  (1) Introduce rdtgroup removal helper rdtgroup_remove() to wrap up
+  kernfs_put() and kfree().
+
+  (2) Call rdtgroup_remove() in rdtgroup removal path where the rdtgroup
+  structure is about to be freed by kfree().
+
+  (3) Call rdtgroup_remove() or kernfs_put() as appropriate in the error
+  exit paths of mkdir where an extra reference is taken by kernfs_get().
+
+Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
+Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
+Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
+Reported-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1604085088-31707-1-git-send-email-xiaochen.shen@intel.com
 ---
- drivers/dma-buf/dma-resv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 32 +++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-resv.c b/drivers/dma-buf/dma-resv.c
-index bb5a42b10c29..6ddbeb5dfbf6 100644
---- a/drivers/dma-buf/dma-resv.c
-+++ b/drivers/dma-buf/dma-resv.c
-@@ -200,7 +200,7 @@ int dma_resv_reserve_shared(struct dma_resv *obj, unsigned int num_fences)
- 			max = max(old->shared_count + num_fences,
- 				  old->shared_max * 2);
- 	} else {
--		max = 4;
-+		max = max(4ul, roundup_pow_of_two(num_fences));
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 2ab1266..6f4ca4b 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -507,6 +507,24 @@ unlock:
+ 	return ret ?: nbytes;
+ }
+ 
++/**
++ * rdtgroup_remove - the helper to remove resource group safely
++ * @rdtgrp: resource group to remove
++ *
++ * On resource group creation via a mkdir, an extra kernfs_node reference is
++ * taken to ensure that the rdtgroup structure remains accessible for the
++ * rdtgroup_kn_unlock() calls where it is removed.
++ *
++ * Drop the extra reference here, then free the rdtgroup structure.
++ *
++ * Return: void
++ */
++static void rdtgroup_remove(struct rdtgroup *rdtgrp)
++{
++	kernfs_put(rdtgrp->kn);
++	kfree(rdtgrp);
++}
++
+ struct task_move_callback {
+ 	struct callback_head	work;
+ 	struct rdtgroup		*rdtgrp;
+@@ -529,7 +547,7 @@ static void move_myself(struct callback_head *head)
+ 	    (rdtgrp->flags & RDT_DELETED)) {
+ 		current->closid = 0;
+ 		current->rmid = 0;
+-		kfree(rdtgrp);
++		rdtgroup_remove(rdtgrp);
  	}
  
- 	new = dma_resv_list_alloc(max);
-
-base-commit: d08ea807a6466f311fe921872bc18cfc384ae281
-prerequisite-patch-id: 67ededd6181f1f0d00b98376bcacefb776ebfd1b
-prerequisite-patch-id: 36ea30085b8b6095303642e82a6d9c2373d331c2
-prerequisite-patch-id: 453c3fe559333daea47bc5d24171b32ae8483c2d
-prerequisite-patch-id: 3792e6478845da3a19dda5fdca5d094d3847c6e3
-prerequisite-patch-id: 7d4e280d1197ead2e3f90d10d0c38c4685bedd86
-prerequisite-patch-id: 6db8468aba0d92cd5d67af028caebe4146b9f02e
-prerequisite-patch-id: 6550921ad75aaa9ddd30db6a75878d06c13ab6bb
-prerequisite-patch-id: 35cfae6d6d6c30453026284fc2b25733f005f950
-prerequisite-patch-id: 3bf03aa3ed1532d6c67fa47cec3ba34418ea5a79
-prerequisite-patch-id: 580e28da7a0e724c293eb5b36a35be0964554885
-prerequisite-patch-id: 61932497d71dc764e040deea7a58286dca51a6e0
-prerequisite-patch-id: b3f6ac925fd9f3517e63b0595ce138fdd0196db2
-prerequisite-patch-id: 609d83e906e26c4d9c0fb5ba29f66eec0234d11b
-prerequisite-patch-id: 88264df437b404b00bba07edb7761762c52daa9d
-prerequisite-patch-id: 2d3d4efeb0e32423938d546a683513ee8077143e
-prerequisite-patch-id: 675d46b64f98322e8ab90b947598d030f1133120
-prerequisite-patch-id: fbd3c4bf0ea604f9ab30aa21f28fb26b953f8889
-prerequisite-patch-id: d51e789c6ddc37cb65b6e49aaf567ba2a6168841
-prerequisite-patch-id: 1e05b33595d37f01087a82f11344b0e3cca2580a
-prerequisite-patch-id: 64151f1e9a5ae900c09322ef2bade0e1dad06568
-prerequisite-patch-id: af71a3e75f28e0ee92721491b27f260500567d92
-prerequisite-patch-id: 30c6b42d4bd39703a865ee9ebce41d986a803ce4
-prerequisite-patch-id: 15a26c36a233ee3f738faa4a666b4f9c8749494d
-prerequisite-patch-id: 9733d60910fb3e14ba5caa2eecc97a8c50592d7d
-prerequisite-patch-id: b7b484c19e966041b39b7e3f089e9fb407c0b641
-prerequisite-patch-id: dd2adee5d7c941363193ad4033f419ca8f535b69
-prerequisite-patch-id: 89142874b57f3120e4dcdefd7e40168766fc7f52
-prerequisite-patch-id: df6983cc3366963afb6e4229cddd5b1a42406e3c
-prerequisite-patch-id: 7d90d37f7e7545c5710ebdbd3db9967c1d1b5b4d
-prerequisite-patch-id: 07041f82bdb5a5f886dd13a0a6a27b66d06d17c2
-prerequisite-patch-id: 6086254edae9372a2a2a79521a9713c8d30e695c
-prerequisite-patch-id: 6ad40b13b98391ed21da873bdf88c04f23ecb6fb
-prerequisite-patch-id: 9fbbbc72209b81bc26573427ec70246eb2d04af1
-prerequisite-patch-id: 5cc8743cf655d791faca7934683dd0d758151321
-prerequisite-patch-id: 5bd8d06716d6cbae7a9fd904ff8713f3a5d0c8a0
-prerequisite-patch-id: 2271226e9ac9ab8d8d93c7c3b2384c3c7bd84b87
-prerequisite-patch-id: 19497288dc06ceb627a6eab0c75754a945eb1d71
-prerequisite-patch-id: 85867a867694055295ce127a7ce1e9818d76801f
-prerequisite-patch-id: 1b1d6aa8f4b96f82548917135d7747ed6e250fc7
-prerequisite-patch-id: 39838eac42ec51ce7fb0951d4da3c64c801d71cf
-prerequisite-patch-id: 846be3c76fbbca1890b3874e1fdb2af846d8f3e2
-prerequisite-patch-id: 35af5ef849b3b4e207d9d9385580768c75c0827b
-prerequisite-patch-id: b6aa080addba2ac4c851f41a01b72004e14fe7ca
-prerequisite-patch-id: c4ba87ce6d1e48bddafb896f3c3d1fe514bf3b5c
-prerequisite-patch-id: f8e4fec905fb4d6e000df3f17717f7b47d22ae27
-prerequisite-patch-id: 8c0f82cdfb3c0995cdff96f9c6fc2971faf60a1e
-prerequisite-patch-id: b89d16d373447225b2821d784b21331fb62e7a7c
-prerequisite-patch-id: 1486fef342202199cb746fcf1601621ef07a02c4
-prerequisite-patch-id: efad6151fb2cedb2cbe18d3873aa8a9b1ec4ee4f
-prerequisite-patch-id: 7993a9682b498599a2fca2b7bc9c871c4bc3a374
-prerequisite-patch-id: a4c31ca38e3009e9e0f15ec5531f0fa09d4929b8
-prerequisite-patch-id: 3e3b4dccd7abc5c1de05d70aa397221d0a6e9c91
-prerequisite-patch-id: 421ba703353af51b801fa948d862e6102b52ea9f
-prerequisite-patch-id: c2ad0f1f0b00408b0068c2f8b235910fe19ce430
-prerequisite-patch-id: 13a554c8d1b77415d2bf11ff260a8f932902f11c
-prerequisite-patch-id: b00e4016272f55195941fedf49de1cb8f0b68dc4
-prerequisite-patch-id: f89b24990377441eaf3f45d9b822ff699874af59
-prerequisite-patch-id: 97d90df0f9d0499e5d3b4fd5ce37f3bb964c2370
-prerequisite-patch-id: 45989d03b7508141fff2b99bee1ed9296841c3dd
-prerequisite-patch-id: 77549a6ae8ce281254b876b05727983bb9b7560a
-prerequisite-patch-id: 2ceee10179ceeef045bd54f0d0afa57b3e45a18a
-prerequisite-patch-id: 28d94479e5cb8294668a6e8f26c1f3abc548fc11
-prerequisite-patch-id: c25cb8c4efc803a3103098a043cce9d3db362050
--- 
-2.29.2.222.g5d2a92d10f8
-
+ 	if (unlikely(current->flags & PF_EXITING))
+@@ -2065,8 +2083,7 @@ void rdtgroup_kn_unlock(struct kernfs_node *kn)
+ 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
+ 			rdtgroup_pseudo_lock_remove(rdtgrp);
+ 		kernfs_unbreak_active_protection(kn);
+-		kernfs_put(rdtgrp->kn);
+-		kfree(rdtgrp);
++		rdtgroup_remove(rdtgrp);
+ 	} else {
+ 		kernfs_unbreak_active_protection(kn);
+ 	}
+@@ -2341,7 +2358,7 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
+ 		if (atomic_read(&sentry->waitcount) != 0)
+ 			sentry->flags = RDT_DELETED;
+ 		else
+-			kfree(sentry);
++			rdtgroup_remove(sentry);
+ 	}
+ }
+ 
+@@ -2383,7 +2400,7 @@ static void rmdir_all_sub(void)
+ 		if (atomic_read(&rdtgrp->waitcount) != 0)
+ 			rdtgrp->flags = RDT_DELETED;
+ 		else
+-			kfree(rdtgrp);
++			rdtgroup_remove(rdtgrp);
+ 	}
+ 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
+ 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
+@@ -2818,7 +2835,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ 	 * kernfs_remove() will drop the reference count on "kn" which
+ 	 * will free it. But we still need it to stick around for the
+ 	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
+-	 * which will be dropped inside rdtgroup_kn_unlock().
++	 * which will be dropped by kernfs_put() in rdtgroup_remove().
+ 	 */
+ 	kernfs_get(kn);
+ 
+@@ -2859,6 +2876,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ out_idfree:
+ 	free_rmid(rdtgrp->mon.rmid);
+ out_destroy:
++	kernfs_put(rdtgrp->kn);
+ 	kernfs_remove(rdtgrp->kn);
+ out_free_rgrp:
+ 	kfree(rdtgrp);
+@@ -2871,7 +2889,7 @@ static void mkdir_rdt_prepare_clean(struct rdtgroup *rgrp)
+ {
+ 	kernfs_remove(rgrp->kn);
+ 	free_rmid(rgrp->mon.rmid);
+-	kfree(rgrp);
++	rdtgroup_remove(rgrp);
+ }
+ 
+ /*
