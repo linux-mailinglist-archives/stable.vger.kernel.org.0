@@ -2,109 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB9D2C1E44
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 07:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 254882C1E6B
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 07:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729736AbgKXGbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 01:31:50 -0500
-Received: from dvalin.narfation.org ([213.160.73.56]:59184 "EHLO
-        dvalin.narfation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729737AbgKXGbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 01:31:50 -0500
-X-Greylist: delayed 372 seconds by postgrey-1.27 at vger.kernel.org; Tue, 24 Nov 2020 01:31:49 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1606199132;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=93U9HTwir3MyESStXqylZH/Q5z8YATBcSDxn3s56cbo=;
-        b=bUlz8ChrZE60d/IAoRJZG6KDQWjYAsBh/+hah+X9OmYHlfdQiYVAmDlpTTazHRVp1RtWOW
-        PE03BjCp3y68P2hObttcpZdDcLLS93G2DaDLBOyuRSBlBULUY+8OCTfQdFVpk9/TRcAktW
-        Akem4MIzhp7BsNm5sbu1/0Ud0WUsp6I=
-From:   Sven Eckelmann <sven@narfation.org>
-To:     linux-mtd@lists.infradead.org
-Cc:     rminnich@google.com, boris.brezillon@collabora.com,
-        vigneshr@ti.com, richard@nod.at, miquel.raynal@bootlin.com,
-        Sven Eckelmann <sven@narfation.org>, stable@vger.kernel.org
-Subject: [PATCH v2] mtd: parser: cmdline: Fix parsing of part-names with colons
-Date:   Tue, 24 Nov 2020 07:25:06 +0100
-Message-Id: <20201124062506.185392-1-sven@narfation.org>
-X-Mailer: git-send-email 2.29.2
+        id S1728315AbgKXGjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 01:39:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726799AbgKXGjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 01:39:19 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4040AC0613CF
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 22:39:19 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id k1so6721825eds.13
+        for <stable@vger.kernel.org>; Mon, 23 Nov 2020 22:39:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Z+h2jKR1HnxM4LLFYi0zdaEFDI6R7RmOjCgr7rLqgWY=;
+        b=D5AWs3bV5mDoMD/n77P24DkEcXJ0IYm1yH7BFPUBmbVzec0y6zUWtvB2aHlc8Cf3gQ
+         dC2CfwuJbt+JCMh8IpskwgZ7+ki0ZCpMjHsmbpy+Jb5NmX9yzFkGteAQLppJjY+FcYqi
+         tEIWNUGnve6y1nbeUaatoMgFhLgcIy1SE8xO8PmzfPJTW3F2I25pAf3I84Gg0f5YIL+2
+         QwwJ1fCgZI+Nt39lQrr9UY1wogcNv7IHCMCxy1uTYKNnQTYI0XmBEe8nqnxRPKo/Nfw8
+         EY0kjU29wPkLICyR23XSd5phTCImJ4MOJaDnup3bpg87YKMsLc4WDfJvE8VGXMlfqNkw
+         hxSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Z+h2jKR1HnxM4LLFYi0zdaEFDI6R7RmOjCgr7rLqgWY=;
+        b=snmqQ/ZtnqsxVWBT7Z09xmUZrzw0PTZhZCrH4xZs1MGR1Nh2y9zLlx8f71xezoZrcB
+         TW0xHXi15m5HQbcgsMsNghgIAF+9TPud15alOCNdXbw/rkPNQS1rOALj0TGrvY961iJp
+         kN7JJQMouPB/0zChr3p8axiKtS8VYkrLlQ7myiab0Uc0tfuQfHmLzrPiGJ8cwNXvOatw
+         WXWhjQI2Me9OztYFBn14ip5Lr+/EwLJifNpLeftfjB7xTAJ4iN1GUlNo/vzCepjID6ek
+         haKZsh7DtswaABHcFCpPWTOn8nbYV4J6us8FfjgJBsYooMA0SUvNiXzPZDz7p9pJv04B
+         j+2A==
+X-Gm-Message-State: AOAM533Om8abnOktTF/IhsOMHTmpIr3R4e5n+7FU+o4N6a95sRC/vmz0
+        JvnqESNPKfrmtDzTvuURAfbWI2l+fS05MfQnRQArO/+XDciNvsC5
+X-Google-Smtp-Source: ABdhPJzLnHu3hUdcqXmgoqK0MnPZjjUS+jpa10kuGCUYE3D4Yzrsy5mtugPj9dmWmDLlcgoPycotaiUI2Y+qv3RiW5k=
+X-Received: by 2002:a05:6402:b35:: with SMTP id bo21mr2710696edb.52.1606199957697;
+ Mon, 23 Nov 2020 22:39:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201123121819.943135899@linuxfoundation.org>
+In-Reply-To: <20201123121819.943135899@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 24 Nov 2020 12:09:06 +0530
+Message-ID: <CA+G9fYvn15eQaWNyAUgmkWzYaro581UAk0OSM_7WOO+UJgL0_w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/158] 5.4.80-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some devices (especially QCA ones) are already using hardcoded partition
-names with colons in it. The OpenMesh A62 for example provides following
-mtd relevant information via cmdline:
+On Mon, 23 Nov 2020 at 18:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.80 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 25 Nov 2020 12:17:50 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.80-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-  root=31:11 mtdparts=spi0.0:256k(0:SBL1),128k(0:MIBIB),384k(0:QSEE),64k(0:CDT),64k(0:DDRPARAMS),64k(0:APPSBLENV),512k(0:APPSBL),64k(0:ART),64k(custom),64k(0:KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive) rootfsname=rootfs rootwait
 
-The change to split only on the last colon between mtd-id and partitions
-will cause newpart to see following string for the first partition:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-  KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive)
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Such a partition list cannot be parsed and thus the device fails to boot.
+Summary
+------------------------------------------------------------------------
 
-Avoid this behavior by making sure that the start of the first part-name
-("(") will also be the last byte the mtd-id split algorithm is using for
-its colon search.
+kernel: 5.4.80-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: 0048695749b29788fab5e9fff442f5a5968290d3
+git describe: v5.4.79-159-g0048695749b2
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.79-159-g0048695749b2
 
-Fixes: eb13fa022741 ("mtd: parser: cmdline: Support MTD names containing one or more colons")
-Cc: stable@vger.kernel.org
-Cc: Ron Minnich <rminnich@google.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
----
-v2:
+No regressions (compared to build v5.4.79)
 
-* switch from net's multi-line comment style to mtd's multiline comment style
-* Add Ron Minnich as explicit Cc as we are missing his Tested-by
+No fixes (compared to build v5.4.79)
 
- drivers/mtd/parsers/cmdlinepart.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/parsers/cmdlinepart.c b/drivers/mtd/parsers/cmdlinepart.c
-index a79e4d866b08..0ddff1a4b51f 100644
---- a/drivers/mtd/parsers/cmdlinepart.c
-+++ b/drivers/mtd/parsers/cmdlinepart.c
-@@ -226,7 +226,7 @@ static int mtdpart_setup_real(char *s)
- 		struct cmdline_mtd_partition *this_mtd;
- 		struct mtd_partition *parts;
- 		int mtd_id_len, num_parts;
--		char *p, *mtd_id, *semicol;
-+		char *p, *mtd_id, *semicol, *open_parenth;
- 
- 		/*
- 		 * Replace the first ';' by a NULL char so strrchr can work
-@@ -236,6 +236,14 @@ static int mtdpart_setup_real(char *s)
- 		if (semicol)
- 			*semicol = '\0';
- 
-+		/*
-+		 * make sure that part-names with ":" will not be handled as
-+		 * part of the mtd-id with an ":"
-+		 */
-+		open_parenth = strchr(s, '(');
-+		if (open_parenth)
-+			*open_parenth = '\0';
-+
- 		mtd_id = s;
- 
- 		/*
-@@ -245,6 +253,10 @@ static int mtdpart_setup_real(char *s)
- 		 */
- 		p = strrchr(s, ':');
- 
-+		/* Restore the '(' now. */
-+		if (open_parenth)
-+			*open_parenth = '(';
-+
- 		/* Restore the ';' now. */
- 		if (semicol)
- 			*semicol = ';';
--- 
-2.29.2
+Ran 46177 total tests in the following environments and test suites.
 
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
