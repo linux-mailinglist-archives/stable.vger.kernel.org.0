@@ -2,106 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F310C2C2DB4
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 18:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 812422C2DB7
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 18:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390052AbgKXRCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 12:02:21 -0500
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:55993 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726105AbgKXRCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 12:02:20 -0500
-Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0AOGwOtl001893;
-        Tue, 24 Nov 2020 18:01:41 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=STMicroelectronics;
- bh=Nvh97EHtowShFVZBZ4sch+HIM7kUYQxi6C+/PmxMtLQ=;
- b=gxROogSxGpqeDGs2jIP+hvUwtpgGi+re5iwqH6X5WupCiV1aclAZL5OiOHpQJUsUq7Ov
- cfnFD2w9PEtd2BzPji8u7W2RT29V+hsYdHaIMQTJTynKJTe9eGI5y9cifnJm4KHZb9/V
- qNBH+ph6Ky8nMGSohFNbCz7RryiJWuefGCV/QTr0mdst8IGeB89zUoFqjm0ut70Z9I1p
- 5CL9lKDMjLqYV1NxSUU5Rgzt/tjCY8F8xfJPucUxoeip/ItJGyFwE45evtBmgFoES3kJ
- IruzAC+DAYJHr3h2hrcrsSYcyoeThThMmgRMDfvU1Ye/tCN3mzyA1A+WoMdTdV+yxem8 eQ== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 34y05h8qjk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 Nov 2020 18:01:41 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 64952100034;
-        Tue, 24 Nov 2020 18:01:40 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag1node3.st.com [10.75.127.3])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 4306D21037A;
-        Tue, 24 Nov 2020 18:01:40 +0100 (CET)
-Received: from [10.129.7.42] (10.75.127.49) by SFHDAG1NODE3.st.com
- (10.75.127.3) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 24 Nov
- 2020 18:01:35 +0100
-Message-ID: <bd0a636c351b05e0faa1b9009cb09334bc72cee4.camel@st.com>
-Subject: Re: [PATCH] net: phy: fix auto-negotiation in case of 'down-shift'
-From:   Antonio Borneo <antonio.borneo@st.com>
-To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Willy Liu <willy.liu@realtek.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>
-CC:     Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, <netdev@vger.kernel.org>,
-        Yonglong Liu <liuyonglong@huawei.com>,
-        <stable@vger.kernel.org>, <linuxarm@huawei.com>,
-        Salil Mehta <salil.mehta@huawei.com>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-kernel@vger.kernel.org>
-Date:   Tue, 24 Nov 2020 18:00:46 +0100
-In-Reply-To: <20201124153750.GH1551@shell.armlinux.org.uk>
-References: <20201124143848.874894-1-antonio.borneo@st.com>
-         <20201124145647.GF1551@shell.armlinux.org.uk>
-         <bd83b9c15f6cfed5df90da4f6b50d1a3f479b831.camel@st.com>
-         <20201124153750.GH1551@shell.armlinux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.2 
+        id S1728997AbgKXRCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 12:02:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38852 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726105AbgKXRCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 12:02:39 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A7EC0613D6
+        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 09:02:39 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id i2so4022946wrs.4
+        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 09:02:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=3fBWaD7CKn0QJEnlsOJbzoMZLD9A1MS2ogF5fzkmq4c=;
+        b=IYFKRfe9KnUqDV+luz86zTwmbAxnLVH/AXFu+LbERPH+k5pJu+8/ApT8v/+sTJQcH+
+         GgHhvfYech+I3hnbWd6Thw8g22BJFmNB1GYWBeAVoCCWr6TXDADvTBSTJQMJD92NaUlG
+         EonKZtrZJC/SVot1CKaB9Fdc/LmG8prW4WlRRo8nSrv4/+OZg5K1WNUKdPyGiOlNc2zN
+         5GHnilckCW60AaJM5aDH+HnMBevHZC7FNgTPbZXnlVSxYPk/YsWaRxIhIuXm7g7+DeP6
+         LQMPcv7htagh/VSZzCkrQO9LGh6R6MYN5GVFQev+psbqcHJrq4P3oTE6gnIGOTdSrSsB
+         oaqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=3fBWaD7CKn0QJEnlsOJbzoMZLD9A1MS2ogF5fzkmq4c=;
+        b=oXSzWd6NYwFChQYdtkg0WlfHTRh8vjdFAcyjNaBuhCulS3j3FkaWifnFMXje1K5zwX
+         XlrcPWh6VCTTOHuhZsQn+HoZ2p3BTSSdshZjn0XaoJmTvqlXpHzb4DhYmJgxCq5a3N+E
+         RoaVrH1rsFU9vDD85BqFGZ+yB9ZXvDbKwujBt+HD2mrozm+RjO2d2Uct/xf50HV8Axq6
+         FFukkeBPMpzKY4Di1XTNONzhOzFpPHVVlshJRCbIH7I08dlp+5179NFJvVs29zkWrtSY
+         OwXir6+p7LF4mLn/lJYBviF2uTqjC6QIB4xbnjq3SOUOy8zwFfxYfnFrymlLPAWgPpre
+         qKng==
+X-Gm-Message-State: AOAM530UFlWXAkTtSN2FBuxsHSVwTov+CtAnfua2rScAjWqeycL7YA4V
+        ExePG8gunkJXfB69gCnJtsg=
+X-Google-Smtp-Source: ABdhPJwGK4+FhwYcxGibyJE5hv5/p6WlLREeZpQRR5AMdI7yIn3EuS0OHrC+TIQpn3fZaqO6T7lYWQ==
+X-Received: by 2002:adf:aa4a:: with SMTP id q10mr1709222wrd.276.1606237357873;
+        Tue, 24 Nov 2020 09:02:37 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id f5sm873036wmj.17.2020.11.24.09.02.36
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 24 Nov 2020 09:02:37 -0800 (PST)
+Date:   Tue, 24 Nov 2020 17:02:35 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     lukas@wunner.de, broonie@kernel.org, f.fainelli@gmail.com,
+        olteanv@gmail.com, s.hauer@pengutronix.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] spi: bcm2835: Fix use-after-free on
+ unbind" failed to apply to 5.9-stable tree
+Message-ID: <20201124170235.gca5kbtncncr64dw@debian>
+References: <1606121663128223@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.49]
-X-ClientProxiedBy: SFHDAG4NODE3.st.com (10.75.127.12) To SFHDAG1NODE3.st.com
- (10.75.127.3)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-24_05:2020-11-24,2020-11-24 signatures=0
+Content-Type: multipart/mixed; boundary="nycsjpwyposek4kz"
+Content-Disposition: inline
+In-Reply-To: <1606121663128223@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-11-24 at 15:37 +0000, Russell King - ARM Linux admin wrote:
-> On Tue, Nov 24, 2020 at 04:17:42PM +0100, Antonio Borneo wrote:
-> > On Tue, 2020-11-24 at 14:56 +0000, Russell King - ARM Linux admin wrote:
-> > > Userspace doesn't expect the advertising mask to change beneath it.
-> > > Since updates from userspace are done using a read-modify-write of
-> > > the ksettings, this can have the undesired effect of removing 1G
-> > > from the configured advertising mask.
-> > > 
-> > > We've had other PHYs have this behaviour; the correct solution is for
-> > > the PHY driver to implement reading the resolution from the PHY rather
-> > > than relying on the generic implementation if it can down-shift
-> > 
-> > If it's already upstream, could you please point to one of the phy driver
-> > that already implements this properly?
+
+--nycsjpwyposek4kz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Mon, Nov 23, 2020 at 09:54:23AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> Reading the resolved information is PHY specific as it isn't
-> standardised.
+> The patch below does not apply to the 5.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Digging in the info you have provided, I realized that another Realtek PHY
-has some specific code already upstream to deal with downshift.
-The PHY specific code is added by Heiner in d445dff2df60 ("net: phy:
-realtek: read actual speed to detect downshift").
-This code reads the actual speed from page 0xa43 address 0x12, that is not
-reported in the datasheet of rtl8211f.
-But I checked the register content in rtl8211f and it works at the same way
-too!
+Here is the backport.
 
-I have added Willy in copy; maybe he can confirm that we can use page 0xa43
-address 0x12 on rtl8211f to read the actual speed after negotiation.
+--
+Regards
+Sudip
 
-In such case the fix for rtl8211f requires just adding the same custom
-read_status().
+--nycsjpwyposek4kz
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-spi-bcm2835-Fix-use-after-free-on-unbind.patch"
 
-Antonio
+From 357cbec3337f1ac35ccb87aaaddbb783b33c83b4 Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Wed, 11 Nov 2020 20:07:20 +0100
+Subject: [PATCH] spi: bcm2835: Fix use-after-free on unbind
+
+commit e1483ac030fb4c57734289742f1c1d38dca61e22 upstream
+
+bcm2835_spi_remove() accesses the driver's private data after calling
+spi_unregister_controller() even though that function releases the last
+reference on the spi_controller and thereby frees the private data.
+
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
+
+Fixes: f8043872e796 ("spi: add driver for BCM2835")
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v3.10+: 123456789abc: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v3.10+
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/ad66e0a0ad96feb848814842ecf5b6a4539ef35c.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/spi/spi-bcm2835.c | 27 ++++++++-------------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
+index 9605abaaec67..197485f2c2b2 100644
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -1278,7 +1278,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 	struct bcm2835_spi *bs;
+ 	int err;
+ 
+-	ctlr = spi_alloc_master(&pdev->dev, ALIGN(sizeof(*bs),
++	ctlr = devm_spi_alloc_master(&pdev->dev, ALIGN(sizeof(*bs),
+ 						  dma_get_cache_alignment()));
+ 	if (!ctlr)
+ 		return -ENOMEM;
+@@ -1299,26 +1299,17 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 	bs->ctlr = ctlr;
+ 
+ 	bs->regs = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_controller_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
+ 
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(bs->clk)) {
+-		err = PTR_ERR(bs->clk);
+-		if (err == -EPROBE_DEFER)
+-			dev_dbg(&pdev->dev, "could not get clk: %d\n", err);
+-		else
+-			dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_controller_put;
+-	}
++	if (IS_ERR(bs->clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(bs->clk),
++				     "could not get clk\n");
+ 
+ 	bs->irq = platform_get_irq(pdev, 0);
+-	if (bs->irq <= 0) {
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_controller_put;
+-	}
++	if (bs->irq <= 0)
++		return bs->irq ? bs->irq : -ENODEV;
+ 
+ 	clk_prepare_enable(bs->clk);
+ 
+@@ -1352,8 +1343,6 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 	bcm2835_dma_release(ctlr, bs);
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_controller_put:
+-	spi_controller_put(ctlr);
+ 	return err;
+ }
+ 
+-- 
+2.11.0
 
 
+--nycsjpwyposek4kz--
