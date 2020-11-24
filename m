@@ -2,87 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8992C228E
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 11:13:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8CF2C2270
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 11:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgKXKM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 05:12:56 -0500
-Received: from mga18.intel.com ([134.134.136.126]:27279 "EHLO mga18.intel.com"
+        id S1731232AbgKXKCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 05:02:36 -0500
+Received: from foss.arm.com ([217.140.110.172]:51038 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729704AbgKXKM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Nov 2020 05:12:56 -0500
-IronPort-SDR: zaEDBz0x8vm6TcwjRteJcaLVAAl9TdMlmh2k9O5YOfWuvV2B2hqPmg6DiEikDsO1u+UOxbLhrX
- +U1BjHO4rQwA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9814"; a="159688838"
-X-IronPort-AV: E=Sophos;i="5.78,366,1599548400"; 
-   d="scan'208";a="159688838"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2020 02:12:55 -0800
-IronPort-SDR: Lbc+QponfF2xcY5gqU/FSrtP6sosVsi8THhyvxV7Op0DPI/wRFnsOw4umPa3vkx2QHHBLHHkng
- 7Eo2OyHplckg==
-X-IronPort-AV: E=Sophos;i="5.78,366,1599548400"; 
-   d="scan'208";a="361819386"
-Received: from genxfsim-desktop.iind.intel.com ([10.223.74.178])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2020 02:12:53 -0800
-From:   Anshuman Gupta <anshuman.gupta@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Anshuman Gupta <anshuman.gupta@intel.com>,
-        Imre Deak <imre.deak@intel.com>, stable@vger.kernel.org
-Subject: [RFC] drm/i915/dp: PPS registers doesn't require AUX power
-Date:   Tue, 24 Nov 2020 15:28:47 +0530
-Message-Id: <20201124095847.14098-1-anshuman.gupta@intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S1728872AbgKXKCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Nov 2020 05:02:36 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D8E31396;
+        Tue, 24 Nov 2020 02:02:35 -0800 (PST)
+Received: from [192.168.0.130] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A47333F71F;
+        Tue, 24 Nov 2020 02:02:31 -0800 (PST)
+Subject: Re: [PATCH 1/6] arm64: pgtable: Fix pte_accessible()
+To:     Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com, Catalin Marinas <catalin.marinas@arm.com>,
+        Yu Zhao <yuzhao@google.com>, Minchan Kim <minchan@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org
+References: <20201120143557.6715-1-will@kernel.org>
+ <20201120143557.6715-2-will@kernel.org>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <6eb6dead-4c76-d14a-dcc7-0d1411337dc6@arm.com>
+Date:   Tue, 24 Nov 2020 15:32:18 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201120143557.6715-2-will@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Platforms with South Display Engine on PCH, doesn't
-require to get/put the AUX power domain in order to
-access PPS register because PPS registers are always on
-with South display on PCH.
 
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
----
- drivers/gpu/drm/i915/display/intel_dp.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+On 11/20/20 8:05 PM, Will Deacon wrote:
+> pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
+> invalidation is necessary when unmapping pages for reclaim. Although our
+> implementation is correct according to the architecture, returning true
+> only for valid, young ptes in the absence of racing page-table
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 3896d08c4177..84a2c49e154c 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -872,8 +872,9 @@ pps_lock(struct intel_dp *intel_dp)
- 	 * See intel_power_sequencer_reset() why we need
- 	 * a power domain reference here.
- 	 */
--	wakeref = intel_display_power_get(dev_priv,
--					  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
-+	if (!HAS_PCH_SPLIT(dev_priv))
-+		wakeref = intel_display_power_get(dev_priv,
-+						  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
- 
- 	mutex_lock(&dev_priv->pps_mutex);
- 
-@@ -886,9 +887,11 @@ pps_unlock(struct intel_dp *intel_dp, intel_wakeref_t wakeref)
- 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
- 
- 	mutex_unlock(&dev_priv->pps_mutex);
--	intel_display_power_put(dev_priv,
--				intel_aux_power_domain(dp_to_dig_port(intel_dp)),
--				wakeref);
-+
-+	if (!HAS_PCH_SPLIT(dev_priv))
-+		intel_display_power_put(dev_priv,
-+					intel_aux_power_domain(dp_to_dig_port(intel_dp)),
-+					wakeref);
- 	return 0;
- }
- 
--- 
-2.26.2
+Just curious, a PTE mapping would go into the TLB only if it is an
+young one with PTE_AF bit set per the architecture ?
 
+> modifications, this is in fact flawed due to lazy invalidation of old
+> ptes in ptep_clear_flush_young() where we elide the expensive DSB
+> instruction for completing the TLB invalidation.
+
+IOW, an old PTE might have missed the required TLB invalidation via
+ptep_clear_flush_young() because it's done in lazy mode. Hence just
+include old valid PTEs in pte_accessible() so that TLB invalidation
+could be done in ptep_clear_flush() path instead. May be TLB flush
+could be done for every PTE, irrespective of its PTE_AF bit in
+ptep_clear_flush_young().
+
+> 
+> Rather than penalise the aging path, adjust pte_accessible() to return
+> true for any valid pte, even if the access flag is cleared.
+
+But will not this cause more (possibly not required) TLB invalidation
+in normal unmapping paths ? The cover letter mentions that this patch
+fixes a real world crash. Should not the crash also be described here
+in the commit message as this patch is marked for stable and has a
+"Fixes: " tag.
+
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
+> Reported-by: Yu Zhao <yuzhao@google.com>
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
+>  arch/arm64/include/asm/pgtable.h | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+> index 4ff12a7adcfd..1bdf51f01e73 100644
+> --- a/arch/arm64/include/asm/pgtable.h
+> +++ b/arch/arm64/include/asm/pgtable.h
+> @@ -115,8 +115,6 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>  #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+>  #define pte_valid_not_user(pte) \
+>  	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+> -#define pte_valid_young(pte) \
+> -	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+>  #define pte_valid_user(pte) \
+>  	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
+>  
+> @@ -126,7 +124,7 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>   * remapped as PROT_NONE but are yet to be flushed from the TLB.
+>   */
+>  #define pte_accessible(mm, pte)	\
+> -	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
+> +	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
+>  
+>  /*
+>   * p??_access_permitted() is true for valid user mappings (subject to the
+> 
