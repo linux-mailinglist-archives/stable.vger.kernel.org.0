@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0191F2C1E90
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 08:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498552C1E96
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 08:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729209AbgKXHA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 02:00:58 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45752 "EHLO
+        id S1729734AbgKXHBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 02:01:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:50046 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728356AbgKXHA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 02:00:58 -0500
+        by vger.kernel.org with ESMTP id S1725786AbgKXHBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 02:01:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606201256;
+        s=mimecast20190719; t=1606201278;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=omq0rXVwlAeKBJOpGieUHLazHw0ngjkZBk3Z+imdVIk=;
-        b=J/AKYXOJIB5EIKq23gLKQn0OsffmhQ6PA6RoiC84ZMp3692O5mCYAAsaEoxg++TmazwmPW
-        ucrTVwUYFewi7VQEUXQJFy95dfalY8747DfRJ3YBK/CmPWPX7UbnwpgTwMRF7OPENORl+4
-        l0Z1PXDbjpUUWExNnBn0zN9NmfMHAcg=
+        bh=PG2903t7FuPSKHyRDP/uhYYTQl5+QB+fvBN21nVGMMQ=;
+        b=D276toNc3SD+R/LiL42hr+Syp+jQ79gmNmHxDDyzxGVXvtPzmEvJ7x59fxQWKwJOd5TeFl
+        5kR6JwpPiJ6j+QfDSup9WLMZyZ1CARQP+t3qbl/Vw1pZ6I2UOmhhSdzTNFvrcLs7dPESUn
+        b9nVtX9YZtxAQ4q8T/MvLcOYToy0TQ4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-401-1--NmEaZMrOXitKhMsZVbg-1; Tue, 24 Nov 2020 02:00:53 -0500
-X-MC-Unique: 1--NmEaZMrOXitKhMsZVbg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-522-MxjNCmIRMamOInaxRgu-ww-1; Tue, 24 Nov 2020 02:01:15 -0500
+X-MC-Unique: MxjNCmIRMamOInaxRgu-ww-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4B78A427C2
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 07:00:52 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 86E12809DC3
+        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 07:01:14 +0000 (UTC)
 Received: from [172.23.9.155] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 857385D9CA;
-        Tue, 24 Nov 2020 07:00:45 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AF2BA5C1A3;
+        Tue, 24 Nov 2020 07:01:07 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     skt-results-master@redhat.com,
         Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.9.11-rc1 (stable)
-Date:   Tue, 24 Nov 2020 07:00:44 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>, Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.2A1417E382.KOGTYDX8FD@redhat.com>
-X-Gitlab-Pipeline-ID: 618489
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.9.10 (stable-queue)
+Date:   Tue, 24 Nov 2020 07:01:07 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>, Xiong Zhou <xzhou@redhat.com>,
+        Rachel Sibley <rasibley@redhat.com>
+Message-ID: <cki.D7253E03B2.VAIDPC56O6@redhat.com>
+X-Gitlab-Pipeline-ID: 618490
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/618489
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/618490
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -57,7 +58,8 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
 nux-stable-rc.git
-            Commit: 66608259168b - Linux 5.9.11-rc1
+            Commit: aa4480f8db8b - mm/userfaultfd: do not access vma->vm_mm a=
+fter calling handle_userfault()
 
 The results of these automated tests are provided below.
 
@@ -69,7 +71,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2020/11/23/618489
+x=3Ddatawarehouse-public/2020/11/23/618490
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -170,16 +172,41 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
     Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+
+    Host 4:
        =E2=9C=85 Boot test
        =E2=9C=85 selinux-policy: serge-testsuite
        =E2=9C=85 storage: software RAID testing
-       =E2=8F=B1  stress: stress-ng
-       =E2=8F=B1  xfstests - ext4
-       =E2=8F=B1  xfstests - xfs
-       =E2=8F=B1  xfstests - btrfs
-       =E2=8F=B1  IPMI driver test
-       =E2=8F=B1  IPMItool loop stress test
-       =E2=8F=B1  Storage blktests
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
        =E2=8F=B1  Storage block - filesystem fio test
        =E2=8F=B1  Storage block - queue scheduler test
        =E2=8F=B1  Storage nvme - tcp
@@ -187,6 +214,21 @@ dule test
 
   ppc64le:
     Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
@@ -218,23 +260,16 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
   s390x:
     Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
@@ -263,33 +298,11 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
   x86_64:
     Host 1:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  selinux-policy: serge-testsuite
-       =E2=8F=B1  storage: software RAID testing
-       =E2=8F=B1  stress: stress-ng
-       =E2=8F=B1  CPU: Frequency Driver Test
-       =E2=8F=B1  CPU: Idle Test
-       =E2=8F=B1  xfstests - ext4
-       =E2=8F=B1  xfstests - xfs
-       =E2=8F=B1  xfstests - btrfs
-       =E2=8F=B1  IPMI driver test
-       =E2=8F=B1  IPMItool loop stress test
-       =E2=8F=B1  power-management: cpupower/sanity test
-       =E2=8F=B1  Storage blktests
-       =E2=8F=B1  Storage block - filesystem fio test
-       =E2=8F=B1  Storage block - queue scheduler test
-       =E2=8F=B1  Storage nvme - tcp
-       =E2=8F=B1  Storage: swraid mdadm raid_module test
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
 
     Host 2:
        =E2=9C=85 Boot test
@@ -331,9 +344,23 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
     Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  selinux-policy: serge-testsuite
+       =E2=8F=B1  storage: software RAID testing
+       =E2=8F=B1  stress: stress-ng
+       =E2=8F=B1  CPU: Frequency Driver Test
+       =E2=8F=B1  CPU: Idle Test
+       =E2=8F=B1  xfstests - ext4
+       =E2=8F=B1  xfstests - xfs
+       =E2=8F=B1  xfstests - btrfs
+       =E2=8F=B1  IPMI driver test
+       =E2=8F=B1  IPMItool loop stress test
+       =E2=8F=B1  power-management: cpupower/sanity test
+       =E2=8F=B1  Storage blktests
+       =E2=8F=B1  Storage block - filesystem fio test
+       =E2=8F=B1  Storage block - queue scheduler test
+       =E2=8F=B1  Storage nvme - tcp
+       =E2=8F=B1  Storage: swraid mdadm raid_module test
 
   Test sources: https://gitlab.com/cki-project/kernel-tests
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
