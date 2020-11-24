@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7629E2C1B8C
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 03:43:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFF22C1B93
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 03:43:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728583AbgKXCnH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 23 Nov 2020 21:43:07 -0500
-Received: from mail.bata.co.id ([117.54.3.130]:59894 "EHLO mail.bata.co.id"
+        id S1728641AbgKXCn2 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 23 Nov 2020 21:43:28 -0500
+Received: from mail.bata.co.id ([117.54.3.130]:60830 "EHLO mail.bata.co.id"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728535AbgKXCnH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Nov 2020 21:43:07 -0500
+        id S1728491AbgKXCn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Nov 2020 21:43:27 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by mail.bata.co.id (Postfix) with ESMTP id D8FD56E8818;
-        Tue, 24 Nov 2020 09:14:42 +0700 (WIB)
+        by mail.bata.co.id (Postfix) with ESMTP id 4E23D6E873F;
+        Tue, 24 Nov 2020 09:14:46 +0700 (WIB)
 Received: from mail.bata.co.id ([127.0.0.1])
         by localhost (mail.bata.co.id [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id qHWAOhZBozbt; Tue, 24 Nov 2020 09:14:42 +0700 (WIB)
+        with ESMTP id z-ggkFgYVi9x; Tue, 24 Nov 2020 09:14:46 +0700 (WIB)
 Received: from localhost (localhost [127.0.0.1])
-        by mail.bata.co.id (Postfix) with ESMTP id 484666E8825;
-        Tue, 24 Nov 2020 09:08:51 +0700 (WIB)
+        by mail.bata.co.id (Postfix) with ESMTP id 61FF36E884A;
+        Tue, 24 Nov 2020 09:09:05 +0700 (WIB)
 X-Virus-Scanned: amavisd-new at bata.co.id
 Received: from mail.bata.co.id ([127.0.0.1])
         by localhost (mail.bata.co.id [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id M7jiPlil625y; Tue, 24 Nov 2020 09:08:44 +0700 (WIB)
+        with ESMTP id HrFclbpp5gT0; Tue, 24 Nov 2020 09:08:58 +0700 (WIB)
 Received: from mail.bata.co.id (mail.bata.co.id [117.54.3.130])
-        by mail.bata.co.id (Postfix) with ESMTP id 0247B6E7A3F;
-        Tue, 24 Nov 2020 08:58:52 +0700 (WIB)
-Date:   Tue, 24 Nov 2020 08:58:51 +0700 (WIB)
+        by mail.bata.co.id (Postfix) with ESMTP id 417BA6E7EE6;
+        Tue, 24 Nov 2020 08:59:04 +0700 (WIB)
+Date:   Tue, 24 Nov 2020 08:59:04 +0700 (WIB)
 From:   Sistemas administrador <sb57533@bata.co.id>
 Reply-To: mailupgrade@mail2engineer.com
-Message-ID: <1979338801.99424.1606183131973.JavaMail.zimbra@bata.co.id>
+Message-ID: <965049126.99477.1606183144231.JavaMail.zimbra@bata.co.id>
 Subject: 
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8BIT
 X-Originating-IP: [223.225.31.167]
 X-Mailer: Zimbra 8.8.15_GA_3975 (zclient/8.8.15_GA_3975)
-Thread-Index: stDKdGg8dkl0u8vrUSWuyRV/GYDVOA==
+Thread-Index: I54rYvVPpGtOFWaqmRxvcjWeWMbekQ==
 Thread-Topic: 
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
