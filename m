@@ -2,107 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F112C2192
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 10:39:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A8992C228E
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 11:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731416AbgKXJgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 04:36:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731377AbgKXJgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 04:36:39 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE1CC0613D6;
-        Tue, 24 Nov 2020 01:36:39 -0800 (PST)
-Date:   Tue, 24 Nov 2020 09:36:36 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1606210597;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0Rr1olwPsduJoSlDBlgVnYq3Dyq3H3lG9aBuxY+YJgY=;
-        b=bdLb+GjL9GC1CQW5OxHln8M3zRyDo80syFtdrM2YSmPBS/SA9MkdGU+IodNOqBrqMQSWw8
-        8qxn9UCxYTfhOshHaEAqDU7DIfJhEGjnD7Tq0dQrPbheo4psqyN9FvFUFiN/d2boH1O8yy
-        x2BkIu/osBWeV6WwTj+PbcA3pihArBASA01rYSR3/4gyUx7a+uUVVxg2Qkw0yxHXuYK0v1
-        mduNXtnJeVcFge5GvII7NvVCwQ+Iquv8sy3dnCXV/pOuIUjX/p535ToBmGT0leVdwj1bBY
-        R9KGdJ6DTRyWSHFYif3a0ZwBVOgWBMs0WvHfpWK/7NTFwDM9dUUjzddjkzcUcw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1606210597;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0Rr1olwPsduJoSlDBlgVnYq3Dyq3H3lG9aBuxY+YJgY=;
-        b=/8DxIZHQdTfPgmOlNY4M+cj8zjsfowsqzqFAS8erptKFIrIMPjU8kzAfqVfyc+ZIZPThd9
-        kSxtnOehaoXvGqDg==
-From:   "thermal-bot for Zhuguangqing" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-pm@vger.kernel.org
-To:     linux-pm@vger.kernel.org
-Subject: [thermal: thermal/next] thermal/drivers/cpufreq_cooling: Update
- cpufreq_state only if state has changed
-Cc:     "v5.4+" <stable@vger.kernel.org>,
-        Zhuguangqing <zhuguangqing@xiaomi.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        rui.zhang@intel.com, amitk@kernel.org
-In-Reply-To: <20201106092243.15574-1-zhuguangqing83@gmail.com>
-References: <20201106092243.15574-1-zhuguangqing83@gmail.com>
+        id S1729707AbgKXKM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 05:12:56 -0500
+Received: from mga18.intel.com ([134.134.136.126]:27279 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729704AbgKXKM4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Nov 2020 05:12:56 -0500
+IronPort-SDR: zaEDBz0x8vm6TcwjRteJcaLVAAl9TdMlmh2k9O5YOfWuvV2B2hqPmg6DiEikDsO1u+UOxbLhrX
+ +U1BjHO4rQwA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9814"; a="159688838"
+X-IronPort-AV: E=Sophos;i="5.78,366,1599548400"; 
+   d="scan'208";a="159688838"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2020 02:12:55 -0800
+IronPort-SDR: Lbc+QponfF2xcY5gqU/FSrtP6sosVsi8THhyvxV7Op0DPI/wRFnsOw4umPa3vkx2QHHBLHHkng
+ 7Eo2OyHplckg==
+X-IronPort-AV: E=Sophos;i="5.78,366,1599548400"; 
+   d="scan'208";a="361819386"
+Received: from genxfsim-desktop.iind.intel.com ([10.223.74.178])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2020 02:12:53 -0800
+From:   Anshuman Gupta <anshuman.gupta@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Anshuman Gupta <anshuman.gupta@intel.com>,
+        Imre Deak <imre.deak@intel.com>, stable@vger.kernel.org
+Subject: [RFC] drm/i915/dp: PPS registers doesn't require AUX power
+Date:   Tue, 24 Nov 2020 15:28:47 +0530
+Message-Id: <20201124095847.14098-1-anshuman.gupta@intel.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Message-ID: <160621059697.11115.16868017639431284982.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the thermal/next branch of thermal:
+Platforms with South Display Engine on PCH, doesn't
+require to get/put the AUX power domain in order to
+access PPS register because PPS registers are always on
+with South display on PCH.
 
-Commit-ID:     236761f19a4f373354f1dcf399b57753f1f4b871
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git//236761f19a4f373354f1dcf399b57753f1f4b871
-Author:        Zhuguangqing <zhuguangqing@xiaomi.com>
-AuthorDate:    Fri, 06 Nov 2020 17:22:43 +08:00
-Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
-CommitterDate: Thu, 12 Nov 2020 12:23:35 +01:00
-
-thermal/drivers/cpufreq_cooling: Update cpufreq_state only if state has changed
-
-If state has not changed successfully and we updated cpufreq_state,
-next time when the new state is equal to cpufreq_state (not changed
-successfully last time), we will return directly and miss a
-freq_qos_update_request() that should have been.
-
-Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
-Cc: v5.4+ <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Zhuguangqing <zhuguangqing@xiaomi.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201106092243.15574-1-zhuguangqing83@gmail.com
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
 ---
- drivers/thermal/cpufreq_cooling.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index cc2959f..612f063 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -438,13 +438,11 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 	if (cpufreq_cdev->cpufreq_state == state)
- 		return 0;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 3896d08c4177..84a2c49e154c 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -872,8 +872,9 @@ pps_lock(struct intel_dp *intel_dp)
+ 	 * See intel_power_sequencer_reset() why we need
+ 	 * a power domain reference here.
+ 	 */
+-	wakeref = intel_display_power_get(dev_priv,
+-					  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
++	if (!HAS_PCH_SPLIT(dev_priv))
++		wakeref = intel_display_power_get(dev_priv,
++						  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
  
--	cpufreq_cdev->cpufreq_state = state;
--
- 	frequency = get_state_freq(cpufreq_cdev, state);
+ 	mutex_lock(&dev_priv->pps_mutex);
  
- 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
--
- 	if (ret > 0) {
-+		cpufreq_cdev->cpufreq_state = state;
- 		cpus = cpufreq_cdev->policy->cpus;
- 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
- 		capacity = frequency * max_capacity;
+@@ -886,9 +887,11 @@ pps_unlock(struct intel_dp *intel_dp, intel_wakeref_t wakeref)
+ 	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
+ 
+ 	mutex_unlock(&dev_priv->pps_mutex);
+-	intel_display_power_put(dev_priv,
+-				intel_aux_power_domain(dp_to_dig_port(intel_dp)),
+-				wakeref);
++
++	if (!HAS_PCH_SPLIT(dev_priv))
++		intel_display_power_put(dev_priv,
++					intel_aux_power_domain(dp_to_dig_port(intel_dp)),
++					wakeref);
+ 	return 0;
+ }
+ 
+-- 
+2.26.2
+
