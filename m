@@ -2,83 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FB842C2042
-	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 09:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F112C2192
+	for <lists+stable@lfdr.de>; Tue, 24 Nov 2020 10:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730776AbgKXImD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Nov 2020 03:42:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
+        id S1731416AbgKXJgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Nov 2020 04:36:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730772AbgKXImC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 03:42:02 -0500
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DAAC0613D6
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 00:42:01 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id d20so11823422lfe.11
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 00:42:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wvJieEgip1g2WEMiOdWtOXx++qG4HU5IWILT3U6RFgs=;
-        b=mJUb4iGMJjIWX8lPMq4tIdVYYwCQ67pBbsA+TPEjhQUqZSAatFbBhuCBKyZsKh8fCc
-         JGpV0Cc2ww5FVkjK63FldrCA9Ig/lclWUIkH+vU/D421GHQ60WDTVS7RhVSTyJmRPPbm
-         vlKNUUw+ltheJYgTJ6WBZ/vKeTtoG5+fj2fyzvIPf8kBhK4gxu6qfLs/P1Qgksfm4fvE
-         gCqb1lv58LleBY/hA5uwf9esy/7WwKX1IeTsIZVNuXTpHvrVix6x+q/3uc+HHz85ECOP
-         7c8+s1vq6e5L2fQCf1ooqPCMlZ5x42ijySwcRxEE/jL/qA+EjXMtSGYmuBEFllkrARzE
-         mNtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wvJieEgip1g2WEMiOdWtOXx++qG4HU5IWILT3U6RFgs=;
-        b=doO1ycMOlM5mT6FX9WNVxx4V/aspQpeFLavA7TzRKU8kQNbj5emF7AJiWCpsQYJTsA
-         9VpWrGnAFi0sBtoKoqlIzoV4Z2SfVlTNAdtKQlTRCdmx4sQw5H4mak8+Wu9uBugnv5Wu
-         b6dMEpxIgrnRc8ezODpjVZVDfCcqQxXsnRaOh4mqIPDD0fvnPGlt+5/yDigRLpuUENFf
-         Yl5Dk8o/846KdWGNyIZmTX8Qrp7IMpJnwA/yOy/9zWq/MkVwiMT2fxTr8T5Lm6dJWaKt
-         RZGJ2+4r3IBMX+D6xV/WgZiIwZ4ov2f5GtGJCd6hjeWoZjUW59mVpop5MiOFPPtvWyDM
-         a5zw==
-X-Gm-Message-State: AOAM530hlqJyMb+hGYGElPZO8UxMMXMZMJI9d3cpZshe3sGOV888Hj3T
-        bdSBV++3JTs/5ZwqJAfcaiV73AKp/L+Eocfluj4tvyglSnrpfQ==
-X-Google-Smtp-Source: ABdhPJwq8vXwP1njCi8d7YRqNvXM/K6scFYWCwRR28xF1q8lPLVDfnosAP2q9vjrVciFTOlk0Ez/FkVcAKgB/NO8E4k=
-X-Received: by 2002:a19:7b06:: with SMTP id w6mr1430812lfc.260.1606207319854;
- Tue, 24 Nov 2020 00:41:59 -0800 (PST)
+        with ESMTP id S1731377AbgKXJgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Nov 2020 04:36:39 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE1CC0613D6;
+        Tue, 24 Nov 2020 01:36:39 -0800 (PST)
+Date:   Tue, 24 Nov 2020 09:36:36 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1606210597;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0Rr1olwPsduJoSlDBlgVnYq3Dyq3H3lG9aBuxY+YJgY=;
+        b=bdLb+GjL9GC1CQW5OxHln8M3zRyDo80syFtdrM2YSmPBS/SA9MkdGU+IodNOqBrqMQSWw8
+        8qxn9UCxYTfhOshHaEAqDU7DIfJhEGjnD7Tq0dQrPbheo4psqyN9FvFUFiN/d2boH1O8yy
+        x2BkIu/osBWeV6WwTj+PbcA3pihArBASA01rYSR3/4gyUx7a+uUVVxg2Qkw0yxHXuYK0v1
+        mduNXtnJeVcFge5GvII7NvVCwQ+Iquv8sy3dnCXV/pOuIUjX/p535ToBmGT0leVdwj1bBY
+        R9KGdJ6DTRyWSHFYif3a0ZwBVOgWBMs0WvHfpWK/7NTFwDM9dUUjzddjkzcUcw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1606210597;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0Rr1olwPsduJoSlDBlgVnYq3Dyq3H3lG9aBuxY+YJgY=;
+        b=/8DxIZHQdTfPgmOlNY4M+cj8zjsfowsqzqFAS8erptKFIrIMPjU8kzAfqVfyc+ZIZPThd9
+        kSxtnOehaoXvGqDg==
+From:   "thermal-bot for Zhuguangqing" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-pm@vger.kernel.org
+To:     linux-pm@vger.kernel.org
+Subject: [thermal: thermal/next] thermal/drivers/cpufreq_cooling: Update
+ cpufreq_state only if state has changed
+Cc:     "v5.4+" <stable@vger.kernel.org>,
+        Zhuguangqing <zhuguangqing@xiaomi.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        rui.zhang@intel.com, amitk@kernel.org
+In-Reply-To: <20201106092243.15574-1-zhuguangqing83@gmail.com>
+References: <20201106092243.15574-1-zhuguangqing83@gmail.com>
 MIME-Version: 1.0
-References: <cover.1604988979.git.frank@allwinnertech.com> <85263ce8b058e80cea25c6ad6383eb256ce96cc8.1604988979.git.frank@allwinnertech.com>
-In-Reply-To: <85263ce8b058e80cea25c6ad6383eb256ce96cc8.1604988979.git.frank@allwinnertech.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 24 Nov 2020 09:41:49 +0100
-Message-ID: <CACRpkdbYe7dRLn=-+f0KPu_gzfaOKwz+=2VwzQKOS7xFHu0qPA@mail.gmail.com>
-Subject: Re: [RESEND PATCH 03/19] pinctrl: sunxi: Always call
- chained_irq_{enter, exit} in sunxi_pinctrl_irq_handler
-To:     Frank Lee <frank@allwinnertech.com>
-Cc:     Frank Lee <tiny.windzz@gmail.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <160621059697.11115.16868017639431284982.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 10, 2020 at 7:24 AM Frank Lee <frank@allwinnertech.com> wrote:
+The following commit has been merged into the thermal/next branch of thermal:
 
-> From: Yangtao Li <frank@allwinnertech.com>
->
-> It is found on many allwinner soc that there is a low probability that
-> the interrupt status cannot be read in sunxi_pinctrl_irq_handler. This
-> will cause the interrupt status of a gpio bank to always be active on
-> gic, preventing gic from responding to other spi interrupts correctly.
->
-> So we should call the chained_irq_* each time enter sunxi_pinctrl_irq_handler().
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yangtao Li <frank@allwinnertech.com>
+Commit-ID:     236761f19a4f373354f1dcf399b57753f1f4b871
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git//236761f19a4f373354f1dcf399b57753f1f4b871
+Author:        Zhuguangqing <zhuguangqing@xiaomi.com>
+AuthorDate:    Fri, 06 Nov 2020 17:22:43 +08:00
+Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
+CommitterDate: Thu, 12 Nov 2020 12:23:35 +01:00
 
-Patch applied.
+thermal/drivers/cpufreq_cooling: Update cpufreq_state only if state has changed
 
-Yours,
-Linus Walleij
+If state has not changed successfully and we updated cpufreq_state,
+next time when the new state is equal to cpufreq_state (not changed
+successfully last time), we will return directly and miss a
+freq_qos_update_request() that should have been.
+
+Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
+Cc: v5.4+ <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Zhuguangqing <zhuguangqing@xiaomi.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201106092243.15574-1-zhuguangqing83@gmail.com
+---
+ drivers/thermal/cpufreq_cooling.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index cc2959f..612f063 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -438,13 +438,11 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	if (cpufreq_cdev->cpufreq_state == state)
+ 		return 0;
+ 
+-	cpufreq_cdev->cpufreq_state = state;
+-
+ 	frequency = get_state_freq(cpufreq_cdev, state);
+ 
+ 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
+-
+ 	if (ret > 0) {
++		cpufreq_cdev->cpufreq_state = state;
+ 		cpus = cpufreq_cdev->policy->cpus;
+ 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
+ 		capacity = frequency * max_capacity;
