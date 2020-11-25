@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9B22C436D
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E67C2C43E6
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731226AbgKYPh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:37:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55726 "EHLO mail.kernel.org"
+        id S1731220AbgKYPhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:37:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731209AbgKYPhv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:51 -0500
+        id S1731212AbgKYPhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE010221F7;
-        Wed, 25 Nov 2020 15:37:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45E05221FD;
+        Wed, 25 Nov 2020 15:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318670;
-        bh=0aG6pmoJmjNvoBa3rfNR2bzU5m8tJReV1TSDXab/2Yc=;
+        s=default; t=1606318672;
+        bh=VZVOztU/1GqV2uFYvwncxtEBE067fDxsj51uuR1zqd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtkBUuTCwiDiv4ybPtQNoC7BYftggrJJUW7nyqptgaa1Og6TQfSH0fvKVJ/gcwk0K
-         HNTFm3hUt3MIRD2ieJe13lJ8z+O5iLqLaTZ0nXPkPwgYLqbj4NYzjjtT8eYDBowI1c
-         YYysr5JQzbemUikHb9xyKGr0/kq8ajYeJAos28Qg=
+        b=ty4PDd9nFsLhC4g+RLrcdCaxvLABGwzp0PZTBI0MJUs8uBwreYr35A2J+81ROADhA
+         fZBzttp2Wv6z3N7Ol3uUUPAp4JhN+1rXunEewZNaTtzzdNs8Ojy2yf8B/bPuYCz/F4
+         4A4bjzyFkn1Qi8+PbN+f4KWJjgKTArv2QONrhPVs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Maurizio Lombardi <mlombard@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/12] scsi: target: iscsi: Fix cmd abort fabric stop race
-Date:   Wed, 25 Nov 2020 10:37:33 -0500
-Message-Id: <20201125153734.810826-11-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 12/12] perf/x86: fix sysfs type mismatches
+Date:   Wed, 25 Nov 2020 10:37:34 -0500
+Message-Id: <20201125153734.810826-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153734.810826-1-sashal@kernel.org>
 References: <20201125153734.810826-1-sashal@kernel.org>
@@ -44,86 +45,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit f36199355c64a39fe82cfddc7623d827c7e050da ]
+[ Upstream commit ebd19fc372e3e78bf165f230e7c084e304441c08 ]
 
-Maurizio found a race where the abort and cmd stop paths can race as
-follows:
+This change switches rapl to use PMU_FORMAT_ATTR, and fixes two other
+macros to use device_attribute instead of kobj_attribute to avoid
+callback type mismatches that trip indirect call checking with Clang's
+Control-Flow Integrity (CFI).
 
- 1. thread1 runs iscsit_release_commands_from_conn and sets
-    CMD_T_FABRIC_STOP.
-
- 2. thread2 runs iscsit_aborted_task and then does __iscsit_free_cmd. It
-    then returns from the aborted_task callout and we finish
-    target_handle_abort and do:
-
-    target_handle_abort -> transport_cmd_check_stop_to_fabric ->
-	lio_check_stop_free -> target_put_sess_cmd
-
-    The cmd is now freed.
-
- 3. thread1 now finishes iscsit_release_commands_from_conn and runs
-    iscsit_free_cmd while accessing a command we just released.
-
-In __target_check_io_state we check for CMD_T_FABRIC_STOP and set the
-CMD_T_ABORTED if the driver is not cleaning up the cmd because of a session
-shutdown. However, iscsit_release_commands_from_conn only sets the
-CMD_T_FABRIC_STOP and does not check to see if the abort path has claimed
-completion ownership of the command.
-
-This adds a check in iscsit_release_commands_from_conn so only the abort or
-fabric stop path cleanup the command.
-
-Link: https://lore.kernel.org/r/1605318378-9269-1-git-send-email-michael.christie@oracle.com
-Reported-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20201113183126.1239404-1-samitolvanen@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/x86/events/intel/cstate.c |  6 +++---
+ arch/x86/events/intel/rapl.c   | 14 +-------------
+ arch/x86/events/intel/uncore.c |  4 ++--
+ arch/x86/events/intel/uncore.h | 12 ++++++------
+ 4 files changed, 12 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index da80c03de6ea4..d9fcef82ddf59 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -490,8 +490,7 @@ EXPORT_SYMBOL(iscsit_queue_rsp);
- void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
+diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
+index 59521c71c98a4..4ebeaa3c67100 100644
+--- a/arch/x86/events/intel/cstate.c
++++ b/arch/x86/events/intel/cstate.c
+@@ -99,14 +99,14 @@
+ MODULE_LICENSE("GPL");
+ 
+ #define DEFINE_CSTATE_FORMAT_ATTR(_var, _name, _format)		\
+-static ssize_t __cstate_##_var##_show(struct kobject *kobj,	\
+-				struct kobj_attribute *attr,	\
++static ssize_t __cstate_##_var##_show(struct device *dev,	\
++				struct device_attribute *attr,	\
+ 				char *page)			\
+ {								\
+ 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
+ 	return sprintf(page, _format "\n");			\
+ }								\
+-static struct kobj_attribute format_attr_##_var =		\
++static struct device_attribute format_attr_##_var =		\
+ 	__ATTR(_name, 0444, __cstate_##_var##_show, NULL)
+ 
+ static ssize_t cstate_get_attr_cpumask(struct device *dev,
+diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/intel/rapl.c
+index d36a5fac6a18b..7d3f861e31654 100644
+--- a/arch/x86/events/intel/rapl.c
++++ b/arch/x86/events/intel/rapl.c
+@@ -115,18 +115,6 @@ static const char *const rapl_domain_names[NR_RAPL_DOMAINS] __initconst = {
+  * any other bit is reserved
+  */
+ #define RAPL_EVENT_MASK	0xFFULL
+-
+-#define DEFINE_RAPL_FORMAT_ATTR(_var, _name, _format)		\
+-static ssize_t __rapl_##_var##_show(struct kobject *kobj,	\
+-				struct kobj_attribute *attr,	\
+-				char *page)			\
+-{								\
+-	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
+-	return sprintf(page, _format "\n");			\
+-}								\
+-static struct kobj_attribute format_attr_##_var =		\
+-	__ATTR(_name, 0444, __rapl_##_var##_show, NULL)
+-
+ #define RAPL_CNTR_WIDTH 32
+ 
+ #define RAPL_EVENT_ATTR_STR(_name, v, str)					\
+@@ -548,7 +536,7 @@ static struct attribute_group rapl_pmu_events_group = {
+ 	.attrs = NULL, /* patched at runtime */
+ };
+ 
+-DEFINE_RAPL_FORMAT_ATTR(event, event, "config:0-7");
++PMU_FORMAT_ATTR(event, "config:0-7");
+ static struct attribute *rapl_formats_attr[] = {
+ 	&format_attr_event.attr,
+ 	NULL,
+diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
+index c56cb37b88e33..4ad93871508cd 100644
+--- a/arch/x86/events/intel/uncore.c
++++ b/arch/x86/events/intel/uncore.c
+@@ -90,8 +90,8 @@ struct pci2phy_map *__find_pci2phy_map(int segment)
+ 	return map;
+ }
+ 
+-ssize_t uncore_event_show(struct kobject *kobj,
+-			  struct kobj_attribute *attr, char *buf)
++ssize_t uncore_event_show(struct device *dev,
++			  struct device_attribute *attr, char *buf)
  {
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
+ 	struct uncore_event_desc *event =
+ 		container_of(attr, struct uncore_event_desc, attr);
+diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
+index 4364191e7c6b2..ae4ab89e16c7d 100644
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -125,7 +125,7 @@ struct intel_uncore_box {
+ #define UNCORE_BOX_FLAG_CTL_OFFS8	1 /* event config registers are 8-byte apart */
  
-@@ -4086,12 +4085,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
+ struct uncore_event_desc {
+-	struct kobj_attribute attr;
++	struct device_attribute attr;
+ 	const char *config;
+ };
  
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
+@@ -137,8 +137,8 @@ struct pci2phy_map {
  
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
+ struct pci2phy_map *__find_pci2phy_map(int segment);
+ 
+-ssize_t uncore_event_show(struct kobject *kobj,
+-			  struct kobj_attribute *attr, char *buf);
++ssize_t uncore_event_show(struct device *dev,
++			  struct device_attribute *attr, char *buf);
+ 
+ #define INTEL_UNCORE_EVENT_DESC(_name, _config)			\
+ {								\
+@@ -147,14 +147,14 @@ ssize_t uncore_event_show(struct kobject *kobj,
+ }
+ 
+ #define DEFINE_UNCORE_FORMAT_ATTR(_var, _name, _format)			\
+-static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
+-				struct kobj_attribute *attr,		\
++static ssize_t __uncore_##_var##_show(struct device *dev,		\
++				struct device_attribute *attr,		\
+ 				char *page)				\
+ {									\
+ 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);			\
+ 	return sprintf(page, _format "\n");				\
+ }									\
+-static struct kobj_attribute format_attr_##_var =			\
++static struct device_attribute format_attr_##_var =			\
+ 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
+ 
+ static inline unsigned uncore_pci_box_ctl(struct intel_uncore_box *box)
 -- 
 2.27.0
 
