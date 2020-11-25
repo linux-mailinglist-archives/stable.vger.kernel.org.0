@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F492C442D
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B5D2C442C
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgKYPlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:41:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54774 "EHLO mail.kernel.org"
+        id S1730786AbgKYPlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:41:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730788AbgKYPgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:49 -0500
+        id S1730796AbgKYPgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA13420857;
-        Wed, 25 Nov 2020 15:36:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8708621D7A;
+        Wed, 25 Nov 2020 15:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318609;
-        bh=h60ek0hTv04VHgQSiFeWek+FE4Lk+MHPlUOUUhBX+ng=;
+        s=default; t=1606318610;
+        bh=kJKwS4GsTZmni+0jTLCZD40IeNVZuyZ27b/reR4p9AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYsW6S20lGRsMFSPK2OaauEF+r3PkOMvkQFb+6IMsI5IS2Ug9HORuv//hcS4+2A2C
-         83knZ25RP5Dx6y9XyTV/FXrwCIrsYFCupJwGwWS/D2NTqw1iymjJcUNILwvYlOU2j7
-         EFGOe9Imqdgirb4Z/vTJaIVNKOSmwH/9vr9MPltI=
+        b=oXwp8mHlzHFpu16IfQDSxR1OqVVQB8RxrgnDDrVcSQtENpMfZ6MI+m6Hb/EvoDbJ6
+         hCgIzO44G+iEHyaoCyCeW4Sj0BdhLWLy5EmqvATUK4r8zC8WVaWdzrXlU5qxMoQPGR
+         oASM9YXpxypzibSH+Z1aaRCKB0wn8PG9081sPswA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 07/23] staging: ralink-gdma: fix kconfig dependency bug for DMA_RALINK
-Date:   Wed, 25 Nov 2020 10:36:22 -0500
-Message-Id: <20201125153638.810419-7-sashal@kernel.org>
+Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/23] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
+Date:   Wed, 25 Nov 2020 10:36:23 -0500
+Message-Id: <20201125153638.810419-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
@@ -42,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Chris Ye <lzye@google.com>
 
-[ Upstream commit 06ea594051707c6b8834ef5b24e9b0730edd391b ]
+[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
 
-When DMA_RALINK is enabled and DMADEVICES is disabled, it results in the
-following Kbuild warnings:
+Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
+be set explicitly with this flag.
 
-WARNING: unmet direct dependencies detected for DMA_ENGINE
-  Depends on [n]: DMADEVICES [=n]
-  Selected by [y]:
-  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
-
-WARNING: unmet direct dependencies detected for DMA_VIRTUAL_CHANNELS
-  Depends on [n]: DMADEVICES [=n]
-  Selected by [y]:
-  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
-
-The reason is that DMA_RALINK selects DMA_ENGINE and DMA_VIRTUAL_CHANNELS
-without depending on or selecting DMADEVICES while DMA_ENGINE and
-DMA_VIRTUAL_CHANNELS are subordinate to DMADEVICES. This can also fail
-building the kernel as demonstrated in a bug report.
-
-Honor the kconfig dependency to remove unmet direct dependency warnings
-and avoid any potential build failures.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210055
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Link: https://lore.kernel.org/r/20201104181522.43567-1-fazilyildiran@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Ye <lzye@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/ralink-gdma/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-quirks.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/staging/ralink-gdma/Kconfig b/drivers/staging/ralink-gdma/Kconfig
-index 54e8029e6b1af..0017376234e28 100644
---- a/drivers/staging/ralink-gdma/Kconfig
-+++ b/drivers/staging/ralink-gdma/Kconfig
-@@ -2,6 +2,7 @@
- config DMA_RALINK
- 	tristate "RALINK DMA support"
- 	depends on RALINK && !SOC_RT288X
-+	depends on DMADEVICES
- 	select DMA_ENGINE
- 	select DMA_VIRTUAL_CHANNELS
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d173badafcf1f..6b1c26e6fa4a3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -451,6 +451,10 @@
+ #define USB_VENDOR_ID_FRUCTEL	0x25B6
+ #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
  
++#define USB_VENDOR_ID_GAMEVICE	0x27F8
++#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
++#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
++
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index abee4e950a4ee..60d188a704e5e 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -85,6 +85,10 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 
