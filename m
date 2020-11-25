@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1DB2C4366
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3392C4368
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731157AbgKYPho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:37:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
+        id S1731167AbgKYPhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:37:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731149AbgKYPhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:43 -0500
+        id S1731159AbgKYPhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DB98221F7;
-        Wed, 25 Nov 2020 15:37:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C771221FC;
+        Wed, 25 Nov 2020 15:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318662;
-        bh=CQGcO1E7GEgh3th3pKWM93pk8DAZcXYV+J7BSLkezjQ=;
+        s=default; t=1606318664;
+        bh=/5aYZRAVPI3/P4pxelPqO5iYlEfaT1E9ZRNF2qOQiT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zC1O/FIlwf/iHFYM6uyZVg/k2SCKO24tun2V6b7aExuS03W01ldKYdVWdfoL59vc8
-         fMwKYvjXlkWuN6zLNNHaG5B0euKlqZARo+/q7RNkkmGA2In/pcFwvS9MvHyIrR7674
-         rNhsiN6ncfOTKO3USIZalfleBEmBRLpfq3oHDQ88=
+        b=2RMKnNHtKfQ9kbW22Ck4MZvxe3K9F6TAwfMXWUYKlF4jA2lvLyOcDCo/BDKVYF8tu
+         xzpNJ0KjBLw8qZ2Gjhx86qNALDx3fde7t1phg4Vs8k+UyXFLQcIgS/Np2pC/O8tLZt
+         yMwB2lsivZDa0fJ+i5h0FBxh/uMehqAlX3b4fJns=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Masney <bmasney@redhat.com>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.14 05/12] x86/xen: don't unbind uninitialized lock_kicker_irq
-Date:   Wed, 25 Nov 2020 10:37:27 -0500
-Message-Id: <20201125153734.810826-5-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 06/12] HID: Add Logitech Dinovo Edge battery quirk
+Date:   Wed, 25 Nov 2020 10:37:28 -0500
+Message-Id: <20201125153734.810826-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153734.810826-1-sashal@kernel.org>
 References: <20201125153734.810826-1-sashal@kernel.org>
@@ -42,74 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <bmasney@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
+[ Upstream commit 7940fb035abd88040d56be209962feffa33b03d0 ]
 
-When booting a hyperthreaded system with the kernel parameter
-'mitigations=auto,nosmt', the following warning occurs:
+The battery status is also being reported by the logitech-hidpp driver,
+so ignore the standard HID battery status to avoid reporting the same
+info twice.
 
-    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
-    ...
-    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
-    ...
-    Call Trace:
-     xen_uninit_lock_cpu+0x28/0x62
-     xen_hvm_cpu_die+0x21/0x30
-     takedown_cpu+0x9c/0xe0
-     ? trace_suspend_resume+0x60/0x60
-     cpuhp_invoke_callback+0x9a/0x530
-     _cpu_up+0x11a/0x130
-     cpu_up+0x7e/0xc0
-     bringup_nonboot_cpus+0x48/0x50
-     smp_init+0x26/0x79
-     kernel_init_freeable+0xea/0x229
-     ? rest_init+0xaa/0xaa
-     kernel_init+0xa/0x106
-     ret_from_fork+0x35/0x40
+Note the logitech-hidpp battery driver provides more info, such as properly
+differentiating between charging and discharging. Also the standard HID
+battery info seems to be wrong, reporting a capacity of just 26% after
+fully charging the device.
 
-The secondary CPUs are not activated with the nosmt mitigations and only
-the primary thread on each CPU core is used. In this situation,
-xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
-not called, so the lock_kicker_irq is not initialized for the secondary
-CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
-irq is not set to avoid the warning from above for each secondary CPU.
-
-Signed-off-by: Brian Masney <bmasney@redhat.com>
-Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/spinlock.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 2527540051ff0..e22ee24396158 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -99,10 +99,20 @@ void xen_init_lock_cpu(int cpu)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 222204c2da22a..be0707cfc0fd1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -696,6 +696,7 @@
+ #define USB_VENDOR_ID_LOGITECH		0x046d
+ #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
+ #define USB_DEVICE_ID_LOGITECH_T651	0xb00c
++#define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD	0xb309
+ #define USB_DEVICE_ID_LOGITECH_C007	0xc007
+ #define USB_DEVICE_ID_LOGITECH_C077	0xc077
+ #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 07a043ae69f12..0e63cedcc3b51 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -331,6 +331,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
- void xen_uninit_lock_cpu(int cpu)
- {
-+	int irq;
-+
- 	if (!xen_pvspin)
- 		return;
- 
--	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
-+	/*
-+	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
-+	 * CPUs are not activated, and lock_kicker_irq is not initialized.
-+	 */
-+	irq = per_cpu(lock_kicker_irq, cpu);
-+	if (irq == -1)
-+		return;
-+
-+	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- 	kfree(per_cpu(irq_name, cpu));
- 	per_cpu(irq_name, cpu) = NULL;
 -- 
 2.27.0
 
