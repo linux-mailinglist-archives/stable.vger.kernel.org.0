@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE572C43AD
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A872C4328
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730484AbgKYPgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53566 "EHLO mail.kernel.org"
+        id S1730481AbgKYPgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730481AbgKYPgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:13 -0500
+        id S1730501AbgKYPgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2642C21527;
-        Wed, 25 Nov 2020 15:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90B03208CA;
+        Wed, 25 Nov 2020 15:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318573;
-        bh=XU355mrKT77scx7mv1cBMHYh9RK2g5pjjm9Cv/KA7NY=;
+        s=default; t=1606318574;
+        bh=PF4DyltYMiXeqtX1ZkatjLYdcckflbeLZAslTMDY33M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0m8h0QYf3P/Ojf7ahSqHVDZO1MHeGlQqclMzp1jkKl9zhewylrVT1Ig4Zq4pN2fyI
-         9IgpJob3VyqxS2pIflfFRAu+gn4lQhrEOxHGeMVY+8OQdTHp/A+HdLflYHlgeujdem
-         V/wOzq7MwDx1X2RXr9KzL4U/97+Frhl4RMmh6qMM=
+        b=WYeD3ZGqkSZdhEIk+/cRs6e4Jf+9ZCoMFZkGU19OW1RSuvZXk4JtGkT/re0kdtNCT
+         0lwPkvBqoH4smoHi/iXrou+WiPVTzt0lowmJ4hNhtKJwIx3VV9JPk8H7zt1U/KO90u
+         AKx7KC7qy9E8oqLkaWSu8wRHyhZacsnvyFxCz/rQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.9 17/33] net: stmmac: dwmac_lib: enlarge dma reset timeout
-Date:   Wed, 25 Nov 2020 10:35:34 -0500
-Message-Id: <20201125153550.810101-17-sashal@kernel.org>
+Cc:     Laurent Vivier <lvivier@redhat.com>,
+        kernel test robot <lkp@intel.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.9 18/33] vdpasim: fix "mac_pton" undefined error
+Date:   Wed, 25 Nov 2020 10:35:35 -0500
+Message-Id: <20201125153550.810101-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
@@ -44,34 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Laurent Vivier <lvivier@redhat.com>
 
-[ Upstream commit 56311a315da7ebc668dbcc2f1c99689cc10796c4 ]
+[ Upstream commit a312db697cb05dfa781848afe8585a1e1f2a5a99 ]
 
-If the phy enables power saving technology, the dwmac's software reset
-needs more time to complete, enlarge dma reset timeout to 200000us.
+   ERROR: modpost: "mac_pton" [drivers/vdpa/vdpa_sim/vdpa_sim.ko] undefined!
 
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Link: https://lore.kernel.org/r/20201113090902.5c7aab1a@xhacker.debian
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+mac_pton() is defined in lib/net_utils.c and is not built if NET is not set.
+
+Select GENERIC_NET_UTILS as vdpasim doesn't depend on NET.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Link: https://lore.kernel.org/r/20201113155706.599434-1-lvivier@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-index cb87d31a99dfb..57a53a600aa55 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_lib.c
-@@ -23,7 +23,7 @@ int dwmac_dma_reset(void __iomem *ioaddr)
- 
- 	return readl_poll_timeout(ioaddr + DMA_BUS_MODE, value,
- 				 !(value & DMA_BUS_MODE_SFT_RESET),
--				 10000, 100000);
-+				 10000, 200000);
- }
- 
- /* CSR1 enables the transmit DMA to check for new descriptor */
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index d7d32b6561021..358f6048dd3ce 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -13,6 +13,7 @@ config VDPA_SIM
+ 	depends on RUNTIME_TESTING_MENU && HAS_DMA
+ 	select DMA_OPS
+ 	select VHOST_RING
++	select GENERIC_NET_UTILS
+ 	default n
+ 	help
+ 	  vDPA networking device simulator which loop TX traffic back
 -- 
 2.27.0
 
