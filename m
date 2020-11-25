@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83582C439F
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4352C43A0
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730347AbgKYPf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:35:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+        id S1730363AbgKYPgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:36:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725792AbgKYPf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:35:57 -0500
+        id S1730354AbgKYPf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:35:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74634206CA;
-        Wed, 25 Nov 2020 15:35:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF9020872;
+        Wed, 25 Nov 2020 15:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318556;
-        bh=nSBE3Dt+yeKZiY7pyF6JCSn3M6CDq0UbIes3scnlkg0=;
+        s=default; t=1606318557;
+        bh=JSZvPBfK4+zCBkiRFC8rx9kLIeN4qNLYFSnGYkiTKek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gW1G1qWLJ+TPhzZC8+w1uuYTjTNcTWL+3kyVyedr4d3gargCcVLxlskOUSGzjrECw
-         f2m18b2xTGf42DrD2QlPA8EWOrwGbbyRPHNGDnZ5IVshvKP9T7pFE7g0d5p8wrEcvz
-         ZAzJIYrfZidia1M2qCUdFQu3QI1OpxbO/F5A64mc=
+        b=APGt027RGWNwZjFWhaHFgl+qSCum1s31yjfuOUIBvJ2//LtEPC17FZEgYqy9KuzWn
+         qbaFexOkZPvC9rd11G318lkRJmo3U4uJALRfr3GZNR7XsQgSLOdKAIA4MYE5gWlxM6
+         IsknyjsLQmpD1q/GHjidKYZflgF/i5BmfA2OfyTs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Kosina <jkosina@suse.cz>,
-        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
-        <david.gamiz@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 04/33] HID: add support for Sega Saturn
-Date:   Wed, 25 Nov 2020 10:35:21 -0500
-Message-Id: <20201125153550.810101-4-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Marius Iacob <themariusus@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 05/33] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
+Date:   Wed, 25 Nov 2020 10:35:22 -0500
+Message-Id: <20201125153550.810101-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,45 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
+[ Upstream commit b1884583fcd17d6a1b1bba94bbb5826e6b5c6e17 ]
 
-This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
-in a consistent way.
+The i8042 module exports several symbols which may be used by other
+modules.
 
-Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Before this commit it would refuse to load (when built as a module itself)
+on systems without an i8042 controller.
+
+This is a problem specifically for the asus-nb-wmi module. Many Asus
+laptops support the Asus WMI interface. Some of them have an i8042
+controller and need to use i8042_install_filter() to filter some kbd
+events. Other models do not have an i8042 controller (e.g. they use an
+USB attached kbd).
+
+Before this commit the asus-nb-wmi driver could not be loaded on Asus
+models without an i8042 controller, when the i8042 code was built as
+a module (as Arch Linux does) because the module_init function of the
+i8042 module would fail with -ENODEV and thus the i8042_install_filter
+symbol could not be loaded.
+
+This commit fixes this by exiting from module_init with a return code
+of 0 if no controller is found.  It also adds a i8042_present bool to
+make the module_exit function a no-op in this case and also adds a
+check for i8042_present to the exported i8042_command function.
+
+The latter i8042_present check should not really be necessary because
+when builtin that function can already be used on systems without
+an i8042 controller, but better safe then sorry.
+
+Reported-and-tested-by: Marius Iacob <themariusus@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201008112628.3979-2-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/input/serio/i8042.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8e7bd9f1b029c..6d6c961f8fee7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -487,6 +487,7 @@
- #define USB_DEVICE_ID_PENPOWER		0x00f4
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d3eda48032e39..944cbb519c6d7 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -122,6 +122,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
+ MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
+ #endif
  
- #define USB_VENDOR_ID_GREENASIA		0x0e8f
-+#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
- #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
++static bool i8042_present;
+ static bool i8042_bypass_aux_irq_test;
+ static char i8042_kbd_firmware_id[128];
+ static char i8042_aux_firmware_id[128];
+@@ -343,6 +344,9 @@ int i8042_command(unsigned char *param, int command)
+ 	unsigned long flags;
+ 	int retval;
  
- #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 7a2be0205dfd1..b154e11d43bfa 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -83,6 +83,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
++	if (!i8042_present)
++		return -1;
++
+ 	spin_lock_irqsave(&i8042_lock, flags);
+ 	retval = __i8042_command(param, command);
+ 	spin_unlock_irqrestore(&i8042_lock, flags);
+@@ -1612,12 +1616,15 @@ static int __init i8042_init(void)
+ 
+ 	err = i8042_platform_init();
+ 	if (err)
+-		return err;
++		return (err == -ENODEV) ? 0 : err;
+ 
+ 	err = i8042_controller_check();
+ 	if (err)
+ 		goto err_platform_exit;
+ 
++	/* Set this before creating the dev to allow i8042_command to work right away */
++	i8042_present = true;
++
+ 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
+ 	if (IS_ERR(pdev)) {
+ 		err = PTR_ERR(pdev);
+@@ -1636,6 +1643,9 @@ static int __init i8042_init(void)
+ 
+ static void __exit i8042_exit(void)
+ {
++	if (!i8042_present)
++		return;
++
+ 	platform_device_unregister(i8042_platform_device);
+ 	platform_driver_unregister(&i8042_driver);
+ 	i8042_platform_exit();
 -- 
 2.27.0
 
