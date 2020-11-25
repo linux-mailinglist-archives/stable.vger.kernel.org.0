@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B5B2C438D
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:39:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 217BC2C438A
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731469AbgKYPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:39:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
+        id S1731443AbgKYPiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:38:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731368AbgKYPiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:38:15 -0500
+        id S1731378AbgKYPiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:38:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01517221F7;
-        Wed, 25 Nov 2020 15:38:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F48021D91;
+        Wed, 25 Nov 2020 15:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318694;
-        bh=N/9mYrylQeD41uQIKVHiCHGYsB0T/taFOwU3YpP8X10=;
+        s=default; t=1606318696;
+        bh=p56lrdY5ZhqQEjuwgoXjBLvEgDUWDJPeSLi/zSLGKIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lo4JgGow5MYRduf7OeWzK3goSVQahSBK1lbpvaZKQmbYKktiB97AEF1nsDDQC0o/1
-         AW+bMxKiQ5mpffwv0OaKFcOh0J6x3xDBjwD8lknz69ziKATiyaT+j1LqXFDkPF9SIL
-         K/UnS+2ldeDyfzXD4RH92ATIXm1WYD06xgwPCtnE=
+        b=cS3HRlE9oRbCP+T/0fKjGoTduqXCpo5zL6X6RH45oriuRabyrinbhU4cMwoLlliLO
+         CAp+U6Bpv2Nz2GYmPSome2reOon7tOkijUuhLF5l2ok3474bfLsUyMKC8ft+ZPswTq
+         f3wWMA66d6sUOd4y9YAurquvZoj1wG/VOb065GF0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Masney <bmasney@redhat.com>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.4 4/8] x86/xen: don't unbind uninitialized lock_kicker_irq
-Date:   Wed, 25 Nov 2020 10:38:04 -0500
-Message-Id: <20201125153808.811104-4-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 5/8] proc: don't allow async path resolution of /proc/self components
+Date:   Wed, 25 Nov 2020 10:38:05 -0500
+Message-Id: <20201125153808.811104-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153808.811104-1-sashal@kernel.org>
 References: <20201125153808.811104-1-sashal@kernel.org>
@@ -42,74 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <bmasney@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
+[ Upstream commit 8d4c3e76e3be11a64df95ddee52e99092d42fc19 ]
 
-When booting a hyperthreaded system with the kernel parameter
-'mitigations=auto,nosmt', the following warning occurs:
+If this is attempted by a kthread, then return -EOPNOTSUPP as we don't
+currently support that. Once we can get task_pid_ptr() doing the right
+thing, then this can go away again.
 
-    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
-    ...
-    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
-    ...
-    Call Trace:
-     xen_uninit_lock_cpu+0x28/0x62
-     xen_hvm_cpu_die+0x21/0x30
-     takedown_cpu+0x9c/0xe0
-     ? trace_suspend_resume+0x60/0x60
-     cpuhp_invoke_callback+0x9a/0x530
-     _cpu_up+0x11a/0x130
-     cpu_up+0x7e/0xc0
-     bringup_nonboot_cpus+0x48/0x50
-     smp_init+0x26/0x79
-     kernel_init_freeable+0xea/0x229
-     ? rest_init+0xaa/0xaa
-     kernel_init+0xa/0x106
-     ret_from_fork+0x35/0x40
-
-The secondary CPUs are not activated with the nosmt mitigations and only
-the primary thread on each CPU core is used. In this situation,
-xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
-not called, so the lock_kicker_irq is not initialized for the secondary
-CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
-irq is not set to avoid the warning from above for each secondary CPU.
-
-Signed-off-by: Brian Masney <bmasney@redhat.com>
-Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/spinlock.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/proc/self.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 85872a08994a1..e9fc0f7df0da8 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -301,10 +301,20 @@ void xen_init_lock_cpu(int cpu)
+diff --git a/fs/proc/self.c b/fs/proc/self.c
+index 2dcc2558b3aa7..dffbe533d53fc 100644
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -24,6 +24,13 @@ static const char *proc_self_follow_link(struct dentry *dentry, void **cookie)
+ 	pid_t tgid = task_tgid_nr_ns(current, ns);
+ 	char *name;
  
- void xen_uninit_lock_cpu(int cpu)
- {
-+	int irq;
-+
- 	if (!xen_pvspin)
- 		return;
- 
--	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
 +	/*
-+	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
-+	 * CPUs are not activated, and lock_kicker_irq is not initialized.
++	 * Not currently supported. Once we can inherit all of struct pid,
++	 * we can allow this.
 +	 */
-+	irq = per_cpu(lock_kicker_irq, cpu);
-+	if (irq == -1)
-+		return;
++	if (current->flags & PF_KTHREAD)
++		return ERR_PTR(-EOPNOTSUPP);
 +
-+	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- 	kfree(per_cpu(irq_name, cpu));
- 	per_cpu(irq_name, cpu) = NULL;
+ 	if (!tgid)
+ 		return ERR_PTR(-ENOENT);
+ 	/* 11 for max length of signed int in decimal + NULL term */
 -- 
 2.27.0
 
