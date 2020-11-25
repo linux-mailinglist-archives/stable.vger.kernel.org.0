@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B5D2C442C
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE6D2C4344
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730786AbgKYPlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:41:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
+        id S1730824AbgKYPgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:36:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730796AbgKYPgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:50 -0500
+        id S1730810AbgKYPgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8708621D7A;
-        Wed, 25 Nov 2020 15:36:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C19482222B;
+        Wed, 25 Nov 2020 15:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318610;
-        bh=kJKwS4GsTZmni+0jTLCZD40IeNVZuyZ27b/reR4p9AQ=;
+        s=default; t=1606318611;
+        bh=FhDmjBZNZeQM0CB6LGPMJTYOdqpVmxDZ5mUk+ebL/Co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXwp8mHlzHFpu16IfQDSxR1OqVVQB8RxrgnDDrVcSQtENpMfZ6MI+m6Hb/EvoDbJ6
-         hCgIzO44G+iEHyaoCyCeW4Sj0BdhLWLy5EmqvATUK4r8zC8WVaWdzrXlU5qxMoQPGR
-         oASM9YXpxypzibSH+Z1aaRCKB0wn8PG9081sPswA=
+        b=xllOENGluioHCZLd8cUBrBezzg0r77suQHqNblWgmG4ucM8Bkk7A2DNmg4vjEIA2e
+         I9y7BJ0QtMDyZzK56Rcc3/s9kv3h+vKJh2c3OXOoQLp6oQhyV06VNKTDzQJpDgTnh9
+         MhpAJl09GUSXHKKv/I91G3raO77B9gPPFtw+Rnog=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/23] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
-Date:   Wed, 25 Nov 2020 10:36:23 -0500
-Message-Id: <20201125153638.810419-8-sashal@kernel.org>
+Cc:     Marc Ferland <ferlandm@amotus.ca>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 09/23] dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
+Date:   Wed, 25 Nov 2020 10:36:24 -0500
+Message-Id: <20201125153638.810419-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
@@ -41,51 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ye <lzye@google.com>
+From: Marc Ferland <ferlandm@amotus.ca>
 
-[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
+[ Upstream commit 0ba2df09f1500d3f27398a3382b86d39c3e6abe2 ]
 
-Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
-be set explicitly with this flag.
+The xilinx_dma_poll_timeout macro is sometimes called while holding a
+spinlock (see xilinx_dma_issue_pending() for an example) this means we
+shouldn't sleep when polling the dma channel registers. To address it
+in xilinx poll timeout macro use readl_poll_timeout_atomic instead of
+readl_poll_timeout variant.
 
-Signed-off-by: Chris Ye <lzye@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Marc Ferland <ferlandm@amotus.ca>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1604473206-32573-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 4 ++++
- drivers/hid/hid-quirks.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/dma/xilinx/xilinx_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d173badafcf1f..6b1c26e6fa4a3 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -451,6 +451,10 @@
- #define USB_VENDOR_ID_FRUCTEL	0x25B6
- #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 43acba2a1c0ee..a6abfe702c5a3 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -454,8 +454,8 @@ struct xilinx_dma_device {
+ #define to_dma_tx_descriptor(tx) \
+ 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
+ #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
+-	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
+-			   cond, delay_us, timeout_us)
++	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
++				  val, cond, delay_us, timeout_us)
  
-+#define USB_VENDOR_ID_GAMEVICE	0x27F8
-+#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
-+#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
-+
- #define USB_VENDOR_ID_GAMERON		0x0810
- #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
- #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index abee4e950a4ee..60d188a704e5e 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -85,6 +85,10 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ /* IO accessors */
+ static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
 -- 
 2.27.0
 
