@@ -2,129 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F30B2C3A6F
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 09:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EDD2C3AB3
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 09:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726489AbgKYIAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 03:00:15 -0500
-Received: from mga14.intel.com ([192.55.52.115]:59269 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725616AbgKYIAP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 03:00:15 -0500
-IronPort-SDR: Vj27WAbjrl8O23qRXTv/66oD/Y4TIFbsQcBFF5H1f/OF9ey7px9bG8CFINLVIsoV1jxUqNqeuw
- kNO4zJCv01sA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9815"; a="171307515"
-X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
-   d="scan'208";a="171307515"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 00:00:14 -0800
-IronPort-SDR: sZoZqQ2kzwMb3WHW9WbXPyxcbz8UK/zwkeVC+8em8klnT7Vvna6TJRcuhI4PhPirLGfdtQNGoW
- 5oZPMog2Vqig==
-X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
-   d="scan'208";a="370744758"
-Received: from genxfsim-desktop.iind.intel.com (HELO intel.com) ([10.223.74.178])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 00:00:13 -0800
-Date:   Wed, 25 Nov 2020 13:16:27 +0530
-From:   Anshuman Gupta <anshuman.gupta@intel.com>
-To:     Imre Deak <imre.deak@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [RFC] drm/i915/dp: PPS registers doesn't require AUX power
-Message-ID: <20201125074624.GJ13853@intel.com>
-References: <20201124095847.14098-1-anshuman.gupta@intel.com>
- <20201124164406.GG1750458@ideak-desk.fi.intel.com>
+        id S1726812AbgKYIMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 03:12:13 -0500
+Received: from vulcan.natalenko.name ([104.207.131.136]:51218 "EHLO
+        vulcan.natalenko.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726736AbgKYIMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 03:12:12 -0500
+X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Wed, 25 Nov 2020 03:12:11 EST
+Received: from mail.natalenko.name (vulcan.natalenko.name [IPv6:fe80::5400:ff:fe0c:dfa0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by vulcan.natalenko.name (Postfix) with ESMTPSA id 2ECA08AB47A;
+        Wed, 25 Nov 2020 09:05:02 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
+        s=dkim-20170712; t=1606291502;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zvcW9HZaeh1OandD5GIG39Q2Ayk1GgjH3J6qCgDWOJw=;
+        b=vM8tr4dL6fv0m7XBgouKQNyYgrzoVJ+S3IiBMJqx9qJ/88tpWX0ZzHYs7Tfw7b4kXYPp+C
+        R4pNvyP6feDj6a47yQUFhOLwZx5G+RjzwiRwjkk8xVX6fN8TahOlxEVJDi2OCY7yJWQBNb
+        LWuWNT01K4XkzrXOCr3RXVlWn1XkD5o=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201124164406.GG1750458@ideak-desk.fi.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Date:   Wed, 25 Nov 2020 09:05:02 +0100
+From:   Oleksandr Natalenko <oleksandr@natalenko.name>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     linux-efi@vger.kernel.org, jk@ozlabs.org, mjg59@google.com,
+        David.Laight@aculab.com,
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] efivarfs: revert "fix memory leak in efivarfs_create()"
+In-Reply-To: <20201125075303.3963-1-ardb@kernel.org>
+References: <20201125075303.3963-1-ardb@kernel.org>
+User-Agent: Roundcube Webmail/1.4.9
+Message-ID: <97016e69314d90aef859ae6d98e4bb9c@natalenko.name>
+X-Sender: oleksandr@natalenko.name
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-11-24 at 18:44:06 +0200, Imre Deak wrote:
-> On Tue, Nov 24, 2020 at 03:28:47PM +0530, Anshuman Gupta wrote:
-> > Platforms with South Display Engine on PCH, doesn't
-> > require to get/put the AUX power domain in order to
-> > access PPS register because PPS registers are always on
-> > with South display on PCH.
-> > 
-> > Cc: Imre Deak <imre.deak@intel.com>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-> 
-> Could you describe the issue the patch is fixing?
-This fixes the display glitches causes by race between brightness update thread 
-and flip thread.
-while brightness is being updated it reads pp_ctrl reg to check whether backlight
-is enabled and get/put the AUX power domain, this enables and disable DC Off 
-power well(DC3CO) back and forth.
-IMO there are two work item for above race needed to be addressed.
-1. Don't get AUX power for PPS register access (this patch addressed this).
-2. skl_program_plane() should wait for DC3CO exit delay to avoid any race with
-   DC3CO disable sequence. (WIP)      
-> 
-> For accessing PPS registers the AUX power well may not be needed, but
-> I'm not sure if this also applies to PPS functionality in general. For
-> instance forcing VDD is required for AUX functionality.
-AFAIU edp_panel_vdd_on explicitly get AUX power in order to force the VDD.
-> 
-> In any case we do need a power reference for any register access, so I
-> don't think not getting any power reference for PPS is ok.
-IMO if PPS register lies in PCH(South Display), it is not correct to take
-any power domain which are associated with north display power wells.
+Hello.
 
-This patch is inspired from the comment in pps_lock, quoting that
-"See intel_power_sequencer_reset() why we need a power domain reference here."
-
-intel_power_sequencer_reset is not being called for platforms with split PCH,
-stating that PPS registers are always on.
-https://patchwork.freedesktop.org/patch/259077/ ((v4: (James Ausmus)))
-
-Could you please provide your opinion to use intel_runtime_pm_get()
-before accessing PPS register in order to get a wakeref.
-
-Thanks,
-Anshuman Gupta.
+On 25.11.2020 08:53, Ard Biesheuvel wrote:
+> The memory leak addressed by commit fe5186cf12e3 is a false positive:
+> all allocations are recorded in a linked list, and freed when the
+> filesystem is unmounted. This leads to double frees, and as reported
+> by David, leads to crashes if SLUB is configured to self destruct when
+> double frees occur.
 > 
-> --Imre
+> So drop the redundant kfree() again, and instead, mark the offending
+> pointer variable so the allocation is ignored by kmemleak.
 > 
-> > ---
-> >  drivers/gpu/drm/i915/display/intel_dp.c | 13 ++++++++-----
-> >  1 file changed, 8 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> > index 3896d08c4177..84a2c49e154c 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> > @@ -872,8 +872,9 @@ pps_lock(struct intel_dp *intel_dp)
-> >  	 * See intel_power_sequencer_reset() why we need
-> >  	 * a power domain reference here.
-> >  	 */
-> > -	wakeref = intel_display_power_get(dev_priv,
-> > -					  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
-> > +	if (!HAS_PCH_SPLIT(dev_priv))
-> > +		wakeref = intel_display_power_get(dev_priv,
-> > +						  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
-> >  
-> >  	mutex_lock(&dev_priv->pps_mutex);
-> >  
-> > @@ -886,9 +887,11 @@ pps_unlock(struct intel_dp *intel_dp, intel_wakeref_t wakeref)
-> >  	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
-> >  
-> >  	mutex_unlock(&dev_priv->pps_mutex);
-> > -	intel_display_power_put(dev_priv,
-> > -				intel_aux_power_domain(dp_to_dig_port(intel_dp)),
-> > -				wakeref);
-> > +
-> > +	if (!HAS_PCH_SPLIT(dev_priv))
-> > +		intel_display_power_put(dev_priv,
-> > +					intel_aux_power_domain(dp_to_dig_port(intel_dp)),
-> > +					wakeref);
-> >  	return 0;
-> >  }
-> >  
-> > -- 
-> > 2.26.2
-> > 
+> Cc: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+
+Should also have:
+
+Cc: <stable@vger.kernel.org> # v5.9
+
+> Fixes: fe5186cf12e3 ("efivarfs: fix memory leak in efivarfs_create()")
+> Reported-by: David Laight <David.Laight@aculab.com>
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> ---
+>  fs/efivarfs/inode.c | 1 +
+>  fs/efivarfs/super.c | 1 -
+>  2 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
+> index 96c0c86f3fff..38324427a2b3 100644
+> --- a/fs/efivarfs/inode.c
+> +++ b/fs/efivarfs/inode.c
+> @@ -103,6 +103,7 @@ static int efivarfs_create(struct inode *dir,
+> struct dentry *dentry,
+>  	var->var.VariableName[i] = '\0';
+> 
+>  	inode->i_private = var;
+> +	kmemleak_ignore(var);
+> 
+>  	err = efivar_entry_add(var, &efivarfs_list);
+>  	if (err)
+> diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
+> index f943fd0b0699..15880a68faad 100644
+> --- a/fs/efivarfs/super.c
+> +++ b/fs/efivarfs/super.c
+> @@ -21,7 +21,6 @@ LIST_HEAD(efivarfs_list);
+>  static void efivarfs_evict_inode(struct inode *inode)
+>  {
+>  	clear_inode(inode);
+> -	kfree(inode->i_private);
+>  }
+> 
+>  static const struct super_operations efivarfs_ops = {
+
+-- 
+   Oleksandr Natalenko (post-factum)
