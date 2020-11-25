@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1A02C4357
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1626B2C4414
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731017AbgKYPhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:37:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55352 "EHLO mail.kernel.org"
+        id S1730630AbgKYPki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:40:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730988AbgKYPhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:19 -0500
+        id S1730994AbgKYPhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4F12221EB;
-        Wed, 25 Nov 2020 15:37:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35C3021D81;
+        Wed, 25 Nov 2020 15:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318638;
-        bh=oyAliAb+r1d1FgAbyRqcN+imWJ8VIKhFjlTvOEeWGmM=;
+        s=default; t=1606318640;
+        bh=ZeIzVfLco/GLm6tYbOevg3JIWmsCYliTX+lwwVPA2uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmZQjVlUWDi23GsZFcJX6jH57ir3VxqIW8WpgZT3t6mwdwoINh5E77E7UkX4monMP
-         12gDuVauuAcEPLBWF9B5Wahp4HZqFtc4klsbI1gbMVLRXUVNv8/G+jWhi+f9488R1q
-         /osHNocoA5rGqf03j0wIVKxKL8Roa3LDy2Gj0jFs=
+        b=mrpFGzJIaxniWz05DQavSMvAEhWpVRmCTNcwhChdrqlLW/r47Zm/F8oKVJD74rfj0
+         5rbwdwgYJqsMVTTrwZbHSdZ9omE5iwgjenUNIwZffK9s+5TL4CVWd++QfqBVxfkL1f
+         UBIdR0EyySF4bsly2+2GNjWqyE22wffBF+Fj3khA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/15] HID: hid-sensor-hub: Fix issue with devices with no report ID
-Date:   Wed, 25 Nov 2020 10:37:01 -0500
-Message-Id: <20201125153712.810655-4-sashal@kernel.org>
+Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/15] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
+Date:   Wed, 25 Nov 2020 10:37:02 -0500
+Message-Id: <20201125153712.810655-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153712.810655-1-sashal@kernel.org>
 References: <20201125153712.810655-1-sashal@kernel.org>
@@ -43,37 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Chris Ye <lzye@google.com>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
+be set explicitly with this flag.
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Chris Ye <lzye@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-quirks.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4256fdc5cd6d5..21fbdcde1faa1 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -496,7 +496,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4d2a1d540a821..ad079aca68898 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -444,6 +444,10 @@
+ #define USB_VENDOR_ID_FRUCTEL	0x25B6
+ #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
  
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
++#define USB_VENDOR_ID_GAMEVICE	0x27F8
++#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
++#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
++
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 493e2e7e12de0..10cb42a00fe87 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -87,6 +87,10 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 
