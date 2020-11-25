@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFF82C43CF
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8224D2C4415
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730960AbgKYPhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55282 "EHLO mail.kernel.org"
+        id S1730653AbgKYPkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:40:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730947AbgKYPhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:12 -0500
+        id S1730974AbgKYPhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CCB3221FB;
-        Wed, 25 Nov 2020 15:37:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED8C121D91;
+        Wed, 25 Nov 2020 15:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318631;
-        bh=5NNyRLEct+hm7THH7fiLLwe7wvo/lMM13bbW3N8HnHU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dlz2GU2PyfQoSVKwy169JIiXuCzlqB1rfZqs3xMTFOb+k9WrzFzl9kzmxRB2G6PFH
-         aejZfATntH8BLANMedMyYpSRjcoCVlhAGCNZr7spdxnpTb/wtGKlPtIwvTLqQRxjfE
-         zTCir8oClE692HVMBkPL8EFXUcl5JVY4dPxyjrJo=
+        s=default; t=1606318634;
+        bh=4J/xFUW6f43gLFA/3m2TEkp+3KqYjcoXS7kTkFRi+lc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IksaNElVnblGfkXekkaBgPhSkLctluVADPNFmSY2IFclYlhHptx1G3KbCmIFn1RfO
+         o9xps/tS2U++Mz7NtrUKdGf8/RPC2qJYsfvBDA65iEFCkyNlGo1uUJ1I5+Lvw4WaTK
+         h8br6ukWyf3IDgEkJT7EzkOJVLBbnmM9bdwD7mgk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Lunn <andrew@lunn.ch>, Ruslan Sushko <rus@sushko.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 23/23] net: dsa: mv88e6xxx: Wait for EEPROM done after HW reset
-Date:   Wed, 25 Nov 2020 10:36:38 -0500
-Message-Id: <20201125153638.810419-23-sashal@kernel.org>
+Cc:     Frank Yang <puilp0502@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/15] HID: cypress: Support Varmilo Keyboards' media hotkeys
+Date:   Wed, 25 Nov 2020 10:36:58 -0500
+Message-Id: <20201125153712.810655-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
-References: <20201125153638.810419-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,95 +39,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Frank Yang <puilp0502@gmail.com>
 
-[ Upstream commit a3dcb3e7e70c72a68a79b30fc3a3adad5612731c ]
+[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
 
-When the switch is hardware reset, it reads the contents of the
-EEPROM. This can contain instructions for programming values into
-registers and to perform waits between such programming. Reading the
-EEPROM can take longer than the 100ms mv88e6xxx_hardware_reset() waits
-after deasserting the reset GPIO. So poll the EEPROM done bit to
-ensure it is complete.
+The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
+exposes media control hotkeys as a USB HID consumer control device, but
+these keys do not work in the current (5.8-rc1) kernel due to the
+incorrect HID report descriptor. Fix the problem by modifying the
+internal HID report descriptor.
 
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Ruslan Sushko <rus@sushko.dev>
-Link: https://lore.kernel.org/r/20201116164301.977661-1-rus@sushko.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+More specifically, the keyboard report descriptor specifies the
+logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
+boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
+incorrect interpretation of input reports, causing inputs to be ignored.
+By setting the Logical Minimum to zero, we align the logical boundary
+with the Usage ID boundary.
+
+Some notes:
+
+* There seem to be multiple variants of the VA104M keyboard. This
+  patch specifically targets 04b4:07b1 variant.
+
+* The device works out-of-the-box on Windows platform with the generic
+  consumer control device driver (hidserv.inf). This suggests that
+  Windows either ignores the Logical Minimum/Logical Maximum or
+  interprets the Usage ID assignment differently from the linux
+  implementation; Maybe there are other devices out there that only
+  works on Windows due to this problem?
+
+Signed-off-by: Frank Yang <puilp0502@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c    |  2 ++
- drivers/net/dsa/mv88e6xxx/global1.c | 31 +++++++++++++++++++++++++++++
- drivers/net/dsa/mv88e6xxx/global1.h |  1 +
- 3 files changed, 34 insertions(+)
+ drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-ids.h     |  2 ++
+ 2 files changed, 41 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 92e4d140df6fa..469b155df4885 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2143,6 +2143,8 @@ static void mv88e6xxx_hardware_reset(struct mv88e6xxx_chip *chip)
- 		usleep_range(10000, 20000);
- 		gpiod_set_value_cansleep(gpiod, 0);
- 		usleep_range(10000, 20000);
+diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+index 1689568b597d4..12c5d7c96527a 100644
+--- a/drivers/hid/hid-cypress.c
++++ b/drivers/hid/hid-cypress.c
+@@ -26,19 +26,17 @@
+ #define CP_2WHEEL_MOUSE_HACK		0x02
+ #define CP_2WHEEL_MOUSE_HACK_ON		0x04
+ 
++#define VA_INVAL_LOGICAL_BOUNDARY	0x08
 +
-+		mv88e6xxx_g1_wait_eeprom_done(chip);
- 	}
+ /*
+  * Some USB barcode readers from cypress have usage min and usage max in
+  * the wrong order
+  */
+-static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+-	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+ 	unsigned int i;
+ 
+-	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
+-		return rdesc;
+-
+ 	if (*rsize < 4)
+ 		return rdesc;
+ 
+@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
  }
  
-diff --git a/drivers/net/dsa/mv88e6xxx/global1.c b/drivers/net/dsa/mv88e6xxx/global1.c
-index 8a903624fdd7c..938dd146629f1 100644
---- a/drivers/net/dsa/mv88e6xxx/global1.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1.c
-@@ -75,6 +75,37 @@ static int mv88e6xxx_g1_wait_init_ready(struct mv88e6xxx_chip *chip)
- 	return mv88e6xxx_g1_wait_bit(chip, MV88E6XXX_G1_STS, bit, 1);
- }
- 
-+void mv88e6xxx_g1_wait_eeprom_done(struct mv88e6xxx_chip *chip)
++static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
 +{
-+	const unsigned long timeout = jiffies + 1 * HZ;
-+	u16 val;
-+	int err;
-+
-+	/* Wait up to 1 second for the switch to finish reading the
-+	 * EEPROM.
++	/*
++	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
++	 * reports Logical Minimum of its Consumer Control device as 572
++	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
 +	 */
-+	while (time_before(jiffies, timeout)) {
-+		err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_STS, &val);
-+		if (err) {
-+			dev_err(chip->dev, "Error reading status");
-+			return;
-+		}
-+
-+		/* If the switch is still resetting, it may not
-+		 * respond on the bus, and so MDIO read returns
-+		 * 0xffff. Differentiate between that, and waiting for
-+		 * the EEPROM to be done by bit 0 being set.
-+		 */
-+		if (val != 0xffff &&
-+		    val & BIT(MV88E6XXX_G1_STS_IRQ_EEPROM_DONE))
-+			return;
-+
-+		usleep_range(1000, 2000);
++	if (*rsize == 25 &&
++			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
++			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
++			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
++			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
++		hid_info(hdev,
++			 "fixing up varmilo VA104M consumer control report descriptor\n");
++		rdesc[12] = 0x00;
++		rdesc[13] = 0x00;
 +	}
-+
-+	dev_err(chip->dev, "Timeout waiting for EEPROM done");
++	return rdesc;
 +}
 +
- /* Offset 0x01: Switch MAC Address Register Bytes 0 & 1
-  * Offset 0x02: Switch MAC Address Register Bytes 2 & 3
-  * Offset 0x03: Switch MAC Address Register Bytes 4 & 5
-diff --git a/drivers/net/dsa/mv88e6xxx/global1.h b/drivers/net/dsa/mv88e6xxx/global1.h
-index 0ae96a1e919b6..08d66ef6aace6 100644
---- a/drivers/net/dsa/mv88e6xxx/global1.h
-+++ b/drivers/net/dsa/mv88e6xxx/global1.h
-@@ -277,6 +277,7 @@ int mv88e6xxx_g1_set_switch_mac(struct mv88e6xxx_chip *chip, u8 *addr);
- int mv88e6185_g1_reset(struct mv88e6xxx_chip *chip);
- int mv88e6352_g1_reset(struct mv88e6xxx_chip *chip);
- int mv88e6250_g1_reset(struct mv88e6xxx_chip *chip);
-+void mv88e6xxx_g1_wait_eeprom_done(struct mv88e6xxx_chip *chip);
++static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
++		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
++	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
++		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
++
++	return rdesc;
++}
++
+ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
+ 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
+ 		.driver_data = CP_2WHEEL_MOUSE_HACK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
++		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, cp_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e18d796d985f8..e9155f7c8c51c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -330,6 +330,8 @@
+ #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
+ #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
  
- int mv88e6185_g1_ppu_enable(struct mv88e6xxx_chip *chip);
- int mv88e6185_g1_ppu_disable(struct mv88e6xxx_chip *chip);
++#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++
+ #define USB_VENDOR_ID_DATA_MODUL	0x7374
+ #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
+ 
 -- 
 2.27.0
 
