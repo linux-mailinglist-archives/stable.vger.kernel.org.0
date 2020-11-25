@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B482C43EE
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 470E02C4372
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:39:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731259AbgKYPiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:38:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56088 "EHLO mail.kernel.org"
+        id S1731256AbgKYPiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:38:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731247AbgKYPh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:58 -0500
+        id S1731253AbgKYPiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:38:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F3F21D91;
-        Wed, 25 Nov 2020 15:37:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7A2622202;
+        Wed, 25 Nov 2020 15:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318678;
-        bh=cNppHkZnF3+Z7WHrTwu0Ms/zaJMXaE3guCjcVLUTt4s=;
+        s=default; t=1606318679;
+        bh=2nwNrLmm7W8UeBXq9rKMa2tSjQUwdqpr7Q1XLY3GlPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAkFk9Jgvh5PMvoZIi1vZUabrUOqZveQ6tlwYnvMnqxypnjN0kfHQ9JRiRhxWi1+A
-         4o5eW4D6uYm5UeuM0/3c0D/YyGjimRLEzF+vpcfvDeIBQuEPzHXu9Dg6s9aeqlSLot
-         ZFIYbSVysA8hEVDQ3Hk3aIF27YESSp+5sPoFzHrI=
+        b=NUihzZ8JxySU3Q5vWPrRL8dZnkWLm1DMk8dG5Que8RpejV+hikHdWEu44nEV8Tr30
+         C4FqE3Ob7NtAp42lLvir1MXaSEB02DakvoXexVehTvefNZqvOzJgCWW+7780tH25cI
+         e4wEkcxuhpR5UexEzYniiaOFRnLEhPmOLJeETC+4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/10] HID: hid-sensor-hub: Fix issue with devices with no report ID
-Date:   Wed, 25 Nov 2020 10:37:46 -0500
-Message-Id: <20201125153753.810973-3-sashal@kernel.org>
+Cc:     Marc Ferland <ferlandm@amotus.ca>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 04/10] dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
+Date:   Wed, 25 Nov 2020 10:37:47 -0500
+Message-Id: <20201125153753.810973-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153753.810973-1-sashal@kernel.org>
 References: <20201125153753.810973-1-sashal@kernel.org>
@@ -43,37 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Marc Ferland <ferlandm@amotus.ca>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit 0ba2df09f1500d3f27398a3382b86d39c3e6abe2 ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+The xilinx_dma_poll_timeout macro is sometimes called while holding a
+spinlock (see xilinx_dma_issue_pending() for an example) this means we
+shouldn't sleep when polling the dma channel registers. To address it
+in xilinx poll timeout macro use readl_poll_timeout_atomic instead of
+readl_poll_timeout variant.
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Marc Ferland <ferlandm@amotus.ca>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1604473206-32573-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/xilinx/xilinx_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4ef73374a8f98..7001f07ca3996 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -489,7 +489,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index cd271f7826051..ef99ef0bb1ca2 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -420,8 +420,8 @@ struct xilinx_dma_device {
+ #define to_dma_tx_descriptor(tx) \
+ 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
+ #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
+-	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
+-			   cond, delay_us, timeout_us)
++	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
++				  val, cond, delay_us, timeout_us)
  
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
+ /* IO accessors */
+ static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
 -- 
 2.27.0
 
