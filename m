@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0FE2C4430
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F492C442D
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730927AbgKYPlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:41:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
+        id S1730601AbgKYPlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:41:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730773AbgKYPgs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:48 -0500
+        id S1730788AbgKYPgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 886EC21D81;
-        Wed, 25 Nov 2020 15:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA13420857;
+        Wed, 25 Nov 2020 15:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318607;
-        bh=uOekAwoa5nNQ8ROk2QR8D+nSv/F4MyHfZEL3hys9E8s=;
+        s=default; t=1606318609;
+        bh=h60ek0hTv04VHgQSiFeWek+FE4Lk+MHPlUOUUhBX+ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueFSlCq988sD1WQH29qcwGtxZp/+7PYoitWS9dxcvOFhlA2wWY/3s3zCkof9Zhp+F
-         WsOesdHxWCL5+yes+Uq+HXY+HzTc+9etr97SE5Wf4A79je3n9qrCCtO8+/CRyza4D5
-         YT4hLEe36L1FwpvfXAlYUa+c36s9cNKew4jF7+xo=
+        b=HYsW6S20lGRsMFSPK2OaauEF+r3PkOMvkQFb+6IMsI5IS2Ug9HORuv//hcS4+2A2C
+         83knZ25RP5Dx6y9XyTV/FXrwCIrsYFCupJwGwWS/D2NTqw1iymjJcUNILwvYlOU2j7
+         EFGOe9Imqdgirb4Z/vTJaIVNKOSmwH/9vr9MPltI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 06/23] HID: hid-sensor-hub: Fix issue with devices with no report ID
-Date:   Wed, 25 Nov 2020 10:36:21 -0500
-Message-Id: <20201125153638.810419-6-sashal@kernel.org>
+Cc:     Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.4 07/23] staging: ralink-gdma: fix kconfig dependency bug for DMA_RALINK
+Date:   Wed, 25 Nov 2020 10:36:22 -0500
+Message-Id: <20201125153638.810419-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
@@ -43,36 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit 06ea594051707c6b8834ef5b24e9b0730edd391b ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+When DMA_RALINK is enabled and DMADEVICES is disabled, it results in the
+following Kbuild warnings:
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+WARNING: unmet direct dependencies detected for DMA_ENGINE
+  Depends on [n]: DMADEVICES [=n]
+  Selected by [y]:
+  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
+
+WARNING: unmet direct dependencies detected for DMA_VIRTUAL_CHANNELS
+  Depends on [n]: DMADEVICES [=n]
+  Selected by [y]:
+  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
+
+The reason is that DMA_RALINK selects DMA_ENGINE and DMA_VIRTUAL_CHANNELS
+without depending on or selecting DMADEVICES while DMA_ENGINE and
+DMA_VIRTUAL_CHANNELS are subordinate to DMADEVICES. This can also fail
+building the kernel as demonstrated in a bug report.
+
+Honor the kconfig dependency to remove unmet direct dependency warnings
+and avoid any potential build failures.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=210055
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://lore.kernel.org/r/20201104181522.43567-1-fazilyildiran@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/ralink-gdma/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 94c7398b5c279..3dd7d32467378 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -483,7 +483,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
- 
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
+diff --git a/drivers/staging/ralink-gdma/Kconfig b/drivers/staging/ralink-gdma/Kconfig
+index 54e8029e6b1af..0017376234e28 100644
+--- a/drivers/staging/ralink-gdma/Kconfig
++++ b/drivers/staging/ralink-gdma/Kconfig
+@@ -2,6 +2,7 @@
+ config DMA_RALINK
+ 	tristate "RALINK DMA support"
+ 	depends on RALINK && !SOC_RT288X
++	depends on DMADEVICES
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
  
 -- 
 2.27.0
