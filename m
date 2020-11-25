@@ -2,125 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A2C2C429F
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:07:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F452C4311
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729655AbgKYPHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:07:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S1729655AbgKYPfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726295AbgKYPHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:07:31 -0500
-Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725792AbgKYPfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:35:53 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0434420679;
-        Wed, 25 Nov 2020 15:07:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606316850;
-        bh=XUXkH2P+Dj+LfdkoHygf4L5x2gUdd3NfXUBkon3pM9A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Em17VZvWWVlY5BRMnMYZzW3hq0R6dbkbJqGZlomaIrDWJejvK9KSDxJVZgK03ItrZ
-         lms3lto2jKNlaqS9UlSLYVt+gOs2it0Zzbgx5BMKym5lFi8FfGwMvDn3s7+e5Xwc15
-         5C1KPBQGN9O0Z8NIrVjf3IYc04YgAgitcpcqYU/4=
-Date:   Wed, 25 Nov 2020 16:07:27 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Coiby Xu <coiby.xu@gmail.com>
-Cc:     linux-input@vger.kernel.org,
-        Helmut Stult <helmut.stult@schinfo.de>,
-        =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>,
-        Baq Domalaq <domalak@gmail.com>,
-        Pedro Ribeiro <pedrib@gmail.com>, stable@vger.kernel.org,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4] HID: i2c-hid: add polling mode based on connected
- GPIO chip's pin status
-Message-ID: <X75zL12q+FF6KBHi@kroah.com>
-References: <20201125141022.321643-1-coiby.xu@gmail.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id A94C7206CA;
+        Wed, 25 Nov 2020 15:35:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1606318552;
+        bh=tCPauijckKAUxxrQpZinVNNIqmG0cK/SIAZLG7Y4xcQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OxEhw3GABRWCadfzNOTF0TamDwcnY1Zz1XtF9hKoWTMs57mR79L6Gl4C8osjtwimK
+         iBCVNGMvJKh3TyvOXDRbj9i+pe/GUNgTMXjh5UTlPWilUYp/OHaHA0AIHXgnnbV+D2
+         VIlfGy1VmYVaIP1XWcx0uZdnmCJQIJT7cuvE8PpQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Martijn van de Streek <martijn@zeewinde.xyz>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 01/33] HID: uclogic: Add ID for Trust Flex Design Tablet
+Date:   Wed, 25 Nov 2020 10:35:18 -0500
+Message-Id: <20201125153550.810101-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201125141022.321643-1-coiby.xu@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 25, 2020 at 10:10:22PM +0800, Coiby Xu wrote:
-> For a broken touchpad, it may take several months or longer to be fixed.
-> Polling mode could be a fallback solution for enthusiastic Linux users
-> when they have a new laptop. It also acts like a debugging feature. If
-> polling mode works for a broken touchpad, we can almost be certain
-> the root cause is related to the interrupt or power setting.
-> 
-> This patch could fix touchpads of Lenovo AMD gaming laptops including
-> Legion-5 15ARH05 (R7000), Legion-5P (R7000P) and IdeaPad Gaming 3
-> 15ARH05.
-> 
-> When polling mode is enabled, an I2C device can't wake up the suspended
-> system since enable/disable_irq_wake is invalid for polling mode.
-> 
-> Three module parameters are added to i2c-hid,
->     - polling_mode: by default set to 0, i.e., polling is disabled
->     - polling_interval_idle_ms: the polling internal when the touchpad
->       is idle, default to 10ms
->     - polling_interval_active_us: the polling internal when the touchpad
->       is active, default to 4000us
-> 
-> User can change the last two runtime polling parameter by writing to
-> /sys/module/i2c_hid/parameters/polling_interval_{idle_ms,active_us}.
-> 
-> Note xf86-input-synaptics doesn't work well with this polling mode
-> for the Synaptics touchpad. The Synaptics touchpad would often locks
-> into scroll mode when using multitouch gestures [1]. One remedy is to
-> decrease the polling interval.
-> 
-> Thanks to Barnabás's thorough review of this patch and the useful
-> feedback!
-> 
-> [1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190/comments/235
-> 
-> Cc: <stable@vger.kernel.org>
-> Cc: Barnabás Pőcze <pobrn@protonmail.com>
-> BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
-> Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid-core.c | 152 +++++++++++++++++++++++++++--
->  1 file changed, 142 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-> index aeff1ffb0c8b..f25503f31ccf 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -36,6 +36,8 @@
->  #include <linux/hid.h>
->  #include <linux/mutex.h>
->  #include <linux/acpi.h>
-> +#include <linux/kthread.h>
-> +#include <linux/gpio/driver.h>
->  #include <linux/of.h>
->  #include <linux/regulator/consumer.h>
->  
-> @@ -60,6 +62,25 @@
->  #define I2C_HID_PWR_ON		0x00
->  #define I2C_HID_PWR_SLEEP	0x01
->  
-> +/* polling mode */
-> +#define I2C_HID_POLLING_DISABLED 0
-> +#define I2C_HID_POLLING_GPIO_PIN 1
-> +#define I2C_HID_POLLING_INTERVAL_ACTIVE_US 4000
-> +#define I2C_HID_POLLING_INTERVAL_IDLE_MS 10
-> +
-> +static u8 polling_mode;
-> +module_param(polling_mode, byte, 0444);
-> +MODULE_PARM_DESC(polling_mode, "How to poll (default=0) - 0 disabled; 1 based on GPIO pin's status");
+From: Martijn van de Streek <martijn@zeewinde.xyz>
 
-Module parameters are for the 1990's, they are global and horrible to
-try to work with.  You should provide something on a per-device basis,
-as what happens if your system requires different things here for
-different devices?  You set this for all devices :(
+[ Upstream commit 022fc5315b7aff69d3df2c953b892a6232642d50 ]
 
-thanks,
+The Trust Flex Design Tablet has an UGTizer USB ID and requires the same
+initialization as the UGTizer GP0610 to be detected as a graphics tablet
+instead of a mouse.
 
-greg k-h
+Signed-off-by: Martijn van de Streek <martijn@zeewinde.xyz>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-uclogic-core.c   | 2 ++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 3 files changed, 5 insertions(+)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 79495e218b7fc..6b7f90a4721f0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1297,6 +1297,7 @@
+ 
+ #define USB_VENDOR_ID_UGTIZER			0x2179
+ #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
++#define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
+ 
+ #define USB_VENDOR_ID_VIEWSONIC			0x0543
+ #define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 86b568037cb8a..8e9c9e646cb7d 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -385,6 +385,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
+ 				USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
++				USB_DEVICE_ID_UGTIZER_TABLET_GT5040) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_TABLET_G5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 7d20d1fcf8d20..d26d8cd98efcf 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -997,6 +997,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		break;
+ 	case VID_PID(USB_VENDOR_ID_UGTIZER,
+ 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
++	case VID_PID(USB_VENDOR_ID_UGTIZER,
++		     USB_DEVICE_ID_UGTIZER_TABLET_GT5040):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+-- 
+2.27.0
+
