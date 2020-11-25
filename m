@@ -2,71 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDC32C3CD3
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 10:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 325BD2C3D39
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 11:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726197AbgKYJuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 04:50:19 -0500
-Received: from mga03.intel.com ([134.134.136.65]:62548 "EHLO mga03.intel.com"
+        id S1728475AbgKYKHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 05:07:33 -0500
+Received: from mail.thorsis.com ([92.198.35.195]:42974 "EHLO mail.thorsis.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726049AbgKYJuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 04:50:19 -0500
-IronPort-SDR: AtPG2yK6wBk1mYyj+hXM8JO64BgbbvnZyZWFdMayt/A/VR0ikqNc14hD5alRrqjacvI/ZuyzcX
- 1L2tH0qFax/Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9815"; a="172200370"
-X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
-   d="scan'208";a="172200370"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 01:50:18 -0800
-IronPort-SDR: NPpcqPMewZIMLnvDK7uUqQILjUinc1EZ0INqU3cxeQfmU/OZOltazDTXxtFspy7dZhg8GVzxzD
- VMC5iOjQAepw==
-X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
-   d="scan'208";a="478858066"
-Received: from jclobus-mobl1.ger.corp.intel.com (HELO [10.252.55.230]) ([10.252.55.230])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 01:50:17 -0800
-Subject: Re: [Intel-gfx] [PATCH] dma-buf/dma-resv: Respect num_fences when
- initializing the shared fence list.
-To:     =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
-        <thomas.hellstrom@linux.intel.com>, dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-References: <20201124115707.406917-1-maarten.lankhorst@linux.intel.com>
- <a40b62d6-3285-abe6-17b7-47b89a53d89f@linux.intel.com>
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Message-ID: <95ae2c09-4907-4f99-6669-1858ae5499aa@linux.intel.com>
-Date:   Wed, 25 Nov 2020 10:50:15 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
-MIME-Version: 1.0
-In-Reply-To: <a40b62d6-3285-abe6-17b7-47b89a53d89f@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+        id S1726197AbgKYKHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 05:07:33 -0500
+X-Greylist: delayed 344 seconds by postgrey-1.27 at vger.kernel.org; Wed, 25 Nov 2020 05:07:33 EST
+Received: from localhost (localhost [127.0.0.1])
+        by mail.thorsis.com (Postfix) with ESMTP id 2EBC235DD
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 11:01:47 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at mail.thorsis.com
+Received: from mail.thorsis.com ([127.0.0.1])
+        by localhost (mail.thorsis.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id pdj3FgB0BQUA for <stable@vger.kernel.org>;
+        Wed, 25 Nov 2020 11:01:43 +0100 (CET)
+Received: by mail.thorsis.com (Postfix, from userid 109)
+        id EB0203606; Wed, 25 Nov 2020 11:01:42 +0100 (CET)
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NO_RECEIVED,
+        NO_RELAYS autolearn=ham autolearn_force=no version=3.4.2
+From:   Alexander Dahl <ada@thorsis.com>
+To:     stable@vger.kernel.org
+Subject: perf: Apply e9a6882f267a to v4.9 stable (fix for null-pointer dereference)
+Date:   Wed, 25 Nov 2020 11:01:39 +0100
+Message-ID: <4431770.U1WXKbcAmY@ada>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Op 24-11-2020 om 14:10 schreef Thomas Hellström:
->
-> On 11/24/20 12:57 PM, Maarten Lankhorst wrote:
->> We hardcode the maximum number of shared fences to 4, instead of
->> respecting num_fences. Use a minimum of 4, but more if num_fences
->> is higher.
->>
->> This seems to have been an oversight when first implementing the
->> api.
->>
->> Fixes: 04a5faa8cbe5 ("reservation: update api and add some helpers")
->> Cc: <stable@vger.kernel.org> # v3.17+
->> Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
->> Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
->> ---
->>   drivers/dma-buf/dma-resv.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
-> Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
->
->
-Thanks, pushed!
+Hei hei,
+
+please apply e9a6882f267a8105461066e3ea6b4b6b9be1b807 ("perf event: Check 
+ref_reloc_sym before using it") to the v4.9 stable tree and maybe to later LTS 
+trees (v4.14, v4.19) as well. 
+
+That change is in mainline since v5.4-rc1 and it's a fix for a possible null 
+pointer dereference in the tool 'perf', so it is a fix for a user space tool 
+coming with the kernel tree actually.
+
+I am directly affeted by this, calling 'perf record' on an at91 based device 
+(armv5te, sam9g20 soc) running PREEMPT RT kernel 4.9.220-rt143 results in a 
+segfault here.  I debugged this with gdb and tracked it down to the exact 
+pointer being NULL, which is checked now in that above mentioned changeset.
+
+I could cleanly apply that changeset to my local tree and the segfault is not 
+triggered anymore, I can use perf on that platform now.
+
+I only tested this on the above mentioned v4.9 based kernel version.
+
+Thanks & Greets
+Alex
+
+
 
