@@ -2,106 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E192C4291
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A2C2C429F
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729792AbgKYPC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:02:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729876AbgKYPC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 10:02:27 -0500
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4120BC061A4F
-        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 07:02:27 -0800 (PST)
-Received: by mail-qt1-x841.google.com with SMTP id t5so1793287qtp.2
-        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 07:02:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=25kn6N7GAyFuh1GrSD0sVV8oM/l8nQ/U6I2FAAW3FXo=;
-        b=UySvLo+p1sgfBRX1Ny3emjTtqNUn6Vm6JQo0FJdNFg8Q3Qqc/yHWFNS49v0RaAf9nC
-         pgF2DcYoJXm2mKZiHomLnRhriWpvl7ZPFMxvk6wozMC6qYGweFvSjiFWzMJ34jUFKrnE
-         CX9YwKHN+6bfZLI8OjtF7BtMNM9EaJVILtsTMadjJwBap6qcSthzvAdlhvjBQeY/d+MQ
-         t9vdPo9gPY3wEGSbvD3QDqLKZIDv4wqoAUUExWtcJ070RbA41WrWrV3I6sl2zaJ56Jxz
-         3SaLYgYf77VXkTin4pnk2FEu41w8HWw7ftsBUXF4viUHgTCCUkPy77ncR8fU3CgQhgJH
-         V6xg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=25kn6N7GAyFuh1GrSD0sVV8oM/l8nQ/U6I2FAAW3FXo=;
-        b=Hm7R/3nNotiXNVAShPOHuIm/4zFOxS6Yhegn4WNPeVcp1YGplVXyh0svIO82SuJMsT
-         6yOYa8aOe0vgy+Keddt8IxyibfrbHQZ/9FGE7jzdJj/7ed2yo/gu+RJ7s/lhDpVwFQ6E
-         U4ZUWmVuWIPYOkMYAJREbuzNrfppXOtCBwBiPDb6HkEzB7LdXMuXU/8ApGY8k7MlOKRG
-         +xPhN4NMepnO5/8oYh2QvYDd3M1n6X+TzacVBDZdbbxwP+2HVwDsO1CUzSWSALTw2jY4
-         kvu0eXQT41x47Y9G3hI4zh76MdboXlvYIoLHVw76gHeGJhMTqJrXHDcnmkdj3MkP9cnZ
-         D07g==
-X-Gm-Message-State: AOAM5319UhBvmPhQEi09QVINTMw4/Ugy325Ykn+mSReAzKagbKeeOuFn
-        RN8LPVbFYfF9jwf7O8IjTQtBzA==
-X-Google-Smtp-Source: ABdhPJyQLe/6Gp/wsh3AE7EaQ1ssDs3UPK9nNbT6gidQ/0VvXM0dsTznYdGuPojqMf+BK6JsV58WCg==
-X-Received: by 2002:ac8:6943:: with SMTP id n3mr3470171qtr.22.1606316546328;
-        Wed, 25 Nov 2020 07:02:26 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-156-34-48-30.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.48.30])
-        by smtp.gmail.com with ESMTPSA id 8sm2207396qkd.131.2020.11.25.07.02.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2020 07:02:24 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1khwJM-001HER-8s; Wed, 25 Nov 2020 11:02:24 -0400
-Date:   Wed, 25 Nov 2020 11:02:24 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Cc:     dledford@redhat.com, linux-rdma@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        Ira Weiny <ira.weiny@intel.com>
-Subject: Re: [PATCH for-rc v4] IB/hfi1: Ensure correct mm is used at all times
-Message-ID: <20201125150224.GO5487@ziepe.ca>
-References: <20201123165024.158913.71029.stgit@awfm-01.aw.intel.com>
+        id S1729655AbgKYPHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:07:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726295AbgKYPHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:07:31 -0500
+Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0434420679;
+        Wed, 25 Nov 2020 15:07:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1606316850;
+        bh=XUXkH2P+Dj+LfdkoHygf4L5x2gUdd3NfXUBkon3pM9A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Em17VZvWWVlY5BRMnMYZzW3hq0R6dbkbJqGZlomaIrDWJejvK9KSDxJVZgK03ItrZ
+         lms3lto2jKNlaqS9UlSLYVt+gOs2it0Zzbgx5BMKym5lFi8FfGwMvDn3s7+e5Xwc15
+         5C1KPBQGN9O0Z8NIrVjf3IYc04YgAgitcpcqYU/4=
+Date:   Wed, 25 Nov 2020 16:07:27 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Coiby Xu <coiby.xu@gmail.com>
+Cc:     linux-input@vger.kernel.org,
+        Helmut Stult <helmut.stult@schinfo.de>,
+        =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>,
+        Baq Domalaq <domalak@gmail.com>,
+        Pedro Ribeiro <pedrib@gmail.com>, stable@vger.kernel.org,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4] HID: i2c-hid: add polling mode based on connected
+ GPIO chip's pin status
+Message-ID: <X75zL12q+FF6KBHi@kroah.com>
+References: <20201125141022.321643-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201123165024.158913.71029.stgit@awfm-01.aw.intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201125141022.321643-1-coiby.xu@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 23, 2020 at 11:50:24AM -0500, Dennis Dalessandro wrote:
-> @@ -133,8 +121,16 @@ void hfi1_mmu_rb_unregister(struct mmu_rb_handler *handler)
->  	unsigned long flags;
->  	struct list_head del_list;
+On Wed, Nov 25, 2020 at 10:10:22PM +0800, Coiby Xu wrote:
+> For a broken touchpad, it may take several months or longer to be fixed.
+> Polling mode could be a fallback solution for enthusiastic Linux users
+> when they have a new laptop. It also acts like a debugging feature. If
+> polling mode works for a broken touchpad, we can almost be certain
+> the root cause is related to the interrupt or power setting.
+> 
+> This patch could fix touchpads of Lenovo AMD gaming laptops including
+> Legion-5 15ARH05 (R7000), Legion-5P (R7000P) and IdeaPad Gaming 3
+> 15ARH05.
+> 
+> When polling mode is enabled, an I2C device can't wake up the suspended
+> system since enable/disable_irq_wake is invalid for polling mode.
+> 
+> Three module parameters are added to i2c-hid,
+>     - polling_mode: by default set to 0, i.e., polling is disabled
+>     - polling_interval_idle_ms: the polling internal when the touchpad
+>       is idle, default to 10ms
+>     - polling_interval_active_us: the polling internal when the touchpad
+>       is active, default to 4000us
+> 
+> User can change the last two runtime polling parameter by writing to
+> /sys/module/i2c_hid/parameters/polling_interval_{idle_ms,active_us}.
+> 
+> Note xf86-input-synaptics doesn't work well with this polling mode
+> for the Synaptics touchpad. The Synaptics touchpad would often locks
+> into scroll mode when using multitouch gestures [1]. One remedy is to
+> decrease the polling interval.
+> 
+> Thanks to Barnabás's thorough review of this patch and the useful
+> feedback!
+> 
+> [1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190/comments/235
+> 
+> Cc: <stable@vger.kernel.org>
+> Cc: Barnabás Pőcze <pobrn@protonmail.com>
+> BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
+> Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 152 +++++++++++++++++++++++++++--
+>  1 file changed, 142 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index aeff1ffb0c8b..f25503f31ccf 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -36,6 +36,8 @@
+>  #include <linux/hid.h>
+>  #include <linux/mutex.h>
+>  #include <linux/acpi.h>
+> +#include <linux/kthread.h>
+> +#include <linux/gpio/driver.h>
+>  #include <linux/of.h>
+>  #include <linux/regulator/consumer.h>
 >  
-> +	/*
-> +	 * do_exit() calls exit_mm() before exit_files() which would call close
-> +	 * and end up in here. If there is no mm, then its a kernel thread and
-> +	 * we need to let it continue the removal.
-> +	 */
-> +	if (current->mm && (handler->mn.mm != current->mm))
-> +		return;
+> @@ -60,6 +62,25 @@
+>  #define I2C_HID_PWR_ON		0x00
+>  #define I2C_HID_PWR_SLEEP	0x01
+>  
+> +/* polling mode */
+> +#define I2C_HID_POLLING_DISABLED 0
+> +#define I2C_HID_POLLING_GPIO_PIN 1
+> +#define I2C_HID_POLLING_INTERVAL_ACTIVE_US 4000
+> +#define I2C_HID_POLLING_INTERVAL_IDLE_MS 10
 > +
->  	/* Unregister first so we don't get any more notifications. */
-> -	mmu_notifier_unregister(&handler->mn, handler->mm);
-> +	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+> +static u8 polling_mode;
+> +module_param(polling_mode, byte, 0444);
+> +MODULE_PARM_DESC(polling_mode, "How to poll (default=0) - 0 disabled; 1 based on GPIO pin's status");
 
-This logic cannot be right.. The only caller does:
+Module parameters are for the 1990's, they are global and horrible to
+try to work with.  You should provide something on a per-device basis,
+as what happens if your system requires different things here for
+different devices?  You set this for all devices :(
 
-		if (pq->handler)
-			hfi1_mmu_rb_unregister(pq->handler);
-[..]
-		kfree(pq);
+thanks,
 
-So this is leaking the mmu_notifier registration if the user manages
-to trigger hfi1_user_sdma_free_queues() from another process.
-
-Since hfi1_user_sdma_free_queues() is called from close() it doesn't
-look OK.
-
-When the object that creates the notifier is destroyed the notifier
-should be deleted unconditionally.
-
-Only accesses to a VA should be qualified to ensure that a notifier is
-registered on current->mm before touching the VA.
-
-Jason
+greg k-h
