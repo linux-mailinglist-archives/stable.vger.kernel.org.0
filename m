@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15ED72C4400
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 213BB2C43FE
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730437AbgKYPjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:39:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
+        id S1731265AbgKYPjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:39:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731175AbgKYPhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:47 -0500
+        id S1731183AbgKYPhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA2A0221EB;
-        Wed, 25 Nov 2020 15:37:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D4A221D91;
+        Wed, 25 Nov 2020 15:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318666;
-        bh=0n8jfaMWrlyg/5o+SmqrjEegfZzl9GLztMgGWzfjofw=;
+        s=default; t=1606318667;
+        bh=s04otEKyyrUeTCStCHfLrx++jbsvN6FsIIB0dPDYNPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcM2tgG86EGN/P37MEVl9OfZ8HzZd52R973vwWl/gbegrfz8b6VhgORJmwiyALKDV
-         KSNpwtdSfKhJYyI7fRxlhuMu41/N7yN9GEsz9o7WZ+VvnHe7bUKHkfhc6c6lcxG7ml
-         zrYJHQpxwV/FGCMvW4ftQuoVqlrV1Sepst+glAnY=
+        b=YBo9y6vkhFThGJrnR6LMKueGOAS/MOrI0qyamylf//P6+0KXnPv5/x/FYGi/peyiy
+         vRHwFYD6q2HcCNiZPPelFELE6JHzH/0lYx+7zDRVoSvz1sQQfsfZQWFOFqufj5Edaf
+         aG4Oq0vfVyB+pAA6e+Vw28t5agcMidxqQsLIr/O8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minwoo Im <minwoo.im.dev@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 08/12] nvme: free sq/cq dbbuf pointers when dbbuf set fails
-Date:   Wed, 25 Nov 2020 10:37:30 -0500
-Message-Id: <20201125153734.810826-8-sashal@kernel.org>
+Cc:     Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 09/12] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
+Date:   Wed, 25 Nov 2020 10:37:31 -0500
+Message-Id: <20201125153734.810826-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153734.810826-1-sashal@kernel.org>
 References: <20201125153734.810826-1-sashal@kernel.org>
@@ -42,61 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minwoo Im <minwoo.im.dev@gmail.com>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-[ Upstream commit 0f0d2c876c96d4908a9ef40959a44bec21bdd6cf ]
+[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
 
-If Doorbell Buffer Config command fails even 'dev->dbbuf_dbs != NULL'
-which means OACS indicates that NVME_CTRL_OACS_DBBUF_SUPP is set,
-nvme_dbbuf_update_and_check_event() will check event even it's not been
-successfully set.
+Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
+we should use burst size, not desc->rqcfg.brst_size.
 
-This patch fixes mismatch among dbbuf for sq/cqs in case that dbbuf
-command fails.
+dma memcpy performance on Rockchip RV1126
+@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
 
-Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+dmatest:
+
+/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
+/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
+/# echo 8 > /sys/module/dmatest/parameters/iterations
+/# echo y > /sys/module/dmatest/parameters/norandom
+/# echo y > /sys/module/dmatest/parameters/verbose
+/# echo 1 > /sys/module/dmatest/parameters/run
+
+dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+
+Before:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
+
+After this patch:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
+
+After this patch and increase dma clk to 400MHz:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
+
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/dma/pl330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3788c053a0b19..540fab9f850dd 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -266,9 +266,21 @@ static void nvme_dbbuf_init(struct nvme_dev *dev,
- 	nvmeq->dbbuf_cq_ei = &dev->dbbuf_eis[cq_idx(qid, dev->db_stride)];
- }
+diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
+index ff8b7042d28f4..c034f506e015a 100644
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2666,7 +2666,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
+ 	 * If burst size is smaller than bus width then make sure we only
+ 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
+ 	 */
+-	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
++	if (burst * 8 < pl330->pcfg.data_bus_width)
+ 		desc->rqcfg.brst_len = 1;
  
-+static void nvme_dbbuf_free(struct nvme_queue *nvmeq)
-+{
-+	if (!nvmeq->qid)
-+		return;
-+
-+	nvmeq->dbbuf_sq_db = NULL;
-+	nvmeq->dbbuf_cq_db = NULL;
-+	nvmeq->dbbuf_sq_ei = NULL;
-+	nvmeq->dbbuf_cq_ei = NULL;
-+}
-+
- static void nvme_dbbuf_set(struct nvme_dev *dev)
- {
- 	struct nvme_command c;
-+	unsigned int i;
- 
- 	if (!dev->dbbuf_dbs)
- 		return;
-@@ -282,6 +294,9 @@ static void nvme_dbbuf_set(struct nvme_dev *dev)
- 		dev_warn(dev->ctrl.device, "unable to set dbbuf\n");
- 		/* Free memory and continue on */
- 		nvme_dbbuf_dma_free(dev);
-+
-+		for (i = 1; i <= dev->online_queues; i++)
-+			nvme_dbbuf_free(&dev->queues[i]);
- 	}
- }
- 
+ 	desc->bytes_requested = len;
 -- 
 2.27.0
 
