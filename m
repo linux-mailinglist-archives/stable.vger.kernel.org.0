@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B512C43C2
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6422C4434
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730745AbgKYPgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:36:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54464 "EHLO mail.kernel.org"
+        id S1731267AbgKYPlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:41:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730731AbgKYPgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:43 -0500
+        id S1730701AbgKYPgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89C2721D7F;
-        Wed, 25 Nov 2020 15:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C802321D7E;
+        Wed, 25 Nov 2020 15:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318602;
-        bh=PhV5uaDhmqHw5CUW204MCd55v6G2ULGtBNvW9ZgaP6c=;
+        s=default; t=1606318603;
+        bh=xu6GoAxaG8TFA6lEbkHwC9ul7MBVREsvo+HTg/w/7OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHBnd2OepdDi1f0dB39PLTGHSaUv8yZd0G7bzg8GleG3tBze+AKfs+Jy1vNgaiSJc
-         i1F1mMyvQni/aQ63jVfjeI4Th4TWISXe0XRE9bmFXAANB0JfyLr6gR5wrj21xrs2di
-         MLcVGqJC0hEY9RdefT66iJFFpNSmLYmHaQlmyV8o=
+        b=r6+9WRJj9I5MaOrLR1fMjeQqXQbBQDu/UCboS6bH7gAJkOyn6ymRoiuaI/IG7bRfd
+         HUNVLO6gdKGRGcGYsrpy44ckxOilEFb6MS3mmuFCGC6GidKXNaRd3amTDZGZCLhDZi
+         AnxgQDM8VbPdRTNTklmBD0YyRjZFVcMEk7utSWUU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Frank Yang <puilp0502@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/23] HID: ite: Replace ABS_MISC 120/121 events with touchpad on/off keypresses
-Date:   Wed, 25 Nov 2020 10:36:17 -0500
-Message-Id: <20201125153638.810419-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 03/23] HID: cypress: Support Varmilo Keyboards' media hotkeys
+Date:   Wed, 25 Nov 2020 10:36:18 -0500
+Message-Id: <20201125153638.810419-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
@@ -41,128 +41,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Frank Yang <puilp0502@gmail.com>
 
-[ Upstream commit 3c785a06dee99501a17f8e8cf29b2b7e3f1e94ea ]
+[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
 
-The usb-hid keyboard-dock for the Acer Switch 10 SW5-012 model declares
-an application and hid-usage page of 0x0088 for the INPUT(4) report which
-it sends. This reports contains 2 8-bit fields which are declared as
-HID_MAIN_ITEM_VARIABLE.
+The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
+exposes media control hotkeys as a USB HID consumer control device, but
+these keys do not work in the current (5.8-rc1) kernel due to the
+incorrect HID report descriptor. Fix the problem by modifying the
+internal HID report descriptor.
 
-The keyboard-touchpad combo never actually generates this report, except
-when the touchpad is toggled on/off with the Fn + F7 hotkey combo. The
-toggle on/off is handled inside the keyboard-dock, when the touchpad is
-toggled off it simply stops sending events.
+More specifically, the keyboard report descriptor specifies the
+logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
+boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
+incorrect interpretation of input reports, causing inputs to be ignored.
+By setting the Logical Minimum to zero, we align the logical boundary
+with the Usage ID boundary.
 
-When the touchpad is toggled on/off an INPUT(4) report is generated with
-the first content byte set to 120/121, before this commit the kernel
-would report this as ABS_MISC 120/121 events.
+Some notes:
 
-Patch the descriptor to replace the HID_MAIN_ITEM_VARIABLE with
-HID_MAIN_ITEM_RELATIVE (because no key-presss release events are send)
-and add mappings for the 0x00880078 and 0x00880079 usages to generate
-touchpad on/off key events when the touchpad is toggled on/off.
+* There seem to be multiple variants of the VA104M keyboard. This
+  patch specifically targets 04b4:07b1 variant.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+* The device works out-of-the-box on Windows platform with the generic
+  consumer control device driver (hidserv.inf). This suggests that
+  Windows either ignores the Logical Minimum/Logical Maximum or
+  interprets the Usage ID assignment differently from the linux
+  implementation; Maybe there are other devices out there that only
+  works on Windows due to this problem?
+
+Signed-off-by: Frank Yang <puilp0502@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ite.c | 61 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-ids.h     |  2 ++
+ 2 files changed, 41 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 044a93f3c1178..742c052b0110a 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -11,6 +11,48 @@
+diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+index a50ba4a4a1d71..b88f889b3932e 100644
+--- a/drivers/hid/hid-cypress.c
++++ b/drivers/hid/hid-cypress.c
+@@ -23,19 +23,17 @@
+ #define CP_2WHEEL_MOUSE_HACK		0x02
+ #define CP_2WHEEL_MOUSE_HACK_ON		0x04
  
- #include "hid-ids.h"
- 
-+#define QUIRK_TOUCHPAD_ON_OFF_REPORT		BIT(0)
++#define VA_INVAL_LOGICAL_BOUNDARY	0x08
 +
-+static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int *rsize)
+ /*
+  * Some USB barcode readers from cypress have usage min and usage max in
+  * the wrong order
+  */
+-static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+-	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+ 	unsigned int i;
+ 
+-	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
+-		return rdesc;
+-
+ 	if (*rsize < 4)
+ 		return rdesc;
+ 
+@@ -48,6 +46,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
+ 
++static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	/*
++	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
++	 * reports Logical Minimum of its Consumer Control device as 572
++	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
++	 */
++	if (*rsize == 25 &&
++			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
++			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
++			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
++			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
++		hid_info(hdev,
++			 "fixing up varmilo VA104M consumer control report descriptor\n");
++		rdesc[12] = 0x00;
++		rdesc[13] = 0x00;
++	}
++	return rdesc;
++}
++
++static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
 +{
 +	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
 +
-+	if (quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) {
-+		if (*rsize == 188 && rdesc[162] == 0x81 && rdesc[163] == 0x02) {
-+			hid_info(hdev, "Fixing up ITE keyboard report descriptor\n");
-+			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
-+		}
-+	}
++	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
++		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
++	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
++		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
 +
 +	return rdesc;
 +}
 +
-+static int ite_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit,
-+		int *max)
-+{
-+
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if ((quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) &&
-+	    (usage->hid & HID_USAGE_PAGE) == 0x00880000) {
-+		if (usage->hid == 0x00880078) {
-+			/* Touchpad on, userspace expects F22 for this */
-+			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F22);
-+			return 1;
-+		}
-+		if (usage->hid == 0x00880079) {
-+			/* Touchpad off, userspace expects F23 for this */
-+			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F23);
-+			return 1;
-+		}
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
- static int ite_event(struct hid_device *hdev, struct hid_field *field,
- 		     struct hid_usage *usage, __s32 value)
- {
-@@ -37,13 +79,27 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
- 	return 0;
- }
- 
-+static int ite_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	hid_set_drvdata(hdev, (void *)id->driver_data);
-+
-+	ret = hid_open_report(hdev);
-+	if (ret)
-+		return ret;
-+
-+	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+}
-+
- static const struct hid_device_id ite_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
- 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_SYNAPTICS,
--		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
-+		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012),
-+	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
- 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_SYNAPTICS,
-@@ -55,6 +111,9 @@ MODULE_DEVICE_TABLE(hid, ite_devices);
- static struct hid_driver ite_driver = {
- 	.name = "itetech",
- 	.id_table = ite_devices,
-+	.probe = ite_probe,
-+	.report_fixup = ite_report_fixup,
-+	.input_mapping = ite_input_mapping,
- 	.event = ite_event,
+ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -128,6 +160,8 @@ static const struct hid_device_id cp_devices[] = {
+ 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
+ 		.driver_data = CP_2WHEEL_MOUSE_HACK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
++		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
+ 	{ }
  };
- module_hid_driver(ite_driver);
+ MODULE_DEVICE_TABLE(hid, cp_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 62b8802a534e8..b2c86403e43b1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -337,6 +337,8 @@
+ #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
+ #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
+ 
++#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++
+ #define USB_VENDOR_ID_DATA_MODUL	0x7374
+ #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
+ 
 -- 
 2.27.0
 
