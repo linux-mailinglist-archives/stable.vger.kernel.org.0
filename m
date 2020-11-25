@@ -2,64 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B566E2C483F
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 20:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4CD2C4849
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 20:28:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727886AbgKYT0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 14:26:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43862 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727848AbgKYT03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 14:26:29 -0500
-Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (unknown [163.114.132.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EA07206D9;
-        Wed, 25 Nov 2020 19:26:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606332389;
-        bh=y5G7G9tqQU0nNNYbyoVzJ6yqFdXX1xV0mpcHxeV68Ac=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=qnwv5kbxfR1G+CdcN52GwSplgjaPdm0fTc0l/8FM7uScdg4VvXnX4IWjOwV62BfVq
-         NmbOGw0+P4rP+f+KtS7LX7YaJ5ikwX06YLbUF/9KTpjdhs4WftBY0yOJbXRHF4KVCY
-         uw3BxXCNOSLzcEzAkzGMYELJkR7cypSjjVLbWGTM=
-Date:   Wed, 25 Nov 2020 11:26:27 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Antonio Borneo <antonio.borneo@st.com>
-Cc:     Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>, <stable@vger.kernel.org>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        <netdev@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net: stmmac: fix incorrect merge of patch upstream
-Message-ID: <20201125112627.113c3c0b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201124223729.886992-1-antonio.borneo@st.com>
-References: <42960ede-9355-1277-9a6f-4eac3c22365c@pengutronix.de>
-        <20201124223729.886992-1-antonio.borneo@st.com>
+        id S1728372AbgKYT1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 14:27:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727848AbgKYT1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 14:27:50 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD7EC0617A7
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 11:27:37 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id 10so2977541wml.2
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 11:27:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:from:mime-version:content-transfer-encoding
+         :content-description:subject:to:date:reply-to;
+        bh=MT4M9SX2NqdNuOObXhIV8Gtkw+yoDX+gRyJnh+feBwM=;
+        b=qcH1/dwRlityDK6CRr/mR0wGVX3NqyBQ8NWqsHmFdJ7sAAk8wGbnXz8FuMxbeLvncj
+         sZltEP7VPjl51dxM8IG6K31fjF9bEd2Eysdk9etWqFsa4Pd5KR6CT+rL4Rhs7yc5qhcK
+         qHfFGMWwCH+mwgzN4BepRJRtA6muoLHCJvrOB1RupnabDfWC+r/J/CJs+rcTyYc0YlGL
+         cL18wdf85kLpjYbWXWN4JkpiDS0FhBItkvQid/gtLVo1rTR2r2+P9FINpPYKgf6FaZ8G
+         U0QpyYJ95ic+l8CRic2W8Oa1x7IzWVIZMpQtzoUGIFRTO5tKBcGKhYoWzvuzb8oZ3loE
+         zrNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:from:mime-version
+         :content-transfer-encoding:content-description:subject:to:date
+         :reply-to;
+        bh=MT4M9SX2NqdNuOObXhIV8Gtkw+yoDX+gRyJnh+feBwM=;
+        b=eCI71Y9ght9mHAqcJVz9SGPt2KHcz8Hjou1ktlbP6BiYULD+5EYMmJveIZ44sjI7bd
+         Q8A4wrePBS+qtKmA41SIkNZ1nLrIDA1JcJ5cuLo33+8VQhmAh2XDgKIIhI3K4Lg+IEKo
+         q1zZ+JksN6SYVhO/jE14hErBa8RXoT0Hagj8rTbGvpcFURkiPQlLMv8HJOAss7oRNYFJ
+         v3wZ/gAfPGtTlWhZf8cp3zf9y6IuS9kG6jOWXJieWTBFGkeD8dUIuaIEtYoiu3h4J3yx
+         zKwbDnQN9OAXNacv+onFP9iEOEDGLVrSAjymdksmqDxiqLNymeCU4kO9Snd1eKCHjeOP
+         r+rQ==
+X-Gm-Message-State: AOAM530u9qrp6a7V9rkMZDuREWL18Ad1zN4TumLL/lyL6oeFM1pE7MkF
+        Eipeopz3y7BdPBUhqA2j3wU=
+X-Google-Smtp-Source: ABdhPJw9BLpovxbl128tob/33wmvnekEAHI3eSDJ7+rkb4XGI5nLHa5YA43sOGvtGkubK5kVBAHYsg==
+X-Received: by 2002:a7b:cc85:: with SMTP id p5mr5697349wma.102.1606332456044;
+        Wed, 25 Nov 2020 11:27:36 -0800 (PST)
+Received: from [192.168.1.152] ([102.64.149.89])
+        by smtp.gmail.com with ESMTPSA id l16sm6067999wrx.5.2020.11.25.11.27.29
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Wed, 25 Nov 2020 11:27:35 -0800 (PST)
+Message-ID: <5fbeb027.1c69fb81.80257.d79b@mx.google.com>
+From:   "Dailborh R." <ritundailb111@gmail.com>
+X-Google-Original-From: Dailborh R.
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Please reply to me
+To:     Recipients <Dailborh@vger.kernel.org>
+Date:   Wed, 25 Nov 2020 19:27:16 +0000
+Reply-To: dailrrob.83@gmail.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 24 Nov 2020 23:37:29 +0100 Antonio Borneo wrote:
-> Commit 757926247836 ("net: stmmac: add flexible PPS to dwmac
-> 4.10a") was intended to modify the struct dwmac410_ops, but it got
-> somehow badly merged and modified the struct dwmac4_ops.
-> 
-> Revert the modification in struct dwmac4_ops and re-apply it
-> properly in struct dwmac410_ops.
-> 
-> Fixes: 757926247836 ("net: stmmac: add flexible PPS to dwmac 4.10a")
-> Cc: stable@vger.kernel.org # v5.6+
-> Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-> Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+I'm Dailborh R. from US. I picked interest in you and I would like to know
+more about you and establish relationship with you. i will wait for
+your response. thank you.
 
-Applied, and queued for 5.9 (all other 5.5+ branches are EOL by now).
-
-Thanks!
