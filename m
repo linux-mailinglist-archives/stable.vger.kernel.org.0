@@ -2,165 +2,551 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DB52C4908
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 21:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 907852C4972
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 22:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgKYU1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 15:27:20 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:50355 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729729AbgKYU1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 15:27:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606336038;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mHKnvKojNg07maTXpdLc7opl7LeH8NxJHEW+j33de5M=;
-        b=HJQA+Qt8G+IaoQGfVjSj7kMvJ23y3zxbNgAEUP6d5d+2up91JJ7ex1vO1v3ISdXHWsJyNF
-        NrgpFlo5rrQiLM4Ely10j3B/DAjjkTDr2vsbDamkLMO3irwxMTu3D8q7lC1oO83lY7lYfy
-        k7SgSsHugVDADtF5opH93SOa1xRx+L4=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-582-NkbOk4J1NemeIitdTtDlaQ-1; Wed, 25 Nov 2020 15:27:16 -0500
-X-MC-Unique: NkbOk4J1NemeIitdTtDlaQ-1
-Received: by mail-qv1-f69.google.com with SMTP id o16so3270005qvq.4
-        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 12:27:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mHKnvKojNg07maTXpdLc7opl7LeH8NxJHEW+j33de5M=;
-        b=O+uc5/SLuNbgGppNGBO0WAYdsFp35Lxn2TzZpycR17Tj0PduprXfX0zGi5XXnVhrnz
-         m9t9MEy9a0iIewFXdWftbsbA9gKPDKTvXGxyv6+dO/VIWQoxyBqSk65/i9fejVakyl+G
-         qpYwXvlCXlz8DjCl2SVfxZbBXWdZiBiNq4HyHauUwMiO5yVPsWe+OwZBz/8hRmZO8gBO
-         lfW9JVsY/3pNgq9vZHZ9DmDnW2NxX4KNzS6OKNVlfeZhsD11MEdNiXUR4XwRHeq/g+ia
-         oBLW7BXRReeybzNAN4OBLrY8IgEeMXeeolj6m3qWNxjQW7HrGA/OnjeK4CjAOhJap9V+
-         OvxA==
-X-Gm-Message-State: AOAM531bJOLB/sV6lJz38OYaDc3br2qYCkmHoOyMlxW4dmkgQfi7weqT
-        0l8MJ0GoDNNbv0UIHpydxyzWh/2nEl0OQJEK6DNOJPZWum8lzPZv9rESmBLlp55Z8WL2MF19/wP
-        oIIeMDOJ6R88aiFIt
-X-Received: by 2002:a37:6f07:: with SMTP id k7mr645811qkc.423.1606336036383;
-        Wed, 25 Nov 2020 12:27:16 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxIW7/SCjK5C7le3XLJ7c7SswM/9Tbl2wvjAUiYOJaHFKIGoPwGq/hxgNfwbsf46D2m+6cudA==
-X-Received: by 2002:a37:6f07:: with SMTP id k7mr645781qkc.423.1606336036152;
-        Wed, 25 Nov 2020 12:27:16 -0800 (PST)
-Received: from dev.jcline.org ([2605:a601:a638:b301:9966:d978:493:6a3d])
-        by smtp.gmail.com with ESMTPSA id o187sm431772qkb.120.2020.11.25.12.27.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2020 12:27:15 -0800 (PST)
-From:   Jeremy Cline <jcline@redhat.com>
-To:     Ben Skeggs <bskeggs@redhat.com>
-Cc:     Lyude Paul <lyude@redhat.com>, Karol Herbst <kherbst@redhat.com>,
-        David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        Jeremy Cline <jcline@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v2 3/3] drm/nouveau: clean up all clients on device removal
-Date:   Wed, 25 Nov 2020 15:26:48 -0500
-Message-Id: <20201125202648.5220-4-jcline@redhat.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201125202648.5220-1-jcline@redhat.com>
-References: <20201103194912.184413-1-jcline@redhat.com>
- <20201125202648.5220-1-jcline@redhat.com>
+        id S1730618AbgKYVBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 16:01:19 -0500
+Received: from mga09.intel.com ([134.134.136.24]:7213 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728529AbgKYVBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 16:01:18 -0500
+IronPort-SDR: WmClStVjjTMAJxgCDj/HHYxrNu/SRhHKsBC5xDnxRdFrl7N3z0T1QaCfAXplp+SEJVIcYoBVmx
+ aS3zT07LW9hg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9816"; a="172356845"
+X-IronPort-AV: E=Sophos;i="5.78,370,1599548400"; 
+   d="scan'208";a="172356845"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 13:01:17 -0800
+IronPort-SDR: wQ/bfzARQCs7J5iBMlAfoOqAr4jYDBezPLhBNA7QS5/y6UPBz547x7BQ1VFa6k1vgv2kVEokWx
+ gng3Akoqd6gQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,370,1599548400"; 
+   d="scan'208";a="370912116"
+Received: from sedona.ch.intel.com ([10.2.136.157])
+  by orsmga007.jf.intel.com with ESMTP; 25 Nov 2020 13:01:17 -0800
+Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id 0APL1FA1000642;
+        Wed, 25 Nov 2020 14:01:15 -0700
+Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id 0APL1CQu104331;
+        Wed, 25 Nov 2020 16:01:13 -0500
+Subject: [PATCH for-rc v5] IB/hfi1: Ensure correct mm is used at all times
+From:   Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+To:     jgg@ziepe.ca, dledford@redhat.com
+Cc:     linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        stable@vger.kernel.org, linux-mm@kvack.org,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>
+Date:   Wed, 25 Nov 2020 16:01:12 -0500
+Message-ID: <20201125210112.104301.51331.stgit@awfm-01.aw.intel.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The postclose handler can run after the device has been removed (or the
-driver has been unbound) since userspace clients are free to hold the
-file open as long as they want. Because the device removal callback
-frees the entire nouveau_drm structure, any reference to it in the
-postclose handler will result in a use-after-free.
+Two earlier bug fixes have created a security problem in the hfi1
+driver. One fix aimed to solve an issue where current->mm was not valid
+when closing the hfi1 cdev. It attempted to do this by saving a cached
+value of the current->mm pointer at file open time. This is a problem if
+another process with access to the FD calls in via write() or ioctl() to
+pin pages via the hfi driver. The other fix tried to solve a use after
+free by taking a reference on the mm.
 
-To reproduce this, one must simply open the device file, unbind the
-driver (or physically remove the device), and then close the device
-file. This was found and can be reproduced easily with the IGT
-core_hotunplug tests.
+To fix this correctly we use the existing cached value of the mm in the
+mmu notifier. Now we can check in the insert, evict, etc. routines that
+current->mm matched what the notifier was registered for. If not, then
+don't allow access. The register of the mmu notifier will save the mm
+pointer.
 
-To avoid this, all clients are cleaned up in the device finalization
-rather than deferring it to the postclose handler, and the postclose
-handler is protected by a critical section which ensures the
-drm_dev_unplug() and the postclose handler won't race.
+Note the check in the unregister is not needed in the event that
+current->mm is empty. This means the tear down is happening due to a
+SigKill or OOM Killer, something along those lines. If current->mm has a
+value then it must be checked and only the task that did the register
+can do the unregister.
 
-This is not an ideal fix, since as I understand the proposed plan for
-the kernel<->userspace interface for hotplug support, destroying the
-client before the file is closed will cause problems. However, I believe
-to properly fix this issue, the lifetime of the nouveau_drm structure
-needs to be extended to match the drm_device, and this proved to be a
-rather invasive change. Thus, I've broken this out so the fix can be
-easily backported.
+Since in do_exit() the exit_mm() is called before exit_files(), which
+would call our close routine a reference is needed on the mm. We rely on
+the mmgrab done by the registration of the notifier, whereas before it
+was explicit. The mmu notifier deregistration happens when the user
+context is torn down, the creation of which triggered the registration.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Also of note is we do not do any explicit work to protect the interval
+tree notifier. It doesn't seem that this is going to be needed since we
+aren't actually doing anything with current->mm. The interval tree
+notifier stuff still has a FIXME noted from a previous commit that will
+be addressed in a follow on patch.
+
+Fixes: e0cf75deab81 ("IB/hfi1: Fix mm_struct use after free")
+Fixes: 3faa3d9a308e ("IB/hfi1: Make use of mm consistent")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Jann Horn <jannh@google.com>
+Reported-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_drm.c | 30 +++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-index 6ee1adc9bd40..afaf1774ee35 100644
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -628,6 +628,7 @@ nouveau_drm_device_init(struct drm_device *dev)
- static void
- nouveau_drm_device_fini(struct drm_device *dev)
- {
-+	struct nouveau_cli *cli, *temp_cli;
- 	struct nouveau_drm *drm = nouveau_drm(dev);
+Changes since v0:
+----------------
+Removed the checking of the pid and limitation that
+whatever task opens the dev is the only one that can do write() or
+ioctl(). While this limitation is OK it doesn't appear to be strictly
+necessary.
+
+Rebased on top of 5.10-rc1. Testing has been done on 5.9 due to a bug in
+5.10 that is being worked (separate issue).
+
+Changes since v1:
+----------------
+Remove explicit mmget/put to rely on the notifier register's mmgrab
+instead.
+
+Fixed missing check in rb_unregister to only check current->mm if its
+actually valid.
+
+Moved mm_from_tid_node to exp_rcv header and use it
+
+Changes since v2:
+----------------
+Change Reported-by to Suggested-by for Jann
+
+Commit msg updates
+
+Remove private mm pointer and use notifier's
+
+Changes since v3:
+-----------------
+Added Ira's RB and Cc stable list
+
+Updated commit message
+
+Added comment to mmu_rb_unregister
+
+Renamed confusing variable in mmu_rb_register
+
+Changes since v4:
+-----------------
+Remove conditional mmu notifier registration and fix up commit msg.
+---
+ drivers/infiniband/hw/hfi1/file_ops.c     |    4 --
+ drivers/infiniband/hw/hfi1/hfi.h          |    2 -
+ drivers/infiniband/hw/hfi1/mmu_rb.c       |   68 +++++++++++++++--------------
+ drivers/infiniband/hw/hfi1/mmu_rb.h       |   16 ++++++-
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c |   12 +++--
+ drivers/infiniband/hw/hfi1/user_exp_rcv.h |    6 +++
+ drivers/infiniband/hw/hfi1/user_sdma.c    |   13 +++---
+ drivers/infiniband/hw/hfi1/user_sdma.h    |    7 +++
+ 8 files changed, 79 insertions(+), 49 deletions(-)
+
+diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
+index 8ca51e4..329ee4f 100644
+--- a/drivers/infiniband/hw/hfi1/file_ops.c
++++ b/drivers/infiniband/hw/hfi1/file_ops.c
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright(c) 2020 Cornelis Networks, Inc.
+  * Copyright(c) 2015-2020 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -206,8 +207,6 @@ static int hfi1_file_open(struct inode *inode, struct file *fp)
+ 	spin_lock_init(&fd->tid_lock);
+ 	spin_lock_init(&fd->invalid_lock);
+ 	fd->rec_cpu_num = -1; /* no cpu affinity by default */
+-	fd->mm = current->mm;
+-	mmgrab(fd->mm);
+ 	fd->dd = dd;
+ 	fp->private_data = fd;
+ 	return 0;
+@@ -711,7 +710,6 @@ static int hfi1_file_close(struct inode *inode, struct file *fp)
  
- 	if (nouveau_pmops_runtime()) {
-@@ -652,6 +653,24 @@ nouveau_drm_device_fini(struct drm_device *dev)
- 	nouveau_ttm_fini(drm);
- 	nouveau_vga_fini(drm);
+ 	deallocate_ctxt(uctxt);
+ done:
+-	mmdrop(fdata->mm);
  
-+	/*
-+	 * There may be existing clients from as-yet unclosed files. For now,
-+	 * clean them up here rather than deferring until the file is closed,
-+	 * but this likely not correct if we want to support hot-unplugging
-+	 * properly.
-+	 */
-+	mutex_lock(&drm->clients_lock);
-+	list_for_each_entry_safe(cli, temp_cli, &drm->clients, head) {
-+		list_del(&cli->head);
-+		mutex_lock(&cli->mutex);
-+		if (cli->abi16)
-+			nouveau_abi16_fini(cli->abi16);
-+		mutex_unlock(&cli->mutex);
-+		nouveau_cli_fini(cli);
-+		kfree(cli);
-+	}
-+	mutex_unlock(&drm->clients_lock);
-+
- 	nouveau_cli_fini(&drm->client);
- 	nouveau_cli_fini(&drm->master);
- 	nvif_parent_dtor(&drm->parent);
-@@ -1111,6 +1130,16 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
- {
- 	struct nouveau_cli *cli = nouveau_cli(fpriv);
- 	struct nouveau_drm *drm = nouveau_drm(dev);
-+	int dev_index;
-+
-+	/*
-+	 * The device is gone, and as it currently stands all clients are
-+	 * cleaned up in the removal codepath. In the future this may change
-+	 * so that we can support hot-unplugging, but for now we immediately
-+	 * return to avoid a double-free situation.
-+	 */
-+	if (!drm_dev_enter(dev, &dev_index))
-+		return;
+ 	if (atomic_dec_and_test(&dd->user_refcount))
+ 		complete(&dd->user_comp);
+diff --git a/drivers/infiniband/hw/hfi1/hfi.h b/drivers/infiniband/hw/hfi1/hfi.h
+index b4c6bff..e09e824 100644
+--- a/drivers/infiniband/hw/hfi1/hfi.h
++++ b/drivers/infiniband/hw/hfi1/hfi.h
+@@ -1,6 +1,7 @@
+ #ifndef _HFI1_KERNEL_H
+ #define _HFI1_KERNEL_H
+ /*
++ * Copyright(c) 2020 Cornelis Networks, Inc.
+  * Copyright(c) 2015-2020 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -1451,7 +1452,6 @@ struct hfi1_filedata {
+ 	u32 invalid_tid_idx;
+ 	/* protect invalid_tids array and invalid_tid_idx */
+ 	spinlock_t invalid_lock;
+-	struct mm_struct *mm;
+ };
  
- 	pm_runtime_get_sync(dev->dev);
+ extern struct xarray hfi1_dev_table;
+diff --git a/drivers/infiniband/hw/hfi1/mmu_rb.c b/drivers/infiniband/hw/hfi1/mmu_rb.c
+index 24ca17b..f3fb28e 100644
+--- a/drivers/infiniband/hw/hfi1/mmu_rb.c
++++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright(c) 2020 Cornelis Networks, Inc.
+  * Copyright(c) 2016 - 2017 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -48,23 +49,11 @@
+ #include <linux/rculist.h>
+ #include <linux/mmu_notifier.h>
+ #include <linux/interval_tree_generic.h>
++#include <linux/sched/mm.h>
  
-@@ -1127,6 +1156,7 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
- 	kfree(cli);
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
-+	drm_dev_exit(dev_index);
+ #include "mmu_rb.h"
+ #include "trace.h"
+ 
+-struct mmu_rb_handler {
+-	struct mmu_notifier mn;
+-	struct rb_root_cached root;
+-	void *ops_arg;
+-	spinlock_t lock;        /* protect the RB tree */
+-	struct mmu_rb_ops *ops;
+-	struct mm_struct *mm;
+-	struct list_head lru_list;
+-	struct work_struct del_work;
+-	struct list_head del_list;
+-	struct workqueue_struct *wq;
+-};
+-
+ static unsigned long mmu_node_start(struct mmu_rb_node *);
+ static unsigned long mmu_node_last(struct mmu_rb_node *);
+ static int mmu_notifier_range_start(struct mmu_notifier *,
+@@ -92,37 +81,36 @@ static unsigned long mmu_node_last(struct mmu_rb_node *node)
+ 	return PAGE_ALIGN(node->addr + node->len) - 1;
  }
  
- static const struct drm_ioctl_desc
--- 
-2.28.0
+-int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
++int hfi1_mmu_rb_register(void *ops_arg,
+ 			 struct mmu_rb_ops *ops,
+ 			 struct workqueue_struct *wq,
+ 			 struct mmu_rb_handler **handler)
+ {
+-	struct mmu_rb_handler *handlr;
++	struct mmu_rb_handler *h;
+ 	int ret;
+ 
+-	handlr = kmalloc(sizeof(*handlr), GFP_KERNEL);
+-	if (!handlr)
++	h = kmalloc(sizeof(*h), GFP_KERNEL);
++	if (!h)
+ 		return -ENOMEM;
+ 
+-	handlr->root = RB_ROOT_CACHED;
+-	handlr->ops = ops;
+-	handlr->ops_arg = ops_arg;
+-	INIT_HLIST_NODE(&handlr->mn.hlist);
+-	spin_lock_init(&handlr->lock);
+-	handlr->mn.ops = &mn_opts;
+-	handlr->mm = mm;
+-	INIT_WORK(&handlr->del_work, handle_remove);
+-	INIT_LIST_HEAD(&handlr->del_list);
+-	INIT_LIST_HEAD(&handlr->lru_list);
+-	handlr->wq = wq;
+-
+-	ret = mmu_notifier_register(&handlr->mn, handlr->mm);
++	h->root = RB_ROOT_CACHED;
++	h->ops = ops;
++	h->ops_arg = ops_arg;
++	INIT_HLIST_NODE(&h->mn.hlist);
++	spin_lock_init(&h->lock);
++	h->mn.ops = &mn_opts;
++	INIT_WORK(&h->del_work, handle_remove);
++	INIT_LIST_HEAD(&h->del_list);
++	INIT_LIST_HEAD(&h->lru_list);
++	h->wq = wq;
++
++	ret = mmu_notifier_register(&h->mn, current->mm);
+ 	if (ret) {
+-		kfree(handlr);
++		kfree(h);
+ 		return ret;
+ 	}
+ 
+-	*handler = handlr;
++	*handler = h;
+ 	return 0;
+ }
+ 
+@@ -134,7 +122,7 @@ void hfi1_mmu_rb_unregister(struct mmu_rb_handler *handler)
+ 	struct list_head del_list;
+ 
+ 	/* Unregister first so we don't get any more notifications. */
+-	mmu_notifier_unregister(&handler->mn, handler->mm);
++	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+ 
+ 	/*
+ 	 * Make sure the wq delete handler is finished running.  It will not
+@@ -166,6 +154,10 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
+ 	int ret = 0;
+ 
+ 	trace_hfi1_mmu_rb_insert(mnode->addr, mnode->len);
++
++	if (current->mm != handler->mn.mm)
++		return -EPERM;
++
+ 	spin_lock_irqsave(&handler->lock, flags);
+ 	node = __mmu_rb_search(handler, mnode->addr, mnode->len);
+ 	if (node) {
+@@ -180,6 +172,7 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
+ 		__mmu_int_rb_remove(mnode, &handler->root);
+ 		list_del(&mnode->list); /* remove from LRU list */
+ 	}
++	mnode->handler = handler;
+ unlock:
+ 	spin_unlock_irqrestore(&handler->lock, flags);
+ 	return ret;
+@@ -217,6 +210,9 @@ bool hfi1_mmu_rb_remove_unless_exact(struct mmu_rb_handler *handler,
+ 	unsigned long flags;
+ 	bool ret = false;
+ 
++	if (current->mm != handler->mn.mm)
++		return ret;
++
+ 	spin_lock_irqsave(&handler->lock, flags);
+ 	node = __mmu_rb_search(handler, addr, len);
+ 	if (node) {
+@@ -239,6 +235,9 @@ void hfi1_mmu_rb_evict(struct mmu_rb_handler *handler, void *evict_arg)
+ 	unsigned long flags;
+ 	bool stop = false;
+ 
++	if (current->mm != handler->mn.mm)
++		return;
++
+ 	INIT_LIST_HEAD(&del_list);
+ 
+ 	spin_lock_irqsave(&handler->lock, flags);
+@@ -272,6 +271,9 @@ void hfi1_mmu_rb_remove(struct mmu_rb_handler *handler,
+ {
+ 	unsigned long flags;
+ 
++	if (current->mm != handler->mn.mm)
++		return;
++
+ 	/* Validity of handler and node pointers has been checked by caller. */
+ 	trace_hfi1_mmu_rb_remove(node->addr, node->len);
+ 	spin_lock_irqsave(&handler->lock, flags);
+diff --git a/drivers/infiniband/hw/hfi1/mmu_rb.h b/drivers/infiniband/hw/hfi1/mmu_rb.h
+index f04cec1..423aacc 100644
+--- a/drivers/infiniband/hw/hfi1/mmu_rb.h
++++ b/drivers/infiniband/hw/hfi1/mmu_rb.h
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright(c) 2020 Cornelis Networks, Inc.
+  * Copyright(c) 2016 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -54,6 +55,7 @@ struct mmu_rb_node {
+ 	unsigned long len;
+ 	unsigned long __last;
+ 	struct rb_node node;
++	struct mmu_rb_handler *handler;
+ 	struct list_head list;
+ };
+ 
+@@ -71,7 +73,19 @@ struct mmu_rb_ops {
+ 		     void *evict_arg, bool *stop);
+ };
+ 
+-int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
++struct mmu_rb_handler {
++	struct mmu_notifier mn;
++	struct rb_root_cached root;
++	void *ops_arg;
++	spinlock_t lock;        /* protect the RB tree */
++	struct mmu_rb_ops *ops;
++	struct list_head lru_list;
++	struct work_struct del_work;
++	struct list_head del_list;
++	struct workqueue_struct *wq;
++};
++
++int hfi1_mmu_rb_register(void *ops_arg,
+ 			 struct mmu_rb_ops *ops,
+ 			 struct workqueue_struct *wq,
+ 			 struct mmu_rb_handler **handler);
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+index f81ca20..b94fc7f 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright(c) 2020 Cornelis Networks, Inc.
+  * Copyright(c) 2015-2018 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -173,15 +174,18 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
+ {
+ 	struct page **pages;
+ 	struct hfi1_devdata *dd = fd->uctxt->dd;
++	struct mm_struct *mm;
+ 
+ 	if (mapped) {
+ 		pci_unmap_single(dd->pcidev, node->dma_addr,
+ 				 node->npages * PAGE_SIZE, PCI_DMA_FROMDEVICE);
+ 		pages = &node->pages[idx];
++		mm = mm_from_tid_node(node);
+ 	} else {
+ 		pages = &tidbuf->pages[idx];
++		mm = current->mm;
+ 	}
+-	hfi1_release_user_pages(fd->mm, pages, npages, mapped);
++	hfi1_release_user_pages(mm, pages, npages, mapped);
+ 	fd->tid_n_pinned -= npages;
+ }
+ 
+@@ -216,12 +220,12 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
+ 	 * pages, accept the amount pinned so far and program only that.
+ 	 * User space knows how to deal with partially programmed buffers.
+ 	 */
+-	if (!hfi1_can_pin_pages(dd, fd->mm, fd->tid_n_pinned, npages)) {
++	if (!hfi1_can_pin_pages(dd, current->mm, fd->tid_n_pinned, npages)) {
+ 		kfree(pages);
+ 		return -ENOMEM;
+ 	}
+ 
+-	pinned = hfi1_acquire_user_pages(fd->mm, vaddr, npages, true, pages);
++	pinned = hfi1_acquire_user_pages(current->mm, vaddr, npages, true, pages);
+ 	if (pinned <= 0) {
+ 		kfree(pages);
+ 		return pinned;
+@@ -756,7 +760,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
+ 
+ 	if (fd->use_mn) {
+ 		ret = mmu_interval_notifier_insert(
+-			&node->notifier, fd->mm,
++			&node->notifier, current->mm,
+ 			tbuf->vaddr + (pageidx * PAGE_SIZE), npages * PAGE_SIZE,
+ 			&tid_mn_ops);
+ 		if (ret)
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.h b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
+index 332abb4..d45c7b6 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.h
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
+@@ -1,6 +1,7 @@
+ #ifndef _HFI1_USER_EXP_RCV_H
+ #define _HFI1_USER_EXP_RCV_H
+ /*
++ * Copyright(c) 2020 - Cornelis Networks, Inc.
+  * Copyright(c) 2015 - 2017 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -95,4 +96,9 @@ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
+ int hfi1_user_exp_rcv_invalid(struct hfi1_filedata *fd,
+ 			      struct hfi1_tid_info *tinfo);
+ 
++static inline struct mm_struct *mm_from_tid_node(struct tid_rb_node *node)
++{
++	return node->notifier.mm;
++}
++
+ #endif /* _HFI1_USER_EXP_RCV_H */
+diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
+index a92346e..4a4956f9 100644
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -1,4 +1,5 @@
+ /*
++ * Copyright(c) 2020 - Cornelis Networks, Inc.
+  * Copyright(c) 2015 - 2018 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -188,7 +189,6 @@ int hfi1_user_sdma_alloc_queues(struct hfi1_ctxtdata *uctxt,
+ 	atomic_set(&pq->n_reqs, 0);
+ 	init_waitqueue_head(&pq->wait);
+ 	atomic_set(&pq->n_locked, 0);
+-	pq->mm = fd->mm;
+ 
+ 	iowait_init(&pq->busy, 0, NULL, NULL, defer_packet_queue,
+ 		    activate_packet_queue, NULL, NULL);
+@@ -230,7 +230,7 @@ int hfi1_user_sdma_alloc_queues(struct hfi1_ctxtdata *uctxt,
+ 
+ 	cq->nentries = hfi1_sdma_comp_ring_size;
+ 
+-	ret = hfi1_mmu_rb_register(pq, pq->mm, &sdma_rb_ops, dd->pport->hfi1_wq,
++	ret = hfi1_mmu_rb_register(pq, &sdma_rb_ops, dd->pport->hfi1_wq,
+ 				   &pq->handler);
+ 	if (ret) {
+ 		dd_dev_err(dd, "Failed to register with MMU %d", ret);
+@@ -980,13 +980,13 @@ static int pin_sdma_pages(struct user_sdma_request *req,
+ 
+ 	npages -= node->npages;
+ retry:
+-	if (!hfi1_can_pin_pages(pq->dd, pq->mm,
++	if (!hfi1_can_pin_pages(pq->dd, current->mm,
+ 				atomic_read(&pq->n_locked), npages)) {
+ 		cleared = sdma_cache_evict(pq, npages);
+ 		if (cleared >= npages)
+ 			goto retry;
+ 	}
+-	pinned = hfi1_acquire_user_pages(pq->mm,
++	pinned = hfi1_acquire_user_pages(current->mm,
+ 					 ((unsigned long)iovec->iov.iov_base +
+ 					 (node->npages * PAGE_SIZE)), npages, 0,
+ 					 pages + node->npages);
+@@ -995,7 +995,7 @@ static int pin_sdma_pages(struct user_sdma_request *req,
+ 		return pinned;
+ 	}
+ 	if (pinned != npages) {
+-		unpin_vector_pages(pq->mm, pages, node->npages, pinned);
++		unpin_vector_pages(current->mm, pages, node->npages, pinned);
+ 		return -EFAULT;
+ 	}
+ 	kfree(node->pages);
+@@ -1008,7 +1008,8 @@ static int pin_sdma_pages(struct user_sdma_request *req,
+ static void unpin_sdma_pages(struct sdma_mmu_node *node)
+ {
+ 	if (node->npages) {
+-		unpin_vector_pages(node->pq->mm, node->pages, 0, node->npages);
++		unpin_vector_pages(mm_from_sdma_node(node), node->pages, 0,
++				   node->npages);
+ 		atomic_sub(node->npages, &node->pq->n_locked);
+ 	}
+ }
+diff --git a/drivers/infiniband/hw/hfi1/user_sdma.h b/drivers/infiniband/hw/hfi1/user_sdma.h
+index 9972e0e..1e8c02f 100644
+--- a/drivers/infiniband/hw/hfi1/user_sdma.h
++++ b/drivers/infiniband/hw/hfi1/user_sdma.h
+@@ -1,6 +1,7 @@
+ #ifndef _HFI1_USER_SDMA_H
+ #define _HFI1_USER_SDMA_H
+ /*
++ * Copyright(c) 2020 - Cornelis Networks, Inc.
+  * Copyright(c) 2015 - 2018 Intel Corporation.
+  *
+  * This file is provided under a dual BSD/GPLv2 license.  When using or
+@@ -133,7 +134,6 @@ struct hfi1_user_sdma_pkt_q {
+ 	unsigned long unpinned;
+ 	struct mmu_rb_handler *handler;
+ 	atomic_t n_locked;
+-	struct mm_struct *mm;
+ };
+ 
+ struct hfi1_user_sdma_comp_q {
+@@ -250,4 +250,9 @@ int hfi1_user_sdma_process_request(struct hfi1_filedata *fd,
+ 				   struct iovec *iovec, unsigned long dim,
+ 				   unsigned long *count);
+ 
++static inline struct mm_struct *mm_from_sdma_node(struct sdma_mmu_node *node)
++{
++	return node->rb.handler->mn.mm;
++}
++
+ #endif /* _HFI1_USER_SDMA_H */
 
