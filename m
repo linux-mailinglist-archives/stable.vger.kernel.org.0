@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B3D2C440B
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC0C2C4408
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731175AbgKYPkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:40:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55482 "EHLO mail.kernel.org"
+        id S1730538AbgKYPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731096AbgKYPhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731101AbgKYPhd (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 25 Nov 2020 10:37:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C853221FD;
-        Wed, 25 Nov 2020 15:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78E4F221FB;
+        Wed, 25 Nov 2020 15:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318652;
-        bh=XWlz7NDFE0AhGHFRfAaYAMdyCvwPzk8IeegpybgiS/k=;
+        s=default; t=1606318653;
+        bh=8qixQJveTgM/slIqqZMCI09l3i7SFF5l94iIB84rPyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stnMF9XCxQRNJl2Vm5EgEWxSgzeytTzYPxsnn7nst3InCO1lAZpO49LMVo/38+VJX
-         ErdO8sW2E9jEmftOgwXGA+1IOZUrAd/oEGSDwygrgEYnjP1sljFq44QLruU1bsI1ks
-         Bte8SSczYmte3V9jK9YV1k5xU6UIl9c/Jmuu/1oc=
+        b=Ua+OS+KFFXsxl2uGr14ft3qOJe4CrG+nta7GLHFd+LLlFaJy5UStidnlgwb/4VGEk
+         Ku5aUX+htTGAOVomsDl1+EaldACd7CZd6V5c+Xw5RNqBGdyOmuu1WNfOntmzhyRvK9
+         IIawRebQP1ZYptb7LpOJHVAGvgp0UBD3/NDnBrCI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 14/15] perf/x86: fix sysfs type mismatches
-Date:   Wed, 25 Nov 2020 10:37:11 -0500
-Message-Id: <20201125153712.810655-14-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        kernel test robot <lkp@intel.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xtensa@linux-xtensa.org
+Subject: [PATCH AUTOSEL 4.19 15/15] xtensa: uaccess: Add missing __user to strncpy_from_user() prototype
+Date:   Wed, 25 Nov 2020 10:37:12 -0500
+Message-Id: <20201125153712.810655-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153712.810655-1-sashal@kernel.org>
 References: <20201125153712.810655-1-sashal@kernel.org>
@@ -45,139 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit ebd19fc372e3e78bf165f230e7c084e304441c08 ]
+[ Upstream commit dc293f2106903ab9c24e9cea18c276e32c394c33 ]
 
-This change switches rapl to use PMU_FORMAT_ATTR, and fixes two other
-macros to use device_attribute instead of kobj_attribute to avoid
-callback type mismatches that trip indirect call checking with Clang's
-Control-Flow Integrity (CFI).
+When adding __user annotations in commit 2adf5352a34a, the
+strncpy_from_user() function declaration for the
+CONFIG_GENERIC_STRNCPY_FROM_USER case was missed. Fix it.
 
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lkml.kernel.org/r/20201113183126.1239404-1-samitolvanen@google.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Message-Id: <20200831210937.17938-1-laurent.pinchart@ideasonboard.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/cstate.c |  6 +++---
- arch/x86/events/intel/rapl.c   | 14 +-------------
- arch/x86/events/intel/uncore.c |  4 ++--
- arch/x86/events/intel/uncore.h | 12 ++++++------
- 4 files changed, 12 insertions(+), 24 deletions(-)
+ arch/xtensa/include/asm/uaccess.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
-index 4a650eb3d94a3..3b3cd12c06920 100644
---- a/arch/x86/events/intel/cstate.c
-+++ b/arch/x86/events/intel/cstate.c
-@@ -100,14 +100,14 @@
- MODULE_LICENSE("GPL");
- 
- #define DEFINE_CSTATE_FORMAT_ATTR(_var, _name, _format)		\
--static ssize_t __cstate_##_var##_show(struct kobject *kobj,	\
--				struct kobj_attribute *attr,	\
-+static ssize_t __cstate_##_var##_show(struct device *dev,	\
-+				struct device_attribute *attr,	\
- 				char *page)			\
- {								\
- 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
- 	return sprintf(page, _format "\n");			\
- }								\
--static struct kobj_attribute format_attr_##_var =		\
-+static struct device_attribute format_attr_##_var =		\
- 	__ATTR(_name, 0444, __cstate_##_var##_show, NULL)
- 
- static ssize_t cstate_get_attr_cpumask(struct device *dev,
-diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/intel/rapl.c
-index 2413169ce3627..bc348663da94d 100644
---- a/arch/x86/events/intel/rapl.c
-+++ b/arch/x86/events/intel/rapl.c
-@@ -115,18 +115,6 @@ static const char *const rapl_domain_names[NR_RAPL_DOMAINS] __initconst = {
-  * any other bit is reserved
-  */
- #define RAPL_EVENT_MASK	0xFFULL
--
--#define DEFINE_RAPL_FORMAT_ATTR(_var, _name, _format)		\
--static ssize_t __rapl_##_var##_show(struct kobject *kobj,	\
--				struct kobj_attribute *attr,	\
--				char *page)			\
--{								\
--	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
--	return sprintf(page, _format "\n");			\
--}								\
--static struct kobj_attribute format_attr_##_var =		\
--	__ATTR(_name, 0444, __rapl_##_var##_show, NULL)
--
- #define RAPL_CNTR_WIDTH 32
- 
- #define RAPL_EVENT_ATTR_STR(_name, v, str)					\
-@@ -548,7 +536,7 @@ static struct attribute_group rapl_pmu_events_group = {
- 	.attrs = NULL, /* patched at runtime */
- };
- 
--DEFINE_RAPL_FORMAT_ATTR(event, event, "config:0-7");
-+PMU_FORMAT_ATTR(event, "config:0-7");
- static struct attribute *rapl_formats_attr[] = {
- 	&format_attr_event.attr,
- 	NULL,
-diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
-index 7098b9b05d566..2f4ed5aa08bad 100644
---- a/arch/x86/events/intel/uncore.c
-+++ b/arch/x86/events/intel/uncore.c
-@@ -90,8 +90,8 @@ struct pci2phy_map *__find_pci2phy_map(int segment)
- 	return map;
+diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
+index f1158b4c629cf..da4effe270072 100644
+--- a/arch/xtensa/include/asm/uaccess.h
++++ b/arch/xtensa/include/asm/uaccess.h
+@@ -291,7 +291,7 @@ strncpy_from_user(char *dst, const char *src, long count)
+ 	return -EFAULT;
  }
+ #else
+-long strncpy_from_user(char *dst, const char *src, long count);
++long strncpy_from_user(char *dst, const char __user *src, long count);
+ #endif
  
--ssize_t uncore_event_show(struct kobject *kobj,
--			  struct kobj_attribute *attr, char *buf)
-+ssize_t uncore_event_show(struct device *dev,
-+			  struct device_attribute *attr, char *buf)
- {
- 	struct uncore_event_desc *event =
- 		container_of(attr, struct uncore_event_desc, attr);
-diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
-index 40e040ec31b50..0fc86ac73b511 100644
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -133,7 +133,7 @@ struct intel_uncore_box {
- #define UNCORE_BOX_FLAG_CTL_OFFS8	1 /* event config registers are 8-byte apart */
- 
- struct uncore_event_desc {
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- 	const char *config;
- };
- 
-@@ -153,8 +153,8 @@ struct pci2phy_map {
- 
- struct pci2phy_map *__find_pci2phy_map(int segment);
- 
--ssize_t uncore_event_show(struct kobject *kobj,
--			  struct kobj_attribute *attr, char *buf);
-+ssize_t uncore_event_show(struct device *dev,
-+			  struct device_attribute *attr, char *buf);
- 
- #define INTEL_UNCORE_EVENT_DESC(_name, _config)			\
- {								\
-@@ -163,14 +163,14 @@ ssize_t uncore_event_show(struct kobject *kobj,
- }
- 
- #define DEFINE_UNCORE_FORMAT_ATTR(_var, _name, _format)			\
--static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
--				struct kobj_attribute *attr,		\
-+static ssize_t __uncore_##_var##_show(struct device *dev,		\
-+				struct device_attribute *attr,		\
- 				char *page)				\
- {									\
- 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);			\
- 	return sprintf(page, _format "\n");				\
- }									\
--static struct kobj_attribute format_attr_##_var =			\
-+static struct device_attribute format_attr_##_var =			\
- 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
- 
- static inline bool uncore_pmc_fixed(int idx)
+ /*
 -- 
 2.27.0
 
