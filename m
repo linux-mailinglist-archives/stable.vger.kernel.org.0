@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C48E2C4427
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E53B2C43CB
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:44:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730852AbgKYPlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:41:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
+        id S1730895AbgKYPhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:37:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730855AbgKYPg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:58 -0500
+        id S1730875AbgKYPhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1982121D93;
-        Wed, 25 Nov 2020 15:36:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5499121D7F;
+        Wed, 25 Nov 2020 15:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318617;
-        bh=wmm2grhwJ1Nu8cLPYREWXm5U/uquc+IX4MNyz3Ym0rk=;
+        s=default; t=1606318619;
+        bh=/8c1Man/mllWLcUVYHSfgb+rDJvQlTZhZsG1a0laReg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLMTYYhrzyU9o4mAz+GJ8dRR1kCze80cL9OD4+dJ5xyDMPuD7AmLkMyftUz639vOH
-         E5PCBLXgG78/RjAqHNIM1mvbGb3uF9IgMIeQTSMeHBImZVohH4izhH23aQGp+IiMWR
-         HAedOMTKbzeOsBErJJCYCcTK3d1Z9UIJ/jac3pkE=
+        b=FIJ8RCVqJIybrC1p9dh1xddFqrt6noy/q+RQ2eoBhrs6Hm+kMqdIsA/UFQFG7drfo
+         HHkBDlJLunJYDvZ5W0AZEToCxZtNZVII65Fh+EK6CKX3xFOZd6u3349y67HLTlOP/N
+         BPhmWTiIRcQIz9MmR8FYV+KArVDGTFsJmDrr29Rs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minwoo Im <minwoo.im.dev@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 14/23] nvme: free sq/cq dbbuf pointers when dbbuf set fails
-Date:   Wed, 25 Nov 2020 10:36:29 -0500
-Message-Id: <20201125153638.810419-14-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 15/23] vhost scsi: fix cmd completion race
+Date:   Wed, 25 Nov 2020 10:36:30 -0500
+Message-Id: <20201125153638.810419-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
@@ -42,61 +46,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minwoo Im <minwoo.im.dev@gmail.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 0f0d2c876c96d4908a9ef40959a44bec21bdd6cf ]
+[ Upstream commit 47a3565e8bb14ec48a75b48daf57aa830e2691f8 ]
 
-If Doorbell Buffer Config command fails even 'dev->dbbuf_dbs != NULL'
-which means OACS indicates that NVME_CTRL_OACS_DBBUF_SUPP is set,
-nvme_dbbuf_update_and_check_event() will check event even it's not been
-successfully set.
+We might not do the final se_cmd put from vhost_scsi_complete_cmd_work.
+When the last put happens a little later then we could race where
+vhost_scsi_complete_cmd_work does vhost_signal, the guest runs and sends
+more IO, and vhost_scsi_handle_vq runs but does not find any free cmds.
 
-This patch fixes mismatch among dbbuf for sq/cqs in case that dbbuf
-command fails.
+This patch has us delay completing the cmd until the last lio core ref
+is dropped. We then know that once we signal to the guest that the cmd
+is completed that if it queues a new command it will find a free cmd.
 
-Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
+Link: https://lore.kernel.org/r/1604986403-4931-4-git-send-email-michael.christie@oracle.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/vhost/scsi.c | 42 +++++++++++++++---------------------------
+ 1 file changed, 15 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index f5d12bf109c78..9b1fc8633cfe1 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -271,9 +271,21 @@ static void nvme_dbbuf_init(struct nvme_dev *dev,
- 	nvmeq->dbbuf_cq_ei = &dev->dbbuf_eis[cq_idx(qid, dev->db_stride)];
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index f63f84a257256..98c484149ac7f 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -320,7 +320,7 @@ static u32 vhost_scsi_tpg_get_inst_index(struct se_portal_group *se_tpg)
+ 	return 1;
  }
  
-+static void nvme_dbbuf_free(struct nvme_queue *nvmeq)
+-static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
++static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
+ {
+ 	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
+ 				struct vhost_scsi_cmd, tvc_se_cmd);
+@@ -340,6 +340,16 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ 	target_free_tag(se_sess, se_cmd);
+ }
+ 
++static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
 +{
-+	if (!nvmeq->qid)
-+		return;
++	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
++					struct vhost_scsi_cmd, tvc_se_cmd);
++	struct vhost_scsi *vs = cmd->tvc_vhost;
 +
-+	nvmeq->dbbuf_sq_db = NULL;
-+	nvmeq->dbbuf_cq_db = NULL;
-+	nvmeq->dbbuf_sq_ei = NULL;
-+	nvmeq->dbbuf_cq_ei = NULL;
++	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
++	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
 +}
 +
- static void nvme_dbbuf_set(struct nvme_dev *dev)
+ static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
  {
- 	struct nvme_command c;
-+	unsigned int i;
- 
- 	if (!dev->dbbuf_dbs)
- 		return;
-@@ -287,6 +299,9 @@ static void nvme_dbbuf_set(struct nvme_dev *dev)
- 		dev_warn(dev->ctrl.device, "unable to set dbbuf\n");
- 		/* Free memory and continue on */
- 		nvme_dbbuf_dma_free(dev);
-+
-+		for (i = 1; i <= dev->online_queues; i++)
-+			nvme_dbbuf_free(&dev->queues[i]);
- 	}
+ 	return 0;
+@@ -362,28 +372,15 @@ static int vhost_scsi_get_cmd_state(struct se_cmd *se_cmd)
+ 	return 0;
  }
  
+-static void vhost_scsi_complete_cmd(struct vhost_scsi_cmd *cmd)
+-{
+-	struct vhost_scsi *vs = cmd->tvc_vhost;
+-
+-	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
+-
+-	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
+-}
+-
+ static int vhost_scsi_queue_data_in(struct se_cmd *se_cmd)
+ {
+-	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+-				struct vhost_scsi_cmd, tvc_se_cmd);
+-	vhost_scsi_complete_cmd(cmd);
++	transport_generic_free_cmd(se_cmd, 0);
+ 	return 0;
+ }
+ 
+ static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
+ {
+-	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+-				struct vhost_scsi_cmd, tvc_se_cmd);
+-	vhost_scsi_complete_cmd(cmd);
++	transport_generic_free_cmd(se_cmd, 0);
+ 	return 0;
+ }
+ 
+@@ -429,15 +426,6 @@ vhost_scsi_allocate_evt(struct vhost_scsi *vs,
+ 	return evt;
+ }
+ 
+-static void vhost_scsi_free_cmd(struct vhost_scsi_cmd *cmd)
+-{
+-	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
+-
+-	/* TODO locking against target/backend threads? */
+-	transport_generic_free_cmd(se_cmd, 0);
+-
+-}
+-
+ static int vhost_scsi_check_stop_free(struct se_cmd *se_cmd)
+ {
+ 	return target_put_sess_cmd(se_cmd);
+@@ -556,7 +544,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ 		} else
+ 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
+ 
+-		vhost_scsi_free_cmd(cmd);
++		vhost_scsi_release_cmd_res(se_cmd);
+ 	}
+ 
+ 	vq = -1;
+@@ -1088,7 +1076,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 						      &prot_iter, exp_data_len,
+ 						      &data_iter))) {
+ 				vq_err(vq, "Failed to map iov to sgl\n");
+-				vhost_scsi_release_cmd(&cmd->tvc_se_cmd);
++				vhost_scsi_release_cmd_res(&cmd->tvc_se_cmd);
+ 				goto err;
+ 			}
+ 		}
 -- 
 2.27.0
 
