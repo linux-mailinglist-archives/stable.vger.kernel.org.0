@@ -2,92 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1C52C3F9A
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 13:10:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDA22C405A
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 13:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbgKYMKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 07:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
+        id S1725836AbgKYMir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 07:38:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726039AbgKYMKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 07:10:11 -0500
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3390CC0613D4;
-        Wed, 25 Nov 2020 04:10:11 -0800 (PST)
-Received: by mail-lj1-x244.google.com with SMTP id 142so2008307ljj.10;
-        Wed, 25 Nov 2020 04:10:11 -0800 (PST)
+        with ESMTP id S1725616AbgKYMiq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 07:38:46 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A729AC0613D4
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 04:38:46 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id l5so2351424edq.11
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 04:38:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=JtvEqlP2kM/xfhneQTjDnybMpz+ouPY74TpkVqPdwg0=;
-        b=PQYAAtJkKjaS1TxwaJUvBf/VGyfTHk3L5ew5pftTrsgtOGavvV448+bwwpv8yl+0MU
-         BTaPjAoOuFQlwyBfi6iTs5r1Blf+nfH3fX/MnZA0t63K95TzqmcB+HRVdyvexvVaEZTF
-         ep+/QZ1wnNn8yCgZKM3oSVSFpslH6u3UQPxnGc5M4bkntdgbkVO/tdk7NrI6DugToY/j
-         WWuAeKjfDXrcorjq6UEisv04A1NIi0cPDDaF9o9qRWlaHY//saDCL1AIxFaxFCFvaYSE
-         HtmDxj5QHDulrziTy+XFRUhq/lKVRpNJXISDsgGzTPDjnb+34mgNlMZ7gRP36KhLmPYS
-         /kbg==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=8el4Uq4/XxR+x0Q15vM2gzoWDN/r7jYxF9iApmbcYYQ=;
+        b=RfUGn++loLYsx4XVHwzPjb8nui6Oq18CRsZhryY0b0ZNJ6VW/EjEMt0p8dIXY0sBQW
+         37P6mitFBm99aFsuNVioalGeEdD+BwTnnP4POlIhpnmzNYhaDN2TwhNSCF1FyP+Q/Tc0
+         86teAWkfFkuneNHL1esRARkIoaLWe5Pt1nmWJz27umb1vxoiMc1wdewUFNCKo90q1d6X
+         aaHdyDhA/38pL0UQP5LPU0y8kXDNj9BwhwlYE0IghXJC+xIMo0lkgTPnJrMk64WjTgQ3
+         r7G9phGEx+6BJGJOcx7nrMJTpUsF8jLDU86uRZPPGwbuJ9pAPKmNn0v/sQq1LwBDYBTO
+         jd3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=JtvEqlP2kM/xfhneQTjDnybMpz+ouPY74TpkVqPdwg0=;
-        b=WUJMnIJj6Du8MJCycZBx+9+X2piAvv0ccxuSNkmWmdwk3bHtJZL1u4956hW411H+zi
-         kvcabaF/872ZC3rFY0uZ9NGhjCrJn3HpapRr0utbriRUK4MlhwNRmIwUe5Yj8wt3vMY7
-         LHhB2HafIrs/dHlL91MXPMJ5zBJsB6XkqTPQJ4AyKn+npkO5DeUo5eUq920G5t1mQIIw
-         UNyxX/+K2tQUbQwTqqqvJTgGEs5S6OsGqDDT1LaOiiP5suQYxWuxQC+4+y30asOxgLks
-         3qQnyqdhT5601GkGwqbOrCIhjQ+FdQY4Y9RyYyWS5xWsI0anSHoAhvi+TAN2xoua6Rw1
-         xKKg==
-X-Gm-Message-State: AOAM531f+Y75WmZpExAwBOZNrSd9LOQo0WSvVVDgi5dtDvYKJ4+QN14m
-        5ypi+XrYiicE2TUhZwA85BCXrRS5NjcGCg==
-X-Google-Smtp-Source: ABdhPJwYanW0E/yCz9bOI5/61jyGaYAqt/+JNu83mKX9tmwY8RcYWlfbtt+BYSpJRKCYNiq0bzuxBg==
-X-Received: by 2002:a2e:8011:: with SMTP id j17mr910111ljg.325.1606306209421;
-        Wed, 25 Nov 2020 04:10:09 -0800 (PST)
-Received: from ?IPv6:2a00:1fa0:46d0:9159:e29e:dcff:ec45:a8c0? ([2a00:1fa0:46d0:9159:e29e:dcff:ec45:a8c0])
-        by smtp.gmail.com with ESMTPSA id p19sm208403lfh.82.2020.11.25.04.10.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Nov 2020 04:10:08 -0800 (PST)
-Subject: Re: [PATCH 5/5] memory: renesas-rpc-if: Fix a reference leak in
- rpcif_probe()
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Jiri Kosina <trivial@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Prabhakar <prabhakar.csengg@gmail.com>, stable@vger.kernel.org
-References: <20201124112552.26377-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20201124112552.26377-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Message-ID: <27229829-5a21-e0e6-86a7-0bfc6ed646e5@gmail.com>
-Date:   Wed, 25 Nov 2020 15:10:07 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=8el4Uq4/XxR+x0Q15vM2gzoWDN/r7jYxF9iApmbcYYQ=;
+        b=qZ//MmEnxf7MvXtZcZdeYnhIBnHr0NzBsP/qHuu1CXGr2MkcvuHbSQwnfrGWs59iZE
+         Cg59X3gWEesbWcDj9brH8kD8Dv9UKc6BKBeAheyym7j9hUhkLC2RD/Nj4jDHHSYwmImG
+         c9+TZN1fxY9gUDAA7F7hl1RLYAAsy/gE7WYTi2H7EEt9PPLyKJqIbOb5W/YHT17Q5o+4
+         UX1HB07UpVkAr67XiZTxRQ4o/263TSKqurtsTCb6wIfXaoWppFuUFMSTkzotkFvPTuy4
+         Iel9qGR/G78SNmOJK9vWsiR7NKSbqPgwGfExYdcK43bMUsEmJno5syrjAAoy0Eq/tqnn
+         DU0A==
+X-Gm-Message-State: AOAM531/KYCBOfA9uNv270Z84x96pkHAx+hYdSXHwl/qCZDbdSTu5q+O
+        AgwbRY9U9nIhePf4mK9AoWaNQQFDzMpStLDUdlc=
+X-Google-Smtp-Source: ABdhPJxFYpk0NuRk4btzvRw5hhqs/J2PmRCAQx0nK7O1TE3CnGsWk49qd8ogx0F9ZyjTk3gQy0t5cS922ns15WJPDRo=
+X-Received: by 2002:aa7:dc53:: with SMTP id g19mr3265193edu.256.1606307925311;
+ Wed, 25 Nov 2020 04:38:45 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201124112552.26377-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a17:906:c2d7:0:0:0:0 with HTTP; Wed, 25 Nov 2020 04:38:44
+ -0800 (PST)
+Reply-To: centralbankofnigeria20@aol.com
+From:   Central Bank of Nigeria <presidencyoftheoffice@gmail.com>
+Date:   Wed, 25 Nov 2020 13:38:44 +0100
+Message-ID: <CAK2sGwxp_qh7JRGXeU5HkTZu+4gwGrObPZD5VoiugBwHkVHtcg@mail.gmail.com>
+Subject: INSTRUCTION/WARNING FROM CENTRAL BANK OF NIGERIA
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/24/20 2:25 PM, Lad Prabhakar wrote:
+CENTRAL BANK REMITTANCE UNIT,
+CENTRAL BUSINESS DISTRICT,
+CADASTRAL ZONE, ABUJA,
+FEDERAL CAPITAL TERRITORY,
+CONTRACT #: MAV/NNPC/FGN/MIN/013,
+Swift Code: BPH KPL PK,
+A/C#: 329606=101244=169=678
+FOREIGN REMITTANCE
+Our Ref: CBN/IRD/CBX/021/11
 
-> Release the node reference by calling of_node_put(flash) in the probe.
 
-   Sorry about missing this...
+ INSTRUCTION/WARNING FROM CENTRAL BANK OF NIGERIA
 
-> Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
-> Reported-by: Pavel Machek <pavel@denx.de>
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Cc: stable@vger.kernel.org
 
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+This is to bring to your notice  from the Central Bank Remittance
+Department that your  outstanding contractual payment which was
+suspended by the Nigerian government there by stopping the TELEX
+TRANSFER DEPARTMENT to pause the transfer of your contract fund to
+your nominated bank account. As a result of this development
+verification conducted by the Finance Ministry in conjunction with the
+Debt Verification Panel on your contract case file  has been endorsed
+for payment awaiting your confirmations.
 
-[...]
+In view of several efforts already made by us to contact you for the
+following reasons  based on the new account submitted to this office
+on your behalf:
 
-MBR, Sergei
+(1) My Office desks have just received a sworn affidavit from
+Mr.RAINER HESSE ? of Germany  to re-route your payment into a new bank
+account number as stated VACAP Federal Credit Union, 1700 Robin Hood
+Road, Richmond, VA 23220.  Account number 32501. of Mr.RAINER HESSE ?.
+
+The sum of 27 Million US Dollars ( Twenty Seven Million US Dollars)
+(2)Please, confirm to  our office if you have instructed Mr.RAINER
+HESSE ?of GERMANY to appoint an attorney/agent on your behalf thereby
+asking that he receive cash call remittance on your behalf.
+
+(3) It have come to our notice that you are being contacted by
+unauthorized individuals with respect to your contract payment but
+unfortunately this office is not aware of your  unofficial dealings
+and warned that it is at your own risk.
+
+(4) Please, also confirm if you have authorized Mr.RAINER HESSE ? to
+change your banking particulars to the following particulars stated
+below: VACAP Federal Credit Union, 1700  Robin Hood Road, Richmond, VA
+23220. Account number 3250163 Also re-confirm your Contract
+Number,Contract Amount, Private Telephone and Fax number, your e-mail
+address, Office or  home address so that we can cross-check it with
+our file records.
+
+Reply back on ( centralbankofnigeria20@aol.com )with your full
+information. Note that your  payment files will be returned to the IMF
+within 72 hours if we did not hear from you, this  was the instruction
+given to us by the IMF. We will start the transfer as soon as we
+received your information.
+
+We have decided to contact you for re-verification because we
+suspected that Mrs.RENAE MOORE? is trying to divert your money through
+the sworn affidavit into a new different bank account. You  are
+advised to get back to this office within 7 days from today.
+
+
+Best Regards
+Mr.Godwin Emefiele
+E_Mail: centralbankofnigeria20@aol.com
+Executive Governor Central Bank of Nigeria
+Phone : +2347083488191
