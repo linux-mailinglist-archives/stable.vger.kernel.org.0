@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DBC2C4339
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C962C433B
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730708AbgKYPgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:36:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54046 "EHLO mail.kernel.org"
+        id S1730716AbgKYPgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:36:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730656AbgKYPgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:36 -0500
+        id S1730701AbgKYPgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7367721D1A;
-        Wed, 25 Nov 2020 15:36:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE6FA221F9;
+        Wed, 25 Nov 2020 15:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318595;
-        bh=vZSdMDn5q06dOoAvo7hfQwx/Fw6elYtbudxJ3O+GkiQ=;
+        s=default; t=1606318596;
+        bh=NDcEDa7zMJHoJhngNIzVs4CtSZ0myW4XCIPezEkyP30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ42FxSE9ZYf2IQbi7x6/CKc/vVDJ9h9gmMRgiAz0J9apGlIWWyDoDIEzedB1J19m
-         ujuAiu0I4P9oaHSaJ06aT+7ulLYq+d2Jsol5aGyEmCC8KZNV5FtpJmmcH9NHcHzAeK
-         M15NDmmgxHE4wQdzZwsNUXFBsfd+4Qg8bYXhbk74=
+        b=0DXnNtqOKxU/OU2f7RZuumbVj3elw4bEg7L1AmDQMJMgLmSDfyGKT9r1sqrL6CvEr
+         2sZo7GLliDgy495iw6UA3B09mAG/tgduz/yg/NCLsy1exZcv0/72qGdILXknV6pEsh
+         KutrvhCpRfF4euTXbCaNpeF1jx17IpFjNdJKOUZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Lunn <andrew@lunn.ch>, Ruslan Sushko <rus@sushko.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 32/33] net: dsa: mv88e6xxx: Wait for EEPROM done after HW reset
-Date:   Wed, 25 Nov 2020 10:35:49 -0500
-Message-Id: <20201125153550.810101-32-sashal@kernel.org>
+Cc:     Dave Chinner <dchinner@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 33/33] xfs: don't allow NOWAIT DIO across extent boundaries
+Date:   Wed, 25 Nov 2020 10:35:50 -0500
+Message-Id: <20201125153550.810101-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
@@ -42,95 +42,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit a3dcb3e7e70c72a68a79b30fc3a3adad5612731c ]
+[ Upstream commit 883a790a84401f6f55992887fd7263d808d4d05d ]
 
-When the switch is hardware reset, it reads the contents of the
-EEPROM. This can contain instructions for programming values into
-registers and to perform waits between such programming. Reading the
-EEPROM can take longer than the 100ms mv88e6xxx_hardware_reset() waits
-after deasserting the reset GPIO. So poll the EEPROM done bit to
-ensure it is complete.
+Jens has reported a situation where partial direct IOs can be issued
+and completed yet still return -EAGAIN. We don't want this to report
+a short IO as we want XFS to complete user DIO entirely or not at
+all.
 
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Ruslan Sushko <rus@sushko.dev>
-Link: https://lore.kernel.org/r/20201116164301.977661-1-rus@sushko.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This partial IO situation can occur on a write IO that is split
+across an allocated extent and a hole, and the second mapping is
+returning EAGAIN because allocation would be required.
+
+The trivial reproducer:
+
+$ sudo xfs_io -fdt -c "pwrite 0 4k" -c "pwrite -V 1 -b 8k -N 0 8k" /mnt/scr/foo
+wrote 4096/4096 bytes at offset 0
+4 KiB, 1 ops; 0.0001 sec (27.509 MiB/sec and 7042.2535 ops/sec)
+pwrite: Resource temporarily unavailable
+$
+
+The pwritev2(0, 8kB, RWF_NOWAIT) call returns EAGAIN having done
+the first 4kB write:
+
+ xfs_file_direct_write: dev 259:1 ino 0x83 size 0x1000 offset 0x0 count 0x2000
+ iomap_apply:          dev 259:1 ino 0x83 pos 0 length 8192 flags WRITE|DIRECT|NOWAIT (0x31) ops xfs_direct_write_iomap_ops caller iomap_dio_rw actor iomap_dio_actor
+ xfs_ilock_nowait:     dev 259:1 ino 0x83 flags ILOCK_SHARED caller xfs_ilock_for_iomap
+ xfs_iunlock:          dev 259:1 ino 0x83 flags ILOCK_SHARED caller xfs_direct_write_iomap_begin
+ xfs_iomap_found:      dev 259:1 ino 0x83 size 0x1000 offset 0x0 count 8192 fork data startoff 0x0 startblock 24 blockcount 0x1
+ iomap_apply_dstmap:   dev 259:1 ino 0x83 bdev 259:1 addr 102400 offset 0 length 4096 type MAPPED flags DIRTY
+
+Here the first iomap loop has mapped the first 4kB of the file and
+issued the IO, and we enter the second iomap_apply loop:
+
+ iomap_apply: dev 259:1 ino 0x83 pos 4096 length 4096 flags WRITE|DIRECT|NOWAIT (0x31) ops xfs_direct_write_iomap_ops caller iomap_dio_rw actor iomap_dio_actor
+ xfs_ilock_nowait:     dev 259:1 ino 0x83 flags ILOCK_SHARED caller xfs_ilock_for_iomap
+ xfs_iunlock:          dev 259:1 ino 0x83 flags ILOCK_SHARED caller xfs_direct_write_iomap_begin
+
+And we exit with -EAGAIN out because we hit the allocate case trying
+to make the second 4kB block.
+
+Then IO completes on the first 4kB and the original IO context
+completes and unlocks the inode, returning -EAGAIN to userspace:
+
+ xfs_end_io_direct_write: dev 259:1 ino 0x83 isize 0x1000 disize 0x1000 offset 0x0 count 4096
+ xfs_iunlock:          dev 259:1 ino 0x83 flags IOLOCK_SHARED caller xfs_file_dio_aio_write
+
+There are other vectors to the same problem when we re-enter the
+mapping code if we have to make multiple mappinfs under NOWAIT
+conditions. e.g. failing trylocks, COW extents being found,
+allocation being required, and so on.
+
+Avoid all these potential problems by only allowing IOMAP_NOWAIT IO
+to go ahead if the mapping we retrieve for the IO spans an entire
+allocated extent. This avoids the possibility of subsequent mappings
+to complete the IO from triggering NOWAIT semantics by any means as
+NOWAIT IO will now only enter the mapping code once per NOWAIT IO.
+
+Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c    |  2 ++
- drivers/net/dsa/mv88e6xxx/global1.c | 31 +++++++++++++++++++++++++++++
- drivers/net/dsa/mv88e6xxx/global1.h |  1 +
- 3 files changed, 34 insertions(+)
+ fs/xfs/xfs_iomap.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index f0dbc05e30a4d..16040b13579ef 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2299,6 +2299,8 @@ static void mv88e6xxx_hardware_reset(struct mv88e6xxx_chip *chip)
- 		usleep_range(10000, 20000);
- 		gpiod_set_value_cansleep(gpiod, 0);
- 		usleep_range(10000, 20000);
-+
-+		mv88e6xxx_g1_wait_eeprom_done(chip);
- 	}
+diff --git a/fs/xfs/xfs_iomap.c b/fs/xfs/xfs_iomap.c
+index 3abb8b9d6f4c6..7b9ff824e82d4 100644
+--- a/fs/xfs/xfs_iomap.c
++++ b/fs/xfs/xfs_iomap.c
+@@ -706,6 +706,23 @@ xfs_ilock_for_iomap(
+ 	return 0;
  }
  
-diff --git a/drivers/net/dsa/mv88e6xxx/global1.c b/drivers/net/dsa/mv88e6xxx/global1.c
-index f62aa83ca08d4..33d443a37efc4 100644
---- a/drivers/net/dsa/mv88e6xxx/global1.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1.c
-@@ -75,6 +75,37 @@ static int mv88e6xxx_g1_wait_init_ready(struct mv88e6xxx_chip *chip)
- 	return mv88e6xxx_g1_wait_bit(chip, MV88E6XXX_G1_STS, bit, 1);
- }
- 
-+void mv88e6xxx_g1_wait_eeprom_done(struct mv88e6xxx_chip *chip)
++/*
++ * Check that the imap we are going to return to the caller spans the entire
++ * range that the caller requested for the IO.
++ */
++static bool
++imap_spans_range(
++	struct xfs_bmbt_irec	*imap,
++	xfs_fileoff_t		offset_fsb,
++	xfs_fileoff_t		end_fsb)
 +{
-+	const unsigned long timeout = jiffies + 1 * HZ;
-+	u16 val;
-+	int err;
-+
-+	/* Wait up to 1 second for the switch to finish reading the
-+	 * EEPROM.
-+	 */
-+	while (time_before(jiffies, timeout)) {
-+		err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_STS, &val);
-+		if (err) {
-+			dev_err(chip->dev, "Error reading status");
-+			return;
-+		}
-+
-+		/* If the switch is still resetting, it may not
-+		 * respond on the bus, and so MDIO read returns
-+		 * 0xffff. Differentiate between that, and waiting for
-+		 * the EEPROM to be done by bit 0 being set.
-+		 */
-+		if (val != 0xffff &&
-+		    val & BIT(MV88E6XXX_G1_STS_IRQ_EEPROM_DONE))
-+			return;
-+
-+		usleep_range(1000, 2000);
-+	}
-+
-+	dev_err(chip->dev, "Timeout waiting for EEPROM done");
++	if (imap->br_startoff > offset_fsb)
++		return false;
++	if (imap->br_startoff + imap->br_blockcount < end_fsb)
++		return false;
++	return true;
 +}
 +
- /* Offset 0x01: Switch MAC Address Register Bytes 0 & 1
-  * Offset 0x02: Switch MAC Address Register Bytes 2 & 3
-  * Offset 0x03: Switch MAC Address Register Bytes 4 & 5
-diff --git a/drivers/net/dsa/mv88e6xxx/global1.h b/drivers/net/dsa/mv88e6xxx/global1.h
-index 1e3546f8b0727..e05abe61fa114 100644
---- a/drivers/net/dsa/mv88e6xxx/global1.h
-+++ b/drivers/net/dsa/mv88e6xxx/global1.h
-@@ -278,6 +278,7 @@ int mv88e6xxx_g1_set_switch_mac(struct mv88e6xxx_chip *chip, u8 *addr);
- int mv88e6185_g1_reset(struct mv88e6xxx_chip *chip);
- int mv88e6352_g1_reset(struct mv88e6xxx_chip *chip);
- int mv88e6250_g1_reset(struct mv88e6xxx_chip *chip);
-+void mv88e6xxx_g1_wait_eeprom_done(struct mv88e6xxx_chip *chip);
+ static int
+ xfs_direct_write_iomap_begin(
+ 	struct inode		*inode,
+@@ -766,6 +783,18 @@ xfs_direct_write_iomap_begin(
+ 	if (imap_needs_alloc(inode, flags, &imap, nimaps))
+ 		goto allocate_blocks;
  
- int mv88e6185_g1_ppu_enable(struct mv88e6xxx_chip *chip);
- int mv88e6185_g1_ppu_disable(struct mv88e6xxx_chip *chip);
++	/*
++	 * NOWAIT IO needs to span the entire requested IO with a single map so
++	 * that we avoid partial IO failures due to the rest of the IO range not
++	 * covered by this map triggering an EAGAIN condition when it is
++	 * subsequently mapped and aborting the IO.
++	 */
++	if ((flags & IOMAP_NOWAIT) &&
++	    !imap_spans_range(&imap, offset_fsb, end_fsb)) {
++		error = -EAGAIN;
++		goto out_unlock;
++	}
++
+ 	xfs_iunlock(ip, lockmode);
+ 	trace_xfs_iomap_found(ip, offset, length, XFS_DATA_FORK, &imap);
+ 	return xfs_bmbt_to_iomap(ip, iomap, &imap, iomap_flags);
 -- 
 2.27.0
 
