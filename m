@@ -2,343 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CE02C38DE
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 06:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F30B2C3A6F
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 09:00:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbgKYFzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 00:55:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbgKYFzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 00:55:00 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1EDC0613D4
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 21:55:00 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id bj5so576350plb.4
-        for <stable@vger.kernel.org>; Tue, 24 Nov 2020 21:55:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Q2NnJ2E2GOFnGxHAN05hONupcmJfGvODd+p87DxAQLw=;
-        b=Zfj2bS4uwNx7ZxHFXp0WRzpqWE/CGM7bAb9mCaqAjHNCUja1SJcVOjmKraIrmz/KMp
-         kus+8A8fZ+h05TrqZ9KFNfIS5Yff1QKc6KfPWuNEKhRP9VCzttfZveeDDLfbrVkM+nK/
-         SVgy874drlSDAjBuR2xp9quj/Ehre5XZ/yusJhD+GCYpN6bxCl86ajGJpCaBu+zvLdEU
-         Vi6pf8G+4PhtOqDaDI+7Fs1rOlNDVukncwfQkY2nLJFlLvE4DoyHDLI75YJWRH+069BV
-         I51NwYyo4OZuzezYh6Cxu/2bvJtt0tWS12gSLq/WUC3bKjKd/RvvjvGMoSwsNVMNIlIP
-         f8lw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Q2NnJ2E2GOFnGxHAN05hONupcmJfGvODd+p87DxAQLw=;
-        b=IKajjXjC2tn4fayPbCiH63q0N/DBh7q+C1xlV+36RxAqYOgPmIqh/QIPd9qFtEuDsT
-         UIbTOVF/BaBNs91kgwIHT5El2CmEqq/5TShJb9RAFJ3ZGW6XI8rCRY2EmE2BFY/otkzd
-         jh6zo2srPEuyuTvbizLhtbzc9PIK13cCDjsa9ujNRPzzt6gfHtRhItJ3agAYafyOhD6s
-         HyKIgKwYPnggDS3Je+BK5Fl3o9N+nWYtClyva08TyqPOrWG/KAS2i0FO7oUU8tnSMHE+
-         I59RGIMbUGFQ3CNj8HTPi0WFkWXYWjZQ7SHGtlLpqADTdaUflfT7RUAePu2WqKKFiwbM
-         d8ug==
-X-Gm-Message-State: AOAM533iRKHKoIk4JzjlBifln/kSeomFYXu9s3rF7mzsPIMjwZxkYyo3
-        cZGVxX7JaufdR5Bh7SCMQ0YeXpS4q4su2Q==
-X-Google-Smtp-Source: ABdhPJwf82Ah/n98rDbOGPB3EyF+s1xvhAuapkuiMKZqPgJfCi+IV3LealPsIOGU5aie3NZGCwITHw==
-X-Received: by 2002:a17:902:ac81:b029:da:f96:1b47 with SMTP id h1-20020a170902ac81b02900da0f961b47mr952364plr.78.1606283699895;
-        Tue, 24 Nov 2020 21:54:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w2sm758170pfb.104.2020.11.24.21.54.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2020 21:54:59 -0800 (PST)
-Message-ID: <5fbdf1b3.1c69fb81.20626.287e@mx.google.com>
-Date:   Tue, 24 Nov 2020 21:54:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726489AbgKYIAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 03:00:15 -0500
+Received: from mga14.intel.com ([192.55.52.115]:59269 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725616AbgKYIAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 03:00:15 -0500
+IronPort-SDR: Vj27WAbjrl8O23qRXTv/66oD/Y4TIFbsQcBFF5H1f/OF9ey7px9bG8CFINLVIsoV1jxUqNqeuw
+ kNO4zJCv01sA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9815"; a="171307515"
+X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
+   d="scan'208";a="171307515"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 00:00:14 -0800
+IronPort-SDR: sZoZqQ2kzwMb3WHW9WbXPyxcbz8UK/zwkeVC+8em8klnT7Vvna6TJRcuhI4PhPirLGfdtQNGoW
+ 5oZPMog2Vqig==
+X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
+   d="scan'208";a="370744758"
+Received: from genxfsim-desktop.iind.intel.com (HELO intel.com) ([10.223.74.178])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 00:00:13 -0800
+Date:   Wed, 25 Nov 2020 13:16:27 +0530
+From:   Anshuman Gupta <anshuman.gupta@intel.com>
+To:     Imre Deak <imre.deak@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [RFC] drm/i915/dp: PPS registers doesn't require AUX power
+Message-ID: <20201125074624.GJ13853@intel.com>
+References: <20201124095847.14098-1-anshuman.gupta@intel.com>
+ <20201124164406.GG1750458@ideak-desk.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.80-2-g916d352681d9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 191 runs,
- 7 regressions (v5.4.80-2-g916d352681d9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201124164406.GG1750458@ideak-desk.fi.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 191 runs, 7 regressions (v5.4.80-2-g916d35268=
-1d9)
-
-Regressions Summary
--------------------
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-    | 1          =
-
-bcm2837-rpi-3-b-32    | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfi=
-g   | 1          =
-
-hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb  | arm   | lab-broonie   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.80-2-g916d352681d9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.80-2-g916d352681d9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      916d352681d9466b896fbdebb62a29ebcc4e664a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdc03d801eafc2aec94d0a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_=
-xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdc03d801eafc2aec94=
-d0b
-        failing since 27 days (last pass: v5.4.72-409-gbbe9df5e07cf, first =
-fail: v5.4.72-409-ga6e47f533653) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-bcm2837-rpi-3-b-32    | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfi=
-g   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbfc188a550819cc94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi=
--3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi=
--3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbfc188a550819cc94=
-cba
-        new failure (last pass: v5.4.80-2-g5c08887357792) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-hifive-unleashed-a00  | riscv | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbe3212264ca54dc94cdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbe3212264ca54dc94=
-cdc
-        failing since 4 days (last pass: v5.4.78-5-g843222460ebea, first fa=
-il: v5.4.78-13-g81acf0f7c6ec) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb  | arm   | lab-baylibre  | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbd0f171172a233c94cd7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbd0f171172a233c94=
-cd8
-        failing since 11 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb  | arm   | lab-broonie   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbd11fb1c584dd6c94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbd11fb1c584dd6c94=
-cc4
-        failing since 11 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb  | arm   | lab-cip       | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbd02171172a233c94cbc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
-tilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
-tilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbd02171172a233c94=
-cbd
-        failing since 11 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | regressions
-----------------------+-------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb  | arm   | lab-collabora | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fbdbcd28f5f117442c94d17
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.80-2-=
-g916d352681d9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fbdbcd28f5f117442c94=
-d18
-        failing since 11 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =20
+On 2020-11-24 at 18:44:06 +0200, Imre Deak wrote:
+> On Tue, Nov 24, 2020 at 03:28:47PM +0530, Anshuman Gupta wrote:
+> > Platforms with South Display Engine on PCH, doesn't
+> > require to get/put the AUX power domain in order to
+> > access PPS register because PPS registers are always on
+> > with South display on PCH.
+> > 
+> > Cc: Imre Deak <imre.deak@intel.com>
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+> 
+> Could you describe the issue the patch is fixing?
+This fixes the display glitches causes by race between brightness update thread 
+and flip thread.
+while brightness is being updated it reads pp_ctrl reg to check whether backlight
+is enabled and get/put the AUX power domain, this enables and disable DC Off 
+power well(DC3CO) back and forth.
+IMO there are two work item for above race needed to be addressed.
+1. Don't get AUX power for PPS register access (this patch addressed this).
+2. skl_program_plane() should wait for DC3CO exit delay to avoid any race with
+   DC3CO disable sequence. (WIP)      
+> 
+> For accessing PPS registers the AUX power well may not be needed, but
+> I'm not sure if this also applies to PPS functionality in general. For
+> instance forcing VDD is required for AUX functionality.
+AFAIU edp_panel_vdd_on explicitly get AUX power in order to force the VDD.
+> 
+> In any case we do need a power reference for any register access, so I
+> don't think not getting any power reference for PPS is ok.
+IMO if PPS register lies in PCH(South Display), it is not correct to take
+any power domain which are associated with north display power wells.
+
+This patch is inspired from the comment in pps_lock, quoting that
+"See intel_power_sequencer_reset() why we need a power domain reference here."
+
+intel_power_sequencer_reset is not being called for platforms with split PCH,
+stating that PPS registers are always on.
+https://patchwork.freedesktop.org/patch/259077/ ((v4: (James Ausmus)))
+
+Could you please provide your opinion to use intel_runtime_pm_get()
+before accessing PPS register in order to get a wakeref.
+
+Thanks,
+Anshuman Gupta.
+> 
+> --Imre
+> 
+> > ---
+> >  drivers/gpu/drm/i915/display/intel_dp.c | 13 ++++++++-----
+> >  1 file changed, 8 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> > index 3896d08c4177..84a2c49e154c 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> > @@ -872,8 +872,9 @@ pps_lock(struct intel_dp *intel_dp)
+> >  	 * See intel_power_sequencer_reset() why we need
+> >  	 * a power domain reference here.
+> >  	 */
+> > -	wakeref = intel_display_power_get(dev_priv,
+> > -					  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
+> > +	if (!HAS_PCH_SPLIT(dev_priv))
+> > +		wakeref = intel_display_power_get(dev_priv,
+> > +						  intel_aux_power_domain(dp_to_dig_port(intel_dp)));
+> >  
+> >  	mutex_lock(&dev_priv->pps_mutex);
+> >  
+> > @@ -886,9 +887,11 @@ pps_unlock(struct intel_dp *intel_dp, intel_wakeref_t wakeref)
+> >  	struct drm_i915_private *dev_priv = dp_to_i915(intel_dp);
+> >  
+> >  	mutex_unlock(&dev_priv->pps_mutex);
+> > -	intel_display_power_put(dev_priv,
+> > -				intel_aux_power_domain(dp_to_dig_port(intel_dp)),
+> > -				wakeref);
+> > +
+> > +	if (!HAS_PCH_SPLIT(dev_priv))
+> > +		intel_display_power_put(dev_priv,
+> > +					intel_aux_power_domain(dp_to_dig_port(intel_dp)),
+> > +					wakeref);
+> >  	return 0;
+> >  }
+> >  
+> > -- 
+> > 2.26.2
+> > 
