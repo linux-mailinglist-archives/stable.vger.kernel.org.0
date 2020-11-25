@@ -2,95 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 633872C3F4D
-	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 12:49:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3B92C3F72
+	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 12:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727982AbgKYLsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 06:48:43 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:47201 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725838AbgKYLsn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 06:48:43 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 9775EC8F;
-        Wed, 25 Nov 2020 06:48:42 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 25 Nov 2020 06:48:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=eDDmbS7x/P+kfvFMPpO+nwfcN+O
-        q7iMUJdzmcknX/RY=; b=lPhdItbFMltSgeQ7VsdzUCA4hhjOIZlos8ZmYJJgor0
-        7Ts/oqQarHGginK5r00GwMuvb9E86lhHzg7upqP/fxWNCi4m6TOgDxJvOAuFD2rt
-        YUTKmdUAvehdvlLmX6qg9/FnG8dNxbSA2bO6zvf1iBpjmUu0ubps+eCzJ9eHxm6y
-        B9RvZN/Jis1ypcZ3pKNufyHHqN4Li9jh9Q55xeZ6jkvPLSuvG1VTemp3rbLqFtqu
-        WJ+arp2CfmeABU/3oTC6F2R0ZZayEkxyItA2WwLFCory8eYchxt38Pp8/e3x6i8y
-        KDKQoFcWf96XV2vTXBkgyZ2prmvf6Z2jHhlv4Wm7OYA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eDDmbS
-        7x/P+kfvFMPpO+nwfcN+Oq7iMUJdzmcknX/RY=; b=jta7XShbC5k613LaKcVD7i
-        CEsZnYhRh/jZc8PiZwwO6vwoHyfiYpbx0NpN4SwNZY32qR12MT3tsIGfR7S5p+Y8
-        wnKlLUk3blPSurGnK+DwUWto3S43TGtZwT0r0vmycrBXJLTROWc94Q5mjyc3ODrp
-        6GRE4mcjq9VC85WStLSYXoNuu7Ec9A+Z8nNxL73pDr2GoQa6ox3D8XwMe0/RwLRn
-        GCC2+TMTLC0a5UEHpq8nXTiSBFQpkXhoQjtmm4SXC6dfjMtEqwICBHaMh7IlDQnS
-        +tEsoRzi9zNSqmV/pMCDU1gmYqOAuZuA4JOxN/RYmbghj5LAhcU2MTMG9O1xt63w
-        ==
-X-ME-Sender: <xms:mUS-X5POyzJpxv6E8SjDGKbjd7v6PayqGvrlGjav3zNnv3gedrgWQw>
-    <xme:mUS-X78i2e0zAWbXIgtdKTRU0KfRWLqfIaaBCJD0h2JFXToPyf0wSdXjg-gvRn5ZX
-    3grd10Sgnwyrw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehtddgfeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkedv
-    rddvudejrddvtddrudekheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:mUS-X4S9H_xgZt3pNWZNSUZ44blSZLP16u-PFqrWOIqGOkfTBQnqQg>
-    <xmx:mUS-X1u1W1BPv-ryI-HlJcJ5af3QCylk-_L1pmzENCvXF-kCGnhEjA>
-    <xmx:mUS-Xxe-I_LKf_oGBwmUC_pvjGTeYuiBlCilGnUA-NvF-K-ClHjgYw>
-    <xmx:mkS-X3pO8ZtmOVz5O1xqPyXJ2kWdQAcewJIduh-UrntMI3Qq174twA>
+        id S1729118AbgKYL6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 06:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729105AbgKYL6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 06:58:17 -0500
 Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 93A8A3064AA6;
-        Wed, 25 Nov 2020 06:48:41 -0500 (EST)
-Date:   Wed, 25 Nov 2020 12:48:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Alexander Dahl <ada@thorsis.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: perf: Apply e9a6882f267a to v4.9 stable (fix for null-pointer
- dereference)
-Message-ID: <X75El25Mf0FJcjLR@kroah.com>
-References: <4431770.U1WXKbcAmY@ada>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00824206E0;
+        Wed, 25 Nov 2020 11:58:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1606305496;
+        bh=Z43JqCrZpoEsDPbMMvJF4oV8D9NCp1FiWqOzZTKaoAg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ORjuvBiTnwNpDq6NGHghAeiKEGw7cp0aUMKtFZX7SEllrPx7oXPHlaYH4uMZ5934v
+         KC2VLuegmwz11u/86t4DuR0uN6e+o/+xZrsnqtXdWM/1o8WIy2Tn1ep/MoDUWtIGV2
+         r+x8hrLSJf6qAgrQIE7yG3E+HuV3U146LCY7+nUg=
+Date:   Wed, 25 Nov 2020 12:58:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH for v4.14] mm/userfaultfd: do not access vma->vm_mm after
+ calling handle_userfault()
+Message-ID: <X75G1Wv4zfHpTmvY@kroah.com>
+References: <1606124856217243@kroah.com>
+ <20201123165258.80810-1-gerald.schaefer@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4431770.U1WXKbcAmY@ada>
+In-Reply-To: <20201123165258.80810-1-gerald.schaefer@linux.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 25, 2020 at 11:01:39AM +0100, Alexander Dahl wrote:
-> Hei hei,
+On Mon, Nov 23, 2020 at 05:52:58PM +0100, Gerald Schaefer wrote:
+> commit bfe8cc1db02ab243c62780f17fc57f65bde0afe1 upstream.
 > 
-> please apply e9a6882f267a8105461066e3ea6b4b6b9be1b807 ("perf event: Check 
-> ref_reloc_sym before using it") to the v4.9 stable tree and maybe to later LTS 
-> trees (v4.14, v4.19) as well. 
-> 
-> That change is in mainline since v5.4-rc1 and it's a fix for a possible null 
-> pointer dereference in the tool 'perf', so it is a fix for a user space tool 
-> coming with the kernel tree actually.
-> 
-> I am directly affeted by this, calling 'perf record' on an at91 based device 
-> (armv5te, sam9g20 soc) running PREEMPT RT kernel 4.9.220-rt143 results in a 
-> segfault here.  I debugged this with gdb and tracked it down to the exact 
-> pointer being NULL, which is checked now in that above mentioned changeset.
-> 
-> I could cleanly apply that changeset to my local tree and the segfault is not 
-> triggered anymore, I can use perf on that platform now.
-> 
-> I only tested this on the above mentioned v4.9 based kernel version.
+> Alexander reported a syzkaller / KASAN finding on s390, see below for
+> complete output.
 
-Now queued up, thanks.
+<snip>
+
+Both backports now queued up, thanks.
 
 greg k-h
