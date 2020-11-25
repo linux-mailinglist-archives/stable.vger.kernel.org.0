@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBED2C4365
+	by mail.lfdr.de (Postfix) with ESMTP id DD1DB2C4366
 	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 16:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731151AbgKYPhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 10:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
+        id S1731157AbgKYPho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 10:37:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731140AbgKYPhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:42 -0500
+        id S1731149AbgKYPhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CFC421D81;
-        Wed, 25 Nov 2020 15:37:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DB98221F7;
+        Wed, 25 Nov 2020 15:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318661;
-        bh=7I7J0UzPgStHEb0JKi15gc+kzYE5qf0SyK4RLnQ5Rbw=;
+        s=default; t=1606318662;
+        bh=CQGcO1E7GEgh3th3pKWM93pk8DAZcXYV+J7BSLkezjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLbZUDsorwjAs2iY/ZqdNJqtHEeH50m/LgJjF1QXELTAWGwlEoHy18mclExzalcON
-         0W6fmJVAM4TGSz+VIY/+RJaxZWsHcz+hPEa4a2iCwfHypb79mihfahk4FECvMNyoNH
-         zt5KxdCR3VBw5qFSVqjUacdiZJadrVMOkdnGSfdk=
+        b=zC1O/FIlwf/iHFYM6uyZVg/k2SCKO24tun2V6b7aExuS03W01ldKYdVWdfoL59vc8
+         fMwKYvjXlkWuN6zLNNHaG5B0euKlqZARo+/q7RNkkmGA2In/pcFwvS9MvHyIrR7674
+         rNhsiN6ncfOTKO3USIZalfleBEmBRLpfq3oHDQ88=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Ferland <ferlandm@amotus.ca>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 04/12] dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
-Date:   Wed, 25 Nov 2020 10:37:26 -0500
-Message-Id: <20201125153734.810826-4-sashal@kernel.org>
+Cc:     Brian Masney <bmasney@redhat.com>, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.14 05/12] x86/xen: don't unbind uninitialized lock_kicker_irq
+Date:   Wed, 25 Nov 2020 10:37:27 -0500
+Message-Id: <20201125153734.810826-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153734.810826-1-sashal@kernel.org>
 References: <20201125153734.810826-1-sashal@kernel.org>
@@ -43,40 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Ferland <ferlandm@amotus.ca>
+From: Brian Masney <bmasney@redhat.com>
 
-[ Upstream commit 0ba2df09f1500d3f27398a3382b86d39c3e6abe2 ]
+[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
 
-The xilinx_dma_poll_timeout macro is sometimes called while holding a
-spinlock (see xilinx_dma_issue_pending() for an example) this means we
-shouldn't sleep when polling the dma channel registers. To address it
-in xilinx poll timeout macro use readl_poll_timeout_atomic instead of
-readl_poll_timeout variant.
+When booting a hyperthreaded system with the kernel parameter
+'mitigations=auto,nosmt', the following warning occurs:
 
-Signed-off-by: Marc Ferland <ferlandm@amotus.ca>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1604473206-32573-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
+    ...
+    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
+    ...
+    Call Trace:
+     xen_uninit_lock_cpu+0x28/0x62
+     xen_hvm_cpu_die+0x21/0x30
+     takedown_cpu+0x9c/0xe0
+     ? trace_suspend_resume+0x60/0x60
+     cpuhp_invoke_callback+0x9a/0x530
+     _cpu_up+0x11a/0x130
+     cpu_up+0x7e/0xc0
+     bringup_nonboot_cpus+0x48/0x50
+     smp_init+0x26/0x79
+     kernel_init_freeable+0xea/0x229
+     ? rest_init+0xaa/0xaa
+     kernel_init+0xa/0x106
+     ret_from_fork+0x35/0x40
+
+The secondary CPUs are not activated with the nosmt mitigations and only
+the primary thread on each CPU core is used. In this situation,
+xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
+not called, so the lock_kicker_irq is not initialized for the secondary
+CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
+irq is not set to avoid the warning from above for each secondary CPU.
+
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/xen/spinlock.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 2db352308e5c0..314f175cf8d05 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -422,8 +422,8 @@ struct xilinx_dma_device {
- #define to_dma_tx_descriptor(tx) \
- 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
- #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
--	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
--			   cond, delay_us, timeout_us)
-+	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
-+				  val, cond, delay_us, timeout_us)
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 2527540051ff0..e22ee24396158 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -99,10 +99,20 @@ void xen_init_lock_cpu(int cpu)
  
- /* IO accessors */
- static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
+ void xen_uninit_lock_cpu(int cpu)
+ {
++	int irq;
++
+ 	if (!xen_pvspin)
+ 		return;
+ 
+-	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
++	/*
++	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
++	 * CPUs are not activated, and lock_kicker_irq is not initialized.
++	 */
++	irq = per_cpu(lock_kicker_irq, cpu);
++	if (irq == -1)
++		return;
++
++	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+ 	kfree(per_cpu(irq_name, cpu));
+ 	per_cpu(irq_name, cpu) = NULL;
 -- 
 2.27.0
 
