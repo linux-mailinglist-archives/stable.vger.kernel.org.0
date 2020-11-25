@@ -2,85 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7D62C47FB
+	by mail.lfdr.de (Postfix) with ESMTP id 78E162C47FC
 	for <lists+stable@lfdr.de>; Wed, 25 Nov 2020 19:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731230AbgKYS4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Nov 2020 13:56:22 -0500
-Received: from 142-4-23-50.unifiedlayer.com ([142.4.23.50]:38898 "EHLO
-        142-4-23-50.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731129AbgKYS4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 13:56:22 -0500
-Received: from omoraka25 by 142-4-23-50.ipage.com with local (Exim 4.93)
-        (envelope-from <omoraka25@142-4-23-50.ipage.com>)
-        id 1khzfm-0001d3-Lo; Wed, 25 Nov 2020 11:37:46 -0700
-To:     stanaitiene.v@gmail.com
-Subject: MANUSCRIPT PROOFREADING
-X-PHP-Script: modernacademicedit.org/mail5/send.php for 105.112.97.26
-X-PHP-Originating-Script: 1001:send.php
-From:   scriptediting23@pub45.org
-Reply-To: modernacademicedit@gmail.com
-Message-Id: <E1khzfm-0001d3-Lo@142-4-23-50.ipage.com>
-Date:   Wed, 25 Nov 2020 11:37:46 -0700
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 142-4-23-50.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
-X-AntiAbuse: Sender Address Domain - 142-4-23-50.ipage.com
-X-Get-Message-Sender-Via: 142-4-23-50.ipage.com: authenticated_id: omoraka25/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 142-4-23-50.ipage.com: omoraka25
-X-Source: 
-X-Source-Args: php-fpm: pool modernacademicedit_org                     
-X-Source-Dir: modernacademicedit.org:/public_html/mail5
+        id S1731429AbgKYS42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Nov 2020 13:56:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731643AbgKYS42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Nov 2020 13:56:28 -0500
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A35C0613D4
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 10:56:28 -0800 (PST)
+Received: by mail-lj1-x244.google.com with SMTP id f18so3384461ljg.9
+        for <stable@vger.kernel.org>; Wed, 25 Nov 2020 10:56:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=xzxdWyHrXhHu6b7fYfNflc4EJF5/TpK4zPGY4/WRmDk=;
+        b=itIw4jXR46P3dQua4IeDR4YTuXpVGe6gWySAhaONwXGNhE+KIw5C0OsXK/WwWEA2Lj
+         id44GOewpUjJAtwAT/gQBOdAxHp8pOhepqyud0WaFoBZq3TP9CV3j4MtmA5618jj6sGn
+         JyZZ0WMgxEJengRqX/K6Cn+ITw+v+jIB6MgrBK3hdfjszFSKLlBI0rnRYBuTDFbUW7Xf
+         RHaLaGgRYfYv+Xjz4QSk87Fh8QJTuej5W2jpgMm9DAzs2Kwpyxrj3ncYZ0QXwCg/v2dj
+         HIC4fzBlaczjo2rkRkyosz+JqLGhUU6+4EGvkU8P/LwRVxEoJXJg7bB6YFgjmJVW69wV
+         HwoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=xzxdWyHrXhHu6b7fYfNflc4EJF5/TpK4zPGY4/WRmDk=;
+        b=gB3OGLOt4/KkEc5uXR5oNj6A/Br2y6a8KB+6GFyYMS3JcTrCwS54MSyspOLOavKEyV
+         xpv+lH4XVzYddhEHGaU3Y9nRiIOIdm6Ex6eO+aIK6hsHGDyD60iMe8+sNH5Z675xReHU
+         8neIBuLMtzR7z2O7LzHyr7U+rj7vSll9GiyG/ZbsZ//bnI/AyzVqFiZpJdOJWzd27Wb2
+         7IhC9/Q9Sr1fIEcyksgsJ+3xkeD1NHw7F6i2ZBO/VftjtuKza8vEmzpgNM6xqhJRbMmD
+         EiV9cnbq5tyhKAEOEy2v67M1bDByK/qiWac0Qdo3RwITw/pO5e7PytmqhJq6aVP+tX5C
+         EqQA==
+X-Gm-Message-State: AOAM533oNv77gpLgTDU1s40NTD1XZfUK8G5iqVcL5uvCw7u9GtooSN1B
+        qIJMzIqAzn/x0aKrxNgRx7z48hmYDfpajaZP9x0=
+X-Google-Smtp-Source: ABdhPJzkCGVhf8nFRKR/b9l/deGxxclE1cnd8/VpJZpLwiJUH27bsKLsNLjlRW5ZXzJxcPmIMXR9cZf3QiIg33GO69A=
+X-Received: by 2002:a2e:9145:: with SMTP id q5mr1973604ljg.172.1606330586559;
+ Wed, 25 Nov 2020 10:56:26 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a05:6520:60b:b029:97:b078:b483 with HTTP; Wed, 25 Nov 2020
+ 10:56:25 -0800 (PST)
+Reply-To: georgemike7031@gmail.com
+From:   george mike <moordavis0003@gmail.com>
+Date:   Wed, 25 Nov 2020 19:56:25 +0100
+Message-ID: <CAH26tOH7tgSP0yTRWxJnU0Cx7ZYCwnEfvOXD-AQ1bm8KY0zTVw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN ACADEMIC EDITING 
-www.modernacademicedit.com
+Hallo
 
+Mein Name ist George Mike. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+der n=C3=A4chste Verwandte meines Klienten. Sie erben die Summe von (8,5
+Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod auf der Bank gelassen hat.
 
-Don't allow poor spelling or poor formatting deny your manuscript’s chance of publication in high-quality journals.
-Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling, grammatical, typographical or punctuation errors.
-Hence, what Are You Waiting For?
-Modern Academic Editing is the most trusted academic proofreading and editing services for you.
+Mein Kunde ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau bei
+einem Autounfall ums Leben gekommen ist
+und einziger Sohn. Ich habe Anspruch auf 50% des Gesamtfonds, 50% darauf
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: georgemike7031@gmail.com
 
-Dear Colleague,
-MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking students, professionals, authors, and individuals from around the globe, for ensuring the highest-possible quality of editing and confirming that ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services now it’s your turn! Therefore, we call on writers and authors in all academic fields to submit their manuscripts for editing and proofreading. We have observed, over and over again, that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to manuscripts from reviewers. Using an online grammar correction service is not always sufficient to highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
-
-We invite you to submit your articles and theses (MS-Word document) as e-mail attachments to our Editorial Office at: articles@modernacaemicedit.com or modernacademicedit@gmail.com. Manuscripts are expected to be in double line spacing (Still depends on the journal's format).Upon receipt of your manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
-
-Our charges are as follows:
-
-WORD COUNT	STANDARD
-3 days	EXPRESS
-2 days	URGENT**
-24 hrs
-Up to 1,000	$25	$35	$50
-1,001 to 2,000	$50	$70	$100
-2,001 to 3,000	$75	$105	$150
-3,001 to 4,000	$100	$140	$200
-4,001 to 5,000	$125	$175	$250
-5,001 to 6,000	$150	$210	$300
-6,001 to 7,000	$175	$240	$350
-7,001 to 8,000	$200	$275	$400
-8,001 to 9,000	$225	$310	$450
-9,001 to 10,000	$250	$345	$500
-10,001 to 11,000	$275	$380	$550
-11,001 to 12,000	$300	$415	$600
-Over 12,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
-
-Payments are made through bank wire transfer or via credit card online (instant payment).Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
-
-For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Chris Tom
-Editor
-Modern Academic Editing
-
-To unsubscribe, kindly send a mail tounsubscribe.modernacademicedit@gmail.com
-
-
-
+Vielen Dank im Voraus,
+Mr. George Mike,
