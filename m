@@ -2,75 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AC12C5B86
-	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 19:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBBD2C5BA2
+	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 19:09:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404527AbgKZSGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Nov 2020 13:06:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404466AbgKZSGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Nov 2020 13:06:00 -0500
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23651C0613D4;
-        Thu, 26 Nov 2020 10:06:00 -0800 (PST)
-Received: by mail-pl1-x643.google.com with SMTP id r2so1486018pls.3;
-        Thu, 26 Nov 2020 10:06:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=bUrNjwVhCwZsJHipJW42I/9PACEG86XLdDz5tP9a/c4=;
-        b=M+nHatoa/B78dyWhvaQfTLZnSgJs+y6Zpiqk2dOzAgH0pwWOpDJIyP1HH4JASIUd4d
-         kVPvvSIdiuuWhaT9BteYW4wgyctdzl2BXxTqVGZdb1KY7wo/qfNCYxyu6+uv/Kg941Bo
-         e42TYhQcbZZqgCmc219xa40hVMGDIC2QWLT8Q0WqsZfb+v5ftTCV2ejMPCIQup7VP8Hr
-         hjBsAwxF9dGx/F6anXMQQ4YH8LIZxxK0r/EYaZYFWweiJsyYSb2VjLO5n89qIcifm3m4
-         qn8CBnkJShQNJDtWBo6KLpxT9Kkwe23nOYpAK5a9gCdiwtVerryIEUdcLlWHdZvt88gn
-         mqpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=bUrNjwVhCwZsJHipJW42I/9PACEG86XLdDz5tP9a/c4=;
-        b=M6zhFOFlZ93ObHpshV/ovh5k/EQLldru1k7TwPGW80Hr1lT31wqPbjvUfqQ12C0J7V
-         3SBSZp6+3s/l4ueWWxLQC/0L81Js10aiW5imgWYLbyI06vKOPYuT1FRyyljEQZYLSyA5
-         WJpFWk4Sh3sS9ER38A4NeyR0JKGcRDgVV7JehMU1RWKz6kROTTDoIjK5xXi/5/qtW9PK
-         DfSNn4MRBcnGM0DDLA0H3zORpdY/hA+1R/FYnmgObt+Vk8hWz1BgxoItwvIfCEaYuVbg
-         lKySPEZOVv1DqUXn5SXpJ3UpydJl4FM2XKXOUpmIkLOVRNqDJX6iiYL5UXIUQ0FwJ2hV
-         tqeg==
-X-Gm-Message-State: AOAM532bIJRZvWHJxtLReJ07pIzEpzfDyltdNlN119itPgxBRrhtQMhJ
-        TVKrJm+UbYefYLchaqpfTemPskvrL/dlsA==
-X-Google-Smtp-Source: ABdhPJwEIqjaT/Lhqup4df1cq18ZtN0cTz0GTndwUXLQBGTd+hXZEA5zjycVJo4rFF+LWa1KsHdAjw==
-X-Received: by 2002:a17:902:8305:b029:da:1339:89b with SMTP id bd5-20020a1709028305b02900da1339089bmr3605867plb.43.1606413958306;
-        Thu, 26 Nov 2020 10:05:58 -0800 (PST)
-Received: from google.com (c-67-188-94-199.hsd1.ca.comcast.net. [67.188.94.199])
-        by smtp.gmail.com with ESMTPSA id s18sm5444339pfc.5.2020.11.26.10.05.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2020 10:05:57 -0800 (PST)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Thu, 26 Nov 2020 10:05:55 -0800
-From:   Minchan Kim <minchan@kernel.org>
-To:     Youngmin Nam <youngmin.nam@samsung.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        namhyung@kernel.org
-Subject: Re: [PATCH] tracing: Fix align of static buffer
-Message-ID: <20201126180555.GB86796@google.com>
-References: <20201125225654.1618966-1-minchan@kernel.org>
- <CGME20201126124101epcas2p30b7039bc8e6a9c08e35487b39dd84767@epcas2p3.samsung.com>
- <20201126130428.17826-1-youngmin.nam@samsung.com>
+        id S2404694AbgKZSJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Nov 2020 13:09:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54822 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404676AbgKZSJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Nov 2020 13:09:46 -0500
+Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2ACA21D7E;
+        Thu, 26 Nov 2020 18:09:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1606414186;
+        bh=l+ML/gM0MaklgpBNcmLG6VwzDWRbhWmTWpVYK6fwplg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=1oLvVZNGn6vg5KA4LpCnv8hntPsx6unDPfbOTwuRVEraMElsghoNchm709t0+zOb9
+         NKvc+Lm7yCwlC3iipbKVjnFp3CNzo9zvSxyOnehffcjzM/boiNIoKco4EwaNi4K9pa
+         A4vq0tvdpfJeetarcVuLH4seuSl57aT4XAQolQh0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     balbi@kernel.org
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Will McVicker <willmcvicker@google.com>,
+        EJ Hsu <ejh@nvidia.com>, Peter Chen <peter.chen@nxp.com>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 1/4] USB: gadget: f_rndis: fix bitrate for SuperSpeed and above
+Date:   Thu, 26 Nov 2020 19:09:34 +0100
+Message-Id: <20201126180937.255892-1-gregkh@linuxfoundation.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201126130428.17826-1-youngmin.nam@samsung.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 26, 2020 at 10:04:28PM +0900, Youngmin Nam wrote:
-> Hi Minchan,
-> 
-> Feel free to add my:
-> 
-> Tested-by: Youngmin Nam <youngmin.nam@samsung.com>
+From: Will McVicker <willmcvicker@google.com>
 
-Thanks for the testing, Youngmin!
+Align the SuperSpeed Plus bitrate for f_rndis to match f_ncm's ncm_bitrate
+defined by commit 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors
+for CDC NCM").
+
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: EJ Hsu <ejh@nvidia.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/function/f_rndis.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
+index 9534c8ab62a8..0739b05a0ef7 100644
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -87,8 +87,10 @@ static inline struct f_rndis *func_to_rndis(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static unsigned int bitrate(struct usb_gadget *g)
+ {
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
+ 	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
+-- 
+2.29.2
+
