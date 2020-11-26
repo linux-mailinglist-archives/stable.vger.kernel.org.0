@@ -2,61 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6082C5BBA
-	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 19:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6697B2C5C7C
+	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 20:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404883AbgKZSKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Nov 2020 13:10:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55126 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404406AbgKZSKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Nov 2020 13:10:39 -0500
-Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B1F320B80;
-        Thu, 26 Nov 2020 18:10:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606414238;
-        bh=gYyFqYj7SYe38VKIBuS9np4f38ojFV2Q5kbW/65dZLc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U1MTExAaor2rufgcgwiG1HTsOQlFxZPYV/ULW8cELFK/K2gVoaOmefuRi4eooUyQy
-         fCYJ32UVdOJKLkAZcKh8tEf/i1mDgoBJlgxMpON51+slKFiAv/NvwE+IAShGIne6H5
-         ULVdLpQla9Z7oeMn6ttH//BAWjftUCNpZB8mZ1LY=
-Date:   Thu, 26 Nov 2020 19:10:36 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Greg Kroah-Hartman <gregkh@google.com>
-Cc:     balbi@kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Will McVicker <willmcvicker@google.com>,
-        EJ Hsu <ejh@nvidia.com>, Peter Chen <peter.chen@nxp.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/4] USB: gadget: f_rndis: fix bitrate for SuperSpeed and
- above
-Message-ID: <X7/vnKU+QlWdES50@kroah.com>
-References: <20201126180235.254523-1-gregkh@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201126180235.254523-1-gregkh@google.com>
+        id S2405200AbgKZTL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Nov 2020 14:11:57 -0500
+Received: from relmlor1.renesas.com ([210.160.252.171]:49537 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2405176AbgKZTL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Nov 2020 14:11:57 -0500
+X-IronPort-AV: E=Sophos;i="5.78,372,1599490800"; 
+   d="scan'208";a="64008832"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie5.idc.renesas.com with ESMTP; 27 Nov 2020 04:11:55 +0900
+Received: from localhost.localdomain (unknown [10.226.36.204])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 85F1440F8AD9;
+        Fri, 27 Nov 2020 04:11:53 +0900 (JST)
+From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To:     Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Jiri Kosina <trivial@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     linux-kernel@vger.kernel.org,
+        Prabhakar <prabhakar.csengg@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/5] memory: renesas-rpc-if: Return correct value to the caller of rpcif_manual_xfer()
+Date:   Thu, 26 Nov 2020 19:11:42 +0000
+Message-Id: <20201126191146.8753-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201126191146.8753-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20201126191146.8753-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 26, 2020 at 07:02:32PM +0100, Greg Kroah-Hartman wrote:
-> From: Will McVicker <willmcvicker@google.com>
-> 
-> Align the SuperSpeed Plus bitrate for f_rndis to match f_ncm's ncm_bitrate
-> defined by commit 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors
-> for CDC NCM").
-> 
-> Cc: Felipe Balbi <balbi@kernel.org>
-> Cc: EJ Hsu <ejh@nvidia.com>
-> Cc: Peter Chen <peter.chen@nxp.com>
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Will McVicker <willmcvicker@google.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the error path of rpcif_manual_xfer() the value of ret is overwritten
+by value returned by reset_control_reset() function and thus returning
+incorrect value to the caller.
 
-Sent from wrong email address, will resend from proper one so they will
-go through the lists and validate the sender properly, sorry about
-that...
+This patch makes sure the correct value is returned to the caller of
+rpcif_manual_xfer() by dropping the overwrite of ret in error path.
+Also now we ignore the value returned by reset_control_reset() in the
+error path and instead print a error message when it fails.
+
+Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+---
+ drivers/memory/renesas-rpc-if.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index f2a33a1af836..69f2e2b4cd50 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -508,7 +508,8 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 	return ret;
+ 
+ err_out:
+-	ret = reset_control_reset(rpc->rstc);
++	if (reset_control_reset(rpc->rstc))
++		dev_err(rpc->dev, "Failed to reset HW\n");
+ 	rpcif_hw_init(rpc, rpc->bus_size == 2);
+ 	goto exit;
+ }
+-- 
+2.25.1
+
