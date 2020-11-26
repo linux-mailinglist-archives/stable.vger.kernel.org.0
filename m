@@ -2,108 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CA32C51A5
-	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 10:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8ED2C5223
+	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 11:36:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731403AbgKZJxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Nov 2020 04:53:39 -0500
-Received: from mga01.intel.com ([192.55.52.88]:14179 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733102AbgKZJxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Nov 2020 04:53:39 -0500
-IronPort-SDR: kG0NBu6QDKxFtQ2Cviv8KzPeQVoI/ZZ7QVjeu3GeIyIBKPJchYo10cKza7jX2ZVju2To+sfg5x
- EPPJF4RV9hZg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9816"; a="190416160"
-X-IronPort-AV: E=Sophos;i="5.78,371,1599548400"; 
-   d="scan'208";a="190416160"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2020 01:53:37 -0800
-IronPort-SDR: JGHQn+QD7xbDF8ab9HvcWO+SAq2dMi4pdmH+vTRc4Wz9wXCYi/wqh9mUbTT4c0Dme2OEFgETaY
- Eigx0q6TfgYA==
-X-IronPort-AV: E=Sophos;i="5.78,371,1599548400"; 
-   d="scan'208";a="371086581"
-Received: from genxfsim-desktop.iind.intel.com (HELO intel.com) ([10.223.74.178])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2020 01:53:34 -0800
-Date:   Thu, 26 Nov 2020 15:09:50 +0530
-From:   Anshuman Gupta <anshuman.gupta@intel.com>
-To:     Imre Deak <ville.syrjala@linux.intel.com>
-Cc:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [RFC] drm/i915/dp: PPS registers doesn't require AUX power
-Message-ID: <20201126093947.GM13853@intel.com>
-References: <20201124095847.14098-1-anshuman.gupta@intel.com>
- <20201124164406.GG1750458@ideak-desk.fi.intel.com>
- <20201125074624.GJ13853@intel.com>
- <20201125162444.GC1968234@ideak-desk.fi.intel.com>
+        id S1730376AbgKZKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Nov 2020 05:35:14 -0500
+Received: from frasgout.his.huawei.com ([185.176.79.56]:2158 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729095AbgKZKfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Nov 2020 05:35:14 -0500
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4ChYww1WYjz67Hmq;
+        Thu, 26 Nov 2020 18:32:32 +0800 (CST)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.161)
+ by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2106.2; Thu, 26 Nov 2020 11:35:10 +0100
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <torvalds@linux-foundation.org>,
+        <hch@infradead.org>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] ima: Don't modify file descriptor mode on the fly
+Date:   Thu, 26 Nov 2020 11:34:56 +0100
+Message-ID: <20201126103456.15167-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.27.GIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201125162444.GC1968234@ideak-desk.fi.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.65.161]
+X-ClientProxiedBy: lhreml705-chm.china.huawei.com (10.201.108.54) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-11-25 at 18:24:44 +0200, Imre Deak wrote:
-> +Ville.
-Hi Ville ,
-Let me provide you some context over the issue which requires your input.
-TGL on chorome OS has observed some display glitches when brightness is being updated
-at very fast rate. This has surfaced out two issue.
-1. Getting the AUX power when accessing the PPS registers on platform with split PCH.
-2. The race between DC3CO disabling delay and flips. (B.Spec says 200us dc3co exit delay)
-   I will send a separate RFC patch to fix this issue.
+Commit a408e4a86b36b ("ima: open a new file instance if no read
+permissions") already introduced a second open to measure a file when the
+original file descriptor does not allow it. However, it didn't remove the
+existing method of changing the mode of the original file descriptor, which
+is still necessary if the current process does not have enough privileges
+to open a new one.
 
-Current patch is addressing issue1, 
-IMHO it is unnecessary to take AUX power for pps register read for checking
-whether backlight was enabled. This is causing flip to race with
-DC3CO exit delay.
-Could you please provide your input to this . 
+Changing the mode isn't really an option, as the filesystem might need to
+do preliminary steps to make the read possible. Thus, this patch removes
+the code and keeps the second open as the only option to measure a file
+when it is unreadable with the original file descriptor.
 
-Thanks,
-Anshuman Gupta.   
-> 
-> On Wed, Nov 25, 2020 at 01:16:27PM +0530, Anshuman Gupta wrote:
-> > On 2020-11-24 at 18:44:06 +0200, Imre Deak wrote:
-> > > On Tue, Nov 24, 2020 at 03:28:47PM +0530, Anshuman Gupta wrote:
-> > > > Platforms with South Display Engine on PCH, doesn't
-> > > > require to get/put the AUX power domain in order to
-> > > > access PPS register because PPS registers are always on
-> > > > with South display on PCH.
-> > > > 
-> > > > Cc: Imre Deak <imre.deak@intel.com>
-> > > > Cc: <stable@vger.kernel.org>
-> > > > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-> > > 
-> > > Could you describe the issue the patch is fixing?
-> >
-> > This fixes the display glitches causes by race between brightness
-> > update thread and flip thread.
-> 
-> Flips should work even with asynchronous DC3co (or any DC state)
-> disabling, at least according to the spec the HW handles this. Only
-> modesetting and AUX transfers have restriction wrt. DC state handling
-> (where DC states need to get disabled).
-> 
-> I think the exact restriction needs to be clarified with HW people: Is
-> only the DC3co disable -> flip or also the opposite sequence
-> problematic? Is it only DC3co or also DC5/6 affected?
-> 
-> > While brightness is being updated it reads pp_ctrl reg to check
-> > whether backlight is enabled and get/put the AUX power domain, this
-> > enables and disable DC Off power well(DC3CO) back and forth.
-> >
-> > IMO there are two work item for above race needed to be addressed.
-> > 1. Don't get AUX power for PPS register access (this patch addressed this).
-> > 2. skl_program_plane() should wait for DC3CO exit delay to avoid any race with
-> >    DC3CO disable sequence. (WIP)      
-> 
-> DC states can be disabled asynchronously with a flip modeset, not only
-> for panel brightness setting, but also AUX transfers for instance. So I
-> think we'd need to add locking against DC state changes to
-> intel_pipe_update_start()/end(). Probably the easiest would be to use
-> the power_domains->lock for this.
-> 
-> --Imre
+Cc: <stable@vger.kernel.org> # 4.20.x: 0014cc04e8ec0 ima: Set file->f_mode
+Cc: <stable@vger.kernel.org> # 4.20.x
+Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ security/integrity/ima/ima_crypto.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
+
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index 21989fa0c107..f6a7e9643b54 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -537,7 +537,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 	loff_t i_size;
+ 	int rc;
+ 	struct file *f = file;
+-	bool new_file_instance = false, modified_mode = false;
++	bool new_file_instance = false;
+ 
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -555,18 +555,10 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
+ 		flags |= O_RDONLY;
+ 		f = dentry_open(&file->f_path, flags, file->f_cred);
+-		if (IS_ERR(f)) {
+-			/*
+-			 * Cannot open the file again, lets modify f_mode
+-			 * of original and continue
+-			 */
+-			pr_info_ratelimited("Unable to reopen file for reading.\n");
+-			f = file;
+-			f->f_mode |= FMODE_READ;
+-			modified_mode = true;
+-		} else {
+-			new_file_instance = true;
+-		}
++		if (IS_ERR(f))
++			return PTR_ERR(f);
++
++		new_file_instance = true;
+ 	}
+ 
+ 	i_size = i_size_read(file_inode(f));
+@@ -581,8 +573,6 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ out:
+ 	if (new_file_instance)
+ 		fput(f);
+-	else if (modified_mode)
+-		f->f_mode &= ~FMODE_READ;
+ 	return rc;
+ }
+ 
+-- 
+2.27.GIT
+
