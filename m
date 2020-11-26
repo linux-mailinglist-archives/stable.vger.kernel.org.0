@@ -2,106 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4452B2C587F
-	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 16:50:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F00752C5885
+	for <lists+stable@lfdr.de>; Thu, 26 Nov 2020 16:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391333AbgKZPuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Nov 2020 10:50:15 -0500
-Received: from mga05.intel.com ([192.55.52.43]:59994 "EHLO mga05.intel.com"
+        id S2390011AbgKZPwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Nov 2020 10:52:55 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46766 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730602AbgKZPuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Nov 2020 10:50:14 -0500
-IronPort-SDR: dYNvmBViASNL2wIqGSF5Y0V5IR6jr4eXzRYZJ4xJStlN7O7DK79ffK8Ev0pnC77S7iXzcriMkP
- 5SpXCpTHli0Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9817"; a="257007542"
-X-IronPort-AV: E=Sophos;i="5.78,372,1599548400"; 
-   d="scan'208";a="257007542"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2020 07:50:13 -0800
-IronPort-SDR: BnBTSG+uF5JgA2gwSndjWIHPdhsWZxdcUN9sS74/1IxTgJqwrdonmYtSKbP+IN+lImdUsuUucI
- zati/nRaPsDw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,372,1599548400"; 
-   d="scan'208";a="365857613"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga002.fm.intel.com with SMTP; 26 Nov 2020 07:50:10 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 26 Nov 2020 17:50:10 +0200
-Date:   Thu, 26 Nov 2020 17:50:10 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Jason Ekstrand <jason@jlekstrand.net>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/gt: Program mocs:63 for cache eviction on gen9
-Message-ID: <20201126155010.GD6112@intel.com>
-References: <20201126105539.2661-1-chris@chris-wilson.co.uk>
- <20201126140841.1982-1-chris@chris-wilson.co.uk>
+        id S1730181AbgKZPwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Nov 2020 10:52:55 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 6E644ACD5;
+        Thu, 26 Nov 2020 15:52:53 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 328B21E10D0; Thu, 26 Nov 2020 16:52:53 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     x86@kernel.org, Brian Gerst <brgerst@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] fanotify: Fix fanotify_mark() on 32-bit x86
+Date:   Thu, 26 Nov 2020 16:52:46 +0100
+Message-Id: <20201126155246.25961-1-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201126140841.1982-1-chris@chris-wilson.co.uk>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 26, 2020 at 02:08:41PM +0000, Chris Wilson wrote:
-> Ville noticed that the last mocs entry is used unconditionally by the HW
-> when it performs cache evictions, and noted that while the value is not
-> meant to be writable by the driver, we should program it to a reasonable
-> value nevertheless.
-> 
-> As it turns out, we can change the value of mocs:63 and the value we
-> were programming into it would cause hard hangs in conjunction with
-> atomic operations.
-> 
-> v2: Add details from bspec about how it is used by HW
-> 
-> Suggested-by: Ville Syrj‰l‰ <ville.syrjala@linux.intel.com>
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2707
-> Fixes: 3bbaba0ceaa2 ("drm/i915: Added Programming of the MOCS")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Ville Syrj‰l‰ <ville.syrjala@linux.intel.com>
-> Cc: Jason Ekstrand <jason@jlekstrand.net>
-> Cc: <stable@vger.kernel.org> # v4.3+
-> ---
->  drivers/gpu/drm/i915/gt/intel_mocs.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_mocs.c b/drivers/gpu/drm/i915/gt/intel_mocs.c
-> index 254873e1646e..26cedde80476 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_mocs.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
-> @@ -131,7 +131,19 @@ static const struct drm_i915_mocs_entry skl_mocs_table[] = {
->  	GEN9_MOCS_ENTRIES,
->  	MOCS_ENTRY(I915_MOCS_CACHED,
->  		   LE_3_WB | LE_TC_2_LLC_ELLC | LE_LRUM(3),
-> -		   L3_3_WB)
-> +		   L3_3_WB),
-> +
-> +	/*
-> +	 * mocs:63
-> +	 * - used by the L3 for all its evictions.
-> +	 *   Thus it is expected to allow LLC cacheability to enable coherent
-> +	 *   flows to be maintained.
-> +	 * - used to force L3 uncachable cycles.
-> +	 *   Thus it is expected to make the surce L3 uncacheable.
+Commit converting syscalls taking 64-bit arguments to new scheme of compat
+handlers omitted converting fanotify_mark(2) which then broke the
+syscall for 32-bit x86 builds. Add missed conversion. It is somewhat
+cumbersome since we need to keep the original compat handler for all the
+other 32-bit archs.
 
-"surce"?
+CC: Brian Gerst <brgerst@gmail.com>
+Suggested-by: Borislav Petkov <bp@suse.de>
+Reported-by: Pawe≈Ç Jasiak <pawel@jasiak.xyz>
+Reported-and-tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Fixes: 121b32a58a3a ("x86/entry/32: Use IA32-specific wrappers for syscalls taking 64-bit arguments")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ arch/x86/entry/syscalls/syscall_32.tbl | 2 +-
+ fs/notify/fanotify/fanotify_user.c     | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-> +	 */
-> +	MOCS_ENTRY(63,
-> +		   LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
-> +		   L3_1_UC)
->  };
->  
->  /* NOTE: the LE_TGT_CACHE is not used on Broxton */
-> -- 
-> 2.20.1
+I plan to queue this fix into my tree next week. I'd be happy if someone with
+x86 ABI knowledge checks whether I've got the patch right (especially various
+config variants) because it was mostly a guesswork of me & Boris ;). Thanks!
 
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 0d0667a9fbd7..b2ec6ff88307 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -350,7 +350,7 @@
+ 336	i386	perf_event_open		sys_perf_event_open
+ 337	i386	recvmmsg		sys_recvmmsg_time32		compat_sys_recvmmsg_time32
+ 338	i386	fanotify_init		sys_fanotify_init
+-339	i386	fanotify_mark		sys_fanotify_mark		compat_sys_fanotify_mark
++339	i386	fanotify_mark		sys_ia32_fanotify_mark
+ 340	i386	prlimit64		sys_prlimit64
+ 341	i386	name_to_handle_at	sys_name_to_handle_at
+ 342	i386	open_by_handle_at	sys_open_by_handle_at		compat_sys_open_by_handle_at
+diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+index 3e01d8f2ab90..ba38f0fec4d0 100644
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -1292,8 +1292,13 @@ SYSCALL_DEFINE5(fanotify_mark, int, fanotify_fd, unsigned int, flags,
+ 	return do_fanotify_mark(fanotify_fd, flags, mask, dfd, pathname);
+ }
+ 
+-#ifdef CONFIG_COMPAT
++#if defined(CONFIG_COMPAT) || defined(CONFIG_X86_32) || \
++    defined(CONFIG_IA32_EMULATION)
++#if defined(CONFIG_X86_32) || defined(CONFIG_IA32_EMULATION)
++SYSCALL_DEFINE6(ia32_fanotify_mark,
++#elif CONFIG_COMPAT
+ COMPAT_SYSCALL_DEFINE6(fanotify_mark,
++#endif
+ 				int, fanotify_fd, unsigned int, flags,
+ 				__u32, mask0, __u32, mask1, int, dfd,
+ 				const char  __user *, pathname)
 -- 
-Ville Syrj‰l‰
-Intel
+2.16.4
+
