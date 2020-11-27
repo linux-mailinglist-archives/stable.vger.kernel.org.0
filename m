@@ -2,79 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4218B2C672C
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 14:48:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02D352C674A
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 14:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgK0NsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 08:48:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbgK0NsF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Nov 2020 08:48:05 -0500
-Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
+        id S1730049AbgK0N6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 08:58:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730041AbgK0N6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 08:58:40 -0500
+X-Greylist: delayed 494 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 27 Nov 2020 05:58:39 PST
+Received: from mx3.securetransport.de (mx3.securetransport.de [IPv6:2a01:4f8:c0c:92be::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6B2C0613D1
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 05:58:39 -0800 (PST)
+Received: from mail.dh-electronics.com (business-24-134-97-169.pool2.vodafone-ip.de [24.134.97.169])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4889D20B1F;
-        Fri, 27 Nov 2020 13:48:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606484884;
-        bh=s4L3W3v15jG9m4793BP8yzNg4FXIDOP6MeUh6vZiQrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qfV/BlxTzXCyLMkp7wyEqjKedhCJ2+5Ddu6UrrUYWq4le0iw+gfSeA/M0UCXLVbqx
-         XuLQ8jILdgND4bwXUk2r0aOyYvPfLPJ27YXcVILoDdK0VgyyKua5gOliaJ5cIwpP9K
-         YCVTRLJhI1FruS4lS8a3qSBiXZLFYthOpLyfWan4=
-Date:   Fri, 27 Nov 2020 14:48:02 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Peter Chen <peter.chen@nxp.com>
-Cc:     "balbi@kernel.org" <balbi@kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Will McVicker <willmcvicker@google.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4/4] USB: gadget: f_midi: setup SuperSpeed Plus
- descriptors
-Message-ID: <X8EDkpkZBI5naECL@kroah.com>
-References: <20201126180937.255892-1-gregkh@linuxfoundation.org>
- <20201126180937.255892-4-gregkh@linuxfoundation.org>
- <20201127120621.GD22238@b29397-desktop>
+        by mx3.securetransport.de (Postfix) with ESMTPSA id 835B45DD13
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 14:50:19 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dh-electronics.com;
+        s=dhelectronicscom; t=1606485019;
+        bh=AWfMb5jpnFJ19ofIKsFIQVOqZBLuUbvfaXBgKgY7vws=;
+        h=From:To:Subject:Date:From;
+        b=up/WD9hlyR85M1/ilejKTC9eKjXI/IzftlUP4xAGfcggtM8Bx7nhO+hqGrDFKIVBA
+         LlQ7ZVi7C+tYiUfkjr35D4wki0o7bqSVPLqGFDDcJ7cRgITAnvQj/6psuPYuekJnKX
+         cj2ddIXA7cBUQNhrt12yuuiRqW/EdNYPcZdYI1HrRnx0Q267S8ysiJRJkYjIgNa5ZO
+         V4hSl8TKqwjQ5vQN1ee4SSP3oWKugt8YTfL7885Kgze4Zf1yJEVyTbRcNLaMcLp+we
+         D/6hHMWmgSJYXlPS37Cwz3kMIFWRIEhMj4jrQjUHLa6nS7G8XlF1lxvd1cEUAU8lnB
+         i7v29uLITwHsg==
+Received: from DHPWEX01.DH-ELECTRONICS.ORG (2001:470:76a7:2::30) by
+ DHPWEX01.DH-ELECTRONICS.ORG (2001:470:76a7:2::30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.659.4;
+ Fri, 27 Nov 2020 14:50:10 +0100
+Received: from DHPWEX01.DH-ELECTRONICS.ORG ([fe80::6ced:fa7f:9a9c:e579]) by
+ DHPWEX01.DH-ELECTRONICS.ORG ([fe80::6ced:fa7f:9a9c:e579%6]) with mapi id
+ 15.02.0659.008; Fri, 27 Nov 2020 14:50:10 +0100
+X-secureTransport-forwarded: yes
+From:   Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Complaints-To: abuse@cubewerk.de
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Missing fixes commit on linux-4.19.y
+Thread-Topic: Missing fixes commit on linux-4.19.y
+Thread-Index: AdbExCWIB6Z0M2MSQfq9plHp14n48g==
+Date:   Fri, 27 Nov 2020 13:50:10 +0000
+Message-ID: <86287ab712444551b3740703a8092aa8@dh-electronics.com>
+Accept-Language: de-DE, en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.64.3.50]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201127120621.GD22238@b29397-desktop>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 27, 2020 at 12:06:50PM +0000, Peter Chen wrote:
-> On 20-11-26 19:09:37, Greg Kroah-Hartman wrote:
-> > From: Will McVicker <willmcvicker@google.com>
-> > 
-> > Needed for SuperSpeed Plus support for f_midi.  This allows the
-> > gadget to work properly without crashing at SuperSpeed rates.
-> > 
-> > Cc: Felipe Balbi <balbi@kernel.org>
-> > Cc: stable <stable@vger.kernel.org>
-> > Signed-off-by: Will McVicker <willmcvicker@google.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/usb/gadget/function/f_midi.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
-> > index 85cb15734aa8..ceb67651de4f 100644
-> > --- a/drivers/usb/gadget/function/f_midi.c
-> > +++ b/drivers/usb/gadget/function/f_midi.c
-> > @@ -1048,6 +1048,11 @@ static int f_midi_bind(struct usb_configuration *c, struct usb_function *f)
-> >  		f->ss_descriptors = usb_copy_descriptors(midi_function);
-> >  		if (!f->ss_descriptors)
-> >  			goto fail_f_midi;
-> 
-> Add one blank line, otherwise:
+Hello,
 
-Will add it, good idea.
+Is it possible to apply the following commit on the branch linux-4.19.y?
+de9f8eea5a44 ("drm/atomic_helper: Stop modesets on unregistered connectors =
+harder")
 
-> Reviewed-by: Peter Chen <peter.chen@nxp.com>
+This commit is applied to the other LTS kernels, but is missing on
+linux-4.19.y. Without this patch my i.MX6ULL SoM doesn't initialize
+the display correctly after booting.
 
-Thanks for reviewing all of these, much appreciated.
+Thanks in advance,
+Christoph
 
-greg k-h
+___________________________________________________________________________=
+_________
+DH electronics GmbH | Am Anger 8 | 83346 Bergen | Germany | Fon: +49 8662 4=
+882 0
+HRB Traunstein 9602 | Ust Id Nr.: DE174205805
+Board of Management | Dipl.-Ing.(FH) Stefan Daxenberger | Dipl.-Ing.(FH) He=
+lmut Henschke
+
