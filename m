@@ -2,113 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A5FD2C5E0A
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 00:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC202C5F30
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 05:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727558AbgKZXES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Nov 2020 18:04:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60800 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726357AbgKZXER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Nov 2020 18:04:17 -0500
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE20C0613D4;
-        Thu, 26 Nov 2020 15:04:17 -0800 (PST)
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4ChtcF3GSnzQlL9;
-        Fri, 27 Nov 2020 00:04:13 +0100 (CET)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hauke-m.de; s=MBO0001;
-        t=1606431851;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=gdpbIL1RJr7VCVT4Nh17X4Zo+RhqzqfYeFYLgoT5qgI=;
-        b=GLNIS5kC1VCvSr9QG+TNTCMHphSexZMEf5djjrwNyW7gcD9oEJaKSiYLnh7NsmnczOgX63
-        Ln3Fp72Uk6whWVZj5h3P8oXc9DH4VUN+mg3kUwGtEgVQgW8oe2kKVARtBnqUqOBWfhxgjw
-        lko+tp+R4d8NCoP2waXT6PIymg6JW2e+7Y7hO07XKawDn+QGSjqeRe/cmSbykSX9Rp1uaO
-        LpeV7fzRkV4y0kLYTIJtHM54bN0+Q7rZrNaX68Sg8v+/fRxP/GxSZ+CNs6CooT7tn/0TVo
-        B2BNI1zJ0aDBS8qF8bPpWncRXVY2m6xD1BruNKpXg6y5aUULiKz5hm9266+Hag==
-Received: from smtp2.mailbox.org ([80.241.60.241])
-        by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
-        with ESMTP id NU6pobBJgaJe; Fri, 27 Nov 2020 00:04:09 +0100 (CET)
-To:     stable <stable@vger.kernel.org>
-From:   Hauke Mehrtens <hauke@hauke-m.de>
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        linux-wireless@vger.kernel.org
-Subject: stable backport of "wireless: Use linux/stddef.h instead of stddef.h"
-Message-ID: <f1958cd2-bd9e-5141-8aa2-f8729dd76719@hauke-m.de>
-Date:   Fri, 27 Nov 2020 00:04:00 +0100
+        id S2392405AbgK0EPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Nov 2020 23:15:03 -0500
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:21744 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388685AbgK0EPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Nov 2020 23:15:03 -0500
+Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AR4F2VC025137
+        for <stable@vger.kernel.org>; Thu, 26 Nov 2020 20:15:02 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=facebook; bh=nd8TtOAa9xHhX+Sd5SU6lTBEa7NEXDyESd69KLboYpI=;
+ b=hBMWXQGdxqjQKsOn3eNr13b0n8cvY2Z/Ozmr4SI5UEfqXCJ3sMbj1EGPgmEP9+d915DX
+ lHiAmCWTFBdET9G4iqNL6HtqfkdyC3bcfNSQvIyY/mX4vFpUP94MuW6bHfhHxgLtCKBF
+ EYtxF4X9Onn5V7aYPu8pIVmO4BPNW6uWySk= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 352s3n05nb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 26 Nov 2020 20:15:02 -0800
+Received: from intmgw001.41.prn1.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:82::e) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Thu, 26 Nov 2020 20:14:26 -0800
+Received: by devvm3388.prn0.facebook.com (Postfix, from userid 111017)
+        id 1FDC9176D279; Thu, 26 Nov 2020 20:14:13 -0800 (PST)
+From:   Roman Gushchin <guro@fb.com>
+To:     Andrew Morton <akpm@linux-foundation.org>, <linux-mm@kvack.org>
+CC:     Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        <linux-kernel@vger.kernel.org>, <kernel-team@fb.com>,
+        Roman Gushchin <guro@fb.com>, <stable@vger.kernel.org>
+Subject: [PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling
+Date:   Thu, 26 Nov 2020 20:14:05 -0800
+Message-ID: <20201127041405.3459198-1-guro@fb.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="iy406QBycnYcQCM3AJn1Zxp1phFO38g3s"
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -7.82 / 15.00 / 15.00
-X-Rspamd-Queue-Id: 347D216FD
-X-Rspamd-UID: 250ecd
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-27_01:2020-11-26,2020-11-27 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 suspectscore=2
+ bulkscore=0 malwarescore=0 phishscore=0 adultscore=0 clxscore=1011
+ spamscore=0 mlxlogscore=722 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2011270023
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---iy406QBycnYcQCM3AJn1Zxp1phFO38g3s
-Content-Type: multipart/mixed; boundary="uGmWxNILrWcoxDqgLM5mlGajfbyGuyQPA";
- protected-headers="v1"
-From: Hauke Mehrtens <hauke@hauke-m.de>
-To: stable <stable@vger.kernel.org>
-Cc: Johannes Berg <johannes.berg@intel.com>, linux-wireless@vger.kernel.org
-Message-ID: <f1958cd2-bd9e-5141-8aa2-f8729dd76719@hauke-m.de>
-Subject: stable backport of "wireless: Use linux/stddef.h instead of stddef.h"
+Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
+for all allocations") introduced a regression into the handling of the
+obj_cgroup_charge() return value. If a non-zero value is returned
+(indicating of exceeding one of memory.max limits), the allocation
+should fail, instead of falling back to non-accounted mode.
 
---uGmWxNILrWcoxDqgLM5mlGajfbyGuyQPA
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+To make the code more readable, move memcg_slab_pre_alloc_hook()
+and memcg_slab_post_alloc_hook() calling conditions into bodies
+of these hooks.
 
-Hi,
+Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for=
+ all allocations")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Cc: stable@vger.kernel.org
+---
+ mm/slab.h | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-Please backport "wireless: Use linux/stddef.h instead of stddef.h" to=20
-kernel 4.14, 4.19 and 5.4.
-This is upstream commit id 1b9ae0c92925ac40489be526d67d0010d0724ce0
-https://git.kernel.org/linus/1b9ae0c92925ac40489be526d67d0010d0724ce0
+diff --git a/mm/slab.h b/mm/slab.h
+index 59aeb0d9f11b..5dc89d8fb05e 100644
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -257,22 +257,32 @@ static inline size_t obj_full_size(struct kmem_cach=
+e *s)
+ 	return s->size + sizeof(struct obj_cgroup *);
+ }
+=20
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_c=
+ache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++/*
++ * Returns true if the allocation should fail.
++ */
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+ 	struct obj_cgroup *objcg;
+=20
++	if (!memcg_kmem_enabled())
++		return false;
++
++	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
++		return false;
++
+ 	objcg =3D get_obj_cgroup_from_current();
+ 	if (!objcg)
+-		return NULL;
++		return false;
+=20
+ 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
+ 		obj_cgroup_put(objcg);
+-		return NULL;
++		return true;
+ 	}
+=20
+-	return objcg;
++	*objcgp =3D objcg;
++	return false;
+ }
+=20
+ static inline void mod_objcg_state(struct obj_cgroup *objcg,
+@@ -298,7 +308,7 @@ static inline void memcg_slab_post_alloc_hook(struct =
+kmem_cache *s,
+ 	unsigned long off;
+ 	size_t i;
+=20
+-	if (!objcg)
++	if (!memcg_kmem_enabled() || !objcg)
+ 		return;
+=20
+ 	flags &=3D ~__GFP_ACCOUNT;
+@@ -382,11 +392,11 @@ static inline void memcg_free_page_obj_cgroups(stru=
+ct page *page)
+ {
+ }
+=20
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_c=
+ache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+-	return NULL;
++	return false;
+ }
+=20
+ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
+@@ -494,9 +504,8 @@ static inline struct kmem_cache *slab_pre_alloc_hook(=
+struct kmem_cache *s,
+ 	if (should_failslab(s, flags))
+ 		return NULL;
+=20
+-	if (memcg_kmem_enabled() &&
+-	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
+-		*objcgp =3D memcg_slab_pre_alloc_hook(s, size, flags);
++	if (memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
++		return NULL;
+=20
+ 	return s;
+ }
+@@ -515,8 +524,7 @@ static inline void slab_post_alloc_hook(struct kmem_c=
+ache *s,
+ 					 s->flags, flags);
+ 	}
+=20
+-	if (memcg_kmem_enabled())
+-		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
++	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
+ }
+=20
+ #ifndef CONFIG_SLOB
+--=20
+2.26.2
 
-commit 1b9ae0c92925ac40489be526d67d0010d0724ce0
-Author: Hauke Mehrtens <hauke@hauke-m.de>
-Date:   Thu May 21 22:14:22 2020 +0200
-
-     wireless: Use linux/stddef.h instead of stddef.h
-
-This patch fixes a build problem in broken build environments which was=20
-introduced with 6989310f5d43 ("wireless: Use offsetof instead of custom=20
-macro.") which was backported to the listed kernel versions.
-
-When the include path is fully correct you should not hit this problem,=20
-but I got it because of some bug in by build system and also someone=20
-else reported a similar problem to me and requested this backport.
-
-Hauke
-
-
---uGmWxNILrWcoxDqgLM5mlGajfbyGuyQPA--
-
---iy406QBycnYcQCM3AJn1Zxp1phFO38g3s
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEyz0/uAcd+JwXmwtD8bdnhZyy68cFAl/ANGAACgkQ8bdnhZyy
-68c/xwgA03ETcZSephZocpZbRzdspgN3MlIZ+cK+zgb7SvWjLwT1D/G6Umlm3utt
-dO9AJBwJwKfk5HF4t8HIkp0PWMrflWkZQTGxOwtdK+SEfJ0Qhth9huavXOEdm8Q7
-SHLAQAkI15eb1Wbmrx91ktjF/YZdPuVHEBidX4sYDyEahx5eFCYq8n21u0SVlPXd
-4rRV4a+g/qWyMVpsli6LaZ41ql21f+hxsGMf7XYwS8K2Y8a7hbo+nu8dYSSHeIpd
-qznxZHbQGKgYjLkTpyETlXfqy9GsUhZpSsS1Jn9AymOdO5IzifUAEuqGD4b6OXws
-HSt1DfkmxM2et5T6bMhQHFJobMnHIQ==
-=TCga
------END PGP SIGNATURE-----
-
---iy406QBycnYcQCM3AJn1Zxp1phFO38g3s--
