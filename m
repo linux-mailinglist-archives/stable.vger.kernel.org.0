@@ -2,226 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A862C6E5E
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 03:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 162D82C6E74
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 03:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731398AbgK1CLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 21:11:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38516 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731810AbgK1CIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Nov 2020 21:08:44 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13DE82075E;
-        Sat, 28 Nov 2020 02:08:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1606529320;
-        bh=qxO9Yx0JU2dWRT4V6yEv0Kx3CraRNV2rqzGoKXYrfAo=;
-        h=Date:From:To:Subject:From;
-        b=0IDoMMa1SphgUnRulwzVNANtFR2J7uP1arNtNVODZL9Vg5wkBxNvNDBKtOfogiSqG
-         vDjwxaWZquRL5I/gEVVLbgvBzsQbvjmZjz02dR4jO9CfA3LMAb87NTGk2N1APx83Xj
-         +iwfAFib6DYL4pLBplBBnPmqy9TxvzLUsFBAuflE=
-Date:   Fri, 27 Nov 2020 18:08:39 -0800
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, egorenar@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [merged]
- mm-userfaultfd-do-not-access-vma-vm_mm-after-calling-handle_userfault.patch
- removed from -mm tree
-Message-ID: <20201128020839._WA589xDD%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1730563AbgK0T6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 14:58:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730990AbgK0T51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 14:57:27 -0500
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DFDDC061A04
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 11:27:47 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id f190so4427282wme.1
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 11:27:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=AP21F+TnvcNMAcaaWG1jprdCjS1gAu0i3yFku4fv+y0=;
+        b=fut8IMGo1JTtvXOmXW2DuGHIR7YYSZUNuvVpwJyl5ke05whdgAZm3fRwAy8/rwmeBf
+         QCwW9er2i+0EyWfXOKjpzVKfQluJteYjQyd9uZIqGEAZzvvirwYiOCnRe6dm2MyswLyh
+         gS845C7tHY+cqcjt+le8EXO8U3qrPsemKrRzXwOYeg97k91pmWlvTFLnK+ijV86jAu41
+         bbQZZAKZzjaipnql30lDlFFoExXZoinfPwzo88X6loUjnBd2yvTb4Uc+PzN1J7iW4Ljw
+         nDvFFaDx6/UVMG8+jgIoJThkU7Irs1ci81DMYLgcO6X9g0fpfqP0lPYCJZnZMxDqSw6r
+         WWKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=AP21F+TnvcNMAcaaWG1jprdCjS1gAu0i3yFku4fv+y0=;
+        b=FUbi0iRHk2/6sujKKSLZe0NgmAICNF0Q5OgT3AnfYy9b9YLsVFk+rpEF1E5n6xBvs/
+         oHama+cUemCeQK0CdCP2RGLX3UiMedvbNFtqGQVp4EWe/tR+KMm9GSEIsxR5jsu2+gqX
+         0pU6kewCpFCjYFRAm1gYRAzpT9mtBZHjOjbx0Qvh97h9f6mAZf0QmzUDh1+UQnwhMKI1
+         I/sJd+hiWeEdwvFNWxWp11uQbQOZfY/XQaS7wvQ+Z5bTnYcyEhxXbtyYbHwqQRy5wEGu
+         Ul+onUeYz0pkOvPCtOChhouazWaTWHVUSTl0D8CzLqUDp5TqJWlYg3HSNIY+sLv6KeL5
+         Y/ZA==
+X-Gm-Message-State: AOAM531J01NV21PjXSS4r/VgH8ceLeaBgK6hdrbZ/p1FEciqvnHPtitE
+        KJL5EZzc2KhIYMnTJXq1dpM=
+X-Google-Smtp-Source: ABdhPJzz1qc38PgFYLWnO+EDQFyALx+XbGxq8HxADHCpvkWLcadzyGv/1JkpterF3R5UIBg4INRSKA==
+X-Received: by 2002:a1c:32c6:: with SMTP id y189mr11119362wmy.133.1606505265960;
+        Fri, 27 Nov 2020 11:27:45 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id v4sm17158380wru.12.2020.11.27.11.27.44
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 27 Nov 2020 11:27:45 -0800 (PST)
+Date:   Fri, 27 Nov 2020 19:27:42 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     ceggers@arri.de, u.kleine-koenig@pengutronix.de, wsa@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] i2c: imx: Fix reset of I2SR_IAL flag"
+ failed to apply to 5.4-stable tree
+Message-ID: <20201127192742.mwxcjkmmzj72v7zz@debian>
+References: <1602405612123102@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="dldtnn27i4jwtui4"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1602405612123102@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
-has been removed from the -mm tree.  Its filename was
-     mm-userfaultfd-do-not-access-vma-vm_mm-after-calling-handle_userfault.patch
+--dldtnn27i4jwtui4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Hi Greg,
 
-------------------------------------------------------
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
+On Sun, Oct 11, 2020 at 10:40:12AM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Alexander reported a syzkaller / KASAN finding on s390, see below for
-complete output.
+Here is the backport. It will apply till 4.9-stable.
 
-In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be freed
-in some cases.  In the case of userfaultfd_missing(), this will happen
-after calling handle_userfault(), which might have released the mmap_lock.
-Therefore, the following pte_free(vma->vm_mm, pgtable) will access an
-unstable vma->vm_mm, which could have been freed or re-used already.
 
-For all architectures other than s390 this will go w/o any negative
-impact, because pte_free() simply frees the page and ignores the passed-in
-mm.  The implementation for SPARC32 would also access mm->page_table_lock
-for pte_free(), but there is no THP support in SPARC32, so the buggy code
-path will not be used there.
+--
+Regards
+Sudip
 
-For s390, the mm->context.pgtable_list is being used to maintain the 2K
-pagetable fragments, and operating on an already freed or even re-used mm
-could result in various more or less subtle bugs due to list / pagetable
-corruption.
+--dldtnn27i4jwtui4
+Content-Type: text/x-diff; charset=iso-8859-1
+Content-Disposition: attachment; filename="0001-i2c-imx-Fix-reset-of-I2SR_IAL-flag.patch"
+Content-Transfer-Encoding: 8bit
 
-Fix this by calling pte_free() before handle_userfault(), similar to how
-it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
-non-huge_zero_page case.
+From a031ac83a3ef681040a44b1090c0cbf9a3d8b328 Mon Sep 17 00:00:00 2001
+From: Christian Eggers <ceggers@arri.de>
+Date: Wed, 7 Oct 2020 10:45:22 +0200
+Subject: [PATCH] i2c: imx: Fix reset of I2SR_IAL flag
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
-userfaultfd_missing() faults") actually introduced both, the
-do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
-changes wrt to calling handle_userfault(), but only in the latter case it
-put the pte_free() before calling handle_userfault().
+commit fa4d30556883f2eaab425b88ba9904865a4d00f3 upstream
 
-==================================================================
-BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
-Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
+According to the "VFxxx Controller Reference Manual" (and the comment
+block starting at line 97), Vybrid requires writing a one for clearing
+an interrupt flag. Syncing the method for clearing I2SR_IIF in
+i2c_imx_isr().
 
-CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
-Hardware name: IBM 3906 M04 701 (KVM/Linux)
-Call Trace:
- [<00000000aa0a7a1c>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
- [<00000000aa0a7a1c>] show_stack+0x174/0x220 arch/s390/kernel/dumpstack.c:135
- [<00000000aa105952>] __dump_stack lib/dump_stack.c:77 [inline]
- [<00000000aa105952>] dump_stack+0x262/0x2e8 lib/dump_stack.c:118
- [<00000000aa0b484e>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:385
- [<00000000a61f13aa>] __kasan_report mm/kasan/report.c:545 [inline]
- [<00000000a61f13aa>] kasan_report+0x11a/0x168 mm/kasan/report.c:562
- [<00000000a620d782>] do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
- [<00000000a610632e>] create_huge_pmd mm/memory.c:4256 [inline]
- [<00000000a610632e>] __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
- [<00000000a61067b0>] handle_mm_fault+0x288/0x748 mm/memory.c:4607
- [<00000000a598b55c>] do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
- [<00000000a598d7c4>] do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
- [<00000000aa124e5e>] pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
- [<00000000aa0a6902>] copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
- [<00000000aa0a6902>] raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
- [<00000000a7c24668>] _copy_from_user+0x48/0xa8 lib/usercopy.c:16
- [<00000000a5b0b2a8>] copy_from_user include/linux/uaccess.h:192 [inline]
- [<00000000a5b0b2a8>] __do_sys_sigaltstack kernel/signal.c:4064 [inline]
- [<00000000a5b0b2a8>] __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
- [<00000000aa124a9c>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-Allocated by task 9334:
- stack_trace_save+0xbe/0xf0 kernel/stacktrace.c:121
- kasan_save_stack+0x30/0x60 mm/kasan/common.c:48
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc.constprop.0+0xd0/0xe8 mm/kasan/common.c:461
- slab_post_alloc_hook mm/slab.h:526 [inline]
- slab_alloc_node mm/slub.c:2891 [inline]
- slab_alloc mm/slub.c:2899 [inline]
- kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
- vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
- __split_vma+0xba/0x560 mm/mmap.c:2742
- split_vma+0xca/0x108 mm/mmap.c:2800
- mlock_fixup+0x4ae/0x600 mm/mlock.c:550
- apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
- do_mlock+0x1aa/0x718 mm/mlock.c:711
- __do_sys_mlock2 mm/mlock.c:738 [inline]
- __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
- system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-Freed by task 9333:
- stack_trace_save+0xbe/0xf0 kernel/stacktrace.c:121
- kasan_save_stack+0x30/0x60 mm/kasan/common.c:48
- kasan_set_track+0x32/0x48 mm/kasan/common.c:56
- kasan_set_free_info+0x34/0x50 mm/kasan/generic.c:355
- __kasan_slab_free+0x11e/0x190 mm/kasan/common.c:422
- slab_free_hook mm/slub.c:1544 [inline]
- slab_free_freelist_hook mm/slub.c:1577 [inline]
- slab_free mm/slub.c:3142 [inline]
- kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
- __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
- vma_merge+0x87e/0xce0 mm/mmap.c:1209
- userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
- __fput+0x22c/0x7a8 fs/file_table.c:281
- task_work_run+0x200/0x320 kernel/task_work.c:151
- tracehook_notify_resume include/linux/tracehook.h:188 [inline]
- do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
- system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
-
-The buggy address belongs to the object at 00000000962d6948
- which belongs to the cache vm_area_struct of size 200
-The buggy address is located 64 bytes inside of
- 200-byte region [00000000962d6948, 00000000962d6a10)
-The buggy address belongs to the page:
-page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6
-flags: 0x3ffff00000000200(slab)
-raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
-raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
-page dumped because: kasan: bad access detected
-page->mem_cgroup:0000000096959501
-
-Memory state around the buggy address:
- 00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
->00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- 00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
- 00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
-Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[4.3+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
+ drivers/i2c/busses/i2c-imx.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
- mm/huge_memory.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
---- a/mm/huge_memory.c~mm-userfaultfd-do-not-access-vma-vm_mm-after-calling-handle_userfault
-+++ a/mm/huge_memory.c
-@@ -710,7 +710,6 @@ vm_fault_t do_huge_pmd_anonymous_page(st
- 			transparent_hugepage_use_zero_page()) {
- 		pgtable_t pgtable;
- 		struct page *zero_page;
--		bool set;
- 		vm_fault_t ret;
- 		pgtable = pte_alloc_one(vma->vm_mm);
- 		if (unlikely(!pgtable))
-@@ -723,25 +722,25 @@ vm_fault_t do_huge_pmd_anonymous_page(st
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 9543c9816eed..ddaea7c6d30e 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -414,6 +414,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
+ }
+ 
++static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
++{
++	unsigned int temp;
++
++	/*
++	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
++	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
++	 * toggled. This is required because i.MX needs W1C and Vybrid uses W0C.
++	 */
++	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
++	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++}
++
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+@@ -426,8 +439,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ 
+ 		/* check for arbitration lost */
+ 		if (temp & I2SR_IAL) {
+-			temp &= ~I2SR_IAL;
+-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
  		}
- 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
- 		ret = 0;
--		set = false;
- 		if (pmd_none(*vmf->pmd)) {
- 			ret = check_stable_address_space(vma->vm_mm);
- 			if (ret) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 			} else if (userfaultfd_missing(vma)) {
- 				spin_unlock(vmf->ptl);
-+				pte_free(vma->vm_mm, pgtable);
- 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
- 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
- 			} else {
- 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
- 						   haddr, vmf->pmd, zero_page);
- 				spin_unlock(vmf->ptl);
--				set = true;
- 			}
--		} else
-+		} else {
- 			spin_unlock(vmf->ptl);
--		if (!set)
- 			pte_free(vma->vm_mm, pgtable);
-+		}
- 		return ret;
+ 
+@@ -597,9 +609,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	if (temp & I2SR_IIF) {
+ 		/* save status register */
+ 		i2c_imx->i2csr = temp;
+-		temp &= ~I2SR_IIF;
+-		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+-		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+ 		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
  	}
- 	gfp = alloc_hugepage_direct_gfpmask(vma);
-_
-
-Patches currently in -mm which might be from gerald.schaefer@linux.ibm.com are
+-- 
+2.11.0
 
 
+--dldtnn27i4jwtui4--
