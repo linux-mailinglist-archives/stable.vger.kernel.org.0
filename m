@@ -2,106 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02002C69F3
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 17:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 940482C69FB
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 17:46:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731555AbgK0Qn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 11:43:56 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:35400 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731594AbgK0Qn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 11:43:56 -0500
-Date:   Fri, 27 Nov 2020 16:43:52 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1606495433;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nv5gpi5HupILoHk+ot9Wn43htm6UC76V9jpG2KLKJEE=;
-        b=180Bn1+L/FnoJaxMgIXFqxT9+x38cbsnfP5fDnYq7Cj5SBTWsJ7nUcJs1OkcYd0s0GKbR7
-        l/1bVNXT51Fbwp/6ZZ2knfLyu7mZ2iHWgQL2uuiO3rh+plvVWPdCsOkyoMx5hbtz2Kxe/u
-        3O/WLOS+EtHh2gRePoHWKEoM98Wxl999NUqF1jYrVxUqDINNeO0q83AcrXTptpxfvuILWy
-        prP6yIusuZxWCdb9ROYJ+Kt/Pj8MTZDZcRIegNxPtZzDCAbKvdyXi+dtCNSDhNB9gq+DPr
-        Wp9jCyaQePy6FmhCUaAHWOM7cVWmRlz47n3epLqkxqp8U1eAbs6cD9kAbkGPew==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1606495433;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nv5gpi5HupILoHk+ot9Wn43htm6UC76V9jpG2KLKJEE=;
-        b=Sv6ayQ4aGumcqDVd7CqDEmYLQiJSSYkKdw41Z2Tg9wZkMwzHTUc4Ilo8RZhwuCmPFsJc2c
-        3P17tdsnXnm/ffBA==
-From:   "tip-bot2 for Gabriele Paoloni" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mce: Do not overwrite no_way_out if mce_end() fails
-Cc:     Gabriele Paoloni <gabriele.paoloni@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20201127161819.3106432-2-gabriele.paoloni@intel.com>
-References: <20201127161819.3106432-2-gabriele.paoloni@intel.com>
-MIME-Version: 1.0
-Message-ID: <160649543297.3364.4572741027949627240.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1732067AbgK0QpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 11:45:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54566 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732016AbgK0QpR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 11:45:17 -0500
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F59C0613D1;
+        Fri, 27 Nov 2020 08:45:17 -0800 (PST)
+Received: by mail-qt1-x842.google.com with SMTP id l2so3619059qtq.4;
+        Fri, 27 Nov 2020 08:45:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=i2g5RlcMC1OKkB3CqAd7m4FXPBG2xp6CscrhYJvT8IQ=;
+        b=d/+U+xBoWnkzY6oSY6/UTe4YfzRG1Vdaxeax4mo5vWExRzt+9gDkgxJ8qz8hR30bLT
+         isP7/bBPyz0nrRPVhn+IsK3DWEW+T4CMluQcQVXs8vBA2oPWVTFqf0V9uRt1bTlBeHVt
+         Xrj2HExDHRkddeODw37EVMd4zT9L5g4rzzYWS/k+P50Kln82VKzBw/yzbOgUkS/mdPk8
+         FQN88ONjVIxTLyVxO/hzrjdBgLaRhVWYUaQbS74ba5SQlY6U3+DD2SRThPz1HevjgZsK
+         spdL1S9TfiVwG/MelDGbn0YUH1JIyBZZlhLxf54sRYLabzR7bgaD2NvVQpHwDBWB40W1
+         6amA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=i2g5RlcMC1OKkB3CqAd7m4FXPBG2xp6CscrhYJvT8IQ=;
+        b=UCeP0XFDqYfAn8tlldIw3opCxdjm3W/d3NSH5AQFqeTIi8Wp1/P2i9TtU8HrkoSYJ9
+         9gxiKDEG9ZEB1cVSRymndwnpcyDLFvJhzgjxgSxRbaBriPGJ2qPpzjkCJp1bGwE0SJji
+         czC18aJ88D77O1pGHMylBbo8c7d2/HqO2PgoLJBDd9/AZhQniCz1q+4JQM4RoCoNzouK
+         AT6JnHD9O6EPeCgYOt+BUYuiQTrLvsIj5J1dsn6tzTb8AxIM8U2C4rPsN1Pv3yAoe63b
+         S7/vCG7+vWA94NwusjN4uLaxeWYjxUMeZqfR0VUBjKrjqFle+w7oXw8dF1FsyYWvRisx
+         ERDw==
+X-Gm-Message-State: AOAM533qiMddJpWgvDe3dfoabuTHqKP5dhT2KNGtXbCNLBKa71k6LATc
+        Y8lr6deZRAtrNQp1XXvAqO4=
+X-Google-Smtp-Source: ABdhPJxomW0x5v3VHRl2dIe53Fo/I1cPCmB84rDG2E5XqOMhOlBIZpAuzlB32NK9iCslNbwCBpvedg==
+X-Received: by 2002:aed:3025:: with SMTP id 34mr9047908qte.39.1606495516323;
+        Fri, 27 Nov 2020 08:45:16 -0800 (PST)
+Received: from localhost.localdomain ([2804:14c:482:c91:9ce8:56e7:5368:ece8])
+        by smtp.gmail.com with ESMTPSA id u13sm6072786qta.87.2020.11.27.08.45.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Nov 2020 08:45:15 -0800 (PST)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     Peter.Chen@nxp.com
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] usb: chipidea: ci_hdrc_imx: Pass DISABLE_STREAMING flag to imx6ul
+Date:   Fri, 27 Nov 2020 13:44:52 -0300
+Message-Id: <20201127164452.3830-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+According to the i.MX6UL Errata document:
+https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
 
-Commit-ID:     25bc65d8ddfc17cc1d7a45bd48e9bdc0e729ced3
-Gitweb:        https://git.kernel.org/tip/25bc65d8ddfc17cc1d7a45bd48e9bdc0e729ced3
-Author:        Gabriele Paoloni <gabriele.paoloni@intel.com>
-AuthorDate:    Fri, 27 Nov 2020 16:18:15 
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 27 Nov 2020 17:38:36 +01:00
+ERR007881 also affects i.MX6UL, so pass the CI_HDRC_DISABLE_STREAMING
+flag to workaround the issue.
 
-x86/mce: Do not overwrite no_way_out if mce_end() fails
-
-Currently, if mce_end() fails, no_way_out - the variable denoting
-whether the machine can recover from this MCE - is determined by whether
-the worst severity that was found across the MCA banks associated with
-the current CPU, is of panic severity.
-
-However, at this point no_way_out could have been already set by
-mca_start() after looking at all severities of all CPUs that entered the
-MCE handler. If mce_end() fails, check first if no_way_out is already
-set and, if so, stick to it, otherwise use the local worst value.
-
- [ bp: Massage. ]
-
-Signed-off-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201127161819.3106432-2-gabriele.paoloni@intel.com
+Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 ---
- arch/x86/kernel/cpu/mce/core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 4102b86..32b7099 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1384,8 +1384,10 @@ noinstr void do_machine_check(struct pt_regs *regs)
- 	 * When there's any problem use only local no_way_out state.
- 	 */
- 	if (!lmce) {
--		if (mce_end(order) < 0)
--			no_way_out = worst >= MCE_PANIC_SEVERITY;
-+		if (mce_end(order) < 0) {
-+			if (!no_way_out)
-+				no_way_out = worst >= MCE_PANIC_SEVERITY;
-+		}
- 	} else {
- 		/*
- 		 * If there was a fatal machine check we should have
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 25c65accf089..e111009cc49e 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_usb_data = {
+ 
+ static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
+ 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
+-		CI_HDRC_TURN_VBUS_EARLY_ON,
++		CI_HDRC_TURN_VBUS_EARLY_ON |
++		CI_HDRC_DISABLE_STREAMING,
+ };
+ 
+ static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+-- 
+2.17.1
+
