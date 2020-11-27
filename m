@@ -2,107 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B722C6B85
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 19:23:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAAED2C6BAC
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 19:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731981AbgK0SVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 13:21:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728259AbgK0SVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 13:21:21 -0500
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E94C0613D1
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 10:21:21 -0800 (PST)
-Received: by mail-io1-xd41.google.com with SMTP id z136so5615316iof.3
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 10:21:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=GlnO1+Ia3SZSFKx2Yj8w+JZsn7kcwva26SAF9PYdoiw=;
-        b=d00xffcfEl9MScyBNX2ZTOjfzpaM2aZisfl0htemDemqZ33y+Fj1X08098b+tqHk7L
-         udyyYb+JBiMouON622oKREjaV81nPz5PNxrmJdACe6b/KybBPw/g2Hm0kD4DIzJ/V3hb
-         j/alCwzYMkVac1NiVZkp/ni608b2242NIUgIsfId617n7+V75ExqFjDOr7OiTrgc/m+v
-         lmJ0R3vgpImhDExGlnK/Rxyh8/yjbleMsATMKQqP6UFo3ZXVGK1gIjEBtvKn3cQ3qCtT
-         GXtNWAZiFMlkGnEmKWMIZxI/M+QfOxupbDf2iR3jgwjnCeO3op2o6rYoMUX8ft7tzrya
-         eU/Q==
+        id S1727742AbgK0Sjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 13:39:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60205 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726342AbgK0Sjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 13:39:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606502374;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Ou0ihm1ZRJ4jAkiF1iCHhrbt5Qjc5Z5KkD4Hf0ZuyHI=;
+        b=irShDVZNqE773dN0UVTJG84jxnN5PIrYmmD9CGzYmiRURHEw+MzWBiitkfx6yPtBLOJEHV
+        uGZWNYFKp+fH5BP2Hs4sn9KSwZV/uIXA60b7P5B85dkqqKhhLR8JNemvlNebOot3Fab+86
+        UIxkxF0wXW1z/bczwOx/0mQOkoV25wQ=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-407-6AfhDPk2NdCZVXoUyo5eqQ-1; Fri, 27 Nov 2020 13:39:33 -0500
+X-MC-Unique: 6AfhDPk2NdCZVXoUyo5eqQ-1
+Received: by mail-ed1-f72.google.com with SMTP id dc6so594786edb.14
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 10:39:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=GlnO1+Ia3SZSFKx2Yj8w+JZsn7kcwva26SAF9PYdoiw=;
-        b=ggMhPPEX6H6egtmp7/5RQN7Ejy5UUGH+8jQp2NBywLfAOn6s6ovBnSRQqv/G2QISrS
-         MmBQNgu8bezAZkFqNc3q+mtrqBLmsOmt6whWjFLoGFcpgafby6bkyrXB5WO4BWmwzgqw
-         v/UikhJ4QpuLZgI10Lb2CggCceEey+lUVNkrRDmAhaWr2dYD2ZcTI0Am+B3HuKredhD7
-         x1iUiMgxTq0EiyGxf6H5T9EfmEh0YilKJJGxMZngFfaKyOf5tJwk3oX94xVsRNEtsOg9
-         TeOc8iMQSkdigi3QEqlGb4KvFv/d+exNYsdUeZtPKz/9lncE6kktuwZGPMFf0Ew0rn3y
-         WOLw==
-X-Gm-Message-State: AOAM53111kxbHenJuokEA+sJk6ol6dVwD/JwSUWlPEzW9cEGt+hz8WOz
-        AO7+O55eAq7w/GNuGSGeeHP6I9apr8I5qalqALU=
-X-Google-Smtp-Source: ABdhPJxM+DMgSceHU+lWdmjKy/0XLVjoYB1mfjuQwgOeg1ZEpxXodld2QziJwQR3s7FamErwTAF8gz+V44obZKJ6iTg=
-X-Received: by 2002:a05:6638:1381:: with SMTP id w1mr8961677jad.49.1606501280876;
- Fri, 27 Nov 2020 10:21:20 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ou0ihm1ZRJ4jAkiF1iCHhrbt5Qjc5Z5KkD4Hf0ZuyHI=;
+        b=i3r4GGL67dr+Q+ArwxJ3d/sVctEmiNOP+5mx4gAjyxZaloabfP/GpGqBI4FdUF+xy7
+         /dRTVVkQ/c5OYmog6RQila8nbkDA4ILCAbxIY2wl03YWtaohvpTrOnsdpGnO4/Vx7IGM
+         53LxwJXX4bYPHNcP900cmK7ymnXTL3cuIOgqsU59ge22Up/zGC9glDjKKQV+Y3aq/6f1
+         w9pJKYZKxtS4smZkYlKrUjxXi8rbhQ+4cBrrPzCb9edfcjNnRKHkO9VCDKY0/Ms5quh5
+         BaPmFk4BW3mtEkZW4Tzz+KmbMKh7b8SFcS/mqsJ4pSQBoY5qZ5SRnKwisNt9E8/tzLFA
+         7L7Q==
+X-Gm-Message-State: AOAM532edzS723P02Q+54gfOq/+OwXNaTnn7XhE2s0sa6qjHW6VEo2Pu
+        pNsgiRWXogMAwVJlj65rFPvP4T4JvywuniuazEJcRjZacQe6ARD0F0wneTPFa+iakXjFK2wyRih
+        lOXyiWn4G0ACEciUC
+X-Received: by 2002:aa7:c904:: with SMTP id b4mr6985017edt.172.1606502372216;
+        Fri, 27 Nov 2020 10:39:32 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwkC3Xbd/F8jXTqnu8Pk3oYFYI/QqYutxzTOWWhOtVlAUxDjUzKUNCD5oqIgPKX1Dx8fwIt/A==
+X-Received: by 2002:aa7:c904:: with SMTP id b4mr6985003edt.172.1606502372082;
+        Fri, 27 Nov 2020 10:39:32 -0800 (PST)
+Received: from kherbst.pingu.com ([2a02:8308:b088:c000:e1c8:454f:b858:87a5])
+        by smtp.gmail.com with ESMTPSA id l22sm1003900ejk.14.2020.11.27.10.39.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Nov 2020 10:39:31 -0800 (PST)
+From:   Karol Herbst <kherbst@redhat.com>
+To:     nouveau@lists.freedesktop.org
+Cc:     Karol Herbst <kherbst@redhat.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, Ben Skeggs <bskeggs@redhat.com>,
+        Mark Pearson <markpearson@lenovo.com>
+Subject: [PATCH] drm/nouveau/kms: handle mDP connectors
+Date:   Fri, 27 Nov 2020 19:39:09 +0100
+Message-Id: <20201127183909.2089734-1-kherbst@redhat.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Sender: unitedbankafricau@gmail.com
-Received: by 2002:a02:3548:0:0:0:0:0 with HTTP; Fri, 27 Nov 2020 10:21:20
- -0800 (PST)
-From:   Hannah Wilson <hannahwilson1292@gmail.com>
-Date:   Fri, 27 Nov 2020 18:21:20 +0000
-X-Google-Sender-Auth: aF_KQLAgRf_LkiEHe_52CWprEQg
-Message-ID: <CAOffdwsm9LZ0AgMyowp7bssfXiH_cVDqxA4rz75e0iLR5Q+weA@mail.gmail.com>
-Subject: GREETINGS MY DEAR,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Dear.
+In some cases we have the handle those explicitly as the fallback
+connector type detection fails and marks those as eDP connectors.
 
-Please do not feel disturbed for contacting =C2=A0you in this regards, It
-was based on the critical health condition I find mine self. =C2=A0My names
- are Mrs. Hannah   David Wilson, a widow and I=E2=80=99m suffering from bra=
-in
-tumor disease and this illness has gotten to a very bad stage, I
- married my husband for Ten years without any family members and no
-child. =C2=A0My husband died after a brief illness that lasted for few
-days.
+Attempting to use such a connector with mutter leads to a crash of mutter
+as it ends up with two eDP displays.
 
-Since the death of my husband, I decided not to remarry again, When my
-late husband was alive he deposited the sum of =C2=A0($  11.000.000 Eleven
-million dollars.) with the Bank. Presently this money is still in
-bank. And My  Doctor told me that I don't have much time to live
-because my illness has gotten to a very bad stage, Having known my
-condition I  decided to entrust over the deposited fund under your
-custody to take care of the less-privileged ones therein your country
-or position,
-which i believe that you will utilize this money the way I am going to
-instruct herein.
+Information is taken from the official DCB documentation.
 
-However all I need and required from you is your sincerity and ability
-to carry out the transaction successfully and fulfill my final wish in
-implementing the charitable project as it requires absolute trust and
-devotion without any failure and I will be glad to see that the bank
-finally release and transfer the fund into your bank account in your
-country even before I die here in the hospital, because my present
-health condition is very critical at the moment everything needs to be
-process rapidly as soon as possible.
+Cc: stable@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Reported-by: Mark Pearson <markpearson@lenovo.com>
+Tested-by: Mark Pearson <markpearson@lenovo.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+---
+ drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h | 1 +
+ drivers/gpu/drm/nouveau/nouveau_connector.c             | 1 +
+ 2 files changed, 2 insertions(+)
 
-It will be my pleasure to compensate you as my Investment
-Manager/Partner with 35 % percent of the total fund for your effort in
- handling the transaction, 5 % percent for any expenses or processing
-charges fee that will involve during this process while 60% of the
-fund will be Invested into the charity project there in your country
-for the mutual benefit of the orphans and the less privileges ones.
+diff --git a/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h b/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
+index f5f59261ea81..d1beaad0c82b 100644
+--- a/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
++++ b/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
+@@ -14,6 +14,7 @@ enum dcb_connector_type {
+ 	DCB_CONNECTOR_LVDS_SPWG = 0x41,
+ 	DCB_CONNECTOR_DP = 0x46,
+ 	DCB_CONNECTOR_eDP = 0x47,
++	DCB_CONNECTOR_mDP = 0x48,
+ 	DCB_CONNECTOR_HDMI_0 = 0x60,
+ 	DCB_CONNECTOR_HDMI_1 = 0x61,
+ 	DCB_CONNECTOR_HDMI_C = 0x63,
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 8b4b3688c7ae..4c992fd5bd68 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1210,6 +1210,7 @@ drm_conntype_from_dcb(enum dcb_connector_type dcb)
+ 	case DCB_CONNECTOR_DMS59_DP0:
+ 	case DCB_CONNECTOR_DMS59_DP1:
+ 	case DCB_CONNECTOR_DP       :
++	case DCB_CONNECTOR_mDP      :
+ 	case DCB_CONNECTOR_USB_C    : return DRM_MODE_CONNECTOR_DisplayPort;
+ 	case DCB_CONNECTOR_eDP      : return DRM_MODE_CONNECTOR_eDP;
+ 	case DCB_CONNECTOR_HDMI_0   :
+-- 
+2.28.0
 
-Meanwhile I am waiting for your prompt respond, if only you are
-interested for further details of the transaction and execution of
-this  humanitarian project for the glory and honor of God the merciful
-compassionate.
-
-May God bless you and your family.
-Regards,
-Mrs. Hannah David Wilson.
-written from Hospital.
