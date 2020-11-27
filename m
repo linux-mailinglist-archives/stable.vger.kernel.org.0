@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7DE2C63FC
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 12:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 686132C641E
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 12:55:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729352AbgK0LfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 06:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34548 "EHLO
+        id S1728235AbgK0Lyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 06:54:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727350AbgK0LfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 06:35:06 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D38BC0613D1
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 03:35:04 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id 3so2496268wmg.4
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 03:35:04 -0800 (PST)
+        with ESMTP id S1727742AbgK0Lya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 06:54:30 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297A3C0613D1
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 03:54:30 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id g14so5263808wrm.13
+        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 03:54:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:mime-version:content-disposition
          :user-agent;
-        bh=mmNhjnudfnCMaY+aqSXaESnTQbxYKobWhLapaIztVz8=;
-        b=LEadToJJ5Nx/cOf+h53vkHLUT3GJb47d9zfijEsdRBbuXY74k7LvzVCuAPJZiIPKMc
-         CqjHA6xqpjmBwChLVyTJSJUOg7PXSedsRM2BTrzphhacIcX1DpbAColusmT2n1lVR9FL
-         C2iFJ8eCt7aK8H/A0qu4EL5TLgJf0eEzWJBbELWZXNxF23RhgNu3UEIVVjtCxEet2JNu
-         ACh8sCP5RrO/LsD19hAofZIKSkfsE6HB3v1VzGYmV6+rP9b4r3IvJdoICOxUo/ahYYSO
-         /Yv633DX6XcvZeheWIcH5VIjFTuI4gca4K1nLOfy5QJMF3GHo2NQYXd/ZvyC+64gddte
-         eLVw==
+        bh=GqZlUjBeCngaw8Gs4CahZtVewB1i/GN3mvcky0Ik3qE=;
+        b=eKtNfJR+E7BAGlw0BUeKUYpr3PTgfNr43L+0P75xbxYtL4O+TKNupcPTp5Q1gofAQk
+         Y4/vlj6GUOfb1uylzNnrOiw02gUTvKOqFg3XOwYQgJdJbRZAXhUJk/M5k6681GzdOFUF
+         Qnx6HbamQs8w2fWRS8TCFaHoNKVN6cHAKzy3pBD3DxcImtM9mZB469JGw0YoXRK4mqNg
+         JCzyzr7FWjtwY7B/mKUrLxXG8PQJLwM7cp5vvarIeHK53pTRKuxBYRgcHYLHQoXKABvU
+         53pmMDdPZjFGbsHKJC51q89CD/Zza8IrbL5xsu8mxK53vqnxXINI/Tn3qFvNDdRidaUn
+         sCXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
          :content-disposition:user-agent;
-        bh=mmNhjnudfnCMaY+aqSXaESnTQbxYKobWhLapaIztVz8=;
-        b=gDk34kpvbslLYkbxtmM4FS6gWTYR7VI6E47iqaumjQRMH8tykW9YF0G0mHXz4Tudab
-         Ii4ywtwN0Zbqk4Wg4KU1gigu8L0enmaLD4COul+oND0112gAX6Ph6PYk3JXtIUlvakIF
-         nfIvxQKrGnRh6qake4rBEzoCTvMcCNV/VfL7ZCCS15/yJ4eIkG/XCSKE/zpnu/SJ6Jez
-         MheAgKE1oJ4Ep2Xz1RlfL2TjgEa94RAJHmJW5fqNMdcJv6arsk+G9mURZxaWnvanIA6R
-         hvTTXaBTRFH11FVXo/KBDCrZbpwJFLE+6HwOXYoy6gRi2nHgrZQEspg81a06jyQwpGJk
-         6tIg==
-X-Gm-Message-State: AOAM530ZAkqECGVVcjLEr0mc1FPvgNmQtEkupTdnUImZii3ux59OkGLJ
-        0EHsosIHeX+zyxF4f0HSz+sJ+Mhu/f5N4g==
-X-Google-Smtp-Source: ABdhPJxOe5g4WV9xLSkBGIPw6mkTDijoh6GSSXxR0HmcA0MNWSnFFqmHeD3aVPam9fYTEihdBmjx/Q==
-X-Received: by 2002:a7b:c11a:: with SMTP id w26mr8450567wmi.131.1606476903075;
-        Fri, 27 Nov 2020 03:35:03 -0800 (PST)
+        bh=GqZlUjBeCngaw8Gs4CahZtVewB1i/GN3mvcky0Ik3qE=;
+        b=Bvl3NmItTSrqEr0W84ND926WUVdOEZ7PxWH4QJzs2T3pZI8JmqQ3k4FT0ArIZgYIOY
+         cUZb1976pW7ZgnL/1PMbT1unbwhnepj2Fa97qQtKsBzNa6ii3HAcjw7fXReTcxarDJMo
+         493gNsJC9ogeH+3g27R+llBB3ZM6slFG99CJNcR/te9JND0cwmz9wnmprq15DOQRYWte
+         lYcr/nnqrFqkvwW+ZzqAsfl8r+0je00GWypEDgtyDA/w95D5jj6vHcs6qXHIv4aH0ZBo
+         zUGCvt7sqdNDRIEqQmEcuclbzQ8tDjGpT0STDkUp96WgFLinm+cfIo9bmiInjHLinu89
+         F9hQ==
+X-Gm-Message-State: AOAM531SdkegOnr+FV/mKTaABGswfI1hC63BEF4tvtbeDdcSlGNXpRDv
+        r/9MkiL5Moh8c9CoKfLYDSo=
+X-Google-Smtp-Source: ABdhPJxrNLXea6Bi6BZpaKEdwA/o36dIznvXV4wQ5RSuIPqZbNC1vj1hsrLZCq3QRVGkWQBM+YJc1g==
+X-Received: by 2002:adf:902d:: with SMTP id h42mr9840826wrh.175.1606478068953;
+        Fri, 27 Nov 2020 03:54:28 -0800 (PST)
 Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id v20sm12065771wmh.44.2020.11.27.03.35.01
+        by smtp.gmail.com with ESMTPSA id w11sm13031803wmg.36.2020.11.27.03.54.27
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 27 Nov 2020 03:35:02 -0800 (PST)
-Date:   Fri, 27 Nov 2020 11:35:00 +0000
+        Fri, 27 Nov 2020 03:54:28 -0800 (PST)
+Date:   Fri, 27 Nov 2020 11:54:26 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
 Cc:     stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
         Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>,
         Johannes Thumshirn <jthumshirn@suse.de>
-Subject: few missing fixes for 4.9-stable
-Message-ID: <20201127113500.5rq7ueik2k4jxtmd@debian>
+Subject: few missing fixes for 4.4-stable
+Message-ID: <20201127115426.yo7j35prdvfiyhgy@debian>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="3ztmjilekaoexqqw"
+Content-Type: multipart/mixed; boundary="zqcnocgp5wzxynsb"
 Content-Disposition: inline
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
@@ -65,26 +65,27 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---3ztmjilekaoexqqw
+--zqcnocgp5wzxynsb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg, Sasha,
 
-These two were missing in 4.9-stable. Please apply to your queue.
+These two were missing in 4.4-stable. Please apply to your queue.
 
 80e46cf22ba0 ("btrfs: tree-checker: Enhance chunk checker to validate chunk profile")
 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
+
 
 --
 Regards
 Sudip
 
---3ztmjilekaoexqqw
+--zqcnocgp5wzxynsb
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-btrfs-tree-checker-Enhance-chunk-checker-to-validate.patch"
 
-From 7fabd74c9c2382ab8f9913e60b6fef47e86e4417 Mon Sep 17 00:00:00 2001
+From c5d445abc052532ded78586dc62d062546f815b3 Mon Sep 17 00:00:00 2001
 From: Qu Wenruo <wqu@suse.com>
 Date: Wed, 13 Mar 2019 12:17:50 +0800
 Subject: [PATCH 1/2] btrfs: tree-checker: Enhance chunk checker to validate chunk profile
@@ -111,10 +112,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index c31b02692f70..7391634520ab 100644
+index 2d10b818399b..cd1e9411f926 100644
 --- a/fs/btrfs/volumes.c
 +++ b/fs/btrfs/volumes.c
-@@ -6414,6 +6414,13 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
+@@ -6262,6 +6262,13 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
  		return -EIO;
  	}
  
@@ -132,11 +133,11 @@ index c31b02692f70..7391634520ab 100644
 2.11.0
 
 
---3ztmjilekaoexqqw
+--zqcnocgp5wzxynsb
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0002-btrfs-inode-Verify-inode-mode-to-avoid-NULL-pointer-.patch"
 
-From 3d6b0aa7f303f8b882b2c4064d7c64348df39d0a Mon Sep 17 00:00:00 2001
+From 6bdcf8c246aa2a0289e59413a61ee67ab0c6a1f8 Mon Sep 17 00:00:00 2001
 From: Qu Wenruo <wqu@suse.com>
 Date: Wed, 13 Mar 2019 13:55:11 +0800
 Subject: [PATCH 2/2] btrfs: inode: Verify inode mode to avoid NULL pointer dereference
@@ -221,10 +222,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  2 files changed, 34 insertions(+), 8 deletions(-)
 
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index dfc0b3adf57a..6f8f37e37abb 100644
+index b1125778b908..9e1f9910bdf2 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -5440,11 +5440,13 @@ void btrfs_evict_inode(struct inode *inode)
+@@ -5370,11 +5370,13 @@ no_delete:
  }
  
  /*
@@ -240,7 +241,7 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  {
  	const char *name = dentry->d_name.name;
  	int namelen = dentry->d_name.len;
-@@ -5466,6 +5468,8 @@ static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
+@@ -5396,6 +5398,8 @@ static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
  		goto out_err;
  
  	btrfs_dir_item_key_to_cpu(path->nodes[0], di, location);
@@ -249,7 +250,7 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  out:
  	btrfs_free_path(path);
  	return ret;
-@@ -5755,19 +5759,25 @@ static struct inode *new_simple_dir(struct super_block *s,
+@@ -5681,19 +5685,25 @@ static struct inode *new_simple_dir(struct super_block *s,
  	return inode;
  }
  
@@ -276,7 +277,7 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  	if (ret < 0)
  		return ERR_PTR(ret);
  
-@@ -5776,6 +5786,18 @@ struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
+@@ -5702,6 +5712,18 @@ struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
  
  	if (location.type == BTRFS_INODE_ITEM_KEY) {
  		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
@@ -295,7 +296,7 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  		return inode;
  	}
  
-@@ -6391,11 +6413,6 @@ static struct inode *btrfs_new_inode(struct btrfs_trans_handle *trans,
+@@ -6315,11 +6337,6 @@ fail:
  	return ERR_PTR(ret);
  }
  
@@ -307,7 +308,7 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  /*
   * utility function to add 'inode' into 'parent_inode' with
   * a give name and a given sequence number.
-@@ -6981,6 +6998,14 @@ struct extent_map *btrfs_get_extent(struct inode *inode, struct page *page,
+@@ -6904,6 +6921,14 @@ again:
  	extent_start = found_key.offset;
  	if (found_type == BTRFS_FILE_EXTENT_REG ||
  	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
@@ -323,10 +324,10 @@ index dfc0b3adf57a..6f8f37e37abb 100644
  		       btrfs_file_extent_num_bytes(leaf, item);
  	} else if (found_type == BTRFS_FILE_EXTENT_INLINE) {
 diff --git a/fs/btrfs/tests/inode-tests.c b/fs/btrfs/tests/inode-tests.c
-index 0bf46808ce8f..ee89de7f4d61 100644
+index 054fc0d97131..5ff676df698f 100644
 --- a/fs/btrfs/tests/inode-tests.c
 +++ b/fs/btrfs/tests/inode-tests.c
-@@ -245,6 +245,7 @@ static noinline int test_btrfs_get_extent(u32 sectorsize, u32 nodesize)
+@@ -235,6 +235,7 @@ static noinline int test_btrfs_get_extent(void)
  		return ret;
  	}
  
@@ -338,4 +339,4 @@ index 0bf46808ce8f..ee89de7f4d61 100644
 2.11.0
 
 
---3ztmjilekaoexqqw--
+--zqcnocgp5wzxynsb--
