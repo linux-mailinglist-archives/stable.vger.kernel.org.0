@@ -2,86 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A55A22C60A8
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 08:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A75142C6136
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 09:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392796AbgK0HwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 02:52:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56562 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392782AbgK0HwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 02:52:06 -0500
-Received: from mail-oo1-xc43.google.com (mail-oo1-xc43.google.com [IPv6:2607:f8b0:4864:20::c43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134EDC0613D1
-        for <stable@vger.kernel.org>; Thu, 26 Nov 2020 23:52:06 -0800 (PST)
-Received: by mail-oo1-xc43.google.com with SMTP id l10so921621ooh.1
-        for <stable@vger.kernel.org>; Thu, 26 Nov 2020 23:52:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=+r7naIOH8/SJCiMJII++6mKZFcz1fJmAnKf+uCgZO4E=;
-        b=Wk098EHlRlw4HQS6v/+mncRFfih78FPDQWIlZulo5qjrmeATTcz7h798bplwZwPh+p
-         KBSMDUcydfOsxSR0VzVnD09QbibBM4VswiXmT/fssGfiKRSv7svJyEItMvUSuR15F8A9
-         60eEKIPLDcMmJuKay5KfdAJP6hDQQ/56azSohNBfatvVafD7JHQ4iUAeZgihco63en7R
-         uFszaLBOIWSrHcwhZz/klJ88N+plOO9v3PFlfu3bxPyAsSE8a0Tqll2a+slXUwDRg90V
-         pgVHYyzZky7UFhveqwkz70YzfGFAcgFpCUftUBhVSCqtsPUO+lEscnZJ6SaCSZxvHw2H
-         il8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=+r7naIOH8/SJCiMJII++6mKZFcz1fJmAnKf+uCgZO4E=;
-        b=JYqRdcewL6thhTxehcFzEXdgk0MTbqqScwty6KJXNn5oS0sbTKval8OvByeY2qOF4f
-         F4j/WQZGhlGFmC+TgnjEWjqsShX0cwuN7JDYL/eioi42QIUco9OVNrPBiQgpUbcYlVMz
-         tA2vQipwqt2A6HIazVNiKEQVXgZVoTu5VqYhXtaZ8LIdaG+4WFR7MQNmtEBjPJHcmrYu
-         Y3m9VBaMX9/GrWYjzCyqqvlOqBNMp7/4qy8G9mZorJvf3IB8gPb7Xzci5uL+uniP+Ufe
-         oX9XVjxhDnNNTXjscbipQGHIc1hi2wNA81mEu00+yqAu7zoIRv1r5EW/wbnkeuQZR3YJ
-         z7/w==
-X-Gm-Message-State: AOAM532i9WfGWQyQ47zTpYOxtk5YfH7kFqH+Lx6drQUBPj/nyOcKucrW
-        xg+zJoOWhYx0eM44NuyXvFK0dw/aYqhGw56xQM8=
-X-Google-Smtp-Source: ABdhPJzryFOqmTIKxq8Sj8EIFfkEqcTQtdzKAJAY9U9oM70uazERKYbxV4q2T3sWmpO9L3ONtCSIZai/ftujUf+fyiI=
-X-Received: by 2002:a4a:8849:: with SMTP id e9mr4678642ooi.65.1606463525530;
- Thu, 26 Nov 2020 23:52:05 -0800 (PST)
+        id S1726171AbgK0IxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 03:53:07 -0500
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:45524 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725616AbgK0IxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 03:53:06 -0500
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0AR8qqFL058771;
+        Fri, 27 Nov 2020 02:52:52 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1606467173;
+        bh=22qq5cH0rtrp1yoHTvmHzVfEHlHoqWC5Nw0TTNSpnJQ=;
+        h=From:To:CC:Subject:Date;
+        b=x/Td2FQnsw8Ly3YMPNOjHZl65kkDMj2WBTnJ2kcFmUrtj75IlqPej86litB0/L5Ul
+         12NeEaE2U8Xl/dqKtmVqAGGeThrgCB6mjA5xz7GzHt2uo7Dr9aiNGXPn6HkitUe3TU
+         E0IU/lf9RDsW4Q4Mr7GEbZNYLrNE4FeggpqiTyos=
+Received: from DLEE114.ent.ti.com (dlee114.ent.ti.com [157.170.170.25])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0AR8qqPH024773
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 27 Nov 2020 02:52:52 -0600
+Received: from DLEE113.ent.ti.com (157.170.170.24) by DLEE114.ent.ti.com
+ (157.170.170.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Fri, 27
+ Nov 2020 02:52:52 -0600
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Fri, 27 Nov 2020 02:52:52 -0600
+Received: from deskari.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0AR8qom2074793;
+        Fri, 27 Nov 2020 02:52:50 -0600
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     <dri-devel@lists.freedesktop.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Nikhil Devshatwar <nikhil.nd@ti.com>
+CC:     <linux-omap@vger.kernel.org>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>, <stable@vger.kernel.org>,
+        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Subject: [PATCH] drm/omap: sdi: fix bridge enable/disable
+Date:   Fri, 27 Nov 2020 10:52:41 +0200
+Message-ID: <20201127085241.848461-1-tomi.valkeinen@ti.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Received: by 2002:ac9:2046:0:0:0:0:0 with HTTP; Thu, 26 Nov 2020 23:52:05
- -0800 (PST)
-Reply-To: delivery.postoffice@post.com
-From:   " Ms. Rana Salatt" <james.bradley39@gmail.com>
-Date:   Fri, 27 Nov 2020 08:52:05 +0100
-Message-ID: <CAMS6c7c3w7TK5s1sudt0F7brEGoncAcyTH7zXggaf2k1riPqzw@mail.gmail.com>
-Subject: YOUR ATM VISA CARD
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATTN; DEAR,
+When the SDI output was converted to DRM bridge, the atomic versions of
+enable and disable funcs were used. This was not intended, as that would
+require implementing other atomic funcs too. This leads to:
 
-This is Ms. Rana Salatt ,I have registered your ATM CARD to the POST
-OFFICE BENIN REPUBLIC so that they will Post it to your home address
-and I believe your current address is still the same. Your total
-amount in the envelope is $3.2 Million USD and the POST OFFICE assured
-me that there will be no stoppage until it get to your hand. I want
-you to contact them and re- confirm your address where to Post it.
+WARNING: CPU: 0 PID: 18 at drivers/gpu/drm/drm_bridge.c:708 drm_atomic_helper_commit_modeset_enables+0x134/0x268
 
-Contact Dr.Hameed Alsarraf,
-03 BP 1000,COTONOU
-BENIN REPUBLIC.
-E-mail: (delivery.postoffice@post.com)
-Your full information for the Postal.
-PHONE NUMBER
-FULL NAME: ==============
-COUNTRY: ==============
-CITY: ==============
-CURRENT HOME ADDRESS: ===========
-TELEPHONE/CELL PHONE NUMBER.=========
-AGE/OCCUPATION: =============
-SEX/A COPY OF YOUR IDENTIFICATION: ===============
+and display not working.
 
-The manager, informed me that it will take good 3 days to get to your
-house and your Envelope accumulate. Your Current address has to be
-reconfirmed when contacting the post office.
+Fix this by using the legacy enable/disable funcs.
 
-Thanks & remain blessed.
-Ms. Rana Salatt
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Fixes: 8bef8a6d5da81b909a190822b96805a47348146f ("drm/omap: sdi: Register a drm_bridge")
+Cc: stable@vger.kernel.org # v5.7+
+Tested-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+---
+ drivers/gpu/drm/omapdrm/dss/sdi.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/dss/sdi.c b/drivers/gpu/drm/omapdrm/dss/sdi.c
+index 033fd30074b0..282e4c837cd9 100644
+--- a/drivers/gpu/drm/omapdrm/dss/sdi.c
++++ b/drivers/gpu/drm/omapdrm/dss/sdi.c
+@@ -195,8 +195,7 @@ static void sdi_bridge_mode_set(struct drm_bridge *bridge,
+ 	sdi->pixelclock = adjusted_mode->clock * 1000;
+ }
+ 
+-static void sdi_bridge_enable(struct drm_bridge *bridge,
+-			      struct drm_bridge_state *bridge_state)
++static void sdi_bridge_enable(struct drm_bridge *bridge)
+ {
+ 	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
+ 	struct dispc_clock_info dispc_cinfo;
+@@ -259,8 +258,7 @@ static void sdi_bridge_enable(struct drm_bridge *bridge,
+ 	regulator_disable(sdi->vdds_sdi_reg);
+ }
+ 
+-static void sdi_bridge_disable(struct drm_bridge *bridge,
+-			       struct drm_bridge_state *bridge_state)
++static void sdi_bridge_disable(struct drm_bridge *bridge)
+ {
+ 	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
+ 
+@@ -278,8 +276,8 @@ static const struct drm_bridge_funcs sdi_bridge_funcs = {
+ 	.mode_valid = sdi_bridge_mode_valid,
+ 	.mode_fixup = sdi_bridge_mode_fixup,
+ 	.mode_set = sdi_bridge_mode_set,
+-	.atomic_enable = sdi_bridge_enable,
+-	.atomic_disable = sdi_bridge_disable,
++	.enable = sdi_bridge_enable,
++	.disable = sdi_bridge_disable,
+ };
+ 
+ static void sdi_bridge_init(struct sdi_device *sdi)
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+
