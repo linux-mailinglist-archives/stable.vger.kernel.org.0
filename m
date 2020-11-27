@@ -2,177 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B5C2C5F75
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 06:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 071B02C5FD1
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 06:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbgK0FIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 00:08:00 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:35064 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729251AbgK0FIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 00:08:00 -0500
-X-UUID: 27f396485fea46efb890d0353610a2fe-20201127
-X-UUID: 27f396485fea46efb890d0353610a2fe-20201127
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 629195723; Fri, 27 Nov 2020 13:07:54 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 27 Nov 2020 13:07:39 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 27 Nov 2020 13:07:40 +0800
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Song Bao Hua <song.bao.hua@hisilicon.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] proc: use untagged_addr() for pagemap_read addresses
-Date:   Fri, 27 Nov 2020 13:07:38 +0800
-Message-ID: <20201127050738.14440-1-miles.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        id S2389190AbgK0Fl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 00:41:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729830AbgK0Fl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 00:41:29 -0500
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2685C0613D1;
+        Thu, 26 Nov 2020 21:41:27 -0800 (PST)
+Received: by mail-lf1-x144.google.com with SMTP id d8so5432694lfa.1;
+        Thu, 26 Nov 2020 21:41:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=jTbdJPLCPCmKC1sQucjkCurKOKfvRNOl0rPRqRFsYFs=;
+        b=lFl6N3Dg+QQ82za+rkFQ0TN+wf6XTCAJuruvQ/rrIsW+JH+D44/zJlOW3SqcRKZIzT
+         lrRUUZPKbtB2kqYAq+AG/QGqZnD3PXXa8rUpw0vPmd3QOKe8zCEtDvYkazvF7Y4BEMAL
+         9uMKD7Um+UjqidjIlmJB1Gz24rF2LRwt89wKJlaBEOvo5X67mE2q44rxEr+e0Gzfr8P8
+         Km+FaG/xOR4VkuWgezqfjuDohMKNDO928+38/BHAOd2G36s7mO7/NdYODdGc5YzNI4qd
+         j7Mmc3ReOCJX5xWGgLsjyniTKsBTL7SfoyFF+ZZ6UJxdrXfpCVrG0BJWXM49wLTuMUWg
+         LGqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to:cc;
+        bh=jTbdJPLCPCmKC1sQucjkCurKOKfvRNOl0rPRqRFsYFs=;
+        b=Rseq4T825vTcZ9fY5qZbdG86OABoDRlcwN33GBHkV3qpb+jsOSus7qTEUb1G6ErWRB
+         BFGBbw9K69KnRw8BP5+gfAKRAvEhSg9ljkautRGI9q6U2oDTuM99wJt9sgJdDtQ8nTgq
+         IK7whHO7pgsJINrbZF48N6qhqoxOFB5wOnJAt2fjFnikNixLwVWarriTnn4Vm4ZBdqeG
+         AD9YaVz6y49nzS7vmjKtfF5Mb1+9dYFV4cN9lz53vz8v30+p9cm+S0InrGzTumSCh08z
+         t/JnCA80m1gTLuC1AkDlEvaAWbNAC+3f9W3JIrawXsT47QRG5z7ozBKzNSMxcKSZErTj
+         RxZg==
+X-Gm-Message-State: AOAM530jLHLYZY1zpi299V3B9hv1ojZTytrwrSGUC7xzWZh3D4V5uS1c
+        GFHLzU/tG7mwzwhDEs3Oxf6jn76lnFTlOHcKHxY=
+X-Google-Smtp-Source: ABdhPJyAeMEzfdGrvJT9b5AUNWayhzIAW5+4r+WiiKzD3LJnSTc5sziUMYp+pVfE4rkRvctYI3pCNM0lKqC81E7N614=
+X-Received: by 2002:a19:f60e:: with SMTP id x14mr2458236lfe.199.1606455686176;
+ Thu, 26 Nov 2020 21:41:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Received: by 2002:a9a:999:0:b029:97:eac4:b89e with HTTP; Thu, 26 Nov 2020
+ 21:41:25 -0800 (PST)
+In-Reply-To: <CAEx-X7esGyZ2QiTGbE1H7M7z1dqT47awmqrOtN+p0FbwtwfPOg@mail.gmail.com>
+References: <1606404819-30647-1-git-send-email-bongsu.jeon@samsung.com>
+ <20201126170154.GA4978@kozik-lap> <CAEx-X7esGyZ2QiTGbE1H7M7z1dqT47awmqrOtN+p0FbwtwfPOg@mail.gmail.com>
+From:   Bongsu Jeon <bongsu.jeon2@gmail.com>
+Date:   Fri, 27 Nov 2020 14:41:25 +0900
+Message-ID: <CACwDmQA5acuCpUcjf7Q0biG9KnfK+3WGjTDbDaFpnMMMhBv9sg@mail.gmail.com>
+Subject: Re: [PATCH net-next 1/3] nfc: s3fwrn5: use signed integer for parsing
+ GPIO numbers
+To:     krzk@kernel.org
+Cc:     Krzysztof Opasiak <k.opasiak@samsung.com>, linux-nfc@lists.01.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When we try to visit the pagemap of a tagged userspace pointer, we find
-that the start_vaddr is not correct because of the tag.
-To fix it, we should untag the usespace pointers in pagemap_read().
+On 11/27/20, Bongsu Jeon <bs.jeon87@gmail.com> wrote:
+> On Fri, Nov 27, 2020 at 2:06 AM Krzysztof Kozlowski <krzk@kernel.org>
+> wrote:
+>>
+>> On Fri, Nov 27, 2020 at 12:33:37AM +0900, bongsu.jeon2@gmail.com wrote:
+>> > From: Krzysztof Kozlowski <krzk@kernel.org>
+>> >
+>> > GPIOs - as returned by of_get_named_gpio() and used by the gpiolib -
+>> > are
+>> > signed integers, where negative number indicates error.  The return
+>> > value of of_get_named_gpio() should not be assigned to an unsigned int
+>> > because in case of !CONFIG_GPIOLIB such number would be a valid GPIO.
+>> >
+>> > Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC
+>> > Chip")
+>> > Cc: <stable@vger.kernel.org>
+>> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+>>
+>> Why do you send my patch?
+>>
+>
+> I think that your patch should be applied before refactoring for this
+> driver.
+> So, I applied your patch to net-next branch and included your patch at
+> my patch list.
+> Is this the wrong process?
+>
 
-I tested with 5.10-rc4 and the issue remains.
+Sorry to confuse you.
+I found your patch when i updated my workspace using git pull.
 
-Explaination from Catalin in [1]:
-
-"
-Arguably, that's a user-space bug since tagged file offsets were never
-supported. In this case it's not even a tag at bit 56 as per the arm64
-tagged address ABI but rather down to bit 47. You could say that the
-problem is caused by the C library (malloc()) or whoever created the
-tagged vaddr and passed it to this function. It's not a kernel
-regression as we've never supported it.
-
-Now, pagemap is a special case where the offset is usually not generated
-as a classic file offset but rather derived by shifting a user virtual
-address. I guess we can make a concession for pagemap (only) and allow
-such offset with the tag at bit (56 - PAGE_SHIFT + 3).
-"
-
-My test code is baed on [2]:
-
-A userspace pointer which has been tagged by 0xb4: 0xb400007662f541c8
-
-=== userspace program ===
-
-uint64 OsLayer::VirtualToPhysical(void *vaddr) {
-	uint64 frame, paddr, pfnmask, pagemask;
-	int pagesize = sysconf(_SC_PAGESIZE);
-	off64_t off = ((uintptr_t)vaddr) / pagesize * 8; // off = 0xb400007662f541c8 / pagesize * 8 = 0x5a00003b317aa0
-	int fd = open(kPagemapPath, O_RDONLY);
-	...
-
-	if (lseek64(fd, off, SEEK_SET) != off || read(fd, &frame, 8) != 8) {
-		int err = errno;
-		string errtxt = ErrorString(err);
-		if (fd >= 0)
-			close(fd);
-		return 0;
-	}
-...
-}
-
-=== kernel fs/proc/task_mmu.c ===
-
-static ssize_t pagemap_read(struct file *file, char __user *buf,
-		size_t count, loff_t *ppos)
-{
-	...
-	src = *ppos;
-	svpfn = src / PM_ENTRY_BYTES; // svpfn == 0xb400007662f54
-	start_vaddr = svpfn << PAGE_SHIFT; // start_vaddr == 0xb400007662f54000
-	end_vaddr = mm->task_size;
-
-	/* watch out for wraparound */
-	// svpfn == 0xb400007662f54
-	// (mm->task_size >> PAGE) == 0x8000000
-	if (svpfn > mm->task_size >> PAGE_SHIFT) // the condition is true because of the tag 0xb4
-		start_vaddr = end_vaddr;
-
-	ret = 0;
-	while (count && (start_vaddr < end_vaddr)) { // we cannot visit correct entry because start_vaddr is set to end_vaddr
-		int len;
-		unsigned long end;
-		...
-	}
-	...
-}
-
-[1] https://lore.kernel.org/patchwork/patch/1343258/
-[2] https://github.com/stressapptest/stressapptest/blob/master/src/os.cc#L158
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
-Cc: stable@vger.kernel.org # v5.4-
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-
----
-
-Change since v1:
-
-1. Follow Eirc's and Catalin's suggestion to avoid overflow
-2. Cc to stable v5.4-
-3. add explaination from Catalin to the commit message
----
- fs/proc/task_mmu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 217aa2705d5d..92b277388f05 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1599,11 +1599,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
- 
- 	src = *ppos;
- 	svpfn = src / PM_ENTRY_BYTES;
--	start_vaddr = svpfn << PAGE_SHIFT;
- 	end_vaddr = mm->task_size;
- 
- 	/* watch out for wraparound */
--	if (svpfn > mm->task_size >> PAGE_SHIFT)
-+	start_vaddr = end_vaddr;
-+	if (svpfn < (ULONG_MAX >> PAGE_SHIFT))
-+		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
-+
-+	/* Ensure the address is inside the task */
-+	if (start_vaddr > mm->task_size)
- 		start_vaddr = end_vaddr;
- 
- 	/*
--- 
-2.18.0
-
+>> Best regards,
+>> Krzysztof
+>
