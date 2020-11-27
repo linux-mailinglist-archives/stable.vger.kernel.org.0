@@ -2,128 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFF92C6651
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 14:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C032C66BF
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 14:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729802AbgK0NHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 08:07:49 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8604 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729576AbgK0NHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 08:07:48 -0500
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4CjFK15ZP9zLtjd;
-        Fri, 27 Nov 2020 21:07:17 +0800 (CST)
-Received: from use12-sp2.huawei.com (10.67.189.174) by
- DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
- 14.3.487.0; Fri, 27 Nov 2020 21:07:36 +0800
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>,
-        <tudor.ambarus@microchip.com>, <tpoynor@mvista.com>,
-        <tglx@linutronix.de>, <vwool@ru.mvista.com>
-CC:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <wangle6@huawei.com>, <nixiaoming@huawei.com>
-Subject: [PATCH] mtd:cfi_cmdset_0002: fix atomic sleep bug when CONFIG_MTD_XIP=y
-Date:   Fri, 27 Nov 2020 21:07:31 +0800
-Message-ID: <20201127130731.99270-1-nixiaoming@huawei.com>
-X-Mailer: git-send-email 2.27.0
+        id S1730502AbgK0NWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 08:22:53 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50953 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729888AbgK0NWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 08:22:53 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 11F685C00ED;
+        Fri, 27 Nov 2020 08:22:52 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 27 Nov 2020 08:22:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=38/wbfCKXTkC5LG04Smdt4//3XS
+        DcNSerBfnYChVnqk=; b=A3RucOtO4sfSGAUx8aw1p7nKrHNOxMH7C8353ibvzzk
+        IqulggrIQkRE8iDVxFAFnwjOjgg7mMi7GTf0fVMmarE/tOon69N+5QCxfhDiWlDR
+        zStrayoisgxXhDiKzr54pdmJqXxJ1n8DLRXVsWioMbTWggPk47sbdUa5tqcNV825
+        QOOMjt0IVAbH+I6bMoKdkbHUJPRTvZtS+2+4bR65tJAAFTT1RYbbfaXeLoNJY9Gl
+        1PZGffggoVa+dPmRvUAszb784Z1z3YdESxBkzkfeGe7inu60Cm7DfghMQa6ZBVfo
+        9Tw+vtrAxILFI70IfrE7dMxzbWuUj46s0jLH0fdwYIA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=38/wbf
+        CKXTkC5LG04Smdt4//3XSDcNSerBfnYChVnqk=; b=Mks2GYvxs5dd/960MLWXxZ
+        /TspEnhB6/8ioZsH7iCNFWBczpUkdeFRpNJuKpwFwKZj0RshbtSJqVwzHskoZ4CH
+        oSUUVa0Q8d97mVt28Fo5GkktKkfosufs6v28/DtYsmTpk17BNl7szsMggLJwrAlg
+        75hvJlmpjP3Ui/fXvpaHY1X9sYx2gjpf/TRQYS1I6BqbopPVEjCl9WJZ+Tf7zxt8
+        o2tkdCrZ442pPbGnxBezvnEZf2Thp42HIAfa7I2ToU8HofvbaC5uew3J8S4gzT5M
+        DUcKc4BNls9hRe7PeATEWZcwSbo/tiEzoRbHW1pXX0djyKaG765FGih/N6HXYwBw
+        ==
+X-ME-Sender: <xms:q_3AXy3VwWhXvCHM5Wk-O_FD2B_GEKzVez7Z4AYc449tParRFAqauQ>
+    <xme:q_3AX1FOgJNq3nrVvqz-OkO_mqjXlgW7S8qN7_2k3o_LUOw9k1ZGoqOV8ycp2UtDc
+    poh3syShAQuaA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehgedghedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekvddrvddujedrvddtrddukeehnecuvehluh
+    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
+    rghhrdgtohhm
+X-ME-Proxy: <xmx:q_3AX652CnxMu_IK8F_JOV_wZBE9ak8U3AqwJu3fqKQ2p9DObJ7kBA>
+    <xmx:q_3AXz1IYMiYVIKwc1dcGszwi2KnAk1hPNd0kbYBgqC0BOUtaGr6Lw>
+    <xmx:q_3AX1FUZYy7J2vAIfE9ystGNCKWL7fHi-cq5-zH7AUbRPgg3allKQ>
+    <xmx:rP3AXzM-bxDuoD6qNL2bJz2P68I_1uhzTq_XMmOavy0BzwNKYTzhqQ>
+Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6E2E23064AB0;
+        Fri, 27 Nov 2020 08:22:51 -0500 (EST)
+Date:   Fri, 27 Nov 2020 14:22:49 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Hauke Mehrtens <hauke@hauke-m.de>
+Cc:     stable <stable@vger.kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        linux-wireless@vger.kernel.org
+Subject: Re: stable backport of "wireless: Use linux/stddef.h instead of
+ stddef.h"
+Message-ID: <X8D9qRSZ+g9nLjf0@kroah.com>
+References: <f1958cd2-bd9e-5141-8aa2-f8729dd76719@hauke-m.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.189.174]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f1958cd2-bd9e-5141-8aa2-f8729dd76719@hauke-m.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When CONFIG_MTD_XIP=y, local_irq_disable() is called in xip_disable().
-To avoid sleep in interrupt context, we need to call local_irq_enable()
-before schedule().
+On Fri, Nov 27, 2020 at 12:04:00AM +0100, Hauke Mehrtens wrote:
+> Hi,
+> 
+> Please backport "wireless: Use linux/stddef.h instead of stddef.h" to kernel
+> 4.14, 4.19 and 5.4.
+> This is upstream commit id 1b9ae0c92925ac40489be526d67d0010d0724ce0
+> https://git.kernel.org/linus/1b9ae0c92925ac40489be526d67d0010d0724ce0
+> 
+> commit 1b9ae0c92925ac40489be526d67d0010d0724ce0
+> Author: Hauke Mehrtens <hauke@hauke-m.de>
+> Date:   Thu May 21 22:14:22 2020 +0200
+> 
+>     wireless: Use linux/stddef.h instead of stddef.h
+> 
+> This patch fixes a build problem in broken build environments which was
+> introduced with 6989310f5d43 ("wireless: Use offsetof instead of custom
+> macro.") which was backported to the listed kernel versions.
+> 
+> When the include path is fully correct you should not hit this problem, but
+> I got it because of some bug in by build system and also someone else
+> reported a similar problem to me and requested this backport.
 
-The problem call stack is as follows:
-bug1:
-	do_write_oneword_retry()
-		xip_disable()
-			local_irq_disable()
-		do_write_oneword_once()
-			schedule()
-bug2:
-	do_write_buffer()
-		xip_disable()
-			local_irq_disable()
-		do_write_buffer_wait()
-			schedule()
-bug3:
-	do_erase_chip()
-		xip_disable()
-			local_irq_disable()
-		schedule()
-bug4:
-	do_erase_oneblock()
-		xip_disable()
-			local_irq_disable()
-		schedule()
+Now queued up, thanks.
 
-Fixes: 02b15e343aee ("[MTD] XIP for AMD CFI flash.")
-Cc: stable@vger.kernel.org # v2.6.13
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
----
- drivers/mtd/chips/cfi_cmdset_0002.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index a1f3e1031c3d..12c3776f093a 100644
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -1682,7 +1682,11 @@ static int __xipram do_write_oneword_once(struct map_info *map,
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			add_wait_queue(&chip->wq, &wait);
- 			mutex_unlock(&chip->mutex);
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_enable();
- 			schedule();
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_disable();
- 			remove_wait_queue(&chip->wq, &wait);
- 			timeo = jiffies + (HZ / 2); /* FIXME */
- 			mutex_lock(&chip->mutex);
-@@ -1962,7 +1966,11 @@ static int __xipram do_write_buffer_wait(struct map_info *map,
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			add_wait_queue(&chip->wq, &wait);
- 			mutex_unlock(&chip->mutex);
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_enable();
- 			schedule();
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_disable();
- 			remove_wait_queue(&chip->wq, &wait);
- 			timeo = jiffies + (HZ / 2); /* FIXME */
- 			mutex_lock(&chip->mutex);
-@@ -2461,7 +2469,11 @@ static int __xipram do_erase_chip(struct map_info *map, struct flchip *chip)
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			add_wait_queue(&chip->wq, &wait);
- 			mutex_unlock(&chip->mutex);
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_enable();
- 			schedule();
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_disable();
- 			remove_wait_queue(&chip->wq, &wait);
- 			mutex_lock(&chip->mutex);
- 			continue;
-@@ -2560,7 +2572,11 @@ static int __xipram do_erase_oneblock(struct map_info *map, struct flchip *chip,
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			add_wait_queue(&chip->wq, &wait);
- 			mutex_unlock(&chip->mutex);
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_enable();
- 			schedule();
-+			if (IS_ENABLED(CONFIG_MTD_XIP))
-+				local_irq_disable();
- 			remove_wait_queue(&chip->wq, &wait);
- 			mutex_lock(&chip->mutex);
- 			continue;
--- 
-2.27.0
-
+greg k-h
