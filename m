@@ -2,77 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E22C2C622A
-	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 10:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0A12C630D
+	for <lists+stable@lfdr.de>; Fri, 27 Nov 2020 11:26:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728068AbgK0Jqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 04:46:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725889AbgK0Jqk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 04:46:40 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACCEC0613D1
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 01:46:38 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id t4so4862348wrr.12
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 01:46:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:from:mime-version:content-transfer-encoding
-         :content-description:subject:to:date:reply-to;
-        bh=wu5ETkjvsNC3MIg/JKXAUQ6XAfCB7Z61XOnPDTQNIrQ=;
-        b=UT4/46yqKGBhjAbBOKC91mYx0fMOAw0PGjnM6JQfkcdxEt/aeEdL3fl6QVq6PwOAfZ
-         H6TXN7zLknq5toKE9wgTGg2FUycGKsS81BR+2rNTCUR/L483mMVK0p0uKeGBD+IAJ14T
-         9a/gWgKuykqxYYB69c0eJb6R2RaR7Ht1Wj58yqxE+0aBUWLK1DjR4JN3UGQyldh0EhXX
-         O6wYCnoQyjrr7G391MtRCtNHv76c76Z4RqsPsjp4QfqPL0Hs7UHN0gw+tV9sUh+WHG7h
-         1Ug+e3EccQ2zEBh9Lg4yv7Dj5cY/VUhvjw4m7gs+UYcmoKNTr/R+p9fcdWUAFyEhLP0j
-         /ZjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:from:mime-version
-         :content-transfer-encoding:content-description:subject:to:date
-         :reply-to;
-        bh=wu5ETkjvsNC3MIg/JKXAUQ6XAfCB7Z61XOnPDTQNIrQ=;
-        b=tWFpbWsvbRkufEzTGZRMAT70/ytewyI/jSxAhlJUnZgXVvbfOyJkaTDAhDmo/2n27T
-         jb4yg+2D4O5BS3mBnnWrFEoHEC5ncwgc03uTZgVNS5ZFN4fATLOSx13fmTtOOHq2Be87
-         Ht8IV/ouW3gHWb3Oz1x14S8GhnNm+q2aBhTGaX2vVwq8IoWuKlLk2F/4XktQFunSVG+G
-         /YeKgP9Qd1Vc1e6Xy3K2BXKp51sG3qdBlTslNznN7XKDGbuMs6/OzuoTwoLp+0FFBZ5G
-         WpI5Td+fQRTe857fUufu8MPcWa8MtaszRar/PtdSdZRHjntHUL/tovvkbggGikHCC2LC
-         /LQg==
-X-Gm-Message-State: AOAM530ztuAPpih0g5RmqyYctM/hkxZ9ewc0ISWbikmissqtRdigaqWe
-        5tu+Wx/tOdrik/CnvV+308o=
-X-Google-Smtp-Source: ABdhPJyP1EjPb5/rVTc6d6n8z9rJalOwriRyrBtVaW7XQGJR4BlUTU6u58fmdf46OToMwvgFUvZzpg==
-X-Received: by 2002:adf:a3c1:: with SMTP id m1mr9560949wrb.28.1606470397387;
-        Fri, 27 Nov 2020 01:46:37 -0800 (PST)
-Received: from [192.168.2.4] ([156.38.90.76])
-        by smtp.gmail.com with ESMTPSA id k11sm13264564wrv.88.2020.11.27.01.46.33
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 27 Nov 2020 01:46:36 -0800 (PST)
-Message-ID: <5fc0cafc.1c69fb81.dad88.1f08@mx.google.com>
-From:   osseniadouni80@gmail.com
-X-Google-Original-From: Heavy Equipment Machinery Co.,Ltd
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1726423AbgK0KZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Nov 2020 05:25:47 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:50001 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725865AbgK0KZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 05:25:46 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23129948-1500050 
+        for multiple; Fri, 27 Nov 2020 10:25:40 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Declare gen9 has 64 mocs entries!
+Date:   Fri, 27 Nov 2020 10:25:40 +0000
+Message-Id: <20201127102540.13117-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Order
-To:     Recipients <Heavy@vger.kernel.org>
-Date:   Wed, 02 Dec 2020 03:42:46 -0800
-Reply-To: purchaseirorder@gmail.com
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+We checked the table size against a hardcoded number of entries, and
+that number was excluding the special mocs registers at the end.
 
-Can you supply your product to Australia for us? Pls revert back MOQ and FO=
-B. =
+Fixes: 977933b5da7c ("drm/i915/gt: Program mocs:63 for cache eviction on gen9")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.3+
+---
+ drivers/gpu/drm/i915/gt/intel_mocs.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/gt/intel_mocs.c b/drivers/gpu/drm/i915/gt/intel_mocs.c
+index b8d0c32ae9dd..ab6870242e18 100644
+--- a/drivers/gpu/drm/i915/gt/intel_mocs.c
++++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
+@@ -59,8 +59,7 @@ struct drm_i915_mocs_table {
+ #define _L3_CACHEABILITY(value)	((value) << 4)
+ 
+ /* Helper defines */
+-#define GEN9_NUM_MOCS_ENTRIES	62  /* 62 out of 64 - 63 & 64 are reserved. */
+-#define GEN11_NUM_MOCS_ENTRIES	64  /* 63-64 are reserved, but configured. */
++#define GEN9_NUM_MOCS_ENTRIES	64  /* 63-64 are reserved, but configured. */
+ 
+ /* (e)LLC caching options */
+ /*
+@@ -361,15 +360,15 @@ static unsigned int get_mocs_settings(const struct drm_i915_private *i915,
+ 	if (IS_DG1(i915)) {
+ 		table->size = ARRAY_SIZE(dg1_mocs_table);
+ 		table->table = dg1_mocs_table;
+-		table->n_entries = GEN11_NUM_MOCS_ENTRIES;
++		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
+ 	} else if (INTEL_GEN(i915) >= 12) {
+ 		table->size  = ARRAY_SIZE(tgl_mocs_table);
+ 		table->table = tgl_mocs_table;
+-		table->n_entries = GEN11_NUM_MOCS_ENTRIES;
++		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
+ 	} else if (IS_GEN(i915, 11)) {
+ 		table->size  = ARRAY_SIZE(icl_mocs_table);
+ 		table->table = icl_mocs_table;
+-		table->n_entries = GEN11_NUM_MOCS_ENTRIES;
++		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
+ 	} else if (IS_GEN9_BC(i915) || IS_CANNONLAKE(i915)) {
+ 		table->size  = ARRAY_SIZE(skl_mocs_table);
+ 		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
+-- 
+2.20.1
 
-Waiting For Your Feedback =
-
-Best Regards Cynthia McLeod
-Company:Heavy Equipment Machinery Co.,Ltd
-Address:104 Welshpool Rd Welshpool WA 5134 Australia
-Fax:307-527-2153
-Phone:+61261257594
-Email:purchaseirorder@gmail.com
