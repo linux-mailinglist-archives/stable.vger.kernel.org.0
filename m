@@ -2,76 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6922C73F3
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B212C73BA
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389152AbgK1Vtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:51 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:35201 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731299AbgK1Sto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:49:44 -0500
-Received: by mail-lf1-f68.google.com with SMTP id a9so12059741lfh.2;
-        Sat, 28 Nov 2020 10:49:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=94w+w4q2DL8CfQBxAM1xY8lwOUr+KvOfw3ByQOJVKuk=;
-        b=knwr6FWiDspxB0X1Culaha/p7eb3xJfHmACgGn7ReKXwwN0GGq4cIvMN5nhzJnGPQp
-         iBC30DtrWtA5J7PtG5CVaMDQ3kgJ9ZNQtVudKLiK8b+ho3bmlYHLEYPHsaB4ZXXrcD6A
-         gpE4X+fdY7dSzrKZODKjwSZDqcIK7nxHWKkxH4+kPM1GPZpgqAYIWnGiOcA0o294xzfs
-         zmre0zb1bwYef/gWreJpoCCNdHIIaSs6snkeRjUEV7rHgl2xrCC5CyIz4sG5v1wgipch
-         92vj0HfzhENyaCji6X6v9QnwncnyLUCGhQ4V2gx/armh+b4ikysbN02WCWEPAOWnLaBG
-         dZPw==
-X-Gm-Message-State: AOAM530UZra3eEh2LEKqwiesxNUOz8P2+4eV5kMxYCLX9TEP07GnLkHP
-        DrKFWXUSCHLj69uto9geQZc3sNlUgvA=
-X-Google-Smtp-Source: ABdhPJyLh6B3nxSjRDcChAYngodNGnYIRfHxi//tXNNB+WXdMW2TXjVSZwSmgZwBFnUYvUFPYdEs3g==
-X-Received: by 2002:a17:906:7c56:: with SMTP id g22mr12023158ejp.282.1606563360738;
-        Sat, 28 Nov 2020 03:36:00 -0800 (PST)
-Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.googlemail.com with ESMTPSA id a12sm6295814edu.89.2020.11.28.03.35.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 03:35:59 -0800 (PST)
-Date:   Sat, 28 Nov 2020 12:35:58 +0100
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Jiri Kosina <trivial@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        linux-renesas-soc@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-kernel@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/5] memory: renesas-rpc-if: Fix a reference leak in
- rpcif_probe()
-Message-ID: <20201128113558.GC4761@kozik-lap>
-References: <20201126191146.8753-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20201126191146.8753-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20201127224114.GB19743@duo.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201127224114.GB19743@duo.ucw.cz>
+        id S1731716AbgK1Vty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:54 -0500
+Received: from mail-m1272.qiye.163.com ([115.236.127.2]:27661 "EHLO
+        mail-m1272.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387565AbgK1The (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 14:37:34 -0500
+X-Greylist: delayed 4199 seconds by postgrey-1.27 at vger.kernel.org; Sat, 28 Nov 2020 14:37:33 EST
+Received: from localhost.localdomain (unknown [113.89.246.41])
+        by mail-m1272.qiye.163.com (Hmail) with ESMTPA id AEEC6B01F56;
+        Sat, 28 Nov 2020 20:27:49 +0800 (CST)
+From:   Ding Hui <dinghui@sangfor.com.cn>
+To:     jejb@linux.ibm.com, martin.petersen@oracle.com
+Cc:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ding Hui <dinghui@sangfor.com.cn>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH] scsi: ses: Fix crash caused by kfree an invalid pointer
+Date:   Sat, 28 Nov 2020 20:23:02 +0800
+Message-Id: <20201128122302.9490-1-dinghui@sangfor.com.cn>
+X-Mailer: git-send-email 2.17.1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZS1VLWVdZKFlBSE83V1ktWUFJV1kPCR
+        oVCBIfWUFZHx5DTU9NTB0eGk1PVkpNS01OTU1PTUJCQkJVEwETFhoSFyQUDg9ZV1kWGg8SFR0UWU
+        FZT0tIVUpKS0hKTFVLWQY+
+X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6PzY6Qzo5MT8tTk4wSkMUNwxO
+        IUxPCilVSlVKTUtNTk1NT0xLSE9JVTMWGhIXVR8SFRwTDhI7CBoVHB0UCVUYFBZVGBVFWVdZEgtZ
+        QVlKSkhVQ0JVSU9NVU9KWVdZCAFZQUhCTEs3Bg++
+X-HM-Tid: 0a760ed2e10598b7kuuuaeec6b01f56
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 27, 2020 at 11:41:14PM +0100, Pavel Machek wrote:
-> On Thu 2020-11-26 19:11:44, Lad Prabhakar wrote:
-> > Release the node reference by calling of_node_put(flash) in the probe.
-> > 
-> > Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
-> > Reported-by: Pavel Machek <pavel@denx.de>
-> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> > Cc: stable@vger.kernel.org
-> > Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-> 
-> Reviewed-by: Pavel Machek (CIP)< <pavel@denx.de>
+We can get a crash when disconnecting the iSCSI session,
+the call trace like this:
 
-This breaks b4. Corrected and applied.
+  [ffff00002a00fb70] kfree at ffff00000830e224
+  [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
+  [ffff00002a00fbd0] device_del at ffff0000086b6a98
+  [ffff00002a00fc50] device_unregister at ffff0000086b6d58
+  [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
+  [ffff00002a00fca0] scsi_remove_device at ffff000008706134
+  [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
+  [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
+  [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
+  [ffff00002a00fdb0] process_one_work at ffff00000810f35c
+  [ffff00002a00fe00] worker_thread at ffff00000810f648
+  [ffff00002a00fe70] kthread at ffff000008116e98
 
-Best regards,
-Krzysztof
+In ses_intf_add, components count could be 0, and kcalloc 0 size scomp,
+but not saved in edev->component[i].scratch
+
+In this situation, edev->component[0].scratch is an invalid pointer,
+when kfree it in ses_intf_remove_enclosure, a crash like above would happen
+The call trace also could be other random cases when kfree cannot catch
+the invalid pointer
+
+We should not use edev->component[] array when the components count is 0
+We also need check index when use edev->component[] array in
+ses_enclosure_data_process
+
+Tested-by: Zeng Zhicong <timmyzeng@163.com>
+Cc: stable <stable@vger.kernel.org> # 2.6.25+
+Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+---
+ drivers/scsi/ses.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index c2afba2a5414..f5ef0a91f0eb 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -477,9 +477,6 @@ static int ses_enclosure_find_by_addr(struct enclosure_device *edev,
+ 	int i;
+ 	struct ses_component *scomp;
+ 
+-	if (!edev->component[0].scratch)
+-		return 0;
+-
+ 	for (i = 0; i < edev->components; i++) {
+ 		scomp = edev->component[i].scratch;
+ 		if (scomp->addr != efd->addr)
+@@ -565,8 +562,10 @@ static void ses_enclosure_data_process(struct enclosure_device *edev,
+ 						components++,
+ 						type_ptr[0],
+ 						name);
+-				else
++				else if (components < edev->components)
+ 					ecomp = &edev->component[components++];
++				else
++					ecomp = ERR_PTR(-EINVAL);
+ 
+ 				if (!IS_ERR(ecomp)) {
+ 					if (addl_desc_ptr)
+@@ -731,9 +730,11 @@ static int ses_intf_add(struct device *cdev,
+ 		buf = NULL;
+ 	}
+ page2_not_supported:
+-	scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
+-	if (!scomp)
+-		goto err_free;
++	if (components > 0) {
++		scomp = kcalloc(components, sizeof(struct ses_component), GFP_KERNEL);
++		if (!scomp)
++			goto err_free;
++	}
+ 
+ 	edev = enclosure_register(cdev->parent, dev_name(&sdev->sdev_gendev),
+ 				  components, &ses_enclosure_callbacks);
+@@ -813,7 +814,8 @@ static void ses_intf_remove_enclosure(struct scsi_device *sdev)
+ 	kfree(ses_dev->page2);
+ 	kfree(ses_dev);
+ 
+-	kfree(edev->component[0].scratch);
++	if (edev->components > 0)
++		kfree(edev->component[0].scratch);
+ 
+ 	put_device(&edev->edev);
+ 	enclosure_unregister(edev);
+-- 
+2.17.1
+
