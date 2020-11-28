@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 089C22C741F
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5A72C742E
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729527AbgK1Vtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:47 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40333 "EHLO
+        id S1731689AbgK1Vts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:48 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:54615 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731582AbgK1SEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:04:39 -0500
+        by vger.kernel.org with ESMTP id S1730049AbgK1SFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:05:19 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1C07D1942885;
-        Sat, 28 Nov 2020 07:26:08 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 711DB19413AF;
+        Sat, 28 Nov 2020 07:26:10 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:26:08 -0500
+  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:26:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=9CjvhA
-        kWIhjJDcCVFnR3BtLEt9AIC7amp0622DZlp1U=; b=IoA6PwEzAy2oayRJscnteD
-        8ANShcA2EwWlPb1B/j836ngxXAz15yjEa8QUgu73odmEeB0qMbnvX6NZDHI8On+O
-        m3P2v1C19OuCLRJrM+IrL8LPnTq9jM+mh52GeoWLninn7VEmAszQr62odvstVsyB
-        Y3UtG21cpBQh5AxnvJ+iuf2Haegvb4kGadciYYlga0l/WQaDP4IhUnzCzyKcevTh
-        PubZB6HGh+lj6W56sc623ErDEw1FTaB57Eqz6B4Dfm0I/9bnP60jFMlZI6UE8eXM
-        f9JJ02l3RfHingjlIvtIyrW4XUPURukwiWvjmfPuWdY+R20Fk+mPnC/ERLUe03dg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=FZTo6Q
+        cLUYC/OVlPxJOlIZgCf+26nCrSl6bS6rHcI2Y=; b=QmIPgR/wg6uoY1nwMxuxgU
+        EaSLM6nNV9oY6vaAX6FhjpTT0Yo6owRoNXsxiRUIm8l4POSHqeU0gNFZA07pmQRD
+        xIRGz1cF1cUfbfGv1cbo9BLLVItYHy8BSZX5IVVuqB5PJ3PNiiMgipMjzQaYQz9n
+        MZwGw8q5ea+dfHs4K1JNx0OHbdmDBiwQzCND+8M+Rfn0lddSJNSNGg6qTAxqOw7K
+        /h23eGl8VOvGxzfpI0SsxX3VBDCUgvJBYtiy+OpRjRrFIJVWdgunrQQKYkagv5JP
+        cqbb8BKM36G51ehQPb1FfY+Sb5FLxBl0u77OHw81olCEKXaT5kx63vUrxxWHJQlg
         ==
-X-ME-Sender: <xms:30HCX2g-mZqGscTXvMbVKGdBUgEXpOQnrM21y526nh6p5uqwvxb78w>
-    <xme:30HCX3AeJ4G0lK68MOe8mtKqjl3p2hml_Xvzon7EJ0_EPu9Wbdp335ySgNL7rr0F1
-    78DR5AsVjhhcQ>
+X-ME-Sender: <xms:4kHCX-F7cU3a88Xw6c3nL5ycj562MD8gkgFklQNyGrNpYUhS8oHcNA>
+    <xme:4kHCX_UAAIhW93gaTv9cH287AfUYG4_ylGXo-64Oxggmf1Ln5rAs5oax0PyE9Ljfs
+    tzn8niJnsA7Pw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehiedggedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehiedggedtucetufdoteggod
     ekgfefuddtudehvedtteffnecuffhomhgrihhnpehgnhhurdhorhhgnecukfhppeekfedr
     keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
     hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:30HCX-HtoElPLFm-BdC5jsmVTMwuAMQbhPPfN-tZvormVvfPbie4Fg>
-    <xmx:30HCX_TajJ3ou9xuO5gZklJ4ngBe5dcg_tnjd77psJIehvrIuOh-Lg>
-    <xmx:30HCXzw25E5tpb2QcRoCg5peGHZccDxLKHR-YzbKCq-NTJ6qDBAb5g>
-    <xmx:4EHCX8rQwBeauwBTDq5zQ_5zzJP4DxCw3Nmh93hkq-tjXlDniUPKcA>
+X-ME-Proxy: <xmx:4kHCX4LeGDiXgyiJqRjUmCEef5gbpOUpWRcZfRyknOzLEd0jx6XlCg>
+    <xmx:4kHCX4H1OltciXFqodLrPnmK2vuKjHmvYPYUmtaH7BLso49nZ2v1QA>
+    <xmx:4kHCX0Uy3D06h9UF0gWgVuoZ_zCMjoKUDutbI-Y2unKLx6Ylm9nSlA>
+    <xmx:4kHCX_fPEBcObzHFS-dwFkBb2VTEo-ZY0CAgHPPZWuXFjsCScQKoVQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 77BEB3064AAE;
-        Sat, 28 Nov 2020 07:26:07 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: fix missing delalloc new bit for new delalloc ranges" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0C2B53064AAE;
+        Sat, 28 Nov 2020 07:26:09 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: fix missing delalloc new bit for new delalloc ranges" failed to apply to 4.19-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 28 Nov 2020 13:27:16 +0100
-Message-ID: <1606566436201143@kroah.com>
+Date:   Sat, 28 Nov 2020 13:27:19 +0100
+Message-ID: <1606566439245188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
