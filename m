@@ -2,168 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C645B2C7406
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDA52C7439
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731368AbgK1Vtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731869AbgK1SAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:00:44 -0500
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA86DC0253F7;
-        Sat, 28 Nov 2020 09:41:30 -0800 (PST)
-Received: by mail-pl1-x641.google.com with SMTP id t18so4217664plo.0;
-        Sat, 28 Nov 2020 09:41:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=40L//mR7mpkTS3t1iaELnVbQvjPoARioHELJuLQ1ZOA=;
-        b=pgCPDm1rOx/KGw+G2zsZ96CTC3/SsDRwhMm57nw4knrqMFbvKIDkQEzD0bDuGjFg06
-         qrAQNqeRfIYRbWlprQf5fc3bWlgjxUPQIw1Sk5AbWwdhsu2VlbbYM7VFBBHKm90qyWzJ
-         k8Dzm7PH1tvsACKQ48DXq/iB0GLHIzc5v0QPZipTdYGw9mxzBEdQnb2ckuV50+asQp15
-         apeu0PQFPCRM6SUup8X+yJXrtjkUzrsmm4y7/vMa/YKAKb5u27GXWfLpnXkpHeqfk515
-         opvXeZRjKkiRhDMm484VO1f0KKmdYKDb8nUujZ8DhFGoJ6p/USH8SB4BZh/j1YQfGDFw
-         eTOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=40L//mR7mpkTS3t1iaELnVbQvjPoARioHELJuLQ1ZOA=;
-        b=MGizZ4gs/wtZQcvJG0UMP1kcyo93PYoewJhBquUeto3h6d1ZXfc8lhh2ozwMmxzQrV
-         9NGzlcJqNVh6JB7nLm6ijmiaiRd/hhsvuIeL9Iry0TjEh1GhyxoYd1wRwTw+yM6bqrpA
-         ucg+xO1aMsE1wYzd7B6sWCOPuqYc9R4ICRc0eKbc+s+He8oFeU1cDlyzjloKDsChVRwB
-         1KRNJtjfyIrYe/2hDQbcbGQHPrZvXSwu24WTbrwwPnM4gc/HylM1/vKD0auJYm8JWKzi
-         j72MIW/iGggutCaJ2F+mI/W2pEIfYwdUTj0vKyGY3jW+eY+C9a+yMbkg3h1TLC6kgSu5
-         NfnQ==
-X-Gm-Message-State: AOAM530D3QYPjLQ8LfHygY8meDLLJ+1IGS7IcAemVVN7rLkcjc6cJoAO
-        rF8iVVi+DcgNRYhE/Dx0cfA=
-X-Google-Smtp-Source: ABdhPJwPOscNvx1pSiNFc6Cpt1i7blHZkozSHzGjS9avpj0QcYGA1CLtmW6e+ZzXXJU5kXMuNPx8ww==
-X-Received: by 2002:a17:902:32d:b029:d9:d8a9:11e4 with SMTP id 42-20020a170902032db02900d9d8a911e4mr11883997pld.6.1606585290184;
-        Sat, 28 Nov 2020 09:41:30 -0800 (PST)
-Received: from hpilion.hsd1.wa.comcast.net (50-47-105-203.evrt.wa.frontiernet.net. [50.47.105.203])
-        by smtp.gmail.com with ESMTPSA id gb4sm15610246pjb.30.2020.11.28.09.41.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 09:41:29 -0800 (PST)
-From:   Shachar Raindel <shacharr@gmail.com>
-To:     jaegeuk@kernel.org, chao@kernel.org, ebiggers@google.com,
-        daehojeong@google.com, linux-f2fs-devel@lists.sourceforge.net
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Shachar Raindel <shacharr@gmail.com>
-Subject: [PATCH] f2fs: Fix deadlock between f2fs_quota_sync and block_operation
-Date:   Sat, 28 Nov 2020 09:41:24 -0800
-Message-Id: <20201128174124.22397-1-shacharr@gmail.com>
-X-Mailer: git-send-email 2.29.2
+        id S2389105AbgK1Vtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:50 -0500
+Received: from fgw21-4.mail.saunalahti.fi ([62.142.5.108]:28731 "EHLO
+        fgw21-4.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729947AbgK1SdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:33:00 -0500
+X-Greylist: delayed 1842 seconds by postgrey-1.27 at vger.kernel.org; Sat, 28 Nov 2020 13:32:59 EST
+Received: from darkstar.musicnaut.iki.fi (85-76-71-224-nat.elisa-mobile.fi [85.76.71.224])
+        by fgw21.mail.saunalahti.fi (Halon) with ESMTP
+        id 8113492f-31a1-11eb-9eb8-005056bdd08f;
+        Sat, 28 Nov 2020 19:45:30 +0200 (EET)
+Date:   Sat, 28 Nov 2020 19:45:28 +0200
+From:   Aaro Koskinen <aaro.koskinen@iki.fi>
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc:     dri-devel@lists.freedesktop.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Nikhil Devshatwar <nikhil.nd@ti.com>,
+        linux-omap@vger.kernel.org, stable@vger.kernel.org,
+        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Subject: Re: [PATCH] drm/omap: sdi: fix bridge enable/disable
+Message-ID: <20201128174528.GD551434@darkstar.musicnaut.iki.fi>
+References: <20201127085241.848461-1-tomi.valkeinen@ti.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201127085241.848461-1-tomi.valkeinen@ti.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This deadlock is hitting Android users (Pixel 3/3a/4) with Magisk, due
-to frequent umount/mount operations that trigger quota_sync, hitting
-the race. See https://github.com/topjohnwu/Magisk/issues/3171 for
-additional impact discussion.
+Hi,
 
-In commit db6ec53b7e03, we added a semaphore to protect quota flags.
-As part of this commit, we changed f2fs_quota_sync to call
-f2fs_lock_op, in an attempt to prevent an AB/BA type deadlock with
-quota_sem locking in block_operation.  However, rwsem in Linux is not
-recursive. Therefore, the following deadlock can occur:
+On Fri, Nov 27, 2020 at 10:52:41AM +0200, Tomi Valkeinen wrote:
+> When the SDI output was converted to DRM bridge, the atomic versions of
+> enable and disable funcs were used. This was not intended, as that would
+> require implementing other atomic funcs too. This leads to:
+> 
+> WARNING: CPU: 0 PID: 18 at drivers/gpu/drm/drm_bridge.c:708 drm_atomic_helper_commit_modeset_enables+0x134/0x268
+> 
+> and display not working.
+> 
+> Fix this by using the legacy enable/disable funcs.
+> 
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> Fixes: 8bef8a6d5da81b909a190822b96805a47348146f ("drm/omap: sdi: Register a drm_bridge")
+> Cc: stable@vger.kernel.org # v5.7+
+> Tested-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
 
-f2fs_quota_sync
-down_read(cp_rwsem) // f2fs_lock_op
-filemap_fdatawrite
-f2fs_write_data_pages
-...
-                                   block_opertaion
-				   down_write(cp_rwsem) - marks rwsem as
-				                          "writer pending"
-down_read_trylock(cp_rwsem) - fails as there is
-                              a writer pending.
-			      Code keeps on trying,
-			      live-locking the filesystem.
+Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-We solve this by creating a new rwsem, used specifically to
-synchronize this case, instead of attempting to reuse an existing
-lock.
+Thanks,
 
-Signed-off-by: Shachar Raindel <shacharr@gmail.com>
+A.
 
-Fixes: db6ec53b7e03 f2fs: add a rw_sem to cover quota flag changes
----
- fs/f2fs/f2fs.h  |  3 +++
- fs/f2fs/super.c | 13 +++++++++++--
- 2 files changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index cb700d797296..b3e55137be7f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1448,6 +1448,7 @@ struct f2fs_sb_info {
- 	struct inode *meta_inode;		/* cache meta blocks */
- 	struct mutex cp_mutex;			/* checkpoint procedure lock */
- 	struct rw_semaphore cp_rwsem;		/* blocking FS operations */
-+	struct rw_semaphore cp_quota_rwsem;    	/* blocking quota sync operations */
- 	struct rw_semaphore node_write;		/* locking node writes */
- 	struct rw_semaphore node_change;	/* locking node change */
- 	wait_queue_head_t cp_wait;
-@@ -1961,12 +1962,14 @@ static inline void f2fs_unlock_op(struct f2fs_sb_info *sbi)
- 
- static inline void f2fs_lock_all(struct f2fs_sb_info *sbi)
- {
-+	down_write(&sbi->cp_quota_rwsem);
- 	down_write(&sbi->cp_rwsem);
- }
- 
- static inline void f2fs_unlock_all(struct f2fs_sb_info *sbi)
- {
- 	up_write(&sbi->cp_rwsem);
-+	up_write(&sbi->cp_quota_rwsem);
- }
- 
- static inline int __get_cp_reason(struct f2fs_sb_info *sbi)
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 00eff2f51807..5ce61147d7e5 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2209,8 +2209,16 @@ int f2fs_quota_sync(struct super_block *sb, int type)
- 	 *  f2fs_dquot_commit
- 	 *                            block_operation
- 	 *                            down_read(quota_sem)
-+	 *
-+	 * However, we cannot use the cp_rwsem to prevent this
-+	 * deadlock, as the cp_rwsem is taken for read inside the
-+	 * f2fs_dquot_commit code, and rwsem is not recursive.
-+	 *
-+	 * We therefore use a special lock to synchronize
-+	 * f2fs_quota_sync with block_operations, as this is the only
-+	 * place where such recursion occurs.
- 	 */
--	f2fs_lock_op(sbi);
-+	down_read(&sbi->cp_quota_rwsem);
- 
- 	down_read(&sbi->quota_sem);
- 	ret = dquot_writeback_dquots(sb, type);
-@@ -2251,7 +2259,7 @@ int f2fs_quota_sync(struct super_block *sb, int type)
- 	if (ret)
- 		set_sbi_flag(F2FS_SB(sb), SBI_QUOTA_NEED_REPAIR);
- 	up_read(&sbi->quota_sem);
--	f2fs_unlock_op(sbi);
-+	up_read(&sbi->cp_quota_rwsem);
- 	return ret;
- }
- 
-@@ -3599,6 +3607,7 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
- 
- 	init_rwsem(&sbi->cp_rwsem);
- 	init_rwsem(&sbi->quota_sem);
-+	init_rwsem(&sbi->cp_quota_rwsem);
- 	init_waitqueue_head(&sbi->cp_wait);
- 	init_sb_info(sbi);
- 
--- 
-2.29.2
-
+> ---
+>  drivers/gpu/drm/omapdrm/dss/sdi.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/omapdrm/dss/sdi.c b/drivers/gpu/drm/omapdrm/dss/sdi.c
+> index 033fd30074b0..282e4c837cd9 100644
+> --- a/drivers/gpu/drm/omapdrm/dss/sdi.c
+> +++ b/drivers/gpu/drm/omapdrm/dss/sdi.c
+> @@ -195,8 +195,7 @@ static void sdi_bridge_mode_set(struct drm_bridge *bridge,
+>  	sdi->pixelclock = adjusted_mode->clock * 1000;
+>  }
+>  
+> -static void sdi_bridge_enable(struct drm_bridge *bridge,
+> -			      struct drm_bridge_state *bridge_state)
+> +static void sdi_bridge_enable(struct drm_bridge *bridge)
+>  {
+>  	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
+>  	struct dispc_clock_info dispc_cinfo;
+> @@ -259,8 +258,7 @@ static void sdi_bridge_enable(struct drm_bridge *bridge,
+>  	regulator_disable(sdi->vdds_sdi_reg);
+>  }
+>  
+> -static void sdi_bridge_disable(struct drm_bridge *bridge,
+> -			       struct drm_bridge_state *bridge_state)
+> +static void sdi_bridge_disable(struct drm_bridge *bridge)
+>  {
+>  	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
+>  
+> @@ -278,8 +276,8 @@ static const struct drm_bridge_funcs sdi_bridge_funcs = {
+>  	.mode_valid = sdi_bridge_mode_valid,
+>  	.mode_fixup = sdi_bridge_mode_fixup,
+>  	.mode_set = sdi_bridge_mode_set,
+> -	.atomic_enable = sdi_bridge_enable,
+> -	.atomic_disable = sdi_bridge_disable,
+> +	.enable = sdi_bridge_enable,
+> +	.disable = sdi_bridge_disable,
+>  };
+>  
+>  static void sdi_bridge_init(struct sdi_device *sdi)
+> -- 
+> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+> 
