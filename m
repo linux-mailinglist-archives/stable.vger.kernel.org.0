@@ -2,143 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6652C7400
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 805A32C73EC
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388843AbgK1Vtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:45 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:34227 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730218AbgK1SBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:01:51 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id DFB761943794;
-        Sat, 28 Nov 2020 07:47:55 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:47:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gCpigE
-        jK/fOLcUd5DXlEf6cx0Q1UPXLkDquu9XyyGF8=; b=J0Xl9TyWuaZp95ReohtLOD
-        9OUAmpyqnMiCo9X8xb2TW3/ptSXo7d0eWiiay3Xz+RZyc2rKbR6miuHzW+L8qAwG
-        0k9xuKwDF5BmZWfz/nSjp2svCye2KGZtsI5Y9HdlbelVgSJaRsHbUuIlSZv/YWZX
-        ZztMP7KsY88YFzZiXOL3fnKmScLgbZ9/4fcpcdVYtP5QhOvjSM9xE+0bw2bf/ZUK
-        rrKYLELk0vPzcFtN0OQ3TzNJ9Fj5HQ9Op4njq3wy1KcJUQ7QPiniDAGdR/KE9ErC
-        fu43Wt0XX654k8a7IKqzaWlmhLLfjBlMDmH+S1TVYXXXsWpAoBPeppMwJgeP4F2Q
-        ==
-X-ME-Sender: <xms:-0bCX9qjfp-39dvsqzhKqCRlTw9xkmIRmEouSVCRj9HyqQJHYab92A>
-    <xme:-0bCX_q7DxE5JFmSmqIS3wiIRzeTd_CDGO9bT1_u91mHG_x31aPNMtlX5wtAXXgLR
-    ZsY5mSOHqroyg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehiedggeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:-0bCX6P9bXSubYOl_BQi8Z6SaHSRdUKS5x_kPAgA499FW04QF0PjKQ>
-    <xmx:-0bCX47c3NVqkv108_mqj_TDEkACnnL4SPhsO02Okz3A7HZf6KpZ0A>
-    <xmx:-0bCX85AXTC_ghxUwHOlVvYtysL41itU3wn2Tlql94F-vAeRCNimAg>
-    <xmx:-0bCXxgMkmD8czTXNMibuh1Y5HT8Ivye7bh7xHcusYvo_o1Whk7e_A>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3BCF33064AA7;
-        Sat, 28 Nov 2020 07:47:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: pgtable: Ensure dirty bit is preserved across" failed to apply to 4.4-stable tree
-To:     will@kernel.org, catalin.marinas@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 28 Nov 2020 13:49:04 +0100
-Message-ID: <160656774418472@kroah.com>
+        id S1732433AbgK1Vtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42374 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731501AbgK1Sw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:52:58 -0500
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2488C02A192
+        for <stable@vger.kernel.org>; Sat, 28 Nov 2020 04:53:10 -0800 (PST)
+Received: by mail-vs1-xe43.google.com with SMTP id k17so3856896vsp.13
+        for <stable@vger.kernel.org>; Sat, 28 Nov 2020 04:53:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=dj3qfXJ4Iec3raMLz9uZPv/2iNP/sFcmUQrTQYmXPI4=;
+        b=Jd7vO+gPgk98y9a+RfVVPK5oP92yGJYHvigHGybLmYYWzm9H1UQXsASYJVhe6T7rl8
+         uC+DG5Mi9PzJRkSOOZBK1a34zQrRf0lrbjWosKWYoLO3IFhmeTBLJY2PyKP+1Ngm9xsK
+         7PttBA/buZabf8DFrE8pFBpt1190GmW2j9cbQ9qhgBhVKxx7byoqzKLICktrsBZUoexp
+         C6tlG1Z+ha0qPA7Kf7U+3GbzURXUuRyENaLVDEtwjeb+JVcnjqZACfr4C1E+a9gRiQnb
+         ZOSf9Q7vNtJ6ybMbEMvYb24eKXrYBBNB2DYDAo6QMKhHzYxI6tfohbj1Eim6keejJ4Py
+         8edQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=dj3qfXJ4Iec3raMLz9uZPv/2iNP/sFcmUQrTQYmXPI4=;
+        b=AO1z3+T0apN0+5rsKIk8PhEj0+UQcwYKSRHOsm8HOZGiT3VApj4yuARkbA8VdS3JVt
+         L5fFoMOJnr7XzhUQTLXFIhklXIYUa9ampmwD/Dyl0sFvHo84slILahdBfkUA6qpylRL/
+         6paEx97CMhNOLaCf++DXuO3kZo9DyLaSmMws2NrZ4KoTZaGKswUWGUbO+dxer/Bj8otF
+         1THBu0IbSSmBscuzrEH4Yv6TZN8wpvCQqsh2W1JGFYXIJF39gThTZjpB+BE2RpnyEY8g
+         a39TYE9+YBfwsa0YRSYuqF/oh3ofU3WfrqZ1Bswlgm0b9NVuKOFzZ7vjBCtTYnkXa6ZE
+         hL3A==
+X-Gm-Message-State: AOAM533R7gxRK8nF0j+o1ju/tmLDNpi+eUxjxECVAe1qSCkQHGRS9a7p
+        W2GGYr5jlYe9zE3dAqQq9p0XAhP0xI7syd1muQw=
+X-Google-Smtp-Source: ABdhPJyX3EJr6K0mxaxQSXWAUD5eHMKXpXW7plgST3vA3auQSZv5P+6J5vTcRNgohvqYPPR+6AobkUEDchxJvEuO2oM=
+X-Received: by 2002:a67:8c44:: with SMTP id o65mr9287295vsd.55.1606567989977;
+ Sat, 28 Nov 2020 04:53:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Sender: a.ragnvar50@gmail.com
+Received: by 2002:a9f:2593:0:0:0:0:0 with HTTP; Sat, 28 Nov 2020 04:53:09
+ -0800 (PST)
+From:   Ms Nadia Emaan <mrsnadiaemaan50@gmail.com>
+Date:   Sat, 28 Nov 2020 12:53:09 +0000
+X-Google-Sender-Auth: hS04PRgwYIUkUCOD_a4mODc-L2E
+Message-ID: <CADmpa4GSfJ0Wa0wP60oZPjCXoT=Soj=z18rK=dtTE=iuL_m3mw@mail.gmail.com>
+Subject: May the Peace of God be with You!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+May God Bless you My beloved,
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I am contacting you through this means because I need your urgent
+assistance and also help me to carry a charity project in your
+country. I found your email address as a true child of God for past
+few days now that I have been praying to know if you are really the
+chosen one for this great charity project, according to God's
+direction, after all prayers I am convinced, and I have decided to
+contact you. Please, i want you use the funds for the Lord's work,
+with confidence, read and respond now.
 
-thanks,
 
-greg k-h
+My name is Ms. Nadia Emaan , a widow, but currently based in West
+Africa since my life with my late husband, who was a businessman in
+this country before dying some years ago. We were married to many
+years without a child. He died after a brief illness that lasted only
+six days and I myself have been suffering from an ovarian cancer
+disease. At this moment I am about to finish the race in this way
+because the disease has reached a very bad stage, without any family
+member and without children. I hope you do not expose or betray this
+trust and I am sure that I am about to trust you for the mutual
+benefit of orphans and the less privileged. I have some funds that I
+inherited from my late husband, the total sum of ($ 12,500,000.00)
+deposited at a bank here in Burkina Faso. After knowing my current
+state of health, I decided to trust you with this fund, believing that
+you will use it in the way I will instruct here.
 
------------------- original commit in Linus's tree ------------------
 
-From ff1712f953e27f0b0718762ec17d0adb15c9fd0b Mon Sep 17 00:00:00 2001
-From: Will Deacon <will@kernel.org>
-Date: Fri, 20 Nov 2020 13:57:48 +0000
-Subject: [PATCH] arm64: pgtable: Ensure dirty bit is preserved across
- pte_wrprotect()
+you will use this $12.5 Million for public benefit as follows;
 
-With hardware dirty bit management, calling pte_wrprotect() on a writable,
-dirty PTE will lose the dirty state and return a read-only, clean entry.
+1. Establish An Orphanage Home To Help The Orphanages Children.
+2. Build A Hospital To Help The Poor.
+3. Build A Nursing Home For Elderly People Need Care & Meal.
 
-Move the logic from ptep_set_wrprotect() into pte_wrprotect() to ensure that
-the dirty bit is preserved for writable entries, as this is required for
-soft-dirty bit management if we enable it in the future.
+You will named them after my late husband.Therefore, I need you to
+help me and claim this money and use it for charities, for orphanages
+and provide justice and help to the poor, needy and to promote the
+words of God and the effort to maintain the house of God, according to
+the bible in the book of. Jeremiah 22: 15-16.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 2f4b829c625e ("arm64: Add support for hardware updates of the access and dirty pte bits")
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201120143557.6715-3-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+It will be a pleasure to compensate with 40% percent of the total
+money for your effort in handling the transaction, while 60% of the
+money will go to charity project.
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 326c34677e86..5628289b9d5e 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -165,13 +165,6 @@ static inline pmd_t set_pmd_bit(pmd_t pmd, pgprot_t prot)
- 	return pmd;
- }
- 
--static inline pte_t pte_wrprotect(pte_t pte)
--{
--	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
--	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
--	return pte;
--}
--
- static inline pte_t pte_mkwrite(pte_t pte)
- {
- 	pte = set_pte_bit(pte, __pgprot(PTE_WRITE));
-@@ -197,6 +190,20 @@ static inline pte_t pte_mkdirty(pte_t pte)
- 	return pte;
- }
- 
-+static inline pte_t pte_wrprotect(pte_t pte)
-+{
-+	/*
-+	 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
-+	 * clear), set the PTE_DIRTY bit.
-+	 */
-+	if (pte_hw_dirty(pte))
-+		pte = pte_mkdirty(pte);
-+
-+	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
-+	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
-+	return pte;
-+}
-+
- static inline pte_t pte_mkold(pte_t pte)
- {
- 	return clear_pte_bit(pte, __pgprot(PTE_AF));
-@@ -846,12 +853,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addres
- 	pte = READ_ONCE(*ptep);
- 	do {
- 		old_pte = pte;
--		/*
--		 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
--		 * clear), set the PTE_DIRTY bit.
--		 */
--		if (pte_hw_dirty(pte))
--			pte = pte_mkdirty(pte);
- 		pte = pte_wrprotect(pte);
- 		pte_val(pte) = cmpxchg_relaxed(&pte_val(*ptep),
- 					       pte_val(old_pte), pte_val(pte));
+All I need from you is sincerity and ability to complete the task of
+God without any failure. It will be my pleasure to see that the bank
+has finally released and transferred the fund to your bank account in
+the country, even before I die here in the hospital, due to my current
+state of health, everything must be processed as soon as possible.
 
+ I am waiting for your immediate response, if you are only interested
+in obtaining more details about the transaction and execution of this
+humanitarian project for the glory and honor of God.
+
+Sorry if you received this letter in your spam, is due to recent
+connection/network error here in the country.
+
+Please I am waiting for your urgent reply now.
+
+May God Bless you,
+Ms Nadia Emaan .
