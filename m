@@ -2,45 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DFA2C73F5
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90362C73EF
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389137AbgK1Vtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40012 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730207AbgK1SiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:38:15 -0500
-X-Greylist: delayed 526 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 28 Nov 2020 01:49:57 PST
-Received: from ldap.bupt.edu.cn (unknown [IPv6:2001:da8:215:4021:250:56ff:fe97:963])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 22B8EC02B8F5
-        for <stable@vger.kernel.org>; Sat, 28 Nov 2020 01:49:57 -0800 (PST)
-Received: from User (unknown [218.106.167.98])
-        by ldap.bupt.edu.cn (AnyMacro(G7)) with ESMTPA id 1A43A4005B;
-        Sat, 28 Nov 2020 17:40:46 +0800 (HKT)
-Reply-To: <thomasjanes211@gmail.com>
-From:   "Thomas Janes" <flower@bupt.edu.cn>
-Subject: Re: 
-Date:   Sat, 28 Nov 2020 10:41:06 +0100
+        id S2389166AbgK1Vtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48378 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726280AbgK1Sv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Nov 2020 13:51:56 -0500
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A9D6222B9;
+        Sat, 28 Nov 2020 10:08:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1606558101;
+        bh=K/iIYj+kIGt+48i8IMDdZxcxyK8TswoGc81YwNkQpnM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Hy8dxdqRBBL5x5Lxy4RkpGVDtTDX5vSodkX2Le+WmOhKv79wO0d3OA6eaU2U98gi2
+         hyvcpDgdKBwm2WlrkvFBcVmQuEPLLWdqBU7tMZ3+eGsIxAnTA/6DLtRaievibnbC/V
+         2Lp6RGDQMzTRVTfT93NvRgzOCPxPr0uSK/+wzYwM=
+Date:   Sat, 28 Nov 2020 11:09:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?utf-8?B?5YiY5b+X5pet?= <liuzx@knownsec.com>
+Cc:     Sasha Levin <sashal@kernel.org>, Florian Westphal <fw@strlen.de>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        netdev <netdev@vger.kernel.org>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Edward Cree <ecree@solarflare.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [Patch stable] netfilter: clear skb->next in NF_HOOK_LIST()
+Message-ID: <X8Ih2Ta1fVdj8+vy@kroah.com>
+References: <20201121034317.577081-1-xiyou.wangcong@gmail.com>
+ <20201121222249.GU15137@breakpoint.cc>
+ <20201122172413.GG643756@sasha-vm>
+ <tencent_6C31555D2B46173F013EA6CC@qq.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-Id: <20201128094047.1A43A4005B@ldap.bupt.edu.cn>
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <tencent_6C31555D2B46173F013EA6CC@qq.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Compliment of the Season,
+On Sat, Nov 28, 2020 at 05:09:18PM +0800, 刘志旭 wrote:
+> I still didn't see this patch in stable queue yet. Since we've a working POC to panic the&nbsp;
+> system (see https://bugzilla.kernel.org/show_bug.cgi?id=209823), I think it's necessary
+> to merge this patch ASAP, thanks.
 
-I am Thomas Janes by name, I saw your contact in the ministry of foreign affairs and my instinct led me to discuss an interesting project proposal with you. For details, kindly reply email back for details
+Odd, I don't think Sasha pushed out his patch queue.  I've applied this
+now, thanks.
 
-Hope to hear from you.
-
-Best Regard
-Mr. Thomas Janes
+greg k-h
