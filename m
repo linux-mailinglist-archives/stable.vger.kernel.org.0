@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFAE2C7411
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D6D2C7424
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733242AbgK1Vtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:46 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51773 "EHLO
+        id S2388885AbgK1Vtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:47 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:37063 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729472AbgK1SCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:02:12 -0500
+        by vger.kernel.org with ESMTP id S1731761AbgK1SEi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:04:38 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D361C1944902;
-        Sat, 28 Nov 2020 07:25:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:25:01 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id A05CC1944916;
+        Sat, 28 Nov 2020 07:25:25 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:25:25 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JVuWUE
-        f+LqBsH9aQcUHH5w9Vr2f7v1YpZzi6U0aiR98=; b=F3I4f3ORL5cqWvw6Z98aSK
-        iub1cgh8y8TjbxphyLRLQPoskC0CwMoUVKQth3X6fk4xiVgy/i8f+k+LTBz99T/+
-        apq5mVnUeogCLXasszYd4OD+K/pARED0B8SSl7pdSjAxT25WEaztBM+IZMftnuEP
-        2M2P+prEUbsEH8BeduFYRMMkztyeyCK3jqR0IfxH7CRPhMIWmlQBHOZtV+gz4CZf
-        zHpfDoAq7tYaVhpJejj9oGkvS3N95dVPkR4CUkN1r4WjHKbclyiMaBXRhx6SpWOR
-        8DVDkDe76+4LtpKhI9ySN5gkvqWx5DuE2YUbJ4iiYK4ndIGNpsrytLjo1mJKnt7g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=aOMme6
+        zmMEAA4iKyAHr42X3ztLJmDg1KBpVLptyD4Fs=; b=STd6CQMJqd2vGYHXRGSqlO
+        pZZUy8n7yjdKrU8AAEfP6lCMDzVl7nkC8kXUXy9Ai2UERxjKn5nAyZmH19NpVp+q
+        yBy4oq47PL6aW1b/GoSIWcLZP+yylkUBDG+Qgr+XZfBJ+7wlTYAcbQxtf9kBC4GL
+        FtLlbdT4n1wzTeU/4pnZeq54xEwlcwd9gdAAjDE7yUvFKjENPg3EiJLBGCWe6aUP
+        +e4I09MqXAVyc5TMRCsH3hA/1QiqPJ+0vyAo6DXV9IknT8vmjiv0fL7gJKOkwjKi
+        p+OFPyl6CeiYTYKr1LWXr9OkA8RSD97KdHHmNotHLOvQzPCfkI8eUdncFD/IKyjg
         ==
-X-ME-Sender: <xms:nUHCX21QvAeGSmM_NITbVzjCMZUq2WUo6EodOD8ZLE1QsOMvuYJQ8g>
-    <xme:nUHCX5FI4m2o7TWBd2EpV0rJNP94Tm02AJB0ULvX4vaLYSkNi042N9h_ItPDHJkap
-    opuHaSgJAPN0A>
+X-ME-Sender: <xms:tUHCX1a00vRyxEfqsxyuDXbQE0YimOwc55nnUI34rOUYMlebToxkGA>
+    <xme:tUHCX8Yo-qZVB9Seia6axFcDl-wYFUtE6TyQB7A7Mx9qN9IhFlWQVuOaBMWGUutmO
+    MRoukyCmP-cHw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehiedggedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:nUHCX-6Dl7HNhqyRNGKCRYvpfg67VsLpXevd8JP0Fhu1MWnuzHywaQ>
-    <xmx:nUHCX31sVgZY7IGw5SgSozANqx1er-i2T15rAzo0EQ7aHLowNjV0eA>
-    <xmx:nUHCX5FDxP3Zzvqb48JZ_V0yjfMchxAQbhndfF2RRnIKtqiwo6o_lQ>
-    <xmx:nUHCX5A_YnEawDFCFt6DCqWAElo1pc3e_J9CJWvOPO8bDy12nj9zbg>
+X-ME-Proxy: <xmx:tUHCX3-YDRuDo545mDKFz4-T3y2BRZzDLFe22O60hGw0kRG8gud4Ng>
+    <xmx:tUHCXzp0w7ePiu6izUFCOjogAe07FpaFTFa-qY92O9K5EltdRjb3cg>
+    <xmx:tUHCXwpdYIZlNMUP7QYH5eWc9OYNSseYv356lIq__fzxMJ8tzdqQwg>
+    <xmx:tUHCX31BcpE1ImBq6fTjey7dLSeth8wJ9EdOCYVfAZOrNsWDuEXing>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 533713064AB3;
-        Sat, 28 Nov 2020 07:25:01 -0500 (EST)
-Subject: FAILED: patch "[PATCH] IB/hfi1: Ensure correct mm is used at all times" failed to apply to 4.9-stable tree
-To:     dennis.dalessandro@cornelisnetworks.com, ira.weiny@intel.com,
-        jannh@google.com, jgg@nvidia.com,
-        mike.marciniszyn@cornelisnetworks.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2FFBC3280060;
+        Sat, 28 Nov 2020 07:25:25 -0500 (EST)
+Subject: FAILED: patch "[PATCH] RDMA/i40iw: Address an mmap handler exploit in i40iw" failed to apply to 4.9-stable tree
+To:     shiraz.saleem@intel.com, jgg@nvidia.com, stable@kernel.org,
+        zhudi21@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 28 Nov 2020 13:26:05 +0100
-Message-ID: <1606566365218254@kroah.com>
+Date:   Sat, 28 Nov 2020 13:26:34 +0100
+Message-ID: <160656639423999@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -72,449 +71,104 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3d2a9d642512c21a12d19b9250e7a835dcb41a79 Mon Sep 17 00:00:00 2001
-From: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Date: Wed, 25 Nov 2020 16:01:12 -0500
-Subject: [PATCH] IB/hfi1: Ensure correct mm is used at all times
+From 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 Mon Sep 17 00:00:00 2001
+From: Shiraz Saleem <shiraz.saleem@intel.com>
+Date: Tue, 24 Nov 2020 18:56:16 -0600
+Subject: [PATCH] RDMA/i40iw: Address an mmap handler exploit in i40iw
 
-Two earlier bug fixes have created a security problem in the hfi1
-driver. One fix aimed to solve an issue where current->mm was not valid
-when closing the hfi1 cdev. It attempted to do this by saving a cached
-value of the current->mm pointer at file open time. This is a problem if
-another process with access to the FD calls in via write() or ioctl() to
-pin pages via the hfi driver. The other fix tried to solve a use after
-free by taking a reference on the mm.
+i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
+vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
+without any validation. This is vulnerable to an mmap exploit as described
+in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
 
-To fix this correctly we use the existing cached value of the mm in the
-mmu notifier. Now we can check in the insert, evict, etc. routines that
-current->mm matched what the notifier was registered for. If not, then
-don't allow access. The register of the mmu notifier will save the mm
-pointer.
+The push feature is disabled in the driver currently and therefore no push
+mmaps are issued from user-space. The feature does not work as expected in
+the x722 product.
 
-Since in do_exit() the exit_mm() is called before exit_files(), which
-would call our close routine a reference is needed on the mm. We rely on
-the mmgrab done by the registration of the notifier, whereas before it was
-explicit. The mmu notifier deregistration happens when the user context is
-torn down, the creation of which triggered the registration.
+Remove the push module parameter and all VMA attribute manipulations for
+this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
+mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
+to a single page.
 
-Also of note is we do not do any explicit work to protect the interval
-tree notifier. It doesn't seem that this is going to be needed since we
-aren't actually doing anything with current->mm. The interval tree
-notifier stuff still has a FIXME noted from a previous commit that will be
-addressed in a follow on patch.
-
-Cc: <stable@vger.kernel.org>
-Fixes: e0cf75deab81 ("IB/hfi1: Fix mm_struct use after free")
-Fixes: 3faa3d9a308e ("IB/hfi1: Make use of mm consistent")
-Link: https://lore.kernel.org/r/20201125210112.104301.51331.stgit@awfm-01.aw.intel.com
-Suggested-by: Jann Horn <jannh@google.com>
-Reported-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Cc: <stable@kernel.org>
+Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
+Reported-by: Di Zhu <zhudi21@huawei.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
-index 8ca51e43cf53..329ee4f48d95 100644
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -1,4 +1,5 @@
- /*
-+ * Copyright(c) 2020 Cornelis Networks, Inc.
-  * Copyright(c) 2015-2020 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -206,8 +207,6 @@ static int hfi1_file_open(struct inode *inode, struct file *fp)
- 	spin_lock_init(&fd->tid_lock);
- 	spin_lock_init(&fd->invalid_lock);
- 	fd->rec_cpu_num = -1; /* no cpu affinity by default */
--	fd->mm = current->mm;
--	mmgrab(fd->mm);
- 	fd->dd = dd;
- 	fp->private_data = fd;
- 	return 0;
-@@ -711,7 +710,6 @@ static int hfi1_file_close(struct inode *inode, struct file *fp)
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_main.c b/drivers/infiniband/hw/i40iw/i40iw_main.c
+index 2408b279e4c2..584932d3cc44 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -54,10 +54,6 @@
+ #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
+ 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
  
- 	deallocate_ctxt(uctxt);
- done:
--	mmdrop(fdata->mm);
- 
- 	if (atomic_dec_and_test(&dd->user_refcount))
- 		complete(&dd->user_comp);
-diff --git a/drivers/infiniband/hw/hfi1/hfi.h b/drivers/infiniband/hw/hfi1/hfi.h
-index b4c6bff60a4e..e09e8244a94c 100644
---- a/drivers/infiniband/hw/hfi1/hfi.h
-+++ b/drivers/infiniband/hw/hfi1/hfi.h
-@@ -1,6 +1,7 @@
- #ifndef _HFI1_KERNEL_H
- #define _HFI1_KERNEL_H
- /*
-+ * Copyright(c) 2020 Cornelis Networks, Inc.
-  * Copyright(c) 2015-2020 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -1451,7 +1452,6 @@ struct hfi1_filedata {
- 	u32 invalid_tid_idx;
- 	/* protect invalid_tids array and invalid_tid_idx */
- 	spinlock_t invalid_lock;
--	struct mm_struct *mm;
- };
- 
- extern struct xarray hfi1_dev_table;
-diff --git a/drivers/infiniband/hw/hfi1/mmu_rb.c b/drivers/infiniband/hw/hfi1/mmu_rb.c
-index 24ca17b77b72..f3fb28e3d5d7 100644
---- a/drivers/infiniband/hw/hfi1/mmu_rb.c
-+++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
-@@ -1,4 +1,5 @@
- /*
-+ * Copyright(c) 2020 Cornelis Networks, Inc.
-  * Copyright(c) 2016 - 2017 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -48,23 +49,11 @@
- #include <linux/rculist.h>
- #include <linux/mmu_notifier.h>
- #include <linux/interval_tree_generic.h>
-+#include <linux/sched/mm.h>
- 
- #include "mmu_rb.h"
- #include "trace.h"
- 
--struct mmu_rb_handler {
--	struct mmu_notifier mn;
--	struct rb_root_cached root;
--	void *ops_arg;
--	spinlock_t lock;        /* protect the RB tree */
--	struct mmu_rb_ops *ops;
--	struct mm_struct *mm;
--	struct list_head lru_list;
--	struct work_struct del_work;
--	struct list_head del_list;
--	struct workqueue_struct *wq;
--};
+-static int push_mode;
+-module_param(push_mode, int, 0644);
+-MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
 -
- static unsigned long mmu_node_start(struct mmu_rb_node *);
- static unsigned long mmu_node_last(struct mmu_rb_node *);
- static int mmu_notifier_range_start(struct mmu_notifier *,
-@@ -92,37 +81,36 @@ static unsigned long mmu_node_last(struct mmu_rb_node *node)
- 	return PAGE_ALIGN(node->addr + node->len) - 1;
- }
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
+@@ -1580,7 +1576,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
+ 	if (status)
+ 		goto exit;
+ 	iwdev->obj_next = iwdev->obj_mem;
+-	iwdev->push_mode = push_mode;
  
--int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
-+int hfi1_mmu_rb_register(void *ops_arg,
- 			 struct mmu_rb_ops *ops,
- 			 struct workqueue_struct *wq,
- 			 struct mmu_rb_handler **handler)
+ 	init_waitqueue_head(&iwdev->vchnl_waitq);
+ 	init_waitqueue_head(&dev->vf_reqs);
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+index 581ecbadf586..533f3caecb7a 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -167,39 +167,16 @@ static void i40iw_dealloc_ucontext(struct ib_ucontext *context)
+  */
+ static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
  {
--	struct mmu_rb_handler *handlr;
-+	struct mmu_rb_handler *h;
- 	int ret;
- 
--	handlr = kmalloc(sizeof(*handlr), GFP_KERNEL);
--	if (!handlr)
-+	h = kmalloc(sizeof(*h), GFP_KERNEL);
-+	if (!h)
- 		return -ENOMEM;
- 
--	handlr->root = RB_ROOT_CACHED;
--	handlr->ops = ops;
--	handlr->ops_arg = ops_arg;
--	INIT_HLIST_NODE(&handlr->mn.hlist);
--	spin_lock_init(&handlr->lock);
--	handlr->mn.ops = &mn_opts;
--	handlr->mm = mm;
--	INIT_WORK(&handlr->del_work, handle_remove);
--	INIT_LIST_HEAD(&handlr->del_list);
--	INIT_LIST_HEAD(&handlr->lru_list);
--	handlr->wq = wq;
+-	struct i40iw_ucontext *ucontext;
+-	u64 db_addr_offset, push_offset, pfn;
 -
--	ret = mmu_notifier_register(&handlr->mn, handlr->mm);
-+	h->root = RB_ROOT_CACHED;
-+	h->ops = ops;
-+	h->ops_arg = ops_arg;
-+	INIT_HLIST_NODE(&h->mn.hlist);
-+	spin_lock_init(&h->lock);
-+	h->mn.ops = &mn_opts;
-+	INIT_WORK(&h->del_work, handle_remove);
-+	INIT_LIST_HEAD(&h->del_list);
-+	INIT_LIST_HEAD(&h->lru_list);
-+	h->wq = wq;
-+
-+	ret = mmu_notifier_register(&h->mn, current->mm);
- 	if (ret) {
--		kfree(handlr);
-+		kfree(h);
- 		return ret;
- 	}
+-	ucontext = to_ucontext(context);
+-	if (ucontext->iwdev->sc_dev.is_pf) {
+-		db_addr_offset = I40IW_DB_ADDR_OFFSET;
+-		push_offset = I40IW_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
+-	} else {
+-		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
+-		push_offset = I40IW_VF_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
+-	}
++	struct i40iw_ucontext *ucontext = to_ucontext(context);
++	u64 dbaddr;
  
--	*handler = handlr;
-+	*handler = h;
- 	return 0;
+-	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
+-
+-	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-	} else {
+-		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
+-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		else
+-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+-	}
++	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
+ 
+-	pfn = vma->vm_pgoff +
+-	      (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >>
+-	       PAGE_SHIFT);
++	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
+ 
+-	return rdma_user_mmap_io(context, vma, pfn, PAGE_SIZE,
+-				 vma->vm_page_prot, NULL);
++	return rdma_user_mmap_io(context, vma, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
++				 pgprot_noncached(vma->vm_page_prot), NULL);
  }
  
-@@ -134,7 +122,7 @@ void hfi1_mmu_rb_unregister(struct mmu_rb_handler *handler)
- 	struct list_head del_list;
- 
- 	/* Unregister first so we don't get any more notifications. */
--	mmu_notifier_unregister(&handler->mn, handler->mm);
-+	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
- 
- 	/*
- 	 * Make sure the wq delete handler is finished running.  It will not
-@@ -166,6 +154,10 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
- 	int ret = 0;
- 
- 	trace_hfi1_mmu_rb_insert(mnode->addr, mnode->len);
-+
-+	if (current->mm != handler->mn.mm)
-+		return -EPERM;
-+
- 	spin_lock_irqsave(&handler->lock, flags);
- 	node = __mmu_rb_search(handler, mnode->addr, mnode->len);
- 	if (node) {
-@@ -180,6 +172,7 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
- 		__mmu_int_rb_remove(mnode, &handler->root);
- 		list_del(&mnode->list); /* remove from LRU list */
- 	}
-+	mnode->handler = handler;
- unlock:
- 	spin_unlock_irqrestore(&handler->lock, flags);
- 	return ret;
-@@ -217,6 +210,9 @@ bool hfi1_mmu_rb_remove_unless_exact(struct mmu_rb_handler *handler,
- 	unsigned long flags;
- 	bool ret = false;
- 
-+	if (current->mm != handler->mn.mm)
-+		return ret;
-+
- 	spin_lock_irqsave(&handler->lock, flags);
- 	node = __mmu_rb_search(handler, addr, len);
- 	if (node) {
-@@ -239,6 +235,9 @@ void hfi1_mmu_rb_evict(struct mmu_rb_handler *handler, void *evict_arg)
- 	unsigned long flags;
- 	bool stop = false;
- 
-+	if (current->mm != handler->mn.mm)
-+		return;
-+
- 	INIT_LIST_HEAD(&del_list);
- 
- 	spin_lock_irqsave(&handler->lock, flags);
-@@ -272,6 +271,9 @@ void hfi1_mmu_rb_remove(struct mmu_rb_handler *handler,
- {
- 	unsigned long flags;
- 
-+	if (current->mm != handler->mn.mm)
-+		return;
-+
- 	/* Validity of handler and node pointers has been checked by caller. */
- 	trace_hfi1_mmu_rb_remove(node->addr, node->len);
- 	spin_lock_irqsave(&handler->lock, flags);
-diff --git a/drivers/infiniband/hw/hfi1/mmu_rb.h b/drivers/infiniband/hw/hfi1/mmu_rb.h
-index f04cec1e99d1..423aacc67e94 100644
---- a/drivers/infiniband/hw/hfi1/mmu_rb.h
-+++ b/drivers/infiniband/hw/hfi1/mmu_rb.h
-@@ -1,4 +1,5 @@
- /*
-+ * Copyright(c) 2020 Cornelis Networks, Inc.
-  * Copyright(c) 2016 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -54,6 +55,7 @@ struct mmu_rb_node {
- 	unsigned long len;
- 	unsigned long __last;
- 	struct rb_node node;
-+	struct mmu_rb_handler *handler;
- 	struct list_head list;
- };
- 
-@@ -71,7 +73,19 @@ struct mmu_rb_ops {
- 		     void *evict_arg, bool *stop);
- };
- 
--int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
-+struct mmu_rb_handler {
-+	struct mmu_notifier mn;
-+	struct rb_root_cached root;
-+	void *ops_arg;
-+	spinlock_t lock;        /* protect the RB tree */
-+	struct mmu_rb_ops *ops;
-+	struct list_head lru_list;
-+	struct work_struct del_work;
-+	struct list_head del_list;
-+	struct workqueue_struct *wq;
-+};
-+
-+int hfi1_mmu_rb_register(void *ops_arg,
- 			 struct mmu_rb_ops *ops,
- 			 struct workqueue_struct *wq,
- 			 struct mmu_rb_handler **handler);
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index f81ca20f4b69..b94fc7fd75a9 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -1,4 +1,5 @@
- /*
-+ * Copyright(c) 2020 Cornelis Networks, Inc.
-  * Copyright(c) 2015-2018 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -173,15 +174,18 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
- {
- 	struct page **pages;
- 	struct hfi1_devdata *dd = fd->uctxt->dd;
-+	struct mm_struct *mm;
- 
- 	if (mapped) {
- 		pci_unmap_single(dd->pcidev, node->dma_addr,
- 				 node->npages * PAGE_SIZE, PCI_DMA_FROMDEVICE);
- 		pages = &node->pages[idx];
-+		mm = mm_from_tid_node(node);
- 	} else {
- 		pages = &tidbuf->pages[idx];
-+		mm = current->mm;
- 	}
--	hfi1_release_user_pages(fd->mm, pages, npages, mapped);
-+	hfi1_release_user_pages(mm, pages, npages, mapped);
- 	fd->tid_n_pinned -= npages;
- }
- 
-@@ -216,12 +220,12 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
- 	 * pages, accept the amount pinned so far and program only that.
- 	 * User space knows how to deal with partially programmed buffers.
- 	 */
--	if (!hfi1_can_pin_pages(dd, fd->mm, fd->tid_n_pinned, npages)) {
-+	if (!hfi1_can_pin_pages(dd, current->mm, fd->tid_n_pinned, npages)) {
- 		kfree(pages);
- 		return -ENOMEM;
- 	}
- 
--	pinned = hfi1_acquire_user_pages(fd->mm, vaddr, npages, true, pages);
-+	pinned = hfi1_acquire_user_pages(current->mm, vaddr, npages, true, pages);
- 	if (pinned <= 0) {
- 		kfree(pages);
- 		return pinned;
-@@ -756,7 +760,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
- 
- 	if (fd->use_mn) {
- 		ret = mmu_interval_notifier_insert(
--			&node->notifier, fd->mm,
-+			&node->notifier, current->mm,
- 			tbuf->vaddr + (pageidx * PAGE_SIZE), npages * PAGE_SIZE,
- 			&tid_mn_ops);
- 		if (ret)
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.h b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
-index 332abb446861..d45c7b6988d4 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.h
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
-@@ -1,6 +1,7 @@
- #ifndef _HFI1_USER_EXP_RCV_H
- #define _HFI1_USER_EXP_RCV_H
- /*
-+ * Copyright(c) 2020 - Cornelis Networks, Inc.
-  * Copyright(c) 2015 - 2017 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -95,4 +96,9 @@ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
- int hfi1_user_exp_rcv_invalid(struct hfi1_filedata *fd,
- 			      struct hfi1_tid_info *tinfo);
- 
-+static inline struct mm_struct *mm_from_tid_node(struct tid_rb_node *node)
-+{
-+	return node->notifier.mm;
-+}
-+
- #endif /* _HFI1_USER_EXP_RCV_H */
-diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
-index a92346e88628..4a4956f96a7e 100644
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -1,4 +1,5 @@
- /*
-+ * Copyright(c) 2020 - Cornelis Networks, Inc.
-  * Copyright(c) 2015 - 2018 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -188,7 +189,6 @@ int hfi1_user_sdma_alloc_queues(struct hfi1_ctxtdata *uctxt,
- 	atomic_set(&pq->n_reqs, 0);
- 	init_waitqueue_head(&pq->wait);
- 	atomic_set(&pq->n_locked, 0);
--	pq->mm = fd->mm;
- 
- 	iowait_init(&pq->busy, 0, NULL, NULL, defer_packet_queue,
- 		    activate_packet_queue, NULL, NULL);
-@@ -230,7 +230,7 @@ int hfi1_user_sdma_alloc_queues(struct hfi1_ctxtdata *uctxt,
- 
- 	cq->nentries = hfi1_sdma_comp_ring_size;
- 
--	ret = hfi1_mmu_rb_register(pq, pq->mm, &sdma_rb_ops, dd->pport->hfi1_wq,
-+	ret = hfi1_mmu_rb_register(pq, &sdma_rb_ops, dd->pport->hfi1_wq,
- 				   &pq->handler);
- 	if (ret) {
- 		dd_dev_err(dd, "Failed to register with MMU %d", ret);
-@@ -980,13 +980,13 @@ static int pin_sdma_pages(struct user_sdma_request *req,
- 
- 	npages -= node->npages;
- retry:
--	if (!hfi1_can_pin_pages(pq->dd, pq->mm,
-+	if (!hfi1_can_pin_pages(pq->dd, current->mm,
- 				atomic_read(&pq->n_locked), npages)) {
- 		cleared = sdma_cache_evict(pq, npages);
- 		if (cleared >= npages)
- 			goto retry;
- 	}
--	pinned = hfi1_acquire_user_pages(pq->mm,
-+	pinned = hfi1_acquire_user_pages(current->mm,
- 					 ((unsigned long)iovec->iov.iov_base +
- 					 (node->npages * PAGE_SIZE)), npages, 0,
- 					 pages + node->npages);
-@@ -995,7 +995,7 @@ static int pin_sdma_pages(struct user_sdma_request *req,
- 		return pinned;
- 	}
- 	if (pinned != npages) {
--		unpin_vector_pages(pq->mm, pages, node->npages, pinned);
-+		unpin_vector_pages(current->mm, pages, node->npages, pinned);
- 		return -EFAULT;
- 	}
- 	kfree(node->pages);
-@@ -1008,7 +1008,8 @@ static int pin_sdma_pages(struct user_sdma_request *req,
- static void unpin_sdma_pages(struct sdma_mmu_node *node)
- {
- 	if (node->npages) {
--		unpin_vector_pages(node->pq->mm, node->pages, 0, node->npages);
-+		unpin_vector_pages(mm_from_sdma_node(node), node->pages, 0,
-+				   node->npages);
- 		atomic_sub(node->npages, &node->pq->n_locked);
- 	}
- }
-diff --git a/drivers/infiniband/hw/hfi1/user_sdma.h b/drivers/infiniband/hw/hfi1/user_sdma.h
-index 9972e0e6545e..1e8c02fe8ad1 100644
---- a/drivers/infiniband/hw/hfi1/user_sdma.h
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.h
-@@ -1,6 +1,7 @@
- #ifndef _HFI1_USER_SDMA_H
- #define _HFI1_USER_SDMA_H
- /*
-+ * Copyright(c) 2020 - Cornelis Networks, Inc.
-  * Copyright(c) 2015 - 2018 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-@@ -133,7 +134,6 @@ struct hfi1_user_sdma_pkt_q {
- 	unsigned long unpinned;
- 	struct mmu_rb_handler *handler;
- 	atomic_t n_locked;
--	struct mm_struct *mm;
- };
- 
- struct hfi1_user_sdma_comp_q {
-@@ -250,4 +250,9 @@ int hfi1_user_sdma_process_request(struct hfi1_filedata *fd,
- 				   struct iovec *iovec, unsigned long dim,
- 				   unsigned long *count);
- 
-+static inline struct mm_struct *mm_from_sdma_node(struct sdma_mmu_node *node)
-+{
-+	return node->rb.handler->mn.mm;
-+}
-+
- #endif /* _HFI1_USER_SDMA_H */
+ /**
 
