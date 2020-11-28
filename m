@@ -2,130 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CDB72C6ED6
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 05:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FDC2C703C
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 18:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729604AbgK1EtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Nov 2020 23:49:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52088 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732236AbgK1EnO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Nov 2020 23:43:14 -0500
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F645C0613D1
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 20:43:04 -0800 (PST)
-Received: by mail-lj1-x243.google.com with SMTP id t22so8198374ljk.0
-        for <stable@vger.kernel.org>; Fri, 27 Nov 2020 20:43:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2n+TfLDFDLNm1diUWlliMMrU6aXYUGrKG5oiOA73RuM=;
-        b=DZFcG9y/74Rgnw69MXCuU3qMI6EzY+pf5YpFecTcHNVSEQ75BzQf90ywijZmzbvqL4
-         IeS+p3pMx9LKZ2VPJFx3lfvjm1qq/Lb5kp5VKlzpUSYDocCIjf0IU0YyiAC2lah+qOsp
-         IITvrXAjJjCS6/ZIZrf3mYhg504gQelj5sOPdmzgmcOqgrsUc4y73dt7VFbWmzWxKwvM
-         WN6UmB+tQTQGRMvugEDRucWgRyRjE44RM4IgzJfScPnmnMmgIGPDYbp9tgxErm6p6HE/
-         iKV0vjyFoVEhZAnY1in2S26D9uQ8DodEnCv7evtARDytkGMAFl+8WJYbMEJRbEUes9le
-         cYCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2n+TfLDFDLNm1diUWlliMMrU6aXYUGrKG5oiOA73RuM=;
-        b=c9KDH3MRgwLFAaxF/S2aC70Vdi7tPYkg5tlxLJ3Le0riCP8ixte5vtIRhN8hYfNeVG
-         8lTiXJ6EPOVcRlK1pQtl3y8NHbWKmgjZQ0ISRRN4EVf6BQ1ed1UJLgZzsoA1cewVXe9b
-         /DS17cHQmFMkcmVrp5ElM7rvnSM2/BnAIX14Tsbi9AvawL0uC6R5q188tBJzkmI/XudQ
-         S+Vf8cUVskq5u0GOndxF3FgTvvimZT5huVDJM/bJONA/Ye4VhcgMcBghi1pyqq6y9VvZ
-         4ixfI9uXzagPDRzxPkzfbIpXihnt4Lx0+4v/bS7bMwfABYZlw7GOA3LKkS3dx2vw6hMr
-         WE4w==
-X-Gm-Message-State: AOAM530xgJrsOuKB6xvLJJWfBa74kn1GMYMCiXdIQLhpZa4Y9yV13LzR
-        i3yw8YsZN+QumE9GrPkfJeqXmwM0uEORZEAI9y2VRg==
-X-Google-Smtp-Source: ABdhPJznc/owu1hxJL41j5B5a6dDFIOdywzccIIq1gAUl367BYKTwf7Bu55aydheHRrc7/qx2xL6cFSIWrgqJpGJNyM=
-X-Received: by 2002:a2e:240e:: with SMTP id k14mr5036822ljk.332.1606538582329;
- Fri, 27 Nov 2020 20:43:02 -0800 (PST)
-MIME-Version: 1.0
-References: <20201127041405.3459198-1-guro@fb.com> <CALvZod56VUdDQmvoHrYFz2mfW_j2C9M+06wcWoz4oCOFmNA4eA@mail.gmail.com>
- <20201127161828.GD840171@carbon.dhcp.thefacebook.com>
-In-Reply-To: <20201127161828.GD840171@carbon.dhcp.thefacebook.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Fri, 27 Nov 2020 20:42:51 -0800
-Message-ID: <CALvZod5X6QMs+X77E_81SqQ7FL4cNshqO+eG8c+XNjzrqEFaDA@mail.gmail.com>
-Subject: Re: [PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling
-To:     Roman Gushchin <guro@fb.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Kernel Team <kernel-team@fb.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1732231AbgK1Rz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 12:55:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53252 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732179AbgK1EQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Nov 2020 23:16:16 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E61621973;
+        Sat, 28 Nov 2020 03:52:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1606535574;
+        bh=yiMtPpJzJnZaI1ixBS7a0a34VOTzn9p9nMCGsRJIuR8=;
+        h=Date:From:To:Subject:From;
+        b=hGsxxvJYBnTtk7Jof1Bl20rm3r1WxM03+xLnBlfuaBVcJakw9/FF5sTMG2Rq8F98z
+         YmU4woDfkTsXbwKPy+wTRcCn/wP4byvhxkD2vgpD0iUKBPyiwhX+DhHjtVtxYaLvvl
+         31zi82EQGQiiMXyP261lIwdHs24p7uuBb5u/OZEk=
+Date:   Fri, 27 Nov 2020 19:52:53 -0800
+From:   akpm@linux-foundation.org
+To:     adobriyan@gmail.com, andreyknvl@google.com,
+        aryabinin@virtuozzo.com, catalin.marinas@arm.com,
+        dvyukov@google.com, ebiederm@xmission.com, elver@google.com,
+        glider@google.com, miles.chen@mediatek.com,
+        mm-commits@vger.kernel.org, song.bao.hua@hisilicon.com,
+        stable@vger.kernel.org, vincenzo.frascino@arm.com,
+        will.deacon@arm.com
+Subject:  + proc-use-untagged_addr-for-pagemap_read-addresses.patch
+ added to -mm tree
+Message-ID: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 27, 2020 at 8:18 AM Roman Gushchin <guro@fb.com> wrote:
->
-> On Thu, Nov 26, 2020 at 09:55:24PM -0800, Shakeel Butt wrote:
-> > On Thu, Nov 26, 2020 at 8:14 PM Roman Gushchin <guro@fb.com> wrote:
-> > >
-> > > Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
-> > > for all allocations") introduced a regression into the handling of the
-> > > obj_cgroup_charge() return value. If a non-zero value is returned
-> > > (indicating of exceeding one of memory.max limits), the allocation
-> > > should fail, instead of falling back to non-accounted mode.
-> > >
-> > > To make the code more readable, move memcg_slab_pre_alloc_hook()
-> > > and memcg_slab_post_alloc_hook() calling conditions into bodies
-> > > of these hooks.
-> > >
-> > > Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-> > > Signed-off-by: Roman Gushchin <guro@fb.com>
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >  mm/slab.h | 40 ++++++++++++++++++++++++----------------
-> > >  1 file changed, 24 insertions(+), 16 deletions(-)
-> > >
-> > > diff --git a/mm/slab.h b/mm/slab.h
-> > > index 59aeb0d9f11b..5dc89d8fb05e 100644
-> > > --- a/mm/slab.h
-> > > +++ b/mm/slab.h
-> > > @@ -257,22 +257,32 @@ static inline size_t obj_full_size(struct kmem_cache *s)
-> > >         return s->size + sizeof(struct obj_cgroup *);
-> > >  }
-> > >
-> > > -static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-> > > -                                                          size_t objects,
-> > > -                                                          gfp_t flags)
-> > > +/*
-> > > + * Returns true if the allocation should fail.
-> >
-> > IMO returning false if the allocation should fail makes this more
-> > clear. Otherwise the patch looks good to me.
->
-> Ok, I agree. Here is an updated version.
->
-> Thank you for looking in!
->
-> --
->
-> From 456ce03f1c91baf5e2441dce0649e09617437fe4 Mon Sep 17 00:00:00 2001
-> From: Roman Gushchin <guro@fb.com>
-> Date: Thu, 26 Nov 2020 07:39:57 -0800
-> Subject: [PATCH v2] mm: memcg/slab: fix obj_cgroup_charge() return value
->  handling
->
-> Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
-> for all allocations") introduced a regression into the handling of the
-> obj_cgroup_charge() return value. If a non-zero value is returned
-> (indicating of exceeding one of memory.max limits), the allocation
-> should fail, instead of falling back to non-accounted mode.
->
-> To make the code more readable, move memcg_slab_pre_alloc_hook()
-> and memcg_slab_post_alloc_hook() calling conditions into bodies
-> of these hooks.
->
-> Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-> Signed-off-by: Roman Gushchin <guro@fb.com>
-> Cc: stable@vger.kernel.org
 
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+The patch titled
+     Subject: proc: use untagged_addr() for pagemap_read addresses
+has been added to the -mm tree.  Its filename is
+     proc-use-untagged_addr-for-pagemap_read-addresses.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/proc-use-untagged_addr-for-pagemap_read-addresses.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/proc-use-untagged_addr-for-pagemap_read-addresses.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Miles Chen <miles.chen@mediatek.com>
+Subject: proc: use untagged_addr() for pagemap_read addresses
+
+When we try to visit the pagemap of a tagged userspace pointer, we find
+that the start_vaddr is not correct because of the tag.  To fix it, we
+should untag the usespace pointers in pagemap_read().
+
+I tested with 5.10-rc4 and the issue remains.
+
+Explanation from Catalin in [1]:
+
+: Arguably, that's a user-space bug since tagged file offsets were never
+: supported.  In this case it's not even a tag at bit 56 as per the arm64
+: tagged address ABI but rather down to bit 47.  You could say that the
+: problem is caused by the C library (malloc()) or whoever created the
+: tagged vaddr and passed it to this function.  It's not a kernel regression
+: as we've never supported it.
+: 
+: Now, pagemap is a special case where the offset is usually not generated
+: as a classic file offset but rather derived by shifting a user virtual
+: address.  I guess we can make a concession for pagemap (only) and allow
+: such offset with the tag at bit (56 - PAGE_SHIFT + 3).
+
+My test code is baed on [2]:
+
+A userspace pointer which has been tagged by 0xb4: 0xb400007662f541c8
+
+=== userspace program ===
+
+uint64 OsLayer::VirtualToPhysical(void *vaddr) {
+	uint64 frame, paddr, pfnmask, pagemask;
+	int pagesize = sysconf(_SC_PAGESIZE);
+	off64_t off = ((uintptr_t)vaddr) / pagesize * 8; // off = 0xb400007662f541c8 / pagesize * 8 = 0x5a00003b317aa0
+	int fd = open(kPagemapPath, O_RDONLY);
+	...
+
+	if (lseek64(fd, off, SEEK_SET) != off || read(fd, &frame, 8) != 8) {
+		int err = errno;
+		string errtxt = ErrorString(err);
+		if (fd >= 0)
+			close(fd);
+		return 0;
+	}
+...
+}
+
+=== kernel fs/proc/task_mmu.c ===
+
+static ssize_t pagemap_read(struct file *file, char __user *buf,
+		size_t count, loff_t *ppos)
+{
+	...
+	src = *ppos;
+	svpfn = src / PM_ENTRY_BYTES; // svpfn == 0xb400007662f54
+	start_vaddr = svpfn << PAGE_SHIFT; // start_vaddr == 0xb400007662f54000
+	end_vaddr = mm->task_size;
+
+	/* watch out for wraparound */
+	// svpfn == 0xb400007662f54
+	// (mm->task_size >> PAGE) == 0x8000000
+	if (svpfn > mm->task_size >> PAGE_SHIFT) // the condition is true because of the tag 0xb4
+		start_vaddr = end_vaddr;
+
+	ret = 0;
+	while (count && (start_vaddr < end_vaddr)) { // we cannot visit correct entry because start_vaddr is set to end_vaddr
+		int len;
+		unsigned long end;
+		...
+	}
+	...
+}
+
+[1] https://lore.kernel.org/patchwork/patch/1343258/
+[2] https://github.com/stressapptest/stressapptest/blob/master/src/os.cc#L158
+
+Link: https://lkml.kernel.org/r/20201127050738.14440-1-miles.chen@mediatek.com
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/proc/task_mmu.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/fs/proc/task_mmu.c~proc-use-untagged_addr-for-pagemap_read-addresses
++++ a/fs/proc/task_mmu.c
+@@ -1599,11 +1599,15 @@ static ssize_t pagemap_read(struct file
+ 
+ 	src = *ppos;
+ 	svpfn = src / PM_ENTRY_BYTES;
+-	start_vaddr = svpfn << PAGE_SHIFT;
+ 	end_vaddr = mm->task_size;
+ 
+ 	/* watch out for wraparound */
+-	if (svpfn > mm->task_size >> PAGE_SHIFT)
++	start_vaddr = end_vaddr;
++	if (svpfn < (ULONG_MAX >> PAGE_SHIFT))
++		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
++
++	/* Ensure the address is inside the task */
++	if (start_vaddr > mm->task_size)
+ 		start_vaddr = end_vaddr;
+ 
+ 	/*
+_
+
+Patches currently in -mm which might be from miles.chen@mediatek.com are
+
+proc-use-untagged_addr-for-pagemap_read-addresses.patch
+
