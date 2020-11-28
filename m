@@ -2,74 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F43A2C73BF
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6922C73F3
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387516AbgK1Vty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 16:49:54 -0500
-Received: from mail-ej1-f65.google.com ([209.85.218.65]:45567 "EHLO
-        mail-ej1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387461AbgK1TJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 14:09:58 -0500
-Received: by mail-ej1-f65.google.com with SMTP id qw4so2452199ejb.12;
-        Sat, 28 Nov 2020 11:09:42 -0800 (PST)
+        id S2389152AbgK1Vtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 16:49:51 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:35201 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731299AbgK1Sto (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:49:44 -0500
+Received: by mail-lf1-f68.google.com with SMTP id a9so12059741lfh.2;
+        Sat, 28 Nov 2020 10:49:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=/ME2+2j5cxtJTHTHYnz5FDVE1s+VeZgq/6+1g5PUpbU=;
-        b=OILOcHvlV831nnq4Hs3tfTQ7YsyOTjDekgwJ99WGG/GoJsfMxnWlwdaGGuWmKr/Mew
-         S1+D08k3ZNE6INgSV8cRn9e4TLGGBLXhX64kyRJyalHknsBJmzBFszYFHheJTOWobhkB
-         8mXcXa55M4OilqOzbyA0lxNWBDiGFqdGM+gn0lgh7NsXyMdgMwuwHvRHHxLuE2FQewx/
-         NVf1dFCPK782ubyjo2Ddt0SvfSCL8W43VdEJLFtciS4UnCje7PjRKDzyfmun+KSsj+XN
-         0unsLWivnFfID8Xv7yfrKhpApsIPGQwe+FMKIIQzxwV9TINFOS1DIxs/xBe2bCowDObc
-         FRag==
-X-Gm-Message-State: AOAM530ydpL6yvl95iABFGfh+mcK1alvA61un5ogoxhM3cL/NhjzyzBG
-        PejONck7B1Ag+pJgE3sX/d6odMqeA84=
-X-Google-Smtp-Source: ABdhPJxyr32QgRBuEUlVkPnf5RE1qVYd9nKcCKgCUyLEI8ViBgxfjsH66kvx+1LkdV5Qj0xElpN56A==
-X-Received: by 2002:a17:906:7f19:: with SMTP id d25mr12318928ejr.0.1606563230246;
-        Sat, 28 Nov 2020 03:33:50 -0800 (PST)
+        bh=94w+w4q2DL8CfQBxAM1xY8lwOUr+KvOfw3ByQOJVKuk=;
+        b=knwr6FWiDspxB0X1Culaha/p7eb3xJfHmACgGn7ReKXwwN0GGq4cIvMN5nhzJnGPQp
+         iBC30DtrWtA5J7PtG5CVaMDQ3kgJ9ZNQtVudKLiK8b+ho3bmlYHLEYPHsaB4ZXXrcD6A
+         gpE4X+fdY7dSzrKZODKjwSZDqcIK7nxHWKkxH4+kPM1GPZpgqAYIWnGiOcA0o294xzfs
+         zmre0zb1bwYef/gWreJpoCCNdHIIaSs6snkeRjUEV7rHgl2xrCC5CyIz4sG5v1wgipch
+         92vj0HfzhENyaCji6X6v9QnwncnyLUCGhQ4V2gx/armh+b4ikysbN02WCWEPAOWnLaBG
+         dZPw==
+X-Gm-Message-State: AOAM530UZra3eEh2LEKqwiesxNUOz8P2+4eV5kMxYCLX9TEP07GnLkHP
+        DrKFWXUSCHLj69uto9geQZc3sNlUgvA=
+X-Google-Smtp-Source: ABdhPJyLh6B3nxSjRDcChAYngodNGnYIRfHxi//tXNNB+WXdMW2TXjVSZwSmgZwBFnUYvUFPYdEs3g==
+X-Received: by 2002:a17:906:7c56:: with SMTP id g22mr12023158ejp.282.1606563360738;
+        Sat, 28 Nov 2020 03:36:00 -0800 (PST)
 Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.googlemail.com with ESMTPSA id f24sm5786121ejf.117.2020.11.28.03.33.48
+        by smtp.googlemail.com with ESMTPSA id a12sm6295814edu.89.2020.11.28.03.35.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 03:33:49 -0800 (PST)
-Date:   Sat, 28 Nov 2020 12:33:47 +0100
+        Sat, 28 Nov 2020 03:35:59 -0800 (PST)
+Date:   Sat, 28 Nov 2020 12:35:58 +0100
 From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
         Philipp Zabel <p.zabel@pengutronix.de>,
         Jiri Kosina <trivial@kernel.org>,
         Mark Brown <broonie@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        linux-renesas-soc@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         linux-kernel@vger.kernel.org,
         Prabhakar <prabhakar.csengg@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/5] memory: renesas-rpc-if: Fix unbalanced
- pm_runtime_enable in rpcif_{enable,disable}_rpm
-Message-ID: <20201128113347.GB4761@kozik-lap>
+Subject: Re: [PATCH v2 3/5] memory: renesas-rpc-if: Fix a reference leak in
+ rpcif_probe()
+Message-ID: <20201128113558.GC4761@kozik-lap>
 References: <20201126191146.8753-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20201126191146.8753-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20201126191146.8753-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20201127224114.GB19743@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201126191146.8753-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20201127224114.GB19743@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 26, 2020 at 07:11:43PM +0000, Lad Prabhakar wrote:
-> rpcif_enable_rpm calls pm_runtime_enable, so rpcif_disable_rpm needs to
-> call pm_runtime_disable and not pm_runtime_put_sync.
+On Fri, Nov 27, 2020 at 11:41:14PM +0100, Pavel Machek wrote:
+> On Thu 2020-11-26 19:11:44, Lad Prabhakar wrote:
+> > Release the node reference by calling of_node_put(flash) in the probe.
+> > 
+> > Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
+> > Reported-by: Pavel Machek <pavel@denx.de>
+> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
 > 
-> Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
-> Reported-by: Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/memory/renesas-rpc-if.c | 2 +-
+> Reviewed-by: Pavel Machek (CIP)< <pavel@denx.de>
 
-Thanks, applied with corrected Reported-by.
+This breaks b4. Corrected and applied.
 
 Best regards,
 Krzysztof
-
