@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A866A2C741C
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 089C22C741F
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732979AbgK1Vtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729527AbgK1Vtr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 28 Nov 2020 16:49:47 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:39825 "EHLO
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40333 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731746AbgK1SE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:04:58 -0500
+        by vger.kernel.org with ESMTP id S1731582AbgK1SEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 13:04:39 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 80610194491C;
-        Sat, 28 Nov 2020 07:25:34 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1C07D1942885;
+        Sat, 28 Nov 2020 07:26:08 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:25:34 -0500
+  by compute4.internal (MEProxy); Sat, 28 Nov 2020 07:26:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=cILo6Y
-        VzzlDnGufrLT8UTKciFNOtK7xHZltD9TRB/4Y=; b=V4xfkfUzb//DwBLbkAxUZ2
-        zAATUFJWjpZJBc3VXkRtrLvKJcpiw6VoCgDL60hCFOTqvpFFrKNrFZ1aUNS6VI49
-        rQEe0H2hwE97KUZu+qH2mvI9XZAHSE7bnqEkUqw2lKJeDaAhBAz+g0LVzgd2/kzq
-        jzTaU/kdj0SNoHtWA2nyhJYQMgWN6lyTf1b7mfrt0K1Xi5eoaUDi2myUsr4yD8de
-        gZDTSMeSzbT4jGNY/ZY/VxkELGNosFwATUrLpUnO0yqLnfKwfvyBwPB5F95rnPfb
-        vI4OB5fmgTszaWYkvWZMV9KtLP8rE+YvRDU9HiehD3WfF6ULq7EJvn65w5zdtryA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=9CjvhA
+        kWIhjJDcCVFnR3BtLEt9AIC7amp0622DZlp1U=; b=IoA6PwEzAy2oayRJscnteD
+        8ANShcA2EwWlPb1B/j836ngxXAz15yjEa8QUgu73odmEeB0qMbnvX6NZDHI8On+O
+        m3P2v1C19OuCLRJrM+IrL8LPnTq9jM+mh52GeoWLninn7VEmAszQr62odvstVsyB
+        Y3UtG21cpBQh5AxnvJ+iuf2Haegvb4kGadciYYlga0l/WQaDP4IhUnzCzyKcevTh
+        PubZB6HGh+lj6W56sc623ErDEw1FTaB57Eqz6B4Dfm0I/9bnP60jFMlZI6UE8eXM
+        f9JJ02l3RfHingjlIvtIyrW4XUPURukwiWvjmfPuWdY+R20Fk+mPnC/ERLUe03dg
         ==
-X-ME-Sender: <xms:vkHCX5Nlb3PXwEs99FiV4xTOuxN02ZjpkbxACSZ__Fu4YZkl9AiHKQ>
-    <xme:vkHCX79tKqFSemZQ0-1qvlnHBvJobirDr-5MWwcULeRo2Aab-OgGHpFonwWZ86Gpp
-    X-SP69Wh_xxTw>
+X-ME-Sender: <xms:30HCX2g-mZqGscTXvMbVKGdBUgEXpOQnrM21y526nh6p5uqwvxb78w>
+    <xme:30HCX3AeJ4G0lK68MOe8mtKqjl3p2hml_Xvzon7EJ0_EPu9Wbdp335ySgNL7rr0F1
+    78DR5AsVjhhcQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudehiedggedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeejnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:vkHCX4SsHoNygWf7OBUO--paGg2ihnAvB0jQusElGzlMQV8Q_oz4Yw>
-    <xmx:vkHCX1t4oSmCWmU5De-UzBO5M7u7RknTIRa8RW4SvR7KJzLjFVpQjA>
-    <xmx:vkHCXxfFCeYD4yJTVA6YAgpW2fkY6OoiVAr6JCXWq08B8r_Gg8v5ew>
-    <xmx:vkHCXyq-yTpWOC9eQHXCw1f_FGGu7Id4Chi9dGiZCg_XxMKUMSVBgg>
+    gheqnecuggftrfgrthhtvghrnhepieffvdduffdvhfefffeuvedugfevhfeuiefghedvvd
+    ekgfefuddtudehvedtteffnecuffhomhgrihhnpehgnhhurdhorhhgnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:30HCX-HtoElPLFm-BdC5jsmVTMwuAMQbhPPfN-tZvormVvfPbie4Fg>
+    <xmx:30HCX_TajJ3ou9xuO5gZklJ4ngBe5dcg_tnjd77psJIehvrIuOh-Lg>
+    <xmx:30HCXzw25E5tpb2QcRoCg5peGHZccDxLKHR-YzbKCq-NTJ6qDBAb5g>
+    <xmx:4EHCX8rQwBeauwBTDq5zQ_5zzJP4DxCw3Nmh93hkq-tjXlDniUPKcA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1971F3064AA7;
-        Sat, 28 Nov 2020 07:25:34 -0500 (EST)
-Subject: FAILED: patch "[PATCH] RDMA/i40iw: Address an mmap handler exploit in i40iw" failed to apply to 5.4-stable tree
-To:     shiraz.saleem@intel.com, jgg@nvidia.com, stable@kernel.org,
-        zhudi21@huawei.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 77BEB3064AAE;
+        Sat, 28 Nov 2020 07:26:07 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: fix missing delalloc new bit for new delalloc ranges" failed to apply to 5.4-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 28 Nov 2020 13:26:36 +0100
-Message-ID: <16065663968513@kroah.com>
+Date:   Sat, 28 Nov 2020 13:27:16 +0100
+Message-ID: <1606566436201143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,104 +70,279 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 Mon Sep 17 00:00:00 2001
-From: Shiraz Saleem <shiraz.saleem@intel.com>
-Date: Tue, 24 Nov 2020 18:56:16 -0600
-Subject: [PATCH] RDMA/i40iw: Address an mmap handler exploit in i40iw
+From c334730988ee07908ba4eb816ce78d3fe06fecaa Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 4 Nov 2020 11:07:31 +0000
+Subject: [PATCH] btrfs: fix missing delalloc new bit for new delalloc ranges
 
-i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
-vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
-without any validation. This is vulnerable to an mmap exploit as described
-in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
+When doing a buffered write, through one of the write family syscalls, we
+look for ranges which currently don't have allocated extents and set the
+'delalloc new' bit on them, so that we can report a correct number of used
+blocks to the stat(2) syscall until delalloc is flushed and ordered extents
+complete.
 
-The push feature is disabled in the driver currently and therefore no push
-mmaps are issued from user-space. The feature does not work as expected in
-the x722 product.
+However there are a few other places where we can do a buffered write
+against a range that is mapped to a hole (no extent allocated) and where
+we do not set the 'new delalloc' bit. Those places are:
 
-Remove the push module parameter and all VMA attribute manipulations for
-this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
-mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
-to a single page.
+- Doing a memory mapped write against a hole;
 
-Cc: <stable@kernel.org>
-Fixes: d37498417947 ("i40iw: add files for iwarp interface")
-Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
-Reported-by: Di Zhu <zhudi21@huawei.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+- Cloning an inline extent into a hole starting at file offset 0;
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_main.c b/drivers/infiniband/hw/i40iw/i40iw_main.c
-index 2408b279e4c2..584932d3cc44 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_main.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
-@@ -54,10 +54,6 @@
- #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
- 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
- 
--static int push_mode;
--module_param(push_mode, int, 0644);
--MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
--
- static int debug;
- module_param(debug, int, 0644);
- MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
-@@ -1580,7 +1576,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
- 	if (status)
- 		goto exit;
- 	iwdev->obj_next = iwdev->obj_mem;
--	iwdev->push_mode = push_mode;
- 
- 	init_waitqueue_head(&iwdev->vchnl_waitq);
- 	init_waitqueue_head(&dev->vf_reqs);
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-index 581ecbadf586..533f3caecb7a 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-@@ -167,39 +167,16 @@ static void i40iw_dealloc_ucontext(struct ib_ucontext *context)
-  */
- static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
- {
--	struct i40iw_ucontext *ucontext;
--	u64 db_addr_offset, push_offset, pfn;
--
--	ucontext = to_ucontext(context);
--	if (ucontext->iwdev->sc_dev.is_pf) {
--		db_addr_offset = I40IW_DB_ADDR_OFFSET;
--		push_offset = I40IW_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
--	} else {
--		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
--		push_offset = I40IW_VF_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
--	}
-+	struct i40iw_ucontext *ucontext = to_ucontext(context);
-+	u64 dbaddr;
- 
--	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
--
--	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
--		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--	} else {
--		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
--			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--		else
--			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
--	}
-+	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
-+		return -EINVAL;
- 
--	pfn = vma->vm_pgoff +
--	      (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >>
--	       PAGE_SHIFT);
-+	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
- 
--	return rdma_user_mmap_io(context, vma, pfn, PAGE_SIZE,
--				 vma->vm_page_prot, NULL);
-+	return rdma_user_mmap_io(context, vma, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
-+				 pgprot_noncached(vma->vm_page_prot), NULL);
+- Calling btrfs_cont_expand() when the i_size of the file is not aligned
+  to the sector size and is located in a hole. For example when cloning
+  to a destination offset beyond EOF.
+
+So after such cases, until the corresponding delalloc range is flushed and
+the respective ordered extents complete, we can report an incorrect number
+of blocks used through the stat(2) syscall.
+
+In some cases we can end up reporting 0 used blocks to stat(2), which is a
+particular bad value to report as it may mislead tools to think a file is
+completely sparse when its i_size is not zero, making them skip reading
+any data, an undesired consequence for tools such as archivers and other
+backup tools, as reported a long time ago in the following thread (and
+other past threads):
+
+  https://lists.gnu.org/archive/html/bug-tar/2016-07/msg00001.html
+
+Example reproducer:
+
+  $ cat reproducer.sh
+  #!/bin/bash
+
+  MNT=/mnt/sdi
+  DEV=/dev/sdi
+
+  mkfs.btrfs -f $DEV > /dev/null
+  # mkfs.xfs -f $DEV > /dev/null
+  # mkfs.ext4 -F $DEV > /dev/null
+  # mkfs.f2fs -f $DEV > /dev/null
+  mount $DEV $MNT
+
+  xfs_io -f -c "truncate 64K"   \
+      -c "mmap -w 0 64K"        \
+      -c "mwrite -S 0xab 0 64K" \
+      -c "munmap"               \
+      $MNT/foo
+
+  blocks_used=$(stat -c %b $MNT/foo)
+  echo "blocks used: $blocks_used"
+
+  if [ $blocks_used -eq 0 ]; then
+      echo "ERROR: blocks used is 0"
+  fi
+
+  umount $DEV
+
+  $ ./reproducer.sh
+  blocks used: 0
+  ERROR: blocks used is 0
+
+So move the logic that decides to set the 'delalloc bit' bit into the
+function btrfs_set_extent_delalloc(), since that is what we use for all
+those missing cases as well as for the cases that currently work well.
+
+This change is also preparatory work for an upcoming patch that fixes
+other problems related to tracking and reporting the number of bytes used
+by an inode.
+
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 87355a38a654..4373da7bcc0d 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -452,46 +452,6 @@ static void btrfs_drop_pages(struct page **pages, size_t num_pages)
+ 	}
  }
  
- /**
+-static int btrfs_find_new_delalloc_bytes(struct btrfs_inode *inode,
+-					 const u64 start,
+-					 const u64 len,
+-					 struct extent_state **cached_state)
+-{
+-	u64 search_start = start;
+-	const u64 end = start + len - 1;
+-
+-	while (search_start < end) {
+-		const u64 search_len = end - search_start + 1;
+-		struct extent_map *em;
+-		u64 em_len;
+-		int ret = 0;
+-
+-		em = btrfs_get_extent(inode, NULL, 0, search_start, search_len);
+-		if (IS_ERR(em))
+-			return PTR_ERR(em);
+-
+-		if (em->block_start != EXTENT_MAP_HOLE)
+-			goto next;
+-
+-		em_len = em->len;
+-		if (em->start < search_start)
+-			em_len -= search_start - em->start;
+-		if (em_len > search_len)
+-			em_len = search_len;
+-
+-		ret = set_extent_bit(&inode->io_tree, search_start,
+-				     search_start + em_len - 1,
+-				     EXTENT_DELALLOC_NEW,
+-				     NULL, cached_state, GFP_NOFS);
+-next:
+-		search_start = extent_map_end(em);
+-		free_extent_map(em);
+-		if (ret)
+-			return ret;
+-	}
+-	return 0;
+-}
+-
+ /*
+  * after copy_from_user, pages need to be dirtied and we need to make
+  * sure holes are created between the current EOF and the start of
+@@ -528,23 +488,6 @@ int btrfs_dirty_pages(struct btrfs_inode *inode, struct page **pages,
+ 			 EXTENT_DELALLOC | EXTENT_DO_ACCOUNTING | EXTENT_DEFRAG,
+ 			 0, 0, cached);
+ 
+-	if (!btrfs_is_free_space_inode(inode)) {
+-		if (start_pos >= isize &&
+-		    !(inode->flags & BTRFS_INODE_PREALLOC)) {
+-			/*
+-			 * There can't be any extents following eof in this case
+-			 * so just set the delalloc new bit for the range
+-			 * directly.
+-			 */
+-			extra_bits |= EXTENT_DELALLOC_NEW;
+-		} else {
+-			err = btrfs_find_new_delalloc_bytes(inode, start_pos,
+-							    num_bytes, cached);
+-			if (err)
+-				return err;
+-		}
+-	}
+-
+ 	err = btrfs_set_extent_delalloc(inode, start_pos, end_of_last_block,
+ 					extra_bits, cached);
+ 	if (err)
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index da58c58ef9aa..7e8d8169779d 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2253,11 +2253,69 @@ static int add_pending_csums(struct btrfs_trans_handle *trans,
+ 	return 0;
+ }
+ 
++static int btrfs_find_new_delalloc_bytes(struct btrfs_inode *inode,
++					 const u64 start,
++					 const u64 len,
++					 struct extent_state **cached_state)
++{
++	u64 search_start = start;
++	const u64 end = start + len - 1;
++
++	while (search_start < end) {
++		const u64 search_len = end - search_start + 1;
++		struct extent_map *em;
++		u64 em_len;
++		int ret = 0;
++
++		em = btrfs_get_extent(inode, NULL, 0, search_start, search_len);
++		if (IS_ERR(em))
++			return PTR_ERR(em);
++
++		if (em->block_start != EXTENT_MAP_HOLE)
++			goto next;
++
++		em_len = em->len;
++		if (em->start < search_start)
++			em_len -= search_start - em->start;
++		if (em_len > search_len)
++			em_len = search_len;
++
++		ret = set_extent_bit(&inode->io_tree, search_start,
++				     search_start + em_len - 1,
++				     EXTENT_DELALLOC_NEW,
++				     NULL, cached_state, GFP_NOFS);
++next:
++		search_start = extent_map_end(em);
++		free_extent_map(em);
++		if (ret)
++			return ret;
++	}
++	return 0;
++}
++
+ int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
+ 			      unsigned int extra_bits,
+ 			      struct extent_state **cached_state)
+ {
+ 	WARN_ON(PAGE_ALIGNED(end));
++
++	if (start >= i_size_read(&inode->vfs_inode) &&
++	    !(inode->flags & BTRFS_INODE_PREALLOC)) {
++		/*
++		 * There can't be any extents following eof in this case so just
++		 * set the delalloc new bit for the range directly.
++		 */
++		extra_bits |= EXTENT_DELALLOC_NEW;
++	} else {
++		int ret;
++
++		ret = btrfs_find_new_delalloc_bytes(inode, start,
++						    end + 1 - start,
++						    cached_state);
++		if (ret)
++			return ret;
++	}
++
+ 	return set_extent_delalloc(&inode->io_tree, start, end, extra_bits,
+ 				   cached_state);
+ }
+diff --git a/fs/btrfs/tests/inode-tests.c b/fs/btrfs/tests/inode-tests.c
+index e6719f7db386..04022069761d 100644
+--- a/fs/btrfs/tests/inode-tests.c
++++ b/fs/btrfs/tests/inode-tests.c
+@@ -983,7 +983,8 @@ static int test_extent_accounting(u32 sectorsize, u32 nodesize)
+ 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree,
+ 			       BTRFS_MAX_EXTENT_SIZE >> 1,
+ 			       (BTRFS_MAX_EXTENT_SIZE >> 1) + sectorsize - 1,
+-			       EXTENT_DELALLOC | EXTENT_UPTODATE, 0, 0, NULL);
++			       EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
++			       EXTENT_UPTODATE, 0, 0, NULL);
+ 	if (ret) {
+ 		test_err("clear_extent_bit returned %d", ret);
+ 		goto out;
+@@ -1050,7 +1051,8 @@ static int test_extent_accounting(u32 sectorsize, u32 nodesize)
+ 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree,
+ 			       BTRFS_MAX_EXTENT_SIZE + sectorsize,
+ 			       BTRFS_MAX_EXTENT_SIZE + 2 * sectorsize - 1,
+-			       EXTENT_DELALLOC | EXTENT_UPTODATE, 0, 0, NULL);
++			       EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
++			       EXTENT_UPTODATE, 0, 0, NULL);
+ 	if (ret) {
+ 		test_err("clear_extent_bit returned %d", ret);
+ 		goto out;
+@@ -1082,7 +1084,8 @@ static int test_extent_accounting(u32 sectorsize, u32 nodesize)
+ 
+ 	/* Empty */
+ 	ret = clear_extent_bit(&BTRFS_I(inode)->io_tree, 0, (u64)-1,
+-			       EXTENT_DELALLOC | EXTENT_UPTODATE, 0, 0, NULL);
++			       EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
++			       EXTENT_UPTODATE, 0, 0, NULL);
+ 	if (ret) {
+ 		test_err("clear_extent_bit returned %d", ret);
+ 		goto out;
+@@ -1097,7 +1100,8 @@ static int test_extent_accounting(u32 sectorsize, u32 nodesize)
+ out:
+ 	if (ret)
+ 		clear_extent_bit(&BTRFS_I(inode)->io_tree, 0, (u64)-1,
+-				 EXTENT_DELALLOC | EXTENT_UPTODATE, 0, 0, NULL);
++				 EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
++				 EXTENT_UPTODATE, 0, 0, NULL);
+ 	iput(inode);
+ 	btrfs_free_dummy_root(root);
+ 	btrfs_free_dummy_fs_info(fs_info);
 
