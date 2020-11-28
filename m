@@ -2,111 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3192C71DD
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 23:04:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F462C769A
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 00:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729400AbgK1WDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 17:03:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727974AbgK1WDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 17:03:50 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9FB0C0613D1;
-        Sat, 28 Nov 2020 14:03:09 -0800 (PST)
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 849E5BAB;
-        Sat, 28 Nov 2020 23:03:06 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1606600986;
-        bh=7YBJuQtYHj9dTjRd/vaK8Nvo8/JkMSaK6DjkqheZcDk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K+ahAnV2fIg69sbwr1pxAHmGlg3Low8EoyzuO2lb1zd71bLQJmWauXJ0HF1M05duZ
-         jR0z7+WiI8QWoswNWIz6v+afNsuyyxS98DYkMYTIa7Geq4af8qOKPINPb96D3rqnua
-         e/T6o+aCq+NXbhgiMuXEK1vBAqA3JCyX4lyjHHig=
-Date:   Sun, 29 Nov 2020 00:02:57 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     dri-devel@lists.freedesktop.org,
-        Nikhil Devshatwar <nikhil.nd@ti.com>,
-        linux-omap@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        stable@vger.kernel.org,
-        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Subject: Re: [PATCH] drm/omap: sdi: fix bridge enable/disable
-Message-ID: <20201128220257.GB3865@pendragon.ideasonboard.com>
-References: <20201127085241.848461-1-tomi.valkeinen@ti.com>
+        id S1727281AbgK1X2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 18:28:10 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28958 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725989AbgK1X2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 18:28:10 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0ASN1XG5082691;
+        Sat, 28 Nov 2020 18:27:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : reply-to : to : cc : date : in-reply-to : references : content-type
+ : mime-version : content-transfer-encoding; s=pp1;
+ bh=bCG8G51Iyk2zmq31048W8a7dnAA9tSi/D4nkld4h+Y4=;
+ b=FzrKYdy6CY28etVmfrzYxyhMiNZ6WKS07WBmHEMwBx9126W0fzmGl1bOgN4uQ+DCaLg+
+ +Xzy12rw6bRfymYxdnzf3+UwT7dsFooGMEwicM+2fI78fv6rh9V2lFGibGGQIRBZglyR
+ NJXdTAWttoo7ufcldHC9YGkjl3w7PQOC7I9qD0K75MTw1Uu/hG8Y887P1+i8OGzzXMT4
+ Lw5qtAxjqfeYEvD/nINdfq6adO9dtxHEkdN9OAfg/26bD6p2onpoAju5QW9/m+e8o2s7
+ Vi4zDpkw4IpfpbHACRmplTkf2RGrpr08sQm02RHSS3stuRGfJOQxoDY/RQAJ3gG9xnAW /g== 
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 353xvv1b6m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 28 Nov 2020 18:27:24 -0500
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0ASNROUT012005;
+        Sat, 28 Nov 2020 23:27:24 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma03wdc.us.ibm.com with ESMTP id 353e68d5jk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 28 Nov 2020 23:27:24 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0ASNRNcr49283466
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 28 Nov 2020 23:27:23 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F50F7805E;
+        Sat, 28 Nov 2020 23:27:23 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BD1B7805C;
+        Sat, 28 Nov 2020 23:27:22 +0000 (GMT)
+Received: from jarvis.int.hansenpartnership.com (unknown [9.80.201.242])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Sat, 28 Nov 2020 23:27:22 +0000 (GMT)
+Message-ID: <c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com>
+Subject: Re: [PATCH] scsi: ses: Fix crash caused by kfree an invalid pointer
+From:   James Bottomley <jejb@linux.ibm.com>
+Reply-To: jejb@linux.ibm.com
+To:     Ding Hui <dinghui@sangfor.com.cn>, martin.petersen@oracle.com
+Cc:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Date:   Sat, 28 Nov 2020 15:27:21 -0800
+In-Reply-To: <20201128122302.9490-1-dinghui@sangfor.com.cn>
+References: <20201128122302.9490-1-dinghui@sangfor.com.cn>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201127085241.848461-1-tomi.valkeinen@ti.com>
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-28_17:2020-11-26,2020-11-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 impostorscore=0 bulkscore=0 suspectscore=4
+ priorityscore=1501 mlxscore=0 malwarescore=0 phishscore=0 clxscore=1011
+ adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011280144
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tomi,
-
-Thank you for the patch.
-
-On Fri, Nov 27, 2020 at 10:52:41AM +0200, Tomi Valkeinen wrote:
-> When the SDI output was converted to DRM bridge, the atomic versions of
-> enable and disable funcs were used. This was not intended, as that would
-> require implementing other atomic funcs too. This leads to:
+On Sat, 2020-11-28 at 20:23 +0800, Ding Hui wrote:
+> We can get a crash when disconnecting the iSCSI session,
+> the call trace like this:
 > 
-> WARNING: CPU: 0 PID: 18 at drivers/gpu/drm/drm_bridge.c:708 drm_atomic_helper_commit_modeset_enables+0x134/0x268
+>   [ffff00002a00fb70] kfree at ffff00000830e224
+>   [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
+>   [ffff00002a00fbd0] device_del at ffff0000086b6a98
+>   [ffff00002a00fc50] device_unregister at ffff0000086b6d58
+>   [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
+>   [ffff00002a00fca0] scsi_remove_device at ffff000008706134
+>   [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
+>   [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
+>   [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
+>   [ffff00002a00fdb0] process_one_work at ffff00000810f35c
+>   [ffff00002a00fe00] worker_thread at ffff00000810f648
+>   [ffff00002a00fe70] kthread at ffff000008116e98
 > 
-> and display not working.
+> In ses_intf_add, components count could be 0, and kcalloc 0 size
+> scomp,
+> but not saved in edev->component[i].scratch
 > 
-> Fix this by using the legacy enable/disable funcs.
+> In this situation, edev->component[0].scratch is an invalid pointer,
+> when kfree it in ses_intf_remove_enclosure, a crash like above would
+> happen
+> The call trace also could be other random cases when kfree cannot
+> catch
+> the invalid pointer
 > 
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Fixes: 8bef8a6d5da81b909a190822b96805a47348146f ("drm/omap: sdi: Register a drm_bridge")
-> Cc: stable@vger.kernel.org # v5.7+
-> Tested-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+> We should not use edev->component[] array when the components count
+> is 0
+> We also need check index when use edev->component[] array in
+> ses_enclosure_data_process
+> 
+> Tested-by: Zeng Zhicong <timmyzeng@163.com>
+> Cc: stable <stable@vger.kernel.org> # 2.6.25+
+> Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+This doesn't really look to be the right thing to do: an enclosure
+which has no component can't usefully be controlled by the driver since
+there's nothing for it to do, so what we should do in this situation is
+refuse to attach like the proposed patch below.
 
-> ---
->  drivers/gpu/drm/omapdrm/dss/sdi.c | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/omapdrm/dss/sdi.c b/drivers/gpu/drm/omapdrm/dss/sdi.c
-> index 033fd30074b0..282e4c837cd9 100644
-> --- a/drivers/gpu/drm/omapdrm/dss/sdi.c
-> +++ b/drivers/gpu/drm/omapdrm/dss/sdi.c
-> @@ -195,8 +195,7 @@ static void sdi_bridge_mode_set(struct drm_bridge *bridge,
->  	sdi->pixelclock = adjusted_mode->clock * 1000;
->  }
->  
-> -static void sdi_bridge_enable(struct drm_bridge *bridge,
-> -			      struct drm_bridge_state *bridge_state)
-> +static void sdi_bridge_enable(struct drm_bridge *bridge)
->  {
->  	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
->  	struct dispc_clock_info dispc_cinfo;
-> @@ -259,8 +258,7 @@ static void sdi_bridge_enable(struct drm_bridge *bridge,
->  	regulator_disable(sdi->vdds_sdi_reg);
->  }
->  
-> -static void sdi_bridge_disable(struct drm_bridge *bridge,
-> -			       struct drm_bridge_state *bridge_state)
-> +static void sdi_bridge_disable(struct drm_bridge *bridge)
->  {
->  	struct sdi_device *sdi = drm_bridge_to_sdi(bridge);
->  
-> @@ -278,8 +276,8 @@ static const struct drm_bridge_funcs sdi_bridge_funcs = {
->  	.mode_valid = sdi_bridge_mode_valid,
->  	.mode_fixup = sdi_bridge_mode_fixup,
->  	.mode_set = sdi_bridge_mode_set,
-> -	.atomic_enable = sdi_bridge_enable,
-> -	.atomic_disable = sdi_bridge_disable,
-> +	.enable = sdi_bridge_enable,
-> +	.disable = sdi_bridge_disable,
->  };
->  
->  static void sdi_bridge_init(struct sdi_device *sdi)
+It does seem a bit odd that someone would build an enclosure that
+doesn't enclose anything, so would you mind running
 
--- 
+sg_ses -e 
+
+on it and reporting back what it shows?  It's possible there's another
+type that the enclosure device should be tracking.
+
 Regards,
 
-Laurent Pinchart
+James
+
+---8>8>8><8<8<8--------
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: [PATCH] scsi: ses: don't attach if enclosure has no components
+
+An enclosure with no components can't usefully be operated by the
+driver (since effectively it has nothing to manage), so report the
+problem and don't attach.  Not attaching also fixes an oops which
+could occur if the driver tries to manage a zero component enclosure.
+
+Reported-by: Ding Hui <dinghui@sangfor.com.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+---
+ drivers/scsi/ses.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index c2afba2a5414..9624298b9c89 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -690,6 +690,11 @@ static int ses_intf_add(struct device *cdev,
+ 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
+ 			components += type_ptr[1];
+ 	}
++	if (components == 0) {
++		sdev_printk(KERN_ERR, sdev, "enclosure has no enumerated components\n");
++		goto err_free;
++	}
++
+ 	ses_dev->page1 = buf;
+ 	ses_dev->page1_len = len;
+ 	buf = NULL;
+-- 
+2.26.2
+
+
+
