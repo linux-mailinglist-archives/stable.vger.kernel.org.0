@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FDC2C703C
-	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 18:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7602C703D
+	for <lists+stable@lfdr.de>; Sat, 28 Nov 2020 18:57:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732231AbgK1Rz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732423AbgK1Rz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 28 Nov 2020 12:55:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53252 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732179AbgK1EQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Nov 2020 23:16:16 -0500
+        id S1732425AbgK1EVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Nov 2020 23:21:22 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E61621973;
-        Sat, 28 Nov 2020 03:52:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFF4B2222C;
+        Sat, 28 Nov 2020 03:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1606535574;
-        bh=yiMtPpJzJnZaI1ixBS7a0a34VOTzn9p9nMCGsRJIuR8=;
+        s=korg; t=1606535717;
+        bh=eKzbgkZcjfsjpKMY2EDpGY2K1+EjiqoBkxWUnDWGdO0=;
         h=Date:From:To:Subject:From;
-        b=hGsxxvJYBnTtk7Jof1Bl20rm3r1WxM03+xLnBlfuaBVcJakw9/FF5sTMG2Rq8F98z
-         YmU4woDfkTsXbwKPy+wTRcCn/wP4byvhxkD2vgpD0iUKBPyiwhX+DhHjtVtxYaLvvl
-         31zi82EQGQiiMXyP261lIwdHs24p7uuBb5u/OZEk=
-Date:   Fri, 27 Nov 2020 19:52:53 -0800
+        b=U2GHE3L5Y/8JmC3QTHkRuxR4xmRtufaWuDX8/evCQ9I5oMZM+kwLX3+WzLLtPpIF2
+         riVhJF+wmbyfZc3wZqvINt6SWBUvWKq3fo8BGLhnqxlDK7bjBvBfALLxyroOIb0MRc
+         bgZPY3QqAmei7bynbrrV6ke0gcuxSLTgGmiw38u4=
+Date:   Fri, 27 Nov 2020 19:55:16 -0800
 From:   akpm@linux-foundation.org
-To:     adobriyan@gmail.com, andreyknvl@google.com,
-        aryabinin@virtuozzo.com, catalin.marinas@arm.com,
-        dvyukov@google.com, ebiederm@xmission.com, elver@google.com,
-        glider@google.com, miles.chen@mediatek.com,
-        mm-commits@vger.kernel.org, song.bao.hua@hisilicon.com,
-        stable@vger.kernel.org, vincenzo.frascino@arm.com,
-        will.deacon@arm.com
-Subject:  + proc-use-untagged_addr-for-pagemap_read-addresses.patch
- added to -mm tree
-Message-ID: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
+To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling.patch added to
+ -mm tree
+Message-ID: <20201128035516.7u-KfyWb8%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,14 +39,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: proc: use untagged_addr() for pagemap_read addresses
+     Subject: mm: memcg/slab: fix obj_cgroup_charge() return value handling
 has been added to the -mm tree.  Its filename is
-     proc-use-untagged_addr-for-pagemap_read-addresses.patch
+     mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/proc-use-untagged_addr-for-pagemap_read-addresses.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/proc-use-untagged_addr-for-pagemap_read-addresses.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -63,124 +60,136 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Miles Chen <miles.chen@mediatek.com>
-Subject: proc: use untagged_addr() for pagemap_read addresses
+From: Roman Gushchin <guro@fb.com>
+Subject: mm: memcg/slab: fix obj_cgroup_charge() return value handling
 
-When we try to visit the pagemap of a tagged userspace pointer, we find
-that the start_vaddr is not correct because of the tag.  To fix it, we
-should untag the usespace pointers in pagemap_read().
+Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for
+all allocations") introduced a regression into the handling of the
+obj_cgroup_charge() return value.  If a non-zero value is returned
+(indicating of exceeding one of memory.max limits), the allocation should
+fail, instead of falling back to non-accounted mode.
 
-I tested with 5.10-rc4 and the issue remains.
+To make the code more readable, move memcg_slab_pre_alloc_hook() and
+memcg_slab_post_alloc_hook() calling conditions into bodies of these
+hooks.
 
-Explanation from Catalin in [1]:
-
-: Arguably, that's a user-space bug since tagged file offsets were never
-: supported.  In this case it's not even a tag at bit 56 as per the arm64
-: tagged address ABI but rather down to bit 47.  You could say that the
-: problem is caused by the C library (malloc()) or whoever created the
-: tagged vaddr and passed it to this function.  It's not a kernel regression
-: as we've never supported it.
-: 
-: Now, pagemap is a special case where the offset is usually not generated
-: as a classic file offset but rather derived by shifting a user virtual
-: address.  I guess we can make a concession for pagemap (only) and allow
-: such offset with the tag at bit (56 - PAGE_SHIFT + 3).
-
-My test code is baed on [2]:
-
-A userspace pointer which has been tagged by 0xb4: 0xb400007662f541c8
-
-=== userspace program ===
-
-uint64 OsLayer::VirtualToPhysical(void *vaddr) {
-	uint64 frame, paddr, pfnmask, pagemask;
-	int pagesize = sysconf(_SC_PAGESIZE);
-	off64_t off = ((uintptr_t)vaddr) / pagesize * 8; // off = 0xb400007662f541c8 / pagesize * 8 = 0x5a00003b317aa0
-	int fd = open(kPagemapPath, O_RDONLY);
-	...
-
-	if (lseek64(fd, off, SEEK_SET) != off || read(fd, &frame, 8) != 8) {
-		int err = errno;
-		string errtxt = ErrorString(err);
-		if (fd >= 0)
-			close(fd);
-		return 0;
-	}
-...
-}
-
-=== kernel fs/proc/task_mmu.c ===
-
-static ssize_t pagemap_read(struct file *file, char __user *buf,
-		size_t count, loff_t *ppos)
-{
-	...
-	src = *ppos;
-	svpfn = src / PM_ENTRY_BYTES; // svpfn == 0xb400007662f54
-	start_vaddr = svpfn << PAGE_SHIFT; // start_vaddr == 0xb400007662f54000
-	end_vaddr = mm->task_size;
-
-	/* watch out for wraparound */
-	// svpfn == 0xb400007662f54
-	// (mm->task_size >> PAGE) == 0x8000000
-	if (svpfn > mm->task_size >> PAGE_SHIFT) // the condition is true because of the tag 0xb4
-		start_vaddr = end_vaddr;
-
-	ret = 0;
-	while (count && (start_vaddr < end_vaddr)) { // we cannot visit correct entry because start_vaddr is set to end_vaddr
-		int len;
-		unsigned long end;
-		...
-	}
-	...
-}
-
-[1] https://lore.kernel.org/patchwork/patch/1343258/
-[2] https://github.com/stressapptest/stressapptest/blob/master/src/os.cc#L158
-
-Link: https://lkml.kernel.org/r/20201127050738.14440-1-miles.chen@mediatek.com
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
+Link: https://lkml.kernel.org/r/20201127161828.GD840171@carbon.dhcp.thefacebook.com
+Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/proc/task_mmu.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ mm/slab.h |   40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
---- a/fs/proc/task_mmu.c~proc-use-untagged_addr-for-pagemap_read-addresses
-+++ a/fs/proc/task_mmu.c
-@@ -1599,11 +1599,15 @@ static ssize_t pagemap_read(struct file
+--- a/mm/slab.h~mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling
++++ a/mm/slab.h
+@@ -274,22 +274,32 @@ static inline size_t obj_full_size(struc
+ 	return s->size + sizeof(struct obj_cgroup *);
+ }
  
- 	src = *ppos;
- 	svpfn = src / PM_ENTRY_BYTES;
--	start_vaddr = svpfn << PAGE_SHIFT;
- 	end_vaddr = mm->task_size;
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++/*
++ * Returns false if the allocation should fail.
++ */
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+ 	struct obj_cgroup *objcg;
  
- 	/* watch out for wraparound */
--	if (svpfn > mm->task_size >> PAGE_SHIFT)
-+	start_vaddr = end_vaddr;
-+	if (svpfn < (ULONG_MAX >> PAGE_SHIFT))
-+		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
++	if (!memcg_kmem_enabled())
++		return true;
 +
-+	/* Ensure the address is inside the task */
-+	if (start_vaddr > mm->task_size)
- 		start_vaddr = end_vaddr;
++	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
++		return true;
++
+ 	objcg = get_obj_cgroup_from_current();
+ 	if (!objcg)
+-		return NULL;
++		return true;
  
- 	/*
+ 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
+ 		obj_cgroup_put(objcg);
+-		return NULL;
++		return false;
+ 	}
+ 
+-	return objcg;
++	*objcgp = objcg;
++	return true;
+ }
+ 
+ static inline void mod_objcg_state(struct obj_cgroup *objcg,
+@@ -315,7 +325,7 @@ static inline void memcg_slab_post_alloc
+ 	unsigned long off;
+ 	size_t i;
+ 
+-	if (!objcg)
++	if (!memcg_kmem_enabled() || !objcg)
+ 		return;
+ 
+ 	flags &= ~__GFP_ACCOUNT;
+@@ -400,11 +410,11 @@ static inline void memcg_free_page_obj_c
+ {
+ }
+ 
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+-	return NULL;
++	return true;
+ }
+ 
+ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
+@@ -508,9 +518,8 @@ static inline struct kmem_cache *slab_pr
+ 	if (should_failslab(s, flags))
+ 		return NULL;
+ 
+-	if (memcg_kmem_enabled() &&
+-	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
+-		*objcgp = memcg_slab_pre_alloc_hook(s, size, flags);
++	if (!memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
++		return NULL;
+ 
+ 	return s;
+ }
+@@ -529,8 +538,7 @@ static inline void slab_post_alloc_hook(
+ 					 s->flags, flags);
+ 	}
+ 
+-	if (memcg_kmem_enabled())
+-		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
++	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
+ }
+ 
+ #ifndef CONFIG_SLOB
 _
 
-Patches currently in -mm which might be from miles.chen@mediatek.com are
+Patches currently in -mm which might be from guro@fb.com are
 
-proc-use-untagged_addr-for-pagemap_read-addresses.patch
+mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling.patch
+mm-memcg-fix-obsolete-code-comments.patch
+mm-memcg-deprecate-the-non-hierarchical-mode.patch
+docs-cgroup-v1-reflect-the-deprecation-of-the-non-hierarchical-mode.patch
+cgroup-remove-obsoleted-broken_hierarchy-and-warned_broken_hierarchy.patch
+mm-vmstat-fix-proc-sys-vm-stat_refresh-generating-false-warnings.patch
+mm-vmstat-fix-proc-sys-vm-stat_refresh-generating-false-warnings-fix.patch
+mm-memcontrol-use-helpers-to-read-pages-memcg-data.patch
+mm-memcontrol-slab-use-helpers-to-access-slab-pages-memcg_data.patch
+mm-introduce-page-memcg-flags.patch
+mm-convert-page-kmemcg-type-to-a-page-memcg-flag.patch
+mm-slub-call-account_slab_page-after-slab-page-initialization.patch
+mm-memcg-slab-pre-allocate-obj_cgroups-for-slab-caches-with-slab_account.patch
+mm-memcg-slab-pre-allocate-obj_cgroups-for-slab-caches-with-slab_account-v2.patch
 
