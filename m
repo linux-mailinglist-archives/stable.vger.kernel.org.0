@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0632C78E8
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 12:45:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4551B2C78EA
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 12:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbgK2Lod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 06:44:33 -0500
-Received: from mga07.intel.com ([134.134.136.100]:8057 "EHLO mga07.intel.com"
+        id S1727757AbgK2Loo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 06:44:44 -0500
+Received: from mga07.intel.com ([134.134.136.100]:8130 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725882AbgK2Lod (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Nov 2020 06:44:33 -0500
-IronPort-SDR: sai9ie8D2pttEhklg8mHPbJQJ8pJYk/sk+CpuRrJrNTV/Fq9vi85OnNCEzuUBKk/9zhMIHhylk
- iFqfTkj2hVwA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9819"; a="236654211"
+        id S1725882AbgK2Lom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Nov 2020 06:44:42 -0500
+IronPort-SDR: i0wOwxY5AqeMlCm3YdWenTLMklP30ii9Bu6dTa7uvMU/tZAWeyOQ9/mK/HYQw0sv4REuffb3Cz
+ 0a8pHOBi6K7g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9819"; a="236654212"
 X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
-   d="scan'208";a="236654211"
+   d="scan'208";a="236654212"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2020 03:43:12 -0800
-IronPort-SDR: UTqLxCcKQjJf0OjHSzZEOo4sFVs3Ra0eGlQ+wvvPkSSnH2HSOKT5PqlNILnA6cBC0giRSdb+Pb
- +xdXcCFFZ9Fw==
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2020 03:43:14 -0800
+IronPort-SDR: y+h36jCuOb3LQ75mQ4kkcuGpJEMWwob8XsN74kQi30UhvBWEMtXJ5jpwNUGxb6M/w1TOJa+A/z
+ FOfOBMYB/0hA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
-   d="scan'208";a="480261645"
+   d="scan'208";a="480261657"
 Received: from crojewsk-ctrl.igk.intel.com ([10.102.9.28])
-  by orsmga004.jf.intel.com with ESMTP; 29 Nov 2020 03:43:10 -0800
+  by orsmga004.jf.intel.com with ESMTP; 29 Nov 2020 03:43:12 -0800
 From:   Cezary Rojewski <cezary.rojewski@intel.com>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     alsa-devel@alsa-project.org, broonie@kernel.org, tiwai@suse.com,
         pierre-louis.bossart@linux.intel.com,
         mateusz.gorski@linux.intel.com,
         Cezary Rojewski <cezary.rojewski@intel.com>
-Subject: [PATCH 4/8] ASoC: Intel: Skylake: Shield against no-NHLT configurations
-Date:   Sun, 29 Nov 2020 12:41:44 +0100
-Message-Id: <20201129114148.13772-5-cezary.rojewski@intel.com>
+Subject: [PATCH 5/8] ASoC: Intel: Allow for ROM init retry on CNL platforms
+Date:   Sun, 29 Nov 2020 12:41:45 +0100
+Message-Id: <20201129114148.13772-6-cezary.rojewski@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20201129114148.13772-1-cezary.rojewski@intel.com>
 References: <20201129114148.13772-1-cezary.rojewski@intel.com>
@@ -43,71 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 9e6c382f5a6161eb55115fb56614b9827f2e7da3 upstream.
+commit 024aa45f55ccd40704cfdef61b2a8b6d0de9cdd1 upstream.
 
-Some configurations expose no NHLT table at all within their
-/sys/firmware/acpi/tables. To prevent NULL-dereference errors from
-occurring, adjust probe flow and append additional safety checks in
-functions involved in NHLT lifecycle.
+Due to unconditional initial timeouts, firmware may fail to load during
+its initialization. This issue cannot be resolved on driver side as it
+is caused by external sources such as CSME but has to be accounted for
+nonetheless.
 
+Fixes: cb6a55284629 ("ASoC: Intel: cnl: Add sst library functions for cnl platform")
 Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200305145314.32579-5-cezary.rojewski@intel.com
+Link: https://lore.kernel.org/r/20200305145314.32579-7-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: <stable@vger.kernel.org> # 5.4.x
 ---
- sound/soc/intel/skylake/skl-nhlt.c | 3 ++-
- sound/soc/intel/skylake/skl.c      | 9 +++++++--
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ sound/soc/intel/skylake/bxt-sst.c     |  2 --
+ sound/soc/intel/skylake/cnl-sst.c     | 15 ++++++++++-----
+ sound/soc/intel/skylake/skl-sst-dsp.h |  1 +
+ 3 files changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-nhlt.c b/sound/soc/intel/skylake/skl-nhlt.c
-index 19f328d71f24..d9c8f5cb389e 100644
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -182,7 +182,8 @@ void skl_nhlt_remove_sysfs(struct skl_dev *skl)
+diff --git a/sound/soc/intel/skylake/bxt-sst.c b/sound/soc/intel/skylake/bxt-sst.c
+index 92a82e6b5fe6..cdafade8abd6 100644
+--- a/sound/soc/intel/skylake/bxt-sst.c
++++ b/sound/soc/intel/skylake/bxt-sst.c
+@@ -38,8 +38,6 @@
+ /* Delay before scheduling D0i3 entry */
+ #define BXT_D0I3_DELAY 5000
+ 
+-#define BXT_FW_ROM_INIT_RETRY 3
+-
+ static unsigned int bxt_get_errorcode(struct sst_dsp *ctx)
  {
- 	struct device *dev = &skl->pci->dev;
+ 	 return sst_dsp_shim_read(ctx, BXT_ADSP_ERROR_CODE);
+diff --git a/sound/soc/intel/skylake/cnl-sst.c b/sound/soc/intel/skylake/cnl-sst.c
+index 4f64f097e9ae..060e47ae3391 100644
+--- a/sound/soc/intel/skylake/cnl-sst.c
++++ b/sound/soc/intel/skylake/cnl-sst.c
+@@ -109,7 +109,7 @@ static int cnl_load_base_firmware(struct sst_dsp *ctx)
+ {
+ 	struct firmware stripped_fw;
+ 	struct skl_dev *cnl = ctx->thread_context;
+-	int ret;
++	int ret, i;
  
--	sysfs_remove_file(&dev->kobj, &dev_attr_platform_id.attr);
-+	if (skl->nhlt)
-+		sysfs_remove_file(&dev->kobj, &dev_attr_platform_id.attr);
- }
+ 	if (!ctx->fw) {
+ 		ret = request_firmware(&ctx->fw, ctx->fw_name, ctx->dev);
+@@ -131,12 +131,16 @@ static int cnl_load_base_firmware(struct sst_dsp *ctx)
+ 	stripped_fw.size = ctx->fw->size;
+ 	skl_dsp_strip_extended_manifest(&stripped_fw);
  
- /*
-diff --git a/sound/soc/intel/skylake/skl.c b/sound/soc/intel/skylake/skl.c
-index 1a3a3d6a3141..2e5fbd220923 100644
---- a/sound/soc/intel/skylake/skl.c
-+++ b/sound/soc/intel/skylake/skl.c
-@@ -632,6 +632,9 @@ static int skl_clock_device_register(struct skl_dev *skl)
- 	struct platform_device_info pdevinfo = {NULL};
- 	struct skl_clk_pdata *clk_pdata;
+-	ret = cnl_prepare_fw(ctx, stripped_fw.data, stripped_fw.size);
+-	if (ret < 0) {
+-		dev_err(ctx->dev, "prepare firmware failed: %d\n", ret);
+-		goto cnl_load_base_firmware_failed;
++	for (i = 0; i < BXT_FW_ROM_INIT_RETRY; i++) {
++		ret = cnl_prepare_fw(ctx, stripped_fw.data, stripped_fw.size);
++		if (!ret)
++			break;
++		dev_dbg(ctx->dev, "prepare firmware failed: %d\n", ret);
+ 	}
  
-+	if (!skl->nhlt)
-+		return 0;
++	if (ret < 0)
++		goto cnl_load_base_firmware_failed;
 +
- 	clk_pdata = devm_kzalloc(&skl->pci->dev, sizeof(*clk_pdata),
- 							GFP_KERNEL);
- 	if (!clk_pdata)
-@@ -1090,7 +1093,8 @@ static int skl_probe(struct pci_dev *pci,
- out_clk_free:
- 	skl_clock_device_unregister(skl);
- out_nhlt_free:
--	intel_nhlt_free(skl->nhlt);
-+	if (skl->nhlt)
-+		intel_nhlt_free(skl->nhlt);
- out_free:
- 	skl_free(bus);
+ 	ret = sst_transfer_fw_host_dma(ctx);
+ 	if (ret < 0) {
+ 		dev_err(ctx->dev, "transfer firmware failed: %d\n", ret);
+@@ -158,6 +162,7 @@ static int cnl_load_base_firmware(struct sst_dsp *ctx)
+ 	return 0;
  
-@@ -1139,7 +1143,8 @@ static void skl_remove(struct pci_dev *pci)
- 	skl_dmic_device_unregister(skl);
- 	skl_clock_device_unregister(skl);
- 	skl_nhlt_remove_sysfs(skl);
--	intel_nhlt_free(skl->nhlt);
-+	if (skl->nhlt)
-+		intel_nhlt_free(skl->nhlt);
- 	skl_free(bus);
- 	dev_set_drvdata(&pci->dev, NULL);
- }
+ cnl_load_base_firmware_failed:
++	dev_err(ctx->dev, "firmware load failed: %d\n", ret);
+ 	release_firmware(ctx->fw);
+ 	ctx->fw = NULL;
+ 
+diff --git a/sound/soc/intel/skylake/skl-sst-dsp.h b/sound/soc/intel/skylake/skl-sst-dsp.h
+index cdfec0fca577..067d1ea11cde 100644
+--- a/sound/soc/intel/skylake/skl-sst-dsp.h
++++ b/sound/soc/intel/skylake/skl-sst-dsp.h
+@@ -67,6 +67,7 @@ struct skl_dev;
+ 
+ #define SKL_FW_INIT			0x1
+ #define SKL_FW_RFW_START		0xf
++#define BXT_FW_ROM_INIT_RETRY		3
+ 
+ #define SKL_ADSPIC_IPC			1
+ #define SKL_ADSPIS_IPC			1
 -- 
 2.17.1
 
