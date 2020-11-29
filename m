@@ -2,184 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0CE42C78F0
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 12:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BCE52C7965
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 14:20:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbgK2Lo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 06:44:59 -0500
-Received: from mga07.intel.com ([134.134.136.100]:8130 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725882AbgK2Lo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Nov 2020 06:44:59 -0500
-IronPort-SDR: fcQT/+l3AvLNyMNriBZbkXGE9N5U9wd1SSr4JYojA6IsdBKol8Y85bl5wQ+QbhfJb7Mezxf+3m
- XhkUPdjpYGQQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9819"; a="236654216"
-X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
-   d="scan'208";a="236654216"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2020 03:43:21 -0800
-IronPort-SDR: 8hOqvENdMdNyXUQbrRMDK/8JxCqYtLxxtWuAiZspRKLIGSG700KvboJy2Vq2q/tQzpxFL+MGPM
- r3CP4wDWfPGg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
-   d="scan'208";a="480261683"
-Received: from crojewsk-ctrl.igk.intel.com ([10.102.9.28])
-  by orsmga004.jf.intel.com with ESMTP; 29 Nov 2020 03:43:19 -0800
-From:   Cezary Rojewski <cezary.rojewski@intel.com>
-To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     alsa-devel@alsa-project.org, broonie@kernel.org, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com,
-        mateusz.gorski@linux.intel.com
-Subject: [PATCH 8/8] ASoC: Intel: Skylake: Automatic DMIC format configuration according to information from NHLT
-Date:   Sun, 29 Nov 2020 12:41:48 +0100
-Message-Id: <20201129114148.13772-9-cezary.rojewski@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201129114148.13772-1-cezary.rojewski@intel.com>
-References: <20201129114148.13772-1-cezary.rojewski@intel.com>
+        id S1727332AbgK2NSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 08:18:31 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25372 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727073AbgK2NSa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 08:18:30 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0ATD2Yb7009442;
+        Sun, 29 Nov 2020 08:17:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=RET6IEGV68d1uV4rz0SlQt3ZjlfobHeZrj6jvGCfiKE=;
+ b=W40tMc3Qrq+LHzjaQ3hAZ+7kBNUWb98bsvqczXv4rmBCigQfNLpxlccYYtNdgR7uB2+c
+ 7DgpZp9Xe7FSFiynXiTjOgHR0HBnFQECcXX4SdCd24kiiuO7dVOTuXWOGAGaOZVI5O2p
+ 5Gb3VoQLQT6lh77aDjb6fwe5Ib1uOEjSJT/dBXUIaNykHGpHrU15/JLcxoOtwjDgvbxe
+ dLqH6A3cT4nSORiSGfqdKIxmN8JzT56ZsMEyD/4qg96u0Jl55FnFJxSWGqpTcbfy70wz
+ cSaAGY9sxNG1tqv272x5WbRsbffMf/1zTHPtRpBVG6PFySqH9T+y1Cs+ZwKlH6q6ZYbt 3Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3544deynbk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 29 Nov 2020 08:17:48 -0500
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0ATD2cMb009724;
+        Sun, 29 Nov 2020 08:17:47 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3544deyn7j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 29 Nov 2020 08:17:47 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0ATDH1s5028058;
+        Sun, 29 Nov 2020 13:17:42 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 353e688jvh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 29 Nov 2020 13:17:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0ATDHeAC59441586
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 29 Nov 2020 13:17:40 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 889D811C04C;
+        Sun, 29 Nov 2020 13:17:40 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E48011C04A;
+        Sun, 29 Nov 2020 13:17:39 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.20.242])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sun, 29 Nov 2020 13:17:38 +0000 (GMT)
+Message-ID: <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
+Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with
+ kernel measurements
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maurizio Drocco <maurizio.drocco@ibm.com>,
+        Bruno Meneguele <bmeneg@redhat.com>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date:   Sun, 29 Nov 2020 08:17:38 -0500
+In-Reply-To: <20200709012735.GX2722994@sasha-vm>
+References: <20200708154116.3199728-1-sashal@kernel.org>
+         <20200708154116.3199728-3-sashal@kernel.org>
+         <1594224793.23056.251.camel@linux.ibm.com>
+         <20200709012735.GX2722994@sasha-vm>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-29_07:2020-11-26,2020-11-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ clxscore=1031 mlxlogscore=999 spamscore=0 phishscore=0 mlxscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2011290087
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Gorski <mateusz.gorski@linux.intel.com>
+Hi Sasha,
 
-commit 2d744ecf2b98405723a2138a547e5c75009bc4e5 upstream.
+On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
+> On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
+> >Hi Sasha,
+> >
+> >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
+> >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
+> >>
+> >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
+> >>
+> >> Registers 8-9 are used to store measurements of the kernel and its
+> >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
+> >> should include them in the boot aggregate. Registers 8-9 should be
+> >> only included in non-SHA1 digests to avoid ambiguity.
+> >
+> >Prior to Linux 5.8, the SHA1 template data hashes were padded before
+> >being extended into the TPM.  Support for calculating and extending
+> >the per TPM bank template data digests is only being upstreamed in
+> >Linux 5.8.
+> >
+> >How will attestation servers know whether to include PCRs 8 & 9 in the
+> >the boot_aggregate calculation?  Now, there is a direct relationship
+> >between the template data SHA1 padded digest not including PCRs 8 & 9,
+> >and the new per TPM bank template data digest including them.
+> 
+> Got it, I'll drop it then, thank you!
 
-Automatically choose DMIC pipeline format configuration depending on
-information included in NHLT.
-Change the access rights of appropriate kcontrols to read-only in order
-to prevent user interference.
+After re-thinking this over, I realized that the attestation server can
+verify the "boot_aggregate" based on the quoted PCRs without knowing
+whether padded SHA1 hashes or per TPM bank hash values were extended
+into the TPM[1], but non-SHA1 boot aggregate values [2] should always
+include PCRs 8 & 9.
 
-Signed-off-by: Mateusz Gorski <mateusz.gorski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200427132727.24942-4-mateusz.gorski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.4.x
----
- include/uapi/sound/skl-tplg-interface.h |  1 +
- sound/soc/intel/skylake/skl-topology.c  | 64 +++++++++++++++++++++++--
- 2 files changed, 62 insertions(+), 3 deletions(-)
+Any place commit 6f1a1d103b48 was backported [2], this commit
+20c59ce010f8 ("ima: extend boot_aggregate with kernel measurements")
+should be backported as well.
 
-diff --git a/include/uapi/sound/skl-tplg-interface.h b/include/uapi/sound/skl-tplg-interface.h
-index f2711186c81f..a93c0decfdd5 100644
---- a/include/uapi/sound/skl-tplg-interface.h
-+++ b/include/uapi/sound/skl-tplg-interface.h
-@@ -19,6 +19,7 @@
- #define SKL_CONTROL_TYPE_BYTE_TLV	0x100
- #define SKL_CONTROL_TYPE_MIC_SELECT	0x102
- #define SKL_CONTROL_TYPE_MULTI_IO_SELECT	0x103
-+#define SKL_CONTROL_TYPE_MULTI_IO_SELECT_DMIC	0x104
- 
- #define HDA_SST_CFG_MAX	900 /* size of copier cfg*/
- #define MAX_IN_QUEUE 8
-diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
-index c9cd6d60d57b..aa5833001fde 100644
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -1405,6 +1405,18 @@ static int skl_tplg_multi_config_set(struct snd_kcontrol *kcontrol,
- 	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, true);
- }
- 
-+static int skl_tplg_multi_config_get_dmic(struct snd_kcontrol *kcontrol,
-+					  struct snd_ctl_elem_value *ucontrol)
-+{
-+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, false);
-+}
-+
-+static int skl_tplg_multi_config_set_dmic(struct snd_kcontrol *kcontrol,
-+					  struct snd_ctl_elem_value *ucontrol)
-+{
-+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, true);
-+}
-+
- static int skl_tplg_tlv_control_get(struct snd_kcontrol *kcontrol,
- 			unsigned int __user *data, unsigned int size)
- {
-@@ -1949,6 +1961,11 @@ static const struct snd_soc_tplg_kcontrol_ops skl_tplg_kcontrol_ops[] = {
- 		.get = skl_tplg_multi_config_get,
- 		.put = skl_tplg_multi_config_set,
- 	},
-+	{
-+		.id = SKL_CONTROL_TYPE_MULTI_IO_SELECT_DMIC,
-+		.get = skl_tplg_multi_config_get_dmic,
-+		.put = skl_tplg_multi_config_set_dmic,
-+	}
- };
- 
- static int skl_tplg_fill_pipe_cfg(struct device *dev,
-@@ -3109,12 +3126,21 @@ static int skl_tplg_control_load(struct snd_soc_component *cmpnt,
- 	case SND_SOC_TPLG_CTL_ENUM:
- 		tplg_ec = container_of(hdr,
- 				struct snd_soc_tplg_enum_control, hdr);
--		if (kctl->access & SNDRV_CTL_ELEM_ACCESS_READWRITE) {
-+		if (kctl->access & SNDRV_CTL_ELEM_ACCESS_READ) {
- 			se = (struct soc_enum *)kctl->private_value;
- 			if (tplg_ec->priv.size)
--				return skl_init_enum_data(bus->dev, se,
--						tplg_ec);
-+				skl_init_enum_data(bus->dev, se, tplg_ec);
- 		}
-+
-+		/*
-+		 * now that the control initializations are done, remove
-+		 * write permission for the DMIC configuration enums to
-+		 * avoid conflicts between NHLT settings and user interaction
-+		 */
-+
-+		if (hdr->ops.get == SKL_CONTROL_TYPE_MULTI_IO_SELECT_DMIC)
-+			kctl->access = SNDRV_CTL_ELEM_ACCESS_READ;
-+
- 		break;
- 
- 	default:
-@@ -3584,6 +3610,37 @@ static int skl_manifest_load(struct snd_soc_component *cmpnt, int index,
- 	return 0;
- }
- 
-+static void skl_tplg_complete(struct snd_soc_component *component)
-+{
-+	struct snd_soc_dobj *dobj;
-+	struct snd_soc_acpi_mach *mach =
-+		dev_get_platdata(component->card->dev);
-+	int i;
-+
-+	list_for_each_entry(dobj, &component->dobj_list, list) {
-+		struct snd_kcontrol *kcontrol = dobj->control.kcontrol;
-+		struct soc_enum *se =
-+			(struct soc_enum *)kcontrol->private_value;
-+		char **texts = dobj->control.dtexts;
-+		char chan_text[4];
-+
-+		if (dobj->type != SND_SOC_DOBJ_ENUM ||
-+		    dobj->control.kcontrol->put !=
-+		    skl_tplg_multi_config_set_dmic)
-+			continue;
-+		sprintf(chan_text, "c%d", mach->mach_params.dmic_num);
-+
-+		for (i = 0; i < se->items; i++) {
-+			struct snd_ctl_elem_value val;
-+
-+			if (strstr(texts[i], chan_text)) {
-+				val.value.enumerated.item[0] = i;
-+				kcontrol->put(kcontrol, &val);
-+			}
-+		}
-+	}
-+}
-+
- static struct snd_soc_tplg_ops skl_tplg_ops  = {
- 	.widget_load = skl_tplg_widget_load,
- 	.control_load = skl_tplg_control_load,
-@@ -3593,6 +3650,7 @@ static struct snd_soc_tplg_ops skl_tplg_ops  = {
- 	.io_ops_count = ARRAY_SIZE(skl_tplg_kcontrol_ops),
- 	.manifest = skl_manifest_load,
- 	.dai_load = skl_dai_load,
-+	.complete = skl_tplg_complete,
- };
- 
- /*
--- 
-2.17.1
+thanks,
+
+Mimi
+
+[1] commit 1ea973df6e21 ("ima: Calculate and extend PCR with digests in ima_template_entry")
+[2] commit 6f1a1d103b48 ("ima: Switch to ima_hash_algo for boot aggregate")
 
