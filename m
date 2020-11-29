@@ -2,165 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F462C769A
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 00:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7E72C7750
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 03:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727281AbgK1X2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 18:28:10 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28958 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725989AbgK1X2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 18:28:10 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0ASN1XG5082691;
-        Sat, 28 Nov 2020 18:27:25 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : reply-to : to : cc : date : in-reply-to : references : content-type
- : mime-version : content-transfer-encoding; s=pp1;
- bh=bCG8G51Iyk2zmq31048W8a7dnAA9tSi/D4nkld4h+Y4=;
- b=FzrKYdy6CY28etVmfrzYxyhMiNZ6WKS07WBmHEMwBx9126W0fzmGl1bOgN4uQ+DCaLg+
- +Xzy12rw6bRfymYxdnzf3+UwT7dsFooGMEwicM+2fI78fv6rh9V2lFGibGGQIRBZglyR
- NJXdTAWttoo7ufcldHC9YGkjl3w7PQOC7I9qD0K75MTw1Uu/hG8Y887P1+i8OGzzXMT4
- Lw5qtAxjqfeYEvD/nINdfq6adO9dtxHEkdN9OAfg/26bD6p2onpoAju5QW9/m+e8o2s7
- Vi4zDpkw4IpfpbHACRmplTkf2RGrpr08sQm02RHSS3stuRGfJOQxoDY/RQAJ3gG9xnAW /g== 
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 353xvv1b6m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 28 Nov 2020 18:27:24 -0500
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0ASNROUT012005;
-        Sat, 28 Nov 2020 23:27:24 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma03wdc.us.ibm.com with ESMTP id 353e68d5jk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 28 Nov 2020 23:27:24 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0ASNRNcr49283466
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 28 Nov 2020 23:27:23 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8F50F7805E;
-        Sat, 28 Nov 2020 23:27:23 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BD1B7805C;
-        Sat, 28 Nov 2020 23:27:22 +0000 (GMT)
-Received: from jarvis.int.hansenpartnership.com (unknown [9.80.201.242])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Sat, 28 Nov 2020 23:27:22 +0000 (GMT)
-Message-ID: <c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com>
-Subject: Re: [PATCH] scsi: ses: Fix crash caused by kfree an invalid pointer
-From:   James Bottomley <jejb@linux.ibm.com>
-Reply-To: jejb@linux.ibm.com
-To:     Ding Hui <dinghui@sangfor.com.cn>, martin.petersen@oracle.com
-Cc:     linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Date:   Sat, 28 Nov 2020 15:27:21 -0800
-In-Reply-To: <20201128122302.9490-1-dinghui@sangfor.com.cn>
-References: <20201128122302.9490-1-dinghui@sangfor.com.cn>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+        id S1726428AbgK2CyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 21:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726426AbgK2CyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 21:54:18 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB19C0613D2;
+        Sat, 28 Nov 2020 18:53:32 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id m9so7524978pgb.4;
+        Sat, 28 Nov 2020 18:53:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ELNBa7ITkr6S7/2L6cdZr5s+CM8yFyj2snsrlnL2y84=;
+        b=YNng1+dvbuL6goiCBWbUDAVEl9yzcKN0gJuFSMvZEko+vrrqKrZ5RmRx7Uu3FTJAqE
+         3zmN1dRHeSEJU7ylEyJ3M1LmMQS1+dcjQKfG9YC675RgiaBhnqd44vLi/aH2cPzPrCtW
+         dq3BFKufmgLQ8scZBNifpK2e9ZDPe62g7Usk/pZQkTp93zGbcIjbmaQg4d4pA6KfukE/
+         Skd40tAkxoxmisYHkXmHDIQEmzvvYXL2usmbRg4sAM8qcKKVuVQWKrtUfB2lU1iLIWeM
+         gd6r5VAPtPvrjAnQd2fm+A51ESqk/Y4gnHSPMepnMNlujkZ50nqyNyMl5HFhTavM6rOQ
+         H2Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ELNBa7ITkr6S7/2L6cdZr5s+CM8yFyj2snsrlnL2y84=;
+        b=jAgcvvooIEm7z92VLBQYqwruC1grmjMmmnFUKWJnPnP685JmMsq6NFuqcquvfKamlh
+         pEI3u1zxjH/rllJz2Qj9g7hdzT/PA88vE13HQmpyvpUo/mFIgWNF9Cv9Y1icKIGCG90q
+         0elRjyAQAeWZq2RiZfVrO80JUPx5EDayyxwPLYPWvWbJB2x55wnI93qjKWp3j0vpvhYa
+         fKiKmIiqXTGi0yQg9B/Adpw/JlN7q+KFvnVoXpdjftpX2HxULOL+kaQmUxzu4pK27ivi
+         /4+Bl7N46qAgaejt77TaRFqkb8ezaD/QsX7+Lt5BpMitlVz34A4N+M3Kgx44if0Wb6sX
+         OtwA==
+X-Gm-Message-State: AOAM533AMafrpnz2KVERxt5KOrb7GKWTpmXMqNoCVvW83cGxdTSqSNCn
+        j2r5fvtpMeMUfppdwbderv8=
+X-Google-Smtp-Source: ABdhPJxdg62VO+37fbEsG2/QrIi84fxL2IcbNz5UHh41GcEKH7bDXd2FIkGyApHZZjlbFeXf7zhXnw==
+X-Received: by 2002:a17:90a:2941:: with SMTP id x1mr18488150pjf.25.1606618411534;
+        Sat, 28 Nov 2020 18:53:31 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id f18sm12024151pfa.167.2020.11.28.18.53.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Nov 2020 18:53:30 -0800 (PST)
+Date:   Sat, 28 Nov 2020 18:53:28 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-input@vger.kernel.org, Andre <andre.muller@web.de>,
+        Nick Dyer <nick.dyer@itdev.co.uk>,
+        Jiada Wang <jiada_wang@mentor.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] Input: atmel_mxt_ts - Fix lost interrupts
+Message-ID: <20201129025328.GH2034289@dtor-ws>
+References: <20201128123720.929948-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-28_17:2020-11-26,2020-11-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 impostorscore=0 bulkscore=0 suspectscore=4
- priorityscore=1501 mlxscore=0 malwarescore=0 phishscore=0 clxscore=1011
- adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011280144
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201128123720.929948-1-linus.walleij@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2020-11-28 at 20:23 +0800, Ding Hui wrote:
-> We can get a crash when disconnecting the iSCSI session,
-> the call trace like this:
+Hi Linus,
+
+On Sat, Nov 28, 2020 at 01:37:20PM +0100, Linus Walleij wrote:
+> After commit 74d905d2d38a devices requiring the workaround
+> for edge triggered interrupts stopped working.
 > 
->   [ffff00002a00fb70] kfree at ffff00000830e224
->   [ffff00002a00fba0] ses_intf_remove at ffff000001f200e4
->   [ffff00002a00fbd0] device_del at ffff0000086b6a98
->   [ffff00002a00fc50] device_unregister at ffff0000086b6d58
->   [ffff00002a00fc70] __scsi_remove_device at ffff00000870608c
->   [ffff00002a00fca0] scsi_remove_device at ffff000008706134
->   [ffff00002a00fcc0] __scsi_remove_target at ffff0000087062e4
->   [ffff00002a00fd10] scsi_remove_target at ffff0000087064c0
->   [ffff00002a00fd70] __iscsi_unbind_session at ffff000001c872c4
->   [ffff00002a00fdb0] process_one_work at ffff00000810f35c
->   [ffff00002a00fe00] worker_thread at ffff00000810f648
->   [ffff00002a00fe70] kthread at ffff000008116e98
+> This is because the "data" state container defaults to
+> *not* using the workaround, but the workaround gets used
+> *before* the check of whether it is needed or not. This
+> semantic is not obvious from just looking on the patch,
+> but related to the program flow.
 > 
-> In ses_intf_add, components count could be 0, and kcalloc 0 size
-> scomp,
-> but not saved in edev->component[i].scratch
+> The hardware needs the quirk to be used before even
+> proceeding to check if the quirk is needed.
 > 
-> In this situation, edev->component[0].scratch is an invalid pointer,
-> when kfree it in ses_intf_remove_enclosure, a crash like above would
-> happen
-> The call trace also could be other random cases when kfree cannot
-> catch
-> the invalid pointer
+> This patch makes the quirk be used until we determine
+> it is *not* needed.
+
+Thank you very much for root-causing the issue!
+
 > 
-> We should not use edev->component[] array when the components count
-> is 0
-> We also need check index when use edev->component[] array in
-> ses_enclosure_data_process
+> Cc: Andre <andre.muller@web.de>
+> Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+> Cc: Jiada Wang <jiada_wang@mentor.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary")
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> Tested-by: Zeng Zhicong <timmyzeng@163.com>
-> Cc: stable <stable@vger.kernel.org> # 2.6.25+
-> Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index e34984388791..f25b2f6038a7 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -1297,8 +1297,6 @@ static int mxt_check_retrigen(struct mxt_data *data)
+>  	int val;
+>  	struct irq_data *irqd;
+>  
+> -	data->use_retrigen_workaround = false;
+> -
 
-This doesn't really look to be the right thing to do: an enclosure
-which has no component can't usefully be controlled by the driver since
-there's nothing for it to do, so what we should do in this situation is
-refuse to attach like the proposed patch below.
+So this will result in data->use_retrigen_workaround staying "true" for
+level interrupts, which is not needed, as with those we will never lose
+an edge. So I think your patch can be reduced to simply setting
+data->use_retrigen_workaround to true in mxt_probe() and leaving
+mxt_check_retrigen() without any changes.
 
-It does seem a bit odd that someone would build an enclosure that
-doesn't enclose anything, so would you mind running
+However I wonder if it would not be better to simply call
+mxt_check_retrigen() before calling mxt_acquire_irq() in mxt_probe()
+instead of after.
 
-sg_ses -e 
+>  	irqd = irq_get_irq_data(data->irq);
+>  	if (!irqd)
+>  		return -EINVAL;
+> @@ -1313,8 +1311,10 @@ static int mxt_check_retrigen(struct mxt_data *data)
+>  		if (error)
+>  			return error;
+>  
+> -		if (val & MXT_COMMS_RETRIGEN)
+> +		if (val & MXT_COMMS_RETRIGEN) {
+> +			data->use_retrigen_workaround = false;
+>  			return 0;
+> +		}
+>  	}
+>  
+>  	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
+> @@ -3117,6 +3117,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	data = devm_kzalloc(&client->dev, sizeof(struct mxt_data), GFP_KERNEL);
+>  	if (!data)
+>  		return -ENOMEM;
+> +	data->use_retrigen_workaround = true;
+>  
+>  	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
+>  		 client->adapter->nr, client->addr);
+> -- 
+> 2.26.2
+> 
 
-on it and reporting back what it shows?  It's possible there's another
-type that the enclosure device should be tracking.
+By the way, does your touchscreen work if you change interrupt trigger
+to level in DTS?
 
-Regards,
+Thanks.
 
-James
-
----8>8>8><8<8<8--------
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: [PATCH] scsi: ses: don't attach if enclosure has no components
-
-An enclosure with no components can't usefully be operated by the
-driver (since effectively it has nothing to manage), so report the
-problem and don't attach.  Not attaching also fixes an oops which
-could occur if the driver tries to manage a zero component enclosure.
-
-Reported-by: Ding Hui <dinghui@sangfor.com.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
----
- drivers/scsi/ses.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index c2afba2a5414..9624298b9c89 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -690,6 +690,11 @@ static int ses_intf_add(struct device *cdev,
- 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
- 			components += type_ptr[1];
- 	}
-+	if (components == 0) {
-+		sdev_printk(KERN_ERR, sdev, "enclosure has no enumerated components\n");
-+		goto err_free;
-+	}
-+
- 	ses_dev->page1 = buf;
- 	ses_dev->page1_len = len;
- 	buf = NULL;
 -- 
-2.26.2
-
-
-
+Dmitry
