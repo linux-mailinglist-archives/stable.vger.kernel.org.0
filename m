@@ -2,151 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7E72C7750
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 03:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CAE52C7773
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 04:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726428AbgK2CyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Nov 2020 21:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726426AbgK2CyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Nov 2020 21:54:18 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB19C0613D2;
-        Sat, 28 Nov 2020 18:53:32 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id m9so7524978pgb.4;
-        Sat, 28 Nov 2020 18:53:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ELNBa7ITkr6S7/2L6cdZr5s+CM8yFyj2snsrlnL2y84=;
-        b=YNng1+dvbuL6goiCBWbUDAVEl9yzcKN0gJuFSMvZEko+vrrqKrZ5RmRx7Uu3FTJAqE
-         3zmN1dRHeSEJU7ylEyJ3M1LmMQS1+dcjQKfG9YC675RgiaBhnqd44vLi/aH2cPzPrCtW
-         dq3BFKufmgLQ8scZBNifpK2e9ZDPe62g7Usk/pZQkTp93zGbcIjbmaQg4d4pA6KfukE/
-         Skd40tAkxoxmisYHkXmHDIQEmzvvYXL2usmbRg4sAM8qcKKVuVQWKrtUfB2lU1iLIWeM
-         gd6r5VAPtPvrjAnQd2fm+A51ESqk/Y4gnHSPMepnMNlujkZ50nqyNyMl5HFhTavM6rOQ
-         H2Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ELNBa7ITkr6S7/2L6cdZr5s+CM8yFyj2snsrlnL2y84=;
-        b=jAgcvvooIEm7z92VLBQYqwruC1grmjMmmnFUKWJnPnP685JmMsq6NFuqcquvfKamlh
-         pEI3u1zxjH/rllJz2Qj9g7hdzT/PA88vE13HQmpyvpUo/mFIgWNF9Cv9Y1icKIGCG90q
-         0elRjyAQAeWZq2RiZfVrO80JUPx5EDayyxwPLYPWvWbJB2x55wnI93qjKWp3j0vpvhYa
-         fKiKmIiqXTGi0yQg9B/Adpw/JlN7q+KFvnVoXpdjftpX2HxULOL+kaQmUxzu4pK27ivi
-         /4+Bl7N46qAgaejt77TaRFqkb8ezaD/QsX7+Lt5BpMitlVz34A4N+M3Kgx44if0Wb6sX
-         OtwA==
-X-Gm-Message-State: AOAM533AMafrpnz2KVERxt5KOrb7GKWTpmXMqNoCVvW83cGxdTSqSNCn
-        j2r5fvtpMeMUfppdwbderv8=
-X-Google-Smtp-Source: ABdhPJxdg62VO+37fbEsG2/QrIi84fxL2IcbNz5UHh41GcEKH7bDXd2FIkGyApHZZjlbFeXf7zhXnw==
-X-Received: by 2002:a17:90a:2941:: with SMTP id x1mr18488150pjf.25.1606618411534;
-        Sat, 28 Nov 2020 18:53:31 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id f18sm12024151pfa.167.2020.11.28.18.53.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2020 18:53:30 -0800 (PST)
-Date:   Sat, 28 Nov 2020 18:53:28 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-input@vger.kernel.org, Andre <andre.muller@web.de>,
-        Nick Dyer <nick.dyer@itdev.co.uk>,
-        Jiada Wang <jiada_wang@mentor.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] Input: atmel_mxt_ts - Fix lost interrupts
-Message-ID: <20201129025328.GH2034289@dtor-ws>
-References: <20201128123720.929948-1-linus.walleij@linaro.org>
+        id S1725616AbgK2Dwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Nov 2020 22:52:36 -0500
+Received: from mga18.intel.com ([134.134.136.126]:36094 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725294AbgK2Dwf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Nov 2020 22:52:35 -0500
+IronPort-SDR: pZ69AA/F1j0q7NeCfb4NRlu1nts4z4q9SC9X2NKZM7pwULNreA+fDOskIyMI2TzWpIrDFdcFX2
+ xy3EJ8vwGC6Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9819"; a="160284665"
+X-IronPort-AV: E=Sophos;i="5.78,378,1599548400"; 
+   d="scan'208";a="160284665"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2020 19:51:55 -0800
+IronPort-SDR: 9+c3ac338m2We2RriEdURtTR/9N0dTrJZX1SYNNJy/9MZDr0Hbp5gFs2n8PnyEQsQtrqAOWw6C
+ 4fqxp+JC38GQ==
+X-IronPort-AV: E=Sophos;i="5.78,378,1599548400"; 
+   d="scan'208";a="314104489"
+Received: from schung-mobl.amr.corp.intel.com (HELO rdvivi-mobl4.intel.com) ([10.209.4.69])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2020 19:51:54 -0800
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Fixup tgl mocs for PTE tracking
+Date:   Sat, 28 Nov 2020 19:51:51 -0800
+Message-Id: <20201129035151.1071647-1-rodrigo.vivi@intel.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201128123720.929948-1-linus.walleij@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Linus,
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-On Sat, Nov 28, 2020 at 01:37:20PM +0100, Linus Walleij wrote:
-> After commit 74d905d2d38a devices requiring the workaround
-> for edge triggered interrupts stopped working.
-> 
-> This is because the "data" state container defaults to
-> *not* using the workaround, but the workaround gets used
-> *before* the check of whether it is needed or not. This
-> semantic is not obvious from just looking on the patch,
-> but related to the program flow.
-> 
-> The hardware needs the quirk to be used before even
-> proceeding to check if the quirk is needed.
-> 
-> This patch makes the quirk be used until we determine
-> it is *not* needed.
+commit be33805c65297611971003d72e7f9235e23ec84d upstream.
 
-Thank you very much for root-causing the issue!
+Forcing mocs:1 [used for our winsys follows-pte mode] to be cached
+caused display glitches. Though it is documented as deprecated (and so
+likely behaves as uncached) use the follow-pte bit and force it out of
+L3 cache.
 
-> 
-> Cc: Andre <andre.muller@web.de>
-> Cc: Nick Dyer <nick.dyer@itdev.co.uk>
-> Cc: Jiada Wang <jiada_wang@mentor.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary")
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index e34984388791..f25b2f6038a7 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1297,8 +1297,6 @@ static int mxt_check_retrigen(struct mxt_data *data)
->  	int val;
->  	struct irq_data *irqd;
->  
-> -	data->use_retrigen_workaround = false;
-> -
+Testcase: igt/kms_frontbuffer_tracking
+Testcase: igt/kms_big_fb
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ayaz A Siddiqui <ayaz.siddiqui@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201015122138.30161-4-chris@chris-wilson.co.uk
+(cherry picked from commit a04ac827366594c7244f60e9be79fcb404af69f0)
+Fixes: 849c0fe9e831 ("drm/i915/gt: Initialize reserved and unspecified MOCS indices")
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Rodrigo: Updated Fixes tag]
+Cc: <stable@vger.kernel.org> # 5.9.x
+---
+ drivers/gpu/drm/i915/gt/intel_mocs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-So this will result in data->use_retrigen_workaround staying "true" for
-level interrupts, which is not needed, as with those we will never lose
-an edge. So I think your patch can be reduced to simply setting
-data->use_retrigen_workaround to true in mxt_probe() and leaving
-mxt_check_retrigen() without any changes.
-
-However I wonder if it would not be better to simply call
-mxt_check_retrigen() before calling mxt_acquire_irq() in mxt_probe()
-instead of after.
-
->  	irqd = irq_get_irq_data(data->irq);
->  	if (!irqd)
->  		return -EINVAL;
-> @@ -1313,8 +1311,10 @@ static int mxt_check_retrigen(struct mxt_data *data)
->  		if (error)
->  			return error;
->  
-> -		if (val & MXT_COMMS_RETRIGEN)
-> +		if (val & MXT_COMMS_RETRIGEN) {
-> +			data->use_retrigen_workaround = false;
->  			return 0;
-> +		}
->  	}
->  
->  	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
-> @@ -3117,6 +3117,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	data = devm_kzalloc(&client->dev, sizeof(struct mxt_data), GFP_KERNEL);
->  	if (!data)
->  		return -ENOMEM;
-> +	data->use_retrigen_workaround = true;
->  
->  	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
->  		 client->adapter->nr, client->addr);
-> -- 
-> 2.26.2
-> 
-
-By the way, does your touchscreen work if you change interrupt trigger
-to level in DTS?
-
-Thanks.
-
+diff --git a/drivers/gpu/drm/i915/gt/intel_mocs.c b/drivers/gpu/drm/i915/gt/intel_mocs.c
+index b8f56e62158e..313e51e7d4f7 100644
+--- a/drivers/gpu/drm/i915/gt/intel_mocs.c
++++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
+@@ -243,8 +243,9 @@ static const struct drm_i915_mocs_entry tgl_mocs_table[] = {
+ 	 * only, __init_mocs_table() take care to program unused index with
+ 	 * this entry.
+ 	 */
+-	MOCS_ENTRY(1, LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
+-		   L3_3_WB),
++	MOCS_ENTRY(I915_MOCS_PTE,
++		   LE_0_PAGETABLE | LE_TC_0_PAGETABLE,
++		   L3_1_UC),
+ 	GEN11_MOCS_ENTRIES,
+ 
+ 	/* Implicitly enable L1 - HDC:L1 + L3 + LLC */
 -- 
-Dmitry
+2.28.0
+
