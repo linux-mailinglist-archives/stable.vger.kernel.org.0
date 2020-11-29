@@ -2,118 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 970782C7B49
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 22:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098442C7B52
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 22:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726344AbgK2VHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 16:07:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38990 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725882AbgK2VHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Nov 2020 16:07:32 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6F7220757;
-        Sun, 29 Nov 2020 21:06:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606684012;
-        bh=Hl+Yto9GomcGVi/UwqRwnPVmA6LiDPHsQ53LHLdabm8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hN3AY0vwAvQ+nCH0zXWRe2bBjvNgGLJ8mlzqYvlqwZJNIELR2VYnbkMaYS8q+7x+1
-         WSSaYJIWITRQuA+NHH/9ZEBPXOl0CB9aPs3W15SPwkZ9h8XXNygjwzTJw4N6g+r3du
-         /cAVWRYjBGVNWQhn5WOW6iEWf0NAhbgDIfVyzNGs=
-Date:   Sun, 29 Nov 2020 16:06:50 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
-Message-ID: <20201129210650.GP643756@sasha-vm>
-References: <20201125153550.810101-1-sashal@kernel.org>
- <20201125153550.810101-22-sashal@kernel.org>
- <25cd0d64-bffc-9506-c148-11583fed897c@redhat.com>
- <20201125180102.GL643756@sasha-vm>
- <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
- <20201129041314.GO643756@sasha-vm>
- <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
+        id S1725950AbgK2VOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 16:14:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726293AbgK2VOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 16:14:00 -0500
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5590DC0613D4
+        for <stable@vger.kernel.org>; Sun, 29 Nov 2020 13:13:20 -0800 (PST)
+Received: by mail-lj1-x243.google.com with SMTP id y7so13921659lji.8
+        for <stable@vger.kernel.org>; Sun, 29 Nov 2020 13:13:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=xwiVG3tVEBGHeUjQEfo2Oq/3+t5as5wCCQ13zXVEmrk=;
+        b=RMJtgA1b8UH/WWfuof27DvHP4SbEz9n0vdt9RRJoiRE3ZFsK5EGsTa1pHTJXq1aUw9
+         5JJLWVyDfMowuGK1q80BG5cpnFn74kor1Q+X2Nzd10JlL5IDa1ToOprJ3n4VNUsuwIIw
+         pbSiLZaABsmjgelpeWgGAoTT7cuc9qTiOSVyGSqdm+T5EwJ/HwOHjXxAt5Qu7G1GoGc+
+         /jqhpq3Hx+gW3pKLdwSX62lpfd8N5AFZbLN5XMueufntbWBb213KXtrGKw/2f0dYZI6n
+         joeESxMeR1kh1aX/T/OdIcpxMYchQ6cI+YR6Taox5Yjn3rleZAjUUFOiMKhxS/EqPlDr
+         O5Fw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=xwiVG3tVEBGHeUjQEfo2Oq/3+t5as5wCCQ13zXVEmrk=;
+        b=SjxKVX3GMDVHR/BP+ujtDWu3rWzFYSHSjOy5i1/hLHh3135DyMOsfPd0tGS3eASmYv
+         F8UCAn0NIPo1SH9qYIDX7ZSA6dHl79ac0Jh23jxSiucZh/Z5mWH5gK7tw3gLFmjD/xW8
+         90HoOT7kxpxuNYb3OVuy7lIBsQ/+sqHwBZ5Tn3PK1ZvBYgrG/O7+OO1ybxgClJFtSOVU
+         SxqSt8gE2tWBQDgVZTZ8Y7l3Ceb5qQSC97DxLwqiGjzx3YctFdJF7ASSUNnJhnO/ST+6
+         ootEHL2u2gailz4elx85wOc202ypan6IgWGnqcRx2qRmbYdayadt/UJSFbzqLCG+l+3H
+         zeVw==
+X-Gm-Message-State: AOAM533sr+9HhFekLVd0nigSZ6RsqoN/+7hOSWCSUHmJ0Oqi6swqscTw
+        iSXHo1ykDvWd0l8S1OOhR2PQntnAli91q/whq6js4Q==
+X-Google-Smtp-Source: ABdhPJzGLYiMckhQIgt9ToZ4TGowXYvdlCbUgmt+wG1pH4LgtxRpCYDJGVfCXdP5TeMwJtnSTSlVfvDd/lhIW84gMxw=
+X-Received: by 2002:a2e:998e:: with SMTP id w14mr8782872lji.100.1606684398696;
+ Sun, 29 Nov 2020 13:13:18 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
+References: <20201128123720.929948-1-linus.walleij@linaro.org> <20201129025328.GH2034289@dtor-ws>
+In-Reply-To: <20201129025328.GH2034289@dtor-ws>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sun, 29 Nov 2020 22:13:06 +0100
+Message-ID: <CACRpkdY8r5_EYAtWLL2vZQ8ULf6rG-VfgDe=7oveJQwiRXxTNg@mail.gmail.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - Fix lost interrupts
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Linux Input <linux-input@vger.kernel.org>,
+        Andre <andre.muller@web.de>, Nick Dyer <nick.dyer@itdev.co.uk>,
+        Jiada Wang <jiada_wang@mentor.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 29, 2020 at 06:34:01PM +0100, Paolo Bonzini wrote:
->On 29/11/20 05:13, Sasha Levin wrote:
->>>Which doesn't seem to be suitable for stable either...  Patch 3/5 
->>>in
->>
->>Why not? It was sent as a fix to Linus.
+On Sun, Nov 29, 2020 at 3:53 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sat, Nov 28, 2020 at 01:37:20PM +0100, Linus Walleij wrote:
+
+> > @@ -1297,8 +1297,6 @@ static int mxt_check_retrigen(struct mxt_data *data)
+> >       int val;is
+> >       struct irq_data *irqd;
+> >
+> > -     data->use_retrigen_workaround = false;
+> > -
 >
->Dunno, 120 lines of new code?  Even if it's okay for an rc, I don't 
->see why it is would be backported to stable releases and release it 
->without any kind of testing.  Maybe for 5.9 the chances of breaking 
+> So this will result in data->use_retrigen_workaround staying "true" for
+> level interrupts, which is not needed, as with those we will never lose
+> an edge. So I think your patch can be reduced to simply setting
+> data->use_retrigen_workaround to true in mxt_probe() and leaving
+> mxt_check_retrigen() without any changes.
 
-Lines of code is not everything. If you think that this needs additional
-testing then that's fine and we can drop it, but not picking up a fix
-just because it's 120 lines is not something we'd do.
+I did that first but then I realized that since there is an
+errorpath in mxt_check_retrigen() and it starts by disabling
+the workaround so in an error occurs in
+__mxt_read_reg() it will be left disabled.
 
->things are low, but stuff like locking rules might have changed since 
->older releases like 5.4 or 4.19.  The autoselection bot does not know 
->that, it basically crosses fingers that these larger-scale changes 
->cause the patches not to apply or compile anymore.
+But I see that I fail to account for the level-trigging
+case where it should disable the workaround and
+bail out so I anyway need to revise the patch.
 
-Plus all the testing we have for the stable trees, yes. It goes beyond
-just compiling at this point.
+> However I wonder if it would not be better to simply call
+> mxt_check_retrigen() before calling mxt_acquire_irq() in mxt_probe()
+> instead of after.
 
-Your very own co-workers (https://cki-project.org/) are pushing hard on
-this effort around stable kernel testing, and statements like these
-aren't helping anyone.
+I don't fully understand this driver, but it seems the information
+whether retrigen is available only appears after talking to the
+device a bit, checking firmware and "objects" available on the
+device and then it may already be too late.
 
-If on the other hand, you'd like to see specific KVM/virtio/etc tests as
-part of the stable release process, we should all work together to make
-sure they're included in the current test suite.
+Someone who knows the device better might be able to
+contribute here :/
 
->Maybe it's just me, but the whole "autoselect stable patches" and 
->release them is very suspicious.  You are basically crossing fingers 
+> By the way, does your touchscreen work if you change interrupt trigger
+> to level in DTS?
 
-Historically autoselected patches were later fixed/reverted at a lower
-ratio than patches tagged with a stable tag. I *think* that it's because
-they get a longer review cycle than some of the stable tagged patches.
+Nope. This happens:
+[    1.824610] atmel_mxt_ts 3-004a: Failed to register interrupt
+[    1.830583] atmel_mxt_ts: probe of 3-004a failed with error -22
 
->and are ready to release any kind of untested crap, because you do not 
->trust maintainers of marking stable patches right.  Only then, when a 
+And that in turn is because this connected to a Nomadik
+GPIO controller which is one of those GPIO controllers
+that only support edge triggered interrupts and does not
+support level interrupts. So it needs to be edge triggered on
+this platform.
 
-It's not that I don't trust - some folks forget, or not realize that
-something should go in stable. We're all humans. This is to complement
-the work done by maintainers, not replace it.
-
->backport is broken, it's maintainers who get the blame and have to fix 
->it.
-
-What blame? Who's blaming who?
-
->Personally I don't care because I have asked you to opt KVM out of 
->autoselection, but this is the opposite of what Greg brags about when 
->he touts the virtues of the upstream stable process over vendor 
->kernels.
-
-What, that we try and include all fixes rather than the ones I'm paid to
-pick up?
-
-If you have a vendor you pay $$$ to, then yes - you're probably better
-off with a vendor kernel. This is actually in line (I think) with Greg's
-views on this
-(http://kroah.com/log/blog/2018/08/24/what-stable-kernel-should-i-use/).
-
--- 
-Thanks,
-Sasha
+Yours,
+Linus Walleij
