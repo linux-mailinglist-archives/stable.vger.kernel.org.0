@@ -2,138 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20CC62C799B
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 15:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3692C7A51
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 18:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727058AbgK2Ooq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 09:44:46 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:41896 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725882AbgK2Ooq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 09:44:46 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UGswpZn_1606661010;
-Received: from IT-C02W23QPG8WN.local(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UGswpZn_1606661010)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 29 Nov 2020 22:43:31 +0800
-Subject: Re: [PATCH] exit: fix a race in release_task when flushing the dentry
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-References: <20201128064722.9106-1-wenyang@linux.alibaba.com>
- <X8IFADugB450PHp8@kroah.com>
- <24bd714d-f598-c7c6-6821-38fd9c1f4d2b@linux.alibaba.com>
- <X8JZJGG67tE4jngE@kroah.com>
- <b73daaf0-bd6d-5153-9155-ef3a8568a6f2@linux.alibaba.com>
- <X8M6D7M6Rn4f0C9j@kroah.com>
-From:   Wen Yang <wenyang@linux.alibaba.com>
-Message-ID: <d244281b-54be-369a-727e-4436119cbd1e@linux.alibaba.com>
-Date:   Sun, 29 Nov 2020 22:43:30 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.1.0
+        id S1728471AbgK2Rfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 12:35:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:45254 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728468AbgK2Rff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 12:35:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606671248;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Baf2YabTsa2IfZZmu8SPbdZascUUB96+ibE6qUCU1Gc=;
+        b=OcFNQ8Q0Cd66CIJO+fd/hzSsFKTxj7yn/w3Ki3tEzQXczI7jT73cO1CXLE5JNvmZ6rIYTg
+        5xB1fMDsU+CaTUd1QWtapL2wFrZxQMyCHbDnZBumLxmXlKbuF2MNI1RdsfX2011faP474+
+        AivSLGSkSnZLMDee2sHzRNovMaRYFOs=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-376-NNIyfKGsP2O0h2rZMbGjiQ-1; Sun, 29 Nov 2020 12:34:06 -0500
+X-MC-Unique: NNIyfKGsP2O0h2rZMbGjiQ-1
+Received: by mail-wm1-f72.google.com with SMTP id h68so3976562wme.5
+        for <stable@vger.kernel.org>; Sun, 29 Nov 2020 09:34:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Baf2YabTsa2IfZZmu8SPbdZascUUB96+ibE6qUCU1Gc=;
+        b=QMJLOyhOY29Dy2XmkkNc9G7e0HoiZzuiyRYSH/CxiBO+ok9Ec97NNU1xCodV7Co6TE
+         +Qt3I+AXmx+Opfoex/vbrque4+AfMFb50GdWRG8ooHaIfp9e5l4g0fZ2lSaW4Oc3SRN1
+         ImWPUsM/x8Fg0y2vEWDKRhcQr6anHnyrwsIONXWXV/lOYTGZgtSEzO9EN2toMEuX+zwz
+         IS7CV83j/RHyi2IGg3UulnIMutdFyKKfcg8lGYgGXZKysmlpRq9lJPHR8B8wo/SaG5Hg
+         HbqIZ+dJArB1R8taRmeGkskw5EYId5KA1p8t9tE46ZfRH4RazaRKyFqx1RUGUiZ8M36j
+         tmgQ==
+X-Gm-Message-State: AOAM5323JDw1gXjUzz7LeiABG1I0tZE0J7mUL7HUKrK/Ou/YgfP7EnHz
+        PUpUB5HtiHXxRr5ciNf3ugDpMtIMtds4Fh13e9r+TqQf9c+s2rmH9SQNrD59GboEotfqMPBV66q
+        hM0IzbjOvtIhe5gR1
+X-Received: by 2002:a1c:4d0a:: with SMTP id o10mr19426261wmh.107.1606671245226;
+        Sun, 29 Nov 2020 09:34:05 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy21n5+1MquKPMw6OBo6U5LqUAw3wOmx072b/JbOC0N0bjRNE96mnvZ3UYX3LcDBBupYSjL2g==
+X-Received: by 2002:a1c:4d0a:: with SMTP id o10mr19426239wmh.107.1606671244962;
+        Sun, 29 Nov 2020 09:34:04 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
+        by smtp.gmail.com with ESMTPSA id m4sm4842595wmi.41.2020.11.29.09.34.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 29 Nov 2020 09:34:04 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20201125153550.810101-1-sashal@kernel.org>
+ <20201125153550.810101-22-sashal@kernel.org>
+ <25cd0d64-bffc-9506-c148-11583fed897c@redhat.com>
+ <20201125180102.GL643756@sasha-vm>
+ <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
+ <20201129041314.GO643756@sasha-vm>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
+Date:   Sun, 29 Nov 2020 18:34:01 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <X8M6D7M6Rn4f0C9j@kroah.com>
+In-Reply-To: <20201129041314.GO643756@sasha-vm>
 Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-在 2020/11/29 下午2:05, Greg Kroah-Hartman 写道:
-> On Sat, Nov 28, 2020 at 11:28:53PM +0800, Wen Yang wrote:
->>
->>
->> 在 2020/11/28 下午10:05, Greg Kroah-Hartman 写道:
->>> On Sat, Nov 28, 2020 at 09:59:09PM +0800, Wen Yang wrote:
->>>>
->>>>
->>>> 在 2020/11/28 下午4:06, Greg Kroah-Hartman 写道:
->>>>> On Sat, Nov 28, 2020 at 02:47:22PM +0800, Wen Yang wrote:
->>>>>> [ Upstream commit 7bc3e6e55acf065500a24621f3b313e7e5998acf ]
->>>>>
->>>>> No, that is not this commit at all.
->>>>>
->>>>> What are you wanting to have happen here?
->>>>>
->>>>> confused,
->>>>>
->>>>> greg k-h
->>>>>
->>>>
->>>> Thanks.
->>>> Let's explain it briefly:
->>>>
->>>> The dentries such as /proc/<pid>/ns/ipc have the DCACHE_OP_DELETE flag, they
->>>> should be deleted when the process exits.
->>>> Suppose the following race appears：
->>>>
->>>> release_task                dput
->>>> -> proc_flush_task
->>>>                               ->  dentry->d_op->d_delete(dentry)
->>>> -> __exit_signal
->>>>                               -> dentry->d_lockref.count--  and return.
->>>>
->>>>
->>>> In the proc_flush_task function, because another processe is using this
->>>> dentry, it cannot be deleted;
->>>> In the dput function, d_delete may be executed before __exit_signal (the pid
->>>> has not been unhashed), so that d_delete returns false and the dentry can
->>>> not be deleted.
->>>>
->>>> So this dentry is still caches (count is 0), and its parent dentries are
->>>> also caches, and those dentries can only be deleted when drop_caches is
->>>> manually triggered.
->>>>
->>>>
->>>> In the release_task function, we should move proc_flush_task after the
->>>> tasklist_lock is released（Just like the commit
->>>> 7bc3e6e55acf065500a24621f3b313e7e5998acf did).
->>>
->>> I do not understand, is this a patch being submitted for the main kernel
->>> tree, or for a stable kernel release?
->>>
->>> If stable, please read:
->>>       https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
->>> for how to do this properly.
->>>
->>> If main kernel tree, you can't have the "Upstream commit" line in the
->>> changelog text as that makes no sense at all.
->>
->>
->> Hi,
->> This patch is submitted to the stable branches (from 4.9.y
->> to 5.6.y).
->>
->> This problem can also be solved if the following patch could be ported to
->> the stable branch:
->> 7bc3e6e55acf ("proc: Use a list of inodes to flush from proc")
->> 26dbc60f385f ("proc: Generalize proc_sys_prune_dcache into
->> proc_prune_siblings_dcache")
->> f90f3cafe8d5 ("proc: Use d_invalidate in proc_prune_siblings_dcache")
->>
->> However, the above-mentioned patches modify too much code (more than 100
->> lines), and there may also be some undiscovered bugs.
->>
->> So the safer method may be to apply this small patch（also ported from the
->> equivalent fix already exist in Linus’ tree）.
->>
->> We will reformat the patch later.
+On 29/11/20 05:13, Sasha Levin wrote:
+>> Which doesn't seem to be suitable for stable either...  Patch 3/5 in 
 > 
-> We always prefer to take the original, upstream patches, instead of
-> one-off changes as almost always, those one-off changes end up being
-> wrong and hard to work with over time.
-> 
-> So if we need more than one patch to solve this reported problem, that's
-> fine, can you test the above series of patches and provide a backported
-> set of them that we can use for this?
-> 
+> Why not? It was sent as a fix to Linus.
 
-Ok, we will follow your suggestions.
-Thanks.
+Dunno, 120 lines of new code?  Even if it's okay for an rc, I don't see 
+why it is would be backported to stable releases and release it without 
+any kind of testing.  Maybe for 5.9 the chances of breaking things are 
+low, but stuff like locking rules might have changed since older 
+releases like 5.4 or 4.19.  The autoselection bot does not know that, it 
+basically crosses fingers that these larger-scale changes cause the 
+patches not to apply or compile anymore.
 
---
-Best wishes,
-Wen
+Maybe it's just me, but the whole "autoselect stable patches" and 
+release them is very suspicious.  You are basically crossing fingers and 
+are ready to release any kind of untested crap, because you do not trust 
+maintainers of marking stable patches right.  Only then, when a backport 
+is broken, it's maintainers who get the blame and have to fix it.
+
+Personally I don't care because I have asked you to opt KVM out of 
+autoselection, but this is the opposite of what Greg brags about when he 
+touts the virtues of the upstream stable process over vendor kernels.
+
+Paolo
+
+>> the series might be (vhost scsi: fix cmd completion race), so I can 
+>> understand including 1/5 and 2/5 just in case, but not the rest.  Does 
+>> the bot not understand diffstats?
+> 
+> Not on their own, no. What's wrong with the diffstats?
+> 
 
