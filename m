@@ -2,136 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A33E2C7827
-	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 07:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8CD2C78DE
+	for <lists+stable@lfdr.de>; Sun, 29 Nov 2020 12:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726136AbgK2GFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 01:05:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47772 "EHLO mail.kernel.org"
+        id S1726961AbgK2Lnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 06:43:46 -0500
+Received: from mga07.intel.com ([134.134.136.100]:8057 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726076AbgK2GFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Nov 2020 01:05:48 -0500
-Received: from localhost (82-217-20-185.cable.dynamic.v4.ziggo.nl [82.217.20.185])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 044D82076A;
-        Sun, 29 Nov 2020 06:05:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606629907;
-        bh=5aWFhJgbKoTM+X/d62wGGVwXdEBsZBjLZrpbYO/sMMM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=btwmUo94iBlYyhWD1fTlXmn98jsamsV6RyJnoykDVKGjXFeVmQzCFPfIwaK7bMCd8
-         3RbgANHJlIc7OLY1Rg+wfSBdAjCMASEWnIlHyJAVDd4nOb3TcoKwo28SPXKN2gm9rQ
-         bylgmH2XYJfCnW5H3z4RBjDrC43Yaf4NzZPs+o6I=
-Date:   Sun, 29 Nov 2020 07:05:03 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Wen Yang <wenyang@linux.alibaba.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-Subject: Re: [PATCH] exit: fix a race in release_task when flushing the dentry
-Message-ID: <X8M6D7M6Rn4f0C9j@kroah.com>
-References: <20201128064722.9106-1-wenyang@linux.alibaba.com>
- <X8IFADugB450PHp8@kroah.com>
- <24bd714d-f598-c7c6-6821-38fd9c1f4d2b@linux.alibaba.com>
- <X8JZJGG67tE4jngE@kroah.com>
- <b73daaf0-bd6d-5153-9155-ef3a8568a6f2@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <b73daaf0-bd6d-5153-9155-ef3a8568a6f2@linux.alibaba.com>
+        id S1726780AbgK2Lnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Nov 2020 06:43:45 -0500
+IronPort-SDR: pBJ0TVgvZqVk9urzFqyT96IGg/nOqhrRrtgFM/LF1VkoFLZ63w1c7+gk7xUDTynIXaifBjI37Z
+ 8hZV40/pKqbg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9819"; a="236654204"
+X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
+   d="scan'208";a="236654204"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2020 03:43:03 -0800
+IronPort-SDR: Qawjd+88XOYqtTuNMLZWEm7RyUEyTqRN6yUAYibYEj99MFt03UzyyPEBblOZx9Z7JtRdn+riqY
+ BOF/w1uTvs5Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,379,1599548400"; 
+   d="scan'208";a="480261576"
+Received: from crojewsk-ctrl.igk.intel.com ([10.102.9.28])
+  by orsmga004.jf.intel.com with ESMTP; 29 Nov 2020 03:43:01 -0800
+From:   Cezary Rojewski <cezary.rojewski@intel.com>
+To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     alsa-devel@alsa-project.org, broonie@kernel.org, tiwai@suse.com,
+        pierre-louis.bossart@linux.intel.com,
+        mateusz.gorski@linux.intel.com,
+        Cezary Rojewski <cezary.rojewski@intel.com>
+Subject: [PATCH 0/8] ASoC: Intel: Skylake: Fix HDAudio and DMIC for v5.4
+Date:   Sun, 29 Nov 2020 12:41:40 +0100
+Message-Id: <20201129114148.13772-1-cezary.rojewski@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 28, 2020 at 11:28:53PM +0800, Wen Yang wrote:
-> 
-> 
-> 在 2020/11/28 下午10:05, Greg Kroah-Hartman 写道:
-> > On Sat, Nov 28, 2020 at 09:59:09PM +0800, Wen Yang wrote:
-> > > 
-> > > 
-> > > 在 2020/11/28 下午4:06, Greg Kroah-Hartman 写道:
-> > > > On Sat, Nov 28, 2020 at 02:47:22PM +0800, Wen Yang wrote:
-> > > > > [ Upstream commit 7bc3e6e55acf065500a24621f3b313e7e5998acf ]
-> > > > 
-> > > > No, that is not this commit at all.
-> > > > 
-> > > > What are you wanting to have happen here?
-> > > > 
-> > > > confused,
-> > > > 
-> > > > greg k-h
-> > > > 
-> > > 
-> > > Thanks.
-> > > Let's explain it briefly:
-> > > 
-> > > The dentries such as /proc/<pid>/ns/ipc have the DCACHE_OP_DELETE flag, they
-> > > should be deleted when the process exits.
-> > > Suppose the following race appears：
-> > > 
-> > > release_task                dput
-> > > -> proc_flush_task
-> > >                              ->  dentry->d_op->d_delete(dentry)
-> > > -> __exit_signal
-> > >                              -> dentry->d_lockref.count--  and return.
-> > > 
-> > > 
-> > > In the proc_flush_task function, because another processe is using this
-> > > dentry, it cannot be deleted;
-> > > In the dput function, d_delete may be executed before __exit_signal (the pid
-> > > has not been unhashed), so that d_delete returns false and the dentry can
-> > > not be deleted.
-> > > 
-> > > So this dentry is still caches (count is 0), and its parent dentries are
-> > > also caches, and those dentries can only be deleted when drop_caches is
-> > > manually triggered.
-> > > 
-> > > 
-> > > In the release_task function, we should move proc_flush_task after the
-> > > tasklist_lock is released（Just like the commit
-> > > 7bc3e6e55acf065500a24621f3b313e7e5998acf did).
-> > 
-> > I do not understand, is this a patch being submitted for the main kernel
-> > tree, or for a stable kernel release?
-> > 
-> > If stable, please read:
-> >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> > 
-> > If main kernel tree, you can't have the "Upstream commit" line in the
-> > changelog text as that makes no sense at all.
-> 
-> 
-> Hi,
-> This patch is submitted to the stable branches (from 4.9.y
-> to 5.6.y).
-> 
-> This problem can also be solved if the following patch could be ported to
-> the stable branch:
-> 7bc3e6e55acf ("proc: Use a list of inodes to flush from proc")
-> 26dbc60f385f ("proc: Generalize proc_sys_prune_dcache into
-> proc_prune_siblings_dcache")
-> f90f3cafe8d5 ("proc: Use d_invalidate in proc_prune_siblings_dcache")
-> 
-> However, the above-mentioned patches modify too much code (more than 100
-> lines), and there may also be some undiscovered bugs.
-> 
-> So the safer method may be to apply this small patch（also ported from the
-> equivalent fix already exist in Linus’ tree）.
-> 
-> We will reformat the patch later.
+First six of the backport address numerous problems troubling HDAudio
+configuration users for Skylake driver. Upstream series:
+"ASoC: Intel: Skylake: Fix HDaudio and Dmic" [1] provides the
+explanation and reasoning behind it. These have been initialy pushed
+into v5.7-rc1 via: "sound updates for 5.7-rc1" [2] by Takashi.
 
-We always prefer to take the original, upstream patches, instead of
-one-off changes as almost always, those one-off changes end up being
-wrong and hard to work with over time.
+Last two patches are from: "Add support for different DMIC
+configurations" [3] which focuses on HDAudio with DMIC configuration.
+Patch: "ASoC: Intel: Skylake: Add alternative topology binary name"
+of the mentioned series has already been merged to v5.4.y -stable and
+thus it's not included here.
 
-So if we need more than one patch to solve this reported problem, that's
-fine, can you test the above series of patches and provide a backported
-set of them that we can use for this?
+Fixes target mainly Skylake and Kabylake based platforms, released
+in 2015-2016 period.
 
-thanks,
+[1]: https://lore.kernel.org/alsa-devel/20200305145314.32579-1-cezary.rojewski@intel.com/
+[2]: https://lore.kernel.org/lkml/s5htv22uso8.wl-tiwai@suse.de/
+[3]: https://lore.kernel.org/alsa-devel/20200427132727.24942-1-mateusz.gorski@linux.intel.com/
 
-gre gk-h
+Cezary Rojewski (6):
+  ASoC: Intel: Skylake: Remove superfluous chip initialization
+  ASoC: Intel: Skylake: Select hda configuration permissively
+  ASoC: Intel: Skylake: Enable codec wakeup during chip init
+  ASoC: Intel: Skylake: Shield against no-NHLT configurations
+  ASoC: Intel: Allow for ROM init retry on CNL platforms
+  ASoC: Intel: Skylake: Await purge request ack on CNL
+
+Mateusz Gorski (2):
+  ASoC: Intel: Multiple I/O PCM format support for pipe
+  ASoC: Intel: Skylake: Automatic DMIC format configuration according to
+    information from NHLT
+
+ include/uapi/sound/skl-tplg-interface.h |   2 +
+ sound/soc/intel/skylake/bxt-sst.c       |   3 -
+ sound/soc/intel/skylake/cnl-sst.c       |  35 ++++--
+ sound/soc/intel/skylake/skl-nhlt.c      |   3 +-
+ sound/soc/intel/skylake/skl-sst-dsp.h   |   2 +
+ sound/soc/intel/skylake/skl-topology.c  | 159 +++++++++++++++++++++++-
+ sound/soc/intel/skylake/skl-topology.h  |   1 +
+ sound/soc/intel/skylake/skl.c           |  29 ++---
+ 8 files changed, 204 insertions(+), 30 deletions(-)
+
+-- 
+2.17.1
+
