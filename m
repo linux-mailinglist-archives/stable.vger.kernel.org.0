@@ -2,117 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B792C833F
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 12:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D1C2C8348
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 12:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729166AbgK3L3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 06:29:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
+        id S1727283AbgK3Lbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 06:31:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726810AbgK3L3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 06:29:45 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21BCCC0613CF;
-        Mon, 30 Nov 2020 03:29:05 -0800 (PST)
-Date:   Mon, 30 Nov 2020 11:29:02 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1606735743;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=l0pjxdzVT2soZbYSgLF/KFW8zRzTkl95WGxMx0fC1w8=;
-        b=TR0L6UD4z6FaQFfyjjNmfb9Gfv7bVkqQD1i93DxhJEAnAFVSO7Z27bC6NvpetvV5D/LoIn
-        WCM6wzSTZNEDWh4hm/ELJKfiLGggKOWxEpCISy9p/KgD6BgdlWcV1ocUGF0M6I8iLshlon
-        aHykp0Lv1nu3eLC/Zo2Pq8mkRw2PvIgma2aG84ApADdyphNGffc5vAcolGE546SPiP6due
-        w7ruFiL9XG0Ozmgw7A7J1/P5BVWGnGBQOYVWrRu57vROl2/yZ2bkg9tiAwQmtvep85Z4Co
-        MaDmNi4rNauOm7f/YA541uWjiX4XvhjQDo1jV+7GnXQZM4xMGSDyWL4dB/CI1A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1606735743;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=l0pjxdzVT2soZbYSgLF/KFW8zRzTkl95WGxMx0fC1w8=;
-        b=9aKoRS7v/jzR1QtJF1GyVlXSKWNfk4/BAcwimilDKIrCJ9M35G6DZmraLJvXBguPv/6/I4
-        RRgE+uzGcvIMpwDg==
-From:   "tip-bot2 for Laurent Vivier" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] powerpc/pseries: Pass MSI affinity to irq_create_mapping()
-Cc:     Laurent Vivier <lvivier@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kurz <groug@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-In-Reply-To: <20201126082852.1178497-3-lvivier@redhat.com>
-References: <20201126082852.1178497-3-lvivier@redhat.com>
-MIME-Version: 1.0
-Message-ID: <160673574245.3364.4192827087700999581.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S1726345AbgK3Lbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 06:31:35 -0500
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B272CC0613D2;
+        Mon, 30 Nov 2020 03:30:55 -0800 (PST)
+Received: by mail-qt1-x844.google.com with SMTP id u21so1992067qtw.11;
+        Mon, 30 Nov 2020 03:30:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=M+trhuPUBFP3JQwxSSGofs1PCXGPO8zUFhxjN+RxJTk=;
+        b=thJv2e9CevkDgp9T99+nyHwvCqRFoB33hNNgH+NJXQkDqjbFavjlPNE6x7H0gDP7sM
+         ePz0GCv8LCr5HtNk94F9riuL/c5Z6V/h3PJx9MmaJgeZSXww5AtnyMrFvWITWG68WWuY
+         WUetkGkcBn7COkmcOS5fikctSpkzDBgpYvFcv4EhchgWa3i73iUOZ84RZjnJAppCYa6K
+         7+QpGzZRgo87escIpsJDJu5VnyMs2gwcioyw+uNqr/5onw/m1Z1O9MsM4RklycW7KzSJ
+         gcxuiHIqAh/WY/a3RVf2l5klfpdOv9fQD42R7Xy6Cj+9KKLRWFsqvSpEdPsXlUYJMRFU
+         1s/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=M+trhuPUBFP3JQwxSSGofs1PCXGPO8zUFhxjN+RxJTk=;
+        b=aTbJWEgAzpXHPreQHc6XSCAwHvrBiZHmqMNvAVmDE9bbBWbeuEH5Vv9LdLhO0Uolmj
+         CJCxw8aIhVqbL/yMssFYHDJ7bZz1ZVNP4Q66ljVeqylHmmaXHeUVvJcKW/Ob16sJ0+Zu
+         FMozNr9Y5bZb+O8AF6Gs1XKa0NeSTvcZoE7tc98+7UPKBIoOxFnupTuKk4vYmMyqaLzU
+         //dLro0zaNWm05RaVaN4qZyGyLwr5yiUHPUe6Pouj9lgUm9jCR9LfGtQUKTGfYL5GUQR
+         fTgsFVy+go/hIPfFzaAjJhDFBYnPfVduQOEHgtcOlrQ2hWm8OgHHIfHbb3xDu62X7pN4
+         ym2Q==
+X-Gm-Message-State: AOAM533pgp09li2Cz4QewRzRmJtsB4tj/f+KohZEhaN5t9An5yfpk8Oi
+        N0SU/H5ukoR8J92BPI5z6uprzChGOP3Piw==
+X-Google-Smtp-Source: ABdhPJyJrp5D8aX96IDFdmbDR+W80+MzTyXPsDOGHMDq4gXqm3VOwlb1wJRj0FKh3/1sPxILvU/phw==
+X-Received: by 2002:ac8:4507:: with SMTP id q7mr21413019qtn.49.1606735854824;
+        Mon, 30 Nov 2020 03:30:54 -0800 (PST)
+Received: from localhost.localdomain ([177.194.72.74])
+        by smtp.gmail.com with ESMTPSA id o13sm14307852qkm.78.2020.11.30.03.30.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Nov 2020 03:30:54 -0800 (PST)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     Peter.Chen@nxp.com, linux-usb@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2] usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to imx6ul
+Date:   Mon, 30 Nov 2020 08:30:47 -0300
+Message-Id: <20201130113047.9659-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+According to the i.MX6UL Errata document:
+https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
 
-Commit-ID:     9ea69a55b3b9a71cded9726af591949c1138f235
-Gitweb:        https://git.kernel.org/tip/9ea69a55b3b9a71cded9726af591949c1138f235
-Author:        Laurent Vivier <lvivier@redhat.com>
-AuthorDate:    Thu, 26 Nov 2020 09:28:52 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Mon, 30 Nov 2020 12:22:04 +01:00
+ERR007881 also affects i.MX6UL, so pass the
+CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
 
-powerpc/pseries: Pass MSI affinity to irq_create_mapping()
-
-With virtio multiqueue, normally each queue IRQ is mapped to a CPU.
-
-Commit 0d9f0a52c8b9f ("virtio_scsi: use virtio IRQ affinity") exposed
-an existing shortcoming of the arch code by moving virtio_scsi to
-the automatic IRQ affinity assignment.
-
-The affinity is correctly computed in msi_desc but this is not applied
-to the system IRQs.
-
-It appears the affinity is correctly passed to rtas_setup_msi_irqs() but
-lost at this point and never passed to irq_domain_alloc_descs()
-(see commit 06ee6d571f0e ("genirq: Add affinity hint to irq allocation"))
-because irq_create_mapping() doesn't take an affinity parameter.
-
-Use the new irq_create_mapping_affinity() function, which allows to forward
-the affinity setting from rtas_setup_msi_irqs() to irq_domain_alloc_descs().
-
-With this change, the virtqueues are correctly dispatched between the CPUs
-on pseries.
-
-Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126082852.1178497-3-lvivier@redhat.com
+Cc: <stable@vger.kernel.org>
+Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 ---
- arch/powerpc/platforms/pseries/msi.c | 3 ++-
+Changes since v1:
+- Use the CI_HDRC_DISABLE_DEVICE_STREAMING flag instead - Peter
+
+ drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/msi.c b/arch/powerpc/platforms/pseries/msi.c
-index 133f6ad..b3ac245 100644
---- a/arch/powerpc/platforms/pseries/msi.c
-+++ b/arch/powerpc/platforms/pseries/msi.c
-@@ -458,7 +458,8 @@ again:
- 			return hwirq;
- 		}
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 25c65accf089..5e07a0a86d11 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_usb_data = {
  
--		virq = irq_create_mapping(NULL, hwirq);
-+		virq = irq_create_mapping_affinity(NULL, hwirq,
-+						   entry->affinity);
+ static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
+ 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
+-		CI_HDRC_TURN_VBUS_EARLY_ON,
++		CI_HDRC_TURN_VBUS_EARLY_ON |
++		CI_HDRC_DISABLE_DEVICE_STREAMING,
+ };
  
- 		if (!virq) {
- 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
+ static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+-- 
+2.17.1
+
