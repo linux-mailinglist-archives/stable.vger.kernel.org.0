@@ -2,108 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B59C2C8E54
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 20:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010492C8E82
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 20:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729847AbgK3TpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 14:45:20 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:36446 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729127AbgK3TpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 14:45:19 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AUJcsUq036566;
-        Mon, 30 Nov 2020 19:44:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=2cU8DZaDzE1cr1VPUQiF6BAqDQGKq3YIRt7Xa+jowHo=;
- b=EQvSKitQTQ0nbmDJjqDklnoSINMHjmuJph87unCNA6Hos94Y89gSOVO4q9PwaQngrY/T
- 0HHqP+ulzzdwVlo56zylpp3gt2xzkuHhimOCZZ+I5c/sBBGrVjrbPWoivNQwS72dm3HF
- xsEx6yOVu0E0gluiMIf/U9Il/3uSP6vV4ydbOrraHkeAulL1vULbN4pY06AGjir6QuL4
- MptfslZAcDNmABZ9iIQdzFxVf36+vEtROJkLm3hIHcVS3+Cnb97WmmfSlPzLBiiCxa3+
- 6YJ3NE2zxT5xGlAhsgIP2yp9AxmKeUv/xsCK6VK+nQbGNips3Pq1IhMpLIhw/tm1v/fQ BA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2130.oracle.com with ESMTP id 353c2aq4jk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 30 Nov 2020 19:44:33 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0AUJe2ep149266;
-        Mon, 30 Nov 2020 19:44:32 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 3540ewywdf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Nov 2020 19:44:32 +0000
-Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0AUJiUxD013922;
-        Mon, 30 Nov 2020 19:44:31 GMT
-Received: from [20.15.0.202] (/73.88.28.6)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 30 Nov 2020 11:44:30 -0800
-Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20201125153550.810101-1-sashal@kernel.org>
- <20201125153550.810101-22-sashal@kernel.org>
- <25cd0d64-bffc-9506-c148-11583fed897c@redhat.com>
- <20201125180102.GL643756@sasha-vm>
- <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
- <20201129041314.GO643756@sasha-vm>
- <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
- <20201129210650.GP643756@sasha-vm>
- <e499986d-ade5-23bd-7a04-fa5eb3f15a56@redhat.com>
- <20201130173832.GR643756@sasha-vm>
- <238cbdd1-dabc-d1c1-cff8-c9604a0c9b95@redhat.com>
-From:   Mike Christie <michael.christie@oracle.com>
-Message-ID: <9ec7dff6-d679-ce19-5e77-f7bcb5a63442@oracle.com>
-Date:   Mon, 30 Nov 2020 13:44:29 -0600
+        id S2388298AbgK3T4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 14:56:09 -0500
+Received: from mout.web.de ([212.227.15.3]:56581 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388205AbgK3T4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Nov 2020 14:56:09 -0500
+X-Greylist: delayed 470 seconds by postgrey-1.27 at vger.kernel.org; Mon, 30 Nov 2020 14:56:08 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1606766057;
+        bh=yF9sdWgdpN9rBm+i1Z5YIQ4TmpTjsO4HYklAVP13A78=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=aW/LV8a5TLllruwfNq+pZEpTf1RQ7Bu86F4SU13qD3DSOcOvZIqPjurvmcY/y+OXN
+         sUmROLlVJW/kZMosQppcF0+v1JnaVN8Gzh5y3xLQ39tNsqu/PC6UbAzKF/okNVO7r8
+         42HPQFLJu8u1Pk0rnQHomhAiMEMd7y2MBd7eEqDc=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [10.0.0.110] ([185.159.157.20]) by smtp.web.de (mrweb004
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0MH2Fm-1kxcui3Zys-00DrsI; Mon, 30
+ Nov 2020 20:46:22 +0100
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Fix lost interrupts
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Cc:     Nick Dyer <nick.dyer@itdev.co.uk>,
+        Jiada Wang <jiada_wang@mentor.com>, stable@vger.kernel.org
+References: <20201129212415.1167540-1-linus.walleij@linaro.org>
+From:   Andre Muller <andre.muller@web.de>
+Message-ID: <889a691f-2157-730e-5866-8a1c4e81eb35@web.de>
+Date:   Mon, 30 Nov 2020 20:47:34 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <238cbdd1-dabc-d1c1-cff8-c9604a0c9b95@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20201129212415.1167540-1-linus.walleij@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9821 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 phishscore=0
- suspectscore=0 bulkscore=0 spamscore=0 adultscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011300127
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9821 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 lowpriorityscore=0
- clxscore=1031 bulkscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
- spamscore=0 adultscore=0 mlxscore=0 priorityscore=1501 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011300127
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:rEaCyzYBjgB/iGsIrIQKX/Zrd3zdWbubMVJMIjUTHhM04U71lAx
+ nSFzRhRd2xIiCAh7awGu/arYCzCYhLmjBi4QkEH2URpIhEAMEdkIYA999L1LYs9g1IoGahZ
+ 37nTVZ6OhXTGF2ZdrU9eqLYrhoyBjQg2E1DBAazV8vMH7uObDAm/UtX0MnHkjK1flTvjmBp
+ gT07Odw/rSMNoA+IA+OiA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:2eU/qNgSSdY=:l5BDJXNFYpcTYYwfE6+RDs
+ ACeFQxjex64SkVAfc9Lv1pCTtoap5sM8FcF5T5mPLa71kSvyfix7kl1OBi1CQ/nOpzLnXVYZQ
+ CfwGNkLpGVl4fXqm/2uQsPjggC5nvhqvzJzTIBqiwM9IXk7o7hFlBzMjTNPqpjIjDYO7KB17n
+ 2hh0GXsfLqT2Jje+LbLTYmXuBWr+5mrxRdrhfSqMF8m0j2/bF38/bgtsIvo+JuKgLQX0mDxZ1
+ 6j+XVSBTG8Ym6OJoHy/0zxc2Mg47Q13JrgD7xhVtnBOXFCgPXXQ1JKrJU/cnh7mCKkWG3mlEP
+ dIvQ6GqUejCtBBoEGSzLMniUtmRpNw5zeFf6YdQVZH38ErSBG14WNUIA9DXorgQ7LpNEtHdgi
+ Dz7nGxSSvaobl0LAN5SbsxPQq5rHW5vQxH+hDzaN8ALB2c+YZRvqFukJesm0NitsKLVE87/Ev
+ kU3B8iAmUQluKa96AYznkynDp6OOmiaJ9JbrSEmyGO6FTIivLcQscLgwzLCM8ZUSxSIx//Wgs
+ USgQmLb6ypOO7bvW5zq7DW38n9oAcOGyJW36w9CDdKSI801jI64czHUsqJo7+iO9pWeGrU9Qb
+ O4PCYVXTFrU1zfaJuV4+0Qr+jVr/4Dm8jcScTN0BuLH275+0/UQIeeKxc7dqfkki+VQ2OjWlH
+ Fhz0MEYWDN7gtvhwOXZW1MdNUpntaB01BaB5TnoVI3HSCtKXCs8uRn8mgyKl9vNkp89wO1lPc
+ I91e/65jIfYvBaSja/bPkhy7qZdF3i1UpsvLzNY3NRwbvPQv1++kj3remcT2dPS71ddGBIsd7
+ vlBK/O5jRAnQgMDDB6U4UE9OntP1ZCNnowKFya9PKciVL4187aB8mcGUvYGY6yuIYowSlRW3S
+ 108QLlM2f1Mo1A3aTLDA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/30/20 11:52 AM, Paolo Bonzini wrote:
-> On 30/11/20 18:38, Sasha Levin wrote:
->>> I am not aware of any public CI being done _at all_ done on vhost-scsi, by CKI or everyone else.  So autoselection should be done only on subsystems that have very high coverage in CI.
->>
->> Where can I find a testsuite for virtio/vhost? I see one for KVM, but
->> where is the one that the maintainers of virtio/vhost run on patches
->> that come in?
-> 
-> I don't know of any, especially for vhost-scsi.  MikeC?
-> 
+The patch works for me:
 
-Sorry for the late reply on the thread. I was out of the office.
+[    0.205866] atmel_mxt_ts i2c-ATML0000:01: Family: 164 Variant: 17 Firmw=
+are V1.0.AA Objects: 32
+[    0.221638] atmel_mxt_ts i2c-ATML0000:01: Leaving RETRIGEN workaround e=
+nabled
+[    0.221692] atmel_mxt_ts i2c-ATML0000:01: Direct firmware load for maxt=
+ouch.cfg failed with error -2
+[    0.223165] atmel_mxt_ts i2c-ATML0000:01: Touchscreen size X960Y540
+[    0.223206] input: Atmel maXTouch Touchpad as /devices/pci0000:00/INT34=
+32:00/i2c-0/i2c-ATML0000:01/input/input4
+[    0.229177] atmel_mxt_ts i2c-ATML0001:01: Family: 164 Variant: 13 Firmw=
+are V1.0.AA Objects: 41
+[    0.248909] atmel_mxt_ts i2c-ATML0001:01: Leaving RETRIGEN workaround e=
+nabled
+[    0.248992] atmel_mxt_ts i2c-ATML0001:01: Direct firmware load for maxt=
+ouch.cfg failed with error -2
+[    0.250396] atmel_mxt_ts i2c-ATML0001:01: Touchscreen size X2559Y1699
 
-I have never seen a public/open-source vhost-scsi testsuite.
+Tested-by: Andre M=C3=BCller <andre.muller@web.de>
 
-For patch 23 (the one that adds the lun reset support which is built on
-patch 22), we can't add it to stable right now if you wanted to, because
-it has a bug in it. Michael T, sent the fix:
+Thank you!
 
-https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=b4fffc177fad3c99ee049611a508ca9561bb6871
+On 29/11/2020 22.24, Linus Walleij wrote:
+> After commit 74d905d2d38a devices requiring the workaround
+> for edge triggered interrupts stopped working.
+>
+> This is because the "data" state container defaults to
+> *not* using the workaround, but the workaround gets used
+> *before* the check of whether it is needed or not. This
+> semantic is not obvious from just looking on the patch,
+> but related to the program flow.
+>
+> The hardware needs the quirk to be used before even
+> proceeding to check if the quirk is needed.
+>
+> This patch makes the quirk be used until we determine
+> it is *not* needed. It is determined as not needed when
+> we either have a level-triggered interrupt or the
+> firmware claims that it has enabled retrigging.
+>
+> Cc: Andre M=C3=BCller <andre.muller@web.de>
+> Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+> Cc: Jiada Wang <jiada_wang@mentor.com>
+> Cc: stable@vger.kernel.org
+> Reported-by: Andre M=C3=BCller <andre.muller@web.de>
+> Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_ac=
+quire_irq() when necessary")
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Explicitly disable the retrig workaround also if the
+>    IRQ descriptor says we have a level triggered interrupt.
+> - Drop the second explicit assigning of "true" to the
+>    use_retrigen_workaround bool, it is already enabled.
+> - Augment debug text to say that we leave it enabled
+>    rather than enable it.
+> ---
+>   drivers/input/touchscreen/atmel_mxt_ts.c | 18 ++++++++++++------
+>   1 file changed, 12 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/to=
+uchscreen/atmel_mxt_ts.c
+> index e34984388791..c822db8dbd02 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -1297,14 +1297,18 @@ static int mxt_check_retrigen(struct mxt_data *d=
+ata)
+>   	int val;
+>   	struct irq_data *irqd;
+>
+> -	data->use_retrigen_workaround =3D false;
+> -
+>   	irqd =3D irq_get_irq_data(data->irq);
+>   	if (!irqd)
+>   		return -EINVAL;
+>
+> -	if (irqd_is_level_type(irqd))
+> +	if (irqd_is_level_type(irqd)) {
+> +		/*
+> +		 * We don't need the workaround if we have level trigged
+> +		 * interrupts. This will just work fine.
+> +		 */
+> +		data->use_retrigen_workaround =3D false;
+>   		return 0;
+> +	}
+>
+>   	if (data->T18_address) {
+>   		error =3D __mxt_read_reg(client,
+> @@ -1313,12 +1317,13 @@ static int mxt_check_retrigen(struct mxt_data *d=
+ata)
+>   		if (error)
+>   			return error;
+>
+> -		if (val & MXT_COMMS_RETRIGEN)
+> +		if (val & MXT_COMMS_RETRIGEN) {
+> +			data->use_retrigen_workaround =3D false;
+>   			return 0;
+> +		}
+>   	}
+>
+> -	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
+> -	data->use_retrigen_workaround =3D true;
+> +	dev_warn(&client->dev, "Leaving RETRIGEN workaround enabled\n");
+>   	return 0;
+>   }
+>
+> @@ -3117,6 +3122,7 @@ static int mxt_probe(struct i2c_client *client, co=
+nst struct i2c_device_id *id)
+>   	data =3D devm_kzalloc(&client->dev, sizeof(struct mxt_data), GFP_KERN=
+EL);
+>   	if (!data)
+>   		return -ENOMEM;
+> +	data->use_retrigen_workaround =3D true;
+>
+>   	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
+>   		 client->adapter->nr, client->addr);
+>
 
-to Linus today.
