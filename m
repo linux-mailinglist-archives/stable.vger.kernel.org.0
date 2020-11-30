@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5900A2C8A6D
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFD42C8A73
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729163AbgK3REx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 12:04:53 -0500
-Received: from mga18.intel.com ([134.134.136.126]:63171 "EHLO mga18.intel.com"
+        id S1727076AbgK3RG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 12:06:29 -0500
+Received: from mga17.intel.com ([192.55.52.151]:48570 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbgK3REw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Nov 2020 12:04:52 -0500
-IronPort-SDR: WUiJLErhkPhQpT+GkuuLa8rXy9V9wIvuM+UkT5pDtHwRwV1Y62qK+oAgjZPA9/AK4eCr+iJMRp
- CByixA4AywNg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9821"; a="160442850"
+        id S1725955AbgK3RG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Nov 2020 12:06:28 -0500
+IronPort-SDR: gGdGOieejGYIG+NJNwqIVRDGKnBtdAmK83f9WgG2iqNFK/KOl4ZewDYonNvoMP1iUeynVOphpO
+ d2cPhQ66h3kw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9821"; a="152503846"
 X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="160442850"
+   d="scan'208";a="152503846"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:03:57 -0800
-IronPort-SDR: 4ZiKvRpimBg/9VzKB3qjSRvZL6ipdNVexk2k65mUqTBpexRx6g52W4hB6U/+MwFXUvuRDhHnm5
- R5viNrnTOikw==
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:05:38 -0800
+IronPort-SDR: RLWuL5Sg5NEGsL3wLzwT4CA+qVqB11NPqddC65v0S9S7K2sRF3cc61MTNd4+SsHfCycfbNEu+v
+ 5emBFkypWcFA==
 X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="549177804"
+   d="scan'208";a="538666199"
 Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:03:54 -0800
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:05:35 -0800
 From:   Xiaochen Shen <xiaochen.shen@intel.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         sashal@kernel.org, bp@suse.de, reinette.chatre@intel.com,
         willemb@google.com
 Cc:     tony.luck@intel.com, fenghua.yu@intel.com, pei.p.jia@intel.com,
         xiaochen.shen@intel.com
-Subject: [PATCH 4.14 1/2] x86/resctrl: Remove superfluous kernfs_get() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 01:27:08 +0800
-Message-Id: <1606757228-9555-1-git-send-email-xiaochen.shen@intel.com>
+Subject: [PATCH 4.14 2/2] x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak
+Date:   Tue,  1 Dec 2020 01:28:49 +0800
+Message-Id: <1606757329-9818-1-git-send-email-xiaochen.shen@intel.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1606725284182232@kroah.com>
 References: <1606725284182232@kroah.com>
@@ -42,38 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit fd8d9db3559a29fd737bcdb7c4fcbe1940caae34 upstream.
+commit 758999246965eeb8b253d47e72f7bfe508804b16 upstream.
 
-Willem reported growing of kernfs_node_cache entries in slabtop when
-repeatedly creating and removing resctrl subdirectories as well as when
-repeatedly mounting and unmounting the resctrl filesystem.
+On resource group creation via a mkdir an extra kernfs_node reference is
+obtained by kernfs_get() to ensure that the rdtgroup structure remains
+accessible for the rdtgroup_kn_unlock() calls where it is removed on
+deletion. Currently the extra kernfs_node reference count is only
+dropped by kernfs_put() in rdtgroup_kn_unlock() while the rdtgroup
+structure is removed in a few other locations that lack the matching
+reference drop.
 
-On resource group (control as well as monitoring) creation via a mkdir
-an extra kernfs_node reference is obtained to ensure that the rdtgroup
-structure remains accessible for the rdtgroup_kn_unlock() calls where it
-is removed on deletion. The kernfs_node reference count is dropped by
-kernfs_put() in rdtgroup_kn_unlock().
+In call paths of rmdir and umount, when a control group is removed,
+kernfs_remove() is called to remove the whole kernfs nodes tree of the
+control group (including the kernfs nodes trees of all child monitoring
+groups), and then rdtgroup structure is freed by kfree(). The rdtgroup
+structures of all child monitoring groups under the control group are
+freed by kfree() in free_all_child_rdtgrp().
 
-With the above explaining the need for one kernfs_get()/kernfs_put()
-pair in resctrl there are more places where a kernfs_node reference is
-obtained without a corresponding release. The excessive amount of
-reference count on kernfs nodes will never be dropped to 0 and the
-kernfs nodes will never be freed in the call paths of rmdir and umount.
-It leads to reference count leak and kernfs_node_cache memory leak.
+Before calling kfree() to free the rdtgroup structures, the kernfs node
+of the control group itself as well as the kernfs nodes of all child
+monitoring groups still take the extra references which will never be
+dropped to 0 and the kernfs nodes will never be freed. It leads to
+reference count leak and kernfs_node_cache memory leak.
 
-Remove the superfluous kernfs_get() calls and expand the existing
-comments surrounding the remaining kernfs_get()/kernfs_put() pair that
-remains in use.
+For example, reference count leak is observed in these two cases:
+  (1) mount -t resctrl resctrl /sys/fs/resctrl
+      mkdir /sys/fs/resctrl/c1
+      mkdir /sys/fs/resctrl/c1/mon_groups/m1
+      umount /sys/fs/resctrl
 
-Superfluous kernfs_get() calls are removed from two areas:
+  (2) mkdir /sys/fs/resctrl/c1
+      mkdir /sys/fs/resctrl/c1/mon_groups/m1
+      rmdir /sys/fs/resctrl/c1
 
-  (1) In call paths of mount and mkdir, when kernfs nodes for "info",
-  "mon_groups" and "mon_data" directories and sub-directories are
-  created, the reference count of newly created kernfs node is set to 1.
-  But after kernfs_create_dir() returns, superfluous kernfs_get() are
-  called to take an additional reference.
+The same reference count leak issue also exists in the error exit paths
+of mkdir in mkdir_rdt_prepare() and rdtgroup_mkdir_ctrl_mon().
 
-  (2) kernfs_get() calls in rmdir call paths.
+Fix this issue by following changes to make sure the extra kernfs_node
+reference on rdtgroup is dropped before freeing the rdtgroup structure.
+  (1) Introduce rdtgroup removal helper rdtgroup_remove() to wrap up
+  kernfs_put() and kfree().
+
+  (2) Call rdtgroup_remove() in rdtgroup removal path where the rdtgroup
+  structure is about to be freed by kfree().
+
+  (3) Call rdtgroup_remove() or kernfs_put() as appropriate in the error
+  exit paths of mkdir where an extra reference is taken by kernfs_get().
 
 Backporting notes:
 
@@ -82,142 +96,113 @@ files to a separate directory"), the file
 arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
 arch/x86/kernel/cpu/resctrl/rdtgroup.c.
 Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-for older stable trees.
+in older stable trees.
 
-Upstream commit 17eafd076291 ("x86/intel_rdt: Split resource group
-removal in two") moved part of resource group removal code from
-rdtgroup_rmdir_ctrl() into a separate function rdtgroup_ctrl_remove().
-Apply the change against original code base of rdtgroup_rmdir_ctrl() for
-older stable trees.
-
-Fixes: 17eafd076291 ("x86/intel_rdt: Split resource group removal in two")
-Fixes: 4af4a88e0c92 ("x86/intel_rdt/cqm: Add mount,umount support")
 Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: d89b7379015f ("x86/intel_rdt/cqm: Add mon_data")
-Fixes: c7d9aac61311 ("x86/intel_rdt/cqm: Add mkdir support for RDT monitoring")
-Fixes: 5dc1d5c6bac2 ("x86/intel_rdt: Simplify info and base file lists")
+Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
 Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Fixes: 4e978d06dedb ("x86/intel_rdt: Add "info" files to resctrl file system")
 Reported-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Tested-by: Willem de Bruijn <willemb@google.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085053-31639-1-git-send-email-xiaochen.shen@intel.com
+Link: https://lkml.kernel.org/r/1604085088-31707-1-git-send-email-xiaochen.shen@intel.com
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 35 ++------------------------------
- 1 file changed, 2 insertions(+), 33 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index 60c63b2..a61d64c 100644
+index a61d64c..bb33888 100644
 --- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
 +++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -830,7 +830,6 @@ static int rdtgroup_mkdir_info_resdir(struct rdt_resource *r, char *name,
- 	if (IS_ERR(kn_subdir))
- 		return PTR_ERR(kn_subdir);
+@@ -393,6 +393,24 @@ static ssize_t rdtgroup_cpus_write(struct kernfs_open_file *of,
+ 	return ret ?: nbytes;
+ }
  
--	kernfs_get(kn_subdir);
- 	ret = rdtgroup_kn_set_ugid(kn_subdir);
- 	if (ret)
- 		return ret;
-@@ -853,7 +852,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 	kn_info = kernfs_create_dir(parent_kn, "info", parent_kn->mode, NULL);
- 	if (IS_ERR(kn_info))
- 		return PTR_ERR(kn_info);
--	kernfs_get(kn_info);
- 
- 	for_each_alloc_enabled_rdt_resource(r) {
- 		fflags =  r->fflags | RF_CTRL_INFO;
-@@ -870,12 +868,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 			goto out_destroy;
++/**
++ * rdtgroup_remove - the helper to remove resource group safely
++ * @rdtgrp: resource group to remove
++ *
++ * On resource group creation via a mkdir, an extra kernfs_node reference is
++ * taken to ensure that the rdtgroup structure remains accessible for the
++ * rdtgroup_kn_unlock() calls where it is removed.
++ *
++ * Drop the extra reference here, then free the rdtgroup structure.
++ *
++ * Return: void
++ */
++static void rdtgroup_remove(struct rdtgroup *rdtgrp)
++{
++	kernfs_put(rdtgrp->kn);
++	kfree(rdtgrp);
++}
++
+ struct task_move_callback {
+ 	struct callback_head	work;
+ 	struct rdtgroup		*rdtgrp;
+@@ -415,7 +433,7 @@ static void move_myself(struct callback_head *head)
+ 	    (rdtgrp->flags & RDT_DELETED)) {
+ 		current->closid = 0;
+ 		current->rmid = 0;
+-		kfree(rdtgrp);
++		rdtgroup_remove(rdtgrp);
  	}
  
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn_info);
--
- 	ret = rdtgroup_kn_set_ugid(kn_info);
- 	if (ret)
- 		goto out_destroy;
-@@ -904,12 +896,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 	if (dest_kn)
- 		*dest_kn = kn;
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn);
--
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -1178,7 +1164,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_info;
- 		}
--		kernfs_get(kn_mongrp);
- 
- 		ret = mkdir_mondata_all(rdtgroup_default.kn,
- 					&rdtgroup_default, &kn_mondata);
-@@ -1186,7 +1171,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_mongrp;
- 		}
--		kernfs_get(kn_mondata);
- 		rdtgroup_default.mon.mon_data_kn = kn_mondata;
+ 	preempt_disable();
+@@ -1112,8 +1130,7 @@ void rdtgroup_kn_unlock(struct kernfs_node *kn)
+ 	if (atomic_dec_and_test(&rdtgrp->waitcount) &&
+ 	    (rdtgrp->flags & RDT_DELETED)) {
+ 		kernfs_unbreak_active_protection(kn);
+-		kernfs_put(rdtgrp->kn);
+-		kfree(rdtgrp);
++		rdtgroup_remove(rdtgrp);
+ 	} else {
+ 		kernfs_unbreak_active_protection(kn);
  	}
+@@ -1313,7 +1330,7 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
+ 		if (atomic_read(&sentry->waitcount) != 0)
+ 			sentry->flags = RDT_DELETED;
+ 		else
+-			kfree(sentry);
++			rdtgroup_remove(sentry);
+ 	}
+ }
  
-@@ -1461,11 +1445,6 @@ static int mkdir_mondata_subdir(struct kernfs_node *parent_kn,
- 	if (IS_ERR(kn))
- 		return PTR_ERR(kn);
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that kn is always accessible.
--	 */
--	kernfs_get(kn);
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -1626,8 +1605,8 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	/*
+@@ -1351,7 +1368,7 @@ static void rmdir_all_sub(void)
+ 		if (atomic_read(&rdtgrp->waitcount) != 0)
+ 			rdtgrp->flags = RDT_DELETED;
+ 		else
+-			kfree(rdtgrp);
++			rdtgroup_remove(rdtgrp);
+ 	}
+ 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
+ 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
+@@ -1606,7 +1623,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
  	 * kernfs_remove() will drop the reference count on "kn" which
  	 * will free it. But we still need it to stick around for the
--	 * rdtgroup_kn_unlock(kn} call below. Take one extra reference
--	 * here, which will be dropped inside rdtgroup_kn_unlock().
-+	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
-+	 * which will be dropped inside rdtgroup_kn_unlock().
+ 	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
+-	 * which will be dropped inside rdtgroup_kn_unlock().
++	 * which will be dropped by kernfs_put() in rdtgroup_remove().
  	 */
  	kernfs_get(kn);
  
-@@ -1839,11 +1818,6 @@ static int rdtgroup_rmdir_mon(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
- 	WARN_ON(list_empty(&prdtgrp->mon.crdtgrp_list));
- 	list_del(&rdtgrp->mon.crdtgrp_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
+@@ -1640,6 +1657,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ out_idfree:
+ 	free_rmid(rdtgrp->mon.rmid);
+ out_destroy:
++	kernfs_put(rdtgrp->kn);
  	kernfs_remove(rdtgrp->kn);
+ out_free_rgrp:
+ 	kfree(rdtgrp);
+@@ -1652,7 +1670,7 @@ static void mkdir_rdt_prepare_clean(struct rdtgroup *rgrp)
+ {
+ 	kernfs_remove(rgrp->kn);
+ 	free_rmid(rgrp->mon.rmid);
+-	kfree(rgrp);
++	rdtgroup_remove(rgrp);
+ }
  
- 	return 0;
-@@ -1880,11 +1854,6 @@ static int rdtgroup_rmdir_ctrl(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
- 
- 	list_del(&rdtgrp->rdtgroup_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 
- 	/*
+ /*
 -- 
 1.8.3.1
 
