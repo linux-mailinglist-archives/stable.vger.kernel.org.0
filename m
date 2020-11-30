@@ -2,75 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC7F2C8768
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 16:07:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0D52C87F9
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 16:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727074AbgK3PGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 10:06:31 -0500
-Received: from 142-4-6-44.unifiedlayer.com ([142.4.6.44]:54890 "EHLO
-        142-4-6-44.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726364AbgK3PGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 10:06:31 -0500
-Received: from aghogho239 by 142-4-6-44.ipage.com with local (Exim 4.93)
-        (envelope-from <aghogho239@142-4-6-44.ipage.com>)
-        id 1kjkB1-0000Ch-Mp; Mon, 30 Nov 2020 07:29:16 -0700
-To:     stanko53@gmail.com
-Subject: MANUSCRIPT PROOFREADING
-X-PHP-Script: modproofread092.org/mail2/send.php for 129.205.113.251
-X-PHP-Originating-Script: 1001:send.php
-From:   manuscriptediting34@pub.org
-Reply-To: mmanuscripteditserv@gmail.com
-Message-Id: <E1kjkB1-0000Ch-Mp@142-4-6-44.ipage.com>
-Date:   Mon, 30 Nov 2020 07:29:15 -0700
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 142-4-6-44.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
-X-AntiAbuse: Sender Address Domain - 142-4-6-44.ipage.com
-X-Get-Message-Sender-Via: 142-4-6-44.ipage.com: authenticated_id: aghogho239/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 142-4-6-44.ipage.com: aghogho239
-X-Source: 
-X-Source-Args: php-fpm: pool modproofread092_org                        
-X-Source-Dir: modproofread092.org:/public_html/mail2
+        id S1728043AbgK3P3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 10:29:19 -0500
+Received: from mga14.intel.com ([192.55.52.115]:12816 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727076AbgK3P3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Nov 2020 10:29:19 -0500
+IronPort-SDR: uMYewLBG2RD8nBN2J1jFavETldxBmgZw2rbt05WURROedyI1k/mg1lzIvDhm6fC6tnq5JWSN5J
+ wClecqjRqzkw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9821"; a="171869538"
+X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
+   d="scan'208";a="171869538"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 07:28:38 -0800
+IronPort-SDR: /EdJ1k597F3vjdC5owwNeXdjyehuZe2+CXX1O4dfbzlcbGIfIF2TvT3MP/XwuexNYsg6MjJoo/
+ aFFn0FSJyKpA==
+X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
+   d="scan'208";a="549141821"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 07:28:36 -0800
+Date:   Mon, 30 Nov 2020 17:28:32 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     Anshuman Gupta <anshuman.gupta@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, ville.syrjala@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: [RFC 2/2] drm/i915/display: Protect pipe_update against dc3co
+ exit
+Message-ID: <20201130152832.GB2348711@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20201130091646.25576-1-anshuman.gupta@intel.com>
+ <20201130091646.25576-3-anshuman.gupta@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201130091646.25576-3-anshuman.gupta@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN MANUSCRIPT EDITING SERVICES
-http://www.mmanuscripteditserv.com/index.htm
+On Mon, Nov 30, 2020 at 02:46:46PM +0530, Anshuman Gupta wrote:
+> At usual case DC3CO exit happen automatically by DMC f/w whenever
+> PSR2 clears idle. This happens smoothly by DMC f/w to work with flips.
+> But there are certain scenario where DC3CO  Disallowed by driver
+> asynchronous with flips. In such scenario display engine could
+> be already in DC3CO state and driver has disallowed it,
+> It initiates DC3CO exit sequence in DMC f/w which requires a
+> dc3co exit delay of 200us in driver.
+> It requires to protect intel_pipe_update_{update_end} with
+> dc3co exit delay.
+> 
+> Cc: Imre Deak <imre.deak@intel.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
 
+To make sure that it doesn't hide the root cause (or affects unrelated
+platforms), I'd only add locking around DC3co changes with a new lock,
+using lock/unlock helpers in intel_display_power.c called from
+intel_pipe_update_start/end.
 
-Do you want your manuscript TO BE written in standard English?
-Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
-Does your manuscript have to be in a particular journal format?
-Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
-So hurry up and get your papers edited in Standard English.
+Also please submit this patch separately, w/o the optimization in patch
+1/2, so we know that this change fixes the problem.
 
-Dear Colleague,
-Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author’s learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
+--Imre
 
-Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
-
-Our charges are as follows: $25 per 1000 words, meaning
-
-Number of Words	Price
-1 to 1,000    	$25
-1,001 to 2,000	$50
-2,001 to 3,000	$75
-3,001 to 4,000	$100
-4,001 to 5,000	$125
-5,001 to 6,000	$150
-6,001 to 7,000	$175
-
-Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
-
-For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Philip Benz
-Editor
-Modern Manuscript Editing Services
-
-To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
-
+> ---
+>  drivers/gpu/drm/i915/display/intel_display.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+> index ba26545392bc..3b81b98c0daf 100644
+> --- a/drivers/gpu/drm/i915/display/intel_display.c
+> +++ b/drivers/gpu/drm/i915/display/intel_display.c
+> @@ -15924,6 +15924,8 @@ static void intel_update_crtc(struct intel_atomic_state *state,
+>  	else
+>  		intel_fbc_enable(state, crtc);
+>  
+> +	/* Protect intel_pipe_update_{start,end} with power_domians lock */
+> +	mutex_lock(&dev_priv->power_domains.lock);
+>  	/* Perform vblank evasion around commit operation */
+>  	intel_pipe_update_start(new_crtc_state);
+>  
+> @@ -15935,6 +15937,7 @@ static void intel_update_crtc(struct intel_atomic_state *state,
+>  		i9xx_update_planes_on_crtc(state, crtc);
+>  
+>  	intel_pipe_update_end(new_crtc_state);
+> +	mutex_unlock(&dev_prive->power_domains.lock);
+>  
+>  	/*
+>  	 * We usually enable FIFO underrun interrupts as part of the
+> -- 
+> 2.26.2
+> 
