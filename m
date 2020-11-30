@@ -2,207 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F492C8A4C
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:01:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4552C8AF4
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729245AbgK3RAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 12:00:44 -0500
-Received: from mga17.intel.com ([192.55.52.151]:47733 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbgK3RAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Nov 2020 12:00:43 -0500
-IronPort-SDR: NsRUHswvhkT05mX4vhaG3nL2Hu/6CLuupZgBdZ8SdreuXjv+I5eVzaRfZx8TXR3tvm8VJucTlf
- qFHETyQykVVQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9821"; a="152502242"
-X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="152502242"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:00:02 -0800
-IronPort-SDR: CUgCMKWicH3WgSaIU077OfJomLEIESNlkz553SckubU+g1LsgFiqDX4rjnNxyos6WGFhFJtsJu
- WSysKzGmkfKg==
-X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="549175610"
-Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 09:00:00 -0800
-From:   Xiaochen Shen <xiaochen.shen@intel.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        sashal@kernel.org, bp@suse.de, reinette.chatre@intel.com,
-        willemb@google.com
-Cc:     tony.luck@intel.com, fenghua.yu@intel.com, pei.p.jia@intel.com,
-        xiaochen.shen@intel.com
-Subject: [PATCH 4.19 2/2] x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 01:23:14 +0800
-Message-Id: <1606756994-9159-1-git-send-email-xiaochen.shen@intel.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1606725286224153@kroah.com>
-References: <1606725286224153@kroah.com>
+        id S1728993AbgK3R1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 12:27:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728377AbgK3R1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 12:27:09 -0500
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE816C0613CF
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:26:18 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id u12so17285363wrt.0
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:26:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=2FInVnp5hZW+3Fw12mVGe1Qq7S8Iq01KARhKMDsAJ5k=;
+        b=eO/bg/kZBtVsuI6AZE9s+qoj3uEgmFf0JxFE1+7PL8Yzr3qaGFbHNN/HKzDu4kVn9T
+         BcAVQWkEZYNP5jzlD/S/OyjfzJpRk02aRnaWZbLImL/Nl8k+pXRANxaSRoNed1kIKpf/
+         s0pFap+ZZaKwgnGtY4+3y+1IkDT7l2pYTgohNsiuQPE+r9py+jaj8rLJQ3q+f0iJH8pk
+         KlhY9AUZmsjHeM1vysq1EuXmBLJF7KAw4rvYN61HdBBs+ovESH2NEDA91Rn3ni3PWtEH
+         5AlU9sifTKki5svux5op3xlQfuMBD4A3/XCgPSY6KTSgWPx9JWIX8rjBKcutIX3JGfvl
+         yCFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=2FInVnp5hZW+3Fw12mVGe1Qq7S8Iq01KARhKMDsAJ5k=;
+        b=HVMwIG8KE3R2Oci+gMMi9/tDmHw6mntd5PMOldvBZ7AWPdJ7ghVrSAzLRlMS2OQqsX
+         pQzZs2fjQIaxynosV2B01U7KCVlFlHrwSWgjfMSeTyKOQ7jUNCgNbNAx9l3eIHEoG/4N
+         0w1gLHsyQkAYx39wRD+9u8jvHuAVER6Y8VOvQSG3hL5S6Km0yS1onJVlme+B68OUDHm+
+         BJz/zkb2RMjMMiWSXG8SC7EPe3o9jNNKDLvGd97DRZUb7bfo/iXY8MgjFEMAW2NV8FyS
+         Zr6EkWNOe89pMvKzsM3Ze9bVC1ZcCfqYctqRdMmaxIElcfIQW0/SO51CrpXlWodPv+Up
+         9avQ==
+X-Gm-Message-State: AOAM532K9PoPa6ROvEOm8uAfeo4aB0NVyNDs6n22kPvc3zO8sMNPHFys
+        +NIIYUP34pEMGl8+7AcS8VM=
+X-Google-Smtp-Source: ABdhPJx17K7okVA5bjHktiDsxL4I6QPlZDSagFZjWHIhFAUomr3Myx84d8SDpD2DXxSkGpAKRQgNpQ==
+X-Received: by 2002:adf:eb08:: with SMTP id s8mr29361142wrn.12.1606757177420;
+        Mon, 30 Nov 2020 09:26:17 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id v64sm25932858wme.25.2020.11.30.09.26.16
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 30 Nov 2020 09:26:16 -0800 (PST)
+Date:   Mon, 30 Nov 2020 17:26:15 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     mirq-linux@rere.qmqm.pl, a.fatoum@pengutronix.de,
+        broonie@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] regulator: avoid resolve_supply()
+ infinite recursion" failed to apply to 4.9-stable tree
+Message-ID: <20201130172615.gghl3g7vtqrjbbao@debian>
+References: <160612320295192@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="doyf26lp3fvyh6vr"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <160612320295192@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 758999246965eeb8b253d47e72f7bfe508804b16 upstream.
 
-On resource group creation via a mkdir an extra kernfs_node reference is
-obtained by kernfs_get() to ensure that the rdtgroup structure remains
-accessible for the rdtgroup_kn_unlock() calls where it is removed on
-deletion. Currently the extra kernfs_node reference count is only
-dropped by kernfs_put() in rdtgroup_kn_unlock() while the rdtgroup
-structure is removed in a few other locations that lack the matching
-reference drop.
+--doyf26lp3fvyh6vr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In call paths of rmdir and umount, when a control group is removed,
-kernfs_remove() is called to remove the whole kernfs nodes tree of the
-control group (including the kernfs nodes trees of all child monitoring
-groups), and then rdtgroup structure is freed by kfree(). The rdtgroup
-structures of all child monitoring groups under the control group are
-freed by kfree() in free_all_child_rdtgrp().
+Hi Greg,
 
-Before calling kfree() to free the rdtgroup structures, the kernfs node
-of the control group itself as well as the kernfs nodes of all child
-monitoring groups still take the extra references which will never be
-dropped to 0 and the kernfs nodes will never be freed. It leads to
-reference count leak and kernfs_node_cache memory leak.
+On Mon, Nov 23, 2020 at 10:20:02AM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-For example, reference count leak is observed in these two cases:
-  (1) mount -t resctrl resctrl /sys/fs/resctrl
-      mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      umount /sys/fs/resctrl
+Here is the backport.
 
-  (2) mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      rmdir /sys/fs/resctrl/c1
+--
+Regards
+Sudip
 
-The same reference count leak issue also exists in the error exit paths
-of mkdir in mkdir_rdt_prepare() and rdtgroup_mkdir_ctrl_mon().
+--doyf26lp3fvyh6vr
+Content-Type: text/x-diff; charset=utf-8
+Content-Disposition: attachment; filename="0001-regulator-avoid-resolve_supply-infinite-recursion.patch"
+Content-Transfer-Encoding: 8bit
 
-Fix this issue by following changes to make sure the extra kernfs_node
-reference on rdtgroup is dropped before freeing the rdtgroup structure.
-  (1) Introduce rdtgroup removal helper rdtgroup_remove() to wrap up
-  kernfs_put() and kfree().
+From 3ef096ea5d9ec8353a23109cd4d8a326743c7905 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Date: Fri, 13 Nov 2020 01:20:28 +0100
+Subject: [PATCH] regulator: avoid resolve_supply() infinite recursion
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-  (2) Call rdtgroup_remove() in rdtgroup removal path where the rdtgroup
-  structure is about to be freed by kfree().
+commit 4b639e254d3d4f15ee4ff2b890a447204cfbeea9 upstream
 
-  (3) Call rdtgroup_remove() or kernfs_put() as appropriate in the error
-  exit paths of mkdir where an extra reference is taken by kernfs_get().
+When a regulator's name equals its supply's name the
+regulator_resolve_supply() recurses indefinitely. Add a check
+so that debugging the problem is easier. The "fixed" commit
+just exposed the problem.
 
-Backporting notes:
-
-Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
-files to a separate directory"), the file
-arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
-arch/x86/kernel/cpu/resctrl/rdtgroup.c.
-Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-in older stable trees.
-
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085088-31707-1-git-send-email-xiaochen.shen@intel.com
+Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
+Link: https://lore.kernel.org/r/c6171057cfc0896f950c4d8cb82df0f9f1b89ad9.1605226675.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/regulator/core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index dc9061a..12083f2 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -515,6 +515,24 @@ static ssize_t rdtgroup_cpus_write(struct kernfs_open_file *of,
- 	return ret ?: nbytes;
- }
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 0a0dd0aac047..89f14e301b4c 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1550,6 +1550,12 @@ static int regulator_resolve_supply(struct regulator_dev *rdev)
+ 		}
+ 	}
  
-+/**
-+ * rdtgroup_remove - the helper to remove resource group safely
-+ * @rdtgrp: resource group to remove
-+ *
-+ * On resource group creation via a mkdir, an extra kernfs_node reference is
-+ * taken to ensure that the rdtgroup structure remains accessible for the
-+ * rdtgroup_kn_unlock() calls where it is removed.
-+ *
-+ * Drop the extra reference here, then free the rdtgroup structure.
-+ *
-+ * Return: void
-+ */
-+static void rdtgroup_remove(struct rdtgroup *rdtgrp)
-+{
-+	kernfs_put(rdtgrp->kn);
-+	kfree(rdtgrp);
-+}
++	if (r == rdev) {
++		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
++			rdev->desc->name, rdev->supply_name);
++		return -EINVAL;
++	}
 +
- struct task_move_callback {
- 	struct callback_head	work;
- 	struct rdtgroup		*rdtgrp;
-@@ -537,7 +555,7 @@ static void move_myself(struct callback_head *head)
- 	    (rdtgrp->flags & RDT_DELETED)) {
- 		current->closid = 0;
- 		current->rmid = 0;
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	}
- 
- 	preempt_disable();
-@@ -1959,8 +1977,7 @@ void rdtgroup_kn_unlock(struct kernfs_node *kn)
- 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
- 			rdtgroup_pseudo_lock_remove(rdtgrp);
- 		kernfs_unbreak_active_protection(kn);
--		kernfs_put(rdtgrp->kn);
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	} else {
- 		kernfs_unbreak_active_protection(kn);
- 	}
-@@ -2169,7 +2186,7 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
- 		if (atomic_read(&sentry->waitcount) != 0)
- 			sentry->flags = RDT_DELETED;
- 		else
--			kfree(sentry);
-+			rdtgroup_remove(sentry);
- 	}
- }
- 
-@@ -2211,7 +2228,7 @@ static void rmdir_all_sub(void)
- 		if (atomic_read(&rdtgrp->waitcount) != 0)
- 			rdtgrp->flags = RDT_DELETED;
- 		else
--			kfree(rdtgrp);
-+			rdtgroup_remove(rdtgrp);
- 	}
- 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
- 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
-@@ -2602,7 +2619,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
- 	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
--	 * which will be dropped inside rdtgroup_kn_unlock().
-+	 * which will be dropped by kernfs_put() in rdtgroup_remove().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2643,6 +2660,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- out_idfree:
- 	free_rmid(rdtgrp->mon.rmid);
- out_destroy:
-+	kernfs_put(rdtgrp->kn);
- 	kernfs_remove(rdtgrp->kn);
- out_free_rgrp:
- 	kfree(rdtgrp);
-@@ -2655,7 +2673,7 @@ static void mkdir_rdt_prepare_clean(struct rdtgroup *rgrp)
- {
- 	kernfs_remove(rgrp->kn);
- 	free_rmid(rgrp->mon.rmid);
--	kfree(rgrp);
-+	rdtgroup_remove(rgrp);
- }
- 
- /*
+ 	/* Recursively resolve the supply of the supply */
+ 	ret = regulator_resolve_supply(r);
+ 	if (ret < 0) {
 -- 
-1.8.3.1
+2.11.0
 
+
+--doyf26lp3fvyh6vr--
