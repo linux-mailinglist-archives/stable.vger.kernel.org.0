@@ -2,216 +2,257 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D347A2C8A21
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 17:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D13C2C8A5C
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728817AbgK3Q5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 11:57:40 -0500
-Received: from mga12.intel.com ([192.55.52.136]:64491 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727374AbgK3Q5k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Nov 2020 11:57:40 -0500
-IronPort-SDR: 3I1KefuVVvQGWQQPkr8wPrhh6/aw9iElqUUf5Jg4m2TloI/zq31SALUsRLF5pP7vIkBiU5+OtN
- MAdjGJdOYiHQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9821"; a="151920146"
-X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="151920146"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 08:56:04 -0800
-IronPort-SDR: /XDg9O0WRYr4fFN/BXA1FiBeWvQXHr/MbIWhr1CKcd2NRgbqvvVQM77u1kOJ2SCEhnjoMB0gL8
- NEVDNJnzoUUw==
-X-IronPort-AV: E=Sophos;i="5.78,382,1599548400"; 
-   d="scan'208";a="549173326"
-Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2020 08:56:01 -0800
-From:   Xiaochen Shen <xiaochen.shen@intel.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        sashal@kernel.org, bp@suse.de, reinette.chatre@intel.com,
-        willemb@google.com
-Cc:     tony.luck@intel.com, fenghua.yu@intel.com, pei.p.jia@intel.com,
-        xiaochen.shen@intel.com
-Subject: [PATCH 4.19 1/2] x86/resctrl: Remove superfluous kernfs_get() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 01:19:14 +0800
-Message-Id: <1606756754-8805-1-git-send-email-xiaochen.shen@intel.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <16067252669529@kroah.com>
-References: <16067252669529@kroah.com>
+        id S1727985AbgK3RDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 12:03:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43362 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727900AbgK3RDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 12:03:15 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81436C0613D2
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:02:35 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id g14so17090875wrm.13
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:02:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=CR59Zqn5k554svX8u33b3NzMbAg1mJSBzX9QwnwfhNs=;
+        b=VPqgOStYwGQ+LDQCyYzgMQV6+ygGnYXC4TyozELPzPcQnQ9E0bdTrPvY20RbTiQT0q
+         BAfrw1c+GVq+nfUw8uKyXd4/5bgz6NWJeA3Nk0CXGEULg21kh4AGAbxI3rJRFsHJisjU
+         VcNwpnRssCptc0PGAqd9Sqr6XhNff0/hekp7SWZhg84i1fYBrn1qDiYyx26IjO9fjKlJ
+         4TWlGBQYDW7dKW2lxOTpxfgsbcs+3eLDMHE+dbU/YoILgezBXhhCHM5G+J55q7jk5d8S
+         Uxy1ZdQ1IU2eZUXiikEqGAHjOIYDLCgnvV2ek1UXdN/ap+Dt/4uK1TisJQRJC5Ovuhe5
+         wkrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=CR59Zqn5k554svX8u33b3NzMbAg1mJSBzX9QwnwfhNs=;
+        b=t2wmqnnqsoeYaNCwht12bCNbcHqaV1oMUrqmC2a0nXz34VnE2b9MzvIFku7PSvjB0n
+         oF4IrOFgsIrO1qDqkFFY2bY8EQfs+67BBKalR9VVjmDBz8GnBbNf3RgXcPnExBfnRYEf
+         p+U7iDAdJ4L6Mu2A677kdladp79CL7Q7ZrCh29i3CshbQZGp4wDNr1OXjPl98sfv4bX/
+         nUVeQ2UtDL7daxKwworYwe3fTE73Nx3W8TAFS5p3mmNjQR+NpCYrarun6JDAuwFbjhtr
+         htg08sjggPUTilq/EadnV06tNSry4qFl2R+EL5kYMjlLtI6CZkDVLzuBuVonFyKTjK6K
+         yvIw==
+X-Gm-Message-State: AOAM5312IaVUumt4n9b9vC5CV7CIsrhBEDkdPxwBFDZq4p9jV5ZLML9z
+        okWnkZbKOq6v1eldV52v4Tg=
+X-Google-Smtp-Source: ABdhPJwl2OyvuSJrvmZs5+y4Gv3B8Ze1O9cZy/B10bOdQAY0TCuTyOcteLAclaQWFj4tym07lL4/tQ==
+X-Received: by 2002:adf:94c3:: with SMTP id 61mr28663645wrr.143.1606755753277;
+        Mon, 30 Nov 2020 09:02:33 -0800 (PST)
+Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
+        by smtp.gmail.com with ESMTPSA id e1sm6377466wma.17.2020.11.30.09.02.32
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 30 Nov 2020 09:02:32 -0800 (PST)
+Date:   Mon, 30 Nov 2020 17:02:30 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     fdmanana@suse.com, dsterba@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: fix lockdep splat when reading
+ qgroup config on mount" failed to apply to 4.4-stable tree
+Message-ID: <20201130170230.qqlrytbd6yfsxukw@debian>
+References: <16065665063666@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="3ffvlrc2seyg5ewr"
+Content-Disposition: inline
+In-Reply-To: <16065665063666@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit fd8d9db3559a29fd737bcdb7c4fcbe1940caae34 upstream.
 
-Willem reported growing of kernfs_node_cache entries in slabtop when
-repeatedly creating and removing resctrl subdirectories as well as when
-repeatedly mounting and unmounting the resctrl filesystem.
+--3ffvlrc2seyg5ewr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On resource group (control as well as monitoring) creation via a mkdir
-an extra kernfs_node reference is obtained to ensure that the rdtgroup
-structure remains accessible for the rdtgroup_kn_unlock() calls where it
-is removed on deletion. The kernfs_node reference count is dropped by
-kernfs_put() in rdtgroup_kn_unlock().
+Hi Greg,
 
-With the above explaining the need for one kernfs_get()/kernfs_put()
-pair in resctrl there are more places where a kernfs_node reference is
-obtained without a corresponding release. The excessive amount of
-reference count on kernfs nodes will never be dropped to 0 and the
-kernfs nodes will never be freed in the call paths of rmdir and umount.
-It leads to reference count leak and kernfs_node_cache memory leak.
+On Sat, Nov 28, 2020 at 01:28:26PM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Remove the superfluous kernfs_get() calls and expand the existing
-comments surrounding the remaining kernfs_get()/kernfs_put() pair that
-remains in use.
+Here is the backport.
 
-Superfluous kernfs_get() calls are removed from two areas:
+--
+Regards
+Sudip
 
-  (1) In call paths of mount and mkdir, when kernfs nodes for "info",
-  "mon_groups" and "mon_data" directories and sub-directories are
-  created, the reference count of newly created kernfs node is set to 1.
-  But after kernfs_create_dir() returns, superfluous kernfs_get() are
-  called to take an additional reference.
+--3ffvlrc2seyg5ewr
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-btrfs-fix-lockdep-splat-when-reading-qgroup-config-o.patch"
 
-  (2) kernfs_get() calls in rmdir call paths.
+From 0e6f48fc8e03f2471a8839794ca1ea7c2f1bfe7b Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 23 Nov 2020 14:28:44 +0000
+Subject: [PATCH] btrfs: fix lockdep splat when reading qgroup config on mount
 
-Backporting notes:
+commit 3d05cad3c357a2b749912914356072b38435edfa upstream
 
-Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
-files to a separate directory"), the file
-arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
-arch/x86/kernel/cpu/resctrl/rdtgroup.c.
-Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-for older stable trees.
+Lockdep reported the following splat when running test btrfs/190 from
+fstests:
 
-Fixes: 17eafd076291 ("x86/intel_rdt: Split resource group removal in two")
-Fixes: 4af4a88e0c92 ("x86/intel_rdt/cqm: Add mount,umount support")
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: d89b7379015f ("x86/intel_rdt/cqm: Add mon_data")
-Fixes: c7d9aac61311 ("x86/intel_rdt/cqm: Add mkdir support for RDT monitoring")
-Fixes: 5dc1d5c6bac2 ("x86/intel_rdt: Simplify info and base file lists")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Fixes: 4e978d06dedb ("x86/intel_rdt: Add "info" files to resctrl file system")
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Tested-by: Willem de Bruijn <willemb@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085053-31639-1-git-send-email-xiaochen.shen@intel.com
+  [ 9482.126098] ======================================================
+  [ 9482.126184] WARNING: possible circular locking dependency detected
+  [ 9482.126281] 5.10.0-rc4-btrfs-next-73 #1 Not tainted
+  [ 9482.126365] ------------------------------------------------------
+  [ 9482.126456] mount/24187 is trying to acquire lock:
+  [ 9482.126534] ffffa0c869a7dac0 (&fs_info->qgroup_rescan_lock){+.+.}-{3:3}, at: qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.126647]
+		 but task is already holding lock:
+  [ 9482.126777] ffffa0c892ebd3a0 (btrfs-quota-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.126886]
+		 which lock already depends on the new lock.
+
+  [ 9482.127078]
+		 the existing dependency chain (in reverse order) is:
+  [ 9482.127213]
+		 -> #1 (btrfs-quota-00){++++}-{3:3}:
+  [ 9482.127366]        lock_acquire+0xd8/0x490
+  [ 9482.127436]        down_read_nested+0x45/0x220
+  [ 9482.127528]        __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.127613]        btrfs_read_lock_root_node+0x41/0x130 [btrfs]
+  [ 9482.127702]        btrfs_search_slot+0x514/0xc30 [btrfs]
+  [ 9482.127788]        update_qgroup_status_item+0x72/0x140 [btrfs]
+  [ 9482.127877]        btrfs_qgroup_rescan_worker+0xde/0x680 [btrfs]
+  [ 9482.127964]        btrfs_work_helper+0xf1/0x600 [btrfs]
+  [ 9482.128039]        process_one_work+0x24e/0x5e0
+  [ 9482.128110]        worker_thread+0x50/0x3b0
+  [ 9482.128181]        kthread+0x153/0x170
+  [ 9482.128256]        ret_from_fork+0x22/0x30
+  [ 9482.128327]
+		 -> #0 (&fs_info->qgroup_rescan_lock){+.+.}-{3:3}:
+  [ 9482.128464]        check_prev_add+0x91/0xc60
+  [ 9482.128551]        __lock_acquire+0x1740/0x3110
+  [ 9482.128623]        lock_acquire+0xd8/0x490
+  [ 9482.130029]        __mutex_lock+0xa3/0xb30
+  [ 9482.130590]        qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.131577]        btrfs_read_qgroup_config+0x43a/0x550 [btrfs]
+  [ 9482.132175]        open_ctree+0x1228/0x18a0 [btrfs]
+  [ 9482.132756]        btrfs_mount_root.cold+0x13/0xed [btrfs]
+  [ 9482.133325]        legacy_get_tree+0x30/0x60
+  [ 9482.133866]        vfs_get_tree+0x28/0xe0
+  [ 9482.134392]        fc_mount+0xe/0x40
+  [ 9482.134908]        vfs_kern_mount.part.0+0x71/0x90
+  [ 9482.135428]        btrfs_mount+0x13b/0x3e0 [btrfs]
+  [ 9482.135942]        legacy_get_tree+0x30/0x60
+  [ 9482.136444]        vfs_get_tree+0x28/0xe0
+  [ 9482.136949]        path_mount+0x2d7/0xa70
+  [ 9482.137438]        do_mount+0x75/0x90
+  [ 9482.137923]        __x64_sys_mount+0x8e/0xd0
+  [ 9482.138400]        do_syscall_64+0x33/0x80
+  [ 9482.138873]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [ 9482.139346]
+		 other info that might help us debug this:
+
+  [ 9482.140735]  Possible unsafe locking scenario:
+
+  [ 9482.141594]        CPU0                    CPU1
+  [ 9482.142011]        ----                    ----
+  [ 9482.142411]   lock(btrfs-quota-00);
+  [ 9482.142806]                                lock(&fs_info->qgroup_rescan_lock);
+  [ 9482.143216]                                lock(btrfs-quota-00);
+  [ 9482.143629]   lock(&fs_info->qgroup_rescan_lock);
+  [ 9482.144056]
+		  *** DEADLOCK ***
+
+  [ 9482.145242] 2 locks held by mount/24187:
+  [ 9482.145637]  #0: ffffa0c8411c40e8 (&type->s_umount_key#44/1){+.+.}-{3:3}, at: alloc_super+0xb9/0x400
+  [ 9482.146061]  #1: ffffa0c892ebd3a0 (btrfs-quota-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.146509]
+		 stack backtrace:
+  [ 9482.147350] CPU: 1 PID: 24187 Comm: mount Not tainted 5.10.0-rc4-btrfs-next-73 #1
+  [ 9482.147788] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  [ 9482.148709] Call Trace:
+  [ 9482.149169]  dump_stack+0x8d/0xb5
+  [ 9482.149628]  check_noncircular+0xff/0x110
+  [ 9482.150090]  check_prev_add+0x91/0xc60
+  [ 9482.150561]  ? kvm_clock_read+0x14/0x30
+  [ 9482.151017]  ? kvm_sched_clock_read+0x5/0x10
+  [ 9482.151470]  __lock_acquire+0x1740/0x3110
+  [ 9482.151941]  ? __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.152402]  lock_acquire+0xd8/0x490
+  [ 9482.152887]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.153354]  __mutex_lock+0xa3/0xb30
+  [ 9482.153826]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.154301]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.154768]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.155226]  qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.155690]  btrfs_read_qgroup_config+0x43a/0x550 [btrfs]
+  [ 9482.156160]  open_ctree+0x1228/0x18a0 [btrfs]
+  [ 9482.156643]  btrfs_mount_root.cold+0x13/0xed [btrfs]
+  [ 9482.157108]  ? rcu_read_lock_sched_held+0x5d/0x90
+  [ 9482.157567]  ? kfree+0x31f/0x3e0
+  [ 9482.158030]  legacy_get_tree+0x30/0x60
+  [ 9482.158489]  vfs_get_tree+0x28/0xe0
+  [ 9482.158947]  fc_mount+0xe/0x40
+  [ 9482.159403]  vfs_kern_mount.part.0+0x71/0x90
+  [ 9482.159875]  btrfs_mount+0x13b/0x3e0 [btrfs]
+  [ 9482.160335]  ? rcu_read_lock_sched_held+0x5d/0x90
+  [ 9482.160805]  ? kfree+0x31f/0x3e0
+  [ 9482.161260]  ? legacy_get_tree+0x30/0x60
+  [ 9482.161714]  legacy_get_tree+0x30/0x60
+  [ 9482.162166]  vfs_get_tree+0x28/0xe0
+  [ 9482.162616]  path_mount+0x2d7/0xa70
+  [ 9482.163070]  do_mount+0x75/0x90
+  [ 9482.163525]  __x64_sys_mount+0x8e/0xd0
+  [ 9482.163986]  do_syscall_64+0x33/0x80
+  [ 9482.164437]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [ 9482.164902] RIP: 0033:0x7f51e907caaa
+
+This happens because at btrfs_read_qgroup_config() we can call
+qgroup_rescan_init() while holding a read lock on a quota btree leaf,
+acquired by the previous call to btrfs_search_slot_for_read(), and
+qgroup_rescan_init() acquires the mutex qgroup_rescan_lock.
+
+A qgroup rescan worker does the opposite: it acquires the mutex
+qgroup_rescan_lock, at btrfs_qgroup_rescan_worker(), and then tries to
+update the qgroup status item in the quota btree through the call to
+update_qgroup_status_item(). This inversion of locking order
+between the qgroup_rescan_lock mutex and quota btree locks causes the
+splat.
+
+Fix this simply by releasing and freeing the path before calling
+qgroup_rescan_init() at btrfs_read_qgroup_config().
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 35 ++------------------------------
- 1 file changed, 2 insertions(+), 33 deletions(-)
+ fs/btrfs/qgroup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index e62e416..dc9061a 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -1626,7 +1626,6 @@ static int rdtgroup_mkdir_info_resdir(struct rdt_resource *r, char *name,
- 	if (IS_ERR(kn_subdir))
- 		return PTR_ERR(kn_subdir);
- 
--	kernfs_get(kn_subdir);
- 	ret = rdtgroup_kn_set_ugid(kn_subdir);
- 	if (ret)
- 		return ret;
-@@ -1649,7 +1648,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 	kn_info = kernfs_create_dir(parent_kn, "info", parent_kn->mode, NULL);
- 	if (IS_ERR(kn_info))
- 		return PTR_ERR(kn_info);
--	kernfs_get(kn_info);
- 
- 	ret = rdtgroup_add_files(kn_info, RF_TOP_INFO);
- 	if (ret)
-@@ -1670,12 +1668,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 			goto out_destroy;
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 734babb6626c..18e667fbd054 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -462,6 +462,7 @@ next2:
+ 			break;
  	}
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn_info);
--
- 	ret = rdtgroup_kn_set_ugid(kn_info);
- 	if (ret)
- 		goto out_destroy;
-@@ -1704,12 +1696,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 	if (dest_kn)
- 		*dest_kn = kn;
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn);
--
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -2025,7 +2011,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_info;
- 		}
--		kernfs_get(kn_mongrp);
- 
- 		ret = mkdir_mondata_all(rdtgroup_default.kn,
- 					&rdtgroup_default, &kn_mondata);
-@@ -2033,7 +2018,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_mongrp;
- 		}
--		kernfs_get(kn_mondata);
- 		rdtgroup_default.mon.mon_data_kn = kn_mondata;
+ out:
++	btrfs_free_path(path);
+ 	fs_info->qgroup_flags |= flags;
+ 	if (!(fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_ON)) {
+ 		fs_info->quota_enabled = 0;
+@@ -470,7 +471,6 @@ out:
+ 		   ret >= 0) {
+ 		ret = qgroup_rescan_init(fs_info, rescan_progress, 0);
  	}
+-	btrfs_free_path(path);
  
-@@ -2326,11 +2310,6 @@ static int mkdir_mondata_subdir(struct kernfs_node *parent_kn,
- 	if (IS_ERR(kn))
- 		return PTR_ERR(kn);
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that kn is always accessible.
--	 */
--	kernfs_get(kn);
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -2622,8 +2601,8 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	/*
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
--	 * rdtgroup_kn_unlock(kn} call below. Take one extra reference
--	 * here, which will be dropped inside rdtgroup_kn_unlock().
-+	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
-+	 * which will be dropped inside rdtgroup_kn_unlock().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2838,11 +2817,6 @@ static int rdtgroup_rmdir_mon(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
- 	WARN_ON(list_empty(&prdtgrp->mon.crdtgrp_list));
- 	list_del(&rdtgrp->mon.crdtgrp_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 
- 	return 0;
-@@ -2854,11 +2828,6 @@ static int rdtgroup_ctrl_remove(struct kernfs_node *kn,
- 	rdtgrp->flags = RDT_DELETED;
- 	list_del(&rdtgrp->rdtgroup_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 	return 0;
- }
+ 	if (ret < 0) {
+ 		ulist_free(fs_info->qgroup_ulist);
 -- 
-1.8.3.1
+2.11.0
 
+
+--3ffvlrc2seyg5ewr--
