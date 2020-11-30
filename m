@@ -2,170 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1062C7C51
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 02:21:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 596282C7C81
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 02:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727543AbgK3BUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Nov 2020 20:20:15 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8529 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726510AbgK3BUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 20:20:14 -0500
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4CknSW5LHTzhk9G;
-        Mon, 30 Nov 2020 09:19:07 +0800 (CST)
-Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
- (10.3.19.203) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 30 Nov
- 2020 09:19:26 +0800
-Subject: Re: [f2fs-dev] [PATCH] f2fs: Fix deadlock between f2fs_quota_sync and
- block_operation
-To:     Shachar Raindel <shacharr@gmail.com>, <jaegeuk@kernel.org>,
-        <chao@kernel.org>, <ebiggers@google.com>, <daehojeong@google.com>,
-        <linux-f2fs-devel@lists.sourceforge.net>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20201128174124.22397-1-shacharr@gmail.com>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <fcd8b499-239f-c776-dad7-b4a0e19ca1fd@huawei.com>
-Date:   Mon, 30 Nov 2020 09:19:26 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1727733AbgK3BlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Nov 2020 20:41:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42130 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727721AbgK3Bk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Nov 2020 20:40:59 -0500
+Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ECE6C0617A6;
+        Sun, 29 Nov 2020 17:40:19 -0800 (PST)
+Received: by mail-qv1-xf2f.google.com with SMTP id 62so4898601qva.11;
+        Sun, 29 Nov 2020 17:40:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=Mf3BHYJFhhPZ5jtSzDsvclX5TqImvx8XVzPvevCF5NQ=;
+        b=MPG4lnqMDmKNgBlDFyv+v2Lzc46T3j8R+AXeOCgQZ0CWUljDjufr1/BmOY+eupwfuF
+         8JNYYF6pHEJ6edTAXcoS50TlpCU5/FD2EQRMFcWoVf+PGtSl833lteLQCzttgsq8dDwX
+         Hg1zcTbr9pRM2k5HUf7qwqdBLfkp/LtxiYMlK5ve1UKkUGIJ1RsJm2/VlXWiEsI16wjJ
+         KuHAVzcc7cVD4mmmAe1x59vUxskdPb2CH1+17jkOYDmPy74qLNBW82MndDhKF/6Xt+uy
+         XtTmK8QSQIICHFBgDrf+l2ZGAI85dTT5fBBpnyykaDZGUiz1GM0LnBolQf0pMvV1QH2f
+         TSLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=Mf3BHYJFhhPZ5jtSzDsvclX5TqImvx8XVzPvevCF5NQ=;
+        b=nsjd02bQuW6ejJg06wqe9xz3IFb6QhI0wzib/oQByeaxyYvfrDhuGsmh6q0Qi+f1EC
+         HyKr9UV9jyVniHm3syku0YcmDkyOay/JusrfIlis1dI7vJOP/O3cwwg7q2s28xwanzPl
+         OjQHEGf39ax8fXuiH/kK6fEJIwfYlx42tMxy54BEFmQNFp7a2sd+fVr/HGU4IeNQFQcg
+         Z8D8RumoebkGIV8P6FkyOP5iUUNGpt8nqkdV14oX76G3HS13gIS6wxumnhLfub6WOPN7
+         g4yw0iqn8HZ3hsU8yVunRikY/S5NPSoXiRKtqvh1WjF4JPeUbDSxIaPN3cgyUR/SoaXj
+         XcJg==
+X-Gm-Message-State: AOAM531xCSf2PlRFLzDB1Gk4gV9y2+xrkYgVhFTSv7flKUEuQXhWZrUq
+        4DURO5bw3fifoYO4KYZ6PZOtvDmysnE=
+X-Google-Smtp-Source: ABdhPJx/kMKCcRoPsI/lNglBliqIcazfzGXD+cqkhxdHQk0c1Y+0HiaU/rgC4Of1+BSOLXnIxD7Mtw==
+X-Received: by 2002:ad4:4e30:: with SMTP id dm16mr20048743qvb.47.1606700418616;
+        Sun, 29 Nov 2020 17:40:18 -0800 (PST)
+Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
+        by smtp.gmail.com with ESMTPSA id s11sm14200967qkm.124.2020.11.29.17.40.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 29 Nov 2020 17:40:18 -0800 (PST)
+Date:   Sun, 29 Nov 2020 18:40:16 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Lukas Wunner <lukas@wunner.de>, linux-spi@vger.kernel.org
+Subject: Apply d853b3406903a7dc5b14eb5bada3e8cd677f66a2 to 5.4 and 5.9
+Message-ID: <20201130014016.GA1980658@ubuntu-m3-large-x86>
 MIME-Version: 1.0
-In-Reply-To: <20201128174124.22397-1-shacharr@gmail.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.114.67]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/11/29 1:41, Shachar Raindel wrote:
-> This deadlock is hitting Android users (Pixel 3/3a/4) with Magisk, due
-> to frequent umount/mount operations that trigger quota_sync, hitting
-> the race. See https://github.com/topjohnwu/Magisk/issues/3171 for
-> additional impact discussion.
-> 
-> In commit db6ec53b7e03, we added a semaphore to protect quota flags.
-> As part of this commit, we changed f2fs_quota_sync to call
-> f2fs_lock_op, in an attempt to prevent an AB/BA type deadlock with
-> quota_sem locking in block_operation.  However, rwsem in Linux is not
-> recursive. Therefore, the following deadlock can occur:
-> 
-> f2fs_quota_sync
-> down_read(cp_rwsem) // f2fs_lock_op
-> filemap_fdatawrite
-> f2fs_write_data_pages
-> ...
->                                     block_opertaion
-> 				   down_write(cp_rwsem) - marks rwsem as
-> 				                          "writer pending"
-> down_read_trylock(cp_rwsem) - fails as there is
->                                a writer pending.
-> 			      Code keeps on trying,
-> 			      live-locking the filesystem.
+Hi Greg and Sasha,
 
-f2fs_write_single_data_page() will not grab read lock of cp_rwsem now, could you
-please check f2fs code in mainline?
+Please apply commit d853b3406903 ("spi: bcm2835aux: Restore err
+assignment in bcm2835aux_spi_probe") to linux-5.4.y and linux-5.9.y as a
+fix for commit e13ee6cc4781 ("spi: bcm2835aux: Fix use-after-free on
+unbind"). I did not realize that commit was tagged for stable so I did
+not tag my fix accordingly, sorry for not noticing sooner.
 
-	/* Dentry/quota blocks are controlled by checkpoint */
-	if (S_ISDIR(inode->i_mode) || IS_NOQUOTA(inode)) {
-		/*
-		 * We need to wait for node_write to avoid block allocation during
-		 * checkpoint. This can only happen to quota writes which can cause
-		 * the below discard race condition.
-		 */
-		if (IS_NOQUOTA(inode))
-			down_read(&sbi->node_write);
-
-		fio.need_lock = LOCK_DONE;
-		err = f2fs_do_write_data_page(&fio);
-
-		if (IS_NOQUOTA(inode))
-			up_read(&sbi->node_write);
-
-		goto done;
-	}
-
-Thanks,
-
-> 
-> We solve this by creating a new rwsem, used specifically to
-> synchronize this case, instead of attempting to reuse an existing
-> lock.
-> 
-> Signed-off-by: Shachar Raindel <shacharr@gmail.com>
-> 
-> Fixes: db6ec53b7e03 f2fs: add a rw_sem to cover quota flag changes
-> ---
->   fs/f2fs/f2fs.h  |  3 +++
->   fs/f2fs/super.c | 13 +++++++++++--
->   2 files changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-> index cb700d797296..b3e55137be7f 100644
-> --- a/fs/f2fs/f2fs.h
-> +++ b/fs/f2fs/f2fs.h
-> @@ -1448,6 +1448,7 @@ struct f2fs_sb_info {
->   	struct inode *meta_inode;		/* cache meta blocks */
->   	struct mutex cp_mutex;			/* checkpoint procedure lock */
->   	struct rw_semaphore cp_rwsem;		/* blocking FS operations */
-> +	struct rw_semaphore cp_quota_rwsem;    	/* blocking quota sync operations */
->   	struct rw_semaphore node_write;		/* locking node writes */
->   	struct rw_semaphore node_change;	/* locking node change */
->   	wait_queue_head_t cp_wait;
-> @@ -1961,12 +1962,14 @@ static inline void f2fs_unlock_op(struct f2fs_sb_info *sbi)
->   
->   static inline void f2fs_lock_all(struct f2fs_sb_info *sbi)
->   {
-> +	down_write(&sbi->cp_quota_rwsem);
->   	down_write(&sbi->cp_rwsem);
->   }
->   
->   static inline void f2fs_unlock_all(struct f2fs_sb_info *sbi)
->   {
->   	up_write(&sbi->cp_rwsem);
-> +	up_write(&sbi->cp_quota_rwsem);
->   }
->   
->   static inline int __get_cp_reason(struct f2fs_sb_info *sbi)
-> diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-> index 00eff2f51807..5ce61147d7e5 100644
-> --- a/fs/f2fs/super.c
-> +++ b/fs/f2fs/super.c
-> @@ -2209,8 +2209,16 @@ int f2fs_quota_sync(struct super_block *sb, int type)
->   	 *  f2fs_dquot_commit
->   	 *                            block_operation
->   	 *                            down_read(quota_sem)
-> +	 *
-> +	 * However, we cannot use the cp_rwsem to prevent this
-> +	 * deadlock, as the cp_rwsem is taken for read inside the
-> +	 * f2fs_dquot_commit code, and rwsem is not recursive.
-> +	 *
-> +	 * We therefore use a special lock to synchronize
-> +	 * f2fs_quota_sync with block_operations, as this is the only
-> +	 * place where such recursion occurs.
->   	 */
-> -	f2fs_lock_op(sbi);
-> +	down_read(&sbi->cp_quota_rwsem);
->   
->   	down_read(&sbi->quota_sem);
->   	ret = dquot_writeback_dquots(sb, type);
-> @@ -2251,7 +2259,7 @@ int f2fs_quota_sync(struct super_block *sb, int type)
->   	if (ret)
->   		set_sbi_flag(F2FS_SB(sb), SBI_QUOTA_NEED_REPAIR);
->   	up_read(&sbi->quota_sem);
-> -	f2fs_unlock_op(sbi);
-> +	up_read(&sbi->cp_quota_rwsem);
->   	return ret;
->   }
->   
-> @@ -3599,6 +3607,7 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
->   
->   	init_rwsem(&sbi->cp_rwsem);
->   	init_rwsem(&sbi->quota_sem);
-> +	init_rwsem(&sbi->cp_quota_rwsem);
->   	init_waitqueue_head(&sbi->cp_wait);
->   	init_sb_info(sbi);
->   
-> 
+Cheers,
+Nathan
