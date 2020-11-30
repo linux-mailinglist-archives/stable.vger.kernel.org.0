@@ -2,105 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 921C42C86ED
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 15:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC7F2C8768
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 16:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbgK3Ohm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 09:37:42 -0500
-Received: from relay10.mail.gandi.net ([217.70.178.230]:55627 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726440AbgK3Ohm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 09:37:42 -0500
-Received: from localhost (91-175-115-186.subs.proxad.net [91.175.115.186])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 55CA5240019;
-        Mon, 30 Nov 2020 14:36:58 +0000 (UTC)
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Tomasz Nowicki <tn@semihalf.com>, will@kernel.org,
-        robin.murphy@arm.com, joro@8bytes.org, robh+dt@kernel.org,
-        hannah@marvell.com
-Cc:     linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
-        devicetree@vger.kernel.org, catalin.marinas@arm.com,
-        nadavh@marvell.com, linux-arm-kernel@lists.infradead.org,
-        mw@semihalf.com, d.odintsov@traviangames.com,
-        stable@vger.kernel.org, Tomasz Nowicki <tn@semihalf.com>
-Subject: Re: [PATCH 1/1] arm64: dts: marvell: keep SMMU disabled by default
- for Armada 7040 and 8040
-In-Reply-To: <20201105112602.164739-1-tn@semihalf.com>
-References: <20201105112602.164739-1-tn@semihalf.com>
-Date:   Mon, 30 Nov 2020 15:36:57 +0100
-Message-ID: <87tut6j4hi.fsf@BL-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain
+        id S1727074AbgK3PGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 10:06:31 -0500
+Received: from 142-4-6-44.unifiedlayer.com ([142.4.6.44]:54890 "EHLO
+        142-4-6-44.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726364AbgK3PGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 10:06:31 -0500
+Received: from aghogho239 by 142-4-6-44.ipage.com with local (Exim 4.93)
+        (envelope-from <aghogho239@142-4-6-44.ipage.com>)
+        id 1kjkB1-0000Ch-Mp; Mon, 30 Nov 2020 07:29:16 -0700
+To:     stanko53@gmail.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: modproofread092.org/mail2/send.php for 129.205.113.251
+X-PHP-Originating-Script: 1001:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1kjkB1-0000Ch-Mp@142-4-6-44.ipage.com>
+Date:   Mon, 30 Nov 2020 07:29:15 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-6-44.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-6-44.ipage.com
+X-Get-Message-Sender-Via: 142-4-6-44.ipage.com: authenticated_id: aghogho239/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-6-44.ipage.com: aghogho239
+X-Source: 
+X-Source-Args: php-fpm: pool modproofread092_org                        
+X-Source-Dir: modproofread092.org:/public_html/mail2
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-> FW has to configure devices' StreamIDs so that SMMU is able to lookup
-> context and do proper translation later on. For Armada 7040 & 8040 and
-> publicly available FW, most of the devices are configured properly,
-> but some like ap_sdhci0, PCIe, NIC still remain unassigned which
-> results in SMMU faults about unmatched StreamID (assuming
-> ARM_SMMU_DISABLE_BYPASS_BY_DEFAUL=y).
->
-> Since there is dependency on custom FW let SMMU be disabled by default.
-> People who still willing to use SMMU need to enable manually and
-> use ARM_SMMU_DISABLE_BYPASS_BY_DEFAUL=n (or via kernel command line)
-> with extra caution.
->
-> Fixes: 83a3545d9c37 ("arm64: dts: marvell: add SMMU support")
-> Cc: <stable@vger.kernel.org> # 5.9+
-> Signed-off-by: Tomasz Nowicki <tn@semihalf.com>
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
 
-Applied on mvebu/dt64
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-Thanks,
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author’s learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
-Gregory
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
 
-> ---
->  arch/arm64/boot/dts/marvell/armada-7040.dtsi | 4 ----
->  arch/arm64/boot/dts/marvell/armada-8040.dtsi | 4 ----
->  2 files changed, 8 deletions(-)
->
-> diff --git a/arch/arm64/boot/dts/marvell/armada-7040.dtsi b/arch/arm64/boot/dts/marvell/armada-7040.dtsi
-> index 7a3198cd7a07..2f440711d21d 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-7040.dtsi
-> +++ b/arch/arm64/boot/dts/marvell/armada-7040.dtsi
-> @@ -15,10 +15,6 @@ / {
->  		     "marvell,armada-ap806";
->  };
->  
-> -&smmu {
-> -	status = "okay";
-> -};
-> -
->  &cp0_pcie0 {
->  	iommu-map =
->  		<0x0   &smmu 0x480 0x20>,
-> diff --git a/arch/arm64/boot/dts/marvell/armada-8040.dtsi b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
-> index 79e8ce59baa8..22c2d6ebf381 100644
-> --- a/arch/arm64/boot/dts/marvell/armada-8040.dtsi
-> +++ b/arch/arm64/boot/dts/marvell/armada-8040.dtsi
-> @@ -15,10 +15,6 @@ / {
->  		     "marvell,armada-ap806";
->  };
->  
-> -&smmu {
-> -	status = "okay";
-> -};
-> -
->  &cp0_pcie0 {
->  	iommu-map =
->  		<0x0   &smmu 0x480 0x20>,
-> -- 
-> 2.25.1
->
+Our charges are as follows: $25 per 1000 words, meaning
 
--- 
-Gregory Clement, Bootlin
-Embedded Linux and Kernel engineering
-http://bootlin.com
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
+
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
+
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
+
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
+
