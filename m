@@ -2,166 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0A02C82EE
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 12:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E83722C8342
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 12:31:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbgK3LN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 06:13:27 -0500
-Received: from foss.arm.com ([217.140.110.172]:52612 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725902AbgK3LN1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Nov 2020 06:13:27 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D73E1042;
-        Mon, 30 Nov 2020 03:12:41 -0800 (PST)
-Received: from C02TD0UTHF1T.local (unknown [10.57.31.53])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4AF4B3F66B;
-        Mon, 30 Nov 2020 03:12:39 -0800 (PST)
-Date:   Mon, 30 Nov 2020 11:12:33 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        James Morse <james.morse@arm.com>
-Subject: Re: [PATCH] arm64: don't preempt_disable in do_debug_exception
-Message-ID: <20201130111204.GA1251@C02TD0UTHF1T.local>
-References: <1592501369-27645-1-git-send-email-paul.gortmaker@windriver.com>
- <20200623155900.GA4777@willie-the-truck>
- <20200623165557.GA12767@C02TD0UTHF1T.local>
- <20200626095551.GA9312@willie-the-truck>
+        id S1729170AbgK3L3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 06:29:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726949AbgK3L3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 06:29:45 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6EAC0613D2;
+        Mon, 30 Nov 2020 03:29:05 -0800 (PST)
+Date:   Mon, 30 Nov 2020 11:29:02 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1606735743;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yXzRBKLraE3KGoXGlx30JrxKc1I9+HPSiHX9rysF71o=;
+        b=v+6YIrEWBEU67lenTZBRrT/AJL0UUWO4STXKlVG5XsOpXhosgUpLWesiU4UM0VEr877A6p
+        Amvu70IceNGKECwMYuEsPPEjyVqj4t/tFlTMEOM1JSeO1MJx1Ct9aMHJQ9PVW2u3oMdO9U
+        H+UAUGgWZYWVCOguoXYFuA//nSG5Fb/UDbsY4DcLx9UoyB9NhTvnyZcOXZOHqjQRJBqw6n
+        1dHLSK/h7EnZ6EJ0FwZb/UZlRGSn+RZovt5ZdsgF3qFySjTwp8yq6oklSB72d1sAy8IYiH
+        fPABWo/xk2HG6q5T2wKzNDBKdlQlNLOReAW4QEmN99AowyoyU+YJly2PEuRJWw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1606735743;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yXzRBKLraE3KGoXGlx30JrxKc1I9+HPSiHX9rysF71o=;
+        b=neakLje28TJ+b8cTBVC7Qhi1XwnpQoK/tUJiymMwjKALRMsgczYw0KFhylGf8CK2cbTOuY
+        6Ej8+KF6Lwg4VgCw==
+From:   "tip-bot2 for Laurent Vivier" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq/irqdomain: Add an
+ irq_create_mapping_affinity() function
+Cc:     Laurent Vivier <lvivier@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kurz <groug@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
+In-Reply-To: <20201126082852.1178497-2-lvivier@redhat.com>
+References: <20201126082852.1178497-2-lvivier@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200626095551.GA9312@willie-the-truck>
+Message-ID: <160673574273.3364.16488984497450700332.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Will,
+The following commit has been merged into the irq/urgent branch of tip:
 
-Sorry for the delay on this -- chasing up now that I have the entry
-logic paged-in.
+Commit-ID:     bb4c6910c8b41623104c2e64a30615682689a54d
+Gitweb:        https://git.kernel.org/tip/bb4c6910c8b41623104c2e64a30615682689a54d
+Author:        Laurent Vivier <lvivier@redhat.com>
+AuthorDate:    Thu, 26 Nov 2020 09:28:51 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Mon, 30 Nov 2020 12:21:31 +01:00
 
-On Fri, Jun 26, 2020 at 10:55:54AM +0100, Will Deacon wrote:
-> On Tue, Jun 23, 2020 at 05:55:57PM +0100, Mark Rutland wrote:
-> > On Tue, Jun 23, 2020 at 04:59:01PM +0100, Will Deacon wrote:
-> > > On Thu, Jun 18, 2020 at 01:29:29PM -0400, Paul Gortmaker wrote:
-> > > >  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:975
-> > > >  in_atomic(): 1, irqs_disabled(): 0, pid: 35658, name: gdbtest
-> > > >  Preemption disabled at:
-> > > >  [<ffff000010081578>] do_debug_exception+0x38/0x1a4
-> > > >  Call trace:
-> > > >  dump_backtrace+0x0/0x138
-> > > >  show_stack+0x24/0x30
-> > > >  dump_stack+0x94/0xbc
-> > > >  ___might_sleep+0x13c/0x168
-> > > >  rt_spin_lock+0x40/0x80
-> > > >  do_force_sig_info+0x30/0xe0
-> > > >  force_sig_fault+0x64/0x90
-> > > >  arm64_force_sig_fault+0x50/0x80
-> > > >  send_user_sigtrap+0x50/0x80
-> > > >  brk_handler+0x98/0xc8
-> > > >  do_debug_exception+0x70/0x1a4
-> > > >  el0_dbg+0x18/0x20
-> > > > 
-> > > > The reproducer was basically an automated gdb test that set a breakpoint
-> > > > on a simple "hello world" program and then quit gdb once the breakpoint
-> > > > was hit - i.e. "(gdb) A debugging session is active.  Quit anyway? "
-> > > 
-> > > Hmm, the debug exception handler path was definitely written with the
-> > > expectation that preemption is disabled, so this is unfortunate. For
-> > > exceptions from kernelspace, we need to keep that guarantee as we implement
-> > > things like BUG() using this path. For exceptions from userspace, it's
-> > > plausible that we could re-enable preemption, but then we should also
-> > > re-enable interrupts and debug exceptions too because we don't
-> > > context-switch pstate in switch_to() and we would end up with holes in our
-> > > kernel debug coverage (and these might be fatal if e.g. single step doesn't
-> > > work in a kprobe OOL buffer). However, that then means that any common code
-> > > when handling user and kernel debug exceptions needs to be re-entrant,
-> > > which it probably isn't at the moment (I haven't checked).
-> > 
-> > I'm pretty certain existing code is not reentrant, and regardless it's
-> > going to be a mess to reason about this generally if we have to undo our
-> > strict exception nesting rules.
-> 
-> Are these rules written down somewhere? I'll need to update them if we
-> get this working for preempt-rt (and we should try to do that).
-> 
-> > I reckon we need to treat this like an NMI instead -- is that plausible?
-> 
-> I don't think so. It's very much a synchronous exception, and delivering a
-> signal to the exceptional context doesn't feel like an NMI to me. There's
-> also a fair amount of code that can run in debug context (hw_breakpoint,
-> kprobes, uprobes, kasan) which might not be happy to suddenly be in an
-> NMI-like environment. Furthermore, the masking rules are different depending
-> on what triggers the exception.
+genirq/irqdomain: Add an irq_create_mapping_affinity() function
 
-When I was investigating the entry interaction with lockdep and tracing,
-I figure out that we'll want to (at least partially) separate the BRK
-handling from the rest of the debug exception handling, as is done on
-x86. That way we can make WARN/BUG/KASAN BRK usage inherit the context
-they interrupted rather than acting NMI-like.
+There is currently no way to convey the affinity of an interrupt
+via irq_create_mapping(), which creates issues for devices that
+expect that affinity to be managed by the kernel.
 
-With that, we could reconsider how exactly the HW breakpoint, HW
-watchpoint, and HW single-step cases should behave (e.g. whether we
-should align with x86 and treat those as true NMIs).
+In order to sort this out, rename irq_create_mapping() to
+irq_create_mapping_affinity() with an additional affinity parameter that
+can be passed down to irq_domain_alloc_descs().
 
-> One of the things I've started looking at is ripping out our dodgy
-> hw_breakpoint code so that kernel debug exceptions are easier to reason
-> about. Specifically, I think we end up with something like:
-> 
-> - On taking a non-debug exception from EL0, unmask D as soon as we can.
+irq_create_mapping() is re-implemented as a wrapper around
+irq_create_mapping_affinity().
 
-Sure. We already try to do this ASAP (in the entry code rather than in
-the specific handler), but since ERET makes ESR and FAR UNKNOWN we have
-a reasonable amount of work that has to be done first. We can do this
-earlier if we snapshot the exception sysregs before the triage logic
-(even if that means reading those redundantly).
+No functional change.
 
-> - On taking a debug exception from EL0, unmask {D,I} and invoke user
->   handlers. I think this always means SIGTRAP, apart from uprobes.
->   This will mean making those paths preemptible, as I don't think they
->   are right now (e.g. traversing the callback hooks uses an RCU-protected
->   list).
+Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201126082852.1178497-2-lvivier@redhat.com
 
-I'm not sure exactly how to manage the callback hooks here, but
-otherwise this sounds plausible. We already treat the EL0 cases fairly
-differenly from the EL1 cases.
+---
+ include/linux/irqdomain.h | 12 ++++++++++--
+ kernel/irq/irqdomain.c    | 13 ++++++++-----
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
-> - On taking a non-debug, non-fatal synchronous exception from EL1, unmask
->   D as soon as we can (i.e. we step into these exceptions). Fatal exceptions
->   can obviously leave D masked.
-
-As above, we try to do this today, and can move it earlier if we
-snapshot the exception sysregs earlier.
-
-> - On taking an interrupt from EL1, stash MDSCR_EL1.SS in a pcpu variable and
->   clear the register bit if it was set. Then unmask only D and leave I set. On
->   return from the exception, set D and restore MDSCR_EL1.SS. If we decide to
->   reschedule, unmask D (i.e. we only step into interrupts if we need a
->   reschedule. Alternatively, we could skip the reschedule if we were
->   stepping.)
-
-I'm not entirely sure how this works with softirqs (as I thought they
-could unmask IRQ before returning), but I'd need to relearn how those
-work.
-
-> - On taking a debug exception from EL1, leave {D,I} set. Watchpoints on
->   uaccess are silently stepped over.
-
-This sounds fine to me.
-
-> Thoughts? We could probably simplify this if we could state that stepping an
-> instruction in kernel space could only ever be interrupted by an interrupt.
-> That's probably true for kprobes, but relying on it feels like it might bite
-> us later on.
-
-I think trying to simplify this is worthwhile. I'd rather make this do
-less than try to account for a myriad rare and untested edge cases.
-
-Thanks,
-Mark.
+diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
+index 71535e8..ea5a337 100644
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -384,11 +384,19 @@ extern void irq_domain_associate_many(struct irq_domain *domain,
+ extern void irq_domain_disassociate(struct irq_domain *domain,
+ 				    unsigned int irq);
+ 
+-extern unsigned int irq_create_mapping(struct irq_domain *host,
+-				       irq_hw_number_t hwirq);
++extern unsigned int irq_create_mapping_affinity(struct irq_domain *host,
++				      irq_hw_number_t hwirq,
++				      const struct irq_affinity_desc *affinity);
+ extern unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec);
+ extern void irq_dispose_mapping(unsigned int virq);
+ 
++static inline unsigned int irq_create_mapping(struct irq_domain *host,
++					      irq_hw_number_t hwirq)
++{
++	return irq_create_mapping_affinity(host, hwirq, NULL);
++}
++
++
+ /**
+  * irq_linear_revmap() - Find a linux irq from a hw irq number.
+  * @domain: domain owning this hardware interrupt
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index cf8b374..e4ca696 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -624,17 +624,19 @@ unsigned int irq_create_direct_mapping(struct irq_domain *domain)
+ EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
+ 
+ /**
+- * irq_create_mapping() - Map a hardware interrupt into linux irq space
++ * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
+  * @domain: domain owning this hardware interrupt or NULL for default domain
+  * @hwirq: hardware irq number in that domain space
++ * @affinity: irq affinity
+  *
+  * Only one mapping per hardware interrupt is permitted. Returns a linux
+  * irq number.
+  * If the sense/trigger is to be specified, set_irq_type() should be called
+  * on the number returned from that call.
+  */
+-unsigned int irq_create_mapping(struct irq_domain *domain,
+-				irq_hw_number_t hwirq)
++unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
++				       irq_hw_number_t hwirq,
++				       const struct irq_affinity_desc *affinity)
+ {
+ 	struct device_node *of_node;
+ 	int virq;
+@@ -660,7 +662,8 @@ unsigned int irq_create_mapping(struct irq_domain *domain,
+ 	}
+ 
+ 	/* Allocate a virtual interrupt number */
+-	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node), NULL);
++	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
++				      affinity);
+ 	if (virq <= 0) {
+ 		pr_debug("-> virq allocation failed\n");
+ 		return 0;
+@@ -676,7 +679,7 @@ unsigned int irq_create_mapping(struct irq_domain *domain,
+ 
+ 	return virq;
+ }
+-EXPORT_SYMBOL_GPL(irq_create_mapping);
++EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
+ 
+ /**
+  * irq_create_strict_mappings() - Map a range of hw irqs to fixed linux irqs
