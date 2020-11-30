@@ -2,134 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083102C927F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 00:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EDAB2C928B
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 00:30:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725980AbgK3X2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 18:28:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24104 "EHLO
+        id S2388651AbgK3Xae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 18:30:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29000 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725933AbgK3X2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 18:28:25 -0500
+        by vger.kernel.org with ESMTP id S2388590AbgK3Xae (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 18:30:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606778819;
+        s=mimecast20190719; t=1606778947;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=pvWvNGan1SxrNBUZl9nFkAEn1lvy21Erq/cTovFLU/4=;
-        b=aYI/D9vqquPwVkTMJH0csgIPrmKlyWIRuf33NlXkNJZDkvy8uQmoS5HkXNj7s8wLoBrylm
-        Degi2UjvfDxNzWDMNsCYi7JFd9JwuIcB1CT0iMxFKGlVzwKVqN8wuSWT5b1NdHIcd/yRVk
-        pN7PzxXgZ5e0vh+MFOApFfjWdMSjeJ8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-466-42V2bR8nOzmv-kUC2WWfWQ-1; Mon, 30 Nov 2020 18:26:56 -0500
-X-MC-Unique: 42V2bR8nOzmv-kUC2WWfWQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 05563107ACF6
-        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 23:26:56 +0000 (UTC)
-Received: from max.home.com (unknown [10.40.192.13])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D0FE15C1A3;
-        Mon, 30 Nov 2020 23:26:49 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     cluster-devel@redhat.com
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Aring <aahringo@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v2] gfs2: Fix deadlock between gfs2_{create_inode,inode_lookup} and delete_work_func
-Date:   Tue,  1 Dec 2020 00:26:48 +0100
-Message-Id: <20201130232648.749135-1-agruenba@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qwePAjO+JoQzIGjZm9jsWctF8D99Rx1DaGUaPJ9flqY=;
+        b=aQLFcMZBjLa33rQjAKTCKqNzqF8A1d4bT2jLk03093nSr9kJiFwS3ySACFYJK/OnUyW5i+
+        fjCuDEOQ20SXARwrbWEy+wyc0sWdYgzWDr7bPZwSRbWTLWuAtZhS86JvOIubi9MZ1dOR06
+        xpVV22LRtBemARZ0EXi2dYnbBmcTIo4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-433-1tOLfCszM36koXrxwGsY8A-1; Mon, 30 Nov 2020 18:29:01 -0500
+X-MC-Unique: 1tOLfCszM36koXrxwGsY8A-1
+Received: by mail-wm1-f72.google.com with SMTP id a134so66821wmd.8
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 15:29:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qwePAjO+JoQzIGjZm9jsWctF8D99Rx1DaGUaPJ9flqY=;
+        b=gIdHZMSiJJmegnnLAYkVulqKCjOdxKEB083s+Lt44E5B68FTOdTSGsvY5tioRvmfwg
+         T0zprPtAM7fDL0bYx/igRULWrNTqQptJjqGJcKRtYvQyXn0Fkiy/2h+8TZwwl6wvwKTo
+         l1+8L6kWb9tosjzLTZybLvUj7JisPOSE6TAxpW0W6ohPiPrCkgv/QYFvJuWpL7ktoL3y
+         GjJDnnFlPrVATlCLVx4dpA9MrfDa5WHXui7jSQlb7tVL641hg3nOBW9nPeyvO8VUZfeE
+         4TCeZSAumdG1CZ8WqiySSPMF7T2Ir8D3pO4rzj3nUdghS3B0wme6pLf/imxxMgzn3idx
+         qSrw==
+X-Gm-Message-State: AOAM533o25PW02403Y2NZ7GAcbpln9HG0bQhmSMGQGXHnHvcmfn1Ayco
+        rb0aMxfrkc0KFr6GV2J3oeKfe72Bd3AkGeVUbrnLv0oi1JFmKiJ8nrGqtmCPw/Nf7WhRNKhi/Ty
+        HxG0TS4lnJZLFblfZ1fO9w1oBCuFuBCCa
+X-Received: by 2002:a1c:810c:: with SMTP id c12mr201881wmd.96.1606778939763;
+        Mon, 30 Nov 2020 15:28:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxDplTRUudFfAcqGGcEB/r3VSa3uZ3cetM8uY3SP7Vp30Fs+7Sae/U97WuD9sQ0BTHG5vGW41xQ6vEzZCiStqw=
+X-Received: by 2002:a1c:810c:: with SMTP id c12mr201871wmd.96.1606778939628;
+ Mon, 30 Nov 2020 15:28:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20201130194422.741935-1-agruenba@redhat.com>
+In-Reply-To: <20201130194422.741935-1-agruenba@redhat.com>
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+Date:   Tue, 1 Dec 2020 00:28:48 +0100
+Message-ID: <CAHc6FU7zCJmmMXsAzpg1=f8xM68QrH6hV747JYaT8r2tMrKQQA@mail.gmail.com>
+Subject: Re: [PATCH] gfs2: Fix deadlock between gfs2_create_inode and delete_work_func
+To:     cluster-devel <cluster-devel@redhat.com>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In gfs2_create_inode and gfs2_inode_lookup, make sure to cancel any pending
-delete work before taking the inode glock.  Otherwise, gfs2_cancel_delete_work
-may block waiting for delete_work_func to complete, and delete_work_func may
-block trying to acquire the inode glock in gfs2_inode_lookup.
+On Mon, Nov 30, 2020 at 8:44 PM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+> In gfs2_create_inode, make sure to cancel any pending delete work before
+> locking the inode glock.  Otherwise, gfs2_cancel_delete_work may block
+> waiting for delete_work_func to complete, and delete_work_func may block
+> trying to acquire the inode glock in gfs2_inode_lookup.
 
-Reported-by: Alexander Aring <aahringo@redhat.com>
-Fixes: a0e3cc65fa29 ("gfs2: Turn gl_delete into a delayed work")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- fs/gfs2/inode.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+(Please see version 2 of this patch.)
 
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index eed1a1bac6f6..65ae4fc28ede 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -150,6 +150,8 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
- 		error = gfs2_glock_get(sdp, no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
- 		if (unlikely(error))
- 			goto fail;
-+		if (blktype != GFS2_BLKST_UNLINKED)
-+			gfs2_cancel_delete_work(io_gl);
- 
- 		if (type == DT_UNKNOWN || blktype != GFS2_BLKST_FREE) {
- 			/*
-@@ -180,8 +182,6 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
- 		error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
- 		if (unlikely(error))
- 			goto fail;
--		if (blktype != GFS2_BLKST_UNLINKED)
--			gfs2_cancel_delete_work(ip->i_iopen_gh.gh_gl);
- 		glock_set_object(ip->i_iopen_gh.gh_gl, ip);
- 		gfs2_glock_put(io_gl);
- 		io_gl = NULL;
-@@ -725,13 +725,19 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	flush_delayed_work(&ip->i_gl->gl_work);
- 	glock_set_object(ip->i_gl, ip);
- 
--	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
-+	error = gfs2_glock_get(sdp, ip->i_no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
- 	if (error)
- 		goto fail_free_inode;
-+	gfs2_cancel_delete_work(io_gl);
-+	glock_set_object(io_gl, ip);
-+
-+	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
-+	if (error)
-+		goto fail_gunlock2;
- 
- 	error = gfs2_trans_begin(sdp, blocks, 0);
- 	if (error)
--		goto fail_free_inode;
-+		goto fail_gunlock2;
- 
- 	if (blocks > 1) {
- 		ip->i_eattr = ip->i_no_addr + 1;
-@@ -740,18 +746,12 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	init_dinode(dip, ip, symname);
- 	gfs2_trans_end(sdp);
- 
--	error = gfs2_glock_get(sdp, ip->i_no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
--	if (error)
--		goto fail_free_inode;
--
- 	BUG_ON(test_and_set_bit(GLF_INODE_CREATING, &io_gl->gl_flags));
- 
- 	error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
- 	if (error)
- 		goto fail_gunlock2;
- 
--	gfs2_cancel_delete_work(ip->i_iopen_gh.gh_gl);
--	glock_set_object(ip->i_iopen_gh.gh_gl, ip);
- 	gfs2_set_iop(inode);
- 	insert_inode_hash(inode);
- 
-@@ -803,6 +803,7 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	gfs2_glock_dq_uninit(&ip->i_iopen_gh);
- fail_gunlock2:
- 	clear_bit(GLF_INODE_CREATING, &io_gl->gl_flags);
-+	glock_clear_object(io_gl, ip);
- 	gfs2_glock_put(io_gl);
- fail_free_inode:
- 	if (ip->i_gl) {
--- 
-2.26.2
+Thanks,
+Andreas
 
