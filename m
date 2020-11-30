@@ -2,97 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F9B2C8A8F
-	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:14:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B642E2C8A94
+	for <lists+stable@lfdr.de>; Mon, 30 Nov 2020 18:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbgK3RNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 12:13:45 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44914 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725955AbgK3RNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 12:13:44 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AUH2RHc053140;
-        Mon, 30 Nov 2020 12:11:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=168R89ch6P3dB9j/wazTes6DaxYIGhAQ6T7t5kbp4MQ=;
- b=qhPwJIYcZXU47BNp07tNDQm9pXD36oQ7FQuBK/VsCUe9YitOoQNmYB9V6MrG2LCgXy6Z
- 6oZ1l3blyrK5R4Oz54ctrU727UdWY2Udikbi//rtQbJCGaxvn5lOaWKQcqtYrYauO1N7
- /pmbruqaLjecxziXYE5soua9qf+xw8cuO2r/ku270iDwxd9SHW+zclNXq6KA/DxkMwuQ
- aLilHCAV0RBbK582tYx0ijCQpaugQfPQLgS8f6KSOlSX7iMcLB5DPvZPTvgFUg/hfM4A
- fg3xn6fzZqmCuMv5A9LIE0Uwm4tuFiemdNl87rQqjSB6qXVBh7fWp2u8CUhLrsqRawQ2 OQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35549m9c73-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Nov 2020 12:11:06 -0500
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0AUH7q8t030175;
-        Mon, 30 Nov 2020 17:11:04 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 353e6828ej-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Nov 2020 17:11:04 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0AUHB23Z40698358
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Nov 2020 17:11:02 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0EED7AE05A;
-        Mon, 30 Nov 2020 17:11:02 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 37B60AE04D;
-        Mon, 30 Nov 2020 17:11:00 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.59.46])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Nov 2020 17:10:59 +0000 (GMT)
-Message-ID: <855fe20ed05ea1aba21da3c9c05fcb025fc51763.camel@linux.ibm.com>
-Subject: Re: [PATCH] ima: Don't modify file descriptor mode on the fly
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        torvalds@linux-foundation.org, hch@infradead.org
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Mon, 30 Nov 2020 12:10:59 -0500
-In-Reply-To: <20201126103456.15167-1-roberto.sassu@huawei.com>
-References: <20201126103456.15167-1-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-30_06:2020-11-30,2020-11-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- phishscore=0 clxscore=1015 mlxscore=0 mlxlogscore=789 lowpriorityscore=0
- adultscore=0 spamscore=0 impostorscore=0 suspectscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2011300106
+        id S1728861AbgK3ROC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 12:14:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45008 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725955AbgK3ROB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 12:14:01 -0500
+Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC69EC0613CF
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:13:21 -0800 (PST)
+Received: by mail-qv1-xf43.google.com with SMTP id ec16so5966979qvb.0
+        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 09:13:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qzbYXU7DOeuV2NEmx5zgHAX7AlP7HkSprOb4ZpoKMn8=;
+        b=dR4Lqmi5lmvnJSE6IqhxARBZgdyJUhC8zHQCrWzAllGEFWw61TaRvi+cuxY2bDC1J+
+         zmMfbSCQGRLB5PPGwEK6O/YYXl8uZ5nA+8WHyTcVHb9xisAQ60fo4NJPj58ENMX7qZeO
+         5HIxkEStvvY1r2yh2IOgq8zI9vNZbN5JEWBt8gTjA0TzSy1JoBICq3nx3EXSASPp3ryr
+         v5mIl8Z5Ae5G/BMn6TRa9mcFxQErWz5KqQ+z8gdu5loYO4OPkC82/yhnGgy5c6snB9by
+         9NJYjCcB+THDkuJDsh2ozDMK1Sx5PadaEta1zR+l5nqjZmf7/0Y5V4No8itXrCDO4Dqs
+         I7CQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qzbYXU7DOeuV2NEmx5zgHAX7AlP7HkSprOb4ZpoKMn8=;
+        b=IKVN9WEWRNkXoBAR0IaOqTOOoAhlE56S15N0xqPF2OYQ+NJwl+TpbkHm+NmRHNYgL6
+         8K+VOlrJxhulKbdLhW2Bdb+m7YUjaRinIE/VAIzzaxeCispR4vXVcJx8dBpBJ+N0qAQF
+         wl8x2oiSf8oxyXJ2wbMWyZoMT3vkPnvQCVWWlal+yYfQPig3hrQbmEQ8PO26T0o66aD5
+         dkOPpviDQ5PqxQPd4k3NpINs2Onm8QJrAWIfVcRi2Ee7f+nqH3nc2Lp6HkIgHmjM97HX
+         7+FIJUepIx87DHFVKUSYFIEES+q/1aNv42Z7eym3R6FQZmpTw8Y0jdAd4NMDpou2HNHM
+         No+g==
+X-Gm-Message-State: AOAM532OHqmU8Ysii/tGia1haeLXDMfXDhBElYW1x9aHcJWiK/T2hAUo
+        6GMSZ1prKyPGTD5r1qcENkBE2TffwlA=
+X-Google-Smtp-Source: ABdhPJysQTdH0bpMr8Vayk4ttKTkxMIoLwYRXGvnfzxrYQlN5yjwo/TzWWHRc46kPc6bb3Xb4yUKmw==
+X-Received: by 2002:ad4:44ef:: with SMTP id p15mr23963807qvt.37.1606756400606;
+        Mon, 30 Nov 2020 09:13:20 -0800 (PST)
+Received: from localhost.localdomain ([192.161.78.5])
+        by smtp.gmail.com with ESMTPSA id j63sm15599217qke.67.2020.11.30.09.13.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Nov 2020 09:13:20 -0800 (PST)
+From:   Alex Deucher <alexdeucher@gmail.com>
+X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
+To:     stable@vger.kernel.org
+Cc:     Likun Gao <Likun.Gao@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH] drm/amdgpu: add rlc iram and dram firmware support
+Date:   Mon, 30 Nov 2020 12:13:12 -0500
+Message-Id: <20201130171312.275603-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.25.4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2020-11-26 at 11:34 +0100, Roberto Sassu wrote:
-> Commit a408e4a86b36b ("ima: open a new file instance if no read
-> permissions") already introduced a second open to measure a file when the
-> original file descriptor does not allow it. However, it didn't remove the
-> existing method of changing the mode of the original file descriptor, which
-> is still necessary if the current process does not have enough privileges
-> to open a new one.
-> 
-> Changing the mode isn't really an option, as the filesystem might need to
-> do preliminary steps to make the read possible. Thus, this patch removes
-> the code and keeps the second open as the only option to measure a file
-> when it is unreadable with the original file descriptor.
-> 
-> Cc: <stable@vger.kernel.org> # 4.20.x: 0014cc04e8ec0 ima: Set file->f_mode
-> Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+From: Likun Gao <Likun.Gao@amd.com>
 
-Thanks, Roberto, Christoph.  The patch is now queued in next-integrity.
+Support to load RLC iram and dram ucode when RLC firmware struct use v2.2
 
-Mimi
+Cherry pick the fix from 5.10 (commit 843c7eb2f7571aa092a8ea010c80e8d94c197f67).
+This fixes GPU hangs with sienna cichlid boards on 5.9.x.
+
+Signed-off-by: Likun Gao <Likun.Gao@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+(cherry picked from commit 843c7eb2f7571aa092a8ea010c80e8d94c197f67)
+Cc: stable@vger.kernel.org # 5.9.x
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c   |  6 ++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h   |  4 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c | 10 ++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h | 11 +++++++
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c    | 39 +++++++++++++++++++----
+ drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h   |  4 +--
+ 6 files changed, 66 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index 7c787ec598f1..d5e95e4ea5bd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1571,6 +1571,12 @@ static int psp_get_fw_type(struct amdgpu_firmware_info *ucode,
+ 	case AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM:
+ 		*type = GFX_FW_TYPE_RLC_RESTORE_LIST_SRM_MEM;
+ 		break;
++	case AMDGPU_UCODE_ID_RLC_IRAM:
++		*type = GFX_FW_TYPE_RLC_IRAM;
++		break;
++	case AMDGPU_UCODE_ID_RLC_DRAM:
++		*type = GFX_FW_TYPE_RLC_DRAM_BOOT;
++		break;
+ 	case AMDGPU_UCODE_ID_SMC:
+ 		*type = GFX_FW_TYPE_SMU;
+ 		break;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h
+index 60bb3e8b3118..aeaaae713c59 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h
+@@ -168,12 +168,16 @@ struct amdgpu_rlc {
+ 	u32 save_restore_list_cntl_size_bytes;
+ 	u32 save_restore_list_gpm_size_bytes;
+ 	u32 save_restore_list_srm_size_bytes;
++	u32 rlc_iram_ucode_size_bytes;
++	u32 rlc_dram_ucode_size_bytes;
+ 
+ 	u32 *register_list_format;
+ 	u32 *register_restore;
+ 	u8 *save_restore_list_cntl;
+ 	u8 *save_restore_list_gpm;
+ 	u8 *save_restore_list_srm;
++	u8 *rlc_iram_ucode;
++	u8 *rlc_dram_ucode;
+ 
+ 	bool is_rlc_v2_1;
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+index 183743c5fb7b..c3cc2e8b2406 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+@@ -500,6 +500,8 @@ static int amdgpu_ucode_init_single_fw(struct amdgpu_device *adev,
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL &&
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_GPM_MEM &&
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM &&
++	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_IRAM &&
++	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_DRAM &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCU_ERAM &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCU_INTV &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCUB)) {
+@@ -556,6 +558,14 @@ static int amdgpu_ucode_init_single_fw(struct amdgpu_device *adev,
+ 		ucode->ucode_size = adev->gfx.rlc.save_restore_list_srm_size_bytes;
+ 		memcpy(ucode->kaddr, adev->gfx.rlc.save_restore_list_srm,
+ 		       ucode->ucode_size);
++	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_RLC_IRAM) {
++		ucode->ucode_size = adev->gfx.rlc.rlc_iram_ucode_size_bytes;
++		memcpy(ucode->kaddr, adev->gfx.rlc.rlc_iram_ucode,
++		       ucode->ucode_size);
++	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_RLC_DRAM) {
++		ucode->ucode_size = adev->gfx.rlc.rlc_dram_ucode_size_bytes;
++		memcpy(ucode->kaddr, adev->gfx.rlc.rlc_dram_ucode,
++		       ucode->ucode_size);
+ 	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_CP_MES) {
+ 		ucode->ucode_size = le32_to_cpu(mes_hdr->mes_ucode_size_bytes);
+ 		memcpy(ucode->kaddr, (void *)((uint8_t *)adev->mes.fw->data +
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
+index 12a8bc8fca0b..97c78d91fc2f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
+@@ -221,6 +221,15 @@ struct rlc_firmware_header_v2_1 {
+ 	uint32_t save_restore_list_srm_offset_bytes;
+ };
+ 
++/* version_major=2, version_minor=1 */
++struct rlc_firmware_header_v2_2 {
++	struct rlc_firmware_header_v2_1 v2_1;
++	uint32_t rlc_iram_ucode_size_bytes;
++	uint32_t rlc_iram_ucode_offset_bytes;
++	uint32_t rlc_dram_ucode_size_bytes;
++	uint32_t rlc_dram_ucode_offset_bytes;
++};
++
+ /* version_major=1, version_minor=0 */
+ struct sdma_firmware_header_v1_0 {
+ 	struct common_firmware_header header;
+@@ -338,6 +347,8 @@ enum AMDGPU_UCODE_ID {
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL,
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_GPM_MEM,
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM,
++	AMDGPU_UCODE_ID_RLC_IRAM,
++	AMDGPU_UCODE_ID_RLC_DRAM,
+ 	AMDGPU_UCODE_ID_RLC_G,
+ 	AMDGPU_UCODE_ID_STORAGE,
+ 	AMDGPU_UCODE_ID_SMC,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 3a2af95f2bf0..ed9842960008 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3594,6 +3594,17 @@ static void gfx_v10_0_init_rlc_ext_microcode(struct amdgpu_device *adev)
+ 			le32_to_cpu(rlc_hdr->reg_list_format_direct_reg_list_length);
+ }
+ 
++static void gfx_v10_0_init_rlc_iram_dram_microcode(struct amdgpu_device *adev)
++{
++	const struct rlc_firmware_header_v2_2 *rlc_hdr;
++
++	rlc_hdr = (const struct rlc_firmware_header_v2_2 *)adev->gfx.rlc_fw->data;
++	adev->gfx.rlc.rlc_iram_ucode_size_bytes = le32_to_cpu(rlc_hdr->rlc_iram_ucode_size_bytes);
++	adev->gfx.rlc.rlc_iram_ucode = (u8 *)rlc_hdr + le32_to_cpu(rlc_hdr->rlc_iram_ucode_offset_bytes);
++	adev->gfx.rlc.rlc_dram_ucode_size_bytes = le32_to_cpu(rlc_hdr->rlc_dram_ucode_size_bytes);
++	adev->gfx.rlc.rlc_dram_ucode = (u8 *)rlc_hdr + le32_to_cpu(rlc_hdr->rlc_dram_ucode_offset_bytes);
++}
++
+ static bool gfx_v10_0_navi10_gfxoff_should_enable(struct amdgpu_device *adev)
+ {
+ 	bool ret = false;
+@@ -3709,8 +3720,6 @@ static int gfx_v10_0_init_microcode(struct amdgpu_device *adev)
+ 		rlc_hdr = (const struct rlc_firmware_header_v2_0 *)adev->gfx.rlc_fw->data;
+ 		version_major = le16_to_cpu(rlc_hdr->header.header_version_major);
+ 		version_minor = le16_to_cpu(rlc_hdr->header.header_version_minor);
+-		if (version_major == 2 && version_minor == 1)
+-			adev->gfx.rlc.is_rlc_v2_1 = true;
+ 
+ 		adev->gfx.rlc_fw_version = le32_to_cpu(rlc_hdr->header.ucode_version);
+ 		adev->gfx.rlc_feature_version = le32_to_cpu(rlc_hdr->ucode_feature_version);
+@@ -3752,8 +3761,12 @@ static int gfx_v10_0_init_microcode(struct amdgpu_device *adev)
+ 		for (i = 0 ; i < (rlc_hdr->reg_list_size_bytes >> 2); i++)
+ 			adev->gfx.rlc.register_restore[i] = le32_to_cpu(tmp[i]);
+ 
+-		if (adev->gfx.rlc.is_rlc_v2_1)
+-			gfx_v10_0_init_rlc_ext_microcode(adev);
++		if (version_major == 2) {
++			if (version_minor >= 1)
++				gfx_v10_0_init_rlc_ext_microcode(adev);
++			if (version_minor == 2)
++				gfx_v10_0_init_rlc_iram_dram_microcode(adev);
++		}
+ 	}
+ 
+ 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_mec%s.bin", chip_name, wks);
+@@ -3814,8 +3827,7 @@ static int gfx_v10_0_init_microcode(struct amdgpu_device *adev)
+ 			adev->firmware.fw_size +=
+ 				ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+ 		}
+-		if (adev->gfx.rlc.is_rlc_v2_1 &&
+-		    adev->gfx.rlc.save_restore_list_cntl_size_bytes &&
++		if (adev->gfx.rlc.save_restore_list_cntl_size_bytes &&
+ 		    adev->gfx.rlc.save_restore_list_gpm_size_bytes &&
+ 		    adev->gfx.rlc.save_restore_list_srm_size_bytes) {
+ 			info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL];
+@@ -3835,6 +3847,21 @@ static int gfx_v10_0_init_microcode(struct amdgpu_device *adev)
+ 			info->fw = adev->gfx.rlc_fw;
+ 			adev->firmware.fw_size +=
+ 				ALIGN(adev->gfx.rlc.save_restore_list_srm_size_bytes, PAGE_SIZE);
++
++			if (adev->gfx.rlc.rlc_iram_ucode_size_bytes &&
++			    adev->gfx.rlc.rlc_dram_ucode_size_bytes) {
++				info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_IRAM];
++				info->ucode_id = AMDGPU_UCODE_ID_RLC_IRAM;
++				info->fw = adev->gfx.rlc_fw;
++				adev->firmware.fw_size +=
++					ALIGN(adev->gfx.rlc.rlc_iram_ucode_size_bytes, PAGE_SIZE);
++
++				info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_DRAM];
++				info->ucode_id = AMDGPU_UCODE_ID_RLC_DRAM;
++				info->fw = adev->gfx.rlc_fw;
++				adev->firmware.fw_size +=
++					ALIGN(adev->gfx.rlc.rlc_dram_ucode_size_bytes, PAGE_SIZE);
++			}
+ 		}
+ 
+ 		info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_MEC1];
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
+index cbc04a5c0fe1..baf994627b0d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
++++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
+@@ -214,7 +214,7 @@ enum psp_gfx_fw_type {
+ 	GFX_FW_TYPE_UVD1        = 23,   /* UVD1                     VG-20   */
+ 	GFX_FW_TYPE_TOC         = 24,   /* TOC                      NV-10   */
+ 	GFX_FW_TYPE_RLC_P                           = 25,   /* RLC P                    NV      */
+-	GFX_FW_TYPE_RLX6                            = 26,   /* RLX6                     NV      */
++	GFX_FW_TYPE_RLC_IRAM                        = 26,   /* RLC_IRAM                 NV      */
+ 	GFX_FW_TYPE_GLOBAL_TAP_DELAYS               = 27,   /* GLOBAL TAP DELAYS        NV      */
+ 	GFX_FW_TYPE_SE0_TAP_DELAYS                  = 28,   /* SE0 TAP DELAYS           NV      */
+ 	GFX_FW_TYPE_SE1_TAP_DELAYS                  = 29,   /* SE1 TAP DELAYS           NV      */
+@@ -236,7 +236,7 @@ enum psp_gfx_fw_type {
+ 	GFX_FW_TYPE_ACCUM_CTRL_RAM                  = 45,   /* ACCUM CTRL RAM           NV      */
+ 	GFX_FW_TYPE_RLCP_CAM                        = 46,   /* RLCP CAM                 NV      */
+ 	GFX_FW_TYPE_RLC_SPP_CAM_EXT                 = 47,   /* RLC SPP CAM EXT          NV      */
+-	GFX_FW_TYPE_RLX6_DRAM_BOOT                  = 48,   /* RLX6 DRAM BOOT           NV      */
++	GFX_FW_TYPE_RLC_DRAM_BOOT                   = 48,   /* RLC DRAM BOOT            NV      */
+ 	GFX_FW_TYPE_VCN0_RAM                        = 49,   /* VCN_RAM                  NV + RN */
+ 	GFX_FW_TYPE_VCN1_RAM                        = 50,   /* VCN_RAM                  NV + RN */
+ 	GFX_FW_TYPE_DMUB                            = 51,   /* DMUB                          RN */
+-- 
+2.25.4
 
