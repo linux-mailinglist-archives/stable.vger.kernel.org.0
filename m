@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 265042C9C0C
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DF82C9AAE
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390328AbgLAJOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:14:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
+        id S2388209AbgLAI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390324AbgLAJOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:14:35 -0500
+        id S2388203AbgLAI7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1C422067D;
-        Tue,  1 Dec 2020 09:13:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A97AB21D7A;
+        Tue,  1 Dec 2020 08:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814034;
-        bh=U/540WdSDlNdB8MiXa9CwxDnUNaX8dDBtbRSQEu7pXc=;
+        s=korg; t=1606813151;
+        bh=uW6h1dpk5WRQ8A5hECvFORk7m2rs7cHBa3T/Gw34zAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PMCbX1KLBF5rjtWDTJutXaOa6BJz/t6TeKRRd3/Df0CpSeXRZo3wGoQn+R5PwBxP
-         uVutPWrk5hXr2pBEH8KFSl55ii4g37rB0NDZ4upNfwfKFvC6IOSvCErbSntRzJY9SD
-         NFra4x/S1gk1VJ06QXZhzrkySKwy/NYN8zteAycM=
+        b=R4Tw0ynp0lpDQ16ZVL8F1h9+NFq1DoHj+Obx38ktmUvreaVVY5Kpi0F5X44ysgP/s
+         TSP5LLOy+Ce+fboN62qRKCr6+FuYtCsOOihq6HTXJLljDlinzAIy/HlM3JFey9nTAB
+         4G6zqdhDqNTd4ibBVxoZv7nXPNaDV+3EQiHaI4rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 113/152] net: ena: fix packets addresses for rx_offset feature
+        stable@vger.kernel.org, edes <edes@gmx.net>,
+        Johan Hovold <johan@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 49/50] USB: core: add endpoint-blacklist quirk
 Date:   Tue,  1 Dec 2020 09:53:48 +0100
-Message-Id: <20201201084726.657345190@linuxfoundation.org>
+Message-Id: <20201201084650.528328585@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1396d3148bd250db880573f9ed0abe5d6fba1fce ]
+commit 73f8bda9b5dc1c69df2bc55c0cbb24461a6391a9 upstream
 
-This patch fixes two lines in which the rx_offset received by the device
-wasn't taken into account:
+Add a new device quirk that can be used to blacklist endpoints.
 
-- prefetch function:
-	In our driver the copied data would reside in
-	rx_info->page + rx_headroom + rx_offset
+Since commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate
+endpoints") USB core ignores any duplicate endpoints found during
+descriptor parsing.
 
-	so the prefetch function is changed accordingly.
+In order to handle devices where the first interfaces with duplicate
+endpoints are the ones that should have their endpoints ignored, we need
+to add a blacklist.
 
-- setting page_offset to zero for descriptors > 1:
-	for every descriptor but the first, the rx_offset is zero. Hence
-	the page_offset value should be set to rx_headroom.
-
-	The previous implementation changed the value of rx_info after
-	the descriptor was added to the SKB (essentially providing wrong
-	page offset).
-
-Fixes: 68f236df93a9 ("net: ena: add support for the rx offset feature")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: edes <edes@gmx.net>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200203153830.26394-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/usb/core/config.c  |   11 +++++++++++
+ drivers/usb/core/quirks.c  |   32 ++++++++++++++++++++++++++++++++
+ drivers/usb/core/usb.h     |    3 +++
+ include/linux/usb/quirks.h |    3 +++
+ 4 files changed, 49 insertions(+)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 1c978c7987adc..36134fc3e9197 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -920,10 +920,14 @@ static void ena_free_all_io_rx_resources(struct ena_adapter *adapter)
- static int ena_alloc_rx_page(struct ena_ring *rx_ring,
- 				    struct ena_rx_buffer *rx_info, gfp_t gfp)
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -256,6 +256,7 @@ static int usb_parse_endpoint(struct dev
+ 		struct usb_host_interface *ifp, int num_ep,
+ 		unsigned char *buffer, int size)
  {
-+	int headroom = rx_ring->rx_headroom;
- 	struct ena_com_buf *ena_buf;
- 	struct page *page;
- 	dma_addr_t dma;
++	struct usb_device *udev = to_usb_device(ddev);
+ 	unsigned char *buffer0 = buffer;
+ 	struct usb_endpoint_descriptor *d;
+ 	struct usb_host_endpoint *endpoint;
+@@ -297,6 +298,16 @@ static int usb_parse_endpoint(struct dev
+ 		goto skip_to_next_endpoint_or_interface_descriptor;
+ 	}
  
-+	/* restore page offset value in case it has been changed by device */
-+	rx_info->page_offset = headroom;
++	/* Ignore blacklisted endpoints */
++	if (udev->quirks & USB_QUIRK_ENDPOINT_BLACKLIST) {
++		if (usb_endpoint_is_blacklisted(udev, ifp, d)) {
++			dev_warn(ddev, "config %d interface %d altsetting %d has a blacklisted endpoint with address 0x%X, skipping\n",
++					cfgno, inum, asnum,
++					d->bEndpointAddress);
++			goto skip_to_next_endpoint_or_interface_descriptor;
++		}
++	}
 +
- 	/* if previous allocated page is not used */
- 	if (unlikely(rx_info->page))
- 		return 0;
-@@ -953,10 +957,9 @@ static int ena_alloc_rx_page(struct ena_ring *rx_ring,
- 		  "alloc page %p, rx_info %p\n", page, rx_info);
+ 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
+ 	++ifp->desc.bNumEndpoints;
  
- 	rx_info->page = page;
--	rx_info->page_offset = 0;
- 	ena_buf = &rx_info->ena_buf;
--	ena_buf->paddr = dma + rx_ring->rx_headroom;
--	ena_buf->len = ENA_PAGE_SIZE - rx_ring->rx_headroom;
-+	ena_buf->paddr = dma + headroom;
-+	ena_buf->len = ENA_PAGE_SIZE - headroom;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -344,6 +344,38 @@ static const struct usb_device_id usb_am
+ 	{ }  /* terminating entry must be last */
+ };
  
- 	return 0;
- }
-@@ -1368,7 +1371,8 @@ static struct sk_buff *ena_rx_skb(struct ena_ring *rx_ring,
- 
- 	/* save virt address of first buffer */
- 	va = page_address(rx_info->page) + rx_info->page_offset;
--	prefetch(va + NET_IP_ALIGN);
++/*
++ * Entries for blacklisted endpoints that should be ignored when parsing
++ * configuration descriptors.
++ *
++ * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
++ */
++static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ }
++};
 +
-+	prefetch(va);
++bool usb_endpoint_is_blacklisted(struct usb_device *udev,
++		struct usb_host_interface *intf,
++		struct usb_endpoint_descriptor *epd)
++{
++	const struct usb_device_id *id;
++	unsigned int address;
++
++	for (id = usb_endpoint_blacklist; id->match_flags; ++id) {
++		if (!usb_match_device(udev, id))
++			continue;
++
++		if (!usb_match_one_id_intf(udev, intf, id))
++			continue;
++
++		address = id->driver_info;
++		if (address == epd->bEndpointAddress)
++			return true;
++	}
++
++	return false;
++}
++
+ static bool usb_match_any_interface(struct usb_device *udev,
+ 				    const struct usb_device_id *id)
+ {
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -36,6 +36,9 @@ extern void usb_deauthorize_interface(st
+ extern void usb_authorize_interface(struct usb_interface *);
+ extern void usb_detect_quirks(struct usb_device *udev);
+ extern void usb_detect_interface_quirks(struct usb_device *udev);
++extern bool usb_endpoint_is_blacklisted(struct usb_device *udev,
++		struct usb_host_interface *intf,
++		struct usb_endpoint_descriptor *epd);
+ extern int usb_remove_device(struct usb_device *udev);
  
- 	if (len <= rx_ring->rx_copybreak) {
- 		skb = ena_alloc_skb(rx_ring, false);
-@@ -1409,8 +1413,6 @@ static struct sk_buff *ena_rx_skb(struct ena_ring *rx_ring,
+ extern int usb_get_device_descriptor(struct usb_device *dev,
+--- a/include/linux/usb/quirks.h
++++ b/include/linux/usb/quirks.h
+@@ -60,4 +60,7 @@
+ /* Device needs a pause after every control message. */
+ #define USB_QUIRK_DELAY_CTRL_MSG		BIT(13)
  
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rx_info->page,
- 				rx_info->page_offset, len, ENA_PAGE_SIZE);
--		/* The offset is non zero only for the first buffer */
--		rx_info->page_offset = 0;
- 
- 		netif_dbg(rx_ring->adapter, rx_status, rx_ring->netdev,
- 			  "rx skb updated. len %d. data_len %d\n",
-@@ -1529,8 +1531,7 @@ static int ena_xdp_handle_buff(struct ena_ring *rx_ring, struct xdp_buff *xdp)
- 	int ret;
- 
- 	rx_info = &rx_ring->rx_buffer_info[rx_ring->ena_bufs[0].req_id];
--	xdp->data = page_address(rx_info->page) +
--		rx_info->page_offset + rx_ring->rx_headroom;
-+	xdp->data = page_address(rx_info->page) + rx_info->page_offset;
- 	xdp_set_data_meta_invalid(xdp);
- 	xdp->data_hard_start = page_address(rx_info->page);
- 	xdp->data_end = xdp->data + rx_ring->ena_bufs[0].len;
-@@ -1597,8 +1598,9 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
- 		if (unlikely(ena_rx_ctx.descs == 0))
- 			break;
- 
-+		/* First descriptor might have an offset set by the device */
- 		rx_info = &rx_ring->rx_buffer_info[rx_ring->ena_bufs[0].req_id];
--		rx_info->page_offset = ena_rx_ctx.pkt_offset;
-+		rx_info->page_offset += ena_rx_ctx.pkt_offset;
- 
- 		netif_dbg(rx_ring->adapter, rx_status, rx_ring->netdev,
- 			  "rx_poll: q %d got packet from ena. descs #: %d l3 proto %d l4 proto %d hash: %x\n",
--- 
-2.27.0
-
++/* device has blacklisted endpoints */
++#define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
++
+ #endif /* __LINUX_USB_QUIRKS_H */
 
 
