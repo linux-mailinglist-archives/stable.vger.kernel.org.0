@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF162C9D53
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72AED2C9D44
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390661AbgLAJWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:22:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45844 "EHLO mail.kernel.org"
+        id S2389354AbgLAJVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:21:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389237AbgLAJI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:08:29 -0500
+        id S2389584AbgLAJJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:09:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E02FC20770;
-        Tue,  1 Dec 2020 09:07:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D472221EB;
+        Tue,  1 Dec 2020 09:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813668;
-        bh=o5uhXnoh8sZpe0TziTvxNIWyR1CtfQAPSCTF46Doo30=;
+        s=korg; t=1606813745;
+        bh=9gm5weQq856C4mJXJWgcMgZDW1ZwU8Qr533MjtNjEvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rga9rV/ebm08Ri2xm4cmGGLP6c3GptQxm3Y5pn+l/9a9EEFL1m5GwhF80YQfzf9LK
-         Ys01Eujtuo5xkIS8kjdTMu4vXb0liPZsMSard7OgIcaZSHzxAzqcFiTFsdACSbf7SU
-         cwsGRrh1uC7KBF1EhGVjUs59IohlbSaHOdV6rNvI=
+        b=iwQ1j75nQTwRADQunobv7LG6Z/QpPddfvzziFY4hinGyUzJA/aZbNp/NmePg9K80X
+         RFclxWVaDIVDnwGe1UjsPSLhtNP3zj8ZVluCDe7xqhZasa0k0+k39ZHW0cimP7+z15
+         IcWjq056gSSLz1Wy5zqsJ642vztUh0z6+1ARg3sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com,
-        Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.9 011/152] btrfs: dont access possibly stale fs_info data for printing duplicate device
-Date:   Tue,  1 Dec 2020 09:52:06 +0100
-Message-Id: <20201201084713.329401921@linuxfoundation.org>
+        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.9 014/152] s390: fix fpu restore in entry.S
+Date:   Tue,  1 Dec 2020 09:52:09 +0100
+Message-Id: <20201201084713.734548029@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -46,171 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 0697d9a610998b8bdee6b2390836cb2391d8fd1a upstream.
+commit 1179f170b6f0af7bb0b3b7628136eaac450ddf31 upstream.
 
-Syzbot reported a possible use-after-free when printing a duplicate device
-warning device_list_add().
+We need to disable interrupts in load_fpu_regs(). Otherwise an
+interrupt might come in after the registers are loaded, but before
+CIF_FPU is cleared in load_fpu_regs(). When the interrupt returns,
+CIF_FPU will be cleared and the registers will never be restored.
 
-At this point it can happen that a btrfs_device::fs_info is not correctly
-setup yet, so we're accessing stale data, when printing the warning
-message using the btrfs_printk() wrappers.
+The entry.S code usually saves the interrupt state in __SF_EMPTY on the
+stack when disabling/restoring interrupts. sie64a however saves the pointer
+to the sie control block in __SF_SIE_CONTROL, which references the same
+location.  This is non-obvious to the reader. To avoid thrashing the sie
+control block pointer in load_fpu_regs(), move the __SIE_* offsets eight
+bytes after __SF_EMPTY on the stack.
 
-  ==================================================================
-  BUG: KASAN: use-after-free in btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
-  Read of size 8 at addr ffff8880878e06a8 by task syz-executor225/7068
-
-  CPU: 1 PID: 7068 Comm: syz-executor225 Not tainted 5.9.0-rc5-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x1d6/0x29e lib/dump_stack.c:118
-   print_address_description+0x66/0x620 mm/kasan/report.c:383
-   __kasan_report mm/kasan/report.c:513 [inline]
-   kasan_report+0x132/0x1d0 mm/kasan/report.c:530
-   btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
-   device_list_add+0x1a88/0x1d60 fs/btrfs/volumes.c:943
-   btrfs_scan_one_device+0x196/0x490 fs/btrfs/volumes.c:1359
-   btrfs_mount_root+0x48f/0xb60 fs/btrfs/super.c:1634
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x44840a
-  RSP: 002b:00007ffedfffd608 EFLAGS: 00000293 ORIG_RAX: 00000000000000a5
-  RAX: ffffffffffffffda RBX: 00007ffedfffd670 RCX: 000000000044840a
-  RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffedfffd630
-  RBP: 00007ffedfffd630 R08: 00007ffedfffd670 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000293 R12: 000000000000001a
-  R13: 0000000000000004 R14: 0000000000000003 R15: 0000000000000003
-
-  Allocated by task 6945:
-   kasan_save_stack mm/kasan/common.c:48 [inline]
-   kasan_set_track mm/kasan/common.c:56 [inline]
-   __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
-   kmalloc_node include/linux/slab.h:577 [inline]
-   kvmalloc_node+0x81/0x110 mm/util.c:574
-   kvmalloc include/linux/mm.h:757 [inline]
-   kvzalloc include/linux/mm.h:765 [inline]
-   btrfs_mount_root+0xd0/0xb60 fs/btrfs/super.c:1613
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  Freed by task 6945:
-   kasan_save_stack mm/kasan/common.c:48 [inline]
-   kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
-   kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
-   __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
-   __cache_free mm/slab.c:3418 [inline]
-   kfree+0x113/0x200 mm/slab.c:3756
-   deactivate_locked_super+0xa7/0xf0 fs/super.c:335
-   btrfs_mount_root+0x72b/0xb60 fs/btrfs/super.c:1678
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  The buggy address belongs to the object at ffff8880878e0000
-   which belongs to the cache kmalloc-16k of size 16384
-  The buggy address is located 1704 bytes inside of
-   16384-byte region [ffff8880878e0000, ffff8880878e4000)
-  The buggy address belongs to the page:
-  page:0000000060704f30 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x878e0
-  head:0000000060704f30 order:3 compound_mapcount:0 compound_pincount:0
-  flags: 0xfffe0000010200(slab|head)
-  raw: 00fffe0000010200 ffffea00028e9a08 ffffea00021e3608 ffff8880aa440b00
-  raw: 0000000000000000 ffff8880878e0000 0000000100000001 0000000000000000
-  page dumped because: kasan: bad access detected
-
-  Memory state around the buggy address:
-   ffff8880878e0580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-   ffff8880878e0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  >ffff8880878e0680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-				    ^
-   ffff8880878e0700: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-   ffff8880878e0780: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ==================================================================
-
-The syzkaller reproducer for this use-after-free crafts a filesystem image
-and loop mounts it twice in a loop. The mount will fail as the crafted
-image has an invalid chunk tree. When this happens btrfs_mount_root() will
-call deactivate_locked_super(), which then cleans up fs_info and
-fs_info::sb. If a second thread now adds the same block-device to the
-filesystem, it will get detected as a duplicate device and
-device_list_add() will reject the duplicate and print a warning. But as
-the fs_info pointer passed in is non-NULL this will result in a
-use-after-free.
-
-Instead of printing possibly uninitialized or already freed memory in
-btrfs_printk(), explicitly pass in a NULL fs_info so the printing of the
-device name will be skipped altogether.
-
-There was a slightly different approach discussed in
-https://lore.kernel.org/linux-btrfs/20200114060920.4527-1-anand.jain@oracle.com/t/#u
-
-Link: https://lore.kernel.org/linux-btrfs/000000000000c9e14b05afcc41ba@google.com
-Reported-by: syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: <stable@vger.kernel.org> # 5.8
+Fixes: 0b0ed657fe00 ("s390: remove critical section cleanup from entry.S")
+Reported-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/kernel/asm-offsets.c |   10 +++++-----
+ arch/s390/kernel/entry.S       |    2 ++
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -941,7 +941,13 @@ static noinline struct btrfs_device *dev
- 			if (device->bdev != path_bdev) {
- 				bdput(path_bdev);
- 				mutex_unlock(&fs_devices->device_list_mutex);
--				btrfs_warn_in_rcu(device->fs_info,
-+				/*
-+				 * device->fs_info may not be reliable here, so
-+				 * pass in a NULL instead. This avoids a
-+				 * possible use-after-free when the fs_info and
-+				 * fs_info->sb are already torn down.
-+				 */
-+				btrfs_warn_in_rcu(NULL,
- 	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
- 						  path, devid, found_transid,
- 						  current->comm,
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -53,11 +53,11 @@ int main(void)
+ 	/* stack_frame offsets */
+ 	OFFSET(__SF_BACKCHAIN, stack_frame, back_chain);
+ 	OFFSET(__SF_GPRS, stack_frame, gprs);
+-	OFFSET(__SF_EMPTY, stack_frame, empty1);
+-	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
+-	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
+-	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+-	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[3]);
++	OFFSET(__SF_EMPTY, stack_frame, empty1[0]);
++	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[1]);
++	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[2]);
++	OFFSET(__SF_SIE_REASON, stack_frame, empty1[3]);
++	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[4]);
+ 	BLANK();
+ 	/* timeval/timezone offsets for use by vdso */
+ 	OFFSET(__VDSO_UPD_COUNT, vdso_data, tb_update_count);
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -1072,6 +1072,7 @@ EXPORT_SYMBOL(save_fpu_regs)
+  *	%r4
+  */
+ load_fpu_regs:
++	stnsm	__SF_EMPTY(%r15),0xfc
+ 	lg	%r4,__LC_CURRENT
+ 	aghi	%r4,__TASK_thread
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU
+@@ -1103,6 +1104,7 @@ load_fpu_regs:
+ .Lload_fpu_regs_done:
+ 	ni	__LC_CPU_FLAGS+7,255-_CIF_FPU
+ .Lload_fpu_regs_exit:
++	ssm	__SF_EMPTY(%r15)
+ 	BR_EX	%r14
+ .Lload_fpu_regs_end:
+ ENDPROC(load_fpu_regs)
 
 
