@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 943512C9A06
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 304492C9A37
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728535AbgLAIyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:54:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57660 "EHLO mail.kernel.org"
+        id S2387655AbgLAI4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:56:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727670AbgLAIyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:54:52 -0500
+        id S2387640AbgLAI4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:56:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E30C221FF;
-        Tue,  1 Dec 2020 08:53:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E82622259;
+        Tue,  1 Dec 2020 08:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812829;
-        bh=Lp4j60jAjeWnw7tqIzJTb7/dkrXJIFmQGxKlGCYuCbE=;
+        s=korg; t=1606812927;
+        bh=CvzfrnGumdA7r8ogxk4oIcN74VmmIiyD7gYxBF/TlNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQMZXReeqwNYzAYHYM+SWZt1FBVikLmResFn/AllcMGrFCpo9aRBl0DzumIEkktaz
-         zm/np/DRfIS1Ugoyero/iOhGbO04zO1TwNAChY9xpvomYO1zxYAD4gTXeQGfPhBpi9
-         BcJw4RWtKHR4W+uHLOv3b+GgINc2afH30uAQTzFw=
+        b=Hw+qcDUW8jPdoZxQmyk1vaEiN51WcyKXdS53PExrqcYNt3ObA9Ntwe6f3TMUkPFhu
+         ieWp2omL/e1yL/cI1tIm6HG7CBO2gWzpBB/zZeGLaXy6m/J66vH5qLvq9QgAUbGW2c
+         zsfFu2QR4rNMKNi5e46uN1Eyb3VDMwphW+vjk6D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/24] bnxt_en: Release PCI regions when DMA mask setup fails during probe.
+Subject: [PATCH 4.9 23/42] scsi: ufs: Fix race between shutdown and runtime resume flow
 Date:   Tue,  1 Dec 2020 09:53:21 +0100
-Message-Id: <20201201084638.509434706@linuxfoundation.org>
+Message-Id: <20201201084643.883554004@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-References: <20201201084637.754785180@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit c54bc3ced5106663c2f2b44071800621f505b00e ]
+[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
 
-Jump to init_err_release to cleanup.  bnxt_unmap_bars() will also be
-called but it will do nothing if the BARs are not mapped yet.
+If UFS host device is in runtime-suspended state while UFS shutdown
+callback is invoked, UFS device shall be resumed for register
+accesses. Currently only UFS local runtime resume function will be invoked
+to wake up the host.  This is not enough because if someone triggers
+runtime resume from block layer, then race may happen between shutdown and
+runtime resume flow, and finally lead to unlocked register access.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/1605858271-8209-1-git-send-email-michael.chan@broadcom.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
+resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
+PM framework manage the whole resume flow.
+
+Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
+Fixes: 57d104c153d3 ("ufs: add UFS power management support")
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index aff1a23078903..250ecbcca019f 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -5199,7 +5199,7 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
- 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
- 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
- 		rc = -EIO;
--		goto init_err_disable;
-+		goto init_err_release;
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index ad5f2e2b4cbaf..ad80e4223c2d3 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6521,11 +6521,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
  
- 	pci_set_master(pdev);
+-	if (pm_runtime_suspended(hba->dev)) {
+-		ret = ufshcd_runtime_resume(hba);
+-		if (ret)
+-			goto out;
+-	}
++	pm_runtime_get_sync(hba->dev);
+ 
+ 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
+ out:
 -- 
 2.27.0
 
