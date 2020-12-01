@@ -2,77 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B092CA798
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6358F2CA7A2
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390694AbgLAQA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 11:00:28 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59974 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388374AbgLAQA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 11:00:28 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 825211C0BCB; Tue,  1 Dec 2020 16:59:47 +0100 (CET)
-Date:   Tue, 1 Dec 2020 16:59:46 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/24] 4.4.247-rc1 review
-Message-ID: <20201201155946.GB25115@amd>
-References: <20201201084637.754785180@linuxfoundation.org>
+        id S2403943AbgLAQB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 11:01:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391653AbgLAQB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 11:01:28 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97B512223F;
+        Tue,  1 Dec 2020 16:00:07 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1kk84T-002R6U-Su; Tue, 01 Dec 2020 11:00:05 -0500
+Message-ID: <20201201160005.780999537@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Tue, 01 Dec 2020 10:58:40 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, "J. Avila" <elavila@google.com>,
+        Daniel Mentz <danielmentz@google.com>,
+        Will McVicker <willmcvicker@google.com>
+Subject: [for-linus][PATCH 05/12] ring-buffer: Update write stamp with the correct ts
+References: <20201201155835.647858317@goodmis.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
-Content-Disposition: inline
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset=ISO-8859-15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
---98e8jtXdkpgskNou
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The write stamp, used to calculate deltas between events, was updated with
+the stale "ts" value in the "info" structure, and not with the updated "ts"
+variable. This caused the deltas between events to be inaccurate, and when
+crossing into a new sub buffer, had time go backwards.
 
-Hi!
+Link: https://lkml.kernel.org/r/20201124223917.795844-1-elavila@google.com
 
-> This is the start of the stable review cycle for the 4.4.247 release.
-> There are 24 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Thu, 03 Dec 2020 08:46:29 +0000.
-> Anything received after that time might be too late.
->
+Cc: stable@vger.kernel.org
+Fixes: a389d86f7fd09 ("ring-buffer: Have nested events still record running time stamp")
+Reported-by: "J. Avila" <elavila@google.com>
+Tested-by: Daniel Mentz <danielmentz@google.com>
+Tested-by: Will McVicker <willmcvicker@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/ring_buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-No problems detected during testing:
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index dc83b3fa9fe7..bccaf88d3706 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3291,7 +3291,7 @@ __rb_reserve_next(struct ring_buffer_per_cpu *cpu_buffer,
+ 			/* Nothing came after this event between C and E */
+ 			info->delta = ts - info->after;
+ 			(void)rb_time_cmpxchg(&cpu_buffer->write_stamp,
+-					      info->after, info->ts);
++					      info->after, ts);
+ 			info->ts = ts;
+ 		} else {
+ 			/*
+-- 
+2.28.0
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.4.y
 
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-							Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---98e8jtXdkpgskNou
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl/GaHIACgkQMOfwapXb+vJdpwCeJIJrfA3avbcJF5LbyVfXx/hU
-fxIAn3BZBay1MMmBFw3uW9IL3MC27wrw
-=vHeW
------END PGP SIGNATURE-----
-
---98e8jtXdkpgskNou--
