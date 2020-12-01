@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BA32C9CDB
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 393A52C9D0E
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387971AbgLAJD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:03:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40002 "EHLO mail.kernel.org"
+        id S2389678AbgLAJKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:10:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388167AbgLAJDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:24 -0500
+        id S2389674AbgLAJKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9F1D206D8;
-        Tue,  1 Dec 2020 09:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F46620671;
+        Tue,  1 Dec 2020 09:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813388;
-        bh=PhV5uaDhmqHw5CUW204MCd55v6G2ULGtBNvW9ZgaP6c=;
+        s=korg; t=1606813805;
+        bh=PpkHv6MRdo5REGwV+VLtx5I33j0C6wB/LT0a8qVxCOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSSWtFkPK0PcjaNHHHYeCqvmg9EPizbvJ+TjwSNPgFGkhLavr2uX7AZqZIOrxLEZs
-         +kCVWymI9Mb0mqkisUh+EviOVKXGTO9Zq4IMSLTBo1cdYjrZ+aMeQoQ4bITXICrHJQ
-         O2HbpcIs/akvj+VY196n2qsPuGSo+alM31OSsbdg=
+        b=UwktQ557wgkAZq81CMxXnpNyWGdhwMzmNtG4V/qr/9lxKueWa8qmYUc5vrXclsQw/
+         7koNlg5x5Rf8NWyo86iTyXug1GPqUNcDCJwSV3TFv9h1ZfO55Ed1xnqAOR9lTUOblD
+         ME3bdvUjXiBHQJ3ynRIBFLzbr5oryLpkVj8Qk/wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/98] HID: ite: Replace ABS_MISC 120/121 events with touchpad on/off keypresses
-Date:   Tue,  1 Dec 2020 09:52:59 +0100
-Message-Id: <20201201084655.485239190@linuxfoundation.org>
+        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 065/152] perf/x86: fix sysfs type mismatches
+Date:   Tue,  1 Dec 2020 09:53:00 +0100
+Message-Id: <20201201084720.448036043@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +45,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 3c785a06dee99501a17f8e8cf29b2b7e3f1e94ea ]
+[ Upstream commit ebd19fc372e3e78bf165f230e7c084e304441c08 ]
 
-The usb-hid keyboard-dock for the Acer Switch 10 SW5-012 model declares
-an application and hid-usage page of 0x0088 for the INPUT(4) report which
-it sends. This reports contains 2 8-bit fields which are declared as
-HID_MAIN_ITEM_VARIABLE.
+This change switches rapl to use PMU_FORMAT_ATTR, and fixes two other
+macros to use device_attribute instead of kobj_attribute to avoid
+callback type mismatches that trip indirect call checking with Clang's
+Control-Flow Integrity (CFI).
 
-The keyboard-touchpad combo never actually generates this report, except
-when the touchpad is toggled on/off with the Fn + F7 hotkey combo. The
-toggle on/off is handled inside the keyboard-dock, when the touchpad is
-toggled off it simply stops sending events.
-
-When the touchpad is toggled on/off an INPUT(4) report is generated with
-the first content byte set to 120/121, before this commit the kernel
-would report this as ABS_MISC 120/121 events.
-
-Patch the descriptor to replace the HID_MAIN_ITEM_VARIABLE with
-HID_MAIN_ITEM_RELATIVE (because no key-presss release events are send)
-and add mappings for the 0x00880078 and 0x00880079 usages to generate
-touchpad on/off key events when the touchpad is toggled on/off.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20201113183126.1239404-1-samitolvanen@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ite.c | 61 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/cstate.c |  6 +++---
+ arch/x86/events/intel/uncore.c |  4 ++--
+ arch/x86/events/intel/uncore.h | 12 ++++++------
+ arch/x86/events/rapl.c         | 14 +-------------
+ 4 files changed, 12 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 044a93f3c1178..742c052b0110a 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -11,6 +11,48 @@
+diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
+index 442e1ed4acd49..4eb7ee5fed72d 100644
+--- a/arch/x86/events/intel/cstate.c
++++ b/arch/x86/events/intel/cstate.c
+@@ -107,14 +107,14 @@
+ MODULE_LICENSE("GPL");
  
- #include "hid-ids.h"
+ #define DEFINE_CSTATE_FORMAT_ATTR(_var, _name, _format)		\
+-static ssize_t __cstate_##_var##_show(struct kobject *kobj,	\
+-				struct kobj_attribute *attr,	\
++static ssize_t __cstate_##_var##_show(struct device *dev,	\
++				struct device_attribute *attr,	\
+ 				char *page)			\
+ {								\
+ 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
+ 	return sprintf(page, _format "\n");			\
+ }								\
+-static struct kobj_attribute format_attr_##_var =		\
++static struct device_attribute format_attr_##_var =		\
+ 	__ATTR(_name, 0444, __cstate_##_var##_show, NULL)
  
-+#define QUIRK_TOUCHPAD_ON_OFF_REPORT		BIT(0)
-+
-+static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int *rsize)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) {
-+		if (*rsize == 188 && rdesc[162] == 0x81 && rdesc[163] == 0x02) {
-+			hid_info(hdev, "Fixing up ITE keyboard report descriptor\n");
-+			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
-+		}
-+	}
-+
-+	return rdesc;
-+}
-+
-+static int ite_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit,
-+		int *max)
-+{
-+
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if ((quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) &&
-+	    (usage->hid & HID_USAGE_PAGE) == 0x00880000) {
-+		if (usage->hid == 0x00880078) {
-+			/* Touchpad on, userspace expects F22 for this */
-+			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F22);
-+			return 1;
-+		}
-+		if (usage->hid == 0x00880079) {
-+			/* Touchpad off, userspace expects F23 for this */
-+			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F23);
-+			return 1;
-+		}
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
- static int ite_event(struct hid_device *hdev, struct hid_field *field,
- 		     struct hid_usage *usage, __s32 value)
- {
-@@ -37,13 +79,27 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
- 	return 0;
+ static ssize_t cstate_get_attr_cpumask(struct device *dev,
+diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
+index d5c6d3b340c50..803601baa753d 100644
+--- a/arch/x86/events/intel/uncore.c
++++ b/arch/x86/events/intel/uncore.c
+@@ -92,8 +92,8 @@ end:
+ 	return map;
  }
  
-+static int ite_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	hid_set_drvdata(hdev, (void *)id->driver_data);
-+
-+	ret = hid_open_report(hdev);
-+	if (ret)
-+		return ret;
-+
-+	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+}
-+
- static const struct hid_device_id ite_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
- 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_SYNAPTICS,
--		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
-+		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012),
-+	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
- 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_SYNAPTICS,
-@@ -55,6 +111,9 @@ MODULE_DEVICE_TABLE(hid, ite_devices);
- static struct hid_driver ite_driver = {
- 	.name = "itetech",
- 	.id_table = ite_devices,
-+	.probe = ite_probe,
-+	.report_fixup = ite_report_fixup,
-+	.input_mapping = ite_input_mapping,
- 	.event = ite_event,
+-ssize_t uncore_event_show(struct kobject *kobj,
+-			  struct kobj_attribute *attr, char *buf)
++ssize_t uncore_event_show(struct device *dev,
++			  struct device_attribute *attr, char *buf)
+ {
+ 	struct uncore_event_desc *event =
+ 		container_of(attr, struct uncore_event_desc, attr);
+diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
+index 105fdc69825eb..c5744783e05d0 100644
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -157,7 +157,7 @@ struct intel_uncore_box {
+ #define UNCORE_BOX_FLAG_CFL8_CBOX_MSR_OFFS	2
+ 
+ struct uncore_event_desc {
+-	struct kobj_attribute attr;
++	struct device_attribute attr;
+ 	const char *config;
  };
- module_hid_driver(ite_driver);
+ 
+@@ -179,8 +179,8 @@ struct pci2phy_map {
+ struct pci2phy_map *__find_pci2phy_map(int segment);
+ int uncore_pcibus_to_physid(struct pci_bus *bus);
+ 
+-ssize_t uncore_event_show(struct kobject *kobj,
+-			  struct kobj_attribute *attr, char *buf);
++ssize_t uncore_event_show(struct device *dev,
++			  struct device_attribute *attr, char *buf);
+ 
+ static inline struct intel_uncore_pmu *dev_to_uncore_pmu(struct device *dev)
+ {
+@@ -201,14 +201,14 @@ extern int __uncore_max_dies;
+ }
+ 
+ #define DEFINE_UNCORE_FORMAT_ATTR(_var, _name, _format)			\
+-static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
+-				struct kobj_attribute *attr,		\
++static ssize_t __uncore_##_var##_show(struct device *dev,		\
++				struct device_attribute *attr,		\
+ 				char *page)				\
+ {									\
+ 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);			\
+ 	return sprintf(page, _format "\n");				\
+ }									\
+-static struct kobj_attribute format_attr_##_var =			\
++static struct device_attribute format_attr_##_var =			\
+ 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
+ 
+ static inline bool uncore_pmc_fixed(int idx)
+diff --git a/arch/x86/events/rapl.c b/arch/x86/events/rapl.c
+index 67b411f7e8c41..abaed36212250 100644
+--- a/arch/x86/events/rapl.c
++++ b/arch/x86/events/rapl.c
+@@ -93,18 +93,6 @@ static const char *const rapl_domain_names[NR_RAPL_DOMAINS] __initconst = {
+  * any other bit is reserved
+  */
+ #define RAPL_EVENT_MASK	0xFFULL
+-
+-#define DEFINE_RAPL_FORMAT_ATTR(_var, _name, _format)		\
+-static ssize_t __rapl_##_var##_show(struct kobject *kobj,	\
+-				struct kobj_attribute *attr,	\
+-				char *page)			\
+-{								\
+-	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
+-	return sprintf(page, _format "\n");			\
+-}								\
+-static struct kobj_attribute format_attr_##_var =		\
+-	__ATTR(_name, 0444, __rapl_##_var##_show, NULL)
+-
+ #define RAPL_CNTR_WIDTH 32
+ 
+ #define RAPL_EVENT_ATTR_STR(_name, v, str)					\
+@@ -441,7 +429,7 @@ static struct attribute_group rapl_pmu_events_group = {
+ 	.attrs = attrs_empty,
+ };
+ 
+-DEFINE_RAPL_FORMAT_ATTR(event, event, "config:0-7");
++PMU_FORMAT_ATTR(event, "config:0-7");
+ static struct attribute *rapl_formats_attr[] = {
+ 	&format_attr_event.attr,
+ 	NULL,
 -- 
 2.27.0
 
