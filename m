@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C0D2C9D1C
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8262C9DBE
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390145AbgLAJTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:19:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47992 "EHLO mail.kernel.org"
+        id S2389475AbgLAJ1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:27:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389673AbgLAJKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:20 -0500
+        id S2387838AbgLAJDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:01 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78C272222A;
-        Tue,  1 Dec 2020 09:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00F9D22247;
+        Tue,  1 Dec 2020 09:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813780;
-        bh=2iKQUJsUQI9l2vvcbu3mNWUXjhNPMztzv4VhPexSgrE=;
+        s=korg; t=1606813365;
+        bh=CovXMxwo9io+S+W2Luos3DCSphJxlNAhJaZ1ZeUyvpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAr1JeFaC5FPEgoX2POERDEP5YH5EUOlLEUKmQ4Cxt2HOTmMfmBputvJUh5KuaBFQ
-         /LpljF0j1N7X6EifM+S3lSCnfVDomWw9eOfufQaH3KObn5Se+Q/uaMZuH6jByoPUF0
-         415xy6Mvx6SjB8Rb+jStLUuVplJq5aAYTCbE5mao=
+        b=FSZBcMc3BW+GM94mPm7FsiDwmrE/JCql/M1NjsmFWJflFg+/9GrOpWvQ7pErfuE5n
+         sT1kF4lyK8nZycmOjKHqEqo3EYT+6jnfRnCRxCTL54iy9givMkgpZd+6gKaXpix5+3
+         w8QfOfEwJ0+lp8E1uOxLTwuGVMYvd9q2vtLsMUZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 057/152] vhost: add helper to check if a vq has been setup
+        stable@vger.kernel.org, Keqian Zhu <zhukeqian1@huawei.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH 5.4 15/98] KVM: arm64: vgic-v3: Drop the reporting of GICR_TYPER.Last for userspace
 Date:   Tue,  1 Dec 2020 09:52:52 +0100
-Message-Id: <20201201084719.420908068@linuxfoundation.org>
+Message-Id: <20201201084654.714300227@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 6bcf34224ac1e94103797fd68b9836061762f2b2 ]
+commit 23bde34771f1ea92fb5e6682c0d8c04304d34b3b upstream.
 
-This adds a helper check if a vq has been setup. The next patches
-will use this when we move the vhost scsi cmd preallocation from per
-session to per vq. In the per vq case, we only want to allocate cmds
-for vqs that have actually been setup and not for all the possible
-vqs.
+It was recently reported that if GICR_TYPER is accessed before the RD base
+address is set, we'll suffer from the unset @rdreg dereferencing. Oops...
 
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Link: https://lore.kernel.org/r/1604986403-4931-2-git-send-email-michael.christie@oracle.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	gpa_t last_rdist_typer = rdreg->base + GICR_TYPER +
+			(rdreg->free_index - 1) * KVM_VGIC_V3_REDIST_SIZE;
+
+It's "expected" that users will access registers in the redistributor if
+the RD has been properly configured (e.g., the RD base address is set). But
+it hasn't yet been covered by the existing documentation.
+
+Per discussion on the list [1], the reporting of the GICR_TYPER.Last bit
+for userspace never actually worked. And it's difficult for us to emulate
+it correctly given that userspace has the flexibility to access it any
+time. Let's just drop the reporting of the Last bit for userspace for now
+(userspace should have full knowledge about it anyway) and it at least
+prevents kernel from panic ;-)
+
+[1] https://lore.kernel.org/kvmarm/c20865a267e44d1e2c0d52ce4e012263@kernel.org/
+
+Fixes: ba7b3f1275fd ("KVM: arm/arm64: Revisit Redistributor TYPER last bit computation")
+Reported-by: Keqian Zhu <zhukeqian1@huawei.com>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20201117151629.1738-1-yuzenghui@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/vhost/vhost.c | 6 ++++++
- drivers/vhost/vhost.h | 1 +
- 2 files changed, 7 insertions(+)
+ virt/kvm/arm/vgic/vgic-mmio-v3.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9ad45e1d27f0f..23e7b2d624511 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -305,6 +305,12 @@ static void vhost_vring_call_reset(struct vhost_vring_call *call_ctx)
- 	spin_lock_init(&call_ctx->ctx_lock);
+--- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+@@ -223,6 +223,23 @@ static unsigned long vgic_mmio_read_v3r_
+ 	return extract_bytes(value, addr & 7, len);
  }
  
-+bool vhost_vq_is_setup(struct vhost_virtqueue *vq)
++static unsigned long vgic_uaccess_read_v3r_typer(struct kvm_vcpu *vcpu,
++						 gpa_t addr, unsigned int len)
 +{
-+	return vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq);
-+}
-+EXPORT_SYMBOL_GPL(vhost_vq_is_setup);
++	unsigned long mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
++	int target_vcpu_id = vcpu->vcpu_id;
++	u64 value;
 +
- static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
++	value = (u64)(mpidr & GENMASK(23, 0)) << 32;
++	value |= ((target_vcpu_id & 0xffff) << 8);
++
++	if (vgic_has_its(vcpu->kvm))
++		value |= GICR_TYPER_PLPIS;
++
++	/* reporting of the Last bit is not supported for userspace */
++	return extract_bytes(value, addr & 7, len);
++}
++
+ static unsigned long vgic_mmio_read_v3r_iidr(struct kvm_vcpu *vcpu,
+ 					     gpa_t addr, unsigned int len)
  {
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 9032d3c2a9f48..3d30b3da7bcf5 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -190,6 +190,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *,
- 		      struct vhost_log *log, unsigned int *log_num);
- void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
- 
-+bool vhost_vq_is_setup(struct vhost_virtqueue *vq);
- int vhost_vq_init_access(struct vhost_virtqueue *);
- int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
- int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
--- 
-2.27.0
-
+@@ -528,8 +545,9 @@ static const struct vgic_register_region
+ 	REGISTER_DESC_WITH_LENGTH(GICR_IIDR,
+ 		vgic_mmio_read_v3r_iidr, vgic_mmio_write_wi, 4,
+ 		VGIC_ACCESS_32bit),
+-	REGISTER_DESC_WITH_LENGTH(GICR_TYPER,
+-		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi, 8,
++	REGISTER_DESC_WITH_LENGTH_UACCESS(GICR_TYPER,
++		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi,
++		vgic_uaccess_read_v3r_typer, vgic_mmio_uaccess_write_wi, 8,
+ 		VGIC_ACCESS_64bit | VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH(GICR_WAKER,
+ 		vgic_mmio_read_raz, vgic_mmio_write_wi, 4,
 
 
