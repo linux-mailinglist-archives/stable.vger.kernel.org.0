@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0A62C9B2D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C3CC2C9A7E
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729376AbgLAJFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41590 "EHLO mail.kernel.org"
+        id S2387685AbgLAI6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388883AbgLAJEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:38 -0500
+        id S2387869AbgLAI6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CB9D221EB;
-        Tue,  1 Dec 2020 09:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAD3A21D7A;
+        Tue,  1 Dec 2020 08:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813430;
-        bh=vHbmGitfmFmde25Z8F1SEwm+xaWJLn3EOMGlBjZYEDQ=;
+        s=korg; t=1606813047;
+        bh=rD9R8ywuvyJzpvVCslcaVxW/XILBcGtdSf+hE/VOSAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gm+tC+kKFB+tJ6ov22i/RXP7mdiw/QLbVberSe4sgI7Ry3Ooc+zD2pKfIPAWrTmIS
-         WQX8Ym3oJaq02zifJ/RUQe1Qh3DTVSEqgC0WoyVdrHwtDvmND9w6FrPI5P8DfI0138
-         aMOpYhD7yE7Owj8kjS+ponoDgNkg9fPtns+4xyss=
+        b=BvAdLztxhQaVsoSHBkLAuJulGPGkuisdl0z2agecU1PLIcram5Mir2i8Rz9W7Ex88
+         mbEvaj9rd57hcsIPCFjzLML50u3AxjKZPxs/BhUk2Kpo1Wj34X54w8201Tj6UWzuZv
+         5QYGsP5pZ4XErg8qBGmfCmhBeA8liAWvt86q9Oa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/98] scsi: libiscsi: Fix NOP race condition
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Marius Iacob <themariusus@gmail.com>
+Subject: [PATCH 4.14 15/50] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
 Date:   Tue,  1 Dec 2020 09:53:14 +0100
-Message-Id: <20201201084656.948691209@linuxfoundation.org>
+Message-Id: <20201201084647.004315962@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,130 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Duncan <lduncan@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fe0a8a95e7134d0b44cd407bc0085b9ba8d8fe31 ]
+[ Upstream commit b1884583fcd17d6a1b1bba94bbb5826e6b5c6e17 ]
 
-iSCSI NOPs are sometimes "lost", mistakenly sent to the user-land iscsid
-daemon instead of handled in the kernel, as they should be, resulting in a
-message from the daemon like:
+The i8042 module exports several symbols which may be used by other
+modules.
 
-  iscsid: Got nop in, but kernel supports nop handling.
+Before this commit it would refuse to load (when built as a module itself)
+on systems without an i8042 controller.
 
-This can occur because of the new forward- and back-locks, and the fact
-that an iSCSI NOP response can occur before processing of the NOP send is
-complete. This can result in "conn->ping_task" being NULL in
-iscsi_nop_out_rsp(), when the pointer is actually in the process of being
-set.
+This is a problem specifically for the asus-nb-wmi module. Many Asus
+laptops support the Asus WMI interface. Some of them have an i8042
+controller and need to use i8042_install_filter() to filter some kbd
+events. Other models do not have an i8042 controller (e.g. they use an
+USB attached kbd).
 
-To work around this, we add a new state to the "ping_task" pointer. In
-addition to NULL (not assigned) and a pointer (assigned), we add the state
-"being set", which is signaled with an INVALID pointer (using "-1").
+Before this commit the asus-nb-wmi driver could not be loaded on Asus
+models without an i8042 controller, when the i8042 code was built as
+a module (as Arch Linux does) because the module_init function of the
+i8042 module would fail with -ENODEV and thus the i8042_install_filter
+symbol could not be loaded.
 
-Link: https://lore.kernel.org/r/20201106193317.16993-1-leeman.duncan@gmail.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This commit fixes this by exiting from module_init with a return code
+of 0 if no controller is found.  It also adds a i8042_present bool to
+make the module_exit function a no-op in this case and also adds a
+check for i8042_present to the exported i8042_command function.
+
+The latter i8042_present check should not really be necessary because
+when builtin that function can already be used on systems without
+an i8042 controller, but better safe then sorry.
+
+Reported-and-tested-by: Marius Iacob <themariusus@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201008112628.3979-2-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libiscsi.c | 23 +++++++++++++++--------
- include/scsi/libiscsi.h |  3 +++
- 2 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/input/serio/i8042.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 70b99c0e2e678..f954be3d5ee22 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -533,8 +533,8 @@ static void iscsi_complete_task(struct iscsi_task *task, int state)
- 	if (conn->task == task)
- 		conn->task = NULL;
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 824f4c1c1f310..0e9f248370a3f 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -125,6 +125,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
+ MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
+ #endif
  
--	if (conn->ping_task == task)
--		conn->ping_task = NULL;
-+	if (READ_ONCE(conn->ping_task) == task)
-+		WRITE_ONCE(conn->ping_task, NULL);
++static bool i8042_present;
+ static bool i8042_bypass_aux_irq_test;
+ static char i8042_kbd_firmware_id[128];
+ static char i8042_aux_firmware_id[128];
+@@ -345,6 +346,9 @@ int i8042_command(unsigned char *param, int command)
+ 	unsigned long flags;
+ 	int retval;
  
- 	/* release get from queueing */
- 	__iscsi_put_task(task);
-@@ -738,6 +738,9 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
- 						   task->conn->session->age);
- 	}
- 
-+	if (unlikely(READ_ONCE(conn->ping_task) == INVALID_SCSI_TASK))
-+		WRITE_ONCE(conn->ping_task, task);
++	if (!i8042_present)
++		return -1;
 +
- 	if (!ihost->workq) {
- 		if (iscsi_prep_mgmt_task(conn, task))
- 			goto free_task;
-@@ -941,8 +944,11 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
-         struct iscsi_nopout hdr;
- 	struct iscsi_task *task;
+ 	spin_lock_irqsave(&i8042_lock, flags);
+ 	retval = __i8042_command(param, command);
+ 	spin_unlock_irqrestore(&i8042_lock, flags);
+@@ -1599,12 +1603,15 @@ static int __init i8042_init(void)
  
--	if (!rhdr && conn->ping_task)
--		return -EINVAL;
-+	if (!rhdr) {
-+		if (READ_ONCE(conn->ping_task))
-+			return -EINVAL;
-+		WRITE_ONCE(conn->ping_task, INVALID_SCSI_TASK);
-+	}
+ 	err = i8042_platform_init();
+ 	if (err)
+-		return err;
++		return (err == -ENODEV) ? 0 : err;
  
- 	memset(&hdr, 0, sizeof(struct iscsi_nopout));
- 	hdr.opcode = ISCSI_OP_NOOP_OUT | ISCSI_OP_IMMEDIATE;
-@@ -957,11 +963,12 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+ 	err = i8042_controller_check();
+ 	if (err)
+ 		goto err_platform_exit;
  
- 	task = __iscsi_conn_send_pdu(conn, (struct iscsi_hdr *)&hdr, NULL, 0);
- 	if (!task) {
-+		if (!rhdr)
-+			WRITE_ONCE(conn->ping_task, NULL);
- 		iscsi_conn_printk(KERN_ERR, conn, "Could not send nopout\n");
- 		return -EIO;
- 	} else if (!rhdr) {
- 		/* only track our nops */
--		conn->ping_task = task;
- 		conn->last_ping = jiffies;
- 	}
- 
-@@ -984,7 +991,7 @@ static int iscsi_nop_out_rsp(struct iscsi_task *task,
- 	struct iscsi_conn *conn = task->conn;
- 	int rc = 0;
- 
--	if (conn->ping_task != task) {
-+	if (READ_ONCE(conn->ping_task) != task) {
- 		/*
- 		 * If this is not in response to one of our
- 		 * nops then it must be from userspace.
-@@ -1923,7 +1930,7 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
-  */
- static int iscsi_has_ping_timed_out(struct iscsi_conn *conn)
- {
--	if (conn->ping_task &&
-+	if (READ_ONCE(conn->ping_task) &&
- 	    time_before_eq(conn->last_recv + (conn->recv_timeout * HZ) +
- 			   (conn->ping_timeout * HZ), jiffies))
- 		return 1;
-@@ -2058,7 +2065,7 @@ enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
- 	 * Checking the transport already or nop from a cmd timeout still
- 	 * running
- 	 */
--	if (conn->ping_task) {
-+	if (READ_ONCE(conn->ping_task)) {
- 		task->have_checked_conn = true;
- 		rc = BLK_EH_RESET_TIMER;
- 		goto done;
-diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index c25fb86ffae95..b3bbd10eb3f07 100644
---- a/include/scsi/libiscsi.h
-+++ b/include/scsi/libiscsi.h
-@@ -132,6 +132,9 @@ struct iscsi_task {
- 	void			*dd_data;	/* driver/transport data */
- };
- 
-+/* invalid scsi_task pointer */
-+#define	INVALID_SCSI_TASK	(struct iscsi_task *)-1l
++	/* Set this before creating the dev to allow i8042_command to work right away */
++	i8042_present = true;
 +
- static inline int iscsi_task_has_unsol_data(struct iscsi_task *task)
+ 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
+ 	if (IS_ERR(pdev)) {
+ 		err = PTR_ERR(pdev);
+@@ -1623,6 +1630,9 @@ static int __init i8042_init(void)
+ 
+ static void __exit i8042_exit(void)
  {
- 	return task->unsol_r2t.data_length > task->unsol_r2t.sent;
++	if (!i8042_present)
++		return;
++
+ 	platform_device_unregister(i8042_platform_device);
+ 	platform_driver_unregister(&i8042_driver);
+ 	i8042_platform_exit();
 -- 
 2.27.0
 
