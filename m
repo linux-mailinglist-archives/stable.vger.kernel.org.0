@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A18B2C9BEA
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C962C9BFB
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390073AbgLAJNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:13:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51504 "EHLO mail.kernel.org"
+        id S2390150AbgLAJNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:13:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390068AbgLAJNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:13:16 -0500
+        id S2390158AbgLAJNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:13:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50C1521D46;
-        Tue,  1 Dec 2020 09:12:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA97C221FD;
+        Tue,  1 Dec 2020 09:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813954;
-        bh=7dOvUqzU+NusqOwoMSbO/uOCD/1aYZSfEPeq3KK85lc=;
+        s=korg; t=1606813987;
+        bh=tDeKhy4Ja2H7eQ9JtPqG9LWEKq3Lr5meVQCI1lW2YdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3o3Kyt4BM2UeSx/p16LE+3ih4TJhtWo98X2/oJj8RJVUI2HKaUfOvyLnKQGJ+WX4
-         VMOTlBbN/qf0pFBlalnhSzxZjtmm+dlRrnca+vX5buqEvQxJ/U7gAslMUi7yaSLfft
-         egG4LldSk9lxjqcCxj/0oCGovM5sAO1nSZiWKMEY=
+        b=IiODEa1EWQFvY1ZTp9vFrnSf53nvaMHlmwyr5ySLcDhDCKER09ktW/0vbTrvNzY39
+         4QRRH5WNYqiRau0d8q8msr+CJ1KkeipJYZtDaMqsNQLJ01jFoTjEVHHmpSArffaETk
+         j3CHjQpiV6kLAPiiLYpSyivzU2ttWDJ+AxxAJM6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lincoln Ramsay <lincoln.ramsay@opengear.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 109/152] aquantia: Remove the build_skb path
-Date:   Tue,  1 Dec 2020 09:53:44 +0100
-Message-Id: <20201201084726.147321605@linuxfoundation.org>
+Subject: [PATCH 5.9 110/152] nfc: s3fwrn5: use signed integer for parsing GPIO numbers
+Date:   Tue,  1 Dec 2020 09:53:45 +0100
+Message-Id: <20201201084726.265251952@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -44,183 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lincoln Ramsay <lincoln.ramsay@opengear.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 9bd2702d292cb7b565b09e949d30288ab7a26d51 ]
+[ Upstream commit d8f0a86795c69f5b697f7d9e5274c124da93c92d ]
 
-When performing IPv6 forwarding, there is an expectation that SKBs
-will have some headroom. When forwarding a packet from the aquantia
-driver, this does not always happen, triggering a kernel warning.
+GPIOs - as returned by of_get_named_gpio() and used by the gpiolib - are
+signed integers, where negative number indicates error.  The return
+value of of_get_named_gpio() should not be assigned to an unsigned int
+because in case of !CONFIG_GPIOLIB such number would be a valid GPIO.
 
-aq_ring.c has this code (edited slightly for brevity):
-
-if (buff->is_eop && buff->len <= AQ_CFG_RX_FRAME_MAX - AQ_SKB_ALIGN) {
-    skb = build_skb(aq_buf_vaddr(&buff->rxdata), AQ_CFG_RX_FRAME_MAX);
-} else {
-    skb = napi_alloc_skb(napi, AQ_CFG_RX_HDR_SIZE);
-
-There is a significant difference between the SKB produced by these
-2 code paths. When napi_alloc_skb creates an SKB, there is a certain
-amount of headroom reserved. However, this is not done in the
-build_skb codepath.
-
-As the hardware buffer that build_skb is built around does not
-handle the presence of the SKB header, this code path is being
-removed and the napi_alloc_skb path will always be used. This code
-path does have to copy the packet header into the SKB, but it adds
-the packet data as a frag.
-
-Fixes: 018423e90bee ("net: ethernet: aquantia: Add ring support code")
-Signed-off-by: Lincoln Ramsay <lincoln.ramsay@opengear.com>
-Link: https://lore.kernel.org/r/MWHPR1001MB23184F3EAFA413E0D1910EC9E8FC0@MWHPR1001MB2318.namprd10.prod.outlook.com
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20201123162351.209100-1-krzk@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_ring.c  | 126 ++++++++----------
- 1 file changed, 52 insertions(+), 74 deletions(-)
+ drivers/nfc/s3fwrn5/i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index 4f913658eea46..24122ccda614c 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -413,85 +413,63 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
- 					      buff->rxdata.pg_off,
- 					      buff->len, DMA_FROM_DEVICE);
+diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
+index b4eb926d220ac..d7ecff0b1c662 100644
+--- a/drivers/nfc/s3fwrn5/i2c.c
++++ b/drivers/nfc/s3fwrn5/i2c.c
+@@ -26,8 +26,8 @@ struct s3fwrn5_i2c_phy {
+ 	struct i2c_client *i2c_dev;
+ 	struct nci_dev *ndev;
  
--		/* for single fragment packets use build_skb() */
--		if (buff->is_eop &&
--		    buff->len <= AQ_CFG_RX_FRAME_MAX - AQ_SKB_ALIGN) {
--			skb = build_skb(aq_buf_vaddr(&buff->rxdata),
-+		skb = napi_alloc_skb(napi, AQ_CFG_RX_HDR_SIZE);
-+		if (unlikely(!skb)) {
-+			u64_stats_update_begin(&self->stats.rx.syncp);
-+			self->stats.rx.skb_alloc_fails++;
-+			u64_stats_update_end(&self->stats.rx.syncp);
-+			err = -ENOMEM;
-+			goto err_exit;
-+		}
-+		if (is_ptp_ring)
-+			buff->len -=
-+				aq_ptp_extract_ts(self->aq_nic, skb,
-+						  aq_buf_vaddr(&buff->rxdata),
-+						  buff->len);
-+
-+		hdr_len = buff->len;
-+		if (hdr_len > AQ_CFG_RX_HDR_SIZE)
-+			hdr_len = eth_get_headlen(skb->dev,
-+						  aq_buf_vaddr(&buff->rxdata),
-+						  AQ_CFG_RX_HDR_SIZE);
-+
-+		memcpy(__skb_put(skb, hdr_len), aq_buf_vaddr(&buff->rxdata),
-+		       ALIGN(hdr_len, sizeof(long)));
-+
-+		if (buff->len - hdr_len > 0) {
-+			skb_add_rx_frag(skb, 0, buff->rxdata.page,
-+					buff->rxdata.pg_off + hdr_len,
-+					buff->len - hdr_len,
- 					AQ_CFG_RX_FRAME_MAX);
--			if (unlikely(!skb)) {
--				u64_stats_update_begin(&self->stats.rx.syncp);
--				self->stats.rx.skb_alloc_fails++;
--				u64_stats_update_end(&self->stats.rx.syncp);
--				err = -ENOMEM;
--				goto err_exit;
--			}
--			if (is_ptp_ring)
--				buff->len -=
--					aq_ptp_extract_ts(self->aq_nic, skb,
--						aq_buf_vaddr(&buff->rxdata),
--						buff->len);
--			skb_put(skb, buff->len);
- 			page_ref_inc(buff->rxdata.page);
--		} else {
--			skb = napi_alloc_skb(napi, AQ_CFG_RX_HDR_SIZE);
--			if (unlikely(!skb)) {
--				u64_stats_update_begin(&self->stats.rx.syncp);
--				self->stats.rx.skb_alloc_fails++;
--				u64_stats_update_end(&self->stats.rx.syncp);
--				err = -ENOMEM;
--				goto err_exit;
--			}
--			if (is_ptp_ring)
--				buff->len -=
--					aq_ptp_extract_ts(self->aq_nic, skb,
--						aq_buf_vaddr(&buff->rxdata),
--						buff->len);
--
--			hdr_len = buff->len;
--			if (hdr_len > AQ_CFG_RX_HDR_SIZE)
--				hdr_len = eth_get_headlen(skb->dev,
--							  aq_buf_vaddr(&buff->rxdata),
--							  AQ_CFG_RX_HDR_SIZE);
--
--			memcpy(__skb_put(skb, hdr_len), aq_buf_vaddr(&buff->rxdata),
--			       ALIGN(hdr_len, sizeof(long)));
--
--			if (buff->len - hdr_len > 0) {
--				skb_add_rx_frag(skb, 0, buff->rxdata.page,
--						buff->rxdata.pg_off + hdr_len,
--						buff->len - hdr_len,
--						AQ_CFG_RX_FRAME_MAX);
--				page_ref_inc(buff->rxdata.page);
--			}
-+		}
+-	unsigned int gpio_en;
+-	unsigned int gpio_fw_wake;
++	int gpio_en;
++	int gpio_fw_wake;
  
--			if (!buff->is_eop) {
--				buff_ = buff;
--				i = 1U;
--				do {
--					next_ = buff_->next,
--					buff_ = &self->buff_ring[next_];
-+		if (!buff->is_eop) {
-+			buff_ = buff;
-+			i = 1U;
-+			do {
-+				next_ = buff_->next;
-+				buff_ = &self->buff_ring[next_];
+ 	struct mutex mutex;
  
--					dma_sync_single_range_for_cpu(
--							aq_nic_get_dev(self->aq_nic),
--							buff_->rxdata.daddr,
--							buff_->rxdata.pg_off,
--							buff_->len,
--							DMA_FROM_DEVICE);
--					skb_add_rx_frag(skb, i++,
--							buff_->rxdata.page,
--							buff_->rxdata.pg_off,
--							buff_->len,
--							AQ_CFG_RX_FRAME_MAX);
--					page_ref_inc(buff_->rxdata.page);
--					buff_->is_cleaned = 1;
--
--					buff->is_ip_cso &= buff_->is_ip_cso;
--					buff->is_udp_cso &= buff_->is_udp_cso;
--					buff->is_tcp_cso &= buff_->is_tcp_cso;
--					buff->is_cso_err |= buff_->is_cso_err;
-+				dma_sync_single_range_for_cpu(aq_nic_get_dev(self->aq_nic),
-+							      buff_->rxdata.daddr,
-+							      buff_->rxdata.pg_off,
-+							      buff_->len,
-+							      DMA_FROM_DEVICE);
-+				skb_add_rx_frag(skb, i++,
-+						buff_->rxdata.page,
-+						buff_->rxdata.pg_off,
-+						buff_->len,
-+						AQ_CFG_RX_FRAME_MAX);
-+				page_ref_inc(buff_->rxdata.page);
-+				buff_->is_cleaned = 1;
- 
--				} while (!buff_->is_eop);
--			}
-+				buff->is_ip_cso &= buff_->is_ip_cso;
-+				buff->is_udp_cso &= buff_->is_udp_cso;
-+				buff->is_tcp_cso &= buff_->is_tcp_cso;
-+				buff->is_cso_err |= buff_->is_cso_err;
-+
-+			} while (!buff_->is_eop);
- 		}
- 
- 		if (buff->is_vlan)
 -- 
 2.27.0
 
