@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 221022C9CAD
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 301C62C9DBD
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbgLAI6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:58:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58602 "EHLO mail.kernel.org"
+        id S2389499AbgLAJ1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:27:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387685AbgLAI41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:56:27 -0500
+        id S2387827AbgLAJDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86B3022241;
-        Tue,  1 Dec 2020 08:56:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C646206CA;
+        Tue,  1 Dec 2020 09:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812972;
-        bh=nvfC2AaiqXlne3luo+MKVTs7FVIBIkt5U5Pts3tq6eI=;
+        s=korg; t=1606813333;
+        bh=nCOWN4ju3k0F0BzYwvtXKy7Pa7wAwwjvqnJrIiWoCt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZqJsvJkw4QixHFx8hh1wFQRxiPyXeBUmV4NuBTF9m8MnIK7ybq+YS3gqza/KN8Bt
-         kDf5M8zruQebsyuVvGdN5NkxWeITtBHL1b/lVgHrG8Vol8h9kndSEcn2WOxRHdkUy3
-         Gy4zrtEHPGxWCSRZxcKZiPqJNT9+6GhH3rjG/QhM=
+        b=Jej4x636DbAeUfwn4Q4CeV9OS1ZsExdV1IeF4WTcU6P9cSsRzkRTtZufR1jSIo0xx
+         NGG8VWGrHQLqu4rxGG+IZHy/UebJvlJfB3+RwDLECHl4fzAkpjED9BqhYfia3CZqjT
+         f2hu07cr5gTB0sHt/48MPOO/2d+46Fh4wRjD6u9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 39/42] regulator: avoid resolve_supply() infinite recursion
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/57] bnxt_en: fix error return code in bnxt_init_one()
 Date:   Tue,  1 Dec 2020 09:53:37 +0100
-Message-Id: <20201201084645.740577510@linuxfoundation.org>
+Message-Id: <20201201084650.710521476@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michał Mirosław" <mirq-linux@rere.qmqm.pl>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 4b639e254d3d4f15ee4ff2b890a447204cfbeea9 upstream
+[ Upstream commit b5f796b62c98cd8c219c4b788ecb6e1218e648cb ]
 
-When a regulator's name equals its supply's name the
-regulator_resolve_supply() recurses indefinitely. Add a check
-so that debugging the problem is easier. The "fixed" commit
-just exposed the problem.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
-Link: https://lore.kernel.org/r/c6171057cfc0896f950c4d8cb82df0f9f1b89ad9.1605226675.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c213eae8d3cd ("bnxt_en: Improve VF/PF link change logic.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Link: https://lore.kernel.org/r/1605701851-20270-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1550,6 +1550,12 @@ static int regulator_resolve_supply(stru
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 01d28ede1fb20..50732ab2c2bc9 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -9120,6 +9120,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 				create_singlethread_workqueue("bnxt_pf_wq");
+ 			if (!bnxt_pf_wq) {
+ 				dev_err(&pdev->dev, "Unable to create workqueue.\n");
++				rc = -ENOMEM;
+ 				goto init_err_pci_clean;
+ 			}
  		}
- 	}
- 
-+	if (r == rdev) {
-+		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
-+			rdev->desc->name, rdev->supply_name);
-+		return -EINVAL;
-+	}
-+
- 	/* Recursively resolve the supply of the supply */
- 	ret = regulator_resolve_supply(r);
- 	if (ret < 0) {
+-- 
+2.27.0
+
 
 
