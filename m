@@ -2,67 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3482D9DAC
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E83B2DA258
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 22:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440451AbgLNR2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:28:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41306 "EHLO mail.kernel.org"
+        id S2503585AbgLNVIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 16:08:17 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:52236 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440445AbgLNR2v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:28:51 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pankaj Sharma <pankj.sharma@samsung.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/36] can: m_can: m_can_dev_setup(): add support for bosch mcan version 3.3.0
-Date:   Mon, 14 Dec 2020 18:28:06 +0100
-Message-Id: <20201214172544.387643853@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S2503637AbgLNVIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 16:08:17 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1kov46-0039g2-3R; Mon, 14 Dec 2020 21:07:30 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Tue, 01 Dec 2020 15:19:07 +0000
+Subject: [git:media_tree/master] media: pulse8-cec: fix duplicate free at disconnect or probe error
+To:     linuxtv-commits@linuxtv.org
+Cc:     Maxime Ripard <mripard@kernel.org>, stable@vger.kernel.org,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1kov46-0039g2-3R@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pankaj Sharma <pankj.sharma@samsung.com>
+This is an automatic generated email to let you know that the following patch were queued:
 
-[ Upstream commit 5c7d55bded77da6db7c5d249610e3a2eed730b3c ]
+Subject: media: pulse8-cec: fix duplicate free at disconnect or probe error
+Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Date:    Fri Nov 27 10:36:32 2020 +0100
 
-Add support for mcan bit timing and control mode according to bosch mcan IP
-version 3.3.0. The mcan version read from the Core Release field of CREL
-register would be 33. Accordingly the properties are to be set for mcan v3.3.0
+Commit 601282d65b96 ("media: pulse8-cec: use adap_free callback") used
+the adap_free callback to clean up on disconnect. What I forgot was that
+in the probe it will call cec_delete_adapter() followed by kfree(pulse8)
+if an error occurs. But by using the adap_free callback,
+cec_delete_adapter() is already freeing the pulse8 struct.
 
-Signed-off-by: Pankaj Sharma <pankj.sharma@samsung.com>
-Link: https://lore.kernel.org/r/1606366302-5520-1-git-send-email-pankj.sharma@samsung.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This wasn't noticed since normally the probe works fine, but Pulse-Eight
+published a new firmware version that caused a probe error, so now it
+hits this bug. This affects firmware version 12, but probably any
+version >= 10.
+
+Commit aa9eda76129c ("media: pulse8-cec: close serio in disconnect, not
+adap_free") made this worse by adding the line 'pulse8->serio = NULL'
+right after the call to cec_unregister_adapter in the disconnect()
+function. Unfortunately, cec_unregister_adapter will typically call
+cec_delete_adapter (unless a filehandle to the cec device is still
+open), which frees the pulse8 struct. So now it will also crash on a
+simple unplug of the Pulse-Eight device.
+
+With this fix both the unplug issue and a probe() error situation are
+handled correctly again.
+
+It will still fail to probe() with a v12 firmware, that's something
+to look at separately.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Maxime Ripard <mripard@kernel.org>
+Tested-by: Maxime Ripard <mripard@kernel.org>
+Fixes: aa9eda76129c ("media: pulse8-cec: close serio in disconnect, not adap_free")
+Fixes: 601282d65b96 ("media: pulse8-cec: use adap_free callback")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/cec/usb/pulse8/pulse8-cec.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
 ---
- drivers/net/can/m_can/m_can.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index f9a2a9ecbac9e..c84114b44ee07 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1337,6 +1337,8 @@ static int m_can_dev_setup(struct m_can_classdev *m_can_dev)
- 						&m_can_data_bittiming_const_31X;
- 		break;
- 	case 32:
-+	case 33:
-+		/* Support both MCAN version v3.2.x and v3.3.0 */
- 		m_can_dev->can.bittiming_const = m_can_dev->bit_timing ?
- 			m_can_dev->bit_timing : &m_can_bittiming_const_31X;
+diff --git a/drivers/media/cec/usb/pulse8/pulse8-cec.c b/drivers/media/cec/usb/pulse8/pulse8-cec.c
+index e4d8446b87da..5d3a3f775bc8 100644
+--- a/drivers/media/cec/usb/pulse8/pulse8-cec.c
++++ b/drivers/media/cec/usb/pulse8/pulse8-cec.c
+@@ -650,7 +650,6 @@ static void pulse8_disconnect(struct serio *serio)
+ 	struct pulse8 *pulse8 = serio_get_drvdata(serio);
  
--- 
-2.27.0
-
-
-
+ 	cec_unregister_adapter(pulse8->adap);
+-	pulse8->serio = NULL;
+ 	serio_set_drvdata(serio, NULL);
+ 	serio_close(serio);
+ }
+@@ -830,8 +829,10 @@ static int pulse8_connect(struct serio *serio, struct serio_driver *drv)
+ 	pulse8->adap = cec_allocate_adapter(&pulse8_cec_adap_ops, pulse8,
+ 					    dev_name(&serio->dev), caps, 1);
+ 	err = PTR_ERR_OR_ZERO(pulse8->adap);
+-	if (err < 0)
+-		goto free_device;
++	if (err < 0) {
++		kfree(pulse8);
++		return err;
++	}
+ 
+ 	pulse8->dev = &serio->dev;
+ 	serio_set_drvdata(serio, pulse8);
+@@ -874,8 +875,6 @@ close_serio:
+ 	serio_close(serio);
+ delete_adap:
+ 	cec_delete_adapter(pulse8->adap);
+-free_device:
+-	kfree(pulse8);
+ 	return err;
+ }
+ 
