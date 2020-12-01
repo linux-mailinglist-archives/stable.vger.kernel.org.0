@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0652C9A2B
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0692C99FE
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387568AbgLAIzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58606 "EHLO mail.kernel.org"
+        id S1727412AbgLAIyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:54:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387526AbgLAIzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:47 -0500
+        id S1726007AbgLAIyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:54:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26CA32220B;
-        Tue,  1 Dec 2020 08:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F5BF21D46;
+        Tue,  1 Dec 2020 08:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812906;
-        bh=tYfM9353ynPnCSgC24c73sUw9VqoNZX7YeATcD4fYK8=;
+        s=korg; t=1606812814;
+        bh=WCRf3vdgQMhlXJVvz8HgSAXkzSUShC8o8bRwQCEAJVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xk8PzQazx7n5dDp2ipps/9dkD8Gy4uiTkPfp5ue6Buro8MfkCsHUcCkDqrueQrkcp
-         2zzmDezCGXOx7QjSdm+RNP2eGrpEIHGxB6F6IRcw9hZbCvD1JqcUueU9tujOaGcAho
-         NRclTDqPtavSQ8iQm86VyE6WDhap/3j+eCvWAqYQ=
+        b=ttHB6Mm50rRzXVXmAkOTTxnIREPYSrPaqHTUH5MXrsHQekR3q/O4rQnjADoxoo2/f
+         enuBbyTPUn6BqCDN4KMU2UbJIW3RYbaTAGN3f5xd6ovpsWFH5O3aprEFPYfYpo1OdT
+         uoRKAb+c/0jskVW/HMOX2pFpYRQef01/p9+FX6m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/42] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
-Date:   Tue,  1 Dec 2020 09:53:15 +0100
-Message-Id: <20201201084643.270378913@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 10/24] scsi: libiscsi: Fix NOP race condition
+Date:   Tue,  1 Dec 2020 09:53:16 +0100
+Message-Id: <20201201084638.260744766@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +45,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sugar Zhang <sugar.zhang@rock-chips.com>
+From: Lee Duncan <lduncan@suse.com>
 
-[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
+[ Upstream commit fe0a8a95e7134d0b44cd407bc0085b9ba8d8fe31 ]
 
-Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
-we should use burst size, not desc->rqcfg.brst_size.
+iSCSI NOPs are sometimes "lost", mistakenly sent to the user-land iscsid
+daemon instead of handled in the kernel, as they should be, resulting in a
+message from the daemon like:
 
-dma memcpy performance on Rockchip RV1126
-@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
+  iscsid: Got nop in, but kernel supports nop handling.
 
-dmatest:
+This can occur because of the new forward- and back-locks, and the fact
+that an iSCSI NOP response can occur before processing of the NOP send is
+complete. This can result in "conn->ping_task" being NULL in
+iscsi_nop_out_rsp(), when the pointer is actually in the process of being
+set.
 
-/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
-/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
-/# echo 8 > /sys/module/dmatest/parameters/iterations
-/# echo y > /sys/module/dmatest/parameters/norandom
-/# echo y > /sys/module/dmatest/parameters/verbose
-/# echo 1 > /sys/module/dmatest/parameters/run
+To work around this, we add a new state to the "ping_task" pointer. In
+addition to NULL (not assigned) and a pointer (assigned), we add the state
+"being set", which is signaled with an INVALID pointer (using "-1").
 
-dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-
-Before:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
-
-After this patch:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
-
-After this patch and increase dma clk to 400MHz:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20201106193317.16993-1-leeman.duncan@gmail.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libiscsi.c | 23 +++++++++++++++--------
+ include/scsi/libiscsi.h |  3 +++
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 16c08846ea0e1..f5a9bb1231882 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2682,7 +2682,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
- 	 */
--	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
-+	if (burst * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index b4fbcf4cade8f..36e415487fe53 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -570,8 +570,8 @@ static void iscsi_complete_task(struct iscsi_task *task, int state)
+ 	if (conn->task == task)
+ 		conn->task = NULL;
  
- 	desc->bytes_requested = len;
+-	if (conn->ping_task == task)
+-		conn->ping_task = NULL;
++	if (READ_ONCE(conn->ping_task) == task)
++		WRITE_ONCE(conn->ping_task, NULL);
+ 
+ 	/* release get from queueing */
+ 	__iscsi_put_task(task);
+@@ -780,6 +780,9 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
+ 						   task->conn->session->age);
+ 	}
+ 
++	if (unlikely(READ_ONCE(conn->ping_task) == INVALID_SCSI_TASK))
++		WRITE_ONCE(conn->ping_task, task);
++
+ 	if (!ihost->workq) {
+ 		if (iscsi_prep_mgmt_task(conn, task))
+ 			goto free_task;
+@@ -987,8 +990,11 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+         struct iscsi_nopout hdr;
+ 	struct iscsi_task *task;
+ 
+-	if (!rhdr && conn->ping_task)
+-		return -EINVAL;
++	if (!rhdr) {
++		if (READ_ONCE(conn->ping_task))
++			return -EINVAL;
++		WRITE_ONCE(conn->ping_task, INVALID_SCSI_TASK);
++	}
+ 
+ 	memset(&hdr, 0, sizeof(struct iscsi_nopout));
+ 	hdr.opcode = ISCSI_OP_NOOP_OUT | ISCSI_OP_IMMEDIATE;
+@@ -1003,11 +1009,12 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+ 
+ 	task = __iscsi_conn_send_pdu(conn, (struct iscsi_hdr *)&hdr, NULL, 0);
+ 	if (!task) {
++		if (!rhdr)
++			WRITE_ONCE(conn->ping_task, NULL);
+ 		iscsi_conn_printk(KERN_ERR, conn, "Could not send nopout\n");
+ 		return -EIO;
+ 	} else if (!rhdr) {
+ 		/* only track our nops */
+-		conn->ping_task = task;
+ 		conn->last_ping = jiffies;
+ 	}
+ 
+@@ -1020,7 +1027,7 @@ static int iscsi_nop_out_rsp(struct iscsi_task *task,
+ 	struct iscsi_conn *conn = task->conn;
+ 	int rc = 0;
+ 
+-	if (conn->ping_task != task) {
++	if (READ_ONCE(conn->ping_task) != task) {
+ 		/*
+ 		 * If this is not in response to one of our
+ 		 * nops then it must be from userspace.
+@@ -1960,7 +1967,7 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
+  */
+ static int iscsi_has_ping_timed_out(struct iscsi_conn *conn)
+ {
+-	if (conn->ping_task &&
++	if (READ_ONCE(conn->ping_task) &&
+ 	    time_before_eq(conn->last_recv + (conn->recv_timeout * HZ) +
+ 			   (conn->ping_timeout * HZ), jiffies))
+ 		return 1;
+@@ -2095,7 +2102,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
+ 	 * Checking the transport already or nop from a cmd timeout still
+ 	 * running
+ 	 */
+-	if (conn->ping_task) {
++	if (READ_ONCE(conn->ping_task)) {
+ 		task->have_checked_conn = true;
+ 		rc = BLK_EH_RESET_TIMER;
+ 		goto done;
+diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
+index c7b1dc713cdd7..9c7f4aad6db66 100644
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -144,6 +144,9 @@ struct iscsi_task {
+ 	void			*dd_data;	/* driver/transport data */
+ };
+ 
++/* invalid scsi_task pointer */
++#define	INVALID_SCSI_TASK	(struct iscsi_task *)-1l
++
+ static inline int iscsi_task_has_unsol_data(struct iscsi_task *task)
+ {
+ 	return task->unsol_r2t.data_length > task->unsol_r2t.sent;
 -- 
 2.27.0
 
