@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B5D2C9CD1
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F612C9CB6
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388489AbgLAJB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37348 "EHLO mail.kernel.org"
+        id S2388106AbgLAI7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388548AbgLAJBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:25 -0500
+        id S2388099AbgLAI7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB96322210;
-        Tue,  1 Dec 2020 09:01:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E480206D8;
+        Tue,  1 Dec 2020 08:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813269;
-        bh=VZg6N3ayIBhkMKKfe/qqktCx5SudqBMvXksK5X/sIDA=;
+        s=korg; t=1606813139;
+        bh=Fqd08q6ULXgk8oeFymIU9Q5qSM6g/VApXQdxsacXWFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=get3T5L/GFprkpUzdbrx5TSYqKe1leg7HzAJQXPpI3KZucTTlsQqBJTLnBFjSSX0L
-         5mRj4tsGyGZczAJiE5csv4XhhRIsSJjBdCjhdCqrYwhxGRo7nSZSzrupBcVj3Jz5Vd
-         ZlP55vip+0MsNKgTceFcFiRB6kj3yBieQVOjsFf0=
+        b=vleLZW4znoxRoMQCJnxaPcQBrL+vdpb4GjEAhBxH/gAO4m3MPDiLxTC6sfvBsf+Mo
+         818JmLhQ5w5oTfYqkkTJBZqW8Gdxl3YMoyfwFvyIAkPSou3u7oUOnCAErjA43ofEIl
+         ZAUrqv0avNR9QpUPyZ287506m14Uo8s5MJzoya+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Cui <mikecui@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        Shay Agroskin <shayagr@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/57] net: ena: set initial DMA width to avoid intel iommu issue
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.14 46/50] x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
 Date:   Tue,  1 Dec 2020 09:53:45 +0100
-Message-Id: <20201201084651.064191359@linuxfoundation.org>
+Message-Id: <20201201084650.417021030@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Anand K Mistry <amistry@google.com>
 
-[ Upstream commit 09323b3bca95181c0da79daebc8b0603e500f573 ]
+commit 33fc379df76b4991e5ae312f07bcd6820811971e upstream.
 
-The ENA driver uses the readless mechanism, which uses DMA, to find
-out what the DMA mask is supposed to be.
+When spectre_v2_user={seccomp,prctl},ibpb is specified on the command
+line, IBPB is force-enabled and STIPB is conditionally-enabled (or not
+available).
 
-If DMA is used without setting the dma_mask first, it causes the
-Intel IOMMU driver to think that ENA is a 32-bit device and therefore
-disables IOMMU passthrough permanently.
+However, since
 
-This patch sets the dma_mask to be ENA_MAX_PHYS_ADDR_SIZE_BITS=48
-before readless initialization in
-ena_device_init()->ena_com_mmio_reg_read_request_init(),
-which is large enough to workaround the intel_iommu issue.
+  21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
 
-DMA mask is set again to the correct value after it's received from the
-device after readless is initialized.
+the spectre_v2_user_ibpb variable is set to SPECTRE_V2_USER_{PRCTL,SECCOMP}
+instead of SPECTRE_V2_USER_STRICT, which is the actual behaviour.
+Because the issuing of IBPB relies on the switch_mm_*_ibpb static
+branches, the mitigations behave as expected.
 
-The patch also changes the driver to use dma_set_mask_and_coherent()
-function instead of the two pci_set_dma_mask() and
-pci_set_consistent_dma_mask() ones. Both methods achieve the same
-effect.
+Since
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Mike Cui <mikecui@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+
+this discrepency caused the misreporting of IB speculation via prctl().
+
+On CPUs with STIBP always-on and spectre_v2_user=seccomp,ibpb,
+prctl(PR_GET_SPECULATION_CTRL) would return PR_SPEC_PRCTL |
+PR_SPEC_ENABLE instead of PR_SPEC_DISABLE since both IBPB and STIPB are
+always on. It also allowed prctl(PR_SET_SPECULATION_CTRL) to set the IB
+speculation mode, even though the flag is ignored.
+
+Similarly, for CPUs without SMT, prctl(PR_GET_SPECULATION_CTRL) should
+also return PR_SPEC_DISABLE since IBPB is always on and STIBP is not
+available.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Fixes: 1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201110123349.1.Id0cbf996d2151f4c143c90f9028651a5b49a5908@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 3c3222e2dcfcf..9aea4cf19d0c9 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2433,16 +2433,9 @@ static int ena_device_init(struct ena_com_dev *ena_dev, struct pci_dev *pdev,
- 		goto err_mmio_read_less;
- 	}
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -733,11 +733,13 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
  
--	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_width));
-+	rc = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(dma_width));
- 	if (rc) {
--		dev_err(dev, "pci_set_dma_mask failed 0x%x\n", rc);
--		goto err_mmio_read_less;
--	}
++		spectre_v2_user_ibpb = mode;
+ 		switch (cmd) {
+ 		case SPECTRE_V2_USER_CMD_FORCE:
+ 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
+ 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
+ 			static_branch_enable(&switch_mm_always_ibpb);
++			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
+ 			break;
+ 		case SPECTRE_V2_USER_CMD_PRCTL:
+ 		case SPECTRE_V2_USER_CMD_AUTO:
+@@ -751,8 +753,6 @@ spectre_v2_user_select_mitigation(enum s
+ 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
+ 			static_key_enabled(&switch_mm_always_ibpb) ?
+ 			"always-on" : "conditional");
 -
--	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(dma_width));
--	if (rc) {
--		dev_err(dev, "err_pci_set_consistent_dma_mask failed 0x%x\n",
--			rc);
-+		dev_err(dev, "dma_set_mask_and_coherent failed %d\n", rc);
- 		goto err_mmio_read_less;
+-		spectre_v2_user_ibpb = mode;
  	}
  
-@@ -3183,6 +3176,12 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		return rc;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(ENA_MAX_PHYS_ADDR_SIZE_BITS));
-+	if (rc) {
-+		dev_err(&pdev->dev, "dma_set_mask_and_coherent failed %d\n", rc);
-+		goto err_disable_device;
-+	}
-+
- 	pci_set_master(pdev);
- 
- 	ena_dev = vzalloc(sizeof(*ena_dev));
--- 
-2.27.0
-
+ 	/*
 
 
