@@ -2,350 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C78CF2C94EC
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 02:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9BF12C9573
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 03:58:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726423AbgLAB7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 20:59:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725900AbgLAB7M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 20:59:12 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC2AC0613CF
-        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 17:58:32 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id j13so253169pjz.3
-        for <stable@vger.kernel.org>; Mon, 30 Nov 2020 17:58:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LEhfv0mkAvS0Rop7Cd9gorFvAaqB6O181ose16QBl48=;
-        b=0obp2D9H0cL5QMuUY5ha3fZEvvyxuPgAx5AhzfQAHcANJrTtiJ3Gl+dWw35FtprpMq
-         ZhchWx6wRZaBKBbk6nE/ghjZ0H/m41Y6vwIExdd51tKH5XSvRHjKEk6nBRzB4QrEFKkV
-         vBo6Fq4pDHp/tSZuBc4zMNlf5Q16z8trGgD754/VufQV5Ft71ua5tRM1iDp0Ca0elWk9
-         0VygOfH083cafaMB840QLMhF9+YMTFfnFdcC2kZAlbji/cJH5t7hSYf7hkGlH1ia00K7
-         BPGRj+vvpF4GrxHpa1qfvy5W1kGqy5RZ92wZAx1E/La1B9Knk4UojRozEELxKaBRsQCj
-         3NqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LEhfv0mkAvS0Rop7Cd9gorFvAaqB6O181ose16QBl48=;
-        b=tByv08T8Pkha6BiaXOkzXMPeikbUz5IuOnpDMXlzVU8oTlxhWD1po/AWdLqQm1MqlR
-         7ur/H+aTmGSRQetBSemFBH13nk8zNIhOWTUlbCnjs6E87zjNonh2AqSjFUAShU/9fEAh
-         mdNeLSmBX0adfKsG8pzr7inpTMVMWbL2FB4NuxBtBe7YskrJsn7j3/1IgbtaoDLBKyGK
-         ZT9mUzYWTYB1SsUeEVOdDZzpvoP59BhLoq0tBCIXOdpTULQaTF/jrZ5mHy5IIjZbwh46
-         Wd503zpbJ6uSxzd+GTKsGzWQsT1NlLFWz6xQpaPLZ+ZSsGgNzdoBWKiT3ePnvSkp/5j2
-         vjuQ==
-X-Gm-Message-State: AOAM532m13iENDtdi6CwLNrRZFMvu0QxZDMKDf4L7mTVsUamjWFoHr6d
-        M2mjqUcGOxwoDl30Sx5OFo+VQmZgLj/55Q==
-X-Google-Smtp-Source: ABdhPJzV8wo511XrGFVJJXS4NdzQsFMUjYS3IVGH99IlnPDZe+4HJCIJk7EEaDSTdLp1BGBLkYonVw==
-X-Received: by 2002:a17:90a:d3c2:: with SMTP id d2mr247127pjw.221.1606787911526;
-        Mon, 30 Nov 2020 17:58:31 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c2sm263548pfb.196.2020.11.30.17.58.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 17:58:30 -0800 (PST)
-Message-ID: <5fc5a346.1c69fb81.11281.0e20@mx.google.com>
-Date:   Mon, 30 Nov 2020 17:58:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        id S1726050AbgLAC56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 21:57:58 -0500
+Received: from mail-eopbgr70089.outbound.protection.outlook.com ([40.107.7.89]:49126
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725859AbgLAC56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Nov 2020 21:57:58 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=c51aJ2GzWSR2OV49KQ7P0mVj6vFfqekHvsHrX1ekxPnoGnBNKkh3kzfDT52iInBiBPN9c3+xIwo6kOM+cp54nptQ+1JpMETStx7wg75ybF3pLqaPaKvDMxgU7hLPV9TD2SWpiGlRpWvu9VgtJ0+KLlkznAquD4n8wKlnFkYCrFdNNqAKl/s7bhCEZ3VXYyfEz5uveWevHYRVqgStkDApfxuwHEc2Gj26HVCCU+LDktzArCzlrpTfzA0bsZUhNsa6m5LdozpeJ2EjCYQ26LUXHMxHKdkKB0jsiqGX5mciZcY5RxMTf2EKNSRNgAHEXOUGBgniNHB9wOjGnv+94XvwUQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rHPftpjLs7b0cb+2CtSM5Vw8323QUJ2LtOhEqqu25zU=;
+ b=j+X2eq0NDeGC5W2pA6vx4LWhkCHTVD30YoQkGOrdxZtxFA2HTrejvHiX47uChZVsm3cOQSe//WfALB/q/HV3DoNgbdWnH+fxgn93G+3pTXgr5xv1z3bIAGZ+ymu3KX+H0ASg8NGpz2kTxtHd+2r0Is7Dc1U0Bkr6O5+13XLb2ipn3v3J2Nim28sB/ioAln8kVxZ91zlzKIegqb0rABrHpNTJ6xPbF2YtR552voiFBiQd2Fd8c2TUNh7ya68GU4OuixM4WsJepsOdv9dGR1lxmfVfmQxe6HQGoO+0DZ4V8luFXVJeAJDbJHNF2BS+0YAtfmhSszrdPmvvmvLFz96cxg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rHPftpjLs7b0cb+2CtSM5Vw8323QUJ2LtOhEqqu25zU=;
+ b=ppKmOCeBh4sJrgcPvMEArdFMhNA/n0Ul2gwYbE9Q83NQRpxGtsrhH6v/eVQzs/w5RwTz6U+0/fo8V0dZQW52tIa0yaPaEZaS9RkX+InqdPX7ssBs6XoqsfcA22+wlUPA/IDRQwbpdIIMQxIHu5wxWdKJsajzCjX7jKPj8kYb9pQ=
+Received: from DBBPR04MB7979.eurprd04.prod.outlook.com (2603:10a6:10:1ec::9)
+ by DBAPR04MB7222.eurprd04.prod.outlook.com (2603:10a6:10:1af::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3611.25; Tue, 1 Dec
+ 2020 02:57:08 +0000
+Received: from DBBPR04MB7979.eurprd04.prod.outlook.com
+ ([fe80::c8c:888f:3e0c:8d5c]) by DBBPR04MB7979.eurprd04.prod.outlook.com
+ ([fe80::c8c:888f:3e0c:8d5c%5]) with mapi id 15.20.3611.031; Tue, 1 Dec 2020
+ 02:57:08 +0000
+From:   Peter Chen <peter.chen@nxp.com>
+To:     Fabio Estevam <festevam@gmail.com>
+CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] usb: chipidea: ci_hdrc_imx: Pass
+ DISABLE_DEVICE_STREAMING flag to imx6ul
+Thread-Topic: [PATCH v2] usb: chipidea: ci_hdrc_imx: Pass
+ DISABLE_DEVICE_STREAMING flag to imx6ul
+Thread-Index: AQHWxwxFchVR00Q6iUer2IB/+RVOsqnhjRWA
+Date:   Tue, 1 Dec 2020 02:57:08 +0000
+Message-ID: <20201201025639.GB11393@b29397-desktop>
+References: <20201130113047.9659-1-festevam@gmail.com>
+In-Reply-To: <20201130113047.9659-1-festevam@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mutt/1.9.4 (2018-02-28)
+authentication-results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=nxp.com;
+x-originating-ip: [119.31.174.67]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: c512b617-2e05-4929-80b8-08d895a4cb18
+x-ms-traffictypediagnostic: DBAPR04MB7222:
+x-microsoft-antispam-prvs: <DBAPR04MB7222876C35B957886CA720E08BF40@DBAPR04MB7222.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1417;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: g8aZwxZ9EDgxYAxYzxYuJf3UwO0jWo2RImPtvxOGz5DYl0IpZBNvCbjBsxGjt/S0xTNYeul0BWbTX8KOBrngHjd4KCp6a3YrWyyhrzzHO7LjHSF8vRWaxkZPg4zn0vXH0itn2oi7OOz6Rxt1ckMQIoXTnhQCxyfavncrMi65WPB1irtNIfqgY9i5CzW4lNBSAY02MxTG/mqJyJsdNUPj9RbBgv2uS5co6CF+20oyAdhQnidkzEg1bjn0Dd+Xe3o7P1eCvlLyIgFctLLSX6KK3p2Del9slvvUQ99ISStTy3J8oHgs//Bh50CvL78XGqxbDAJt8tiQzOFuLdoFsX6m0ZantKm1IrwIWRuz4ZTzlqxbJFQLA0y/UYm3A88GjpZ3QFWD7Y8UG5i8qEPk07h4+LFi27J/kpg3z4ldz8PV/cdekS75Y8eFnUMWmbMuIH+1b/omXAs5VKGnPtIZei/hnQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DBBPR04MB7979.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(39850400004)(136003)(396003)(366004)(346002)(376002)(66446008)(44832011)(6512007)(54906003)(6506007)(2906002)(66556008)(91956017)(316002)(9686003)(86362001)(966005)(4326008)(64756008)(186003)(66476007)(71200400001)(53546011)(66946007)(76116006)(8936002)(83380400001)(26005)(5660300002)(33716001)(33656002)(45080400002)(478600001)(6486002)(6916009)(8676002)(1076003)(32563001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?aL6WWAehIQ/rxuqBxfP8RjDZxqzTwSVzaR0wYJEBqyKTOtjQbam5icpQm+HO?=
+ =?us-ascii?Q?U2HbGhkk3RKSj8aj05FhZTlWJBBZjTQL4a0eZQFmC3R/Ts5NoIoiIQ2fnj0p?=
+ =?us-ascii?Q?vFGXqnpMVXmN1JvgbYJUZdpazpf2W22BD5ABA6GEr6S6hFjAQzNagkQv2ye3?=
+ =?us-ascii?Q?HLYIA1prBu62WVgIOTnBeEYWCSPr7+5cFtticLJNzVNq9nyRoQ8oWYf3B4zK?=
+ =?us-ascii?Q?DUw+GPvDdqJADU+uhSfIGgu8+1cMgUOps13cdJuxZHod3GgxOExelud9jZb3?=
+ =?us-ascii?Q?yGdM74YHCm/MRRsAbNPzQuVnH1gy2MFHF7aCC5RPcbW0QSCZbewM2VJXTzo2?=
+ =?us-ascii?Q?YtFNcNQuoPxVj/0SyJ/s53oArMts2lj7wElMT7YtIURKYOolLJ5cPcAv4/ca?=
+ =?us-ascii?Q?HI0BKYUzoyRel4DiGWkYHMGA9m4E6/v/EuRkHhdgUQqItS1GFMNnBKFUhOBe?=
+ =?us-ascii?Q?J2O8ct91LBShtBekL9hl3r9NBZWrm09dw/7D+W4MLyGeyJafauNzGWlGsCgx?=
+ =?us-ascii?Q?7SmZCXTdmacax/ijVm/NHmGGbFgT7n9WyQNMXO+8k9qYG7rU06UmaE4Rt+Jv?=
+ =?us-ascii?Q?pB2/sHy0IjELEAJ0XNlXsSN6kZe+OuGidO6yGhofhlosKMwKjyV1Ov9eTIzW?=
+ =?us-ascii?Q?PC86V1mURD1PgalXx3W1QyUGKRZA58HLCAAB0sgeqIRzP58S4FJoMcSyK+66?=
+ =?us-ascii?Q?CBiyrDT40GGwAZp5hBSLDeZgwvILrkjmEsIiZnJq2Nb66lIkTPhY3rnbElLJ?=
+ =?us-ascii?Q?PxiWZUvnd1M+U7wlJGqG1T0w1D9dmWu3Oo7E1LXO6zVbT019PK5AZwaqROgx?=
+ =?us-ascii?Q?O0/C/803kO62XtW98dbHcY3vawkoiKwjOq/ohTuRV/YkCJN3Hr+Pb/J6DWw4?=
+ =?us-ascii?Q?xSXdZoppP3xkF2qX8Oq9lH71EZmiVkrntuN8KKbtDC03OhiHQzE1+JtM1vt1?=
+ =?us-ascii?Q?+T73bPeXz0OvYvnbXEkwH6p2tfqBU/J8Ff+hlvOmZ6TgacmD4Yn0M6X27rT6?=
+ =?us-ascii?Q?NdBN?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <EC5CD9739A6B034DB602512E5F6CFE36@eurprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.246-39-gdf4d70323c7e
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 140 runs,
- 7 regressions (v4.9.246-39-gdf4d70323c7e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DBBPR04MB7979.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c512b617-2e05-4929-80b8-08d895a4cb18
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Dec 2020 02:57:08.6196
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: O9fQeOqaMITAOvyHdtj9s29vGnArTLMMDIntbRVL/+mYkDUZyzoByVm8jgILbDStcwenE3lCco2L/Yv2Fyrwdg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBAPR04MB7222
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 140 runs, 7 regressions (v4.9.246-39-gdf4d703=
-23c7e)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-panda                | arm   | lab-collabora   | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.246-39-gdf4d70323c7e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.246-39-gdf4d70323c7e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      df4d70323c7e015dd90830d31499891c35bcec0f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-panda                | arm   | lab-collabora   | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc5709a5971c6e0bac94cba
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fc5709a5971c6e=
-0bac94cbf
-        failing since 3 days (last pass: v4.9.246-2-g124a1dbc39c7, first fa=
-il: v4.9.246-5-gcf4f22640d7d)
-        2 lines
-
-    2020-11-30 22:22:14.514000+00:00   udevd/128
-    2020-11-30 22:22:14.524000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2020-11-30 22:22:14.539000+00:00  [   20.419067] smsc95xx v1.0.5   =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc56f8f254bae76adc94cbd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc56f8f254bae76adc94=
-cbe
-        failing since 16 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc572017315af5ec5c94cdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc572017315af5ec5c94=
-cde
-        failing since 16 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc57099353793185ac94d11
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc57099353793185ac94=
-d12
-        failing since 16 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc57929927667acc7c94d20
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc57929927667acc7c94=
-d21
-        failing since 16 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc56f07cf1a125401c94cda
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc56f07cf1a125401c94=
-cdb
-        failing since 16 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc570eb8361d8e724c94cc4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvato=
-r-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-3=
-9-gdf4d70323c7e/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvato=
-r-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc570eb8361d8e724c94=
-cc5
-        failing since 12 days (last pass: v4.9.243-24-ga8ede488cf7a, first =
-fail: v4.9.243-77-g36ec779d6aa89) =
-
- =20
+On 20-11-30 08:30:47, Fabio Estevam wrote:
+> According to the i.MX6UL Errata document:
+> https://eur01.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fwww.n=
+xp.com%2Fdocs%2Fen%2Ferrata%2FIMX6ULCE.pdf&amp;data=3D04%7C01%7CPeter.Chen%=
+40nxp.com%7C2d4f5ecc4fbf4100891808d89523674c%7C686ea1d3bc2b4c6fa92cd99c5c30=
+1635%7C0%7C1%7C637423326572381531%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwM=
+DAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C2000&amp;sdata=3DlIBiWv=
+deey56ihYUwT8nE%2B26GTykl67aQ2liekzOYt0%3D&amp;reserved=3D0
+>=20
+> ERR007881 also affects i.MX6UL, so pass the
+> CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
+>=20
+> Cc: <stable@vger.kernel.org>
+> Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
+> Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> ---
+> Changes since v1:
+> - Use the CI_HDRC_DISABLE_DEVICE_STREAMING flag instead - Peter
+>=20
+>  drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci=
+_hdrc_imx.c
+> index 25c65accf089..5e07a0a86d11 100644
+> --- a/drivers/usb/chipidea/ci_hdrc_imx.c
+> +++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+> @@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_us=
+b_data =3D {
+> =20
+>  static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data =3D {
+>  	.flags =3D CI_HDRC_SUPPORTS_RUNTIME_PM |
+> -		CI_HDRC_TURN_VBUS_EARLY_ON,
+> +		CI_HDRC_TURN_VBUS_EARLY_ON |
+> +		CI_HDRC_DISABLE_DEVICE_STREAMING,
+>  };
+> =20
+>  static const struct ci_hdrc_imx_platform_flag imx7d_usb_data =3D {
+> --=20
+
+Applied, thanks.
+
+--=20
+
+Thanks,
+Peter Chen=
