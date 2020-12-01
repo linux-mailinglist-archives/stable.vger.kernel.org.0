@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF68F2C9B59
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8687C2C9BD1
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388987AbgLAJH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:07:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44488 "EHLO mail.kernel.org"
+        id S2389961AbgLAJM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:12:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388971AbgLAJH0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:07:26 -0500
+        id S2389951AbgLAJMW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:22 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C11F52223F;
-        Tue,  1 Dec 2020 09:06:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91587206C1;
+        Tue,  1 Dec 2020 09:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813605;
-        bh=Y/4rQy0AXv9QrcL+WvaXWA5fg6P2blZmyS1st7EIqc4=;
+        s=korg; t=1606813902;
+        bh=2Lda2s5qRujP4rJ0QhXfwzqsZAzpkjdyz4RzNF1pkXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9Kyddfo3hJBsE2QrpoUczi0ahbCjwlLOe7jn+pw/PO/ByVlHwm4hA58vPXpI+vZf
-         E0ts62g+cwHYsCuyRIBf2sNXAu38MkMMBluhvb4HmE27yrTe8X+NwbfWgS1Lk2pxB0
-         MztCM1UA/YtNc1MT8K3TAcxhPqEOcLJk1Ym1w3Mk=
+        b=TFGk41a1GUH4/B/WTcspvV52H+k7sRbwskYifp3VewXP4+S0NBboW2soUwkDCg/NB
+         8F5nXJXlqEy2ThXH6S83Zr3RDxMiaL5hf4Y6WOTa/C1+tkUbWz5SaDvYAcYhNoZLq1
+         v7ksNmfFu4ZMzj1j+g8qGfRR3TtVpgJGl+ZqfIwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, CK Hu <ck.hu@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Bilal Wasim <bilal.wasim@imgtec.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 56/98] s390/qeth: fix af_iucv notification race
+Subject: [PATCH 5.9 098/152] drm/mediatek: dsi: Modify horizontal front/back porch byte formula
 Date:   Tue,  1 Dec 2020 09:53:33 +0100
-Message-Id: <20201201084657.842235717@linuxfoundation.org>
+Message-Id: <20201201084724.700660997@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,170 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: CK Hu <ck.hu@mediatek.com>
 
-[ Upstream commit 8908f36d20d8ba610d3a7d110b3049b5853b9bb1 ]
+[ Upstream commit 487778f8d22fcdebb6436f0a5f96484ffa237b0b ]
 
-The two expected notification sequences are
-1. TX_NOTIFY_PENDING with a subsequent TX_NOTIFY_DELAYED_*, when
-   our TX completion code first observed the pending TX and the QAOB
-   then completes at a later time; or
-2. TX_NOTIFY_OK, when qeth_qdio_handle_aob() picked up the QAOB
-   completion before our TX completion code even noticed that the TX
-   was pending.
+In the patch to be fixed, horizontal_backporch_byte become too large
+for some panel, so roll back that patch. For small hfp or hbp panel,
+using vm->hfront_porch + vm->hback_porch to calculate
+horizontal_backporch_byte would make it negtive, so
+use horizontal_backporch_byte itself to make it positive.
 
-But as qeth_iqd_tx_complete() and qeth_qdio_handle_aob() can run
-concurrently, we may end up with a race that results in a sequence of
-TX_NOTIFY_DELAYED_* followed by TX_NOTIFY_PENDING. Which would confuse
-the af_iucv code in its tracking of pending transmits.
+Fixes: 35bf948f1edb ("drm/mediatek: dsi: Fix scrolling of panel with small hfp or hbp")
 
-Rework the notification code, so that qeth_qdio_handle_aob() defers its
-notification if the TX completion code is still active.
-
-Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Tested-by: Bilal Wasim <bilal.wasim@imgtec.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h      |  9 ++--
- drivers/s390/net/qeth_core_main.c | 73 ++++++++++++++++++++++---------
- 2 files changed, 58 insertions(+), 24 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 61 +++++++++++-------------------
+ 1 file changed, 22 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 820f2c29376c0..93b4cb156b0bc 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -436,10 +436,13 @@ enum qeth_qdio_out_buffer_state {
- 	QETH_QDIO_BUF_EMPTY,
- 	/* Filled by driver; owned by hardware in order to be sent. */
- 	QETH_QDIO_BUF_PRIMED,
--	/* Identified to be pending in TPQ. */
-+	/* Discovered by the TX completion code: */
- 	QETH_QDIO_BUF_PENDING,
--	/* Found in completion queue. */
--	QETH_QDIO_BUF_IN_CQ,
-+	/* Finished by the TX completion code: */
-+	QETH_QDIO_BUF_NEED_QAOB,
-+	/* Received QAOB notification on CQ: */
-+	QETH_QDIO_BUF_QAOB_OK,
-+	QETH_QDIO_BUF_QAOB_ERROR,
- 	/* Handled via transfer pending / completion queue. */
- 	QETH_QDIO_BUF_HANDLED_DELAYED,
- };
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6a2ac575e0a39..f07e73eb37ebb 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -438,6 +438,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- static void qeth_qdio_handle_aob(struct qeth_card *card,
- 				 unsigned long phys_aob_addr)
- {
-+	enum qeth_qdio_out_buffer_state new_state = QETH_QDIO_BUF_QAOB_OK;
- 	struct qaob *aob;
- 	struct qeth_qdio_out_buffer *buffer;
- 	enum iucv_tx_notify notification;
-@@ -449,22 +450,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 	buffer = (struct qeth_qdio_out_buffer *) aob->user1;
- 	QETH_CARD_TEXT_(card, 5, "%lx", aob->user1);
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index 80b7a082e8740..d6e0a29ea6b28 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -444,7 +444,10 @@ static void mtk_dsi_config_vdo_timing(struct mtk_dsi *dsi)
+ 	u32 horizontal_sync_active_byte;
+ 	u32 horizontal_backporch_byte;
+ 	u32 horizontal_frontporch_byte;
++	u32 horizontal_front_back_byte;
++	u32 data_phy_cycles_byte;
+ 	u32 dsi_tmp_buf_bpp, data_phy_cycles;
++	u32 delta;
+ 	struct mtk_phy_timing *timing = &dsi->phy_timing;
  
--	if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
--			   QETH_QDIO_BUF_IN_CQ) == QETH_QDIO_BUF_PRIMED) {
--		notification = TX_NOTIFY_OK;
--	} else {
--		WARN_ON_ONCE(atomic_read(&buffer->state) !=
--							QETH_QDIO_BUF_PENDING);
--		atomic_set(&buffer->state, QETH_QDIO_BUF_IN_CQ);
--		notification = TX_NOTIFY_DELAYED_OK;
--	}
+ 	struct videomode *vm = &dsi->vm;
+@@ -466,50 +469,30 @@ static void mtk_dsi_config_vdo_timing(struct mtk_dsi *dsi)
+ 	horizontal_sync_active_byte = (vm->hsync_len * dsi_tmp_buf_bpp - 10);
+ 
+ 	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
+-		horizontal_backporch_byte = vm->hback_porch * dsi_tmp_buf_bpp;
++		horizontal_backporch_byte = vm->hback_porch * dsi_tmp_buf_bpp - 10;
+ 	else
+ 		horizontal_backporch_byte = (vm->hback_porch + vm->hsync_len) *
+-					    dsi_tmp_buf_bpp;
++					    dsi_tmp_buf_bpp - 10;
+ 
+ 	data_phy_cycles = timing->lpx + timing->da_hs_prepare +
+-			  timing->da_hs_zero + timing->da_hs_exit;
 -
--	if (aob->aorc != 0)  {
--		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
--		notification = qeth_compute_cq_notification(aob->aorc, 1);
--	}
--	qeth_notify_skbs(buffer->q, buffer, notification);
+-	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_BURST) {
+-		if ((vm->hfront_porch + vm->hback_porch) * dsi_tmp_buf_bpp >
+-		    data_phy_cycles * dsi->lanes + 18) {
+-			horizontal_frontporch_byte =
+-				vm->hfront_porch * dsi_tmp_buf_bpp -
+-				(data_phy_cycles * dsi->lanes + 18) *
+-				vm->hfront_porch /
+-				(vm->hfront_porch + vm->hback_porch);
 -
- 	/* Free dangling allocations. The attached skbs are handled by
- 	 * qeth_cleanup_handled_pending().
- 	 */
-@@ -475,7 +460,33 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 			kmem_cache_free(qeth_core_header_cache,
- 					(void *) aob->sba[i]);
+-			horizontal_backporch_byte =
+-				horizontal_backporch_byte -
+-				(data_phy_cycles * dsi->lanes + 18) *
+-				vm->hback_porch /
+-				(vm->hfront_porch + vm->hback_porch);
+-		} else {
+-			DRM_WARN("HFP less than d-phy, FPS will under 60Hz\n");
+-			horizontal_frontporch_byte = vm->hfront_porch *
+-						     dsi_tmp_buf_bpp;
+-		}
++			  timing->da_hs_zero + timing->da_hs_exit + 3;
++
++	delta = dsi->mode_flags & MIPI_DSI_MODE_VIDEO_BURST ? 18 : 12;
++
++	horizontal_frontporch_byte = vm->hfront_porch * dsi_tmp_buf_bpp;
++	horizontal_front_back_byte = horizontal_frontporch_byte + horizontal_backporch_byte;
++	data_phy_cycles_byte = data_phy_cycles * dsi->lanes + delta;
++
++	if (horizontal_front_back_byte > data_phy_cycles_byte) {
++		horizontal_frontporch_byte -= data_phy_cycles_byte *
++					      horizontal_frontporch_byte /
++					      horizontal_front_back_byte;
++
++		horizontal_backporch_byte -= data_phy_cycles_byte *
++					     horizontal_backporch_byte /
++					     horizontal_front_back_byte;
+ 	} else {
+-		if ((vm->hfront_porch + vm->hback_porch) * dsi_tmp_buf_bpp >
+-		    data_phy_cycles * dsi->lanes + 12) {
+-			horizontal_frontporch_byte =
+-				vm->hfront_porch * dsi_tmp_buf_bpp -
+-				(data_phy_cycles * dsi->lanes + 12) *
+-				vm->hfront_porch /
+-				(vm->hfront_porch + vm->hback_porch);
+-			horizontal_backporch_byte = horizontal_backporch_byte -
+-				(data_phy_cycles * dsi->lanes + 12) *
+-				vm->hback_porch /
+-				(vm->hfront_porch + vm->hback_porch);
+-		} else {
+-			DRM_WARN("HFP less than d-phy, FPS will under 60Hz\n");
+-			horizontal_frontporch_byte = vm->hfront_porch *
+-						     dsi_tmp_buf_bpp;
+-		}
++		DRM_WARN("HFP + HBP less than d-phy, FPS will under 60Hz\n");
  	}
--	atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
-+
-+	if (aob->aorc) {
-+		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
-+		new_state = QETH_QDIO_BUF_QAOB_ERROR;
-+	}
-+
-+	switch (atomic_xchg(&buffer->state, new_state)) {
-+	case QETH_QDIO_BUF_PRIMED:
-+		/* Faster than TX completion code. */
-+		notification = qeth_compute_cq_notification(aob->aorc, 0);
-+		qeth_notify_skbs(buffer->q, buffer, notification);
-+		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
-+		break;
-+	case QETH_QDIO_BUF_PENDING:
-+		/* TX completion code is active and will handle the async
-+		 * completion for us.
-+		 */
-+		break;
-+	case QETH_QDIO_BUF_NEED_QAOB:
-+		/* TX completion code is already finished. */
-+		notification = qeth_compute_cq_notification(aob->aorc, 1);
-+		qeth_notify_skbs(buffer->q, buffer, notification);
-+		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+	}
  
- 	qdio_release_aob(aob);
- }
-@@ -1095,9 +1106,6 @@ static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
- 	struct qeth_qdio_out_q *queue = buf->q;
- 	struct sk_buff *skb;
- 
--	/* release may never happen from within CQ tasklet scope */
--	WARN_ON_ONCE(atomic_read(&buf->state) == QETH_QDIO_BUF_IN_CQ);
--
- 	if (atomic_read(&buf->state) == QETH_QDIO_BUF_PENDING)
- 		qeth_notify_skbs(queue, buf, TX_NOTIFY_GENERALERROR);
- 
-@@ -5224,9 +5232,32 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
- 
- 		if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
- 						   QETH_QDIO_BUF_PENDING) ==
--		    QETH_QDIO_BUF_PRIMED)
-+		    QETH_QDIO_BUF_PRIMED) {
- 			qeth_notify_skbs(queue, buffer, TX_NOTIFY_PENDING);
- 
-+			/* Handle race with qeth_qdio_handle_aob(): */
-+			switch (atomic_xchg(&buffer->state,
-+					    QETH_QDIO_BUF_NEED_QAOB)) {
-+			case QETH_QDIO_BUF_PENDING:
-+				/* No concurrent QAOB notification. */
-+				break;
-+			case QETH_QDIO_BUF_QAOB_OK:
-+				qeth_notify_skbs(queue, buffer,
-+						 TX_NOTIFY_DELAYED_OK);
-+				atomic_set(&buffer->state,
-+					   QETH_QDIO_BUF_HANDLED_DELAYED);
-+				break;
-+			case QETH_QDIO_BUF_QAOB_ERROR:
-+				qeth_notify_skbs(queue, buffer,
-+						 TX_NOTIFY_DELAYED_GENERALERROR);
-+				atomic_set(&buffer->state,
-+					   QETH_QDIO_BUF_HANDLED_DELAYED);
-+				break;
-+			default:
-+				WARN_ON_ONCE(1);
-+			}
-+		}
-+
- 		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
- 
- 		/* prepare the queue slot for re-use: */
+ 	writel(horizontal_sync_active_byte, dsi->regs + DSI_HSA_WC);
 -- 
 2.27.0
 
