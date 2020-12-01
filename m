@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CD02C9A5E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E5F2C9AF2
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387706AbgLAI5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
+        id S1729219AbgLAJDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:03:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387762AbgLAI5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:57:01 -0500
+        id S2387717AbgLAJC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:02:57 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67C1C22250;
-        Tue,  1 Dec 2020 08:56:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68D422244;
+        Tue,  1 Dec 2020 09:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812975;
-        bh=RPqcXIlDlB+4+RN1b9MSkZEsEpMrhpb438RyuRLWWM0=;
+        s=korg; t=1606813336;
+        bh=0zj0ZGmMSGmPNp7YwIwpOyqtX5foXo5RMVEy/f9ped0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmqs6oBrxsWC01OvTB6m+x0NMifsGVbOSZz5EafaK6jkeiyg0vIMCSzVbZEKG2/GW
-         nsbvSML6lmC92TbVlD7F2Z+i/LrQ1vaIwlr2CeO4zFw7n8Vl/wvFg/kUopyd8AfDA+
-         YE80QHj27dvy/z2zCBcSM4XJ3gi0mBE2Mg7gRf+A=
+        b=QF7QW52X0loAblKm31wZ56sTBc9Tnv7J1swdhW+41JMYnD/pu3eyV2zTiSZx3flZD
+         Bu3r0Tc9MPqcIPmYhbIzb3JL8l9hr2K1rd1nhJMnFUivpQfMMGecMH9G9znhgXhU6r
+         QkDfSZQOGe3XQn/vqEE7rGQIEAWQk2TWuQTJPmgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 40/42] regulator: workaround self-referent regulators
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 33/57] bnxt_en: fix error return code in bnxt_init_board()
 Date:   Tue,  1 Dec 2020 09:53:38 +0100
-Message-Id: <20201201084645.890848252@linuxfoundation.org>
+Message-Id: <20201201084650.757853315@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michał Mirosław" <mirq-linux@rere.qmqm.pl>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit f5c042b23f7429e5c2ac987b01a31c69059a978b upstream
+[ Upstream commit 3383176efc0fb0c0900a191026468a58668b4214 ]
 
-Workaround regulators whose supply name happens to be the same as its
-own name. This fixes boards that used to work before the early supply
-resolving was removed. The error message is left in place so that
-offending drivers can be detected.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Cc: stable@vger.kernel.org
-Reported-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # stpmic1
-Link: https://lore.kernel.org/r/d703acde2a93100c3c7a81059d716c50ad1b1f52.1605226675.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Link: https://lore.kernel.org/r/1605792621-6268-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1553,7 +1553,10 @@ static int regulator_resolve_supply(stru
- 	if (r == rdev) {
- 		dev_err(dev, "Supply for %s (%s) resolved to itself\n",
- 			rdev->desc->name, rdev->supply_name);
--		return -EINVAL;
-+		if (!have_full_constraints())
-+			return -EINVAL;
-+		r = dummy_regulator_rdev;
-+		get_device(&r->dev);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 50732ab2c2bc9..913cabc06106f 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8021,6 +8021,7 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
+ 	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) != 0 &&
+ 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
+ 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
++		rc = -EIO;
+ 		goto init_err_disable;
  	}
  
- 	/* Recursively resolve the supply of the supply */
+-- 
+2.27.0
+
 
 
