@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3912C9A9E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74012C9B57
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729052AbgLAI71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:59:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35184 "EHLO mail.kernel.org"
+        id S2388942AbgLAJHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:07:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbgLAI70 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:59:26 -0500
+        id S2388965AbgLAJHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:07:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5C6022267;
-        Tue,  1 Dec 2020 08:58:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 067CA221FF;
+        Tue,  1 Dec 2020 09:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813119;
-        bh=VdDrWKyzKTRVPP831ZP551dpQ3DgbXJCBk9Rqf8qX0U=;
+        s=korg; t=1606813594;
+        bh=4UuE8C3MWj3DtoDzjkLJZ96OOux9UMAtFbC0wm5RqZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NuuQL0mBpcrXniHS2vSk3FOQyIVWoHWR6sFCbilFnR0qnoUZVQcYrlgwWDRLtWFPc
-         y75xtpwOjNQAyPg5iZcDyJ9mYVKkHRw6YUj5dBOQiZueId4tYQBFC3IoUZrSqvwLJW
-         fPzxSIguH7/XxJ7LA/BmO1TaYJjh8PVozFnKHoxs=
+        b=QATTxVsiiODFE/QuzA8ABxOx8l6n55fJnuc9ExQkZ/8w5ymQTCZqeQp1H2NdvkWDp
+         boDipTqYja4CrZTG+uRjrk5dJydgJjPDEH2P6H28hEddsOR8W+x/vpxbduNPB5mbal
+         ZAVKdnV+Pq7wF+ShsaQazIdZDpK2ibCHQsTRzmec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maximilian Schneider <max@schneidersoft.net>,
-        Hubert Denkmair <hubert@denkmair.de>,
-        Michael Rausch <mr@netadair.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Brett Creeley <brett.creeley@intel.com>,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/50] can: gs_usb: fix endianess problem with candleLight firmware
-Date:   Tue,  1 Dec 2020 09:53:38 +0100
-Message-Id: <20201201084649.867554835@linuxfoundation.org>
+Subject: [PATCH 5.4 62/98] i40e: Fix removing driver while bare-metal VFs pass traffic
+Date:   Tue,  1 Dec 2020 09:53:39 +0100
+Message-Id: <20201201084658.122302837@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,318 +47,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 4ba1cb39fce4464151517a37ce0ac0a1a3f580d6 ]
+[ Upstream commit 2980cbd4dce7b1e9bf57df3ced43a7b184986f50 ]
 
-The firmware on the original USB2CAN by Geschwister Schneider Technologie
-Entwicklungs- und Vertriebs UG exchanges all data between the host and the
-device in host byte order. This is done with the struct
-gs_host_config::byte_order member, which is sent first to indicate the desired
-byte order.
+Prevent VFs from resetting when PF driver is being unloaded:
+- introduce new pf state: __I40E_VF_RESETS_DISABLED;
+- check if pf state has __I40E_VF_RESETS_DISABLED state set,
+  if so, disable any further VFLR event notifications;
+- when i40e_remove (rmmod i40e) is called, disable any resets on
+  the VFs;
 
-The widely used open source firmware candleLight doesn't support this feature
-and exchanges the data in little endian byte order. This breaks if a device
-with candleLight firmware is used on big endianess systems.
+Previously if there were bare-metal VFs passing traffic and PF
+driver was removed, there was a possibility of VFs triggering a Tx
+timeout right before iavf_remove. This was causing iavf_close to
+not be called because there is a check in the beginning of  iavf_remove
+that bails out early if adapter->state < IAVF_DOWN_PENDING. This
+makes it so some resources do not get cleaned up.
 
-To fix this problem, all u32 (but not the struct gs_host_frame::echo_id, which
-is a transparent cookie) are converted to __le32.
-
-Cc: Maximilian Schneider <max@schneidersoft.net>
-Cc: Hubert Denkmair <hubert@denkmair.de>
-Reported-by: Michael Rausch <mr@netadair.de>
-Link: https://lore.kernel.org/r/b58aace7-61f3-6df7-c6df-69fee2c66906@netadair.de
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/r/20201120103818.3386964-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 6a9ddb36eeb8 ("i40e: disable IOV before freeing resources")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20201120180640.3654474-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c | 131 +++++++++++++++++++----------------
- 1 file changed, 70 insertions(+), 61 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e.h        |  1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c   | 22 +++++++++++-----
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 26 +++++++++++--------
+ 3 files changed, 31 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index aed8ab6d6c5b0..99c42f297afdf 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -71,21 +71,27 @@ enum gs_can_identify_mode {
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index 401304d4d5536..cfe99bae8e362 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -150,6 +150,7 @@ enum i40e_state_t {
+ 	__I40E_CLIENT_RESET,
+ 	__I40E_VIRTCHNL_OP_PENDING,
+ 	__I40E_RECOVERY_MODE,
++	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_STATE_SIZE__,
  };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index b3c3911adfc2e..2b4327416457d 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -3988,8 +3988,16 @@ static irqreturn_t i40e_intr(int irq, void *data)
+ 	}
  
- /* data types passed between host and device */
+ 	if (icr0 & I40E_PFINT_ICR0_VFLR_MASK) {
+-		ena_mask &= ~I40E_PFINT_ICR0_ENA_VFLR_MASK;
+-		set_bit(__I40E_VFLR_EVENT_PENDING, pf->state);
++		/* disable any further VFLR event notifications */
++		if (test_bit(__I40E_VF_RESETS_DISABLED, pf->state)) {
++			u32 reg = rd32(hw, I40E_PFINT_ICR0_ENA);
 +
-+/* The firmware on the original USB2CAN by Geschwister Schneider
-+ * Technologie Entwicklungs- und Vertriebs UG exchanges all data
-+ * between the host and the device in host byte order. This is done
-+ * with the struct gs_host_config::byte_order member, which is sent
-+ * first to indicate the desired byte order.
-+ *
-+ * The widely used open source firmware candleLight doesn't support
-+ * this feature and exchanges the data in little endian byte order.
-+ */
- struct gs_host_config {
--	u32 byte_order;
-+	__le32 byte_order;
- } __packed;
--/* All data exchanged between host and device is exchanged in host byte order,
-- * thanks to the struct gs_host_config byte_order member, which is sent first
-- * to indicate the desired byte order.
-- */
++			reg &= ~I40E_PFINT_ICR0_VFLR_MASK;
++			wr32(hw, I40E_PFINT_ICR0_ENA, reg);
++		} else {
++			ena_mask &= ~I40E_PFINT_ICR0_ENA_VFLR_MASK;
++			set_bit(__I40E_VFLR_EVENT_PENDING, pf->state);
++		}
+ 	}
  
- struct gs_device_config {
- 	u8 reserved1;
- 	u8 reserved2;
- 	u8 reserved3;
- 	u8 icount;
--	u32 sw_version;
--	u32 hw_version;
-+	__le32 sw_version;
-+	__le32 hw_version;
- } __packed;
+ 	if (icr0 & I40E_PFINT_ICR0_GRST_MASK) {
+@@ -15345,6 +15353,11 @@ static void i40e_remove(struct pci_dev *pdev)
+ 	while (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
+ 		usleep_range(1000, 2000);
  
- #define GS_CAN_MODE_NORMAL               0
-@@ -95,26 +101,26 @@ struct gs_device_config {
- #define GS_CAN_MODE_ONE_SHOT             BIT(3)
- 
- struct gs_device_mode {
--	u32 mode;
--	u32 flags;
-+	__le32 mode;
-+	__le32 flags;
- } __packed;
- 
- struct gs_device_state {
--	u32 state;
--	u32 rxerr;
--	u32 txerr;
-+	__le32 state;
-+	__le32 rxerr;
-+	__le32 txerr;
- } __packed;
- 
- struct gs_device_bittiming {
--	u32 prop_seg;
--	u32 phase_seg1;
--	u32 phase_seg2;
--	u32 sjw;
--	u32 brp;
-+	__le32 prop_seg;
-+	__le32 phase_seg1;
-+	__le32 phase_seg2;
-+	__le32 sjw;
-+	__le32 brp;
- } __packed;
- 
- struct gs_identify_mode {
--	u32 mode;
-+	__le32 mode;
- } __packed;
- 
- #define GS_CAN_FEATURE_LISTEN_ONLY      BIT(0)
-@@ -125,23 +131,23 @@ struct gs_identify_mode {
- #define GS_CAN_FEATURE_IDENTIFY         BIT(5)
- 
- struct gs_device_bt_const {
--	u32 feature;
--	u32 fclk_can;
--	u32 tseg1_min;
--	u32 tseg1_max;
--	u32 tseg2_min;
--	u32 tseg2_max;
--	u32 sjw_max;
--	u32 brp_min;
--	u32 brp_max;
--	u32 brp_inc;
-+	__le32 feature;
-+	__le32 fclk_can;
-+	__le32 tseg1_min;
-+	__le32 tseg1_max;
-+	__le32 tseg2_min;
-+	__le32 tseg2_max;
-+	__le32 sjw_max;
-+	__le32 brp_min;
-+	__le32 brp_max;
-+	__le32 brp_inc;
- } __packed;
- 
- #define GS_CAN_FLAG_OVERFLOW 1
- 
- struct gs_host_frame {
- 	u32 echo_id;
--	u32 can_id;
-+	__le32 can_id;
- 
- 	u8 can_dlc;
- 	u8 channel;
-@@ -337,13 +343,13 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
- 		if (!skb)
- 			return;
- 
--		cf->can_id = hf->can_id;
-+		cf->can_id = le32_to_cpu(hf->can_id);
- 
- 		cf->can_dlc = get_can_dlc(hf->can_dlc);
- 		memcpy(cf->data, hf->data, 8);
- 
- 		/* ERROR frames tell us information about the controller */
--		if (hf->can_id & CAN_ERR_FLAG)
-+		if (le32_to_cpu(hf->can_id) & CAN_ERR_FLAG)
- 			gs_update_state(dev, cf);
- 
- 		netdev->stats.rx_packets++;
-@@ -426,11 +432,11 @@ static int gs_usb_set_bittiming(struct net_device *netdev)
- 	if (!dbt)
- 		return -ENOMEM;
- 
--	dbt->prop_seg = bt->prop_seg;
--	dbt->phase_seg1 = bt->phase_seg1;
--	dbt->phase_seg2 = bt->phase_seg2;
--	dbt->sjw = bt->sjw;
--	dbt->brp = bt->brp;
-+	dbt->prop_seg = cpu_to_le32(bt->prop_seg);
-+	dbt->phase_seg1 = cpu_to_le32(bt->phase_seg1);
-+	dbt->phase_seg2 = cpu_to_le32(bt->phase_seg2);
-+	dbt->sjw = cpu_to_le32(bt->sjw);
-+	dbt->brp = cpu_to_le32(bt->brp);
- 
- 	/* request bit timings */
- 	rc = usb_control_msg(interface_to_usbdev(intf),
-@@ -511,7 +517,7 @@ static netdev_tx_t gs_can_start_xmit(struct sk_buff *skb,
- 
- 	cf = (struct can_frame *)skb->data;
- 
--	hf->can_id = cf->can_id;
-+	hf->can_id = cpu_to_le32(cf->can_id);
- 	hf->can_dlc = cf->can_dlc;
- 	memcpy(hf->data, cf->data, cf->can_dlc);
- 
-@@ -581,6 +587,7 @@ static int gs_can_open(struct net_device *netdev)
- 	int rc, i;
- 	struct gs_device_mode *dm;
- 	u32 ctrlmode;
-+	u32 flags = 0;
- 
- 	rc = open_candev(netdev);
- 	if (rc)
-@@ -648,24 +655,24 @@ static int gs_can_open(struct net_device *netdev)
- 
- 	/* flags */
- 	ctrlmode = dev->can.ctrlmode;
--	dm->flags = 0;
- 
- 	if (ctrlmode & CAN_CTRLMODE_LOOPBACK)
--		dm->flags |= GS_CAN_MODE_LOOP_BACK;
-+		flags |= GS_CAN_MODE_LOOP_BACK;
- 	else if (ctrlmode & CAN_CTRLMODE_LISTENONLY)
--		dm->flags |= GS_CAN_MODE_LISTEN_ONLY;
-+		flags |= GS_CAN_MODE_LISTEN_ONLY;
- 
- 	/* Controller is not allowed to retry TX
- 	 * this mode is unavailable on atmels uc3c hardware
++	if (pf->flags & I40E_FLAG_SRIOV_ENABLED) {
++		set_bit(__I40E_VF_RESETS_DISABLED, pf->state);
++		i40e_free_vfs(pf);
++		pf->flags &= ~I40E_FLAG_SRIOV_ENABLED;
++	}
+ 	/* no more scheduling of any task */
+ 	set_bit(__I40E_SUSPENDED, pf->state);
+ 	set_bit(__I40E_DOWN, pf->state);
+@@ -15371,11 +15384,6 @@ static void i40e_remove(struct pci_dev *pdev)
  	 */
- 	if (ctrlmode & CAN_CTRLMODE_ONE_SHOT)
--		dm->flags |= GS_CAN_MODE_ONE_SHOT;
-+		flags |= GS_CAN_MODE_ONE_SHOT;
+ 	i40e_notify_client_of_netdev_close(pf->vsi[pf->lan_vsi], false);
  
- 	if (ctrlmode & CAN_CTRLMODE_3_SAMPLES)
--		dm->flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
-+		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
+-	if (pf->flags & I40E_FLAG_SRIOV_ENABLED) {
+-		i40e_free_vfs(pf);
+-		pf->flags &= ~I40E_FLAG_SRIOV_ENABLED;
+-	}
+-
+ 	i40e_fdir_teardown(pf);
  
- 	/* finally start device */
--	dm->mode = GS_CAN_MODE_START;
-+	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
-+	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
- 			     usb_sndctrlpipe(interface_to_usbdev(dev->iface), 0),
- 			     GS_USB_BREQ_MODE,
-@@ -745,9 +752,9 @@ static int gs_usb_set_identify(struct net_device *netdev, bool do_identify)
- 		return -ENOMEM;
+ 	/* If there is a switch structure or any orphans, remove them.
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 38042d610f82c..09ff3f335ffa6 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1335,7 +1335,8 @@ static void i40e_cleanup_reset_vf(struct i40e_vf *vf)
+  * @vf: pointer to the VF structure
+  * @flr: VFLR was issued or not
+  *
+- * Returns true if the VF is reset, false otherwise.
++ * Returns true if the VF is in reset, resets successfully, or resets
++ * are disabled and false otherwise.
+  **/
+ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
+ {
+@@ -1345,11 +1346,14 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
+ 	u32 reg;
+ 	int i;
  
- 	if (do_identify)
--		imode->mode = GS_CAN_IDENTIFY_ON;
-+		imode->mode = cpu_to_le32(GS_CAN_IDENTIFY_ON);
- 	else
--		imode->mode = GS_CAN_IDENTIFY_OFF;
-+		imode->mode = cpu_to_le32(GS_CAN_IDENTIFY_OFF);
++	if (test_bit(__I40E_VF_RESETS_DISABLED, pf->state))
++		return true;
++
+ 	/* If the VFs have been disabled, this means something else is
+ 	 * resetting the VF, so we shouldn't continue.
+ 	 */
+ 	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
+-		return false;
++		return true;
  
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
- 			     usb_sndctrlpipe(interface_to_usbdev(dev->iface),
-@@ -798,6 +805,7 @@ static struct gs_can *gs_make_candev(unsigned int channel,
- 	struct net_device *netdev;
- 	int rc;
- 	struct gs_device_bt_const *bt_const;
-+	u32 feature;
+ 	i40e_trigger_vf_reset(vf, flr);
  
- 	bt_const = kmalloc(sizeof(*bt_const), GFP_KERNEL);
- 	if (!bt_const)
-@@ -838,14 +846,14 @@ static struct gs_can *gs_make_candev(unsigned int channel,
+@@ -1513,6 +1517,15 @@ void i40e_free_vfs(struct i40e_pf *pf)
  
- 	/* dev settup */
- 	strcpy(dev->bt_const.name, "gs_usb");
--	dev->bt_const.tseg1_min = bt_const->tseg1_min;
--	dev->bt_const.tseg1_max = bt_const->tseg1_max;
--	dev->bt_const.tseg2_min = bt_const->tseg2_min;
--	dev->bt_const.tseg2_max = bt_const->tseg2_max;
--	dev->bt_const.sjw_max = bt_const->sjw_max;
--	dev->bt_const.brp_min = bt_const->brp_min;
--	dev->bt_const.brp_max = bt_const->brp_max;
--	dev->bt_const.brp_inc = bt_const->brp_inc;
-+	dev->bt_const.tseg1_min = le32_to_cpu(bt_const->tseg1_min);
-+	dev->bt_const.tseg1_max = le32_to_cpu(bt_const->tseg1_max);
-+	dev->bt_const.tseg2_min = le32_to_cpu(bt_const->tseg2_min);
-+	dev->bt_const.tseg2_max = le32_to_cpu(bt_const->tseg2_max);
-+	dev->bt_const.sjw_max = le32_to_cpu(bt_const->sjw_max);
-+	dev->bt_const.brp_min = le32_to_cpu(bt_const->brp_min);
-+	dev->bt_const.brp_max = le32_to_cpu(bt_const->brp_max);
-+	dev->bt_const.brp_inc = le32_to_cpu(bt_const->brp_inc);
+ 	i40e_notify_client_of_vf_enable(pf, 0);
  
- 	dev->udev = interface_to_usbdev(intf);
- 	dev->iface = intf;
-@@ -862,28 +870,29 @@ static struct gs_can *gs_make_candev(unsigned int channel,
++	/* Disable IOV before freeing resources. This lets any VF drivers
++	 * running in the host get themselves cleaned up before we yank
++	 * the carpet out from underneath their feet.
++	 */
++	if (!pci_vfs_assigned(pf->pdev))
++		pci_disable_sriov(pf->pdev);
++	else
++		dev_warn(&pf->pdev->dev, "VFs are assigned - not disabling SR-IOV\n");
++
+ 	/* Amortize wait time by stopping all VFs at the same time */
+ 	for (i = 0; i < pf->num_alloc_vfs; i++) {
+ 		if (test_bit(I40E_VF_STATE_INIT, &pf->vf[i].vf_states))
+@@ -1528,15 +1541,6 @@ void i40e_free_vfs(struct i40e_pf *pf)
+ 		i40e_vsi_wait_queues_disabled(pf->vsi[pf->vf[i].lan_vsi_idx]);
+ 	}
  
- 	/* can settup */
- 	dev->can.state = CAN_STATE_STOPPED;
--	dev->can.clock.freq = bt_const->fclk_can;
-+	dev->can.clock.freq = le32_to_cpu(bt_const->fclk_can);
- 	dev->can.bittiming_const = &dev->bt_const;
- 	dev->can.do_set_bittiming = gs_usb_set_bittiming;
- 
- 	dev->can.ctrlmode_supported = 0;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_LISTEN_ONLY)
-+	feature = le32_to_cpu(bt_const->feature);
-+	if (feature & GS_CAN_FEATURE_LISTEN_ONLY)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_LISTENONLY;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_LOOP_BACK)
-+	if (feature & GS_CAN_FEATURE_LOOP_BACK)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_LOOPBACK;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_TRIPLE_SAMPLE)
-+	if (feature & GS_CAN_FEATURE_TRIPLE_SAMPLE)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_3_SAMPLES;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_ONE_SHOT)
-+	if (feature & GS_CAN_FEATURE_ONE_SHOT)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_ONE_SHOT;
- 
- 	SET_NETDEV_DEV(netdev, &intf->dev);
- 
--	if (dconf->sw_version > 1)
--		if (bt_const->feature & GS_CAN_FEATURE_IDENTIFY)
-+	if (le32_to_cpu(dconf->sw_version) > 1)
-+		if (feature & GS_CAN_FEATURE_IDENTIFY)
- 			netdev->ethtool_ops = &gs_usb_ethtool_ops;
- 
- 	kfree(bt_const);
-@@ -918,7 +927,7 @@ static int gs_usb_probe(struct usb_interface *intf,
- 	if (!hconf)
- 		return -ENOMEM;
- 
--	hconf->byte_order = 0x0000beef;
-+	hconf->byte_order = cpu_to_le32(0x0000beef);
- 
- 	/* send host config */
- 	rc = usb_control_msg(interface_to_usbdev(intf),
+-	/* Disable IOV before freeing resources. This lets any VF drivers
+-	 * running in the host get themselves cleaned up before we yank
+-	 * the carpet out from underneath their feet.
+-	 */
+-	if (!pci_vfs_assigned(pf->pdev))
+-		pci_disable_sriov(pf->pdev);
+-	else
+-		dev_warn(&pf->pdev->dev, "VFs are assigned - not disabling SR-IOV\n");
+-
+ 	/* free up VF resources */
+ 	tmp = pf->num_alloc_vfs;
+ 	pf->num_alloc_vfs = 0;
 -- 
 2.27.0
 
