@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D19C32C9A00
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E5E2C9A02
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbgLAIyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:54:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57244 "EHLO mail.kernel.org"
+        id S1728810AbgLAIyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:54:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728664AbgLAIyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:54:18 -0500
+        id S1728664AbgLAIyV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:54:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA48E2067D;
-        Tue,  1 Dec 2020 08:53:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8245721D7A;
+        Tue,  1 Dec 2020 08:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812817;
-        bh=Nx3+TXzhYx9GxR8pYOwTKrw7pbA6HDeUtK44cL5CG5c=;
+        s=korg; t=1606812820;
+        bh=zKKapAvPt+jJptUDwooX5mUsC4KSeReGhpncMDE0sjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPpkXxDCLUN+qSU5rD66kgfn+1EP2UPePZWq+hxFL+aWqDAjta0O+ZgfFdba9qaFq
-         ZYlQ9NTGAOJLa7shxkVxuxXqtvHJPZ6Fs/aWe9AjD2NklEwPJ0o03DVFfy85+qO69E
-         nmNW0v46PgHylV1znsovXo9MIDuS4jCGC4tbGgic=
+        b=NjtdQkyf73QpsF5IxKYcqVnvfl0EMa9GWtsbg89CLvD18vIWXWKZoESyhPU++zHVk
+         Hl3D+TC4oowPYWiIkBPZ4Fiia/ZmP6XY7rvn+mTDWQ4SwGjHdrl+0WYTyDYHJYgOc3
+         mTqshti/WU4OxGmzoQv4kg9I6VK+IVgBl+3A2Qxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/24] scsi: target: iscsi: Fix cmd abort fabric stop race
-Date:   Tue,  1 Dec 2020 09:53:17 +0100
-Message-Id: <20201201084638.309801865@linuxfoundation.org>
+Subject: [PATCH 4.4 12/24] scsi: ufs: Fix race between shutdown and runtime resume flow
+Date:   Tue,  1 Dec 2020 09:53:18 +0100
+Message-Id: <20201201084638.360712530@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
 References: <20201201084637.754785180@linuxfoundation.org>
@@ -44,86 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit f36199355c64a39fe82cfddc7623d827c7e050da ]
+[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
 
-Maurizio found a race where the abort and cmd stop paths can race as
-follows:
+If UFS host device is in runtime-suspended state while UFS shutdown
+callback is invoked, UFS device shall be resumed for register
+accesses. Currently only UFS local runtime resume function will be invoked
+to wake up the host.  This is not enough because if someone triggers
+runtime resume from block layer, then race may happen between shutdown and
+runtime resume flow, and finally lead to unlocked register access.
 
- 1. thread1 runs iscsit_release_commands_from_conn and sets
-    CMD_T_FABRIC_STOP.
+To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
+resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
+PM framework manage the whole resume flow.
 
- 2. thread2 runs iscsit_aborted_task and then does __iscsit_free_cmd. It
-    then returns from the aborted_task callout and we finish
-    target_handle_abort and do:
-
-    target_handle_abort -> transport_cmd_check_stop_to_fabric ->
-	lio_check_stop_free -> target_put_sess_cmd
-
-    The cmd is now freed.
-
- 3. thread1 now finishes iscsit_release_commands_from_conn and runs
-    iscsit_free_cmd while accessing a command we just released.
-
-In __target_check_io_state we check for CMD_T_FABRIC_STOP and set the
-CMD_T_ABORTED if the driver is not cleaning up the cmd because of a session
-shutdown. However, iscsit_release_commands_from_conn only sets the
-CMD_T_FABRIC_STOP and does not check to see if the abort path has claimed
-completion ownership of the command.
-
-This adds a check in iscsit_release_commands_from_conn so only the abort or
-fabric stop path cleanup the command.
-
-Link: https://lore.kernel.org/r/1605318378-9269-1-git-send-email-michael.christie@oracle.com
-Reported-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
+Fixes: 57d104c153d3 ("ufs: add UFS power management support")
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index cbb4414edd71b..c48aca1360c89 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -493,8 +493,7 @@ static void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
- 	bool scsi_cmd = (cmd->iscsi_opcode == ISCSI_OP_SCSI_CMD);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index d7a0a64f64536..e37f6db0dd156 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5387,11 +5387,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
  
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
+-	if (pm_runtime_suspended(hba->dev)) {
+-		ret = ufshcd_runtime_resume(hba);
+-		if (ret)
+-			goto out;
+-	}
++	pm_runtime_get_sync(hba->dev);
  
-@@ -4228,12 +4227,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
- 
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
- 
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
+ 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
+ out:
 -- 
 2.27.0
 
