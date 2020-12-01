@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4418E2C9BA2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 183062C9AFB
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389740AbgLAJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:10:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
+        id S2388723AbgLAJDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:03:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389732AbgLAJKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:38 -0500
+        id S2388717AbgLAJDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:43 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C36B122240;
-        Tue,  1 Dec 2020 09:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D41D221EB;
+        Tue,  1 Dec 2020 09:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813791;
-        bh=4/iLExguJ1tDhA1BXY/9athNkJAZVQDynwf9L9ClHE8=;
+        s=korg; t=1606813382;
+        bh=smWrW7jtuEGxhavobo93b5wPppjfIIUm9uSE0B+0cYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlzumnBizLqKp97Bg3oXk3YeLqJt03LUXBheQI0xdSuBdH+T4xCczn8STCgSifnO4
-         SgpE61s9CwwUuZhEXaLnhqiskCEiLOweyT1+rNGKQkPUZN6rFNYrbLAq7g5G9OLfHP
-         0yh3fAOFK9acycPxsBLnJmT/EIA7/TBLgRdoiD1s=
+        b=aBeect+oikRIKr45xegeN0s4QX839JjucDvZbdyHDLXSKDW4UBkrLIzUoIXhhsSiQ
+         v/dgV+ztfg9XY6Gv2eBCFJhteYuZMCu2MyH8GWdR8USUXE08UcX+cohIV1qpZL5Ad1
+         jcdCr5tXXJELrP8fHzjBdknlZXAdpwkOGsTaJtuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 061/152] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
-Date:   Tue,  1 Dec 2020 09:52:56 +0100
-Message-Id: <20201201084719.903487658@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 20/98] arm64: pgtable: Ensure dirty bit is preserved across pte_wrprotect()
+Date:   Tue,  1 Dec 2020 09:52:57 +0100
+Message-Id: <20201201084655.262207086@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sugar Zhang <sugar.zhang@rock-chips.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
+commit ff1712f953e27f0b0718762ec17d0adb15c9fd0b upstream.
 
-Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
-we should use burst size, not desc->rqcfg.brst_size.
+With hardware dirty bit management, calling pte_wrprotect() on a writable,
+dirty PTE will lose the dirty state and return a read-only, clean entry.
 
-dma memcpy performance on Rockchip RV1126
-@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
+Move the logic from ptep_set_wrprotect() into pte_wrprotect() to ensure that
+the dirty bit is preserved for writable entries, as this is required for
+soft-dirty bit management if we enable it in the future.
 
-dmatest:
+Cc: <stable@vger.kernel.org>
+Fixes: 2f4b829c625e ("arm64: Add support for hardware updates of the access and dirty pte bits")
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201120143557.6715-3-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
-/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
-/# echo 8 > /sys/module/dmatest/parameters/iterations
-/# echo y > /sys/module/dmatest/parameters/norandom
-/# echo y > /sys/module/dmatest/parameters/verbose
-/# echo 1 > /sys/module/dmatest/parameters/run
-
-dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-
-Before:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
-
-After this patch:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
-
-After this patch and increase dma clk to 400MHz:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/pgtable.h |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 5274a0704d960..2c3c47e4f7770 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2802,7 +2802,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
- 	 */
--	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
-+	if (burst * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -136,13 +136,6 @@ static inline pte_t set_pte_bit(pte_t pt
+ 	return pte;
+ }
  
- 	desc->bytes_requested = len;
--- 
-2.27.0
-
+-static inline pte_t pte_wrprotect(pte_t pte)
+-{
+-	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
+-	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
+-	return pte;
+-}
+-
+ static inline pte_t pte_mkwrite(pte_t pte)
+ {
+ 	pte = set_pte_bit(pte, __pgprot(PTE_WRITE));
+@@ -168,6 +161,20 @@ static inline pte_t pte_mkdirty(pte_t pt
+ 	return pte;
+ }
+ 
++static inline pte_t pte_wrprotect(pte_t pte)
++{
++	/*
++	 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
++	 * clear), set the PTE_DIRTY bit.
++	 */
++	if (pte_hw_dirty(pte))
++		pte = pte_mkdirty(pte);
++
++	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
++	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
++	return pte;
++}
++
+ static inline pte_t pte_mkold(pte_t pte)
+ {
+ 	return clear_pte_bit(pte, __pgprot(PTE_AF));
+@@ -783,12 +790,6 @@ static inline void ptep_set_wrprotect(st
+ 	pte = READ_ONCE(*ptep);
+ 	do {
+ 		old_pte = pte;
+-		/*
+-		 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
+-		 * clear), set the PTE_DIRTY bit.
+-		 */
+-		if (pte_hw_dirty(pte))
+-			pte = pte_mkdirty(pte);
+ 		pte = pte_wrprotect(pte);
+ 		pte_val(pte) = cmpxchg_relaxed(&pte_val(*ptep),
+ 					       pte_val(old_pte), pte_val(pte));
 
 
