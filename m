@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCA62C9D51
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8577E2C9D4D
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390540AbgLAJVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:21:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
+        id S2389282AbgLAJVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:21:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389256AbgLAJId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:08:33 -0500
+        id S2389279AbgLAJIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:39 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE9BB21D7A;
-        Tue,  1 Dec 2020 09:07:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6FEF20671;
+        Tue,  1 Dec 2020 09:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813672;
-        bh=Ea8c+J32xde41AqYuSmUmWKow8A7G5HmWbORWiEKJmc=;
+        s=korg; t=1606813678;
+        bh=ixL9nFnJJ3R66vfzSew4uiaMwSoJwzTIAma1YrpfBrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBV0E0gX87xounWIMy5gM63x9SvUt/ThrumR8ZLfB5+EM0HZxIZaTjx5E3x9uAChm
-         35QXQcDOnSmDzFGQF7YFu3Apx06ROTG+l4yB1kA2qOT1er0D8X2/7icL4Nc1lmvBUZ
-         5fgwN2OFz+0tt9v131+dqNgpzuVb+HBwaD8bXVkM=
+        b=paoetPCX7yGD1q77rsaAOn5keJAtsm1dU0XuiojOOqY85/c/mRzr9RlovRvJKX5iu
+         4A1/llu7ouBntRaKIHYS5ChvwwkgiEb8RtroeqhNykqdJkLP4rt3ORoP6o4dbDPOUY
+         4XFz1xPQXIddjpCnBYRPyusIB5X4Ldws/KrggMYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 020/152] powerpc/64s: Fix KVM system reset handling when CONFIG_PPC_PSERIES=y
-Date:   Tue,  1 Dec 2020 09:52:15 +0100
-Message-Id: <20201201084714.503903708@linuxfoundation.org>
+Subject: [PATCH 5.9 022/152] KVM: PPC: Book3S HV: XIVE: Fix possible oops when accessing ESB page
+Date:   Tue,  1 Dec 2020 09:52:17 +0100
+Message-Id: <20201201084714.767481964@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -42,55 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit 575cba20c421ecb6b563ae352e4e0468e4ca8b3c upstream.
+commit 75b49620267c700f0a07fec7f27f69852db70e46 upstream.
 
-pseries guest kernels have a FWNMI handler for SRESET and MCE NMIs,
-which is basically the same as the regular handlers for those
-interrupts.
+When accessing the ESB page of a source interrupt, the fault handler
+will retrieve the page address from the XIVE interrupt 'xive_irq_data'
+structure. If the associated KVM XIVE interrupt is not valid, that is
+not allocated at the HW level for some reason, the fault handler will
+dereference a NULL pointer leading to the oops below :
 
-The system reset FWNMI handler did not have a KVM guest test in it,
-although it probably should have because the guest can itself run
-guests.
+  WARNING: CPU: 40 PID: 59101 at arch/powerpc/kvm/book3s_xive_native.c:259 xive_native_esb_fault+0xe4/0x240 [kvm]
+  CPU: 40 PID: 59101 Comm: qemu-system-ppc Kdump: loaded Tainted: G        W        --------- -  - 4.18.0-240.el8.ppc64le #1
+  NIP:  c00800000e949fac LR: c00000000044b164 CTR: c00800000e949ec8
+  REGS: c000001f69617840 TRAP: 0700   Tainted: G        W        --------- -  -  (4.18.0-240.el8.ppc64le)
+  MSR:  9000000000029033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44044282  XER: 00000000
+  CFAR: c00000000044b160 IRQMASK: 0
+  GPR00: c00000000044b164 c000001f69617ac0 c00800000e96e000 c000001f69617c10
+  GPR04: 05faa2b21e000080 0000000000000000 0000000000000005 ffffffffffffffff
+  GPR08: 0000000000000000 0000000000000001 0000000000000000 0000000000000001
+  GPR12: c00800000e949ec8 c000001ffffd3400 0000000000000000 0000000000000000
+  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR20: 0000000000000000 0000000000000000 c000001f5c065160 c000000001c76f90
+  GPR24: c000001f06f20000 c000001f5c065100 0000000000000008 c000001f0eb98c78
+  GPR28: c000001dcab40000 c000001dcab403d8 c000001f69617c10 0000000000000011
+  NIP [c00800000e949fac] xive_native_esb_fault+0xe4/0x240 [kvm]
+  LR [c00000000044b164] __do_fault+0x64/0x220
+  Call Trace:
+  [c000001f69617ac0] [0000000137a5dc20] 0x137a5dc20 (unreliable)
+  [c000001f69617b50] [c00000000044b164] __do_fault+0x64/0x220
+  [c000001f69617b90] [c000000000453838] do_fault+0x218/0x930
+  [c000001f69617bf0] [c000000000456f50] __handle_mm_fault+0x350/0xdf0
+  [c000001f69617cd0] [c000000000457b1c] handle_mm_fault+0x12c/0x310
+  [c000001f69617d10] [c00000000007ef44] __do_page_fault+0x264/0xbb0
+  [c000001f69617df0] [c00000000007f8c8] do_page_fault+0x38/0xd0
+  [c000001f69617e30] [c00000000000a714] handle_page_fault+0x18/0x38
+  Instruction dump:
+  40c2fff0 7c2004ac 2fa90000 409e0118 73e90001 41820080 e8bd0008 7c2004ac
+  7ca90074 39400000 915c0000 7929d182 <0b090000> 2fa50000 419e0080 e89e0018
+  ---[ end trace 66c6ff034c53f64f ]---
+  xive-kvm: xive_native_esb_fault: accessing invalid ESB page for source 8 !
 
-Commit 4f50541f6703b ("powerpc/64s/exception: Move all interrupt
-handlers to new style code gen macros") convert the handler faithfully
-to avoid a KVM test with a "clever" trick to modify the IKVM_REAL
-setting to 0 when the fwnmi handler is to be generated (PPC_PSERIES=y).
-This worked when the KVM test was generated in the interrupt entry
-handlers, but a later patch moved the KVM test to the common handler,
-and the common handler macro is expanded below the fwnmi entry. This
-prevents the KVM test from being generated even for the 0x100 entry
-point as well.
+Fix that by checking the validity of the KVM XIVE interrupt structure.
 
-The result is NMI IPIs in the host kernel when a guest is running will
-use gest registers. This goes particularly badly when an HPT guest is
-running and the MMU is set to guest mode.
-
-Remove this trickery and just generate the test always.
-
-Fixes: 9600f261acaa ("powerpc/64s/exception: Move KVM test to common code")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Fixes: 6520ca64cde7 ("KVM: PPC: Book3S HV: XIVE: Add a mapping for the source ESB pages")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Tested-by: Greg Kurz <groug@kaod.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201114114743.3306283-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20201105134713.656160-1-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/exceptions-64s.S |    2 --
- 1 file changed, 2 deletions(-)
+ arch/powerpc/kvm/book3s_xive_native.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1000,8 +1000,6 @@ TRAMP_REAL_BEGIN(system_reset_idle_wake)
-  * Vectors for the FWNMI option.  Share common code.
-  */
- TRAMP_REAL_BEGIN(system_reset_fwnmi)
--	/* XXX: fwnmi guest could run a nested/PR guest, so why no test?  */
--	__IKVM_REAL(system_reset)=0
- 	GEN_INT_ENTRY system_reset, virt=0
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -251,6 +251,13 @@ static vm_fault_t xive_native_esb_fault(
+ 	}
  
- #endif /* CONFIG_PPC_PSERIES */
+ 	state = &sb->irq_state[src];
++
++	/* Some sanity checking */
++	if (!state->valid) {
++		pr_devel("%s: source %lx invalid !\n", __func__, irq);
++		return VM_FAULT_SIGBUS;
++	}
++
+ 	kvmppc_xive_select_irq(state, &hw_num, &xd);
+ 
+ 	arch_spin_lock(&sb->lock);
 
 
