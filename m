@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4CF2C9DB1
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F7882C9D25
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390995AbgLAJ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
+        id S2388729AbgLAJTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:19:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388098AbgLAJDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:15 -0500
+        id S2389622AbgLAJKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2484D206C1;
-        Tue,  1 Dec 2020 09:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3000621D46;
+        Tue,  1 Dec 2020 09:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813379;
-        bh=loT/Ftnw+9TANSZmYMtxoJ81ooNxguCrSRrMJSr7LhI=;
+        s=korg; t=1606813765;
+        bh=uOekAwoa5nNQ8ROk2QR8D+nSv/F4MyHfZEL3hys9E8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOIRL6xXla3A/2Txra3zZkSSdqxRVABe6ogvoGcI/dDyMlRtPr5bGf4DJ9vQcZEdT
-         nzYyXsukm66xYcCOK10GfBrm/w9UvTuKt9DHQAbrljAXp6wXxQVxhEX4YiSFOLIFhd
-         2ozeuyjlWZmQmXBrxOeYWgbqd2lIxJ2XpRkvLJIU=
+        b=A2e1PSkZhxR4A19qkafS0rJr+sniVAtqpvNPl7fHSCdlffhwEMTMIKHP6oXZ2WdRV
+         22akSDpgkvtPmcdPbwz9l5Dmfethdc5vvkmw5UrjNBm7pkR4SO7tXuyhot2pOHwb/A
+         DYT89ObVxajWI1j2C6tHR9LPKHpO39en8NYDURYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 02/98] spi: bcm2835: Fix use-after-free on unbind
+        stable@vger.kernel.org, Pablo Ceballos <pceballos@google.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 044/152] HID: hid-sensor-hub: Fix issue with devices with no report ID
 Date:   Tue,  1 Dec 2020 09:52:39 +0100
-Message-Id: <20201201084653.067476286@linuxfoundation.org>
+Message-Id: <20201201084717.630971608@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Pablo Ceballos <pceballos@google.com>
 
-commit e1483ac030fb4c57734289742f1c1d38dca61e22 upstream
+[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
 
-bcm2835_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+Some HID devices don't use a report ID because they only have a single
+report. In those cases, the report ID in struct hid_report will be zero
+and the data for the report will start at the first byte, so don't skip
+over the first byte.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
-
-Fixes: f8043872e796 ("spi: add driver for BCM2835")
-Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v3.10+: 123456789abc: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v3.10+
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/ad66e0a0ad96feb848814842ecf5b6a4539ef35c.1605121038.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: dev_err_probe() not yet available]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pablo Ceballos <pceballos@google.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835.c |   18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1264,7 +1264,7 @@ static int bcm2835_spi_probe(struct plat
- 	struct bcm2835_spi *bs;
- 	int err;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 94c7398b5c279..3dd7d32467378 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -483,7 +483,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 		return 1;
  
--	ctlr = spi_alloc_master(&pdev->dev, ALIGN(sizeof(*bs),
-+	ctlr = devm_spi_alloc_master(&pdev->dev, ALIGN(sizeof(*bs),
- 						  dma_get_cache_alignment()));
- 	if (!ctlr)
- 		return -ENOMEM;
-@@ -1284,23 +1284,19 @@ static int bcm2835_spi_probe(struct plat
- 	bs = spi_controller_get_devdata(ctlr);
+ 	ptr = raw_data;
+-	ptr++; /* Skip report id */
++	if (report->id)
++		ptr++; /* Skip report id */
  
- 	bs->regs = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(bs->regs)) {
--		err = PTR_ERR(bs->regs);
--		goto out_controller_put;
--	}
-+	if (IS_ERR(bs->regs))
-+		return PTR_ERR(bs->regs);
+ 	spin_lock_irqsave(&pdata->lock, flags);
  
- 	bs->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(bs->clk)) {
- 		err = PTR_ERR(bs->clk);
- 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
--		goto out_controller_put;
-+		return err;
- 	}
- 
- 	bs->irq = platform_get_irq(pdev, 0);
--	if (bs->irq <= 0) {
--		err = bs->irq ? bs->irq : -ENODEV;
--		goto out_controller_put;
--	}
-+	if (bs->irq <= 0)
-+		return bs->irq ? bs->irq : -ENODEV;
- 
- 	clk_prepare_enable(bs->clk);
- 
-@@ -1330,8 +1326,6 @@ static int bcm2835_spi_probe(struct plat
- 
- out_clk_disable:
- 	clk_disable_unprepare(bs->clk);
--out_controller_put:
--	spi_controller_put(ctlr);
- 	return err;
- }
- 
+-- 
+2.27.0
+
 
 
