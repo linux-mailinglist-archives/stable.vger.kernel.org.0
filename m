@@ -2,308 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 306322CAE3D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 22:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7792CAE58
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 22:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726862AbgLAVQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 16:16:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52958 "EHLO
+        id S1728372AbgLAV0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 16:26:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725967AbgLAVQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 16:16:52 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C94C0613CF
-        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 13:16:12 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id l23so2125768pjg.1
-        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 13:16:12 -0800 (PST)
+        with ESMTP id S1726099AbgLAV0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 16:26:36 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927D8C0613D4;
+        Tue,  1 Dec 2020 13:25:56 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id s63so1993924pgc.8;
+        Tue, 01 Dec 2020 13:25:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X70o7kNXM7/+DnUEd+5vF6If8DXjGwV+v2gvzzRnEZU=;
-        b=2Rtcef4pKh8l3TRPZPqhdnuRfYY/RbIiq9zxDYgB0oq1eXS0bjHQyHGmLEGAMaigXn
-         BmF17/iTyNJ9PSNaTomWcYql4JXGxLD9SaPj9doaAiGgyX5NkkoDb/7exmc1R6aZupgX
-         RrlUJ2iMB3jSynPdO6nyCW76NjhEJ5kd+oJhEG/6dINfEjtwRNzYXChxAiNib5mbYZw/
-         42z2Hwmqz9o23PGlPuZQzyPaSLRfFWK2LdmUPiV2Q6y5zIWlcP1Ydb0e4SJPkFylVZlX
-         FZqkpwCLAdw+4Q/ZAE99OQXPcTW/LOUTqZIRG9shnLELRcf6g+tq3Ul4dQb2mgQX+1bd
-         ANuA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6AH1ye9fcQ8nEEAvfgVavcXuDhAsKsHPZtAf/e+wA6w=;
+        b=s1gOsSbNUBq/F4jbyfdn6LKmnFZ7L3RcucNI9foFNgpc7TbE239wWPabc3qM7xGtz5
+         QEwcvuZFUgbc5HdHqVX2poAQ3dp5kTkBiYqtNI4izLeA3bZZVL8PHjKxi3aMkqcRKcpj
+         y0aRYKU7o6OayWkMoNEjHCsM2dnfV/X77A4Aqm/mnaB7VPc7uJllfHlUONrWAHMa/eLl
+         ZRqBfxg1BzQRNByJsv3tQ26zMEih64PLoBhvb9N2X+QWcIEIbkSJwtBZYRzUTNmhDOPA
+         XNqyAQaWoX/ukxWZ2QxE4g2be8jtmAyWtWYhsfnfZ+bx4RrDl8OWlDxBkZ1K2bRJPpqL
+         L8GA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X70o7kNXM7/+DnUEd+5vF6If8DXjGwV+v2gvzzRnEZU=;
-        b=il9P8I247vN9aoTt31Fuqf7bw8v8vj8Tbyj/n5iZBaTa3KVAme+I/ZTXlKfQO9msvU
-         CIjYbo7fCNkj1F7lu0YMQoNjWq0JSN0+RaCHjo5u84rhlhwBiiUSbTNYTn5i33/jBfeE
-         4oxQYf1rzdQYj8SzMTvJZ1EXTwIzYdQ+M9rcjYWGQHl7n9DcpRzCNf1bB2IhRlymTEyN
-         1vXHHUl6RzBkkjjwqt2YFOfzK4u+IKRDJkVDKF8T9IY3qZcZR5xMsVnSkt2G+uTyqFX/
-         U1k5ZDCsYKECrJoqDAg3/bLpU7ozDWmFaiaSpf9Bo822BKbJFFcpUX7yoeWpwG/CPHDO
-         NwFQ==
-X-Gm-Message-State: AOAM530g0ekVFJlNXEw6Vgo+KNrd0QBh8TZvc814XvllHkDBlXVISApb
-        sizIS8BrczsTVbaBkSziLiL1bogwh77kDw==
-X-Google-Smtp-Source: ABdhPJwPM6/0RxKhjmdCo091Zmr+3D+ovL0JwgyEvFuxm3GLAatOP0YL3+FEMtThynq+L3P4HBULgA==
-X-Received: by 2002:a17:90b:4d0e:: with SMTP id mw14mr4698540pjb.92.1606857371032;
-        Tue, 01 Dec 2020 13:16:11 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h7sm516956pgi.90.2020.12.01.13.16.09
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6AH1ye9fcQ8nEEAvfgVavcXuDhAsKsHPZtAf/e+wA6w=;
+        b=T3OkS9KA83Wnwbd2x5s9qCdJpp3R4JmxbwJqmtH5vS4x+dYs7Jl61lh21tSelscln1
+         eEYyS5+cUy9mJBsy4INlcssmCLIOw06JrJ+Pwj8w54XgXx9CUkAKAG1IGCM3zfsREuQn
+         i4RlE+/pT3mtagvbXbAlRCFw3iWLsg16WRoJFjYlQVw+70F7dNnxle6W02gvWvcCBFYQ
+         yuY8W2mzyNjiXOE+d5tCT0M0NfqLAlV2Wg681BuLOkl6S9lM23sVPDRFqhswq6AbDC8t
+         OE23o/f/fKDGd2tgDBq9/3QGD8PP57ukqj9O3tz9TY9SeAnzmxEJTrbYcNjwsIbWCKcF
+         KOig==
+X-Gm-Message-State: AOAM5331mrQp2DWMSXpmNqcljTUMtfzBWx/VG2OCvrR/0j5hctPDQAy6
+        apZJXpAsLIgRoiHoX8za4nE=
+X-Google-Smtp-Source: ABdhPJzZF8tDdP0ExXOYybudhGqHhffhrCgLWTD49FXQSd5GtdGgJF9fqTo4wtIyI71M11h8o0CBMw==
+X-Received: by 2002:a65:66d3:: with SMTP id c19mr739264pgw.215.1606857956144;
+        Tue, 01 Dec 2020 13:25:56 -0800 (PST)
+Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
+        by smtp.gmail.com with ESMTPSA id l141sm670433pfd.124.2020.12.01.13.25.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Dec 2020 13:16:10 -0800 (PST)
-Message-ID: <5fc6b29a.1c69fb81.4bb7c.1662@mx.google.com>
-Date:   Tue, 01 Dec 2020 13:16:10 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 01 Dec 2020 13:25:55 -0800 (PST)
+From:   Yang Shi <shy828301@gmail.com>
+To:     guro@fb.com, ktkhai@virtuozzo.com, vdavydov.dev@gmail.com,
+        shakeelb@google.com, akpm@linux-foundation.org
+Cc:     shy828301@gmail.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [v3 PATCH] mm: list_lru: set shrinker map bit when child nr_items is not zero
+Date:   Tue,  1 Dec 2020 13:25:53 -0800
+Message-Id: <20201201212553.52164-1-shy828301@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.246-41-g942c26d92acab
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 137 runs,
- 6 regressions (v4.9.246-41-g942c26d92acab)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 137 runs, 6 regressions (v4.9.246-41-g942c26d=
-92acab)
+When investigating a slab cache bloat problem, significant amount of
+negative dentry cache was seen, but confusingly they neither got shrunk
+by reclaimer (the host has very tight memory) nor be shrunk by dropping
+cache.  The vmcore shows there are over 14M negative dentry objects on lru,
+but tracing result shows they were even not scanned at all.  The further
+investigation shows the memcg's vfs shrinker_map bit is not set.  So the
+reclaimer or dropping cache just skip calling vfs shrinker.  So we have
+to reboot the hosts to get the memory back.
+
+I didn't manage to come up with a reproducer in test environment, and the
+problem can't be reproduced after rebooting.  But it seems there is race
+between shrinker map bit clear and reparenting by code inspection.  The
+hypothesis is elaborated as below.
+
+The memcg hierarchy on our production environment looks like:
+                root
+               /    \
+          system   user
+
+The main workloads are running under user slice's children, and it creates
+and removes memcg frequently.  So reparenting happens very often under user
+slice, but no task is under user slice directly.
+
+So with the frequent reparenting and tight memory pressure, the below
+hypothetical race condition may happen:
+
+       CPU A                            CPU B
+reparent
+    dst->nr_items == 0
+                                 shrinker:
+                                     total_objects == 0
+    add src->nr_items to dst
+    set_bit
+                                     retrun SHRINK_EMPTY
+                                     clear_bit
+child memcg offline
+    replace child's kmemcg_id to
+    parent's (in memcg_offline_kmem())
+                                  list_lru_del() between shrinker runs
+                                     see parent's kmemcg_id
+                                     dec dst->nr_items
+reparent again
+    dst->nr_items may go negative
+    due to concurrent list_lru_del()
+
+                                 The second run of shrinker:
+                                     read nr_items without any
+                                     synchronization, so it may
+                                     see intermediate negative
+                                     nr_items then total_objects
+                                     may return 0 conincidently
+
+                                     keep the bit cleared
+    dst->nr_items != 0
+    skip set_bit
+    add scr->nr_item to dst
+
+After this point dst->nr_item may never go zero, so reparenting will not
+set shrinker_map bit anymore.  And since there is no task under user
+slice directly, so no new object will be added to its lru to set the
+shrinker map bit either.  That bit is kept cleared forever.
+
+How does list_lru_del() race with reparenting?  It is because
+reparenting replaces childen's kmemcg_id to parent's without protecting
+from nlru->lock, so list_lru_del() may see parent's kmemcg_id but
+actually deleting items from child's lru, but dec'ing parent's nr_items,
+so the parent's nr_items may go negative as commit
+2788cf0c401c268b4819c5407493a8769b7007aa ("memcg: reparent list_lrus and
+free kmemcg_id on css offline") says.
+
+Since it is impossible that dst->nr_items goes negative and
+src->nr_items goes zero at the same time, so it seems we could set the
+shrinker map bit iff src->nr_items != 0.  We could synchronize
+list_lru_count_one() and reparenting with nlru->lock, but it seems
+checking src->nr_items in reparenting is the simplest and avoids lock
+contention.
+
+Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
+Suggested-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org> v4.19+
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+---
+v3: * Revised commit log per Roman's suggestion
+    * Added Roman's reviewed-by tag
+v2: * Incorporated Roman's suggestion
+    * Incorporated Kirill's suggestion
+    * Changed the subject of patch to get align with the new fix
+    * Added fixes tag
+
+ mm/list_lru.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/mm/list_lru.c b/mm/list_lru.c
+index 5aa6e44bc2ae..fe230081690b 100644
+--- a/mm/list_lru.c
++++ b/mm/list_lru.c
+@@ -534,7 +534,6 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
+ 	struct list_lru_node *nlru = &lru->node[nid];
+ 	int dst_idx = dst_memcg->kmemcg_id;
+ 	struct list_lru_one *src, *dst;
+-	bool set;
+ 
+ 	/*
+ 	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
+@@ -546,11 +545,12 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
+ 	dst = list_lru_from_memcg_idx(nlru, dst_idx);
+ 
+ 	list_splice_init(&src->list, &dst->list);
+-	set = (!dst->nr_items && src->nr_items);
+-	dst->nr_items += src->nr_items;
+-	if (set)
++
++	if (src->nr_items) {
++		dst->nr_items += src->nr_items;
+ 		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
+-	src->nr_items = 0;
++		src->nr_items = 0;
++	}
+ 
+ 	spin_unlock_irq(&nlru->lock);
+ }
+-- 
+2.26.2
 
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.246-41-g942c26d92acab/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.246-41-g942c26d92acab
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      942c26d92acab18800f2e60ffaca4cf2975374e3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67d48a393717bdec94cdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67d48a393717bdec94=
-cdc
-        failing since 17 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67d57a393717bdec94cea
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67d57a393717bdec94=
-ceb
-        failing since 17 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67d481f08c7009ac94cdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67d481f08c7009ac94=
-cdc
-        failing since 17 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67dcbfce0b0786fc94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67dcbfce0b0786fc94=
-cba
-        failing since 17 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67d9af043eea262c94cc5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67d9af043eea262c94=
-cc6
-        failing since 17 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc67e6216ade1012ec94cd9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvat=
-or-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.246-4=
-1-g942c26d92acab/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvat=
-or-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc67e6216ade1012ec94=
-cda
-        failing since 13 days (last pass: v4.9.243-24-ga8ede488cf7a, first =
-fail: v4.9.243-77-g36ec779d6aa89) =
-
- =20
