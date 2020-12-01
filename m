@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E5A2C9C61
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6016C2C9A64
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389538AbgLAJRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:17:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S2387770AbgLAI5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:57:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389536AbgLAJLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:11:42 -0500
+        id S2387790AbgLAI5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:57:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 300FB20671;
-        Tue,  1 Dec 2020 09:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53D79217A0;
+        Tue,  1 Dec 2020 08:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813880;
-        bh=zD6wCW7jEzn8ryTtSSvwutuQXC+qVdXkoN53FJ3PHX4=;
+        s=korg; t=1606812986;
+        bh=R999WfZrnUCEzVoNM1x2sDRYxVNFjIjxnBacerztjXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMlKzlw8CARX/epDR6SmYEkcwwZtIQdTtuj7dZGpTbhD7IscNFPumL8JWIRsFCOVg
-         9maeijT2jGsbCaILm9IMG151nSgDE3QSuDKWYFRs/se6v5MQbbsGtSTbO+yxG3wIbY
-         TQ9XQF6FxALHpj4admOLY3DyRvIH9UzeXz44vLSc=
+        b=KFxIeGKHymmEjLxAFXVFr3/10lKK7PWa5Tp4FvN9Ba9FD1GKs0krojpSe8/7eW9Bm
+         xb+wqCP7KpQYoZphbmVtsTMnQ+OnmTIkpMTiTAwFI5Na4fAEF1MYK3DBi8lcp+2UuG
+         gD/gK6nCHaHNWGJNN963TjAvPJYyRubRX2iuZR0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 092/152] block/keyslot-manager: prevent crash when num_slots=1
+        stable@vger.kernel.org, Mike Cui <mikecui@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        Shay Agroskin <shayagr@amazon.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 29/42] net: ena: set initial DMA width to avoid intel iommu issue
 Date:   Tue,  1 Dec 2020 09:53:27 +0100
-Message-Id: <20201201084723.921696550@linuxfoundation.org>
+Message-Id: <20201201084644.550075795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit 47a846536e1bf62626f1c0d8488f3718ce5f8296 ]
+[ Upstream commit 09323b3bca95181c0da79daebc8b0603e500f573 ]
 
-If there is only one keyslot, then blk_ksm_init() computes
-slot_hashtable_size=1 and log_slot_ht_size=0.  This causes
-blk_ksm_find_keyslot() to crash later because it uses
-hash_ptr(key, log_slot_ht_size) to find the hash bucket containing the
-key, and hash_ptr() doesn't support the bits == 0 case.
+The ENA driver uses the readless mechanism, which uses DMA, to find
+out what the DMA mask is supposed to be.
 
-Fix this by making the hash table always have at least 2 buckets.
+If DMA is used without setting the dma_mask first, it causes the
+Intel IOMMU driver to think that ENA is a 32-bit device and therefore
+disables IOMMU passthrough permanently.
 
-Tested by running:
+This patch sets the dma_mask to be ENA_MAX_PHYS_ADDR_SIZE_BITS=48
+before readless initialization in
+ena_device_init()->ena_com_mmio_reg_read_request_init(),
+which is large enough to workaround the intel_iommu issue.
 
-    kvm-xfstests -c ext4 -g encrypt -m inlinecrypt \
-                 -o blk-crypto-fallback.num_keyslots=1
+DMA mask is set again to the correct value after it's received from the
+device after readless is initialized.
 
-Fixes: 1b2628397058 ("block: Keyslot Manager for Inline Encryption")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The patch also changes the driver to use dma_set_mask_and_coherent()
+function instead of the two pci_set_dma_mask() and
+pci_set_consistent_dma_mask() ones. Both methods achieve the same
+effect.
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Mike Cui <mikecui@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/keyslot-manager.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/block/keyslot-manager.c b/block/keyslot-manager.c
-index 35abcb1ec051d..86f8195d8039e 100644
---- a/block/keyslot-manager.c
-+++ b/block/keyslot-manager.c
-@@ -103,6 +103,13 @@ int blk_ksm_init(struct blk_keyslot_manager *ksm, unsigned int num_slots)
- 	spin_lock_init(&ksm->idle_slots_lock);
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index da21886609e30..de3d6f8b54316 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -2345,16 +2345,9 @@ static int ena_device_init(struct ena_com_dev *ena_dev, struct pci_dev *pdev,
+ 		goto err_mmio_read_less;
+ 	}
  
- 	slot_hashtable_size = roundup_pow_of_two(num_slots);
-+	/*
-+	 * hash_ptr() assumes bits != 0, so ensure the hash table has at least 2
-+	 * buckets.  This only makes a difference when there is only 1 keyslot.
-+	 */
-+	if (slot_hashtable_size < 2)
-+		slot_hashtable_size = 2;
+-	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_width));
++	rc = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(dma_width));
+ 	if (rc) {
+-		dev_err(dev, "pci_set_dma_mask failed 0x%x\n", rc);
+-		goto err_mmio_read_less;
+-	}
+-
+-	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(dma_width));
+-	if (rc) {
+-		dev_err(dev, "err_pci_set_consistent_dma_mask failed 0x%x\n",
+-			rc);
++		dev_err(dev, "dma_set_mask_and_coherent failed %d\n", rc);
+ 		goto err_mmio_read_less;
+ 	}
+ 
+@@ -2894,6 +2887,12 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		return rc;
+ 	}
+ 
++	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(ENA_MAX_PHYS_ADDR_SIZE_BITS));
++	if (rc) {
++		dev_err(&pdev->dev, "dma_set_mask_and_coherent failed %d\n", rc);
++		goto err_disable_device;
++	}
 +
- 	ksm->log_slot_ht_size = ilog2(slot_hashtable_size);
- 	ksm->slot_hashtable = kvmalloc_array(slot_hashtable_size,
- 					     sizeof(ksm->slot_hashtable[0]),
+ 	pci_set_master(pdev);
+ 
+ 	ena_dev = vzalloc(sizeof(*ena_dev));
 -- 
 2.27.0
 
