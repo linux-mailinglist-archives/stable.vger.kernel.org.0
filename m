@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B33472C9B3B
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE4E2C9BED
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387651AbgLAJGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:06:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        id S2390085AbgLAJN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:13:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbgLAJGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:06:02 -0500
+        id S2390078AbgLAJNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:13:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F4002224A;
-        Tue,  1 Dec 2020 09:05:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC780221FF;
+        Tue,  1 Dec 2020 09:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813546;
-        bh=z//7JeVCb8EzAnvPDC5wUpe0tLfUjr/1kiZZTgYCeYM=;
+        s=korg; t=1606813960;
+        bh=ZxjqU0FXy4FKh54cZvBJctwkOv95Rk3lxCbbJAkHPBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRx+bTilQbLQvLLlC5cAXcDTOgVphgZdMBnxNx41RxNYfYl5pvqCwRgnv6QuY0drD
-         f4tZsP0prbLud9yyOs80mWvnWGa2UZ/8n8KHat7IE5wo+l2Be4lXt6Ba0798F9Jfas
-         BwbkpqJtbG8I+9EF+smXg5QMSCOznX/GHJvuz+C4=
+        b=h6+NVVP4j9EPPGeMDTOQtpnYkCznmXCMFyOFNY5IylB94GmdV447nzS+OLblXK0Ry
+         2Ms1dEv0t5M0vh8pe4rPk4Kk31cREkl4PMqyvWDHgOw8w0lRfo384Nd9y5A3LuKhPk
+         Sum7O7HEH+LJsU7QqX03ZS447a276K6cCHWyRjP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Sriram Dash <sriram.dash@samsung.com>,
-        Pankaj Sharma <pankj.sharma@samsung.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
+        Dipen Patel <dipenp@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 76/98] can: m_can: m_can_open(): remove IRQF_TRIGGER_FALLING from request_threaded_irq()s flags
-Date:   Tue,  1 Dec 2020 09:53:53 +0100
-Message-Id: <20201201084658.783493642@linuxfoundation.org>
+Subject: [PATCH 5.9 119/152] arm64: tegra: Wrong AON HSP reg property size
+Date:   Tue,  1 Dec 2020 09:53:54 +0100
+Message-Id: <20201201084727.380521089@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Dipen Patel <dipenp@nvidia.com>
 
-[ Upstream commit 865f5b671b48d0088ce981cff1e822d9f7da441f ]
+[ Upstream commit 1741e18737948c140ccc4cc643e8126d95ee6e79 ]
 
-The threaded IRQ handler is used for the tcan4x5x driver only. The IRQ pin of
-the tcan4x5x controller is active low, so better not use IRQF_TRIGGER_FALLING
-when requesting the IRQ. As this can result in missing interrupts.
+The AON HSP node's "reg" property size 0xa0000 will overlap with other
+resources. This patch fixes that wrong value with correct size 0x90000.
 
-Further, if the device tree specified the interrupt as "IRQ_TYPE_LEVEL_LOW",
-unloading and reloading of the driver results in the following error during
-ifup:
-
-| irq: type mismatch, failed to map hwirq-31 for gpio@20a8000!
-| tcan4x5x spi1.1: m_can device registered (irq=0, version=32)
-| tcan4x5x spi1.1 can2: TCAN4X5X successfully initialized.
-| tcan4x5x spi1.1 can2: failed to request interrupt
-
-This patch fixes the problem by removing the IRQF_TRIGGER_FALLING from the
-request_threaded_irq().
-
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
-Cc: Dan Murphy <dmurphy@ti.com>
-Cc: Sriram Dash <sriram.dash@samsung.com>
-Cc: Pankaj Sharma <pankj.sharma@samsung.com>
-Link: https://lore.kernel.org/r/20201127093548.509253-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reviewed-by: Mikko Perttunen <mperttunen@nvidia.com>
+Signed-off-by: Dipen Patel <dipenp@nvidia.com>
+Fixes: a38570c22e9d ("arm64: tegra: Add nodes for TCU on Tegra194")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 2 +-
+ arch/arm64/boot/dts/nvidia/tegra194.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 246fa2657d744..eafdb4441d441 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1605,7 +1605,7 @@ static int m_can_open(struct net_device *dev)
- 		INIT_WORK(&cdev->tx_work, m_can_tx_work_queue);
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index ca5cb6aef5ee4..6f6d460c931aa 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -924,7 +924,7 @@
  
- 		err = request_threaded_irq(dev->irq, NULL, m_can_isr,
--					   IRQF_ONESHOT | IRQF_TRIGGER_FALLING,
-+					   IRQF_ONESHOT,
- 					   dev->name, dev);
- 	} else {
- 		err = request_irq(dev->irq, m_can_isr, IRQF_SHARED, dev->name,
+ 		hsp_aon: hsp@c150000 {
+ 			compatible = "nvidia,tegra194-hsp", "nvidia,tegra186-hsp";
+-			reg = <0x0c150000 0xa0000>;
++			reg = <0x0c150000 0x90000>;
+ 			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>,
+ 			             <GIC_SPI 134 IRQ_TYPE_LEVEL_HIGH>,
+ 			             <GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH>,
 -- 
 2.27.0
 
