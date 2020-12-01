@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9682C9A4D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D05D62C9B37
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729182AbgLAI4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:56:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59714 "EHLO mail.kernel.org"
+        id S2388234AbgLAJFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729167AbgLAI4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:56:32 -0500
+        id S2389058AbgLAJFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:10 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBDD92222C;
-        Tue,  1 Dec 2020 08:55:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E9B21D7A;
+        Tue,  1 Dec 2020 09:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812945;
-        bh=erEp8Hd03/G5Wj36fIxDIABjng4xWBY6Zc1+uA4Nwgo=;
+        s=korg; t=1606813494;
+        bh=kJKwS4GsTZmni+0jTLCZD40IeNVZuyZ27b/reR4p9AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZL/TTvuAuPvx9xlrJ7e5in8YwZn/55ygTzDFAP530bizh3DRgUxDEFiLEBe3auDD6
-         qxDhQA2+kkkWrKV5s+BWo5e8YoWShQP5dHssV1jYYnRZuAFrNWnOZJqZ+LeAeUWsCk
-         laNrpCxH6Ft0ngTwRcY15S66xJJPpWRCu8RCqTfo=
+        b=Pvu8jlxBCmMUczyCehQpsVKSCa7TQQuBJq7YEnRRC65uwEPL3IHo/JWTx1GTXPwLG
+         q7+z3gc4q74EYPDR7bAq9G+XLdZ/yHI/V8dmy/BDAQ1Qdjr8lZVJvrK9uTo1ByhNgH
+         6ZN/vS2lV0yoILfx+z/UGjHI+gzDnkdG82SOpNKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
-        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 06/42] btrfs: inode: Verify inode mode to avoid NULL pointer dereference
-Date:   Tue,  1 Dec 2020 09:53:04 +0100
-Message-Id: <20201201084642.477500696@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Ye <lzye@google.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 28/98] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
+Date:   Tue,  1 Dec 2020 09:53:05 +0100
+Message-Id: <20201201084656.256506383@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,197 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Chris Ye <lzye@google.com>
 
-commit 6bf9e4bd6a277840d3fe8c5d5d530a1fbd3db592 upstream
+[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
 
-[BUG]
-When accessing a file on a crafted image, btrfs can crash in block layer:
+Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
+be set explicitly with this flag.
 
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-  PGD 136501067 P4D 136501067 PUD 124519067 PMD 0
-  CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.0.0-rc8-default #252
-  RIP: 0010:end_bio_extent_readpage+0x144/0x700
-  Call Trace:
-   <IRQ>
-   blk_update_request+0x8f/0x350
-   blk_mq_end_request+0x1a/0x120
-   blk_done_softirq+0x99/0xc0
-   __do_softirq+0xc7/0x467
-   irq_exit+0xd1/0xe0
-   call_function_single_interrupt+0xf/0x20
-   </IRQ>
-  RIP: 0010:default_idle+0x1e/0x170
-
-[CAUSE]
-The crafted image has a tricky corruption, the INODE_ITEM has a
-different type against its parent dir:
-
-        item 20 key (268 INODE_ITEM 0) itemoff 2808 itemsize 160
-                generation 13 transid 13 size 1048576 nbytes 1048576
-                block group 0 mode 121644 links 1 uid 0 gid 0 rdev 0
-                sequence 9 flags 0x0(none)
-
-This mode number 0120000 means it's a symlink.
-
-But the dir item think it's still a regular file:
-
-        item 8 key (264 DIR_INDEX 5) itemoff 3707 itemsize 32
-                location key (268 INODE_ITEM 0) type FILE
-                transid 13 data_len 0 name_len 2
-                name: f4
-        item 40 key (264 DIR_ITEM 51821248) itemoff 1573 itemsize 32
-                location key (268 INODE_ITEM 0) type FILE
-                transid 13 data_len 0 name_len 2
-                name: f4
-
-For symlink, we don't set BTRFS_I(inode)->io_tree.ops and leave it
-empty, as symlink is only designed to have inlined extent, all handled
-by tree block read.  Thus no need to trigger btrfs_submit_bio_hook() for
-inline file extent.
-
-However end_bio_extent_readpage() expects tree->ops populated, as it's
-reading regular data extent.  This causes NULL pointer dereference.
-
-[FIX]
-This patch fixes the problem in two ways:
-
-- Verify inode mode against its dir item when looking up inode
-  So in btrfs_lookup_dentry() if we find inode mode mismatch with dir
-  item, we error out so that corrupted inode will not be accessed.
-
-- Verify inode mode when getting extent mapping
-  Only regular file should have regular or preallocated extent.
-  If we found regular/preallocated file extent for symlink or
-  the rest, we error out before submitting the read bio.
-
-With this fix that crafted image can be rejected gracefully:
-
-  BTRFS critical (device loop0): inode mode mismatch with dir: inode mode=0121644 btrfs type=7 dir type=1
-
-Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202763
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[sudip: use original btrfs_inode_type(), btrfs_crit with root->fs_info,
-ISREG with inode->i_mode and adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Ye <lzye@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c             |   41 +++++++++++++++++++++++++++++++++--------
- fs/btrfs/tests/inode-tests.c |    1 +
- 2 files changed, 34 insertions(+), 8 deletions(-)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-quirks.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -5440,11 +5440,13 @@ no_delete:
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d173badafcf1f..6b1c26e6fa4a3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -451,6 +451,10 @@
+ #define USB_VENDOR_ID_FRUCTEL	0x25B6
+ #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
  
- /*
-- * this returns the key found in the dir entry in the location pointer.
-+ * Return the key found in the dir entry in the location pointer, fill @type
-+ * with BTRFS_FT_*, and return 0.
-+ *
-  * If no dir entries were found, location->objectid is 0.
-  */
- static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
--			       struct btrfs_key *location)
-+			       struct btrfs_key *location, u8 *type)
- {
- 	const char *name = dentry->d_name.name;
- 	int namelen = dentry->d_name.len;
-@@ -5466,6 +5468,8 @@ static int btrfs_inode_by_name(struct in
- 		goto out_err;
- 
- 	btrfs_dir_item_key_to_cpu(path->nodes[0], di, location);
-+	if (!ret)
-+		*type = btrfs_dir_type(path->nodes[0], di);
- out:
- 	btrfs_free_path(path);
- 	return ret;
-@@ -5755,19 +5759,25 @@ static struct inode *new_simple_dir(stru
- 	return inode;
- }
- 
-+static inline u8 btrfs_inode_type(struct inode *inode)
-+{
-+	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
-+}
++#define USB_VENDOR_ID_GAMEVICE	0x27F8
++#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
++#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
 +
- struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
- {
- 	struct inode *inode;
- 	struct btrfs_root *root = BTRFS_I(dir)->root;
- 	struct btrfs_root *sub_root = root;
- 	struct btrfs_key location;
-+	u8 di_type = 0;
- 	int index;
- 	int ret = 0;
- 
- 	if (dentry->d_name.len > BTRFS_NAME_LEN)
- 		return ERR_PTR(-ENAMETOOLONG);
- 
--	ret = btrfs_inode_by_name(dir, dentry, &location);
-+	ret = btrfs_inode_by_name(dir, dentry, &location, &di_type);
- 	if (ret < 0)
- 		return ERR_PTR(ret);
- 
-@@ -5776,6 +5786,18 @@ struct inode *btrfs_lookup_dentry(struct
- 
- 	if (location.type == BTRFS_INODE_ITEM_KEY) {
- 		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
-+		if (IS_ERR(inode))
-+			return inode;
-+
-+		/* Do extra check against inode mode with di_type */
-+		if (btrfs_inode_type(inode) != di_type) {
-+			btrfs_crit(root->fs_info,
-+"inode mode mismatch with dir: inode mode=0%o btrfs type=%u dir type=%u",
-+				  inode->i_mode, btrfs_inode_type(inode),
-+				  di_type);
-+			iput(inode);
-+			return ERR_PTR(-EUCLEAN);
-+		}
- 		return inode;
- 	}
- 
-@@ -6391,11 +6413,6 @@ fail:
- 	return ERR_PTR(ret);
- }
- 
--static inline u8 btrfs_inode_type(struct inode *inode)
--{
--	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
--}
--
- /*
-  * utility function to add 'inode' into 'parent_inode' with
-  * a give name and a given sequence number.
-@@ -6981,6 +6998,14 @@ again:
- 	extent_start = found_key.offset;
- 	if (found_type == BTRFS_FILE_EXTENT_REG ||
- 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
-+		/* Only regular file could have regular/prealloc extent */
-+		if (!S_ISREG(inode->i_mode)) {
-+			ret = -EUCLEAN;
-+			btrfs_crit(root->fs_info,
-+		"regular/prealloc extent found for non-regular inode %llu",
-+				   btrfs_ino(inode));
-+			goto out;
-+		}
- 		extent_end = extent_start +
- 		       btrfs_file_extent_num_bytes(leaf, item);
- 	} else if (found_type == BTRFS_FILE_EXTENT_INLINE) {
---- a/fs/btrfs/tests/inode-tests.c
-+++ b/fs/btrfs/tests/inode-tests.c
-@@ -245,6 +245,7 @@ static noinline int test_btrfs_get_exten
- 		return ret;
- 	}
- 
-+	inode->i_mode = S_IFREG;
- 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
- 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
- 	BTRFS_I(inode)->location.offset = 0;
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index abee4e950a4ee..60d188a704e5e 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -85,6 +85,10 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+-- 
+2.27.0
+
 
 
