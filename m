@@ -2,98 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B922C99BD
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:43:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D1C2C99EF
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728804AbgLAIm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:42:57 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:38955 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726755AbgLAIm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 03:42:57 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id E67EA5C0191;
-        Tue,  1 Dec 2020 03:42:10 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 01 Dec 2020 03:42:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=G5iYvQJ/IEHDDv47uDKzi67A92D
-        +rXCZFinCidCd03M=; b=11InS3IX42AAAeeCRj+oZsOtlVM5IZFdzJ1vNsFrlUt
-        KPc9FwfOG6e7/CRrhwFWV6AazmqRNeyCNJ8Wm2w+W1KSltoEQ40uhPxwlXb+N75Z
-        vdyQsuXkLHO24rHwzsSiNYlOmB6UCnIXMihc9y0pMzj/GYhwa3ZwX3NFes9BjSFZ
-        mBO/hc5Ojsd2Nubfwd1KAisFVcf6Q09mWTm//kcuwwCe/rKInWe0FLRSJMghY0qH
-        genR+6/Xpz1utJTR6xjlJdqRGJIruj3q0q8IvtcOQ3KLWXA/SuNZPtU+w/TwLFTZ
-        faE6Ljg3udAXg7PH3OCN1ua30y38TnFE0cLe95dFN9g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=G5iYvQ
-        J/IEHDDv47uDKzi67A92D+rXCZFinCidCd03M=; b=ZNtE5X9k6TAVuX5D5PPxzI
-        l1aPMwyqkmsILeoaHLH6FTPFkM17103VB16PaV9osOqTuaZmNchBrGC08PgWFx8A
-        ywDVpFrW3LVUlsnJO1uEjX6ul2DhuayJqmt1eZdGvn0hPhxZuN4KLA+oD/ZRsvMy
-        5rVRKcbCQpZDspQYwtOkNorEhg3sbJYy3dPggnUQe3FuCoh8vVo26kJITnQjETg1
-        m3V3St+jKMJlpty1U217INtQgXpvEdrtL580m6YbBLBsgXc2fTL2gSOEbaEgifcq
-        FT8v03l6r0Gz1W9r/c5lqYL9e3X/d5tSvY40g+J7lWavSP8YtQD8r87LR35UHOtA
-        ==
-X-ME-Sender: <xms:4QHGXxro317dbOD_lMTCTIQa2kYbCm7TCJwTP7ihxx5lP4cFanxMFg>
-    <xme:4QHGXzpLy1u4srOb9bONX2B7XuaxyQ7ttD_G3WlOhGyCqFDHyUWeC8D8wXJXKQTV8
-    P1sCemez-zl0A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeiuddguddvudcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelle
-    dtheekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhush
-    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
-    hhdrtghomh
-X-ME-Proxy: <xmx:4QHGX-N7_VdZnuYAhcwxQ4X9CLbfdqIc1aX2Pon23MwvrwtWE9g7gA>
-    <xmx:4QHGX84dY4gnXM4L0deaSr4ctc1Qm5FGXASzOLEZRdZqSVV59g_uJw>
-    <xmx:4QHGXw6JJnnvPhdkEb5DzByLDrRhlEGz4ZtL1fjiyuK-wBlu-FhHeg>
-    <xmx:4gHGX6SF1zFNXhdNzFQ1PXtgaLhXv1HypYGkWwkR00Ja1fmc5lr7tw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4F8233280063;
-        Tue,  1 Dec 2020 03:42:09 -0500 (EST)
-Date:   Tue, 1 Dec 2020 09:43:22 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Cezary Rojewski <cezary.rojewski@intel.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        alsa-devel@alsa-project.org, broonie@kernel.org, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com,
-        mateusz.gorski@linux.intel.com
-Subject: Re: [PATCH 0/8] ASoC: Intel: Skylake: Fix HDAudio and DMIC for v5.4
-Message-ID: <X8YCKiV8/MWKMAUd@kroah.com>
-References: <20201129114148.13772-1-cezary.rojewski@intel.com>
+        id S1728949AbgLAItL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:49:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727058AbgLAItL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 03:49:11 -0500
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9530CC0613CF;
+        Tue,  1 Dec 2020 00:48:30 -0800 (PST)
+Received: by mail-lj1-x242.google.com with SMTP id t22so1631123ljk.0;
+        Tue, 01 Dec 2020 00:48:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jwVJjrYf4EoWNF76bT56Jg1fGwktaIknwNyVbZNutqw=;
+        b=HaiUwxLt5+T+f1NTruadDqbIVPhFVqULfYguIx1bQ97AjHJThL8pLuOihN/dPt4YMT
+         6sodWnZ2zOQtaYanlnp3CoNYB8F8kFSfiKO5ZiaNKslWdztFum4pKTBW34DlqubIXR/H
+         /we/2VHRVjrEJ342lYx4yyC8E4DNZMXCYwUEyBVxT33X51UfFcoN1MbJECGF5RdVQ/Tk
+         gqOAfAt2rgg0vYWiQ/btho/110knlP77x/Sf+tLUMkYCA16m2nhrmZHrP7NT/xG9TrdA
+         UWtbbC0jbADNTLORGtd0qvlfiMiNX0LaWeC8T1dAuU27xc+nstKVO6wXT+Jn48UDO69p
+         6ilg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jwVJjrYf4EoWNF76bT56Jg1fGwktaIknwNyVbZNutqw=;
+        b=X/EDk19MvP3JBq1HiWCGPFUUIt6W7UVjaLfUfSA609XNrDaMMDw/OydCUwXPgJwth/
+         0KMe07HL1PmiWWcNGQcsF5W6fWYqPdFnXPYdjbKxGAh/cdeqEeXoBXVNM7/YsZCtjbdz
+         diW/sIb+6YpglDn7IH4dcWneg7ZZZYn/FDH2ry/FEkT4sUOHw48/lY9AAX1pksdX3js1
+         hsbnliZH/VhfcsW+jadMAX+acVEEf/LHN3btzemnS7GmXR/oRc+X/ZovzofPSeBZlHSA
+         YaWLGMtYG3VOxuIXZZutan2X+hXA2j7iDGYdBIOsOxrSxwwWNxYvDV37OdmFpCr+sWcT
+         CNWA==
+X-Gm-Message-State: AOAM530PjuYprUGqg3g2UfN1rjhmlhfFCk9TyTikrAQX5tiS8s2l/PPP
+        N9cdklCsgPMlC1RVvQv8B6n2YxKAS+n+/kFngQMdBcxfgs7Utg==
+X-Google-Smtp-Source: ABdhPJypa/vi3ZkUTSCLWl6B7ybinXq71oQyq4tahZaKghY6IJrRSSxA6gpJTNF8lMYOAmryhItYJOScJNvcqaSZDSs=
+X-Received: by 2002:a2e:a202:: with SMTP id h2mr849114ljm.346.1606812509148;
+ Tue, 01 Dec 2020 00:48:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201129114148.13772-1-cezary.rojewski@intel.com>
+References: <20201127140559.381351-1-gregkh@linuxfoundation.org> <20201127140559.381351-2-gregkh@linuxfoundation.org>
+In-Reply-To: <20201127140559.381351-2-gregkh@linuxfoundation.org>
+From:   Peter Chen <hzpeterchen@gmail.com>
+Date:   Tue, 1 Dec 2020 16:48:17 +0800
+Message-ID: <CAL411-poRr1Mz5O6_9H8c9GmjF1UQN+2x9-EASfv7CcPzHvCVQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/5] USB: gadget: f_rndis: fix bitrate for SuperSpeed
+ and above
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     balbi@kernel.org, peter.chen@nxp.com, willmcvicker@google.com,
+        USB list <linux-usb@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>, EJ Hsu <ejh@nvidia.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 29, 2020 at 12:41:40PM +0100, Cezary Rojewski wrote:
-> First six of the backport address numerous problems troubling HDAudio
-> configuration users for Skylake driver. Upstream series:
-> "ASoC: Intel: Skylake: Fix HDaudio and Dmic" [1] provides the
-> explanation and reasoning behind it. These have been initialy pushed
-> into v5.7-rc1 via: "sound updates for 5.7-rc1" [2] by Takashi.
-> 
-> Last two patches are from: "Add support for different DMIC
-> configurations" [3] which focuses on HDAudio with DMIC configuration.
-> Patch: "ASoC: Intel: Skylake: Add alternative topology binary name"
-> of the mentioned series has already been merged to v5.4.y -stable and
-> thus it's not included here.
-> 
-> Fixes target mainly Skylake and Kabylake based platforms, released
-> in 2015-2016 period.
-> 
-> [1]: https://lore.kernel.org/alsa-devel/20200305145314.32579-1-cezary.rojewski@intel.com/
-> [2]: https://lore.kernel.org/lkml/s5htv22uso8.wl-tiwai@suse.de/
-> [3]: https://lore.kernel.org/alsa-devel/20200427132727.24942-1-mateusz.gorski@linux.intel.com/
+>
+> From: Will McVicker <willmcvicker@google.com>
+>
 
-Thanks for these, it was very easy to pick them up in this format, much
-appreciated.
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
 
-greg k-h
+Peter
+> Align the SuperSpeed Plus bitrate for f_rndis to match f_ncm's ncm_bitrate
+> defined by commit 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors
+> for CDC NCM").
+>
+> Cc: Felipe Balbi <balbi@kernel.org>
+> Cc: EJ Hsu <ejh@nvidia.com>
+> Cc: Peter Chen <peter.chen@nxp.com>
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Will McVicker <willmcvicker@google.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/usb/gadget/function/f_rndis.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
+> index 9534c8ab62a8..0739b05a0ef7 100644
+> --- a/drivers/usb/gadget/function/f_rndis.c
+> +++ b/drivers/usb/gadget/function/f_rndis.c
+> @@ -87,8 +87,10 @@ static inline struct f_rndis *func_to_rndis(struct usb_function *f)
+>  /* peak (theoretical) bulk transfer rate in bits-per-second */
+>  static unsigned int bitrate(struct usb_gadget *g)
+>  {
+> +       if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
+> +               return 4250000000U;
+>         if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+> -               return 13 * 1024 * 8 * 1000 * 8;
+> +               return 3750000000U;
+>         else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+>                 return 13 * 512 * 8 * 1000 * 8;
+>         else
+> --
+> 2.29.2
+>
