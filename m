@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BADE2C9D7E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B64892C9D7A
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390740AbgLAJYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:24:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
+        id S1728015AbgLAJYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:24:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388593AbgLAJGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:06:19 -0500
+        id S2388758AbgLAJGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:06:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A256A22244;
-        Tue,  1 Dec 2020 09:05:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82F0722245;
+        Tue,  1 Dec 2020 09:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813538;
-        bh=nKu4VDLBDD2CjeBw0ad/pQm8ZFHTCFlZW5bhuK/ie+k=;
+        s=korg; t=1606813541;
+        bh=cLlfYmBM43nEai9iLzYZtVzly2bVU8zKa6peQumlORw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMgaKD23NCLRiaeq7u3QOzNEp8qfDmosjzTvLgg/ID06KB2hOV47rzZNvMTF2Sv4m
-         F2zBdl2Lnnj6gWCWJHQWrMR2+DULiECwa4djkIutLmFC754w8q2YwGtlRnBNR5x4tT
-         KDak92Vjn5eghiHLW5l/diBcUbji0HojSJqUDgC0=
+        b=0stIo/QQKTwfkR78WYH7s7MKjR6uTUSNbUR2QoTVmu0wvHpavOMVOFY/BFlorEt/Z
+         ORXgHkUs9n59BUaeDBsGxWch/cDlxZeGjmsjmaddnTJn18+fSyKmqqLrABH3PR3YmT
+         BUyUPbI5XdP7Liurpxu3OMCnswLiuWGyegdrDupg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
+        stable@vger.kernel.org, Yixian Liu <liuyixian@huawei.com>,
         Weihang Li <liweihang@huawei.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 74/98] RDMA/hns: Fix retry_cnt and rnr_cnt when querying QP
-Date:   Tue,  1 Dec 2020 09:53:51 +0100
-Message-Id: <20201201084658.691683546@linuxfoundation.org>
+Subject: [PATCH 5.4 75/98] RDMA/hns: Bugfix for memory window mtpt configuration
+Date:   Tue,  1 Dec 2020 09:53:52 +0100
+Message-Id: <20201201084658.742503695@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
 References: <20201201084652.827177826@linuxfoundation.org>
@@ -44,44 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Yixian Liu <liuyixian@huawei.com>
 
-[ Upstream commit ab6f7248cc446b85fe9e31091670ad7c4293d7fd ]
+[ Upstream commit 17475e104dcb74217c282781817f8f52b46130d3 ]
 
-The maximum number of retransmission should be returned when querying QP,
-not the value of retransmission counter.
+When a memory window is bound to a memory region, the local write access
+should be set for its mtpt table.
 
-Fixes: 99fcf82521d9 ("RDMA/hns: Fix the wrong value of rnr_retry when querying qp")
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/1606382977-21431-1-git-send-email-liweihang@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Fixes: c7c28191408b ("RDMA/hns: Add MW support for hip08")
+Link: https://lore.kernel.org/r/1606386372-21094-1-git-send-email-liweihang@huawei.com
+Signed-off-by: Yixian Liu <liuyixian@huawei.com>
 Signed-off-by: Weihang Li <liweihang@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index bb75328193957..b285920bcd8ab 100644
+index b285920bcd8ab..e8933daab4995 100644
 --- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
 +++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4614,11 +4614,11 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
- 					      V2_QPC_BYTE_28_AT_M,
- 					      V2_QPC_BYTE_28_AT_S);
- 	qp_attr->retry_cnt = roce_get_field(context.byte_212_lsn,
--					    V2_QPC_BYTE_212_RETRY_CNT_M,
--					    V2_QPC_BYTE_212_RETRY_CNT_S);
-+					    V2_QPC_BYTE_212_RETRY_NUM_INIT_M,
-+					    V2_QPC_BYTE_212_RETRY_NUM_INIT_S);
- 	qp_attr->rnr_retry = roce_get_field(context.byte_244_rnr_rxack,
--					    V2_QPC_BYTE_244_RNR_CNT_M,
--					    V2_QPC_BYTE_244_RNR_CNT_S);
-+					    V2_QPC_BYTE_244_RNR_NUM_INIT_M,
-+					    V2_QPC_BYTE_244_RNR_NUM_INIT_S);
+@@ -2423,6 +2423,7 @@ static int hns_roce_v2_mw_write_mtpt(void *mb_buf, struct hns_roce_mw *mw)
  
- done:
- 	qp_attr->cur_qp_state = qp_attr->qp_state;
+ 	roce_set_bit(mpt_entry->byte_8_mw_cnt_en, V2_MPT_BYTE_8_R_INV_EN_S, 1);
+ 	roce_set_bit(mpt_entry->byte_8_mw_cnt_en, V2_MPT_BYTE_8_L_INV_EN_S, 1);
++	roce_set_bit(mpt_entry->byte_8_mw_cnt_en, V2_MPT_BYTE_8_LW_EN_S, 1);
+ 
+ 	roce_set_bit(mpt_entry->byte_12_mw_pa, V2_MPT_BYTE_12_PA_S, 0);
+ 	roce_set_bit(mpt_entry->byte_12_mw_pa, V2_MPT_BYTE_12_MR_MW_S, 1);
 -- 
 2.27.0
 
