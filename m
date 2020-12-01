@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 369922C9A80
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C0A62C9B2D
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387898AbgLAI6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:58:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
+        id S1729376AbgLAJFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387883AbgLAI6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:11 -0500
+        id S2388883AbgLAJEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:04:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F268F206D8;
-        Tue,  1 Dec 2020 08:57:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CB9D221EB;
+        Tue,  1 Dec 2020 09:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813044;
-        bh=Xf/y0BR0UcG+wkGy2k3p4yycMBIPF+xa5O9ImTP6T2o=;
+        s=korg; t=1606813430;
+        bh=vHbmGitfmFmde25Z8F1SEwm+xaWJLn3EOMGlBjZYEDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUlwcfcV0AAnTixLPLttjkhQp1j4eNphcQ8ysyY3edJLBb6OB7RRoK/lI6bTBFpP1
-         yTpyyIm3Ic2qIrsJNAIFp+bzE7snqtKWJji1cHGRlkKx0kxxq3mfvOv3G2kh6mlPXt
-         84F9HVxRib3AmwSKIrEjqoZxfw2gHJrq5DFjG6gE=
+        b=Gm+tC+kKFB+tJ6ov22i/RXP7mdiw/QLbVberSe4sgI7Ry3Ooc+zD2pKfIPAWrTmIS
+         WQX8Ym3oJaq02zifJ/RUQe1Qh3DTVSEqgC0WoyVdrHwtDvmND9w6FrPI5P8DfI0138
+         aMOpYhD7yE7Owj8kjS+ponoDgNkg9fPtns+4xyss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Yang <puilp0502@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/50] HID: cypress: Support Varmilo Keyboards media hotkeys
-Date:   Tue,  1 Dec 2020 09:53:13 +0100
-Message-Id: <20201201084646.820453458@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 37/98] scsi: libiscsi: Fix NOP race condition
+Date:   Tue,  1 Dec 2020 09:53:14 +0100
+Message-Id: <20201201084656.948691209@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,133 +45,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Yang <puilp0502@gmail.com>
+From: Lee Duncan <lduncan@suse.com>
 
-[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
+[ Upstream commit fe0a8a95e7134d0b44cd407bc0085b9ba8d8fe31 ]
 
-The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
-exposes media control hotkeys as a USB HID consumer control device, but
-these keys do not work in the current (5.8-rc1) kernel due to the
-incorrect HID report descriptor. Fix the problem by modifying the
-internal HID report descriptor.
+iSCSI NOPs are sometimes "lost", mistakenly sent to the user-land iscsid
+daemon instead of handled in the kernel, as they should be, resulting in a
+message from the daemon like:
 
-More specifically, the keyboard report descriptor specifies the
-logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
-boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
-incorrect interpretation of input reports, causing inputs to be ignored.
-By setting the Logical Minimum to zero, we align the logical boundary
-with the Usage ID boundary.
+  iscsid: Got nop in, but kernel supports nop handling.
 
-Some notes:
+This can occur because of the new forward- and back-locks, and the fact
+that an iSCSI NOP response can occur before processing of the NOP send is
+complete. This can result in "conn->ping_task" being NULL in
+iscsi_nop_out_rsp(), when the pointer is actually in the process of being
+set.
 
-* There seem to be multiple variants of the VA104M keyboard. This
-  patch specifically targets 04b4:07b1 variant.
+To work around this, we add a new state to the "ping_task" pointer. In
+addition to NULL (not assigned) and a pointer (assigned), we add the state
+"being set", which is signaled with an INVALID pointer (using "-1").
 
-* The device works out-of-the-box on Windows platform with the generic
-  consumer control device driver (hidserv.inf). This suggests that
-  Windows either ignores the Logical Minimum/Logical Maximum or
-  interprets the Usage ID assignment differently from the linux
-  implementation; Maybe there are other devices out there that only
-  works on Windows due to this problem?
-
-Signed-off-by: Frank Yang <puilp0502@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/20201106193317.16993-1-leeman.duncan@gmail.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
- drivers/hid/hid-ids.h     |  2 ++
- 2 files changed, 41 insertions(+), 5 deletions(-)
+ drivers/scsi/libiscsi.c | 23 +++++++++++++++--------
+ include/scsi/libiscsi.h |  3 +++
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 1689568b597d4..12c5d7c96527a 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -26,19 +26,17 @@
- #define CP_2WHEEL_MOUSE_HACK		0x02
- #define CP_2WHEEL_MOUSE_HACK_ON		0x04
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 70b99c0e2e678..f954be3d5ee22 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -533,8 +533,8 @@ static void iscsi_complete_task(struct iscsi_task *task, int state)
+ 	if (conn->task == task)
+ 		conn->task = NULL;
  
-+#define VA_INVAL_LOGICAL_BOUNDARY	0x08
+-	if (conn->ping_task == task)
+-		conn->ping_task = NULL;
++	if (READ_ONCE(conn->ping_task) == task)
++		WRITE_ONCE(conn->ping_task, NULL);
+ 
+ 	/* release get from queueing */
+ 	__iscsi_put_task(task);
+@@ -738,6 +738,9 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
+ 						   task->conn->session->age);
+ 	}
+ 
++	if (unlikely(READ_ONCE(conn->ping_task) == INVALID_SCSI_TASK))
++		WRITE_ONCE(conn->ping_task, task);
 +
- /*
-  * Some USB barcode readers from cypress have usage min and usage max in
-  * the wrong order
-  */
--static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
- 	unsigned int i;
+ 	if (!ihost->workq) {
+ 		if (iscsi_prep_mgmt_task(conn, task))
+ 			goto free_task;
+@@ -941,8 +944,11 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+         struct iscsi_nopout hdr;
+ 	struct iscsi_task *task;
  
--	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
--		return rdesc;
--
- 	if (*rsize < 4)
- 		return rdesc;
- 
-@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	/*
-+	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
-+	 * reports Logical Minimum of its Consumer Control device as 572
-+	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
-+	 */
-+	if (*rsize == 25 &&
-+			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
-+			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
-+			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
-+			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
-+		hid_info(hdev,
-+			 "fixing up varmilo VA104M consumer control report descriptor\n");
-+		rdesc[12] = 0x00;
-+		rdesc[13] = 0x00;
+-	if (!rhdr && conn->ping_task)
+-		return -EINVAL;
++	if (!rhdr) {
++		if (READ_ONCE(conn->ping_task))
++			return -EINVAL;
++		WRITE_ONCE(conn->ping_task, INVALID_SCSI_TASK);
 +	}
-+	return rdesc;
-+}
-+
-+static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
-+		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
-+	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
-+		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
-+
-+	return rdesc;
-+}
-+
- static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
- 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
- 		.driver_data = CP_2WHEEL_MOUSE_HACK },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
-+		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
- 	{ }
+ 
+ 	memset(&hdr, 0, sizeof(struct iscsi_nopout));
+ 	hdr.opcode = ISCSI_OP_NOOP_OUT | ISCSI_OP_IMMEDIATE;
+@@ -957,11 +963,12 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+ 
+ 	task = __iscsi_conn_send_pdu(conn, (struct iscsi_hdr *)&hdr, NULL, 0);
+ 	if (!task) {
++		if (!rhdr)
++			WRITE_ONCE(conn->ping_task, NULL);
+ 		iscsi_conn_printk(KERN_ERR, conn, "Could not send nopout\n");
+ 		return -EIO;
+ 	} else if (!rhdr) {
+ 		/* only track our nops */
+-		conn->ping_task = task;
+ 		conn->last_ping = jiffies;
+ 	}
+ 
+@@ -984,7 +991,7 @@ static int iscsi_nop_out_rsp(struct iscsi_task *task,
+ 	struct iscsi_conn *conn = task->conn;
+ 	int rc = 0;
+ 
+-	if (conn->ping_task != task) {
++	if (READ_ONCE(conn->ping_task) != task) {
+ 		/*
+ 		 * If this is not in response to one of our
+ 		 * nops then it must be from userspace.
+@@ -1923,7 +1930,7 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
+  */
+ static int iscsi_has_ping_timed_out(struct iscsi_conn *conn)
+ {
+-	if (conn->ping_task &&
++	if (READ_ONCE(conn->ping_task) &&
+ 	    time_before_eq(conn->last_recv + (conn->recv_timeout * HZ) +
+ 			   (conn->ping_timeout * HZ), jiffies))
+ 		return 1;
+@@ -2058,7 +2065,7 @@ enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
+ 	 * Checking the transport already or nop from a cmd timeout still
+ 	 * running
+ 	 */
+-	if (conn->ping_task) {
++	if (READ_ONCE(conn->ping_task)) {
+ 		task->have_checked_conn = true;
+ 		rc = BLK_EH_RESET_TIMER;
+ 		goto done;
+diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
+index c25fb86ffae95..b3bbd10eb3f07 100644
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -132,6 +132,9 @@ struct iscsi_task {
+ 	void			*dd_data;	/* driver/transport data */
  };
- MODULE_DEVICE_TABLE(hid, cp_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a1e5e0529545b..222204c2da22a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -322,6 +322,8 @@
- #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
- #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
  
-+#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++/* invalid scsi_task pointer */
++#define	INVALID_SCSI_TASK	(struct iscsi_task *)-1l
 +
- #define USB_VENDOR_ID_DATA_MODUL	0x7374
- #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
- 
+ static inline int iscsi_task_has_unsol_data(struct iscsi_task *task)
+ {
+ 	return task->unsol_r2t.data_length > task->unsol_r2t.sent;
 -- 
 2.27.0
 
