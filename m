@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2686E2C9DF4
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 753FD2C9CE5
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388060AbgLAJ3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:29:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S2387768AbgLAJFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387593AbgLAI7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:59:06 -0500
+        id S2389051AbgLAJFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D64A722210;
-        Tue,  1 Dec 2020 08:58:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9F2520671;
+        Tue,  1 Dec 2020 09:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813099;
-        bh=VCawFnsDnQNth3TO+YKU9YQEsIltI4b3xyFvMrV7n4E=;
+        s=korg; t=1606813488;
+        bh=SlirlzYcBTk8viTHCH1ZEvq3y4PRpTurTNZjdSESbhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbkFVLodG/B8/zLJNZbspW1Ycm2xu0Y94rHcDgyBDsSeKhlVTdBNtcGEsLyabo++5
-         fA2lyB+z5LzdJje6QOwBPiGSvHhh569rHYLx625Y9k9cSt9u6iRBDyTnHfytbpOpUA
-         BlSEnxB8eiIgfz9Z/Nj7yUeQ1/1CzaaLbQ3nN314=
+        b=MlT32oOP6sX9t09V7em1qGsBBfGK7hlXgGivQVq0nG4MixKO6rz1d2iBDdjHx/PLu
+         ROVdZcE/XWRCNYt4gDekkGVaCcqtSuOeYUoMvtovZi8TeqRnKTKkhT9gqzvBF/nDaG
+         FWXA2bXUYGOHlp19PapqxmQ+Ff0zmWpaZnlg8RQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 33/50] IB/mthca: fix return value of error branch in mthca_init_cq()
+Subject: [PATCH 5.4 55/98] s390/qeth: make af_iucv TX notification call more robust
 Date:   Tue,  1 Dec 2020 09:53:32 +0100
-Message-Id: <20201201084649.107348521@linuxfoundation.org>
+Message-Id: <20201201084657.792157024@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 6830ff853a5764c75e56750d59d0bbb6b26f1835 ]
+[ Upstream commit 34c7f50f7d0d36fa663c74aee39e25e912505320 ]
 
-We return 'err' in the error branch, but this variable may be set as zero
-by the above code. Fix it by setting 'err' as a negative value before we
-goto the error label.
+Calling into socket code is ugly already, at least check whether we are
+dealing with the expected sk_family. Only looking at skb->protocol is
+bound to cause troubles (consider eg. af_packet).
 
-Fixes: 74c2174e7be5 ("IB uverbs: add mthca user CQ support")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/1605837422-42724-1-git-send-email-wangxiongfeng2@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mthca/mthca_cq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index a6531ffe29a6f..a5694dec3f2ee 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -808,8 +808,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 5043f0fcf399a..6a2ac575e0a39 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -31,6 +31,7 @@
+ 
+ #include <net/iucv/af_iucv.h>
+ #include <net/dsfield.h>
++#include <net/sock.h>
+ 
+ #include <asm/ebcdic.h>
+ #include <asm/chpid.h>
+@@ -1083,7 +1084,7 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *q,
+ 	skb_queue_walk(&buf->skb_list, skb) {
+ 		QETH_CARD_TEXT_(q->card, 5, "skbn%d", notification);
+ 		QETH_CARD_TEXT_(q->card, 5, "%lx", (long) skb);
+-		if (skb->protocol == htons(ETH_P_AF_IUCV) && skb->sk)
++		if (skb->sk && skb->sk->sk_family == PF_IUCV)
+ 			iucv_sk(skb->sk)->sk_txnotify(skb, notification);
  	}
- 
- 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
--	if (IS_ERR(mailbox))
-+	if (IS_ERR(mailbox)) {
-+		err = PTR_ERR(mailbox);
- 		goto err_out_arm;
-+	}
- 
- 	cq_context = mailbox->buf;
- 
-@@ -851,9 +853,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	spin_lock_irq(&dev->cq_table.lock);
--	if (mthca_array_set(&dev->cq_table.cq,
--			    cq->cqn & (dev->limits.num_cqs - 1),
--			    cq)) {
-+	err = mthca_array_set(&dev->cq_table.cq,
-+			      cq->cqn & (dev->limits.num_cqs - 1), cq);
-+	if (err) {
- 		spin_unlock_irq(&dev->cq_table.lock);
- 		goto err_out_free_mr;
- 	}
+ }
 -- 
 2.27.0
 
