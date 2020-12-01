@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4BD2C9A5C
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1A62C9C50
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387731AbgLAI47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:56:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59972 "EHLO mail.kernel.org"
+        id S2389340AbgLAJMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:12:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387722AbgLAI4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:56:52 -0500
+        id S2389951AbgLAJMb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:31 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FF7221D7A;
-        Tue,  1 Dec 2020 08:56:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 177D82223C;
+        Tue,  1 Dec 2020 09:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812966;
-        bh=fjdm9nEuyx3eUE4CIIz03DRjZavEIKOwneaHpAD36cs=;
+        s=korg; t=1606813910;
+        bh=QMgFT7eZ7p9XTU4VKlCUyBLGUrgptRgdSiaQPb1iQGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJ/uLmqg2Tb++Ldc5XsS4FqwniJ3ug0g8ZsXiCUbIgwHR+FwNjtU0zma69kL5dwDo
-         fFiHNVuAQr15Y161w//LZVQhd9/9ddow+S6br/Vpj6IGLb54aGXk2TH7evC+E0lOaE
-         8z1LYKuDK07/QNlAhywmbSw8qrteqPPfEmAVADkg=
+        b=kBy8XC5zU08UrOlr7WcnHFBk8S2eHsITv83aVNVRwhpm2KcXyazDxswW2bWZpiDpH
+         XZXo2OcnHJDVTvw4qT/5/cDnfqg1lwys64EFbwwj5r/77JgJeqj5hP8F+h6gxxBn4R
+         SMoQOBKaXYaIz5xD/fG22fTXaBeQTcwTF4oWGWgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Zhang Qilong <zhangqilong3@huawei.com>
-Subject: [PATCH 4.9 37/42] usb: gadget: Fix memleak in gadgetfs_fill_super
-Date:   Tue,  1 Dec 2020 09:53:35 +0100
-Message-Id: <20201201084645.477134828@linuxfoundation.org>
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>, Lijun Pan <ljp@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 101/152] ibmvnic: notify peers when failover and migration happen
+Date:   Tue,  1 Dec 2020 09:53:36 +0100
+Message-Id: <20201201084725.083799234@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Lijun Pan <ljp@linux.ibm.com>
 
-commit 87bed3d7d26c974948a3d6e7176f304b2d41272b upstream.
+[ Upstream commit 98025bce3a6200a0c4637272a33b5913928ba5b8 ]
 
-usb_get_gadget_udc_name will alloc memory for CHIP
-in "Enomem" branch. we should free it before error
-returns to prevent memleak.
+Commit 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
+excluded the failover case for notify call because it said
+netdev_notify_peers() can cause network traffic to stall or halt.
+Current testing does not show network traffic stall
+or halt because of the notify call for failover event.
+netdev_notify_peers may be used when a device wants to inform the
+rest of the network about some sort of a reconfiguration
+such as failover or migration.
 
-Fixes: 175f712119c57 ("usb: gadget: provide interface for legacy gadgets to get UDC name")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201117021629.1470544-3-zhangqilong3@huawei.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It is unnecessary to call that in other events like
+FATAL, NON_FATAL, CHANGE_PARAM, and TIMEOUT resets
+since in those scenarios the hardware does not change.
+If the driver must do a hard reset, it is necessary to notify peers.
 
+Fixes: 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
+Suggested-by: Brian King <brking@linux.vnet.ibm.com>
+Suggested-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -2045,6 +2045,9 @@ gadgetfs_fill_super (struct super_block
- 	return 0;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 723651b34f94d..0341089743ff1 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2087,7 +2087,8 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 	for (i = 0; i < adapter->req_rx_queues; i++)
+ 		napi_schedule(&adapter->napi[i]);
  
- Enomem:
-+	kfree(CHIP);
-+	CHIP = NULL;
+-	if (adapter->reset_reason != VNIC_RESET_FAILOVER) {
++	if (adapter->reset_reason == VNIC_RESET_FAILOVER ||
++	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
+ 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
+ 		call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
+ 	}
+@@ -2160,6 +2161,9 @@ static int do_hard_reset(struct ibmvnic_adapter *adapter,
+ 	if (rc)
+ 		return IBMVNIC_OPEN_FAILED;
+ 
++	call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
++	call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
 +
- 	return -ENOMEM;
+ 	return 0;
  }
  
+-- 
+2.27.0
+
 
 
