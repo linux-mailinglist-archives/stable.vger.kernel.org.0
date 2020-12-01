@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E179D2C9CE6
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 131372C9C9C
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388099AbgLAJFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
+        id S1728994AbgLAIzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389057AbgLAJFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:05:09 -0500
+        id S1728985AbgLAIzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0BB62223C;
-        Tue,  1 Dec 2020 09:04:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BCC02223C;
+        Tue,  1 Dec 2020 08:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813468;
-        bh=msMB61T+vAGDNduTzPK9lUybgnukBXjrX1kCfano2AQ=;
+        s=korg; t=1606812845;
+        bh=fvR6XWov8DypphIb0Z8ChDOSG2vyMU6R67aQSSW+6z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcuVwX8lv72VqX5tm4SLXcFwmRJJibK0NSqkbBHzV6kXqY7kC6seZDc3FhNKQjkkp
-         X0TrGYoBQ6Fqew5xWzjsMpL3kRwzY2QdrufGkIicoUenjIUX+wHXnfOsbkXsdWfN27
-         4ZKGpiFWyiZXJU7V+uiHw57K/0LzcuRj/XKzmms0=
+        b=GDESN+E+0HMUKWdeiM8eN0LfsBYJT0MVpAHJ+ycKBPWXaiJRnbsVGPrsD6wi9dXwN
+         Lummsr1ZLBgN9Wy0iGbMtlKQsZ6nxcT1DPbllcB8d/ylQatJWHdO7y1xj7zPye/gke
+         EUlAx38Pse6AJloyIrhRGXF1qG/Lx9pNEdcRhDhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/98] scsi: ufs: Fix race between shutdown and runtime resume flow
+        stable@vger.kernel.org,
+        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.4 20/24] USB: core: Change %pK for __user pointers to %px
 Date:   Tue,  1 Dec 2020 09:53:26 +0100
-Message-Id: <20201201084657.497626773@linuxfoundation.org>
+Message-Id: <20201201084638.765195922@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
+commit f3bc432aa8a7a2bfe9ebb432502be5c5d979d7fe upstream.
 
-If UFS host device is in runtime-suspended state while UFS shutdown
-callback is invoked, UFS device shall be resumed for register
-accesses. Currently only UFS local runtime resume function will be invoked
-to wake up the host.  This is not enough because if someone triggers
-runtime resume from block layer, then race may happen between shutdown and
-runtime resume flow, and finally lead to unlocked register access.
+Commit 2f964780c03b ("USB: core: replace %p with %pK") used the %pK
+format specifier for a bunch of __user pointers.  But as the 'K' in
+the specifier indicates, it is meant for kernel pointers.  The reason
+for the %pK specifier is to avoid leaks of kernel addresses, but when
+the pointer is to an address in userspace the security implications
+are minimal.  In particular, no kernel information is leaked.
 
-To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
-resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
-PM framework manage the whole resume flow.
+This patch changes the __user %pK specifiers (used in a bunch of
+debugging output lines) to %px, which will always print the actual
+address with no mangling.  (Notably, there is no printk format
+specifier particularly intended for __user pointers.)
 
-Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
-Fixes: 57d104c153d3 ("ufs: add UFS power management support")
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2f964780c03b ("USB: core: replace %p with %pK")
+CC: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201119170228.GB576844@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/ufs/ufshcd.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/usb/core/devio.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0772327f87d93..b6ce880ddd153 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8160,11 +8160,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
- 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
- 		goto out;
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -369,11 +369,11 @@ static void snoop_urb(struct usb_device
  
--	if (pm_runtime_suspended(hba->dev)) {
--		ret = ufshcd_runtime_resume(hba);
--		if (ret)
--			goto out;
--	}
-+	pm_runtime_get_sync(hba->dev);
- 
- 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
- out:
--- 
-2.27.0
-
+ 	if (userurb) {		/* Async */
+ 		if (when == SUBMIT)
+-			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
++			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
+ 					"length %u\n",
+ 					userurb, ep, t, d, length);
+ 		else
+-			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
++			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
+ 					"actual_length %u status %d\n",
+ 					userurb, ep, t, d, length,
+ 					timeout_or_status);
 
 
