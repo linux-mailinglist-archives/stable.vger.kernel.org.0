@@ -2,107 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 464542CA863
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CEB2CA8AD
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbgLAQj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 11:39:27 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51079 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725885AbgLAQj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 11:39:27 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5695C5C014B;
-        Tue,  1 Dec 2020 11:38:41 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 01 Dec 2020 11:38:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=n
-        EY3X9T6N/e2U3MmEV4r18xwjapHZrtvQOUhEcxULZc=; b=0uxXsSFJ56BR8a5kB
-        wb22Ce96UrrWe0rdRgr2YnrFbJv4SFwryfRaTWswh1BOJVsEeYBlMdOeix72Vs4A
-        FhcuCXHXKiyrLA4Vc/kT9C6fWHWns9+RrYo2vj0QiqHjPemkWNn+tfm5v3VavY+m
-        SwYuLpxQxQg1AgZpCAb5nsQZ5H0TrTiz6ksKIEyeTwzB6Zne6KCxUaHgL/97Rovg
-        iJzS5tQLgGfXeb6aT0tVQwquhKlDop9JlF1nGGW0qe6JEUqZJA2bXzluzDsg/711
-        yO94EsnIe1K0nmh/qGNd5JDSOK4z1/9VJA5yqvSROA+AGD6u2t8Kc8+7XCG70j0y
-        894Xw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=nEY3X9T6N/e2U3MmEV4r18xwjapHZrtvQOUhEcxUL
-        Zc=; b=VDmfc10zwviF0LWqro5j4VOxbEDkKkH/BhZo300dfpqzB8//kp2kopYhw
-        lnCkTpDW+x0iUyxfZQqhwnrxU7X9PeXUHIkKVhUoaKdqWPI2Qa6DAyhnTrYviAJQ
-        wLBfqqyP/r0zkmaesujHVTZOQifylTdeMMvunxm/Zeu6zP70FNaygtd9eHdZ56to
-        g2ijw2K9Do9gqqYA5/4hmiQGwBMFnNJX+ueAiOBPD9qvHLu1YOaugxnm371w6Ocd
-        DMcqrw7ydb6xlREO0VY/DVhOE6XRHhbrhpIKyT15DFHrP9LgLGAkHR4SI01M/ePU
-        +A8YMLUfNy5cgiboqSHziM1M57CVg==
-X-ME-Sender: <xms:kHHGX2JcOqRip6Wqx0O3UsKuANdJMCQzCc4rroEgKrHqdW6iWaT53Q>
-    <xme:kHHGX-J9J8r1obvTc5CwaZCNsrgE1aPzdb6tn_XHdb2_HWqacE67CewJBbillvGCR
-    oa8yumgcEOhtg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeivddgleefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepvedtie
-    elueetgeeggfeufefhvefgtdetgfetgfdtvdegjeehieduvddtkeffheffnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:kHHGX2v9oY3QOI4H_3oSMDhtOIQ7t8cDXRDlKa2yf6x0D6_DAJiUqw>
-    <xmx:kHHGX7Z0LoXnZoVpDJX1bvPmTX8OPYyFH7htq35vIkKA58XkNYnDZw>
-    <xmx:kHHGX9b5rhnVuL1WminRtI25c9729oU764cXkgI6a785-farE2cvzw>
-    <xmx:kXHGX8krc7_FHSUEvl6De7aI4hm-hlbuqw017RvzbEoByuijQx1N_Q>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6B2FF1080057;
-        Tue,  1 Dec 2020 11:38:40 -0500 (EST)
-Date:   Tue, 1 Dec 2020 17:39:53 +0100
-From:   Greg KH <greg@kroah.com>
-To:     =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
-        Sebastian Sjoholm <sebastian.sjoholm@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: option: fix Quectel BG96 matching
-Message-ID: <X8Zx2TvfmsqQ7KNB@kroah.com>
-References: <20201201100318.37843-1-bjorn@mork.no>
- <X8YYdVk7LQ+VcpPf@localhost>
- <87tut5bzd5.fsf@miraculix.mork.no>
+        id S2388455AbgLAQsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 11:48:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39660 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388131AbgLAQsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 11:48:40 -0500
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DCAC061A48
+        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 08:47:24 -0800 (PST)
+Received: by mail-ot1-x341.google.com with SMTP id n12so2293747otk.0
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 08:47:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=X9vfkPsuHdDlbRy5N2BDdCLRGG9QdnGsjUUpVaTO710=;
+        b=VQRxBEWJdSffbR1qYHdXDQFAhH0L3/Itxchu5Px/jUiqzaFxez0CtWOIOvHB2t1PoK
+         x0iA19xxkiH04keW+TpqcYYqjGWo/vX3vr/oqd+uptPB4IO1oc/ldKXNDBoR10v1Df9a
+         cOGagtePbDIT/C+kjBlX1MzS1HXnah/R2zthw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=X9vfkPsuHdDlbRy5N2BDdCLRGG9QdnGsjUUpVaTO710=;
+        b=VB72EeobpJAALGNGBMKQz4W5vTPFsHraXc8QPtrS65Ph3hwISlRHqZTnpTgc4je9SC
+         ijfIZLo0J3b6Fq9pdYMXjtE0t8lHNWFvMIEmHTAUdaCGZfMMa9ghbuwMlcGdJmmxX2Bu
+         Z5dQ3RAXoL9fBKjBdqpBuC4gm7QxrKQmLVXl8uT0NYpYcbuxNTXjc2+bI78CcFpkQtMg
+         0x9HtU3P42L/2Leq5dgWKSIb/rUVfy2vPGeVQTKiaQ32N0NPiFu4Z0F4MRFqPCJbMh+W
+         H49SzkwMA6gLBhNspABqVsQ6SZcyU/ebwfuKMdPlSWq2bVE8q3q0zAaqUFeb0ShK4Kcj
+         sceA==
+X-Gm-Message-State: AOAM530XSqgqW2C4XIEhpB98WkGE22GXQLSWfKspXNbY2gHXj4Me0SuY
+        Ckw+IcQ07wCunsulv2CtUrXTrd9G5nNBYovtJu7hVg==
+X-Google-Smtp-Source: ABdhPJy7N24WXPqNe9dLY6S3RVDRbNEgT/BYxDzmq3nNhXjLJe6MUlxCqkIvtPu1sVvwQ2OAbRBEBv/Ep/oLkmebcVI=
+X-Received: by 2002:a9d:4e08:: with SMTP id p8mr2542426otf.188.1606841243839;
+ Tue, 01 Dec 2020 08:47:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87tut5bzd5.fsf@miraculix.mork.no>
+References: <20201201084647.751612010@linuxfoundation.org> <20201201084648.982712007@linuxfoundation.org>
+ <20201201154332.GB23661@amd>
+In-Reply-To: <20201201154332.GB23661@amd>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Tue, 1 Dec 2020 17:47:12 +0100
+Message-ID: <CAKMK7uHw8gJEGQcCwR-MSEpndRKDZwO2BsveDThBSACxZfxLrw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 11/57] drm/atomic_helper: Stop modesets on
+ unregistered connectors harder
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>, Lyude Paul <lyude@redhat.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 01, 2020 at 11:21:42AM +0100, Bjørn Mork wrote:
-> Johan Hovold <johan@kernel.org> writes:
-> 
-> > On Tue, Dec 01, 2020 at 11:03:18AM +0100, Bjørn Mork wrote:
-> >> This is a partial revert of commit 2bb70f0a4b23 ("USB: serial:
-> >> option: support dynamic Quectel USB compositions")
-> >> 
-> >> The Quectel BG96 is different from most other modern Quectel modems,
-> >> having serial functions with 3 endpoints using ff/ff/ff and ff/fe/ff
-> >> class/subclass/protocol. Including it in the change to accommodate
-> >> dynamic function mapping was incorrect.
-> >> 
-> >> Revert to interface number matching for the BG96, assuming static
-> >> layout of the RMNET function on interface 4. This restores support
-> >> for the serial functions on interfaces 2 and 3.
-> >> 
-> >> Full lsusb output for the BG96:
+On Tue, Dec 1, 2020 at 4:43 PM Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+>
+> > From: Lyude Paul <lyude@redhat.com>
 > >
-> >> Cc: Sebastian Sjoholm <sebastian.sjoholm@gmail.com>
-> >> Cc: linux-stable@vger.kernel.org
-> >> Fixes: 2bb70f0a4b23 ("USB: serial: option: support dynamic Quectel USB compositions")
-> >> Signed-off-by: Bjørn Mork <bjorn@mork.no>
+> > commit de9f8eea5a44b0b756d3d6345af7f8e630a3c8c0 upstream.
+>
+> So this says protected by mutex:
+>
+> >       /**
+> > -      * @registered: Is this connector exposed (registered) with userspace?
+> > +      * @registration_state: Is this connector initializing, exposed
+> > +      * (registered) with userspace, or unregistered?
+> > +      *
+> >        * Protected by @mutex.
+> >        */
+> > -     bool registered;
+> > +     enum drm_connector_registration_state registration_state;
 > >
-> > Thanks, Bjørn. Now applied.
-> 
-> Thanks. But I see that I managed to type the stable address wrong.
-> Sorry.  Hope you can get that fixed somehow.
+> >       /**
+> >        * @modes:
+> > @@ -1165,6 +1214,24 @@ static inline void drm_connector_unrefer
+> >       drm_connector_put(connector);
+> >  }
+> >
+> > +/**
+> > + * drm_connector_is_unregistered - has the connector been unregistered from
+> > + * userspace?
+> > + * @connector: DRM connector
+> > + *
+> > + * Checks whether or not @connector has been unregistered from userspace.
+> > + *
+> > + * Returns:
+> > + * True if the connector was unregistered, false if the connector is
+> > + * registered or has not yet been registered with userspace.
+> > + */
+> > +static inline bool
+> > +drm_connector_is_unregistered(struct drm_connector *connector)
+> > +{
+> > +     return READ_ONCE(connector->registration_state) ==
+> > +             DRM_CONNECTOR_UNREGISTERED;
+> > +}
+>
+>
+> But this uses READ_ONCE() for protection, and corresponding
+> WRITE_ONCE() is nowhere to be seen. Should this take the mutex, too?
 
-No worries, people type it wrong all the time, my regex would have
-caught it when it hits Linus's tree :)
+The read once here doesn't protect against any races, but just against
+creative compilers doing funny stuff that might really break code
+logic. I guess for symmetry we could throw the WRITE_ONCE on the write
+side, but it really shouldn't matter, the entire thing is racy by
+design. We0d also only ever need the write once on the unregister
+call.
+-Daniel
 
+>
+> Best regards,
+>                                                                 Pavel
+> --
+> http://www.livejournal.com/~pavelmachek
+
+
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
