@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 894912C9D9D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3072C9CB1
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388160AbgLAJZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42576 "EHLO mail.kernel.org"
+        id S2387966AbgLAI6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729389AbgLAJFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:05:41 -0500
+        id S2387963AbgLAI6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D727B21D46;
-        Tue,  1 Dec 2020 09:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 700FD2223F;
+        Tue,  1 Dec 2020 08:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813500;
-        bh=p6UGhE7Kc4+yR/tYHmb8lv+gJLMFBCybGCvMZ4pJ5Rk=;
+        s=korg; t=1606813073;
+        bh=DIoa+ShhKCnS40dFhfkCkgt/4lAYEhr2/+xqrdugXRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPLWNBwN8HpUtMktooT24aPQx00eQ5S1hInj2pj8Ajxa8EejHnSG0BsdujQknj5ZZ
-         POXRQkhx2CyrGSRVQhLA4N8Gyf0aOjC22frduKz72Mb3OV8/P+z0+TPp9sDDhz6qwY
-         tpqx6lSSJYME9zY7tDdPKP0pojM+aeGcwMnFOkgM=
+        b=wZPP/M5UheLJAUo+J1NeNGdxQpEJpLXb8bd0T/Gticp9BWtJIFHc/XZEgDgWlTqme
+         eaR+6GxFNbMfM+0NJuU+eXCZo/uZECP4LCs2/VDzK5jSB2qaDCIQQfkHp1tVbpduF+
+         5xLZMiH5s6lLlRUpqHVftN7shny8PblqB7ljBWK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <bmasney@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/98] x86/xen: dont unbind uninitialized lock_kicker_irq
+        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
+        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 08/50] btrfs: inode: Verify inode mode to avoid NULL pointer dereference
 Date:   Tue,  1 Dec 2020 09:53:07 +0100
-Message-Id: <20201201084656.440500772@linuxfoundation.org>
+Message-Id: <20201201084645.864089445@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <bmasney@redhat.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
+commit 6bf9e4bd6a277840d3fe8c5d5d530a1fbd3db592 upstream
 
-When booting a hyperthreaded system with the kernel parameter
-'mitigations=auto,nosmt', the following warning occurs:
+[BUG]
+When accessing a file on a crafted image, btrfs can crash in block layer:
 
-    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
-    ...
-    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
-    ...
-    Call Trace:
-     xen_uninit_lock_cpu+0x28/0x62
-     xen_hvm_cpu_die+0x21/0x30
-     takedown_cpu+0x9c/0xe0
-     ? trace_suspend_resume+0x60/0x60
-     cpuhp_invoke_callback+0x9a/0x530
-     _cpu_up+0x11a/0x130
-     cpu_up+0x7e/0xc0
-     bringup_nonboot_cpus+0x48/0x50
-     smp_init+0x26/0x79
-     kernel_init_freeable+0xea/0x229
-     ? rest_init+0xaa/0xaa
-     kernel_init+0xa/0x106
-     ret_from_fork+0x35/0x40
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+  PGD 136501067 P4D 136501067 PUD 124519067 PMD 0
+  CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.0.0-rc8-default #252
+  RIP: 0010:end_bio_extent_readpage+0x144/0x700
+  Call Trace:
+   <IRQ>
+   blk_update_request+0x8f/0x350
+   blk_mq_end_request+0x1a/0x120
+   blk_done_softirq+0x99/0xc0
+   __do_softirq+0xc7/0x467
+   irq_exit+0xd1/0xe0
+   call_function_single_interrupt+0xf/0x20
+   </IRQ>
+  RIP: 0010:default_idle+0x1e/0x170
 
-The secondary CPUs are not activated with the nosmt mitigations and only
-the primary thread on each CPU core is used. In this situation,
-xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
-not called, so the lock_kicker_irq is not initialized for the secondary
-CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
-irq is not set to avoid the warning from above for each secondary CPU.
+[CAUSE]
+The crafted image has a tricky corruption, the INODE_ITEM has a
+different type against its parent dir:
 
-Signed-off-by: Brian Masney <bmasney@redhat.com>
-Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+        item 20 key (268 INODE_ITEM 0) itemoff 2808 itemsize 160
+                generation 13 transid 13 size 1048576 nbytes 1048576
+                block group 0 mode 121644 links 1 uid 0 gid 0 rdev 0
+                sequence 9 flags 0x0(none)
+
+This mode number 0120000 means it's a symlink.
+
+But the dir item think it's still a regular file:
+
+        item 8 key (264 DIR_INDEX 5) itemoff 3707 itemsize 32
+                location key (268 INODE_ITEM 0) type FILE
+                transid 13 data_len 0 name_len 2
+                name: f4
+        item 40 key (264 DIR_ITEM 51821248) itemoff 1573 itemsize 32
+                location key (268 INODE_ITEM 0) type FILE
+                transid 13 data_len 0 name_len 2
+                name: f4
+
+For symlink, we don't set BTRFS_I(inode)->io_tree.ops and leave it
+empty, as symlink is only designed to have inlined extent, all handled
+by tree block read.  Thus no need to trigger btrfs_submit_bio_hook() for
+inline file extent.
+
+However end_bio_extent_readpage() expects tree->ops populated, as it's
+reading regular data extent.  This causes NULL pointer dereference.
+
+[FIX]
+This patch fixes the problem in two ways:
+
+- Verify inode mode against its dir item when looking up inode
+  So in btrfs_lookup_dentry() if we find inode mode mismatch with dir
+  item, we error out so that corrupted inode will not be accessed.
+
+- Verify inode mode when getting extent mapping
+  Only regular file should have regular or preallocated extent.
+  If we found regular/preallocated file extent for symlink or
+  the rest, we error out before submitting the read bio.
+
+With this fix that crafted image can be rejected gracefully:
+
+  BTRFS critical (device loop0): inode mode mismatch with dir: inode mode=0121644 btrfs type=7 dir type=1
+
+Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202763
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: use original btrfs_inode_type()]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/spinlock.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/btrfs/inode.c             |   41 +++++++++++++++++++++++++++++++++--------
+ fs/btrfs/tests/inode-tests.c |    1 +
+ 2 files changed, 34 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 6deb49094c605..d817b7c862a62 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -93,10 +93,20 @@ void xen_init_lock_cpu(int cpu)
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -5584,12 +5584,14 @@ no_delete:
+ }
  
- void xen_uninit_lock_cpu(int cpu)
+ /*
+- * this returns the key found in the dir entry in the location pointer.
++ * Return the key found in the dir entry in the location pointer, fill @type
++ * with BTRFS_FT_*, and return 0.
++ *
+  * If no dir entries were found, returns -ENOENT.
+  * If found a corrupted location in dir entry, returns -EUCLEAN.
+  */
+ static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
+-			       struct btrfs_key *location)
++			       struct btrfs_key *location, u8 *type)
  {
-+	int irq;
-+
- 	if (!xen_pvspin)
- 		return;
+ 	const char *name = dentry->d_name.name;
+ 	int namelen = dentry->d_name.len;
+@@ -5622,6 +5624,8 @@ static int btrfs_inode_by_name(struct in
+ 			   __func__, name, btrfs_ino(BTRFS_I(dir)),
+ 			   location->objectid, location->type, location->offset);
+ 	}
++	if (!ret)
++		*type = btrfs_dir_type(path->nodes[0], di);
+ out:
+ 	btrfs_free_path(path);
+ 	return ret;
+@@ -5908,6 +5912,11 @@ static struct inode *new_simple_dir(stru
+ 	return inode;
+ }
  
--	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
-+	/*
-+	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
-+	 * CPUs are not activated, and lock_kicker_irq is not initialized.
-+	 */
-+	irq = per_cpu(lock_kicker_irq, cpu);
-+	if (irq == -1)
-+		return;
++static inline u8 btrfs_inode_type(struct inode *inode)
++{
++	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
++}
 +
-+	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- 	kfree(per_cpu(irq_name, cpu));
- 	per_cpu(irq_name, cpu) = NULL;
--- 
-2.27.0
-
+ struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
+ {
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(dir->i_sb);
+@@ -5915,18 +5924,31 @@ struct inode *btrfs_lookup_dentry(struct
+ 	struct btrfs_root *root = BTRFS_I(dir)->root;
+ 	struct btrfs_root *sub_root = root;
+ 	struct btrfs_key location;
++	u8 di_type = 0;
+ 	int index;
+ 	int ret = 0;
+ 
+ 	if (dentry->d_name.len > BTRFS_NAME_LEN)
+ 		return ERR_PTR(-ENAMETOOLONG);
+ 
+-	ret = btrfs_inode_by_name(dir, dentry, &location);
++	ret = btrfs_inode_by_name(dir, dentry, &location, &di_type);
+ 	if (ret < 0)
+ 		return ERR_PTR(ret);
+ 
+ 	if (location.type == BTRFS_INODE_ITEM_KEY) {
+ 		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
++		if (IS_ERR(inode))
++			return inode;
++
++		/* Do extra check against inode mode with di_type */
++		if (btrfs_inode_type(inode) != di_type) {
++			btrfs_crit(fs_info,
++"inode mode mismatch with dir: inode mode=0%o btrfs type=%u dir type=%u",
++				  inode->i_mode, btrfs_inode_type(inode),
++				  di_type);
++			iput(inode);
++			return ERR_PTR(-EUCLEAN);
++		}
+ 		return inode;
+ 	}
+ 
+@@ -6544,11 +6566,6 @@ fail:
+ 	return ERR_PTR(ret);
+ }
+ 
+-static inline u8 btrfs_inode_type(struct inode *inode)
+-{
+-	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
+-}
+-
+ /*
+  * utility function to add 'inode' into 'parent_inode' with
+  * a give name and a given sequence number.
+@@ -7160,6 +7177,14 @@ again:
+ 	extent_start = found_key.offset;
+ 	if (found_type == BTRFS_FILE_EXTENT_REG ||
+ 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
++		/* Only regular file could have regular/prealloc extent */
++		if (!S_ISREG(inode->vfs_inode.i_mode)) {
++			ret = -EUCLEAN;
++			btrfs_crit(fs_info,
++		"regular/prealloc extent found for non-regular inode %llu",
++				   btrfs_ino(inode));
++			goto out;
++		}
+ 		extent_end = extent_start +
+ 		       btrfs_file_extent_num_bytes(leaf, item);
+ 
+--- a/fs/btrfs/tests/inode-tests.c
++++ b/fs/btrfs/tests/inode-tests.c
+@@ -245,6 +245,7 @@ static noinline int test_btrfs_get_exten
+ 		return ret;
+ 	}
+ 
++	inode->i_mode = S_IFREG;
+ 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
+ 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
+ 	BTRFS_I(inode)->location.offset = 0;
 
 
