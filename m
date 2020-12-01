@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF8D2C9AFC
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F4D2C9A85
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388231AbgLAJDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:03:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40802 "EHLO mail.kernel.org"
+        id S2387940AbgLAI61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388734AbgLAJDy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:54 -0500
+        id S2387921AbgLAI6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:23 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFF5C20770;
-        Tue,  1 Dec 2020 09:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71747221FD;
+        Tue,  1 Dec 2020 08:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813416;
-        bh=Yj/2xpRPlrshjqL8YeXDyOvWc/YshrQaPA0IU4meP64=;
+        s=korg; t=1606813056;
+        bh=HLytqhmWf4tKv7dXicDcn0cAQY/HOatV6MnSP/LvNBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlzWdgMsDbCs2Nsz+nYVeHFISq/g1vCEhwDHoN10GgvYBdhVfVK8bWWqQke14whdM
-         jPGCXjE9t0SkCUbvvRX6T4N8IDzV6exVWad8418o4cyar+pOPQ1nXSWaV9s+QG4r6m
-         tcf8HNGp3srV5wD+NTagNesCPzqId8st0meJde1U=
+        b=gKYWDaef8z56KJK3/5fTbDYpPtZZdP83rL3CWqvcW1ewwcHvyuK5CmZFIeCuLzl0j
+         sexd7aQHImSUv+O04A2COrohM6EZYoDj9tQQlJ3Sa6/VvAAPQUEr/TcQVrJz6xBIk3
+         wsiAWkdHoN/CmrMyqoLNGHHw1L4JYzRu0AoDsMNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
-        <david.gamiz@gmail.com>
-Subject: [PATCH 5.4 24/98] HID: add support for Sega Saturn
+        stable@vger.kernel.org,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 02/50] mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
 Date:   Tue,  1 Dec 2020 09:53:01 +0100
-Message-Id: <20201201084655.714310707@linuxfoundation.org>
+Message-Id: <20201201084645.054722406@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +47,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
+commit bfe8cc1db02ab243c62780f17fc57f65bde0afe1 upstream.
 
-This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
-in a consistent way.
+Alexander reported a syzkaller / KASAN finding on s390, see below for
+complete output.
 
-Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In do_huge_pmd_anonymous_page(), the pre-allocated pagetable will be
+freed in some cases.  In the case of userfaultfd_missing(), this will
+happen after calling handle_userfault(), which might have released the
+mmap_lock.  Therefore, the following pte_free(vma->vm_mm, pgtable) will
+access an unstable vma->vm_mm, which could have been freed or re-used
+already.
+
+For all architectures other than s390 this will go w/o any negative
+impact, because pte_free() simply frees the page and ignores the
+passed-in mm.  The implementation for SPARC32 would also access
+mm->page_table_lock for pte_free(), but there is no THP support in
+SPARC32, so the buggy code path will not be used there.
+
+For s390, the mm->context.pgtable_list is being used to maintain the 2K
+pagetable fragments, and operating on an already freed or even re-used
+mm could result in various more or less subtle bugs due to list /
+pagetable corruption.
+
+Fix this by calling pte_free() before handle_userfault(), similar to how
+it is already done in __do_huge_pmd_anonymous_page() for the WRITE /
+non-huge_zero_page case.
+
+Commit 6b251fc96cf2c ("userfaultfd: call handle_userfault() for
+userfaultfd_missing() faults") actually introduced both, the
+do_huge_pmd_anonymous_page() and also __do_huge_pmd_anonymous_page()
+changes wrt to calling handle_userfault(), but only in the latter case
+it put the pte_free() before calling handle_userfault().
+
+  BUG: KASAN: use-after-free in do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+  Read of size 8 at addr 00000000962d6988 by task syz-executor.0/9334
+
+  CPU: 1 PID: 9334 Comm: syz-executor.0 Not tainted 5.10.0-rc1-syzkaller-07083-g4c9720875573 #0
+  Hardware name: IBM 3906 M04 701 (KVM/Linux)
+  Call Trace:
+    do_huge_pmd_anonymous_page+0xcda/0xd90 mm/huge_memory.c:744
+    create_huge_pmd mm/memory.c:4256 [inline]
+    __handle_mm_fault+0xe6e/0x1068 mm/memory.c:4480
+    handle_mm_fault+0x288/0x748 mm/memory.c:4607
+    do_exception+0x394/0xae0 arch/s390/mm/fault.c:479
+    do_dat_exception+0x34/0x80 arch/s390/mm/fault.c:567
+    pgm_check_handler+0x1da/0x22c arch/s390/kernel/entry.S:706
+    copy_from_user_mvcos arch/s390/lib/uaccess.c:111 [inline]
+    raw_copy_from_user+0x3a/0x88 arch/s390/lib/uaccess.c:174
+    _copy_from_user+0x48/0xa8 lib/usercopy.c:16
+    copy_from_user include/linux/uaccess.h:192 [inline]
+    __do_sys_sigaltstack kernel/signal.c:4064 [inline]
+    __s390x_sys_sigaltstack+0xc8/0x240 kernel/signal.c:4060
+    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+
+  Allocated by task 9334:
+    slab_alloc_node mm/slub.c:2891 [inline]
+    slab_alloc mm/slub.c:2899 [inline]
+    kmem_cache_alloc+0x118/0x348 mm/slub.c:2904
+    vm_area_dup+0x9c/0x2b8 kernel/fork.c:356
+    __split_vma+0xba/0x560 mm/mmap.c:2742
+    split_vma+0xca/0x108 mm/mmap.c:2800
+    mlock_fixup+0x4ae/0x600 mm/mlock.c:550
+    apply_vma_lock_flags+0x2c6/0x398 mm/mlock.c:619
+    do_mlock+0x1aa/0x718 mm/mlock.c:711
+    __do_sys_mlock2 mm/mlock.c:738 [inline]
+    __s390x_sys_mlock2+0x86/0xa8 mm/mlock.c:728
+    system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+
+  Freed by task 9333:
+    slab_free mm/slub.c:3142 [inline]
+    kmem_cache_free+0x7c/0x4b8 mm/slub.c:3158
+    __vma_adjust+0x7b2/0x2508 mm/mmap.c:960
+    vma_merge+0x87e/0xce0 mm/mmap.c:1209
+    userfaultfd_release+0x412/0x6b8 fs/userfaultfd.c:868
+    __fput+0x22c/0x7a8 fs/file_table.c:281
+    task_work_run+0x200/0x320 kernel/task_work.c:151
+    tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+    do_notify_resume+0x100/0x148 arch/s390/kernel/signal.c:538
+    system_call+0xe6/0x28c arch/s390/kernel/entry.S:416
+
+  The buggy address belongs to the object at 00000000962d6948 which belongs to the cache vm_area_struct of size 200
+  The buggy address is located 64 bytes inside of 200-byte region [00000000962d6948, 00000000962d6a10)
+  The buggy address belongs to the page: page:00000000313a09fe refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x962d6 flags: 0x3ffff00000000200(slab)
+  raw: 3ffff00000000200 000040000257e080 0000000c0000000c 000000008020ba00
+  raw: 0000000000000000 000f001e00000000 ffffffff00000001 0000000096959501
+  page dumped because: kasan: bad access detected
+  page->mem_cgroup:0000000096959501
+
+  Memory state around the buggy address:
+   00000000962d6880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   00000000962d6900: 00 fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb
+  >00000000962d6980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                        ^
+   00000000962d6a00: fb fb fc fc fc fc fc fc fc fc 00 00 00 00 00 00
+   00000000962d6a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+
+Changes for v4.14 stable:
+  - Make it apply w/o
+    * Commit 4cf58924951ef ("mm: treewide: remove unused address argument
+      from pte_alloc functions")
+    * Commit 2b7403035459c ("mm: Change return type int to vm_fault_t for
+      fault handlers")
+
+Fixes: 6b251fc96cf2c ("userfaultfd: call handle_userfault() for userfaultfd_missing() faults")
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: <stable@vger.kernel.org>	[4.3+]
+Link: https://lkml.kernel.org/r/20201110190329.11920-1-gerald.schaefer@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ mm/huge_memory.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b2c86403e43b1..d173badafcf1f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -489,6 +489,7 @@
- #define USB_DEVICE_ID_PENPOWER		0x00f4
- 
- #define USB_VENDOR_ID_GREENASIA		0x0e8f
-+#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
- #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
- 
- #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 0440e2f6e8a3c..abee4e950a4ee 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -83,6 +83,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
--- 
-2.27.0
-
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -688,7 +688,6 @@ int do_huge_pmd_anonymous_page(struct vm
+ 			transparent_hugepage_use_zero_page()) {
+ 		pgtable_t pgtable;
+ 		struct page *zero_page;
+-		bool set;
+ 		int ret;
+ 		pgtable = pte_alloc_one(vma->vm_mm, haddr);
+ 		if (unlikely(!pgtable))
+@@ -701,25 +700,25 @@ int do_huge_pmd_anonymous_page(struct vm
+ 		}
+ 		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
+ 		ret = 0;
+-		set = false;
+ 		if (pmd_none(*vmf->pmd)) {
+ 			ret = check_stable_address_space(vma->vm_mm);
+ 			if (ret) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 			} else if (userfaultfd_missing(vma)) {
+ 				spin_unlock(vmf->ptl);
++				pte_free(vma->vm_mm, pgtable);
+ 				ret = handle_userfault(vmf, VM_UFFD_MISSING);
+ 				VM_BUG_ON(ret & VM_FAULT_FALLBACK);
+ 			} else {
+ 				set_huge_zero_page(pgtable, vma->vm_mm, vma,
+ 						   haddr, vmf->pmd, zero_page);
+ 				spin_unlock(vmf->ptl);
+-				set = true;
+ 			}
+-		} else
++		} else {
+ 			spin_unlock(vmf->ptl);
+-		if (!set)
+ 			pte_free(vma->vm_mm, pgtable);
++		}
+ 		return ret;
+ 	}
+ 	gfp = alloc_hugepage_direct_gfpmask(vma);
 
 
