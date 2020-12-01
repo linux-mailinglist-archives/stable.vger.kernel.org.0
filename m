@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DCBD2C9A0E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082772C9A23
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729023AbgLAIzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57812 "EHLO mail.kernel.org"
+        id S2387489AbgLAIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729014AbgLAIzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:05 -0500
+        id S2387458AbgLAIzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C0C62223F;
-        Tue,  1 Dec 2020 08:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5AF922241;
+        Tue,  1 Dec 2020 08:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812847;
-        bh=MaVmqD/Ua5tkFRf8oBGzMJO9fBJT64Rshriv1BZuS+A=;
+        s=korg; t=1606812853;
+        bh=nMcV0TF/rDiiyT2nMQ2/33+20aLpple7nWMURFyN7HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyaiZEzBBtFshxEBeYn8iwmfkz2q6HyIeIdlH30pXPZ+rk11QvPa405EYi68FN02/
-         Ys86oWvjxEgI+Ejtyt1jm85g7tM6x+p5wW2jllF34TyiV1odGxpzFV6Op14WTtgACe
-         FrNlLXu6h1ejutGPyTJXM3T2aSSRmGLW5FzQWY18=
+        b=C1Ni/TVEoJ63urWso0oTqWTB9FeeOo8EkdaFEHInK5inVdZYxFKyFb5g4gJ6nD8so
+         l0xv48jHE+cueyNj2yaNBrrmLbIubqZzWztVBFREFt4Pja/lZ4PuRxXOSdvlBI1J0a
+         WWKoQo1SMbDCR6wunz3RReXDXkXgCjlDUE7w4s7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.4 21/24] x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
-Date:   Tue,  1 Dec 2020 09:53:27 +0100
-Message-Id: <20201201084638.819045957@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 23/24] USB: core: Fix regression in Hercules audio card
+Date:   Tue,  1 Dec 2020 09:53:29 +0100
+Message-Id: <20201201084638.920652865@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
 References: <20201201084637.754785180@linuxfoundation.org>
@@ -42,77 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 33fc379df76b4991e5ae312f07bcd6820811971e upstream.
+commit 184eead057cc7e803558269babc1f2cfb9113ad1 upstream
 
-When spectre_v2_user={seccomp,prctl},ibpb is specified on the command
-line, IBPB is force-enabled and STIPB is conditionally-enabled (or not
-available).
+Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+aimed to make the USB stack more reliable by detecting and skipping
+over endpoints that are duplicated between interfaces.  This caused a
+regression for a Hercules audio card (reported as Bugzilla #208357),
+which contains such non-compliant duplications.  Although the
+duplications are harmless, skipping the valid endpoints prevented the
+device from working.
 
-However, since
+This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
+the Hercules card, telling the kernel to ignore the invalid duplicate
+endpoints and thereby allowing the valid endpoints to be used as
+intended.
 
-  21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
-
-the spectre_v2_user_ibpb variable is set to SPECTRE_V2_USER_{PRCTL,SECCOMP}
-instead of SPECTRE_V2_USER_STRICT, which is the actual behaviour.
-Because the issuing of IBPB relies on the switch_mm_*_ibpb static
-branches, the mitigations behave as expected.
-
-Since
-
-  1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
-
-this discrepency caused the misreporting of IB speculation via prctl().
-
-On CPUs with STIBP always-on and spectre_v2_user=seccomp,ibpb,
-prctl(PR_GET_SPECULATION_CTRL) would return PR_SPEC_PRCTL |
-PR_SPEC_ENABLE instead of PR_SPEC_DISABLE since both IBPB and STIPB are
-always on. It also allowed prctl(PR_SET_SPECULATION_CTRL) to set the IB
-speculation mode, even though the flag is ignored.
-
-Similarly, for CPUs without SMT, prctl(PR_GET_SPECULATION_CTRL) should
-also return PR_SPEC_DISABLE since IBPB is always on and STIBP is not
-available.
-
- [ bp: Massage commit message. ]
-
-Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
-Fixes: 1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201110123349.1.Id0cbf996d2151f4c143c90f9028651a5b49a5908@changeid
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+CC: <stable@vger.kernel.org>
+Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[sudip: use usb_endpoint_blacklist and USB_QUIRK_ENDPOINT_BLACKLIST]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/core/quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -707,11 +707,13 @@ spectre_v2_user_select_mitigation(enum s
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -195,6 +195,10 @@ static const struct usb_device_id usb_qu
+ 	/* Guillemot Webcam Hercules Dualpix Exchange*/
+ 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
  
-+		spectre_v2_user_ibpb = mode;
- 		switch (cmd) {
- 		case SPECTRE_V2_USER_CMD_FORCE:
- 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
- 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 			static_branch_enable(&switch_mm_always_ibpb);
-+			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
- 			break;
- 		case SPECTRE_V2_USER_CMD_PRCTL:
- 		case SPECTRE_V2_USER_CMD_AUTO:
-@@ -725,8 +727,6 @@ spectre_v2_user_select_mitigation(enum s
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
--
--		spectre_v2_user_ibpb = mode;
- 	}
++	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
++	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
++			USB_QUIRK_ENDPOINT_BLACKLIST },
++
+ 	/* Midiman M-Audio Keystation 88es */
+ 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	/*
+@@ -351,6 +355,8 @@ static const struct usb_device_id usb_am
+  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
+  */
+ static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
+ 	{ }
+ };
+ 
 
 
