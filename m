@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D3F2C9B39
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F51A2C9A4F
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388308AbgLAJF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42546 "EHLO mail.kernel.org"
+        id S1729193AbgLAI4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:56:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729397AbgLAJFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:05:44 -0500
+        id S1729187AbgLAI4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:56:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECFC9206CA;
-        Tue,  1 Dec 2020 09:04:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACE4D221FD;
+        Tue,  1 Dec 2020 08:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813497;
-        bh=FhDmjBZNZeQM0CB6LGPMJTYOdqpVmxDZ5mUk+ebL/Co=;
+        s=korg; t=1606812951;
+        bh=C24D8wSIW4oyyJZldw4/pHdh47wduITLn8EkdXY+pPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfNRI+OV6+n14kaAW1InqKm8ZCdql+KDjaP2HV0GdwwwE+Vh/xq0RZg2sGQaHuAaL
-         zgHK/0mwll6noPEsmY3wIW5ulM2pqm7+CcYrHriQXsfajJQGXZs1+fVSfifrMjPSec
-         l6A0mb/7Yv8xzqMIUPWsUWgKHRNXAsNyxGL/pXIc=
+        b=fInVbm8Z/96wDAjIL9ms30dkRpNzcUDR4zsCcBI3XAAJB529trBvvDqVDveLOvfYo
+         Q6I43vqUgoT1ABUUmf8vcId4RX4s9zHZGOTe98X6jLYRUHYL4OQkcRx+jf8n0Zgq5W
+         c9FzqbXcLUPastsRsCUkXyj52j/ynZC0oWf1NKLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Ferland <ferlandm@amotus.ca>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/98] dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
+        stable@vger.kernel.org, Yu Zhao <yuzhao@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.9 08/42] arm64: pgtable: Fix pte_accessible()
 Date:   Tue,  1 Dec 2020 09:53:06 +0100
-Message-Id: <20201201084656.355009357@linuxfoundation.org>
+Message-Id: <20201201084642.573533357@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Ferland <ferlandm@amotus.ca>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 0ba2df09f1500d3f27398a3382b86d39c3e6abe2 ]
+commit 07509e10dcc77627f8b6a57381e878fe269958d3 upstream.
 
-The xilinx_dma_poll_timeout macro is sometimes called while holding a
-spinlock (see xilinx_dma_issue_pending() for an example) this means we
-shouldn't sleep when polling the dma channel registers. To address it
-in xilinx poll timeout macro use readl_poll_timeout_atomic instead of
-readl_poll_timeout variant.
+pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
+invalidation is necessary when unmapping pages for reclaim. Although our
+implementation is correct according to the architecture, returning true
+only for valid, young ptes in the absence of racing page-table
+modifications, this is in fact flawed due to lazy invalidation of old
+ptes in ptep_clear_flush_young() where we elide the expensive DSB
+instruction for completing the TLB invalidation.
 
-Signed-off-by: Marc Ferland <ferlandm@amotus.ca>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1604473206-32573-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Rather than penalise the aging path, adjust pte_accessible() to return
+true for any valid pte, even if the access flag is cleared.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
+Reported-by: Yu Zhao <yuzhao@google.com>
+Acked-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: Minchan Kim <minchan@kernel.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201120143557.6715-2-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/xilinx/xilinx_dma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/pgtable.h |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 43acba2a1c0ee..a6abfe702c5a3 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -454,8 +454,8 @@ struct xilinx_dma_device {
- #define to_dma_tx_descriptor(tx) \
- 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
- #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
--	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
--			   cond, delay_us, timeout_us)
-+	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
-+				  val, cond, delay_us, timeout_us)
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -85,8 +85,6 @@ extern unsigned long empty_zero_page[PAG
+ #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
+ #define pte_valid_not_user(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
+-#define pte_valid_young(pte) \
+-	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
+ #define pte_valid_user(pte) \
+ 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
  
- /* IO accessors */
- static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
--- 
-2.27.0
-
+@@ -94,9 +92,12 @@ extern unsigned long empty_zero_page[PAG
+  * Could the pte be present in the TLB? We must check mm_tlb_flush_pending
+  * so that we don't erroneously return false for pages that have been
+  * remapped as PROT_NONE but are yet to be flushed from the TLB.
++ * Note that we can't make any assumptions based on the state of the access
++ * flag, since ptep_clear_flush_young() elides a DSB when invalidating the
++ * TLB.
+  */
+ #define pte_accessible(mm, pte)	\
+-	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
++	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
+ 
+ /*
+  * p??_access_permitted() is true for valid user mappings (subject to the
 
 
