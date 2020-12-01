@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1A62C9C50
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A44F2C9AF1
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389340AbgLAJMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:12:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
+        id S2387859AbgLAJDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389951AbgLAJMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:12:31 -0500
+        id S1727770AbgLAJCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:02:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 177D82223C;
-        Tue,  1 Dec 2020 09:11:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 498CE206C1;
+        Tue,  1 Dec 2020 09:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813910;
-        bh=QMgFT7eZ7p9XTU4VKlCUyBLGUrgptRgdSiaQPb1iQGo=;
+        s=korg; t=1606813330;
+        bh=QnqNeQ8YPPwrJ/IQ6gFGEOgIou9X5w4DbBWp2jUcZs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBy8XC5zU08UrOlr7WcnHFBk8S2eHsITv83aVNVRwhpm2KcXyazDxswW2bWZpiDpH
-         XZXo2OcnHJDVTvw4qT/5/cDnfqg1lwys64EFbwwj5r/77JgJeqj5hP8F+h6gxxBn4R
-         SMoQOBKaXYaIz5xD/fG22fTXaBeQTcwTF4oWGWgs=
+        b=qE/C6atcZcrIATHRfOF57LSu8ThQs19P2BtdkkceCBx5XXW4qTPHrqCX70Z7yZuTj
+         LQqPxoGZ/YEUZ/vThMxIyQFmFIOPBjI5OqUvYEL+5vCw53UUssSb3c/slx4/Is3Jl6
+         uNDfjbGox7dCNtuOy0EympFIP16kHg+syscXLoYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>, Lijun Pan <ljp@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 101/152] ibmvnic: notify peers when failover and migration happen
+Subject: [PATCH 4.19 31/57] scsi: ufs: Fix race between shutdown and runtime resume flow
 Date:   Tue,  1 Dec 2020 09:53:36 +0100
-Message-Id: <20201201084725.083799234@linuxfoundation.org>
+Message-Id: <20201201084650.657187665@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 98025bce3a6200a0c4637272a33b5913928ba5b8 ]
+[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
 
-Commit 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
-excluded the failover case for notify call because it said
-netdev_notify_peers() can cause network traffic to stall or halt.
-Current testing does not show network traffic stall
-or halt because of the notify call for failover event.
-netdev_notify_peers may be used when a device wants to inform the
-rest of the network about some sort of a reconfiguration
-such as failover or migration.
+If UFS host device is in runtime-suspended state while UFS shutdown
+callback is invoked, UFS device shall be resumed for register
+accesses. Currently only UFS local runtime resume function will be invoked
+to wake up the host.  This is not enough because if someone triggers
+runtime resume from block layer, then race may happen between shutdown and
+runtime resume flow, and finally lead to unlocked register access.
 
-It is unnecessary to call that in other events like
-FATAL, NON_FATAL, CHANGE_PARAM, and TIMEOUT resets
-since in those scenarios the hardware does not change.
-If the driver must do a hard reset, it is necessary to notify peers.
+To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
+resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
+PM framework manage the whole resume flow.
 
-Fixes: 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
-Suggested-by: Brian King <brking@linux.vnet.ibm.com>
-Suggested-by: Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>
-Signed-off-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
+Fixes: 57d104c153d3 ("ufs: add UFS power management support")
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 723651b34f94d..0341089743ff1 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2087,7 +2087,8 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 	for (i = 0; i < adapter->req_rx_queues; i++)
- 		napi_schedule(&adapter->napi[i]);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index a63119c35fde8..7e4e6e982055e 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -7926,11 +7926,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
  
--	if (adapter->reset_reason != VNIC_RESET_FAILOVER) {
-+	if (adapter->reset_reason == VNIC_RESET_FAILOVER ||
-+	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
- 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
- 		call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
- 	}
-@@ -2160,6 +2161,9 @@ static int do_hard_reset(struct ibmvnic_adapter *adapter,
- 	if (rc)
- 		return IBMVNIC_OPEN_FAILED;
+-	if (pm_runtime_suspended(hba->dev)) {
+-		ret = ufshcd_runtime_resume(hba);
+-		if (ret)
+-			goto out;
+-	}
++	pm_runtime_get_sync(hba->dev);
  
-+	call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
-+	call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
-+
- 	return 0;
- }
- 
+ 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
+ out:
 -- 
 2.27.0
 
