@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7FF72C9DF9
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2BE52C9D62
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387590AbgLAJ37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:29:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
+        id S1729398AbgLAJWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388021AbgLAI6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:52 -0500
+        id S2388960AbgLAJHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:07:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1457B22263;
-        Tue,  1 Dec 2020 08:58:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EABB421D46;
+        Tue,  1 Dec 2020 09:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813116;
-        bh=FWYzyAvsmH9gmnk3+mnNy3OO/7bB/gYePgJTO7uXDJ0=;
+        s=korg; t=1606813590;
+        bh=+ZAL0S7uoDsCPgfkCiQpBraMg5FiTTFCPN+HIpKhNNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzgYA5TxfqL0O+q4okSGi2znCK/r7luq7VuT72Ys/Q7VvraPJItWp2uIUZllqnLUv
-         VjN9PPGL7sBfKv7QxfNZInX7njZ38EZ22CGXFsSxTmlQ6H7UAFQx23HjdvllwVaUq6
-         OolN/rppQYj8HKC4Vdyh5+cx4RuB0CvubGZyVOxE=
+        b=djR0zlowtJwDMaVE2BbIwdijcOSPjxajUUGPA0K+91RxorQAOhUVfhg5dWkj/hx2o
+         KZ1CAyw3J9jPY64TFAqn5sm0oP75a2FoDwRoemCdPTIigQx86ESBX8dYBozJoyQcgl
+         ZR/eoasz/SgzqDQbi/FzpLyPPbsHGE7KEusxqJTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        David Laight <David.Laight@aculab.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/50] efivarfs: revert "fix memory leak in efivarfs_create()"
-Date:   Tue,  1 Dec 2020 09:53:37 +0100
-Message-Id: <20201201084649.724315321@linuxfoundation.org>
+Subject: [PATCH 5.4 61/98] IB/mthca: fix return value of error branch in mthca_init_cq()
+Date:   Tue,  1 Dec 2020 09:53:38 +0100
+Message-Id: <20201201084658.069326923@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit ff04f3b6f2e27f8ae28a498416af2a8dd5072b43 ]
+[ Upstream commit 6830ff853a5764c75e56750d59d0bbb6b26f1835 ]
 
-The memory leak addressed by commit fe5186cf12e3 is a false positive:
-all allocations are recorded in a linked list, and freed when the
-filesystem is unmounted. This leads to double frees, and as reported
-by David, leads to crashes if SLUB is configured to self destruct when
-double frees occur.
+We return 'err' in the error branch, but this variable may be set as zero
+by the above code. Fix it by setting 'err' as a negative value before we
+goto the error label.
 
-So drop the redundant kfree() again, and instead, mark the offending
-pointer variable so the allocation is ignored by kmemleak.
-
-Cc: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Fixes: fe5186cf12e3 ("efivarfs: fix memory leak in efivarfs_create()")
-Reported-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 74c2174e7be5 ("IB uverbs: add mthca user CQ support")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/1605837422-42724-1-git-send-email-wangxiongfeng2@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/efivarfs/inode.c | 2 ++
- fs/efivarfs/super.c | 1 -
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mthca/mthca_cq.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
-index 71fccccf317e8..5decb3e06563f 100644
---- a/fs/efivarfs/inode.c
-+++ b/fs/efivarfs/inode.c
-@@ -10,6 +10,7 @@
- #include <linux/efi.h>
- #include <linux/fs.h>
- #include <linux/ctype.h>
-+#include <linux/kmemleak.h>
- #include <linux/slab.h>
- #include <linux/uuid.h>
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index c3cfea243af8c..119b2573c9a08 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -803,8 +803,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
+ 	}
  
-@@ -104,6 +105,7 @@ static int efivarfs_create(struct inode *dir, struct dentry *dentry,
- 	var->var.VariableName[i] = '\0';
+ 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
+-	if (IS_ERR(mailbox))
++	if (IS_ERR(mailbox)) {
++		err = PTR_ERR(mailbox);
+ 		goto err_out_arm;
++	}
  
- 	inode->i_private = var;
-+	kmemleak_ignore(var);
+ 	cq_context = mailbox->buf;
  
- 	err = efivar_entry_add(var, &efivarfs_list);
- 	if (err)
-diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 7808a26bd33fa..834615f13f3e3 100644
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,7 +23,6 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
--	kfree(inode->i_private);
- }
+@@ -846,9 +848,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
+ 	}
  
- static const struct super_operations efivarfs_ops = {
+ 	spin_lock_irq(&dev->cq_table.lock);
+-	if (mthca_array_set(&dev->cq_table.cq,
+-			    cq->cqn & (dev->limits.num_cqs - 1),
+-			    cq)) {
++	err = mthca_array_set(&dev->cq_table.cq,
++			      cq->cqn & (dev->limits.num_cqs - 1), cq);
++	if (err) {
+ 		spin_unlock_irq(&dev->cq_table.lock);
+ 		goto err_out_free_mr;
+ 	}
 -- 
 2.27.0
 
