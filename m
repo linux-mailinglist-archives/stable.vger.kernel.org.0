@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D779B2C9E0D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2EE2C9E12
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391216AbgLAJax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57812 "EHLO mail.kernel.org"
+        id S2388074AbgLAJbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:31:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729094AbgLAIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:21 -0500
+        id S1728984AbgLAIzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F56A2224A;
-        Tue,  1 Dec 2020 08:54:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3BBA2222E;
+        Tue,  1 Dec 2020 08:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812886;
-        bh=tEZInM+WfGE1A4X4Z9b+R38fgTJgTSLTutPMsWrI3gU=;
+        s=korg; t=1606812842;
+        bh=cFHxVMbT9D+JYMdFYcKovG1LxuP+mMnbh1HyPMniGD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX/nZIaPCNe20Bo+GOolPVoTKFn/Cmv+hE/6ZJg1oGehWjPHPzRG7T2r5KmfSCtQ/
-         5IgBC6Hox72U4Lg8/5vW88qxp6fWMCLpRubhZkwiYoA+NBfRyGjAN6hm0PT7JMG5Vh
-         WjoF/93qtUE35j9SBwBudD5Gsmt4814kbpjRqX5Y=
+        b=zaBR051SfzuSvLKcZGqVCDWr8Zh1EuTuUqn/sWmM1sqPva4EJtqnOQ8WjEvBXK/El
+         IbnlbR5rmbTeB2QM0VwDplF2j2PnM8O4/JbfjHFXI82urfDtfM1ql4cQAA8ee04e20
+         F238TJsZTvMYXsLKVyEA5livAFynFUkamqELtNOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
+        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 10/42] ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close
+Subject: [PATCH 4.4 02/24] btrfs: inode: Verify inode mode to avoid NULL pointer dereference
 Date:   Tue,  1 Dec 2020 09:53:08 +0100
-Message-Id: <20201201084642.672626692@linuxfoundation.org>
+Message-Id: <20201201084637.885690100@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit ce1558c285f9ad04c03b46833a028230771cc0a7 upstream
+commit 6bf9e4bd6a277840d3fe8c5d5d530a1fbd3db592 upstream
 
-A race exists between closing a PCM and update of ELD data. In
-hdmi_pcm_close(), hinfo->nid value is modified without taking
-spec->pcm_lock. If this happens concurrently while processing an ELD
-update in hdmi_pcm_setup_pin(), converter assignment may be done
-incorrectly.
+[BUG]
+When accessing a file on a crafted image, btrfs can crash in block layer:
 
-This bug was found by hitting a WARN_ON in snd_hda_spdif_ctls_assign()
-in a HDMI receiver connection stress test:
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+  PGD 136501067 P4D 136501067 PUD 124519067 PMD 0
+  CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.0.0-rc8-default #252
+  RIP: 0010:end_bio_extent_readpage+0x144/0x700
+  Call Trace:
+   <IRQ>
+   blk_update_request+0x8f/0x350
+   blk_mq_end_request+0x1a/0x120
+   blk_done_softirq+0x99/0xc0
+   __do_softirq+0xc7/0x467
+   irq_exit+0xd1/0xe0
+   call_function_single_interrupt+0xf/0x20
+   </IRQ>
+  RIP: 0010:default_idle+0x1e/0x170
 
-[2739.684569] WARNING: CPU: 5 PID: 2090 at sound/pci/hda/patch_hdmi.c:1898 check_non_pcm_per_cvt+0x41/0x50 [snd_hda_codec_hdmi]
-...
-[2739.684707] Call Trace:
-[2739.684720]  update_eld+0x121/0x5a0 [snd_hda_codec_hdmi]
-[2739.684736]  hdmi_present_sense+0x21e/0x3b0 [snd_hda_codec_hdmi]
-[2739.684750]  check_presence_and_report+0x81/0xd0 [snd_hda_codec_hdmi]
-[2739.684842]  intel_audio_codec_enable+0x122/0x190 [i915]
+[CAUSE]
+The crafted image has a tricky corruption, the INODE_ITEM has a
+different type against its parent dir:
 
-Fixes: 42b2987079ec ("ALSA: hda - hdmi playback without monitor in dynamic pcm bind mode")
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201013152628.920764-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
+        item 20 key (268 INODE_ITEM 0) itemoff 2808 itemsize 160
+                generation 13 transid 13 size 1048576 nbytes 1048576
+                block group 0 mode 121644 links 1 uid 0 gid 0 rdev 0
+                sequence 9 flags 0x0(none)
+
+This mode number 0120000 means it's a symlink.
+
+But the dir item think it's still a regular file:
+
+        item 8 key (264 DIR_INDEX 5) itemoff 3707 itemsize 32
+                location key (268 INODE_ITEM 0) type FILE
+                transid 13 data_len 0 name_len 2
+                name: f4
+        item 40 key (264 DIR_ITEM 51821248) itemoff 1573 itemsize 32
+                location key (268 INODE_ITEM 0) type FILE
+                transid 13 data_len 0 name_len 2
+                name: f4
+
+For symlink, we don't set BTRFS_I(inode)->io_tree.ops and leave it
+empty, as symlink is only designed to have inlined extent, all handled
+by tree block read.  Thus no need to trigger btrfs_submit_bio_hook() for
+inline file extent.
+
+However end_bio_extent_readpage() expects tree->ops populated, as it's
+reading regular data extent.  This causes NULL pointer dereference.
+
+[FIX]
+This patch fixes the problem in two ways:
+
+- Verify inode mode against its dir item when looking up inode
+  So in btrfs_lookup_dentry() if we find inode mode mismatch with dir
+  item, we error out so that corrupted inode will not be accessed.
+
+- Verify inode mode when getting extent mapping
+  Only regular file should have regular or preallocated extent.
+  If we found regular/preallocated file extent for symlink or
+  the rest, we error out before submitting the read bio.
+
+With this fix that crafted image can be rejected gracefully:
+
+  BTRFS critical (device loop0): inode mode mismatch with dir: inode mode=0121644 btrfs type=7 dir type=1
+
+Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202763
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: use original btrfs_inode_type(), btrfs_crit with root->fs_info,
+ISREG with inode->i_mode and adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ fs/btrfs/inode.c             |   41 +++++++++++++++++++++++++++++++++--------
+ fs/btrfs/tests/inode-tests.c |    1 +
+ 2 files changed, 34 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1803,20 +1803,23 @@ static int hdmi_pcm_close(struct hda_pcm
- 	int pinctl;
- 	int err = 0;
- 
-+	mutex_lock(&spec->pcm_lock);
- 	if (hinfo->nid) {
- 		pcm_idx = hinfo_to_pcm_index(codec, hinfo);
--		if (snd_BUG_ON(pcm_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(pcm_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		cvt_idx = cvt_nid_to_cvt_index(codec, hinfo->nid);
--		if (snd_BUG_ON(cvt_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(cvt_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		per_cvt = get_cvt(spec, cvt_idx);
--
- 		snd_BUG_ON(!per_cvt->assigned);
- 		per_cvt->assigned = 0;
- 		hinfo->nid = 0;
- 
--		mutex_lock(&spec->pcm_lock);
- 		snd_hda_spdif_ctls_unassign(codec, pcm_idx);
- 		clear_bit(pcm_idx, &spec->pcm_in_use);
- 		pin_idx = hinfo_to_pin_index(codec, hinfo);
-@@ -1844,10 +1847,11 @@ static int hdmi_pcm_close(struct hda_pcm
- 		per_pin->setup = false;
- 		per_pin->channels = 0;
- 		mutex_unlock(&per_pin->lock);
--	unlock:
--		mutex_unlock(&spec->pcm_lock);
- 	}
- 
-+unlock:
-+	mutex_unlock(&spec->pcm_lock);
-+
- 	return err;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -5370,11 +5370,13 @@ no_delete:
  }
  
+ /*
+- * this returns the key found in the dir entry in the location pointer.
++ * Return the key found in the dir entry in the location pointer, fill @type
++ * with BTRFS_FT_*, and return 0.
++ *
+  * If no dir entries were found, location->objectid is 0.
+  */
+ static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
+-			       struct btrfs_key *location)
++			       struct btrfs_key *location, u8 *type)
+ {
+ 	const char *name = dentry->d_name.name;
+ 	int namelen = dentry->d_name.len;
+@@ -5396,6 +5398,8 @@ static int btrfs_inode_by_name(struct in
+ 		goto out_err;
+ 
+ 	btrfs_dir_item_key_to_cpu(path->nodes[0], di, location);
++	if (!ret)
++		*type = btrfs_dir_type(path->nodes[0], di);
+ out:
+ 	btrfs_free_path(path);
+ 	return ret;
+@@ -5681,19 +5685,25 @@ static struct inode *new_simple_dir(stru
+ 	return inode;
+ }
+ 
++static inline u8 btrfs_inode_type(struct inode *inode)
++{
++	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
++}
++
+ struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
+ {
+ 	struct inode *inode;
+ 	struct btrfs_root *root = BTRFS_I(dir)->root;
+ 	struct btrfs_root *sub_root = root;
+ 	struct btrfs_key location;
++	u8 di_type = 0;
+ 	int index;
+ 	int ret = 0;
+ 
+ 	if (dentry->d_name.len > BTRFS_NAME_LEN)
+ 		return ERR_PTR(-ENAMETOOLONG);
+ 
+-	ret = btrfs_inode_by_name(dir, dentry, &location);
++	ret = btrfs_inode_by_name(dir, dentry, &location, &di_type);
+ 	if (ret < 0)
+ 		return ERR_PTR(ret);
+ 
+@@ -5702,6 +5712,18 @@ struct inode *btrfs_lookup_dentry(struct
+ 
+ 	if (location.type == BTRFS_INODE_ITEM_KEY) {
+ 		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
++		if (IS_ERR(inode))
++			return inode;
++
++		/* Do extra check against inode mode with di_type */
++		if (btrfs_inode_type(inode) != di_type) {
++			btrfs_crit(root->fs_info,
++"inode mode mismatch with dir: inode mode=0%o btrfs type=%u dir type=%u",
++				  inode->i_mode, btrfs_inode_type(inode),
++				  di_type);
++			iput(inode);
++			return ERR_PTR(-EUCLEAN);
++		}
+ 		return inode;
+ 	}
+ 
+@@ -6315,11 +6337,6 @@ fail:
+ 	return ERR_PTR(ret);
+ }
+ 
+-static inline u8 btrfs_inode_type(struct inode *inode)
+-{
+-	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
+-}
+-
+ /*
+  * utility function to add 'inode' into 'parent_inode' with
+  * a give name and a given sequence number.
+@@ -6904,6 +6921,14 @@ again:
+ 	extent_start = found_key.offset;
+ 	if (found_type == BTRFS_FILE_EXTENT_REG ||
+ 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
++		/* Only regular file could have regular/prealloc extent */
++		if (!S_ISREG(inode->i_mode)) {
++			ret = -EUCLEAN;
++			btrfs_crit(root->fs_info,
++		"regular/prealloc extent found for non-regular inode %llu",
++				   btrfs_ino(inode));
++			goto out;
++		}
+ 		extent_end = extent_start +
+ 		       btrfs_file_extent_num_bytes(leaf, item);
+ 	} else if (found_type == BTRFS_FILE_EXTENT_INLINE) {
+--- a/fs/btrfs/tests/inode-tests.c
++++ b/fs/btrfs/tests/inode-tests.c
+@@ -235,6 +235,7 @@ static noinline int test_btrfs_get_exten
+ 		return ret;
+ 	}
+ 
++	inode->i_mode = S_IFREG;
+ 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
+ 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
+ 	BTRFS_I(inode)->location.offset = 0;
 
 
