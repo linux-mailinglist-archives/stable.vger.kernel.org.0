@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31782C9C68
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 970202C9BA7
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389798AbgLAJLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:11:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48620 "EHLO mail.kernel.org"
+        id S2389768AbgLAJKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389819AbgLAJLN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:11:13 -0500
+        id S2389734AbgLAJKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8942E21D7A;
-        Tue,  1 Dec 2020 09:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8261222245;
+        Tue,  1 Dec 2020 09:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813858;
-        bh=JSZvPBfK4+zCBkiRFC8rx9kLIeN4qNLYFSnGYkiTKek=;
+        s=korg; t=1606813797;
+        bh=h60ek0hTv04VHgQSiFeWek+FE4Lk+MHPlUOUUhBX+ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frR4Blp1rwAAiYPICbHru3fkLZdBcweTuBUkKQqrtgvkOwN7UXwO6NwHX1q8rFZOP
-         H9gbjgcpoQm9NYbHnjn7Iaw/WGOC70twYV/XeoZ7Yx5zmCDqW6LhXE49zb6WVwtPRC
-         IYxchYQf9KdJC0STPiJ7xM0Hl0zqlYDC52IYaSNc=
+        b=DNvLPCVm5756JzsycwUgj4R004HfVjw/Mj04VStIxuzOKnxfpMJwlrPUPBqWY+CA+
+         lffyp4DRAgrXX5EPDNjG1O42l3gVC5Si+PuGI9UCItbIOkAmWuDo1D0MD7qpySVr9B
+         3NVbeWcMm0vN4FmVXue8PwBGCl0O7oFeifeGVn7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Marius Iacob <themariusus@gmail.com>
-Subject: [PATCH 5.9 043/152] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
-Date:   Tue,  1 Dec 2020 09:52:38 +0100
-Message-Id: <20201201084717.484111139@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 045/152] staging: ralink-gdma: fix kconfig dependency bug for DMA_RALINK
+Date:   Tue,  1 Dec 2020 09:52:40 +0100
+Message-Id: <20201201084717.777362894@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -44,95 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit b1884583fcd17d6a1b1bba94bbb5826e6b5c6e17 ]
+[ Upstream commit 06ea594051707c6b8834ef5b24e9b0730edd391b ]
 
-The i8042 module exports several symbols which may be used by other
-modules.
+When DMA_RALINK is enabled and DMADEVICES is disabled, it results in the
+following Kbuild warnings:
 
-Before this commit it would refuse to load (when built as a module itself)
-on systems without an i8042 controller.
+WARNING: unmet direct dependencies detected for DMA_ENGINE
+  Depends on [n]: DMADEVICES [=n]
+  Selected by [y]:
+  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
 
-This is a problem specifically for the asus-nb-wmi module. Many Asus
-laptops support the Asus WMI interface. Some of them have an i8042
-controller and need to use i8042_install_filter() to filter some kbd
-events. Other models do not have an i8042 controller (e.g. they use an
-USB attached kbd).
+WARNING: unmet direct dependencies detected for DMA_VIRTUAL_CHANNELS
+  Depends on [n]: DMADEVICES [=n]
+  Selected by [y]:
+  - DMA_RALINK [=y] && STAGING [=y] && RALINK [=y] && !SOC_RT288X [=n]
 
-Before this commit the asus-nb-wmi driver could not be loaded on Asus
-models without an i8042 controller, when the i8042 code was built as
-a module (as Arch Linux does) because the module_init function of the
-i8042 module would fail with -ENODEV and thus the i8042_install_filter
-symbol could not be loaded.
+The reason is that DMA_RALINK selects DMA_ENGINE and DMA_VIRTUAL_CHANNELS
+without depending on or selecting DMADEVICES while DMA_ENGINE and
+DMA_VIRTUAL_CHANNELS are subordinate to DMADEVICES. This can also fail
+building the kernel as demonstrated in a bug report.
 
-This commit fixes this by exiting from module_init with a return code
-of 0 if no controller is found.  It also adds a i8042_present bool to
-make the module_exit function a no-op in this case and also adds a
-check for i8042_present to the exported i8042_command function.
+Honor the kconfig dependency to remove unmet direct dependency warnings
+and avoid any potential build failures.
 
-The latter i8042_present check should not really be necessary because
-when builtin that function can already be used on systems without
-an i8042 controller, but better safe then sorry.
-
-Reported-and-tested-by: Marius Iacob <themariusus@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201008112628.3979-2-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=210055
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://lore.kernel.org/r/20201104181522.43567-1-fazilyildiran@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/staging/ralink-gdma/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index d3eda48032e39..944cbb519c6d7 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -122,6 +122,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
- MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
- #endif
+diff --git a/drivers/staging/ralink-gdma/Kconfig b/drivers/staging/ralink-gdma/Kconfig
+index 54e8029e6b1af..0017376234e28 100644
+--- a/drivers/staging/ralink-gdma/Kconfig
++++ b/drivers/staging/ralink-gdma/Kconfig
+@@ -2,6 +2,7 @@
+ config DMA_RALINK
+ 	tristate "RALINK DMA support"
+ 	depends on RALINK && !SOC_RT288X
++	depends on DMADEVICES
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
  
-+static bool i8042_present;
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-@@ -343,6 +344,9 @@ int i8042_command(unsigned char *param, int command)
- 	unsigned long flags;
- 	int retval;
- 
-+	if (!i8042_present)
-+		return -1;
-+
- 	spin_lock_irqsave(&i8042_lock, flags);
- 	retval = __i8042_command(param, command);
- 	spin_unlock_irqrestore(&i8042_lock, flags);
-@@ -1612,12 +1616,15 @@ static int __init i8042_init(void)
- 
- 	err = i8042_platform_init();
- 	if (err)
--		return err;
-+		return (err == -ENODEV) ? 0 : err;
- 
- 	err = i8042_controller_check();
- 	if (err)
- 		goto err_platform_exit;
- 
-+	/* Set this before creating the dev to allow i8042_command to work right away */
-+	i8042_present = true;
-+
- 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
- 	if (IS_ERR(pdev)) {
- 		err = PTR_ERR(pdev);
-@@ -1636,6 +1643,9 @@ static int __init i8042_init(void)
- 
- static void __exit i8042_exit(void)
- {
-+	if (!i8042_present)
-+		return;
-+
- 	platform_device_unregister(i8042_platform_device);
- 	platform_driver_unregister(&i8042_driver);
- 	i8042_platform_exit();
 -- 
 2.27.0
 
