@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2F02C9AC2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7FC12C9B2A
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388335AbgLAJAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36612 "EHLO mail.kernel.org"
+        id S1729358AbgLAJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388316AbgLAJA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:00:26 -0500
+        id S2388829AbgLAJEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:04:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 814B32220B;
-        Tue,  1 Dec 2020 08:59:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0637120671;
+        Tue,  1 Dec 2020 09:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813186;
-        bh=+558RP3vP3zlxoLzcYiGUJ8auVdBqnJ25CwCDqJQmpc=;
+        s=korg; t=1606813439;
+        bh=1e2Hlq7wAXg/fySaQFlHoIq8be1MOy+VJqG9Okkf8+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1RJm+V7olH0bp9aox4zWysNUh8p6P2NVFE5FA4usA3Hu+Rf/gCCgvFofUxa1twzU
-         +jKzglSfeHaCRgFJdVWS+movKATRm/WKzLnKg3JWvsLPtebSUYNRFehT3tUuZwSM+e
-         NX+UTJCYMuWP+ZrPyA+3JbIHr+bwRagTdKHGHF/4=
+        b=QYj7Uer0Ouv2d2iHtT8rNnvCINkOIgDmSWgfFwM7jsDxoW25JXSnc7kDlFlzH4XGE
+         xL6vfbc2/zJQFhLWIlcLv3WBqGdUHlf/H7mFSZNk5bWqgZ1cJ2GGA/PqpDVY8uVUKR
+         6T2IG5R6P4PRi2dfy5V7Fe7OTs4T8ZNQF4qBa0Es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 12/57] ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 40/98] xtensa: uaccess: Add missing __user to strncpy_from_user() prototype
 Date:   Tue,  1 Dec 2020 09:53:17 +0100
-Message-Id: <20201201084649.107155568@linuxfoundation.org>
+Message-Id: <20201201084657.068991994@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-commit ce1558c285f9ad04c03b46833a028230771cc0a7 upstream
+[ Upstream commit dc293f2106903ab9c24e9cea18c276e32c394c33 ]
 
-A race exists between closing a PCM and update of ELD data. In
-hdmi_pcm_close(), hinfo->nid value is modified without taking
-spec->pcm_lock. If this happens concurrently while processing an ELD
-update in hdmi_pcm_setup_pin(), converter assignment may be done
-incorrectly.
+When adding __user annotations in commit 2adf5352a34a, the
+strncpy_from_user() function declaration for the
+CONFIG_GENERIC_STRNCPY_FROM_USER case was missed. Fix it.
 
-This bug was found by hitting a WARN_ON in snd_hda_spdif_ctls_assign()
-in a HDMI receiver connection stress test:
-
-[2739.684569] WARNING: CPU: 5 PID: 2090 at sound/pci/hda/patch_hdmi.c:1898 check_non_pcm_per_cvt+0x41/0x50 [snd_hda_codec_hdmi]
-...
-[2739.684707] Call Trace:
-[2739.684720]  update_eld+0x121/0x5a0 [snd_hda_codec_hdmi]
-[2739.684736]  hdmi_present_sense+0x21e/0x3b0 [snd_hda_codec_hdmi]
-[2739.684750]  check_presence_and_report+0x81/0xd0 [snd_hda_codec_hdmi]
-[2739.684842]  intel_audio_codec_enable+0x122/0x190 [i915]
-
-Fixes: 42b2987079ec ("ALSA: hda - hdmi playback without monitor in dynamic pcm bind mode")
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201013152628.920764-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Message-Id: <20200831210937.17938-1-laurent.pinchart@ideasonboard.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ arch/xtensa/include/asm/uaccess.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1955,20 +1955,23 @@ static int hdmi_pcm_close(struct hda_pcm
- 	int pinctl;
- 	int err = 0;
- 
-+	mutex_lock(&spec->pcm_lock);
- 	if (hinfo->nid) {
- 		pcm_idx = hinfo_to_pcm_index(codec, hinfo);
--		if (snd_BUG_ON(pcm_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(pcm_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		cvt_idx = cvt_nid_to_cvt_index(codec, hinfo->nid);
--		if (snd_BUG_ON(cvt_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(cvt_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		per_cvt = get_cvt(spec, cvt_idx);
--
- 		snd_BUG_ON(!per_cvt->assigned);
- 		per_cvt->assigned = 0;
- 		hinfo->nid = 0;
- 
--		mutex_lock(&spec->pcm_lock);
- 		snd_hda_spdif_ctls_unassign(codec, pcm_idx);
- 		clear_bit(pcm_idx, &spec->pcm_in_use);
- 		pin_idx = hinfo_to_pin_index(codec, hinfo);
-@@ -1996,10 +1999,11 @@ static int hdmi_pcm_close(struct hda_pcm
- 		per_pin->setup = false;
- 		per_pin->channels = 0;
- 		mutex_unlock(&per_pin->lock);
--	unlock:
--		mutex_unlock(&spec->pcm_lock);
- 	}
- 
-+unlock:
-+	mutex_unlock(&spec->pcm_lock);
-+
- 	return err;
+diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
+index 3f80386f18838..5cb24a789e9e1 100644
+--- a/arch/xtensa/include/asm/uaccess.h
++++ b/arch/xtensa/include/asm/uaccess.h
+@@ -300,7 +300,7 @@ strncpy_from_user(char *dst, const char *src, long count)
+ 	return -EFAULT;
  }
+ #else
+-long strncpy_from_user(char *dst, const char *src, long count);
++long strncpy_from_user(char *dst, const char __user *src, long count);
+ #endif
  
+ /*
+-- 
+2.27.0
+
 
 
