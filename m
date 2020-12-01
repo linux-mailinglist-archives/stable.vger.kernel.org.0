@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A3A2C9BCE
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF68F2C9B59
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389947AbgLAJMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:12:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50514 "EHLO mail.kernel.org"
+        id S2388987AbgLAJH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:07:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388872AbgLAJMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:12:20 -0500
+        id S2388971AbgLAJH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:07:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBACC2067D;
-        Tue,  1 Dec 2020 09:11:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C11F52223F;
+        Tue,  1 Dec 2020 09:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813899;
-        bh=GiIcpuIEXT7xJ0orfc9XiiPQIwDzxmqy4Ut5oxb2zXU=;
+        s=korg; t=1606813605;
+        bh=Y/4rQy0AXv9QrcL+WvaXWA5fg6P2blZmyS1st7EIqc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bth9T5JgigG9VVF2vTMD3MPNFOo6MJXwY0DQo7Q7sL/KEynBLtIsg67hsdikob2Dm
-         Yiui1//rb6RafThs2uRSQHdXZIMhDNu7Bmjs/4LS7yY5Eq37r0jfmzFyUanlNdbRk5
-         xg7ngDGa1cQKK+C/hMPcjfUO3XR+CuSxkTPjxSRU=
+        b=V9Kyddfo3hJBsE2QrpoUczi0ahbCjwlLOe7jn+pw/PO/ByVlHwm4hA58vPXpI+vZf
+         E0ts62g+cwHYsCuyRIBf2sNXAu38MkMMBluhvb4HmE27yrTe8X+NwbfWgS1Lk2pxB0
+         MztCM1UA/YtNc1MT8K3TAcxhPqEOcLJk1Ym1w3Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 097/152] s390/qeth: fix tear down of async TX buffers
-Date:   Tue,  1 Dec 2020 09:53:32 +0100
-Message-Id: <20201201084724.571225847@linuxfoundation.org>
+Subject: [PATCH 5.4 56/98] s390/qeth: fix af_iucv notification race
+Date:   Tue,  1 Dec 2020 09:53:33 +0100
+Message-Id: <20201201084657.842235717@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,168 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 7ed10e16e50daf74460f54bc922e27c6863c8d61 ]
+[ Upstream commit 8908f36d20d8ba610d3a7d110b3049b5853b9bb1 ]
 
-When qeth_iqd_tx_complete() detects that a TX buffer requires additional
-async completion via QAOB, it might fail to replace the queue entry's
-metadata (and ends up triggering recovery).
+The two expected notification sequences are
+1. TX_NOTIFY_PENDING with a subsequent TX_NOTIFY_DELAYED_*, when
+   our TX completion code first observed the pending TX and the QAOB
+   then completes at a later time; or
+2. TX_NOTIFY_OK, when qeth_qdio_handle_aob() picked up the QAOB
+   completion before our TX completion code even noticed that the TX
+   was pending.
 
-Assume now that the device gets torn down, overruling the recovery.
-If the QAOB notification then arrives before the tear down has
-sufficiently progressed, the buffer state is changed to
-QETH_QDIO_BUF_HANDLED_DELAYED by qeth_qdio_handle_aob().
+But as qeth_iqd_tx_complete() and qeth_qdio_handle_aob() can run
+concurrently, we may end up with a race that results in a sequence of
+TX_NOTIFY_DELAYED_* followed by TX_NOTIFY_PENDING. Which would confuse
+the af_iucv code in its tracking of pending transmits.
 
-The tear down code calls qeth_drain_output_queue(), where
-qeth_cleanup_handled_pending() will then attempt to replace such a
-buffer _again_. If it succeeds this time, the buffer ends up dangling in
-its replacement's ->next_pending list ... where it will never be freed,
-since there's no further call to qeth_cleanup_handled_pending().
+Rework the notification code, so that qeth_qdio_handle_aob() defers its
+notification if the TX completion code is still active.
 
-But the second attempt isn't actually needed, we can simply leave the
-buffer on the queue and re-use it after a potential recovery has
-completed. The qeth_clear_output_buffer() in qeth_drain_output_queue()
-will ensure that it's in a clean state again.
-
-Fixes: 72861ae792c2 ("qeth: recovery through asynchronous delivery")
+Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/s390/net/qeth_core.h      |  9 ++--
+ drivers/s390/net/qeth_core_main.c | 73 ++++++++++++++++++++++---------
+ 2 files changed, 58 insertions(+), 24 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 820f2c29376c0..93b4cb156b0bc 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -436,10 +436,13 @@ enum qeth_qdio_out_buffer_state {
+ 	QETH_QDIO_BUF_EMPTY,
+ 	/* Filled by driver; owned by hardware in order to be sent. */
+ 	QETH_QDIO_BUF_PRIMED,
+-	/* Identified to be pending in TPQ. */
++	/* Discovered by the TX completion code: */
+ 	QETH_QDIO_BUF_PENDING,
+-	/* Found in completion queue. */
+-	QETH_QDIO_BUF_IN_CQ,
++	/* Finished by the TX completion code: */
++	QETH_QDIO_BUF_NEED_QAOB,
++	/* Received QAOB notification on CQ: */
++	QETH_QDIO_BUF_QAOB_OK,
++	QETH_QDIO_BUF_QAOB_ERROR,
+ 	/* Handled via transfer pending / completion queue. */
+ 	QETH_QDIO_BUF_HANDLED_DELAYED,
+ };
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 54a7eefe73d19..e3666232a19a8 100644
+index 6a2ac575e0a39..f07e73eb37ebb 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -501,12 +501,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+@@ -438,6 +438,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				 unsigned long phys_aob_addr)
+ {
++	enum qeth_qdio_out_buffer_state new_state = QETH_QDIO_BUF_QAOB_OK;
+ 	struct qaob *aob;
+ 	struct qeth_qdio_out_buffer *buffer;
+ 	enum iucv_tx_notify notification;
+@@ -449,22 +450,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	buffer = (struct qeth_qdio_out_buffer *) aob->user1;
+ 	QETH_CARD_TEXT_(card, 5, "%lx", aob->user1);
  
- 		}
- 	}
--	if (forced_cleanup && (atomic_read(&(q->bufs[bidx]->state)) ==
--					QETH_QDIO_BUF_HANDLED_DELAYED)) {
--		/* for recovery situations */
--		qeth_init_qdio_out_buf(q, bidx);
--		QETH_CARD_TEXT(q->card, 2, "clprecov");
+-	if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
+-			   QETH_QDIO_BUF_IN_CQ) == QETH_QDIO_BUF_PRIMED) {
+-		notification = TX_NOTIFY_OK;
+-	} else {
+-		WARN_ON_ONCE(atomic_read(&buffer->state) !=
+-							QETH_QDIO_BUF_PENDING);
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_IN_CQ);
+-		notification = TX_NOTIFY_DELAYED_OK;
 -	}
+-
+-	if (aob->aorc != 0)  {
+-		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
+-		notification = qeth_compute_cq_notification(aob->aorc, 1);
+-	}
+-	qeth_notify_skbs(buffer->q, buffer, notification);
+-
+ 	/* Free dangling allocations. The attached skbs are handled by
+ 	 * qeth_cleanup_handled_pending().
+ 	 */
+@@ -475,7 +460,33 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 			kmem_cache_free(qeth_core_header_cache,
+ 					(void *) aob->sba[i]);
+ 	}
+-	atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++
++	if (aob->aorc) {
++		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
++		new_state = QETH_QDIO_BUF_QAOB_ERROR;
++	}
++
++	switch (atomic_xchg(&buffer->state, new_state)) {
++	case QETH_QDIO_BUF_PRIMED:
++		/* Faster than TX completion code. */
++		notification = qeth_compute_cq_notification(aob->aorc, 0);
++		qeth_notify_skbs(buffer->q, buffer, notification);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		break;
++	case QETH_QDIO_BUF_PENDING:
++		/* TX completion code is active and will handle the async
++		 * completion for us.
++		 */
++		break;
++	case QETH_QDIO_BUF_NEED_QAOB:
++		/* TX completion code is already finished. */
++		notification = qeth_compute_cq_notification(aob->aorc, 1);
++		qeth_notify_skbs(buffer->q, buffer, notification);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		break;
++	default:
++		WARN_ON_ONCE(1);
++	}
+ 
+ 	qdio_release_aob(aob);
  }
+@@ -1095,9 +1106,6 @@ static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
+ 	struct qeth_qdio_out_q *queue = buf->q;
+ 	struct sk_buff *skb;
  
+-	/* release may never happen from within CQ tasklet scope */
+-	WARN_ON_ONCE(atomic_read(&buf->state) == QETH_QDIO_BUF_IN_CQ);
+-
+ 	if (atomic_read(&buf->state) == QETH_QDIO_BUF_PENDING)
+ 		qeth_notify_skbs(queue, buf, TX_NOTIFY_GENERALERROR);
  
+@@ -5224,9 +5232,32 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 
+ 		if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
+ 						   QETH_QDIO_BUF_PENDING) ==
+-		    QETH_QDIO_BUF_PRIMED)
++		    QETH_QDIO_BUF_PRIMED) {
+ 			qeth_notify_skbs(queue, buffer, TX_NOTIFY_PENDING);
+ 
++			/* Handle race with qeth_qdio_handle_aob(): */
++			switch (atomic_xchg(&buffer->state,
++					    QETH_QDIO_BUF_NEED_QAOB)) {
++			case QETH_QDIO_BUF_PENDING:
++				/* No concurrent QAOB notification. */
++				break;
++			case QETH_QDIO_BUF_QAOB_OK:
++				qeth_notify_skbs(queue, buffer,
++						 TX_NOTIFY_DELAYED_OK);
++				atomic_set(&buffer->state,
++					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				break;
++			case QETH_QDIO_BUF_QAOB_ERROR:
++				qeth_notify_skbs(queue, buffer,
++						 TX_NOTIFY_DELAYED_GENERALERROR);
++				atomic_set(&buffer->state,
++					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				break;
++			default:
++				WARN_ON_ONCE(1);
++			}
++		}
++
+ 		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
+ 
+ 		/* prepare the queue slot for re-use: */
 -- 
 2.27.0
 
