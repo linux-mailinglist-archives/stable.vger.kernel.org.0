@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E15062C9CA4
+	by mail.lfdr.de (Postfix) with ESMTP id 06E552C9CA2
 	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387486AbgLAIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
+        id S1727612AbgLAIz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387462AbgLAIze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:34 -0500
+        id S1729119AbgLAIz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:27 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7879C217A0;
-        Tue,  1 Dec 2020 08:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1F442224C;
+        Tue,  1 Dec 2020 08:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812860;
-        bh=iapb//kpuJeti/zgqpTc+h+YoyQLUxhqqHUjO3jqInU=;
+        s=korg; t=1606812889;
+        bh=hV0u4Y2QEKwYT+u/mYJPgEZog1BT9CR3LqdbE22myXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgumKHFBEfU/6wNtEMo68XqswZoH0M7+0qspMkAKkkVWD0N0eGbBg9d8NHmLXZCb4
-         fyW4lRR3Q5FpsgNPITcJRjhPUQYrsESjHAQuHmw5TJ0pe65Ejysv36B8atSiZnDgKr
-         iblR5c/uLzkMRdCgmDWcPOSK6dIaedBBPMVlKTGM=
+        b=iCO8EG4VHLUfNRL1JaX8W50NAH2Al9aCeOI559LPKCsIMNEJHaiUUV8TZ3wY6dJXo
+         qVnrw6Br1sipb0HQMGiv+Rh0PHmeJR2kKYijl1vUZ5HsVq48u5tpLAg4W9vx2L9of3
+         nOukP+wdi5QqevIhPC2pwccICsjb4YqoW2uG7h+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nikos Tsironis <ntsironis@arrikto.com>
-Subject: [PATCH 4.4 03/24] KVM: x86: Fix split-irqchip vs interrupt injection window request
+        stable@vger.kernel.org, Frank Yang <puilp0502@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/42] HID: cypress: Support Varmilo Keyboards media hotkeys
 Date:   Tue,  1 Dec 2020 09:53:09 +0100
-Message-Id: <20201201084637.936564497@linuxfoundation.org>
+Message-Id: <20201201084642.709475742@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-References: <20201201084637.754785180@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +42,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Frank Yang <puilp0502@gmail.com>
 
-commit 71cc849b7093bb83af966c0e60cb11b7f35cd746 upstream.
+[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
 
-kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
-a hodge-podge of conditions, hacked together to get something that
-more or less works.  But what is actually needed is much simpler;
-in both cases the fundamental question is, do we have a place to stash
-an interrupt if userspace does KVM_INTERRUPT?
+The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
+exposes media control hotkeys as a USB HID consumer control device, but
+these keys do not work in the current (5.8-rc1) kernel due to the
+incorrect HID report descriptor. Fix the problem by modifying the
+internal HID report descriptor.
 
-In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
-Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
-unnecessarily restrictive.
+More specifically, the keyboard report descriptor specifies the
+logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
+boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
+incorrect interpretation of input reports, causing inputs to be ignored.
+By setting the Logical Minimum to zero, we align the logical boundary
+with the Usage ID boundary.
 
-In split irqchip mode it's a bit more complicated, we need to check
-kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
-cycle and thus requires ExtINTs not to be masked) as well as
-!pending_userspace_extint(vcpu).  However, there is no need to
-check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
-pending ExtINT state separate from event injection state, and checking
-kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
-priority than APIC interrupts.  In fact the latter fixes a bug:
-when userspace requests an IRQ window vmexit, an interrupt in the
-local APIC can cause kvm_cpu_has_interrupt() to be true and thus
-kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
-happens, vcpu_run does not exit to userspace but the interrupt window
-vmexits keep occurring.  The VM loops without any hope of making progress.
+Some notes:
 
-Once we try to fix these with something like
+* There seem to be multiple variants of the VA104M keyboard. This
+  patch specifically targets 04b4:07b1 variant.
 
-     return kvm_arch_interrupt_allowed(vcpu) &&
--        !kvm_cpu_has_interrupt(vcpu) &&
--        !kvm_event_needs_reinjection(vcpu) &&
--        kvm_cpu_accept_dm_intr(vcpu);
-+        (!lapic_in_kernel(vcpu)
-+         ? !vcpu->arch.interrupt.injected
-+         : (kvm_apic_accept_pic_intr(vcpu)
-+            && !pending_userspace_extint(v)));
+* The device works out-of-the-box on Windows platform with the generic
+  consumer control device driver (hidserv.inf). This suggests that
+  Windows either ignores the Logical Minimum/Logical Maximum or
+  interprets the Usage ID assignment differently from the linux
+  implementation; Maybe there are other devices out there that only
+  works on Windows due to this problem?
 
-we realize two things.  First, thanks to the previous patch the complex
-conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
-window request in vcpu_enter_guest()
-
-        bool req_int_win =
-                dm_request_for_irq_injection(vcpu) &&
-                kvm_cpu_accept_dm_intr(vcpu);
-
-should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
-it is unnecessary to ask the processor for an interrupt window
-if we would not be able to return to userspace.  Therefore,
-kvm_cpu_accept_dm_intr(vcpu) is basically !kvm_cpu_has_extint(vcpu)
-ANDed with the existing check for masked ExtINT.  It all makes sense:
-
-- we can accept an interrupt from userspace if there is a place
-  to stash it (and, for irqchip split, ExtINTs are not masked).
-  Interrupts from userspace _can_ be accepted even if right now
-  EFLAGS.IF=0.
-
-- in order to tell userspace we will inject its interrupt ("IRQ
-  window open" i.e. kvm_vcpu_ready_for_interrupt_injection), both
-  KVM and the vCPU need to be ready to accept the interrupt.
-
-... and this is what the patch implements.
-
-Reported-by: David Woodhouse <dwmw@amazon.co.uk>
-Analyzed-by: David Woodhouse <dwmw@amazon.co.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Tested-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Frank Yang <puilp0502@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/irq.c              |    2 +-
- arch/x86/kvm/x86.c              |   18 ++++++++++--------
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-ids.h     |  2 ++
+ 2 files changed, 41 insertions(+), 5 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1220,6 +1220,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
- void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
- int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
-+int kvm_cpu_has_extint(struct kvm_vcpu *v);
- int kvm_arch_interrupt_allowed(struct kvm_vcpu *vcpu);
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v);
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -49,7 +49,7 @@ static int pending_userspace_extint(stru
-  * check if there is pending interrupt from
-  * non-APIC source without intack.
-  */
--static int kvm_cpu_has_extint(struct kvm_vcpu *v)
-+int kvm_cpu_has_extint(struct kvm_vcpu *v)
- {
- 	u8 accept = kvm_apic_accept_pic_intr(v);
+diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+index 1689568b597d4..12c5d7c96527a 100644
+--- a/drivers/hid/hid-cypress.c
++++ b/drivers/hid/hid-cypress.c
+@@ -26,19 +26,17 @@
+ #define CP_2WHEEL_MOUSE_HACK		0x02
+ #define CP_2WHEEL_MOUSE_HACK_ON		0x04
  
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2866,21 +2866,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
- 
- static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
- {
-+	/*
-+	 * We can accept userspace's request for interrupt injection
-+	 * as long as we have a place to store the interrupt number.
-+	 * The actual injection will happen when the CPU is able to
-+	 * deliver the interrupt.
-+	 */
-+	if (kvm_cpu_has_extint(vcpu))
-+		return false;
++#define VA_INVAL_LOGICAL_BOUNDARY	0x08
 +
-+	/* Acknowledging ExtINT does not happen if LINT0 is masked.  */
- 	return (!lapic_in_kernel(vcpu) ||
- 		kvm_apic_accept_pic_intr(vcpu));
- }
- 
--/*
-- * if userspace requested an interrupt window, check that the
-- * interrupt window is open.
-- *
-- * No need to exit to userspace if we already have an interrupt queued.
-- */
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
+ /*
+  * Some USB barcode readers from cypress have usage min and usage max in
+  * the wrong order
+  */
+-static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
  {
- 	return kvm_arch_interrupt_allowed(vcpu) &&
--		!kvm_cpu_has_interrupt(vcpu) &&
--		!kvm_event_needs_reinjection(vcpu) &&
- 		kvm_cpu_accept_dm_intr(vcpu);
+-	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+ 	unsigned int i;
+ 
+-	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
+-		return rdesc;
+-
+ 	if (*rsize < 4)
+ 		return rdesc;
+ 
+@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
  }
  
++static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	/*
++	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
++	 * reports Logical Minimum of its Consumer Control device as 572
++	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
++	 */
++	if (*rsize == 25 &&
++			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
++			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
++			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
++			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
++		hid_info(hdev,
++			 "fixing up varmilo VA104M consumer control report descriptor\n");
++		rdesc[12] = 0x00;
++		rdesc[13] = 0x00;
++	}
++	return rdesc;
++}
++
++static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
++		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
++	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
++		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
++
++	return rdesc;
++}
++
+ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
+ 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
+ 		.driver_data = CP_2WHEEL_MOUSE_HACK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
++		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, cp_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4630b58634d87..c4a53fc648e95 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -307,6 +307,8 @@
+ #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
+ #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
+ 
++#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++
+ #define USB_VENDOR_ID_DATA_MODUL	0x7374
+ #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
+ 
+-- 
+2.27.0
+
 
 
