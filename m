@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B61B2C9DDA
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CB22C9D98
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388411AbgLAJ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:28:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
+        id S2390833AbgLAJZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:25:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387830AbgLAJAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:00:52 -0500
+        id S1729405AbgLAJFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89FCE2222C;
-        Tue,  1 Dec 2020 09:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CE23221EB;
+        Tue,  1 Dec 2020 09:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813231;
-        bh=cvtI4bTCeMhfkoPYF698Gzr7Iim9KkLwf1S7FSzJEM4=;
+        s=korg; t=1606813503;
+        bh=PnALDJJysI/Z+uPUS4m2ghNME1MNLS8cJ12T/Y+zxyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5UdmOfme4sq4cyq0lM0htMjqQmn7MyXOceKhZ6LGbw4vwu8lwaf48D8rJtwEYSor
-         aLBwE4RB4rpQvHonA8rqJ/ZciGrzVBfPuodXcL0as/TqN4MDcU5Gc+uhpvnmmQd0RC
-         70dynfStxmshxR5AZBN94o2c5fW9bjjVc9wX6DXw=
+        b=UG5YxDZtNGOP/Y13A/8vSdmJpqdxOyXlgTfxY55qcYGLCbz0DtOV3LS4FNMO+KZpy
+         zqOfGXE0/eVP9vJVQUmGtfQL8tgyqYEnHoo3T11mtbOklztFgeNrThqOCyHlxaiKdg
+         PojDk8fuCqbsApKkZbJCEs7Eg37T7lvX8pSZBg1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com,
-        Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 03/57] btrfs: dont access possibly stale fs_info data for printing duplicate device
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 31/98] HID: logitech-hidpp: Add HIDPP_CONSUMER_VENDOR_KEYS quirk for the Dinovo Edge
 Date:   Tue,  1 Dec 2020 09:53:08 +0100
-Message-Id: <20201201084648.130524023@linuxfoundation.org>
+Message-Id: <20201201084656.556466056@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,171 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 0697d9a610998b8bdee6b2390836cb2391d8fd1a upstream.
+[ Upstream commit c27168a04a438a457c100253b1aaf0c779218aae ]
 
-Syzbot reported a possible use-after-free when printing a duplicate device
-warning device_list_add().
+Like the MX5000 and MX5500 quad/bluetooth keyboards the Dinovo Edge also
+needs the HIDPP_CONSUMER_VENDOR_KEYS quirk for some special keys to work.
+Specifically without this the "Phone" and the 'A' - 'D' Smart Keys do not
+send any events.
 
-At this point it can happen that a btrfs_device::fs_info is not correctly
-setup yet, so we're accessing stale data, when printing the warning
-message using the btrfs_printk() wrappers.
+In addition to fixing these keys not sending any events, adding the
+Bluetooth match, so that hid-logitech-hidpp is used instead of the
+generic HID driver, also adds battery monitoring support when the
+keyboard is connected over Bluetooth.
 
-  ==================================================================
-  BUG: KASAN: use-after-free in btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
-  Read of size 8 at addr ffff8880878e06a8 by task syz-executor225/7068
-
-  CPU: 1 PID: 7068 Comm: syz-executor225 Not tainted 5.9.0-rc5-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x1d6/0x29e lib/dump_stack.c:118
-   print_address_description+0x66/0x620 mm/kasan/report.c:383
-   __kasan_report mm/kasan/report.c:513 [inline]
-   kasan_report+0x132/0x1d0 mm/kasan/report.c:530
-   btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
-   device_list_add+0x1a88/0x1d60 fs/btrfs/volumes.c:943
-   btrfs_scan_one_device+0x196/0x490 fs/btrfs/volumes.c:1359
-   btrfs_mount_root+0x48f/0xb60 fs/btrfs/super.c:1634
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x44840a
-  RSP: 002b:00007ffedfffd608 EFLAGS: 00000293 ORIG_RAX: 00000000000000a5
-  RAX: ffffffffffffffda RBX: 00007ffedfffd670 RCX: 000000000044840a
-  RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffedfffd630
-  RBP: 00007ffedfffd630 R08: 00007ffedfffd670 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000293 R12: 000000000000001a
-  R13: 0000000000000004 R14: 0000000000000003 R15: 0000000000000003
-
-  Allocated by task 6945:
-   kasan_save_stack mm/kasan/common.c:48 [inline]
-   kasan_set_track mm/kasan/common.c:56 [inline]
-   __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
-   kmalloc_node include/linux/slab.h:577 [inline]
-   kvmalloc_node+0x81/0x110 mm/util.c:574
-   kvmalloc include/linux/mm.h:757 [inline]
-   kvzalloc include/linux/mm.h:765 [inline]
-   btrfs_mount_root+0xd0/0xb60 fs/btrfs/super.c:1613
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  Freed by task 6945:
-   kasan_save_stack mm/kasan/common.c:48 [inline]
-   kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
-   kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
-   __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
-   __cache_free mm/slab.c:3418 [inline]
-   kfree+0x113/0x200 mm/slab.c:3756
-   deactivate_locked_super+0xa7/0xf0 fs/super.c:335
-   btrfs_mount_root+0x72b/0xb60 fs/btrfs/super.c:1678
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   fc_mount fs/namespace.c:978 [inline]
-   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
-   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
-   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
-   vfs_get_tree+0x88/0x270 fs/super.c:1547
-   do_new_mount fs/namespace.c:2875 [inline]
-   path_mount+0x179d/0x29e0 fs/namespace.c:3192
-   do_mount fs/namespace.c:3205 [inline]
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
-   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  The buggy address belongs to the object at ffff8880878e0000
-   which belongs to the cache kmalloc-16k of size 16384
-  The buggy address is located 1704 bytes inside of
-   16384-byte region [ffff8880878e0000, ffff8880878e4000)
-  The buggy address belongs to the page:
-  page:0000000060704f30 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x878e0
-  head:0000000060704f30 order:3 compound_mapcount:0 compound_pincount:0
-  flags: 0xfffe0000010200(slab|head)
-  raw: 00fffe0000010200 ffffea00028e9a08 ffffea00021e3608 ffff8880aa440b00
-  raw: 0000000000000000 ffff8880878e0000 0000000100000001 0000000000000000
-  page dumped because: kasan: bad access detected
-
-  Memory state around the buggy address:
-   ffff8880878e0580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-   ffff8880878e0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  >ffff8880878e0680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-				    ^
-   ffff8880878e0700: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-   ffff8880878e0780: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ==================================================================
-
-The syzkaller reproducer for this use-after-free crafts a filesystem image
-and loop mounts it twice in a loop. The mount will fail as the crafted
-image has an invalid chunk tree. When this happens btrfs_mount_root() will
-call deactivate_locked_super(), which then cleans up fs_info and
-fs_info::sb. If a second thread now adds the same block-device to the
-filesystem, it will get detected as a duplicate device and
-device_list_add() will reject the duplicate and print a warning. But as
-the fs_info pointer passed in is non-NULL this will result in a
-use-after-free.
-
-Instead of printing possibly uninitialized or already freed memory in
-btrfs_printk(), explicitly pass in a NULL fs_info so the printing of the
-device name will be skipped altogether.
-
-There was a slightly different approach discussed in
-https://lore.kernel.org/linux-btrfs/20200114060920.4527-1-anand.jain@oracle.com/t/#u
-
-Link: https://lore.kernel.org/linux-btrfs/000000000000c9e14b05afcc41ba@google.com
-Reported-by: syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/hid-logitech-hidpp.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -857,7 +857,13 @@ static noinline struct btrfs_device *dev
- 			if (device->bdev != path_bdev) {
- 				bdput(path_bdev);
- 				mutex_unlock(&fs_devices->device_list_mutex);
--				btrfs_warn_in_rcu(device->fs_info,
-+				/*
-+				 * device->fs_info may not be reliable here, so
-+				 * pass in a NULL instead. This avoids a
-+				 * possible use-after-free when the fs_info and
-+				 * fs_info->sb are already torn down.
-+				 */
-+				btrfs_warn_in_rcu(NULL,
- 	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
- 						  path, devid, found_transid,
- 						  current->comm,
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index e49d36de07968..919551ed5809c 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3789,6 +3789,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* Keyboard MX5000 (Bluetooth-receiver in HID proxy mode) */
+ 	  LDJ_DEVICE(0xb305),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++	{ /* Dinovo Edge (Bluetooth-receiver in HID proxy mode) */
++	  LDJ_DEVICE(0xb309),
++	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+ 	{ /* Keyboard MX5500 (Bluetooth-receiver in HID proxy mode) */
+ 	  LDJ_DEVICE(0xb30b),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+@@ -3831,6 +3834,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* MX5000 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb305),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++	{ /* Dinovo Edge keyboard over Bluetooth */
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb309),
++	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+ 	{ /* MX5500 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+-- 
+2.27.0
+
 
 
