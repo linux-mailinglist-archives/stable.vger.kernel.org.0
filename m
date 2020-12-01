@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4972C9D6B
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA432C9CD5
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729477AbgLAJXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:23:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42546 "EHLO mail.kernel.org"
+        id S2387887AbgLAJBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388861AbgLAJGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:06:52 -0500
+        id S1729172AbgLAJBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B95B9206CA;
-        Tue,  1 Dec 2020 09:06:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DFD6217A0;
+        Tue,  1 Dec 2020 09:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813597;
-        bh=TEHxrXo5F/J0YHVL1w2tJfOBED4e0voT2juwiB9rR78=;
+        s=korg; t=1606813257;
+        bh=ZpkPbHABkPSdlvDPzsLQTFnY64e5kI/7Iuz5Ie22OKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRCW13jlXdG3uq5aate5P25yNxRa4/p8Q9/cdEA4ozcc8GHfpX8FGVV30NsnCXz5J
-         bk8/L3Gw7pUB+pFJ4WqHc+VblFwYB9Wxqf4I7LXJp9+AKffDXjpWUUfYPt80XLVu5y
-         lbfGgt+wszdyWTZl7/D7z8zfnLMNLPwTC6KrCFEE=
+        b=jkIt1kbMn+0EgEiX59NViqJ+t3PHTdyW0HC80oBLHadUhgm35Gf1oJxG5Z5ZS3i5K
+         8q+WNpNwbe9jTahyRYmzofwKn8n/ZMUy8GpwVDEXag/hPzfBATarGhPcpb2V2F3VnR
+         4jp9S7dyqSdroAU7J7mC1Tn08fE8YcNCIh1W4PLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/98] nfc: s3fwrn5: use signed integer for parsing GPIO numbers
-Date:   Tue,  1 Dec 2020 09:53:40 +0100
-Message-Id: <20201201084658.172936832@linuxfoundation.org>
+Subject: [PATCH 4.19 36/57] cxgb4: fix the panic caused by non smac rewrite
+Date:   Tue,  1 Dec 2020 09:53:41 +0100
+Message-Id: <20201201084650.893433854@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit d8f0a86795c69f5b697f7d9e5274c124da93c92d ]
+[ Upstream commit bff453921ae105a8dbbad0ed7dd5f5ce424536e7 ]
 
-GPIOs - as returned by of_get_named_gpio() and used by the gpiolib - are
-signed integers, where negative number indicates error.  The return
-value of of_get_named_gpio() should not be assigned to an unsigned int
-because in case of !CONFIG_GPIOLIB such number would be a valid GPIO.
+SMT entry is allocated only when loopback Source MAC
+rewriting is requested. Accessing SMT entry for non
+smac rewrite cases results in kernel panic.
 
-Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201123162351.209100-1-krzk@kernel.org
+Fix the panic caused by non smac rewrite
+
+Fixes: 937d84205884 ("cxgb4: set up filter action after rewrites")
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Link: https://lore.kernel.org/r/20201118143213.13319-1-rajur@chelsio.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
-index e4f7fa00862de..2505abc8ef281 100644
---- a/drivers/nfc/s3fwrn5/i2c.c
-+++ b/drivers/nfc/s3fwrn5/i2c.c
-@@ -26,8 +26,8 @@ struct s3fwrn5_i2c_phy {
- 	struct i2c_client *i2c_dev;
- 	struct nci_dev *ndev;
- 
--	unsigned int gpio_en;
--	unsigned int gpio_fw_wake;
-+	int gpio_en;
-+	int gpio_fw_wake;
- 
- 	struct mutex mutex;
- 
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+index a62c96001761b..9160b44c68bbf 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -626,7 +626,8 @@ int set_filter_wr(struct adapter *adapter, int fidx)
+ 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
+ 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
+ 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
+-	fwr->smac_sel = f->smt->idx;
++	if (f->fs.newsmac)
++		fwr->smac_sel = f->smt->idx;
+ 	fwr->rx_chan_rx_rpl_iq =
+ 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
+ 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
 -- 
 2.27.0
 
