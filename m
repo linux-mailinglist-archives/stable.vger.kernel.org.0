@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 753FD2C9CE5
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDABA2C9DF7
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387768AbgLAJFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        id S2391177AbgLAJ3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:29:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389051AbgLAJFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:05:03 -0500
+        id S2388004AbgLAI7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9F2520671;
-        Tue,  1 Dec 2020 09:04:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D2152220B;
+        Tue,  1 Dec 2020 08:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813488;
-        bh=SlirlzYcBTk8viTHCH1ZEvq3y4PRpTurTNZjdSESbhk=;
+        s=korg; t=1606813102;
+        bh=+KAV5TpWZsMtus3sPqDNKIJn9zEMcmInVFdr/5H7mBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlT32oOP6sX9t09V7em1qGsBBfGK7hlXgGivQVq0nG4MixKO6rz1d2iBDdjHx/PLu
-         ROVdZcE/XWRCNYt4gDekkGVaCcqtSuOeYUoMvtovZi8TeqRnKTKkhT9gqzvBF/nDaG
-         FWXA2bXUYGOHlp19PapqxmQ+Ff0zmWpaZnlg8RQQ=
+        b=ERkrLWP30KmQtwgBD+ITCacuAI2xMCr2nKSamgSQJTTVdvKWMgkIQiK8rfPoFm4tN
+         CKm6Glasxr2bIfORuJ0eQsQY3nbL8IUdfgf8/ON+GI9l+gnAzQjf17/GVui732K2Cg
+         xI8DrqHOXCN++Ssu7VWdHOEMhPFD5xu1/Hlg91z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/98] s390/qeth: make af_iucv TX notification call more robust
-Date:   Tue,  1 Dec 2020 09:53:32 +0100
-Message-Id: <20201201084657.792157024@linuxfoundation.org>
+Subject: [PATCH 4.14 34/50] nfc: s3fwrn5: use signed integer for parsing GPIO numbers
+Date:   Tue,  1 Dec 2020 09:53:33 +0100
+Message-Id: <20201201084649.241092843@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 34c7f50f7d0d36fa663c74aee39e25e912505320 ]
+[ Upstream commit d8f0a86795c69f5b697f7d9e5274c124da93c92d ]
 
-Calling into socket code is ugly already, at least check whether we are
-dealing with the expected sk_family. Only looking at skb->protocol is
-bound to cause troubles (consider eg. af_packet).
+GPIOs - as returned by of_get_named_gpio() and used by the gpiolib - are
+signed integers, where negative number indicates error.  The return
+value of of_get_named_gpio() should not be assigned to an unsigned int
+because in case of !CONFIG_GPIOLIB such number would be a valid GPIO.
 
-Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20201123162351.209100-1-krzk@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/s3fwrn5/i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5043f0fcf399a..6a2ac575e0a39 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -31,6 +31,7 @@
+diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
+index 3f09d7fd2285f..da7ca08d185e4 100644
+--- a/drivers/nfc/s3fwrn5/i2c.c
++++ b/drivers/nfc/s3fwrn5/i2c.c
+@@ -37,8 +37,8 @@ struct s3fwrn5_i2c_phy {
+ 	struct i2c_client *i2c_dev;
+ 	struct nci_dev *ndev;
  
- #include <net/iucv/af_iucv.h>
- #include <net/dsfield.h>
-+#include <net/sock.h>
+-	unsigned int gpio_en;
+-	unsigned int gpio_fw_wake;
++	int gpio_en;
++	int gpio_fw_wake;
  
- #include <asm/ebcdic.h>
- #include <asm/chpid.h>
-@@ -1083,7 +1084,7 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *q,
- 	skb_queue_walk(&buf->skb_list, skb) {
- 		QETH_CARD_TEXT_(q->card, 5, "skbn%d", notification);
- 		QETH_CARD_TEXT_(q->card, 5, "%lx", (long) skb);
--		if (skb->protocol == htons(ETH_P_AF_IUCV) && skb->sk)
-+		if (skb->sk && skb->sk->sk_family == PF_IUCV)
- 			iucv_sk(skb->sk)->sk_txnotify(skb, notification);
- 	}
- }
+ 	struct mutex mutex;
+ 
 -- 
 2.27.0
 
