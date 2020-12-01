@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05BC2C9DC1
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4CD2C9DBB
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387827AbgLAJ1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:27:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40108 "EHLO mail.kernel.org"
+        id S2388886AbgLAJ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:26:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387813AbgLAJDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:00 -0500
+        id S1729342AbgLAJDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AADFE2223C;
-        Tue,  1 Dec 2020 09:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B81521D7A;
+        Tue,  1 Dec 2020 09:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813339;
-        bh=q3k3OceRaLyE/u6rFdmRWA06PrF+Tve85AJ8+dA6sKI=;
+        s=korg; t=1606813342;
+        bh=jREVLEI15t8KtQQmz+ldyMS7FB4Apm5hfucXy+mfAYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNQDNwqz22O9WS5eP9dZCA0wTNscJERBmbqtIHtL8O6C2NZuX+dUIASbxFcKrNhQz
-         Kds8Mw9jtZmhYshtEkQdhH6oOhlfAF6B34hTKIC6enqXYtOAIYilRWUWqfRPaXaUBJ
-         moNTlBGPoCLNiziSNuzS6Rs3/akz6Be3Jbov1C5E=
+        b=EMkgWxwi2EIimv/iLqUNYvQKvDnIAdZGm/UztApP+CCKfxJvwqQA2ATknxqtEGATA
+         HK26A9XZZslOA3be5wmAbUTZXUpmYp55EV5jkMCk+4W0FO+mXpcswjN9bQTFOvq6qT
+         hzV6sfPCv1wTEGxUkEanOfuqbmO1iQYXHNMByMrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/57] video: hyperv_fb: Fix the cache type when mapping the VRAM
-Date:   Tue,  1 Dec 2020 09:53:39 +0100
-Message-Id: <20201201084650.808508600@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 35/57] bnxt_en: Release PCI regions when DMA mask setup fails during probe.
+Date:   Tue,  1 Dec 2020 09:53:40 +0100
+Message-Id: <20201201084650.850316329@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
 References: <20201201084647.751612010@linuxfoundation.org>
@@ -45,61 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 5f1251a48c17b54939d7477305e39679a565382c ]
+[ Upstream commit c54bc3ced5106663c2f2b44071800621f505b00e ]
 
-x86 Hyper-V used to essentially always overwrite the effective cache type
-of guest memory accesses to WB. This was problematic in cases where there
-is a physical device assigned to the VM, since that often requires that
-the VM should have control over cache types. Thus, on newer Hyper-V since
-2018, Hyper-V always honors the VM's cache type, but unexpectedly Linux VM
-users start to complain that Linux VM's VRAM becomes very slow, and it
-turns out that Linux VM should not map the VRAM uncacheable by ioremap().
-Fix this slowness issue by using ioremap_cache().
+Jump to init_err_release to cleanup.  bnxt_unmap_bars() will also be
+called but it will do nothing if the BARs are not mapped yet.
 
-On ARM64, ioremap_cache() is also required as the host also maps the VRAM
-cacheable, otherwise VM Connect can't display properly with ioremap() or
-ioremap_wc().
-
-With this change, the VRAM on new Hyper-V is as fast as regular RAM, so
-it's no longer necessary to use the hacks we added to mitigate the
-slowness, i.e. we no longer need to allocate physical memory and use
-it to back up the VRAM in Generation-1 VM, and we also no longer need to
-allocate physical memory to back up the framebuffer in a Generation-2 VM
-and copy the framebuffer to the real VRAM. A further big change will
-address these for v5.11.
-
-Fixes: 68a2d20b79b1 ("drivers/video: add Hyper-V Synthetic Video Frame Buffer Driver")
-Tested-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/20201118000305.24797-1-decui@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/1605858271-8209-1-git-send-email-michael.chan@broadcom.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/hyperv_fb.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index 403d8cd3e5827..56e70f12c9960 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 		goto err1;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 913cabc06106f..db1a23b8d531d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8022,7 +8022,7 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
+ 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
+ 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
+ 		rc = -EIO;
+-		goto init_err_disable;
++		goto init_err_release;
  	}
  
--	fb_virt = ioremap(par->mem->start, screen_fb_size);
-+	/*
-+	 * Map the VRAM cacheable for performance. This is also required for
-+	 * VM Connect to display properly for ARM64 Linux VM, as the host also
-+	 * maps the VRAM cacheable.
-+	 */
-+	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
- 	if (!fb_virt)
- 		goto err2;
- 
+ 	pci_set_master(pdev);
 -- 
 2.27.0
 
