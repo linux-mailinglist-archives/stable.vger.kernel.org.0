@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DAF2C9E04
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6213B2C9DD6
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390817AbgLAJaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:30:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33456 "EHLO mail.kernel.org"
+        id S1729053AbgLAJ2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387912AbgLAI6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:20 -0500
+        id S2388426AbgLAJBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:08 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3957E22249;
-        Tue,  1 Dec 2020 08:58:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3193722242;
+        Tue,  1 Dec 2020 09:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813084;
-        bh=d8IHuYRRoKwpYohJq3GP+buMDjgspo2KGBEpA63w+JI=;
+        s=korg; t=1606813221;
+        bh=S9eKUfI1sM2UNJ0xmIPknHAu2yzvwnfytp8fUGQskxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JB2vzzow1c1qoXljHP92wcB8TG7jHb7fpQoX+TPMyzO2wlLlc/HfyY5PVJ58LDMZS
-         UvPktSGoAjc0Hi4pCMeLNRGLDzBTbx/auS41MZfURbvkWBUSK6S/nslPy3xUR+tGHw
-         WLGX/4r3Y1RxNMiTO44aDN2jr2lsY3OhpNXCKOT4=
+        b=kOw273b9og1/LZiSRbhsIrBArSScvYu2EcCNcw5zS+KfOvvcfwLYcMv+DRpA7W17m
+         YRv7qYFPizFvV2WAsNmHF1H8Bt8gSE3BtSBa/cW/TpZnaqVphyGnFiyV3Pt0O52qoc
+         2ICoicYHEFKhAytm3AJGOdoJB+seRXvK95x9nkiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/50] scsi: ufs: Fix race between shutdown and runtime resume flow
-Date:   Tue,  1 Dec 2020 09:53:27 +0100
-Message-Id: <20201201084648.544632753@linuxfoundation.org>
+        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 23/57] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
+Date:   Tue,  1 Dec 2020 09:53:28 +0100
+Message-Id: <20201201084650.322935613@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
+[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
 
-If UFS host device is in runtime-suspended state while UFS shutdown
-callback is invoked, UFS device shall be resumed for register
-accesses. Currently only UFS local runtime resume function will be invoked
-to wake up the host.  This is not enough because if someone triggers
-runtime resume from block layer, then race may happen between shutdown and
-runtime resume flow, and finally lead to unlocked register access.
+Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
+we should use burst size, not desc->rqcfg.brst_size.
 
-To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
-resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
-PM framework manage the whole resume flow.
+dma memcpy performance on Rockchip RV1126
+@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
 
-Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
-Fixes: 57d104c153d3 ("ufs: add UFS power management support")
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+dmatest:
+
+/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
+/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
+/# echo 8 > /sys/module/dmatest/parameters/iterations
+/# echo y > /sys/module/dmatest/parameters/norandom
+/# echo y > /sys/module/dmatest/parameters/verbose
+/# echo 1 > /sys/module/dmatest/parameters/run
+
+dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+
+Before:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
+
+After this patch:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
+
+After this patch and increase dma clk to 400MHz:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
+
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/dma/pl330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index c1792f271ac5d..a3a3ee6e2a002 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -7792,11 +7792,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
- 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
- 		goto out;
+diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
+index c564df713efc3..15b30d2d8f7ed 100644
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2774,7 +2774,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
+ 	 * If burst size is smaller than bus width then make sure we only
+ 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
+ 	 */
+-	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
++	if (burst * 8 < pl330->pcfg.data_bus_width)
+ 		desc->rqcfg.brst_len = 1;
  
--	if (pm_runtime_suspended(hba->dev)) {
--		ret = ufshcd_runtime_resume(hba);
--		if (ret)
--			goto out;
--	}
-+	pm_runtime_get_sync(hba->dev);
- 
- 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
- out:
+ 	desc->bytes_requested = len;
 -- 
 2.27.0
 
