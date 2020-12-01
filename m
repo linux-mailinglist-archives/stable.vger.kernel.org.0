@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E66BB2C9CD2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EADD2C9CA0
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388567AbgLAJBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38000 "EHLO mail.kernel.org"
+        id S1729077AbgLAIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388560AbgLAJB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:29 -0500
+        id S1729074AbgLAIzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A894221D46;
-        Tue,  1 Dec 2020 09:00:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FBEF22244;
+        Tue,  1 Dec 2020 08:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813249;
-        bh=dVPnQjDjmXv6L/ox+DJPRXZQavDEhA075JQMin/ppmY=;
+        s=korg; t=1606812875;
+        bh=p56lrdY5ZhqQEjuwgoXjBLvEgDUWDJPeSLi/zSLGKIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miZY38ewIfv2M77Khv3dgG+eskTEbUFljV/NnOAQO0++qsZtYPsbSXI/BQCI3MoSB
-         SL54Gg7z0Rlsjh97agqifu8OncmENjVKfdD9t29Bl3Q54/g0jl7EyZhirAGqv3Z23y
-         SQHkyqXifiUs2/Yac904UY+YzCmne3PKD6CGKhPM=
+        b=SKsqCa/jIQMHebZGzKiyqRj4pX5Hjzv5r//G27yUjlvgvedcERPV4SiOc/wm6RwVw
+         4FINx0SoGVyNHhQc5c+F/IBaoVfFt7vofMLLUf3cBmoPVCVixAFvJZ76/WBqSZQwwm
+         5nnzB4SSCHHougyZVAvyYwDn7Q22aOkZzJRxCz1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Zhao <yuzhao@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 09/57] arm64: pgtable: Fix pte_accessible()
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/24] proc: dont allow async path resolution of /proc/self components
 Date:   Tue,  1 Dec 2020 09:53:14 +0100
-Message-Id: <20201201084648.792537970@linuxfoundation.org>
+Message-Id: <20201201084638.166527632@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 07509e10dcc77627f8b6a57381e878fe269958d3 upstream.
+[ Upstream commit 8d4c3e76e3be11a64df95ddee52e99092d42fc19 ]
 
-pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
-invalidation is necessary when unmapping pages for reclaim. Although our
-implementation is correct according to the architecture, returning true
-only for valid, young ptes in the absence of racing page-table
-modifications, this is in fact flawed due to lazy invalidation of old
-ptes in ptep_clear_flush_young() where we elide the expensive DSB
-instruction for completing the TLB invalidation.
+If this is attempted by a kthread, then return -EOPNOTSUPP as we don't
+currently support that. Once we can get task_pid_ptr() doing the right
+thing, then this can go away again.
 
-Rather than penalise the aging path, adjust pte_accessible() to return
-true for any valid pte, even if the access flag is cleared.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
-Reported-by: Yu Zhao <yuzhao@google.com>
-Acked-by: Yu Zhao <yuzhao@google.com>
-Reviewed-by: Minchan Kim <minchan@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201120143557.6715-2-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/proc/self.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -107,8 +107,6 @@ extern unsigned long empty_zero_page[PAG
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
- #define pte_valid_not_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
--#define pte_valid_young(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
+diff --git a/fs/proc/self.c b/fs/proc/self.c
+index 2dcc2558b3aa7..dffbe533d53fc 100644
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -24,6 +24,13 @@ static const char *proc_self_follow_link(struct dentry *dentry, void **cookie)
+ 	pid_t tgid = task_tgid_nr_ns(current, ns);
+ 	char *name;
  
-@@ -116,9 +114,12 @@ extern unsigned long empty_zero_page[PAG
-  * Could the pte be present in the TLB? We must check mm_tlb_flush_pending
-  * so that we don't erroneously return false for pages that have been
-  * remapped as PROT_NONE but are yet to be flushed from the TLB.
-+ * Note that we can't make any assumptions based on the state of the access
-+ * flag, since ptep_clear_flush_young() elides a DSB when invalidating the
-+ * TLB.
-  */
- #define pte_accessible(mm, pte)	\
--	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
-+	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
- 
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
++	/*
++	 * Not currently supported. Once we can inherit all of struct pid,
++	 * we can allow this.
++	 */
++	if (current->flags & PF_KTHREAD)
++		return ERR_PTR(-EOPNOTSUPP);
++
+ 	if (!tgid)
+ 		return ERR_PTR(-ENOENT);
+ 	/* 11 for max length of signed int in decimal + NULL term */
+-- 
+2.27.0
+
 
 
