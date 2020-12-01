@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4572C9AF4
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C5AD2C9AF9
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387942AbgLAJDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:03:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
+        id S2388683AbgLAJDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:03:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729345AbgLAJDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:04 -0500
+        id S2388678AbgLAJDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BED8722264;
-        Tue,  1 Dec 2020 09:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92F062223F;
+        Tue,  1 Dec 2020 09:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813368;
-        bh=73iZqBC7mEvxr4JdJChNmLXTmzi7ExxnNto7nyBy2P8=;
+        s=korg; t=1606813371;
+        bh=SVqRuYvl6eTCC7W6WAdcfgqBgCfDOcO2AnZ42XFkZnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvU0g4HrrxrLvg2X+vu6xRj1iWgjwtqfRhA0drs9MCh4otwAse5rQqzp4Dzzhkw8e
-         2m4r/uhLWEsINbHiI8boNMRGHpmo1AzDO/6cEThAHHQgDRCbKssEub4QEIXA1JLByI
-         O/W6imJ+3gYKcPGq9FokyDw9Kr6VZ1Kcnd9g7Vhg=
+        b=erAAFJUYfMfsyWG99A4FLa1L2/bVJcCiEfpUnLXxqNhu0t6CX2/9nPJRIMlqHYfdb
+         jhJr30IYpn2Vs6cl2bRVzmXcxAfSfjPAF0Kr/H/VsW085MaPni4VoDO82SksVIuJ4o
+         KOXvExHuvSKCXYq4KxXrYQE8QCYVcz0uPk1zIAiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 16/98] KVM: x86: handle !lapic_in_kernel case in kvm_cpu_*_extint
-Date:   Tue,  1 Dec 2020 09:52:53 +0100
-Message-Id: <20201201084654.817193361@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Nikos Tsironis <ntsironis@arrikto.com>
+Subject: [PATCH 5.4 17/98] KVM: x86: Fix split-irqchip vs interrupt injection window request
+Date:   Tue,  1 Dec 2020 09:52:54 +0100
+Message-Id: <20201201084654.920393515@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
 References: <20201201084652.827177826@linuxfoundation.org>
@@ -45,161 +45,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 72c3bcdcda494cbd600712a32e67702cdee60c07 upstream.
+commit 71cc849b7093bb83af966c0e60cb11b7f35cd746 upstream.
 
-Centralize handling of interrupts from the userspace APIC
-in kvm_cpu_has_extint and kvm_cpu_get_extint, since
-userspace APIC interrupts are handled more or less the
-same as ExtINTs are with split irqchip.  This removes
-duplicated code from kvm_cpu_has_injectable_intr and
-kvm_cpu_has_interrupt, and makes the code more similar
-between kvm_cpu_has_{extint,interrupt} on one side
-and kvm_cpu_get_{extint,interrupt} on the other.
+kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
+a hodge-podge of conditions, hacked together to get something that
+more or less works.  But what is actually needed is much simpler;
+in both cases the fundamental question is, do we have a place to stash
+an interrupt if userspace does KVM_INTERRUPT?
 
+In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
+Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
+unnecessarily restrictive.
+
+In split irqchip mode it's a bit more complicated, we need to check
+kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
+cycle and thus requires ExtINTs not to be masked) as well as
+!pending_userspace_extint(vcpu).  However, there is no need to
+check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
+pending ExtINT state separate from event injection state, and checking
+kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
+priority than APIC interrupts.  In fact the latter fixes a bug:
+when userspace requests an IRQ window vmexit, an interrupt in the
+local APIC can cause kvm_cpu_has_interrupt() to be true and thus
+kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
+happens, vcpu_run does not exit to userspace but the interrupt window
+vmexits keep occurring.  The VM loops without any hope of making progress.
+
+Once we try to fix these with something like
+
+     return kvm_arch_interrupt_allowed(vcpu) &&
+-        !kvm_cpu_has_interrupt(vcpu) &&
+-        !kvm_event_needs_reinjection(vcpu) &&
+-        kvm_cpu_accept_dm_intr(vcpu);
++        (!lapic_in_kernel(vcpu)
++         ? !vcpu->arch.interrupt.injected
++         : (kvm_apic_accept_pic_intr(vcpu)
++            && !pending_userspace_extint(v)));
+
+we realize two things.  First, thanks to the previous patch the complex
+conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
+window request in vcpu_enter_guest()
+
+        bool req_int_win =
+                dm_request_for_irq_injection(vcpu) &&
+                kvm_cpu_accept_dm_intr(vcpu);
+
+should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
+it is unnecessary to ask the processor for an interrupt window
+if we would not be able to return to userspace.  Therefore,
+kvm_cpu_accept_dm_intr(vcpu) is basically !kvm_cpu_has_extint(vcpu)
+ANDed with the existing check for masked ExtINT.  It all makes sense:
+
+- we can accept an interrupt from userspace if there is a place
+  to stash it (and, for irqchip split, ExtINTs are not masked).
+  Interrupts from userspace _can_ be accepted even if right now
+  EFLAGS.IF=0.
+
+- in order to tell userspace we will inject its interrupt ("IRQ
+  window open" i.e. kvm_vcpu_ready_for_interrupt_injection), both
+  KVM and the vCPU need to be ready to accept the interrupt.
+
+... and this is what the patch implements.
+
+Reported-by: David Woodhouse <dwmw@amazon.co.uk>
+Analyzed-by: David Woodhouse <dwmw@amazon.co.uk>
 Cc: stable@vger.kernel.org
-Reviewed-by: Filippo Sironi <sironi@amazon.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
 Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 Tested-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/irq.c   |   83 ++++++++++++++++++++-------------------------------
- arch/x86/kvm/lapic.c |    2 -
- 2 files changed, 34 insertions(+), 51 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/irq.c              |    2 +-
+ arch/x86/kvm/x86.c              |   18 ++++++++++--------
+ 3 files changed, 12 insertions(+), 9 deletions(-)
 
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1560,6 +1560,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
+ int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
+ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
+ int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
++int kvm_cpu_has_extint(struct kvm_vcpu *v);
+ int kvm_arch_interrupt_allowed(struct kvm_vcpu *vcpu);
+ int kvm_cpu_get_interrupt(struct kvm_vcpu *v);
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
 --- a/arch/x86/kvm/irq.c
 +++ b/arch/x86/kvm/irq.c
-@@ -42,27 +42,8 @@ static int pending_userspace_extint(stru
+@@ -40,7 +40,7 @@ static int pending_userspace_extint(stru
+  * check if there is pending interrupt from
+  * non-APIC source without intack.
   */
- static int kvm_cpu_has_extint(struct kvm_vcpu *v)
+-static int kvm_cpu_has_extint(struct kvm_vcpu *v)
++int kvm_cpu_has_extint(struct kvm_vcpu *v)
  {
--	u8 accept = kvm_apic_accept_pic_intr(v);
--
--	if (accept) {
--		if (irqchip_split(v->kvm))
--			return pending_userspace_extint(v);
--		else
--			return v->kvm->arch.vpic->output;
--	} else
--		return 0;
--}
--
--/*
-- * check if there is injectable interrupt:
-- * when virtual interrupt delivery enabled,
-- * interrupt from apic will handled by hardware,
-- * we don't need to check it here.
-- */
--int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
--{
  	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
-+	 * FIXME: interrupt.injected represents an interrupt whose
- 	 * side-effects have already been applied (e.g. bit from IRR
- 	 * already moved to ISR). Therefore, it is incorrect to rely
- 	 * on interrupt.injected to know if there is a pending
-@@ -75,6 +56,23 @@ int kvm_cpu_has_injectable_intr(struct k
- 	if (!lapic_in_kernel(v))
- 		return v->arch.interrupt.injected;
+ 	 * FIXME: interrupt.injected represents an interrupt whose
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3624,21 +3624,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
  
-+	if (!kvm_apic_accept_pic_intr(v))
-+		return 0;
-+
-+	if (irqchip_split(v->kvm))
-+		return pending_userspace_extint(v);
-+	else
-+		return v->kvm->arch.vpic->output;
-+}
-+
-+/*
-+ * check if there is injectable interrupt:
-+ * when virtual interrupt delivery enabled,
-+ * interrupt from apic will handled by hardware,
-+ * we don't need to check it here.
-+ */
-+int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
-+{
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
- 
-@@ -90,20 +88,6 @@ int kvm_cpu_has_injectable_intr(struct k
-  */
- int kvm_cpu_has_interrupt(struct kvm_vcpu *v)
+ static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
  {
--	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
--	 * side-effects have already been applied (e.g. bit from IRR
--	 * already moved to ISR). Therefore, it is incorrect to rely
--	 * on interrupt.injected to know if there is a pending
--	 * interrupt in the user-mode LAPIC.
--	 * This leads to nVMX/nSVM not be able to distinguish
--	 * if it should exit from L2 to L1 on EXTERNAL_INTERRUPT on
--	 * pending interrupt or should re-inject an injected
--	 * interrupt.
--	 */
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.injected;
--
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
- 
-@@ -117,16 +101,21 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_interrupt)
-  */
- static int kvm_cpu_get_extint(struct kvm_vcpu *v)
- {
--	if (kvm_cpu_has_extint(v)) {
--		if (irqchip_split(v->kvm)) {
--			int vector = v->arch.pending_external_vector;
--
--			v->arch.pending_external_vector = -1;
--			return vector;
--		} else
--			return kvm_pic_read_irq(v->kvm); /* PIC */
--	} else
-+	if (!kvm_cpu_has_extint(v)) {
-+		WARN_ON(!lapic_in_kernel(v));
- 		return -1;
-+	}
++	/*
++	 * We can accept userspace's request for interrupt injection
++	 * as long as we have a place to store the interrupt number.
++	 * The actual injection will happen when the CPU is able to
++	 * deliver the interrupt.
++	 */
++	if (kvm_cpu_has_extint(vcpu))
++		return false;
 +
-+	if (!lapic_in_kernel(v))
-+		return v->arch.interrupt.nr;
-+
-+	if (irqchip_split(v->kvm)) {
-+		int vector = v->arch.pending_external_vector;
-+
-+		v->arch.pending_external_vector = -1;
-+		return vector;
-+	} else
-+		return kvm_pic_read_irq(v->kvm); /* PIC */
++	/* Acknowledging ExtINT does not happen if LINT0 is masked.  */
+ 	return (!lapic_in_kernel(vcpu) ||
+ 		kvm_apic_accept_pic_intr(vcpu));
  }
  
- /*
-@@ -134,13 +123,7 @@ static int kvm_cpu_get_extint(struct kvm
-  */
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v)
+-/*
+- * if userspace requested an interrupt window, check that the
+- * interrupt window is open.
+- *
+- * No need to exit to userspace if we already have an interrupt queued.
+- */
+ static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
  {
--	int vector;
--
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.nr;
--
--	vector = kvm_cpu_get_extint(v);
--
-+	int vector = kvm_cpu_get_extint(v);
- 	if (vector != -1)
- 		return vector;			/* PIC */
+ 	return kvm_arch_interrupt_allowed(vcpu) &&
+-		!kvm_cpu_has_interrupt(vcpu) &&
+-		!kvm_event_needs_reinjection(vcpu) &&
+ 		kvm_cpu_accept_dm_intr(vcpu);
+ }
  
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2330,7 +2330,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	u32 ppr;
- 
--	if (!kvm_apic_hw_enabled(apic))
-+	if (!kvm_apic_present(vcpu))
- 		return -1;
- 
- 	__apic_update_ppr(apic, &ppr);
 
 
