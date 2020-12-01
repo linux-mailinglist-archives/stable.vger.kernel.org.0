@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77F52C9BDE
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B33472C9B3B
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390007AbgLAJMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:12:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50318 "EHLO mail.kernel.org"
+        id S2387651AbgLAJGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:06:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390022AbgLAJMx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:12:53 -0500
+        id S2388511AbgLAJGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:06:02 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31C5420770;
-        Tue,  1 Dec 2020 09:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F4002224A;
+        Tue,  1 Dec 2020 09:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813957;
-        bh=M+XAIcM5levjL+hXw4vdea57kjm6p9vwSMf2RP4oqpk=;
+        s=korg; t=1606813546;
+        bh=z//7JeVCb8EzAnvPDC5wUpe0tLfUjr/1kiZZTgYCeYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPv8+Vx9xmrnhIxiuiJoXGfaBjj28Emp3IU67/tslv/NIJ7djNweZQPBXgk5PJVcU
-         SLsQlmdCRCNL1ECNRrtrVl+8YI1RqXsEdnJm3c3SgG08Mz1ZJbZ5FYPJA5jr1l+8rB
-         04wmqrK/rCo6BHdctuayeBKTQK4llZVm++TnV0os=
+        b=SRx+bTilQbLQvLLlC5cAXcDTOgVphgZdMBnxNx41RxNYfYl5pvqCwRgnv6QuY0drD
+         f4tZsP0prbLud9yyOs80mWvnWGa2UZ/8n8KHat7IE5wo+l2Be4lXt6Ba0798F9Jfas
+         BwbkpqJtbG8I+9EF+smXg5QMSCOznX/GHJvuz+C4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Adrian Huang <ahuang12@lenovo.com>
-Subject: [PATCH 5.9 118/152] x86/tboot: Dont disable swiotlb when iommu is forced on
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Sriram Dash <sriram.dash@samsung.com>,
+        Pankaj Sharma <pankj.sharma@samsung.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 76/98] can: m_can: m_can_open(): remove IRQF_TRIGGER_FALLING from request_threaded_irq()s flags
 Date:   Tue,  1 Dec 2020 09:53:53 +0100
-Message-Id: <20201201084727.257311425@linuxfoundation.org>
+Message-Id: <20201201084658.783493642@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit e2be2a833ab5338fa5b8b99ba622b911d96f1795 ]
+[ Upstream commit 865f5b671b48d0088ce981cff1e822d9f7da441f ]
 
-After commit 327d5b2fee91c ("iommu/vt-d: Allow 32bit devices to uses DMA
-domain"), swiotlb could also be used for direct memory access if IOMMU
-is enabled but a device is configured to pass through the DMA translation.
-Keep swiotlb when IOMMU is forced on, otherwise, some devices won't work
-if "iommu=pt" kernel parameter is used.
+The threaded IRQ handler is used for the tcan4x5x driver only. The IRQ pin of
+the tcan4x5x controller is active low, so better not use IRQF_TRIGGER_FALLING
+when requesting the IRQ. As this can result in missing interrupts.
 
-Fixes: 327d5b2fee91 ("iommu/vt-d: Allow 32bit devices to uses DMA domain")
-Reported-and-tested-by: Adrian Huang <ahuang12@lenovo.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20201125014124.4070776-1-baolu.lu@linux.intel.com
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=210237
-Signed-off-by: Will Deacon <will@kernel.org>
+Further, if the device tree specified the interrupt as "IRQ_TYPE_LEVEL_LOW",
+unloading and reloading of the driver results in the following error during
+ifup:
+
+| irq: type mismatch, failed to map hwirq-31 for gpio@20a8000!
+| tcan4x5x spi1.1: m_can device registered (irq=0, version=32)
+| tcan4x5x spi1.1 can2: TCAN4X5X successfully initialized.
+| tcan4x5x spi1.1 can2: failed to request interrupt
+
+This patch fixes the problem by removing the IRQF_TRIGGER_FALLING from the
+request_threaded_irq().
+
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Cc: Dan Murphy <dmurphy@ti.com>
+Cc: Sriram Dash <sriram.dash@samsung.com>
+Cc: Pankaj Sharma <pankj.sharma@samsung.com>
+Link: https://lore.kernel.org/r/20201127093548.509253-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tboot.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/tboot.c b/arch/x86/kernel/tboot.c
-index 420be871d9d45..ae64f98ec2ab6 100644
---- a/arch/x86/kernel/tboot.c
-+++ b/arch/x86/kernel/tboot.c
-@@ -514,13 +514,10 @@ int tboot_force_iommu(void)
- 	if (!tboot_enabled())
- 		return 0;
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 246fa2657d744..eafdb4441d441 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1605,7 +1605,7 @@ static int m_can_open(struct net_device *dev)
+ 		INIT_WORK(&cdev->tx_work, m_can_tx_work_queue);
  
--	if (no_iommu || swiotlb || dmar_disabled)
-+	if (no_iommu || dmar_disabled)
- 		pr_warn("Forcing Intel-IOMMU to enabled\n");
- 
- 	dmar_disabled = 0;
--#ifdef CONFIG_SWIOTLB
--	swiotlb = 0;
--#endif
- 	no_iommu = 0;
- 
- 	return 1;
+ 		err = request_threaded_irq(dev->irq, NULL, m_can_isr,
+-					   IRQF_ONESHOT | IRQF_TRIGGER_FALLING,
++					   IRQF_ONESHOT,
+ 					   dev->name, dev);
+ 	} else {
+ 		err = request_irq(dev->irq, m_can_isr, IRQF_SHARED, dev->name,
 -- 
 2.27.0
 
