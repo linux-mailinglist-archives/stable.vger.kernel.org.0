@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4902C9A98
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D12C82C9AD1
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388053AbgLAI7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:59:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33962 "EHLO mail.kernel.org"
+        id S2388480AbgLAJBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388046AbgLAI7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:59:03 -0500
+        id S2388512AbgLAJBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A41217A0;
-        Tue,  1 Dec 2020 08:58:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C9EB20809;
+        Tue,  1 Dec 2020 09:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813128;
-        bh=96W6HpKPwJcjWkKM+SXn3e4faqXjMxeVabRykQNdRDA=;
+        s=korg; t=1606813260;
+        bh=z98ZFUmV7c7WULsRxEoh75Bn7YbFJN6IbAySPvC58Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8EbF7mhCuZJx4+kL+hPcij7wi3aPz0SftjTXqn+qpG02FyMqAJfddvGhBW55hRxw
-         MF46L0Y9EmfaKSeK8MA6vsXjI3xkHurB+FC+V7lnZWoe9NAUVAtNhXojRTBUpVKhtY
-         +LeAfb3xPgWtUhXUesyG55G90TWcRdw6fDkyURdA=
+        b=YyboLJNsSeazRfCS0os4Jnr2NQGP4c/4mxCGjG+/Zj9wIyozqFnSsrQcUMs9ENEPD
+         0LDR+J/1vEOR0ZcFB4U1h57Yh6aq4UHGhjBdrqc0/BLPU2ljIdymivp2oAMDHwkcmt
+         xx37qDM2UnMS533SuidqiP+YU0lTLFrgCypmdNTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/50] perf probe: Fix to die_entrypc() returns error correctly
-Date:   Tue,  1 Dec 2020 09:53:41 +0100
-Message-Id: <20201201084650.223717431@linuxfoundation.org>
+Subject: [PATCH 4.19 37/57] s390/qeth: fix tear down of async TX buffers
+Date:   Tue,  1 Dec 2020 09:53:42 +0100
+Message-Id: <20201201084650.935855282@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit ab4200c17ba6fe71d2da64317aae8a8aa684624c ]
+[ Upstream commit 7ed10e16e50daf74460f54bc922e27c6863c8d61 ]
 
-Fix die_entrypc() to return error correctly if the DIE has no
-DW_AT_ranges attribute. Since dwarf_ranges() will treat the case as an
-empty ranges and return 0, we have to check it by ourselves.
+When qeth_iqd_tx_complete() detects that a TX buffer requires additional
+async completion via QAOB, it might fail to replace the queue entry's
+metadata (and ends up triggering recovery).
 
-Fixes: 91e2f539eeda ("perf probe: Fix to show function entry line as probe-able")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/160645612634.2824037.5284932731175079426.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Assume now that the device gets torn down, overruling the recovery.
+If the QAOB notification then arrives before the tear down has
+sufficiently progressed, the buffer state is changed to
+QETH_QDIO_BUF_HANDLED_DELAYED by qeth_qdio_handle_aob().
+
+The tear down code calls qeth_drain_output_queue(), where
+qeth_cleanup_handled_pending() will then attempt to replace such a
+buffer _again_. If it succeeds this time, the buffer ends up dangling in
+its replacement's ->next_pending list ... where it will never be freed,
+since there's no further call to qeth_cleanup_handled_pending().
+
+But the second attempt isn't actually needed, we can simply leave the
+buffer on the queue and re-use it after a potential recovery has
+completed. The qeth_clear_output_buffer() in qeth_drain_output_queue()
+will ensure that it's in a clean state again.
+
+Fixes: 72861ae792c2 ("qeth: recovery through asynchronous delivery")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 289ef63208fb6..7514aa9c68c99 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -332,6 +332,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- {
- 	Dwarf_Addr base, end;
-+	Dwarf_Attribute attr;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 5f59e2dfc7db9..d0aaef937b0fe 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -470,12 +470,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
  
- 	if (!addr)
- 		return -EINVAL;
-@@ -339,6 +340,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- 	if (dwarf_entrypc(dw_die, addr) == 0)
- 		return 0;
- 
-+	/*
-+	 *  Since the dwarf_ranges() will return 0 if there is no
-+	 * DW_AT_ranges attribute, we should check it first.
-+	 */
-+	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
-+		return -ENOENT;
-+
- 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
+ 		}
+ 	}
+-	if (forced_cleanup && (atomic_read(&(q->bufs[bidx]->state)) ==
+-					QETH_QDIO_BUF_HANDLED_DELAYED)) {
+-		/* for recovery situations */
+-		qeth_init_qdio_out_buf(q, bidx);
+-		QETH_CARD_TEXT(q->card, 2, "clprecov");
+-	}
  }
+ 
  
 -- 
 2.27.0
