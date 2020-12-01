@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BE52C9D62
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F05BC2C9DC1
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729398AbgLAJWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:22:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44102 "EHLO mail.kernel.org"
+        id S2387827AbgLAJ1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:27:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388960AbgLAJHT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:07:19 -0500
+        id S2387813AbgLAJDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EABB421D46;
-        Tue,  1 Dec 2020 09:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AADFE2223C;
+        Tue,  1 Dec 2020 09:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813590;
-        bh=+ZAL0S7uoDsCPgfkCiQpBraMg5FiTTFCPN+HIpKhNNY=;
+        s=korg; t=1606813339;
+        bh=q3k3OceRaLyE/u6rFdmRWA06PrF+Tve85AJ8+dA6sKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djR0zlowtJwDMaVE2BbIwdijcOSPjxajUUGPA0K+91RxorQAOhUVfhg5dWkj/hx2o
-         KZ1CAyw3J9jPY64TFAqn5sm0oP75a2FoDwRoemCdPTIigQx86ESBX8dYBozJoyQcgl
-         ZR/eoasz/SgzqDQbi/FzpLyPPbsHGE7KEusxqJTA=
+        b=tNQDNwqz22O9WS5eP9dZCA0wTNscJERBmbqtIHtL8O6C2NZuX+dUIASbxFcKrNhQz
+         Kds8Mw9jtZmhYshtEkQdhH6oOhlfAF6B34hTKIC6enqXYtOAIYilRWUWqfRPaXaUBJ
+         moNTlBGPoCLNiziSNuzS6Rs3/akz6Be3Jbov1C5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 61/98] IB/mthca: fix return value of error branch in mthca_init_cq()
-Date:   Tue,  1 Dec 2020 09:53:38 +0100
-Message-Id: <20201201084658.069326923@linuxfoundation.org>
+        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 34/57] video: hyperv_fb: Fix the cache type when mapping the VRAM
+Date:   Tue,  1 Dec 2020 09:53:39 +0100
+Message-Id: <20201201084650.808508600@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 6830ff853a5764c75e56750d59d0bbb6b26f1835 ]
+[ Upstream commit 5f1251a48c17b54939d7477305e39679a565382c ]
 
-We return 'err' in the error branch, but this variable may be set as zero
-by the above code. Fix it by setting 'err' as a negative value before we
-goto the error label.
+x86 Hyper-V used to essentially always overwrite the effective cache type
+of guest memory accesses to WB. This was problematic in cases where there
+is a physical device assigned to the VM, since that often requires that
+the VM should have control over cache types. Thus, on newer Hyper-V since
+2018, Hyper-V always honors the VM's cache type, but unexpectedly Linux VM
+users start to complain that Linux VM's VRAM becomes very slow, and it
+turns out that Linux VM should not map the VRAM uncacheable by ioremap().
+Fix this slowness issue by using ioremap_cache().
 
-Fixes: 74c2174e7be5 ("IB uverbs: add mthca user CQ support")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/1605837422-42724-1-git-send-email-wangxiongfeng2@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On ARM64, ioremap_cache() is also required as the host also maps the VRAM
+cacheable, otherwise VM Connect can't display properly with ioremap() or
+ioremap_wc().
+
+With this change, the VRAM on new Hyper-V is as fast as regular RAM, so
+it's no longer necessary to use the hacks we added to mitigate the
+slowness, i.e. we no longer need to allocate physical memory and use
+it to back up the VRAM in Generation-1 VM, and we also no longer need to
+allocate physical memory to back up the framebuffer in a Generation-2 VM
+and copy the framebuffer to the real VRAM. A further big change will
+address these for v5.11.
+
+Fixes: 68a2d20b79b1 ("drivers/video: add Hyper-V Synthetic Video Frame Buffer Driver")
+Tested-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Link: https://lore.kernel.org/r/20201118000305.24797-1-decui@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mthca/mthca_cq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/hyperv_fb.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index c3cfea243af8c..119b2573c9a08 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -803,8 +803,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 403d8cd3e5827..56e70f12c9960 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 		goto err1;
  	}
  
- 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
--	if (IS_ERR(mailbox))
-+	if (IS_ERR(mailbox)) {
-+		err = PTR_ERR(mailbox);
- 		goto err_out_arm;
-+	}
+-	fb_virt = ioremap(par->mem->start, screen_fb_size);
++	/*
++	 * Map the VRAM cacheable for performance. This is also required for
++	 * VM Connect to display properly for ARM64 Linux VM, as the host also
++	 * maps the VRAM cacheable.
++	 */
++	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
+ 	if (!fb_virt)
+ 		goto err2;
  
- 	cq_context = mailbox->buf;
- 
-@@ -846,9 +848,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	spin_lock_irq(&dev->cq_table.lock);
--	if (mthca_array_set(&dev->cq_table.cq,
--			    cq->cqn & (dev->limits.num_cqs - 1),
--			    cq)) {
-+	err = mthca_array_set(&dev->cq_table.cq,
-+			      cq->cqn & (dev->limits.num_cqs - 1), cq);
-+	if (err) {
- 		spin_unlock_irq(&dev->cq_table.lock);
- 		goto err_out_free_mr;
- 	}
 -- 
 2.27.0
 
