@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76742C9D24
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCA62C9D51
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389489AbgLAJTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:19:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47590 "EHLO mail.kernel.org"
+        id S2390540AbgLAJVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:21:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389618AbgLAJKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:00 -0500
+        id S2389256AbgLAJId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68062206D8;
-        Tue,  1 Dec 2020 09:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE9BB21D7A;
+        Tue,  1 Dec 2020 09:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813760;
-        bh=Xz7ZAgNXRZZqiaTWQSGl8K/kPFExL0zwfzesaSKfLng=;
+        s=korg; t=1606813672;
+        bh=Ea8c+J32xde41AqYuSmUmWKow8A7G5HmWbORWiEKJmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZaNlXbqPxfxOn/nQ6MRY5LLvt2Rh45qVG98k65dEBmk27r1oKIclpgrf14uomBcf
-         exCIXMdiqe7LhkbQIXmg9KvsAXC7K/C1VMXUJb3holCiil50Bav+wBU2eCw1xAWmBH
-         JIOCBX0A2wvKwTmESiDA7faXWSQpxiVqfbr8SrMs=
+        b=bBV0E0gX87xounWIMy5gM63x9SvUt/ThrumR8ZLfB5+EM0HZxIZaTjx5E3x9uAChm
+         35QXQcDOnSmDzFGQF7YFu3Apx06ROTG+l4yB1kA2qOT1er0D8X2/7icL4Nc1lmvBUZ
+         5fgwN2OFz+0tt9v131+dqNgpzuVb+HBwaD8bXVkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.9 019/152] cifs: fix a memleak with modefromsid
-Date:   Tue,  1 Dec 2020 09:52:14 +0100
-Message-Id: <20201201084714.380468831@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 020/152] powerpc/64s: Fix KVM system reset handling when CONFIG_PPC_PSERIES=y
+Date:   Tue,  1 Dec 2020 09:52:15 +0100
+Message-Id: <20201201084714.503903708@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,52 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <namjae.jeon@samsung.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 98128572084c3dd8067f48bb588aa3733d1355b5 upstream.
+commit 575cba20c421ecb6b563ae352e4e0468e4ca8b3c upstream.
 
-kmemleak reported a memory leak allocated in query_info() when cifs is
-working with modefromsid.
+pseries guest kernels have a FWNMI handler for SRESET and MCE NMIs,
+which is basically the same as the regular handlers for those
+interrupts.
 
-  backtrace:
-    [<00000000aeef6a1e>] slab_post_alloc_hook+0x58/0x510
-    [<00000000b2f7a440>] __kmalloc+0x1a0/0x390
-    [<000000006d470ebc>] query_info+0x5b5/0x700 [cifs]
-    [<00000000bad76ce0>] SMB2_query_acl+0x2b/0x30 [cifs]
-    [<000000001fa09606>] get_smb2_acl_by_path+0x2f3/0x720 [cifs]
-    [<000000001b6ebab7>] get_smb2_acl+0x75/0x90 [cifs]
-    [<00000000abf43904>] cifs_acl_to_fattr+0x13b/0x1d0 [cifs]
-    [<00000000a5372ec3>] cifs_get_inode_info+0x4cd/0x9a0 [cifs]
-    [<00000000388e0a04>] cifs_revalidate_dentry_attr+0x1cd/0x510 [cifs]
-    [<0000000046b6b352>] cifs_getattr+0x8a/0x260 [cifs]
-    [<000000007692c95e>] vfs_getattr_nosec+0xa1/0xc0
-    [<00000000cbc7d742>] vfs_getattr+0x36/0x40
-    [<00000000de8acf67>] vfs_statx_fd+0x4a/0x80
-    [<00000000a58c6adb>] __do_sys_newfstat+0x31/0x70
-    [<00000000300b3b4e>] __x64_sys_newfstat+0x16/0x20
-    [<000000006d8e9c48>] do_syscall_64+0x37/0x80
+The system reset FWNMI handler did not have a KVM guest test in it,
+although it probably should have because the guest can itself run
+guests.
 
-This patch add missing kfree for pntsd when mounting modefromsid option.
+Commit 4f50541f6703b ("powerpc/64s/exception: Move all interrupt
+handlers to new style code gen macros") convert the handler faithfully
+to avoid a KVM test with a "clever" trick to modify the IKVM_REAL
+setting to 0 when the fwnmi handler is to be generated (PPC_PSERIES=y).
+This worked when the KVM test was generated in the interrupt entry
+handlers, but a later patch moved the KVM test to the common handler,
+and the common handler macro is expanded below the fwnmi entry. This
+prevents the KVM test from being generated even for the 0x100 entry
+point as well.
 
-Cc: Stable <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+The result is NMI IPIs in the host kernel when a guest is running will
+use gest registers. This goes particularly badly when an HPT guest is
+running and the MMU is set to guest mode.
+
+Remove this trickery and just generate the test always.
+
+Fixes: 9600f261acaa ("powerpc/64s/exception: Move KVM test to common code")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201114114743.3306283-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/cifsacl.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/exceptions-64s.S |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -1266,6 +1266,7 @@ cifs_acl_to_fattr(struct cifs_sb_info *c
- 		cifs_dbg(VFS, "%s: error %d getting sec desc\n", __func__, rc);
- 	} else if (mode_from_special_sid) {
- 		rc = parse_sec_desc(cifs_sb, pntsd, acllen, fattr, true);
-+		kfree(pntsd);
- 	} else {
- 		/* get approximated mode from ACL */
- 		rc = parse_sec_desc(cifs_sb, pntsd, acllen, fattr, false);
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1000,8 +1000,6 @@ TRAMP_REAL_BEGIN(system_reset_idle_wake)
+  * Vectors for the FWNMI option.  Share common code.
+  */
+ TRAMP_REAL_BEGIN(system_reset_fwnmi)
+-	/* XXX: fwnmi guest could run a nested/PR guest, so why no test?  */
+-	__IKVM_REAL(system_reset)=0
+ 	GEN_INT_ENTRY system_reset, virt=0
+ 
+ #endif /* CONFIG_PPC_PSERIES */
 
 
