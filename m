@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC312C9B97
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C1ED2C9AF7
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389652AbgLAJKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:10:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
+        id S2388648AbgLAJD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:03:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389644AbgLAJKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:09 -0500
+        id S2388643AbgLAJDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:03:24 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 287BE21D7A;
-        Tue,  1 Dec 2020 09:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E76F2222A;
+        Tue,  1 Dec 2020 09:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813768;
-        bh=oWJaho/gHzQdr2VXxpGnYFO4lgkJY6XVJcmPdo4Qeas=;
+        s=korg; t=1606813356;
+        bh=o+BCl8CG45fQcjxu735r8tsgwjd3G50WL7zLCzZHGbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jhu0HsLZUKzBapVW9EgjXbgE6nDvfIL959YVL/eMUzPzYxppSP7D0cHSTWRQUoTKK
-         ZoeAI5BsyCM05yfhZzKgxCwJLKCLNtsyOrfOV3y0SYXYGtdlYI/9TnKhuH4szfmp80
-         LeSRyNGl6jida7vfDXXzZQDpwLHWRZivyK1oHyyE=
+        b=v8mje+7m3cijpTJW3zQ/vVlHgbau7WHNu66JrdxgFD4CdIzyUPyT5uLhMShUejmSW
+         JgTihA0a8Xxzc/P9lURaEmrv8hRI6nq6UL1puiFslcF8UrZkIC4BhygaMhT/ErcR86
+         wsSBr4125rA7XjiYiqwlaT27rhEnoBwMggYrWezw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minwoo Im <minwoo.im.dev@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 053/152] nvme: free sq/cq dbbuf pointers when dbbuf set fails
-Date:   Tue,  1 Dec 2020 09:52:48 +0100
-Message-Id: <20201201084718.879366589@linuxfoundation.org>
+        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 12/98] smb3: Handle error case during offload read path
+Date:   Tue,  1 Dec 2020 09:52:49 +0100
+Message-Id: <20201201084654.267632268@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minwoo Im <minwoo.im.dev@gmail.com>
+From: Rohith Surabattula <rohiths@microsoft.com>
 
-[ Upstream commit 0f0d2c876c96d4908a9ef40959a44bec21bdd6cf ]
+commit 1254100030b3377e8302f9c75090ab191d73ee7c upstream.
 
-If Doorbell Buffer Config command fails even 'dev->dbbuf_dbs != NULL'
-which means OACS indicates that NVME_CTRL_OACS_DBBUF_SUPP is set,
-nvme_dbbuf_update_and_check_event() will check event even it's not been
-successfully set.
+Mid callback needs to be called only when valid data is
+read into pages.
 
-This patch fixes mismatch among dbbuf for sq/cqs in case that dbbuf
-command fails.
+These patches address a problem found during decryption offload:
+      CIFS: VFS: trying to dequeue a deleted mid
+that could cause a refcount use after free:
+      Workqueue: smb3decryptd smb2_decrypt_offload [cifs]
 
-Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+CC: Stable <stable@vger.kernel.org> #5.4+
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/pci.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/cifs/smb2ops.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index a6af96aaa0eb7..3448f7ac209a0 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -292,9 +292,21 @@ static void nvme_dbbuf_init(struct nvme_dev *dev,
- 	nvmeq->dbbuf_cq_ei = &dev->dbbuf_eis[cq_idx(qid, dev->db_stride)];
- }
- 
-+static void nvme_dbbuf_free(struct nvme_queue *nvmeq)
-+{
-+	if (!nvmeq->qid)
-+		return;
-+
-+	nvmeq->dbbuf_sq_db = NULL;
-+	nvmeq->dbbuf_cq_db = NULL;
-+	nvmeq->dbbuf_sq_ei = NULL;
-+	nvmeq->dbbuf_cq_ei = NULL;
-+}
-+
- static void nvme_dbbuf_set(struct nvme_dev *dev)
- {
- 	struct nvme_command c;
-+	unsigned int i;
- 
- 	if (!dev->dbbuf_dbs)
- 		return;
-@@ -308,6 +320,9 @@ static void nvme_dbbuf_set(struct nvme_dev *dev)
- 		dev_warn(dev->ctrl.device, "unable to set dbbuf\n");
- 		/* Free memory and continue on */
- 		nvme_dbbuf_dma_free(dev);
-+
-+		for (i = 1; i <= dev->online_queues; i++)
-+			nvme_dbbuf_free(&dev->queues[i]);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4183,7 +4183,25 @@ static void smb2_decrypt_offload(struct
+ 				      dw->server->vals->read_rsp_size,
+ 				      dw->ppages, dw->npages, dw->len,
+ 				      true);
+-		mid->callback(mid);
++		if (rc >= 0) {
++#ifdef CONFIG_CIFS_STATS2
++			mid->when_received = jiffies;
++#endif
++			mid->callback(mid);
++		} else {
++			spin_lock(&GlobalMid_Lock);
++			if (dw->server->tcpStatus == CifsNeedReconnect) {
++				mid->mid_state = MID_RETRY_NEEDED;
++				spin_unlock(&GlobalMid_Lock);
++				mid->callback(mid);
++			} else {
++				mid->mid_state = MID_REQUEST_SUBMITTED;
++				mid->mid_flags &= ~(MID_DELETED);
++				list_add_tail(&mid->qhead,
++					&dw->server->pending_mid_q);
++				spin_unlock(&GlobalMid_Lock);
++			}
++		}
+ 		cifs_mid_q_entry_release(mid);
  	}
- }
  
--- 
-2.27.0
-
 
 
