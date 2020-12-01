@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D80982CA3EF
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 14:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D61FE2CA404
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 14:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387773AbgLANfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 08:35:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37564 "EHLO
+        id S2389712AbgLANjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 08:39:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387723AbgLANfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 08:35:17 -0500
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE64DC0613D4
-        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 05:34:37 -0800 (PST)
-Received: by mail-pj1-x1043.google.com with SMTP id t12so1239463pjq.5
-        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 05:34:37 -0800 (PST)
+        with ESMTP id S2387833AbgLANjs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 08:39:48 -0500
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70ECCC0613CF
+        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 05:39:08 -0800 (PST)
+Received: by mail-pl1-x644.google.com with SMTP id u2so1136792pls.10
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 05:39:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=IO+ixUM2ttleO2aC6HDmUH4dC5PwQMPzQDW+Dqblyt4=;
-        b=GSMM2k0QXE/+zCOYzqLjr7CM8El8MXug+orxnY6r39YBvsXIGNLII4Ab3ao9Z3JekJ
-         pikjK/hvSo0QDydfOaUOapxMqlKYjAY3Leysi1088SaEXBVyATONpfqzICwTqFJQACZ2
-         yCKB3MgAa/GH/4g9iKqee378rXdqidc2vHEZp86V9tGVtDsN9KJZ336EbWQpvcktBA0a
-         gJqYLHW7sV6QitJkTgnS0hUQrrFXzkWgUgs3iWIsshGO1BCNhWwtXXG8dTDikzBIefYl
-         FL0BfliUC1gVggO6Pn+al7bVnciZ7jN2xqDYC/NT4lCsJTtHgpw9RfJrK84M96AM25/e
-         Gqtg==
+        bh=KX1JjIJM30EitAoBS9cv/eOhdg0dDM7MHC0Hga1KeTQ=;
+        b=hGsRR1d5ayoQIw8AwwQA+CpFYgzPmqHzvQV059s3h5aYJ+8Rbn+IvBViRuF8c3b9xV
+         KQZZWlF283DZ9JSE45pV7DCWBkVE/6l9aVyhk3nB3Ii0U7ZhXZnbozgM5VTgRe6IKD7m
+         zkCu5REobuklVu1tLhUERBu/k1LRIqvMU+lkEIuzmLR/PO0jT4huwsxkrHGecqJz8QFK
+         QNgv8KdmHP8JeO5tYa8SheQtZWJ5T3pnAQRoOp3qYZbnBaqs1rVkvjpA6CibkQpaKxxl
+         oBgrjMrBQvi6EZXPo+lhR2kBri0ZecL+5dnJpdi3CSaQXDEav0W6PTUKx5qO6U9MA8Fk
+         HgDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=IO+ixUM2ttleO2aC6HDmUH4dC5PwQMPzQDW+Dqblyt4=;
-        b=WzDKzQDU9XLypwKmaiuMWWjwJSjUOPdjb5PEhaXO7GU92u320HBV7q7niMq0jMQHQb
-         YW+Qt5cRIs3pWlblFi8q96I6F987nGd/MJVbsQv3VaIWKJp3QtuKBawNy/+vg+gwrI5q
-         g6kKpGN3lFp42bJMIIy1sAkQvzvGF6vWgX8i0XWuTH+fccxHpu/YUZmyMctcL/lBFXA3
-         Ee1VXpVnmejvmcvfRtINx6M/u5T2ZJMvAoaL6lfO73TYp7wATOEexEL+SUtNdG/qyg4v
-         P0LFyaXkwp/Ra8KHD6bhd0A/+xbURlEKiKIQ8fFXvZm94q61MFYB1G4FtK3e7chEZEZG
-         SWdw==
-X-Gm-Message-State: AOAM531ccCE6LLTJDME8LikbV89JN0T75c/iEgMgan8OiP0fY84/qnDQ
-        wuoCyoQ5SWhHQaAjHRf6enqXSaY1dDk+nw==
-X-Google-Smtp-Source: ABdhPJx0cw0dKem0KMV95cUKGPStULTPIcgaDQ39fyRWFD1Y9CKWZPSuGc6wCGehvJdS65NN5QJEyQ==
-X-Received: by 2002:a17:90b:350b:: with SMTP id ls11mr2715965pjb.193.1606829675976;
-        Tue, 01 Dec 2020 05:34:35 -0800 (PST)
+        bh=KX1JjIJM30EitAoBS9cv/eOhdg0dDM7MHC0Hga1KeTQ=;
+        b=RGglIOWTxC4DCYNhfz86fcdrfzEOMBg89YQEoAd6p2IPgF69sKf/svApuz6Qlz3GD/
+         eeVuoMqPu0mw2vCtt/UAHjh/MBJJP1pK0Mk2ZbACmtdV8WKyDareSR5vxhcfUmjx1mTp
+         9zt6DcVx0ZIECLirijBhVQ9Jtmg+ylmDemuilUKzcIKcevaZOBaNbwSpG/IUImC+Hv8o
+         2ZBVxJEfjMte8D8pofFcXLlA65zowsDyg1KFLoD/x1FbEzhBvU5WdJBE4C20ftqhFkqh
+         yfBQhC0jd8KHZS7xg1oubFNzYuRvioam5BkKbo4rGB6+sQbEzgZldvcDpOyaUGtUBmVo
+         jJGQ==
+X-Gm-Message-State: AOAM532QT+1malwxoVNOkq2hA602yHWwjtKA9FhXe25Np8wF/RsuFO58
+        mMCM5silsQ7ijjkku5aDoWpe+yOZOTKlgQ==
+X-Google-Smtp-Source: ABdhPJzM6po0VxYGmGm4k2r2Nyd+5m6LWDODeO02hIPZIi9EXGYHBZ4If9Lj+ofHaPor6k+doBvRMg==
+X-Received: by 2002:a17:90a:940e:: with SMTP id r14mr2836075pjo.47.1606829945767;
+        Tue, 01 Dec 2020 05:39:05 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s22sm2398564pgv.18.2020.12.01.05.34.34
+        by smtp.gmail.com with ESMTPSA id b18sm379319pfb.38.2020.12.01.05.39.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Dec 2020 05:34:35 -0800 (PST)
-Message-ID: <5fc6466b.1c69fb81.f8683.422f@mx.google.com>
-Date:   Tue, 01 Dec 2020 05:34:35 -0800 (PST)
+        Tue, 01 Dec 2020 05:39:04 -0800 (PST)
+Message-ID: <5fc64778.1c69fb81.67d8c.093d@mx.google.com>
+Date:   Tue, 01 Dec 2020 05:39:04 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
+X-Kernelci-Branch: linux-5.4.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.80-98-g988f6f57c83b
+X-Kernelci-Kernel: v5.4.80-99-g89a0528bfd8df
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 200 builds: 0 failed, 200 passed,
- 109 warnings (v5.4.80-98-g988f6f57c83b)
+Subject: stable-rc/linux-5.4.y build: 200 builds: 0 failed, 200 passed,
+ 109 warnings (v5.4.80-99-g89a0528bfd8df)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 200 builds: 0 failed, 200 passed, 109 warnings (=
-v5.4.80-98-g988f6f57c83b)
+stable-rc/linux-5.4.y build: 200 builds: 0 failed, 200 passed, 109 warnings=
+ (v5.4.80-99-g89a0528bfd8df)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.80-98-g988f6f57c83b/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.80-99-g89a0528bfd8df/
 
 Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.80-98-g988f6f57c83b
-Git Commit: 988f6f57c83be9493adb5149145bbf312d1c893d
+Branch: linux-5.4.y
+Git Describe: v5.4.80-99-g89a0528bfd8df
+Git Commit: 89a0528bfd8df49c50fda873ffb8cfeea5a2898b
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -240,26 +240,6 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
@@ -270,11 +250,31 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
 matches
 
 Warnings:
     <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1386,26 +1386,18 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
 tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1417,13 +1409,21 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
