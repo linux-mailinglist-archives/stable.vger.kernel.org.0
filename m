@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564B32C9B27
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2802C9AB5
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729106AbgLAJF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
+        id S2388238AbgLAJAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:00:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388832AbgLAJEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:21 -0500
+        id S2387599AbgLAJAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:07 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1889621D7A;
-        Tue,  1 Dec 2020 09:04:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18502217A0;
+        Tue,  1 Dec 2020 08:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813445;
-        bh=qW4Okc9SGp3n6wIi4MXS+Qo7u7tQ+3l4AEIGC1RCLa8=;
+        s=korg; t=1606813191;
+        bh=csn/Hk+YBhchIph27lvMqOAt+Ne57dazRGG/PH73ALY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FjuOX2QmsN1jOfAQMyOcDBtokw4j2znMGScprXTD2ZHcdG91eRH6tes3xycXXYl4y
-         3YBUgTljLG+J2E7emZp3Lfu6xLARFP6xMdqgy02VED0RIf+uXyOEN0VpVjNHvUHU0V
-         oNxxaijFSduzb24lrXXSpZ2ioJP3w2gYFwBPIpkk=
+        b=mje8QkGTrvi9hB9qEENSRNnJZgach22kAXxD5nqbwUZqAthKxNYjP3dZPhGfmlrlg
+         HBbkrOh+pl8rxjasrYb6hthc+u+b24btSUVlX/y2Cl7Yj/k4xrkwXwRbhoBGvMR3oD
+         8Lkv6YXRDLQMRNMtF6WVD6n9fqV9ysMwlAR2U0EU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/98] bus: ti-sysc: Fix bogus resetdone warning on enable for cpsw
+        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
+        <david.gamiz@gmail.com>
+Subject: [PATCH 4.19 14/57] HID: add support for Sega Saturn
 Date:   Tue,  1 Dec 2020 09:53:19 +0100
-Message-Id: <20201201084657.167879966@linuxfoundation.org>
+Message-Id: <20201201084649.323495333@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit e7ae08d398e094e1305dee823435b1f996d39106 ]
+[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
 
-Bail out early from sysc_wait_softreset() just like we do in sysc_reset()
-if there's no sysstatus srst_shift to fix a bogus resetdone warning on
-enable as suggested by Grygorii Strashko <grygorii.strashko@ti.com>.
+This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
+in a consistent way.
 
-We do not currently handle resets for modules that need writing to the
-sysstatus register. If we at some point add that, we also need to add
-SYSS_QUIRK_RESETDONE_INVERTED flag for cpsw as the sysstatus bit is low
-when reset is done as described in the am335x TRM "Table 14-202
-SOFT_RESET Register Field Descriptions"
-
-Fixes: d46f9fbec719 ("bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit")
-Suggested-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 770a780dfa544..3934ce3385ac3 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -192,6 +192,9 @@ static int sysc_wait_softreset(struct sysc *ddata)
- 	u32 sysc_mask, syss_done, rstval;
- 	int syss_offset, error = 0;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e9155f7c8c51c..4d2a1d540a821 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -479,6 +479,7 @@
+ #define USB_DEVICE_ID_PENPOWER		0x00f4
  
-+	if (ddata->cap->regbits->srst_shift < 0)
-+		return 0;
-+
- 	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
- 	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
+ #define USB_VENDOR_ID_GREENASIA		0x0e8f
++#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
+ #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
  
+ #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 2d8d20a7f4574..493e2e7e12de0 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -85,6 +85,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 
