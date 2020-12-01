@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8577E2C9D4D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A88342C9D40
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389282AbgLAJVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:21:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46116 "EHLO mail.kernel.org"
+        id S2389989AbgLAJU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:20:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389279AbgLAJIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:08:39 -0500
+        id S2389319AbgLAJIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:47 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6FEF20671;
-        Tue,  1 Dec 2020 09:07:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63E5020809;
+        Tue,  1 Dec 2020 09:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813678;
-        bh=ixL9nFnJJ3R66vfzSew4uiaMwSoJwzTIAma1YrpfBrM=;
+        s=korg; t=1606813687;
+        bh=dtbxG18nTbrzcthdILD/jhvMzAF4T8Y7OY/SrZV1+I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paoetPCX7yGD1q77rsaAOn5keJAtsm1dU0XuiojOOqY85/c/mRzr9RlovRvJKX5iu
-         4A1/llu7ouBntRaKIHYS5ChvwwkgiEb8RtroeqhNykqdJkLP4rt3ORoP6o4dbDPOUY
-         4XFz1xPQXIddjpCnBYRPyusIB5X4Ldws/KrggMYM=
+        b=amCvKTR21FH9kWNgUTNJ9oJgbCtvsEKafVUDVnYco59pFWHdOunXS2nWFsobOJbQB
+         xjCDVpEOU2x1JfJHZ5CDVcNnTXh8YUMf08VOyF4e85xzOwNjs9MDwTCpCEc2DRS4VT
+         UPnSVCybbMnM6pMl4K+oNHt3ZDOlk6hZ4mlr9uFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 022/152] KVM: PPC: Book3S HV: XIVE: Fix possible oops when accessing ESB page
-Date:   Tue,  1 Dec 2020 09:52:17 +0100
-Message-Id: <20201201084714.767481964@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Nikos Tsironis <ntsironis@arrikto.com>
+Subject: [PATCH 5.9 025/152] KVM: x86: Fix split-irqchip vs interrupt injection window request
+Date:   Tue,  1 Dec 2020 09:52:20 +0100
+Message-Id: <20201201084715.179140669@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,77 +43,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 75b49620267c700f0a07fec7f27f69852db70e46 upstream.
+commit 71cc849b7093bb83af966c0e60cb11b7f35cd746 upstream.
 
-When accessing the ESB page of a source interrupt, the fault handler
-will retrieve the page address from the XIVE interrupt 'xive_irq_data'
-structure. If the associated KVM XIVE interrupt is not valid, that is
-not allocated at the HW level for some reason, the fault handler will
-dereference a NULL pointer leading to the oops below :
+kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
+a hodge-podge of conditions, hacked together to get something that
+more or less works.  But what is actually needed is much simpler;
+in both cases the fundamental question is, do we have a place to stash
+an interrupt if userspace does KVM_INTERRUPT?
 
-  WARNING: CPU: 40 PID: 59101 at arch/powerpc/kvm/book3s_xive_native.c:259 xive_native_esb_fault+0xe4/0x240 [kvm]
-  CPU: 40 PID: 59101 Comm: qemu-system-ppc Kdump: loaded Tainted: G        W        --------- -  - 4.18.0-240.el8.ppc64le #1
-  NIP:  c00800000e949fac LR: c00000000044b164 CTR: c00800000e949ec8
-  REGS: c000001f69617840 TRAP: 0700   Tainted: G        W        --------- -  -  (4.18.0-240.el8.ppc64le)
-  MSR:  9000000000029033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44044282  XER: 00000000
-  CFAR: c00000000044b160 IRQMASK: 0
-  GPR00: c00000000044b164 c000001f69617ac0 c00800000e96e000 c000001f69617c10
-  GPR04: 05faa2b21e000080 0000000000000000 0000000000000005 ffffffffffffffff
-  GPR08: 0000000000000000 0000000000000001 0000000000000000 0000000000000001
-  GPR12: c00800000e949ec8 c000001ffffd3400 0000000000000000 0000000000000000
-  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR20: 0000000000000000 0000000000000000 c000001f5c065160 c000000001c76f90
-  GPR24: c000001f06f20000 c000001f5c065100 0000000000000008 c000001f0eb98c78
-  GPR28: c000001dcab40000 c000001dcab403d8 c000001f69617c10 0000000000000011
-  NIP [c00800000e949fac] xive_native_esb_fault+0xe4/0x240 [kvm]
-  LR [c00000000044b164] __do_fault+0x64/0x220
-  Call Trace:
-  [c000001f69617ac0] [0000000137a5dc20] 0x137a5dc20 (unreliable)
-  [c000001f69617b50] [c00000000044b164] __do_fault+0x64/0x220
-  [c000001f69617b90] [c000000000453838] do_fault+0x218/0x930
-  [c000001f69617bf0] [c000000000456f50] __handle_mm_fault+0x350/0xdf0
-  [c000001f69617cd0] [c000000000457b1c] handle_mm_fault+0x12c/0x310
-  [c000001f69617d10] [c00000000007ef44] __do_page_fault+0x264/0xbb0
-  [c000001f69617df0] [c00000000007f8c8] do_page_fault+0x38/0xd0
-  [c000001f69617e30] [c00000000000a714] handle_page_fault+0x18/0x38
-  Instruction dump:
-  40c2fff0 7c2004ac 2fa90000 409e0118 73e90001 41820080 e8bd0008 7c2004ac
-  7ca90074 39400000 915c0000 7929d182 <0b090000> 2fa50000 419e0080 e89e0018
-  ---[ end trace 66c6ff034c53f64f ]---
-  xive-kvm: xive_native_esb_fault: accessing invalid ESB page for source 8 !
+In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
+Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
+unnecessarily restrictive.
 
-Fix that by checking the validity of the KVM XIVE interrupt structure.
+In split irqchip mode it's a bit more complicated, we need to check
+kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
+cycle and thus requires ExtINTs not to be masked) as well as
+!pending_userspace_extint(vcpu).  However, there is no need to
+check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
+pending ExtINT state separate from event injection state, and checking
+kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
+priority than APIC interrupts.  In fact the latter fixes a bug:
+when userspace requests an IRQ window vmexit, an interrupt in the
+local APIC can cause kvm_cpu_has_interrupt() to be true and thus
+kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
+happens, vcpu_run does not exit to userspace but the interrupt window
+vmexits keep occurring.  The VM loops without any hope of making progress.
 
-Fixes: 6520ca64cde7 ("KVM: PPC: Book3S HV: XIVE: Add a mapping for the source ESB pages")
-Cc: stable@vger.kernel.org # v5.2+
-Reported-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Tested-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201105134713.656160-1-clg@kaod.org
+Once we try to fix these with something like
+
+     return kvm_arch_interrupt_allowed(vcpu) &&
+-        !kvm_cpu_has_interrupt(vcpu) &&
+-        !kvm_event_needs_reinjection(vcpu) &&
+-        kvm_cpu_accept_dm_intr(vcpu);
++        (!lapic_in_kernel(vcpu)
++         ? !vcpu->arch.interrupt.injected
++         : (kvm_apic_accept_pic_intr(vcpu)
++            && !pending_userspace_extint(v)));
+
+we realize two things.  First, thanks to the previous patch the complex
+conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
+window request in vcpu_enter_guest()
+
+        bool req_int_win =
+                dm_request_for_irq_injection(vcpu) &&
+                kvm_cpu_accept_dm_intr(vcpu);
+
+should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
+it is unnecessary to ask the processor for an interrupt window
+if we would not be able to return to userspace.  Therefore,
+kvm_cpu_accept_dm_intr(vcpu) is basically !kvm_cpu_has_extint(vcpu)
+ANDed with the existing check for masked ExtINT.  It all makes sense:
+
+- we can accept an interrupt from userspace if there is a place
+  to stash it (and, for irqchip split, ExtINTs are not masked).
+  Interrupts from userspace _can_ be accepted even if right now
+  EFLAGS.IF=0.
+
+- in order to tell userspace we will inject its interrupt ("IRQ
+  window open" i.e. kvm_vcpu_ready_for_interrupt_injection), both
+  KVM and the vCPU need to be ready to accept the interrupt.
+
+... and this is what the patch implements.
+
+Reported-by: David Woodhouse <dwmw@amazon.co.uk>
+Analyzed-by: David Woodhouse <dwmw@amazon.co.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+Tested-by: David Woodhouse <dwmw@amazon.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_xive_native.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/irq.c              |    2 +-
+ arch/x86/kvm/x86.c              |   18 ++++++++++--------
+ 3 files changed, 12 insertions(+), 9 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_xive_native.c
-+++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -251,6 +251,13 @@ static vm_fault_t xive_native_esb_fault(
- 	}
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1603,6 +1603,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
+ int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
+ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
+ int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
++int kvm_cpu_has_extint(struct kvm_vcpu *v);
+ int kvm_arch_interrupt_allowed(struct kvm_vcpu *vcpu);
+ int kvm_cpu_get_interrupt(struct kvm_vcpu *v);
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
+--- a/arch/x86/kvm/irq.c
++++ b/arch/x86/kvm/irq.c
+@@ -40,7 +40,7 @@ static int pending_userspace_extint(stru
+  * check if there is pending interrupt from
+  * non-APIC source without intack.
+  */
+-static int kvm_cpu_has_extint(struct kvm_vcpu *v)
++int kvm_cpu_has_extint(struct kvm_vcpu *v)
+ {
+ 	/*
+ 	 * FIXME: interrupt.injected represents an interrupt whose
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3839,21 +3839,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
  
- 	state = &sb->irq_state[src];
+ static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
+ {
++	/*
++	 * We can accept userspace's request for interrupt injection
++	 * as long as we have a place to store the interrupt number.
++	 * The actual injection will happen when the CPU is able to
++	 * deliver the interrupt.
++	 */
++	if (kvm_cpu_has_extint(vcpu))
++		return false;
 +
-+	/* Some sanity checking */
-+	if (!state->valid) {
-+		pr_devel("%s: source %lx invalid !\n", __func__, irq);
-+		return VM_FAULT_SIGBUS;
-+	}
-+
- 	kvmppc_xive_select_irq(state, &hw_num, &xd);
++	/* Acknowledging ExtINT does not happen if LINT0 is masked.  */
+ 	return (!lapic_in_kernel(vcpu) ||
+ 		kvm_apic_accept_pic_intr(vcpu));
+ }
  
- 	arch_spin_lock(&sb->lock);
+-/*
+- * if userspace requested an interrupt window, check that the
+- * interrupt window is open.
+- *
+- * No need to exit to userspace if we already have an interrupt queued.
+- */
+ static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
+ {
+ 	return kvm_arch_interrupt_allowed(vcpu) &&
+-		!kvm_cpu_has_interrupt(vcpu) &&
+-		!kvm_event_needs_reinjection(vcpu) &&
+ 		kvm_cpu_accept_dm_intr(vcpu);
+ }
+ 
 
 
