@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7092C9A7A
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B61322C9AD3
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729264AbgLAI6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:58:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33346 "EHLO mail.kernel.org"
+        id S2388540AbgLAJBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729259AbgLAI6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:00 -0500
+        id S2388489AbgLAJBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 263A62226B;
-        Tue,  1 Dec 2020 08:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75FAE21D7F;
+        Tue,  1 Dec 2020 09:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813038;
-        bh=5iOJXBXgbUCYSr7Jv0y5YcitVtm3mxdONPnWKb/oHI0=;
+        s=korg; t=1606813240;
+        bh=pChzZcg54YaLWRqnqhoyp1YgF1WL9Xmkn37FInhqhaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WshLcmV2UB528cgw8/f0OtgnnjJCBcca5o9+BHVbnqOQBFa2YetFZetprWvNvvtl+
-         6bQjzT1l9VNiciJPMpYqqLr6Pk37QGVS6jkk2OXuYpRotc/w81upD0RCcuS4gdkuBU
-         NrH6m8K4n6mEt9xugKLiYTd0p7wB/YYWVZwa0CGI=
+        b=a7AhdSxUQZWe48ZUvltKeIGz/beirfyQ5MeQkpf4aB668ikI63G/uQ7m5AEoNFE+i
+         WKnxqfUbbrnR2Go1M1xatrMjfSOPXLfg4KZyri6ucQNHqBNM7vgX/NAY/kAkeFPFlK
+         Y3GAOahexQYVatvm6yIDtcml+L1CTlNha2ZRmGfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 12/50] ALSA: hda/hdmi: Use single mutex unlock in error paths
+        stable@vger.kernel.org, Keqian Zhu <zhukeqian1@huawei.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH 4.19 06/57] KVM: arm64: vgic-v3: Drop the reporting of GICR_TYPER.Last for userspace
 Date:   Tue,  1 Dec 2020 09:53:11 +0100
-Message-Id: <20201201084646.499434990@linuxfoundation.org>
+Message-Id: <20201201084648.462639229@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,215 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-commit f69548ffafcc4942022f16f2f192b24143de1dba upstream
+commit 23bde34771f1ea92fb5e6682c0d8c04304d34b3b upstream.
 
-Instead of calling mutex_unlock() at each error path multiple times,
-take the standard goto-and-a-single-unlock approach.  This will
-simplify the code and make easier to find the unbalanced mutex locks.
+It was recently reported that if GICR_TYPER is accessed before the RD base
+address is set, we'll suffer from the unset @rdreg dereferencing. Oops...
 
-No functional changes, but only the code readability improvement as a
-preliminary work for further changes.
+	gpa_t last_rdist_typer = rdreg->base + GICR_TYPER +
+			(rdreg->free_index - 1) * KVM_VGIC_V3_REDIST_SIZE;
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+It's "expected" that users will access registers in the redistributor if
+the RD has been properly configured (e.g., the RD base address is set). But
+it hasn't yet been covered by the existing documentation.
+
+Per discussion on the list [1], the reporting of the GICR_TYPER.Last bit
+for userspace never actually worked. And it's difficult for us to emulate
+it correctly given that userspace has the flexibility to access it any
+time. Let's just drop the reporting of the Last bit for userspace for now
+(userspace should have full knowledge about it anyway) and it at least
+prevents kernel from panic ;-)
+
+[1] https://lore.kernel.org/kvmarm/c20865a267e44d1e2c0d52ce4e012263@kernel.org/
+
+Fixes: ba7b3f1275fd ("KVM: arm/arm64: Revisit Redistributor TYPER last bit computation")
+Reported-by: Keqian Zhu <zhukeqian1@huawei.com>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20201117151629.1738-1-yuzenghui@huawei.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/pci/hda/patch_hdmi.c |   67 ++++++++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 34 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -339,13 +339,13 @@ static int hdmi_eld_ctl_info(struct snd_
- 	if (!per_pin) {
- 		/* no pin is bound to the pcm */
- 		uinfo->count = 0;
--		mutex_unlock(&spec->pcm_lock);
--		return 0;
-+		goto unlock;
- 	}
- 	eld = &per_pin->sink_eld;
- 	uinfo->count = eld->eld_valid ? eld->eld_size : 0;
--	mutex_unlock(&spec->pcm_lock);
- 
-+ unlock:
-+	mutex_unlock(&spec->pcm_lock);
- 	return 0;
+---
+ virt/kvm/arm/vgic/vgic-mmio-v3.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+--- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+@@ -226,6 +226,23 @@ static unsigned long vgic_mmio_read_v3r_
+ 	return extract_bytes(value, addr & 7, len);
  }
  
-@@ -357,6 +357,7 @@ static int hdmi_eld_ctl_get(struct snd_k
- 	struct hdmi_spec_per_pin *per_pin;
- 	struct hdmi_eld *eld;
- 	int pcm_idx;
-+	int err = 0;
- 
- 	pcm_idx = kcontrol->private_value;
- 	mutex_lock(&spec->pcm_lock);
-@@ -365,16 +366,15 @@ static int hdmi_eld_ctl_get(struct snd_k
- 		/* no pin is bound to the pcm */
- 		memset(ucontrol->value.bytes.data, 0,
- 		       ARRAY_SIZE(ucontrol->value.bytes.data));
--		mutex_unlock(&spec->pcm_lock);
--		return 0;
-+		goto unlock;
- 	}
--	eld = &per_pin->sink_eld;
- 
-+	eld = &per_pin->sink_eld;
- 	if (eld->eld_size > ARRAY_SIZE(ucontrol->value.bytes.data) ||
- 	    eld->eld_size > ELD_MAX_SIZE) {
--		mutex_unlock(&spec->pcm_lock);
- 		snd_BUG();
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock;
- 	}
- 
- 	memset(ucontrol->value.bytes.data, 0,
-@@ -382,9 +382,10 @@ static int hdmi_eld_ctl_get(struct snd_k
- 	if (eld->eld_valid)
- 		memcpy(ucontrol->value.bytes.data, eld->eld_buffer,
- 		       eld->eld_size);
--	mutex_unlock(&spec->pcm_lock);
- 
--	return 0;
-+ unlock:
-+	mutex_unlock(&spec->pcm_lock);
-+	return err;
- }
- 
- static const struct snd_kcontrol_new eld_bytes_ctl = {
-@@ -1209,8 +1210,8 @@ static int hdmi_pcm_open(struct hda_pcm_
- 	pin_idx = hinfo_to_pin_index(codec, hinfo);
- 	if (!spec->dyn_pcm_assign) {
- 		if (snd_BUG_ON(pin_idx < 0)) {
--			mutex_unlock(&spec->pcm_lock);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto unlock;
- 		}
- 	} else {
- 		/* no pin is assigned to the PCM
-@@ -1218,16 +1219,13 @@ static int hdmi_pcm_open(struct hda_pcm_
- 		 */
- 		if (pin_idx < 0) {
- 			err = hdmi_pcm_open_no_pin(hinfo, codec, substream);
--			mutex_unlock(&spec->pcm_lock);
--			return err;
-+			goto unlock;
- 		}
- 	}
- 
- 	err = hdmi_choose_cvt(codec, pin_idx, &cvt_idx);
--	if (err < 0) {
--		mutex_unlock(&spec->pcm_lock);
--		return err;
--	}
-+	if (err < 0)
-+		goto unlock;
- 
- 	per_cvt = get_cvt(spec, cvt_idx);
- 	/* Claim converter */
-@@ -1264,12 +1262,11 @@ static int hdmi_pcm_open(struct hda_pcm_
- 			per_cvt->assigned = 0;
- 			hinfo->nid = 0;
- 			snd_hda_spdif_ctls_unassign(codec, pcm_idx);
--			mutex_unlock(&spec->pcm_lock);
--			return -ENODEV;
-+			err = -ENODEV;
-+			goto unlock;
- 		}
- 	}
- 
--	mutex_unlock(&spec->pcm_lock);
- 	/* Store the updated parameters */
- 	runtime->hw.channels_min = hinfo->channels_min;
- 	runtime->hw.channels_max = hinfo->channels_max;
-@@ -1278,7 +1275,9 @@ static int hdmi_pcm_open(struct hda_pcm_
- 
- 	snd_pcm_hw_constraint_step(substream->runtime, 0,
- 				   SNDRV_PCM_HW_PARAM_CHANNELS, 2);
--	return 0;
-+ unlock:
-+	mutex_unlock(&spec->pcm_lock);
-+	return err;
- }
- 
- /*
-@@ -1876,7 +1875,7 @@ static int generic_hdmi_playback_pcm_pre
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	bool non_pcm;
- 	int pinctl;
--	int err;
-+	int err = 0;
- 
- 	mutex_lock(&spec->pcm_lock);
- 	pin_idx = hinfo_to_pin_index(codec, hinfo);
-@@ -1888,13 +1887,12 @@ static int generic_hdmi_playback_pcm_pre
- 		pin_cvt_fixup(codec, NULL, cvt_nid);
- 		snd_hda_codec_setup_stream(codec, cvt_nid,
- 					stream_tag, 0, format);
--		mutex_unlock(&spec->pcm_lock);
--		return 0;
-+		goto unlock;
- 	}
- 
- 	if (snd_BUG_ON(pin_idx < 0)) {
--		mutex_unlock(&spec->pcm_lock);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto unlock;
- 	}
- 	per_pin = get_pin(spec, pin_idx);
- 	pin_nid = per_pin->pin_nid;
-@@ -1933,6 +1931,7 @@ static int generic_hdmi_playback_pcm_pre
- 	/* snd_hda_set_dev_select() has been called before */
- 	err = spec->ops.setup_stream(codec, cvt_nid, pin_nid,
- 				 stream_tag, format);
-+ unlock:
- 	mutex_unlock(&spec->pcm_lock);
- 	return err;
- }
-@@ -1954,6 +1953,7 @@ static int hdmi_pcm_close(struct hda_pcm
- 	struct hdmi_spec_per_cvt *per_cvt;
- 	struct hdmi_spec_per_pin *per_pin;
- 	int pinctl;
-+	int err = 0;
- 
- 	if (hinfo->nid) {
- 		pcm_idx = hinfo_to_pcm_index(codec, hinfo);
-@@ -1972,14 +1972,12 @@ static int hdmi_pcm_close(struct hda_pcm
- 		snd_hda_spdif_ctls_unassign(codec, pcm_idx);
- 		clear_bit(pcm_idx, &spec->pcm_in_use);
- 		pin_idx = hinfo_to_pin_index(codec, hinfo);
--		if (spec->dyn_pcm_assign && pin_idx < 0) {
--			mutex_unlock(&spec->pcm_lock);
--			return 0;
--		}
-+		if (spec->dyn_pcm_assign && pin_idx < 0)
-+			goto unlock;
- 
- 		if (snd_BUG_ON(pin_idx < 0)) {
--			mutex_unlock(&spec->pcm_lock);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto unlock;
- 		}
- 		per_pin = get_pin(spec, pin_idx);
- 
-@@ -1998,10 +1996,11 @@ static int hdmi_pcm_close(struct hda_pcm
- 		per_pin->setup = false;
- 		per_pin->channels = 0;
- 		mutex_unlock(&per_pin->lock);
-+	unlock:
- 		mutex_unlock(&spec->pcm_lock);
- 	}
- 
--	return 0;
-+	return err;
- }
- 
- static const struct hda_pcm_ops generic_ops = {
++static unsigned long vgic_uaccess_read_v3r_typer(struct kvm_vcpu *vcpu,
++						 gpa_t addr, unsigned int len)
++{
++	unsigned long mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
++	int target_vcpu_id = vcpu->vcpu_id;
++	u64 value;
++
++	value = (u64)(mpidr & GENMASK(23, 0)) << 32;
++	value |= ((target_vcpu_id & 0xffff) << 8);
++
++	if (vgic_has_its(vcpu->kvm))
++		value |= GICR_TYPER_PLPIS;
++
++	/* reporting of the Last bit is not supported for userspace */
++	return extract_bytes(value, addr & 7, len);
++}
++
+ static unsigned long vgic_mmio_read_v3r_iidr(struct kvm_vcpu *vcpu,
+ 					     gpa_t addr, unsigned int len)
+ {
+@@ -532,8 +549,9 @@ static const struct vgic_register_region
+ 	REGISTER_DESC_WITH_LENGTH(GICR_IIDR,
+ 		vgic_mmio_read_v3r_iidr, vgic_mmio_write_wi, 4,
+ 		VGIC_ACCESS_32bit),
+-	REGISTER_DESC_WITH_LENGTH(GICR_TYPER,
+-		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi, 8,
++	REGISTER_DESC_WITH_LENGTH_UACCESS(GICR_TYPER,
++		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi,
++		vgic_uaccess_read_v3r_typer, vgic_mmio_uaccess_write_wi, 8,
+ 		VGIC_ACCESS_64bit | VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH(GICR_WAKER,
+ 		vgic_mmio_read_raz, vgic_mmio_write_wi, 4,
 
 
