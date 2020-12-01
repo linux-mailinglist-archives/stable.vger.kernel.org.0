@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7102C9BAE
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 201802C9C69
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389817AbgLAJLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:11:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48854 "EHLO mail.kernel.org"
+        id S2390444AbgLAJSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:18:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389805AbgLAJLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:11:12 -0500
+        id S2389825AbgLAJLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:11:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 322C72067D;
-        Tue,  1 Dec 2020 09:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C7C320770;
+        Tue,  1 Dec 2020 09:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813825;
-        bh=JPA/yCCNa/xybkpeTlqzFUPnvJbpnpTyHlzNEN+EP1w=;
+        s=korg; t=1606813831;
+        bh=eVs88RSKWp5uqbHNKsrIamhB1o8vWj/QG2gnPttbGJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYmst837Q/TE8DnftFOEvxSRfCUpBvTvpJxflsqbY9Xb7StG5t73hgWIFnzwvMtC+
-         H3Uh7KvcnjNk8aCntsH8xiJ/Y5xPb6L6uXjm4EPKdeT+KwNBgmVIl9c81nLrkcRmI/
-         4BJAShCZ3ed41f+1H/fKUc79DQw6ZrA2xKtdP4fc=
+        b=2PZRgsNsRJgdUu5NG96j6MwSbo0/m+lI2CbQf7FKsY3YQLZRfxMlFA7jbqb0TYSIu
+         8xV81VublpVmOxF/nHnim2sA8wqoIYyE1s2xnyd1sWucNbPslFbaEO4QsjlFSS092b
+         SAqg3SG8k3eUm39Mv/NCWar8Z5mbmulvROgykTgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 072/152] phy: tegra: xusb: Fix dangling pointer on probe failure
-Date:   Tue,  1 Dec 2020 09:53:07 +0100
-Message-Id: <20201201084721.363189907@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 073/152] iwlwifi: mvm: use the HOT_SPOT_CMD to cancel an AUX ROC
+Date:   Tue,  1 Dec 2020 09:53:08 +0100
+Message-Id: <20201201084721.485144594@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -42,93 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit eb9c4dd9bdfdebaa13846c16a8c79b5b336066b6 ]
+[ Upstream commit fb8d1b6e97980057b7ebed444b8950e57f268a67 ]
 
-If, for some reason, the xusb PHY fails to probe, it leaves
-a dangling pointer attached to the platform device structure.
+The ROC that runs on the AUX ROC (meaning an ROC on the STA vif),
+was added with the HOT_SPOT_CMD firmware command and must be
+cancelled with that same command.
 
-This would normally be harmless, but the Tegra XHCI driver then
-goes and extract that pointer from the PHY device. Things go
-downhill from there:
-
-    8.752082] [004d554e5145533c] address between user and kernel address ranges
-[    8.752085] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[    8.752088] Modules linked in: max77620_regulator(E+) xhci_tegra(E+) sdhci_tegra(E+) xhci_hcd(E) sdhci_pltfm(E) cqhci(E) fixed(E) usbcore(E) scsi_mod(E) sdhci(E) host1x(E+)
-[    8.752103] CPU: 4 PID: 158 Comm: systemd-udevd Tainted: G S      W   E     5.9.0-rc7-00298-gf6337624c4fe #1980
-[    8.752105] Hardware name: NVIDIA Jetson TX2 Developer Kit (DT)
-[    8.752108] pstate: 20000005 (nzCv daif -PAN -UAO BTYPE=--)
-[    8.752115] pc : kobject_put+0x1c/0x21c
-[    8.752120] lr : put_device+0x20/0x30
-[    8.752121] sp : ffffffc012eb3840
-[    8.752122] x29: ffffffc012eb3840 x28: ffffffc010e82638
-[    8.752125] x27: ffffffc008d56440 x26: 0000000000000000
-[    8.752128] x25: ffffff81eb508200 x24: 0000000000000000
-[    8.752130] x23: ffffff81eb538800 x22: 0000000000000000
-[    8.752132] x21: 00000000fffffdfb x20: ffffff81eb538810
-[    8.752134] x19: 3d4d554e51455300 x18: 0000000000000020
-[    8.752136] x17: ffffffc008d00270 x16: ffffffc008d00c94
-[    8.752138] x15: 0000000000000004 x14: ffffff81ebd4ae90
-[    8.752140] x13: 0000000000000000 x12: ffffff81eb86a4e8
-[    8.752142] x11: ffffff81eb86a480 x10: ffffff81eb862fea
-[    8.752144] x9 : ffffffc01055fb28 x8 : ffffff81eb86a4a8
-[    8.752146] x7 : 0000000000000001 x6 : 0000000000000001
-[    8.752148] x5 : ffffff81dff8bc38 x4 : 0000000000000000
-[    8.752150] x3 : 0000000000000001 x2 : 0000000000000001
-[    8.752152] x1 : 0000000000000002 x0 : 3d4d554e51455300
-[    8.752155] Call trace:
-[    8.752157]  kobject_put+0x1c/0x21c
-[    8.752160]  put_device+0x20/0x30
-[    8.752164]  tegra_xusb_padctl_put+0x24/0x3c
-[    8.752170]  tegra_xusb_probe+0x8b0/0xd10 [xhci_tegra]
-[    8.752174]  platform_drv_probe+0x60/0xb4
-[    8.752176]  really_probe+0xf0/0x504
-[    8.752179]  driver_probe_device+0x100/0x170
-[    8.752181]  device_driver_attach+0xcc/0xd4
-[    8.752183]  __driver_attach+0xb0/0x17c
-[    8.752185]  bus_for_each_dev+0x7c/0xd4
-[    8.752187]  driver_attach+0x30/0x3c
-[    8.752189]  bus_add_driver+0x154/0x250
-[    8.752191]  driver_register+0x84/0x140
-[    8.752193]  __platform_driver_register+0x54/0x60
-[    8.752197]  tegra_xusb_init+0x40/0x1000 [xhci_tegra]
-[    8.752201]  do_one_initcall+0x54/0x2d0
-[    8.752205]  do_init_module+0x68/0x29c
-[    8.752207]  load_module+0x2178/0x26c0
-[    8.752209]  __do_sys_finit_module+0xb0/0x120
-[    8.752211]  __arm64_sys_finit_module+0x2c/0x40
-[    8.752215]  el0_svc_common.constprop.0+0x80/0x240
-[    8.752218]  do_el0_svc+0x30/0xa0
-[    8.752220]  el0_svc+0x18/0x50
-[    8.752223]  el0_sync_handler+0x90/0x318
-[    8.752225]  el0_sync+0x158/0x180
-[    8.752230] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (3940f000)
-[    8.752232] ---[ end trace 90f6c89d62d85ff5 ]---
-
-Reset the pointer on probe failure fixes the issue.
-
-Fixes: 53d2a715c2403 ("phy: Add Tegra XUSB pad controller support")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20201013095820.311376-1-maz@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Fixes: fe959c7b2049 ("iwlwifi: mvm: use the new session protection command")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201107104557.a317376154da.I44fa3637373ba4bd421cdff2cabc761bffc0735f@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/tegra/xusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/tegra/xusb.c b/drivers/phy/tegra/xusb.c
-index de4a46fe17630..ad88d74c18842 100644
---- a/drivers/phy/tegra/xusb.c
-+++ b/drivers/phy/tegra/xusb.c
-@@ -1242,6 +1242,7 @@ power_down:
- reset:
- 	reset_control_assert(padctl->rst);
- remove:
-+	platform_set_drvdata(pdev, NULL);
- 	soc->ops->remove(padctl);
- 	return err;
- }
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+index 1babc4bb5194b..da52c1e433a29 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+@@ -985,10 +985,13 @@ void iwl_mvm_stop_roc(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
+ 			IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD)) {
+ 		mvmvif = iwl_mvm_vif_from_mac80211(vif);
+ 
+-		iwl_mvm_cancel_session_protection(mvm, mvmvif);
+-
+-		if (vif->type == NL80211_IFTYPE_P2P_DEVICE)
++		if (vif->type == NL80211_IFTYPE_P2P_DEVICE) {
++			iwl_mvm_cancel_session_protection(mvm, mvmvif);
+ 			set_bit(IWL_MVM_STATUS_NEED_FLUSH_P2P, &mvm->status);
++		} else {
++			iwl_mvm_remove_aux_roc_te(mvm, mvmvif,
++						  &mvmvif->time_event_data);
++		}
+ 
+ 		iwl_mvm_roc_finished(mvm);
+ 
 -- 
 2.27.0
 
