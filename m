@@ -2,100 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8857E2CA220
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 13:10:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD552CA2B6
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 13:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727888AbgLAMJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 07:09:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42348 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727070AbgLAMJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 07:09:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1606824460;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PXfc/kqkacP1UiqS7nvKt7QqE8tU45M98d6kX6CKfRY=;
-        b=dGQXU55HFWtwAM1XWDqS48zAdfz+Q9yNytlel86KShSs25y049xBYDVKXn+q/hz5h75Xw9
-        Y0kZBbn7HMPk4K7bojIeLldJPO2ra/DNsCeUdb2wFWsShQCtzKeRRKzd+TnUT0pJmwWYXT
-        1jTtHcNSzJlfNQprsG2EYj4A8glXVtw=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-157-1EZSgYHuPoiv3Lp5P53Ryw-1; Tue, 01 Dec 2020 07:07:38 -0500
-X-MC-Unique: 1EZSgYHuPoiv3Lp5P53Ryw-1
-Received: by mail-ed1-f72.google.com with SMTP id f19so1106454edq.20
-        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 04:07:38 -0800 (PST)
+        id S1728651AbgLAMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 07:31:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55874 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727374AbgLAMbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 07:31:11 -0500
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2F7C0613D6
+        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 04:30:30 -0800 (PST)
+Received: by mail-lj1-x243.google.com with SMTP id s9so2554021ljo.11
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 04:30:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ramXbjgj53j89UgQhxIKjxJ2+FDANxAA+c6VfvLy/MM=;
+        b=GXzM2uIasBy2yUKzrIed6EjYKSguaqtku0tvKNSDySoQjEtIVGNC6LkqPGU80eiHoG
+         HWldkNasileS7dxMcgJevn/PzETYHVEVDEha5tctW3FLN3e2RGNDy/7rBlZbGlvu1knt
+         xIHx/M844C4Mmi6VUaWRyduwvhv8y+l3jAxnfboJ6DMJeUJLdhdjYOk+DtaF2HzXjNPf
+         EM4JtGKFooyNp7RPUYwBIn0FtTn4LIstf2cqpyODo2CEk68D2fvczZ0wrHPVp2D3SFs2
+         dbVT/141Gtn5Fp+06RCMIUBjnXkqYFLBtdLH5vFZWH/QqReR5CQPUr+6PMgqkNhsP2/s
+         k41A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=PXfc/kqkacP1UiqS7nvKt7QqE8tU45M98d6kX6CKfRY=;
-        b=daL/rTGjvdGmdBbtweeVRJCfChFOeyASFhiNeggPnBagKi6XBov6XcUGvq8F1EZh75
-         l4MU5NZnkastiqNR2qcplcHvxNX2OLGEBmoFZqX50lKXclkrCq114LjenJG/bRoJY03O
-         BCT/c42B9AhRlGpYlqrphm9tptnhgbOlF/clccHZAzMkhRtG4hnJcTZufzXDPRH1s190
-         2bDmRpYWvbKvJViK+OmbktZxtyZqn5+EjLFapQT75hvuaQ09ssIonkf3FokYs6QHUspu
-         DJeLXbIbbe0kj/yK7Ftc5x4J+6+TuMRxwcSLI9ufBlMHbI9vFhnTV7t2D0ItHiNUeenj
-         FdSQ==
-X-Gm-Message-State: AOAM530LnxH/uxa3TV8J7x990Up27Tlyak0FIGITo+C0PUgvOClQieZK
-        A3+L82LnJDaZpxaMAcsZuXLIWfrdKxakV7D8+bFY1C1/c3gBp/bWyabkY4yu0b0YlTQmFvJodkh
-        Tp53W0QovAvZpoRIu
-X-Received: by 2002:aa7:c403:: with SMTP id j3mr2619821edq.217.1606824457752;
-        Tue, 01 Dec 2020 04:07:37 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx1DxtyPC6a1zqrYWrdj42DEWp1B5nUpOxzqYzTrKSPNVvFKMo0ahsqcxwarIESgnaxjNMXjQ==
-X-Received: by 2002:aa7:c403:: with SMTP id j3mr2619797edq.217.1606824457604;
-        Tue, 01 Dec 2020 04:07:37 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id u19sm750026ejg.16.2020.12.01.04.07.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Dec 2020 04:07:36 -0800 (PST)
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Nikos Tsironis <ntsironis@arrikto.com>
-References: <20201201084647.751612010@linuxfoundation.org>
- <20201201084648.690944071@linuxfoundation.org>
- <d29c4b25-33f6-8d99-7a45-8f4e06f5ade6@redhat.com>
- <X8YThgeaonYhB6zi@kroah.com>
- <fe3fa32b-fc84-9e81-80e0-cb19889fc042@redhat.com>
- <X8YY2qW3RQqzmmBl@kroah.com>
- <d3311713-013b-003c-248b-22ebf1e45c7c@redhat.com>
- <X8YlUlSXLH5/RckV@kroah.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 4.19 08/57] KVM: x86: Fix split-irqchip vs interrupt
- injection window request
-Message-ID: <41931e4a-45a5-5ef2-317d-a2a5ae649357@redhat.com>
-Date:   Tue, 1 Dec 2020 13:07:36 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        bh=ramXbjgj53j89UgQhxIKjxJ2+FDANxAA+c6VfvLy/MM=;
+        b=swxAoKSNQmVFGAFiypAnKMNz5O/6VNQZfUX45WzmmsjU+BdcPv4CYmiK39+hUYTwV6
+         iLkVwZ7wBZS1FJ7Mn6jihUEldoNUNwBQdD0gv18ZJjRFi218dw51PuM9QzEICSWK5qmM
+         uGv0ioTFNc1lK7TINrfywhmmT2B+uEEW11XoY+ZI/UxMwcgXf3ar3nLMFAUBZs9sGM1J
+         7sH4Nc2eocnYBphifUxrHNYcIhjDo3ocZ5DlpGonDfHKFOvQVi9+RhAvUoAhx4EmdutB
+         qFceBg6URhHNM0ShM/ND7fww6u2ZautO0drX4CXOSldljTl6cvEAgOYSJSHgu/pJ43d6
+         Rv+Q==
+X-Gm-Message-State: AOAM532b3ayt9/qyBpSqfqo2LhrithTUC+GRct/aQJoimEdrHcQWcJ7P
+        ZqTRHqVQDZoNhwYm19PTK1Rwig==
+X-Google-Smtp-Source: ABdhPJxffjofMUCE9hCOZl04nzYJOPHxcT/AND+7H6EujYSsA+Rhk6txI5PEGcrjVdUUOaaaz6mMkw==
+X-Received: by 2002:a2e:b4e1:: with SMTP id s1mr1140952ljm.374.1606825829206;
+        Tue, 01 Dec 2020 04:30:29 -0800 (PST)
+Received: from localhost.bredbandsbolaget (c-92d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.146])
+        by smtp.gmail.com with ESMTPSA id y81sm193148lfc.100.2020.12.01.04.30.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Dec 2020 04:30:28 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Andre=20M=C3=BCller?= <andre.muller@web.de>,
+        Nick Dyer <nick.dyer@itdev.co.uk>,
+        Jiada Wang <jiada_wang@mentor.com>, stable@vger.kernel.org
+Subject: [PATCH v3] Input: atmel_mxt_ts - Fix lost interrupts
+Date:   Tue,  1 Dec 2020 13:30:26 +0100
+Message-Id: <20201201123026.1416743-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <X8YlUlSXLH5/RckV@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01/12/20 12:13, Greg Kroah-Hartman wrote:
-> If you look at the section onhttps://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> that starts with "Additionally, some patches..." it will show that you
-> can add "#" comments on the cc: stable line to let me know pre-requsite
-> commits if you know them, and want to do that in the future.
+After commit 74d905d2d38a devices requiring the workaround
+for edge triggered interrupts stopped working.
 
-Yeah, I guess that one applies even if it was submitted in the same pull 
-request.  I have used it in the past but not for patches that were 
-submitted in the same pull request, so in this case I should have marked 
-patch 2 like this:
+The hardware needs the quirk to be used before even
+proceeding to check if the quirk is needed because
+mxt_acquire_irq() is called before mxt_check_retrigen()
+is called and at this point pending IRQs need to be
+checked, and if the workaround is not active, all
+interrupts will be lost from this point.
 
-Cc: stable@vger.kernel.org # 4.4.x: 123456: kvm: patch 1 in the series
-Cc: stable@vger.kernel.org # 4.4.x
+Solve this by switching the calls around.
 
-instead of marking both patches with just "Cc: stable".  Upstream commit 
-fcb3a1ab79904d54499db77017793ccca665eb7e is one case in which Rafael did 
-this.
+Cc: Andre Müller <andre.muller@web.de>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Jiada Wang <jiada_wang@mentor.com>
+Cc: stable@vger.kernel.org
+Reported-by: Andre Müller <andre.muller@web.de>
+Tested-by: Andre Müller <andre.muller@web.de>
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v2->v3:
+- Make the simpler fix suggested by Dmitry.
+- Collect Andre's Tested-by.
+ChangeLog v1->v2:
+- Explicitly disable the retrig workaround also if the
+  IRQ descriptor says we have a level triggered interrupt.
+- Drop the second explicit assigning of "true" to the
+  use_retrigen_workaround bool, it is already enabled.
+- Augment debug text to say that we leave it enabled
+  rather than enable it.
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Paolo
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index e34984388791..109655547477 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2185,11 +2185,11 @@ static int mxt_initialize(struct mxt_data *data)
+ 		msleep(MXT_FW_RESET_TIME);
+ 	}
+ 
+-	error = mxt_acquire_irq(data);
++	error = mxt_check_retrigen(data);
+ 	if (error)
+ 		return error;
+ 
+-	error = mxt_check_retrigen(data);
++	error = mxt_acquire_irq(data);
+ 	if (error)
+ 		return error;
+ 
+-- 
+2.26.2
 
