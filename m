@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2FE2C9B6D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F6D2C9B70
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389194AbgLAJIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:08:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
+        id S2389232AbgLAJI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:08:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389181AbgLAJIR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:08:17 -0500
+        id S2389221AbgLAJI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B12782067D;
-        Tue,  1 Dec 2020 09:08:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A81FB206CA;
+        Tue,  1 Dec 2020 09:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813681;
-        bh=0ZKrzedkeNaQQav56syj/ZPxW7yKpfWqhJQGXPQPkac=;
+        s=korg; t=1606813684;
+        bh=P7xgj838hqxXBue6fEyOp3fcYfutepcV+JG4HL6sZAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSZi3euRtWOSS6IRz+Ps9oKFYNtzWgmPZITQXxjrF3fbJ3FUp4S/fJn2jtOof7nXK
-         Je6yaStEMLDgLUPD6ywk2IINso8akPXeOMN0QWdFter7/S5OrcwlEv0sBYmPJ/qcML
-         WhlFFqabtk4pDWTx+ohiQEFDiWV38S1Pyunt2CKA=
+        b=hvk39uAOpQ9F55dZ+aEW70MIi0HWf85XFbW/POjNX5ZQLJjlTGV6I3tL6a2DmVPtI
+         hxhTfF87syvTbnMBofcSLf15QGn1DsUd0ndnh3aZndkkNp/m9eWbzNLQGBsb8RBkPU
+         1ZCEmlkcZsIRmu4yT+jVoaZxzceYTKrulCFv67Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keqian Zhu <zhukeqian1@huawei.com>,
-        Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Eric Auger <eric.auger@redhat.com>
-Subject: [PATCH 5.9 023/152] KVM: arm64: vgic-v3: Drop the reporting of GICR_TYPER.Last for userspace
-Date:   Tue,  1 Dec 2020 09:52:18 +0100
-Message-Id: <20201201084714.917455697@linuxfoundation.org>
+        stable@vger.kernel.org, Filippo Sironi <sironi@amazon.de>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.9 024/152] KVM: x86: handle !lapic_in_kernel case in kvm_cpu_*_extint
+Date:   Tue,  1 Dec 2020 09:52:19 +0100
+Message-Id: <20201201084715.047445468@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -44,79 +43,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 23bde34771f1ea92fb5e6682c0d8c04304d34b3b upstream.
+commit 72c3bcdcda494cbd600712a32e67702cdee60c07 upstream.
 
-It was recently reported that if GICR_TYPER is accessed before the RD base
-address is set, we'll suffer from the unset @rdreg dereferencing. Oops...
+Centralize handling of interrupts from the userspace APIC
+in kvm_cpu_has_extint and kvm_cpu_get_extint, since
+userspace APIC interrupts are handled more or less the
+same as ExtINTs are with split irqchip.  This removes
+duplicated code from kvm_cpu_has_injectable_intr and
+kvm_cpu_has_interrupt, and makes the code more similar
+between kvm_cpu_has_{extint,interrupt} on one side
+and kvm_cpu_get_{extint,interrupt} on the other.
 
-	gpa_t last_rdist_typer = rdreg->base + GICR_TYPER +
-			(rdreg->free_index - 1) * KVM_VGIC_V3_REDIST_SIZE;
-
-It's "expected" that users will access registers in the redistributor if
-the RD has been properly configured (e.g., the RD base address is set). But
-it hasn't yet been covered by the existing documentation.
-
-Per discussion on the list [1], the reporting of the GICR_TYPER.Last bit
-for userspace never actually worked. And it's difficult for us to emulate
-it correctly given that userspace has the flexibility to access it any
-time. Let's just drop the reporting of the Last bit for userspace for now
-(userspace should have full knowledge about it anyway) and it at least
-prevents kernel from panic ;-)
-
-[1] https://lore.kernel.org/kvmarm/c20865a267e44d1e2c0d52ce4e012263@kernel.org/
-
-Fixes: ba7b3f1275fd ("KVM: arm/arm64: Revisit Redistributor TYPER last bit computation")
-Reported-by: Keqian Zhu <zhukeqian1@huawei.com>
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Link: https://lore.kernel.org/r/20201117151629.1738-1-yuzenghui@huawei.com
 Cc: stable@vger.kernel.org
+Reviewed-by: Filippo Sironi <sironi@amazon.de>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+Tested-by: David Woodhouse <dwmw@amazon.co.uk>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kvm/vgic/vgic-mmio-v3.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/x86/kvm/irq.c   |   83 ++++++++++++++++++++-------------------------------
+ arch/x86/kvm/lapic.c |    2 -
+ 2 files changed, 34 insertions(+), 51 deletions(-)
 
---- a/arch/arm64/kvm/vgic/vgic-mmio-v3.c
-+++ b/arch/arm64/kvm/vgic/vgic-mmio-v3.c
-@@ -273,6 +273,23 @@ static unsigned long vgic_mmio_read_v3r_
- 	return extract_bytes(value, addr & 7, len);
- }
+--- a/arch/x86/kvm/irq.c
++++ b/arch/x86/kvm/irq.c
+@@ -42,27 +42,8 @@ static int pending_userspace_extint(stru
+  */
+ static int kvm_cpu_has_extint(struct kvm_vcpu *v)
+ {
+-	u8 accept = kvm_apic_accept_pic_intr(v);
+-
+-	if (accept) {
+-		if (irqchip_split(v->kvm))
+-			return pending_userspace_extint(v);
+-		else
+-			return v->kvm->arch.vpic->output;
+-	} else
+-		return 0;
+-}
+-
+-/*
+- * check if there is injectable interrupt:
+- * when virtual interrupt delivery enabled,
+- * interrupt from apic will handled by hardware,
+- * we don't need to check it here.
+- */
+-int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
+-{
+ 	/*
+-	 * FIXME: interrupt.injected represents an interrupt that it's
++	 * FIXME: interrupt.injected represents an interrupt whose
+ 	 * side-effects have already been applied (e.g. bit from IRR
+ 	 * already moved to ISR). Therefore, it is incorrect to rely
+ 	 * on interrupt.injected to know if there is a pending
+@@ -75,6 +56,23 @@ int kvm_cpu_has_injectable_intr(struct k
+ 	if (!lapic_in_kernel(v))
+ 		return v->arch.interrupt.injected;
  
-+static unsigned long vgic_uaccess_read_v3r_typer(struct kvm_vcpu *vcpu,
-+						 gpa_t addr, unsigned int len)
-+{
-+	unsigned long mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
-+	int target_vcpu_id = vcpu->vcpu_id;
-+	u64 value;
++	if (!kvm_apic_accept_pic_intr(v))
++		return 0;
 +
-+	value = (u64)(mpidr & GENMASK(23, 0)) << 32;
-+	value |= ((target_vcpu_id & 0xffff) << 8);
-+
-+	if (vgic_has_its(vcpu->kvm))
-+		value |= GICR_TYPER_PLPIS;
-+
-+	/* reporting of the Last bit is not supported for userspace */
-+	return extract_bytes(value, addr & 7, len);
++	if (irqchip_split(v->kvm))
++		return pending_userspace_extint(v);
++	else
++		return v->kvm->arch.vpic->output;
 +}
 +
- static unsigned long vgic_mmio_read_v3r_iidr(struct kvm_vcpu *vcpu,
- 					     gpa_t addr, unsigned int len)
++/*
++ * check if there is injectable interrupt:
++ * when virtual interrupt delivery enabled,
++ * interrupt from apic will handled by hardware,
++ * we don't need to check it here.
++ */
++int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
++{
+ 	if (kvm_cpu_has_extint(v))
+ 		return 1;
+ 
+@@ -91,20 +89,6 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_injectable
+  */
+ int kvm_cpu_has_interrupt(struct kvm_vcpu *v)
  {
-@@ -593,8 +610,9 @@ static const struct vgic_register_region
- 	REGISTER_DESC_WITH_LENGTH(GICR_IIDR,
- 		vgic_mmio_read_v3r_iidr, vgic_mmio_write_wi, 4,
- 		VGIC_ACCESS_32bit),
--	REGISTER_DESC_WITH_LENGTH(GICR_TYPER,
--		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi, 8,
-+	REGISTER_DESC_WITH_LENGTH_UACCESS(GICR_TYPER,
-+		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi,
-+		vgic_uaccess_read_v3r_typer, vgic_mmio_uaccess_write_wi, 8,
- 		VGIC_ACCESS_64bit | VGIC_ACCESS_32bit),
- 	REGISTER_DESC_WITH_LENGTH(GICR_WAKER,
- 		vgic_mmio_read_raz, vgic_mmio_write_wi, 4,
+-	/*
+-	 * FIXME: interrupt.injected represents an interrupt that it's
+-	 * side-effects have already been applied (e.g. bit from IRR
+-	 * already moved to ISR). Therefore, it is incorrect to rely
+-	 * on interrupt.injected to know if there is a pending
+-	 * interrupt in the user-mode LAPIC.
+-	 * This leads to nVMX/nSVM not be able to distinguish
+-	 * if it should exit from L2 to L1 on EXTERNAL_INTERRUPT on
+-	 * pending interrupt or should re-inject an injected
+-	 * interrupt.
+-	 */
+-	if (!lapic_in_kernel(v))
+-		return v->arch.interrupt.injected;
+-
+ 	if (kvm_cpu_has_extint(v))
+ 		return 1;
+ 
+@@ -118,16 +102,21 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_interrupt)
+  */
+ static int kvm_cpu_get_extint(struct kvm_vcpu *v)
+ {
+-	if (kvm_cpu_has_extint(v)) {
+-		if (irqchip_split(v->kvm)) {
+-			int vector = v->arch.pending_external_vector;
+-
+-			v->arch.pending_external_vector = -1;
+-			return vector;
+-		} else
+-			return kvm_pic_read_irq(v->kvm); /* PIC */
+-	} else
++	if (!kvm_cpu_has_extint(v)) {
++		WARN_ON(!lapic_in_kernel(v));
+ 		return -1;
++	}
++
++	if (!lapic_in_kernel(v))
++		return v->arch.interrupt.nr;
++
++	if (irqchip_split(v->kvm)) {
++		int vector = v->arch.pending_external_vector;
++
++		v->arch.pending_external_vector = -1;
++		return vector;
++	} else
++		return kvm_pic_read_irq(v->kvm); /* PIC */
+ }
+ 
+ /*
+@@ -135,13 +124,7 @@ static int kvm_cpu_get_extint(struct kvm
+  */
+ int kvm_cpu_get_interrupt(struct kvm_vcpu *v)
+ {
+-	int vector;
+-
+-	if (!lapic_in_kernel(v))
+-		return v->arch.interrupt.nr;
+-
+-	vector = kvm_cpu_get_extint(v);
+-
++	int vector = kvm_cpu_get_extint(v);
+ 	if (vector != -1)
+ 		return vector;			/* PIC */
+ 
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2461,7 +2461,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
+ 	struct kvm_lapic *apic = vcpu->arch.apic;
+ 	u32 ppr;
+ 
+-	if (!kvm_apic_hw_enabled(apic))
++	if (!kvm_apic_present(vcpu))
+ 		return -1;
+ 
+ 	__apic_update_ppr(apic, &ppr);
 
 
