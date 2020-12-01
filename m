@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CC92C9DB2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E06C2C9D20
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390992AbgLAJ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
+        id S2390742AbgLAJTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:19:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388076AbgLAJDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:15 -0500
+        id S2389644AbgLAJKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CF9121D46;
-        Tue,  1 Dec 2020 09:02:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E0F9221FF;
+        Tue,  1 Dec 2020 09:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813354;
-        bh=Gu96mcO+nGWy8bt29fA43kKSGfZAAzgtLim6dgv0Ptw=;
+        s=korg; t=1606813771;
+        bh=IBKo153u6tCyF/G1i86IGoLG+Sjwvg5SFXRm9IGDGj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoQDcAlrS5Z+lPUskPUN1wuv2cefVdogIGB8iPGbds9CxtdSrJYMlHdRVuvV2Lh7/
-         oCLUXwsIcZWmm+xSRfq6EaonsQeQa6L0mZ9+Rpz6BRR8Bh/QzsznfTl2wk2BeY3GR0
-         xR/XS2wiZ4EerP5vMl3gygastzQ6OsNh8L+FwAVU=
+        b=aHEUdwUzWNRuYkhInCWDHOYhXji1sdh0McWHnUkULkTAkHMa76ZjQh2xO8qIWgUat
+         Q1geRIH/+pDS9JoRSsjKH1TJJiUVD+SGMrEWAlEc2W6x1iESrjvT0sAAS2ClqEUemq
+         DQCUqJw8657bLKWTURjLD+Yl19fnXbsVvi0bvHYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 11/98] smb3: Avoid Mid pending list corruption
-Date:   Tue,  1 Dec 2020 09:52:48 +0100
-Message-Id: <20201201084654.168120858@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 054/152] io_uring: handle -EOPNOTSUPP on path resolution
+Date:   Tue,  1 Dec 2020 09:52:49 +0100
+Message-Id: <20201201084719.013832675@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,160 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohith Surabattula <rohiths@microsoft.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit ac873aa3dc21707c47db5db6608b38981c731afe upstream.
+[ Upstream commit 944d1444d53f5a213457e5096db370cfd06923d4 ]
 
-When reconnect happens Mid queue can be corrupted when both
-demultiplex and offload thread try to dequeue the MID from the
-pending list.
+Any attempt to do path resolution on /proc/self from an async worker will
+yield -EOPNOTSUPP. We can safely do that resolution from the task itself,
+and without blocking, so retry it from there.
 
-These patches address a problem found during decryption offload:
-         CIFS: VFS: trying to dequeue a deleted mid
-that could cause a refcount use after free:
-         Workqueue: smb3decryptd smb2_decrypt_offload [cifs]
+Ideally io_uring would know this upfront and not have to go through the
+worker thread to find out, but that doesn't currently seem feasible.
 
-Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org> #5.4+
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c |   55 +++++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 46 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -259,7 +259,7 @@ smb2_revert_current_mid(struct TCP_Serve
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 185c206e5683f..5d9f8e40b93d3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -436,6 +436,7 @@ struct io_sr_msg {
+ struct io_open {
+ 	struct file			*file;
+ 	int				dfd;
++	bool				ignore_nonblock;
+ 	struct filename			*filename;
+ 	struct open_how			how;
+ 	unsigned long			nofile;
+@@ -3591,6 +3592,7 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 		return ret;
+ 	}
+ 	req->open.nofile = rlimit(RLIMIT_NOFILE);
++	req->open.ignore_nonblock = false;
+ 	req->flags |= REQ_F_NEED_CLEANUP;
+ 	return 0;
  }
+@@ -3638,7 +3640,7 @@ static int io_openat2(struct io_kiocb *req, bool force_nonblock)
+ 	struct file *file;
+ 	int ret;
  
- static struct mid_q_entry *
--smb2_find_mid(struct TCP_Server_Info *server, char *buf)
-+__smb2_find_mid(struct TCP_Server_Info *server, char *buf, bool dequeue)
- {
- 	struct mid_q_entry *mid;
- 	struct smb2_sync_hdr *shdr = (struct smb2_sync_hdr *)buf;
-@@ -276,6 +276,10 @@ smb2_find_mid(struct TCP_Server_Info *se
- 		    (mid->mid_state == MID_REQUEST_SUBMITTED) &&
- 		    (mid->command == shdr->Command)) {
- 			kref_get(&mid->refcount);
-+			if (dequeue) {
-+				list_del_init(&mid->qhead);
-+				mid->mid_flags |= MID_DELETED;
-+			}
- 			spin_unlock(&GlobalMid_Lock);
- 			return mid;
- 		}
-@@ -284,6 +288,18 @@ smb2_find_mid(struct TCP_Server_Info *se
- 	return NULL;
- }
+-	if (force_nonblock)
++	if (force_nonblock && !req->open.ignore_nonblock)
+ 		return -EAGAIN;
  
-+static struct mid_q_entry *
-+smb2_find_mid(struct TCP_Server_Info *server, char *buf)
-+{
-+	return __smb2_find_mid(server, buf, false);
-+}
-+
-+static struct mid_q_entry *
-+smb2_find_dequeue_mid(struct TCP_Server_Info *server, char *buf)
-+{
-+	return __smb2_find_mid(server, buf, true);
-+}
-+
- static void
- smb2_dump_detail(void *buf, struct TCP_Server_Info *server)
- {
-@@ -4028,7 +4044,10 @@ handle_read_data(struct TCP_Server_Info
- 		cifs_dbg(FYI, "%s: server returned error %d\n",
- 			 __func__, rdata->result);
- 		/* normal error on read response */
--		dequeue_mid(mid, false);
-+		if (is_offloaded)
-+			mid->mid_state = MID_RESPONSE_RECEIVED;
-+		else
-+			dequeue_mid(mid, false);
- 		return 0;
- 	}
- 
-@@ -4052,7 +4071,10 @@ handle_read_data(struct TCP_Server_Info
- 		cifs_dbg(FYI, "%s: data offset (%u) beyond end of smallbuf\n",
- 			 __func__, data_offset);
- 		rdata->result = -EIO;
--		dequeue_mid(mid, rdata->result);
-+		if (is_offloaded)
-+			mid->mid_state = MID_RESPONSE_MALFORMED;
-+		else
-+			dequeue_mid(mid, rdata->result);
- 		return 0;
- 	}
- 
-@@ -4068,21 +4090,30 @@ handle_read_data(struct TCP_Server_Info
- 			cifs_dbg(FYI, "%s: data offset (%u) beyond 1st page of response\n",
- 				 __func__, data_offset);
- 			rdata->result = -EIO;
--			dequeue_mid(mid, rdata->result);
-+			if (is_offloaded)
-+				mid->mid_state = MID_RESPONSE_MALFORMED;
-+			else
-+				dequeue_mid(mid, rdata->result);
- 			return 0;
- 		}
- 
- 		if (data_len > page_data_size - pad_len) {
- 			/* data_len is corrupt -- discard frame */
- 			rdata->result = -EIO;
--			dequeue_mid(mid, rdata->result);
-+			if (is_offloaded)
-+				mid->mid_state = MID_RESPONSE_MALFORMED;
-+			else
-+				dequeue_mid(mid, rdata->result);
- 			return 0;
- 		}
- 
- 		rdata->result = init_read_bvec(pages, npages, page_data_size,
- 					       cur_off, &bvec);
- 		if (rdata->result != 0) {
--			dequeue_mid(mid, rdata->result);
-+			if (is_offloaded)
-+				mid->mid_state = MID_RESPONSE_MALFORMED;
-+			else
-+				dequeue_mid(mid, rdata->result);
- 			return 0;
- 		}
- 
-@@ -4097,7 +4128,10 @@ handle_read_data(struct TCP_Server_Info
- 		/* read response payload cannot be in both buf and pages */
- 		WARN_ONCE(1, "buf can not contain only a part of read data");
- 		rdata->result = -EIO;
--		dequeue_mid(mid, rdata->result);
-+		if (is_offloaded)
-+			mid->mid_state = MID_RESPONSE_MALFORMED;
-+		else
-+			dequeue_mid(mid, rdata->result);
- 		return 0;
- 	}
- 
-@@ -4108,7 +4142,10 @@ handle_read_data(struct TCP_Server_Info
- 	if (length < 0)
- 		return length;
- 
--	dequeue_mid(mid, false);
-+	if (is_offloaded)
-+		mid->mid_state = MID_RESPONSE_RECEIVED;
-+	else
-+		dequeue_mid(mid, false);
- 	return length;
- }
- 
-@@ -4137,7 +4174,7 @@ static void smb2_decrypt_offload(struct
- 	}
- 
- 	dw->server->lstrp = jiffies;
--	mid = smb2_find_mid(dw->server, dw->buf);
-+	mid = smb2_find_dequeue_mid(dw->server, dw->buf);
- 	if (mid == NULL)
- 		cifs_dbg(FYI, "mid not found\n");
- 	else {
+ 	ret = build_open_flags(&req->open.how, &op);
+@@ -3653,6 +3655,21 @@ static int io_openat2(struct io_kiocb *req, bool force_nonblock)
+ 	if (IS_ERR(file)) {
+ 		put_unused_fd(ret);
+ 		ret = PTR_ERR(file);
++		/*
++		 * A work-around to ensure that /proc/self works that way
++		 * that it should - if we get -EOPNOTSUPP back, then assume
++		 * that proc_self_get_link() failed us because we're in async
++		 * context. We should be safe to retry this from the task
++		 * itself with force_nonblock == false set, as it should not
++		 * block on lookup. Would be nice to know this upfront and
++		 * avoid the async dance, but doesn't seem feasible.
++		 */
++		if (ret == -EOPNOTSUPP && io_wq_current_is_worker()) {
++			req->open.ignore_nonblock = true;
++			refcount_inc(&req->refs);
++			io_req_task_queue(req);
++			return 0;
++		}
+ 	} else {
+ 		fsnotify_open(file);
+ 		fd_install(ret, file);
+-- 
+2.27.0
+
 
 
