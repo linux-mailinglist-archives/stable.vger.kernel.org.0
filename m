@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BF52C9B8C
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6038E2C9B74
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388690AbgLAJJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:09:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
+        id S2389277AbgLAJIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:08:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389517AbgLAJJd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:09:33 -0500
+        id S2389266AbgLAJIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:36 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCC7C20770;
-        Tue,  1 Dec 2020 09:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDE2D22245;
+        Tue,  1 Dec 2020 09:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813733;
-        bh=9NQSs2pV/lw8jVG7ThGGPQaP3xQQuuedXNb07Ko2Bpc=;
+        s=korg; t=1606813675;
+        bh=OIl2PaLR6m+mUydIo7T59Uy4mlHqDn+kQDtyLPEktvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJ38f/lrCYuN07lJz86rI5HQr3DuhpVuklaDYa2pIf57o483pjxjd1LlLcW1ebraD
-         vkWTE60dsjKW+PNfI4WrLJrQjX4whouoFnaflOz0ULoFynqJgUUezGarPElqUroWQa
-         NVI1hiISJCIRN+a+v/f3MU+XR6OEdDgeLdGBqXG8=
+        b=rGpOLu8VQqTynyZLFGZkUaUiJHkgcZo8T8r2iJUqVsyMGsfeXRCSmzLBmjmLJ9WCw
+         Yvwz7XY73iQhAwgQUiSrdZJfoLUbLooaNY6QuhfKILZrqw1kXfpsU8BSlHsmq/Ugfy
+         LJizv9BpRIZ+KF8XRzNPewUiT9+xLgGQPyKcKHe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Subject: [PATCH 5.9 013/152] rtc: pcf2127: fix a bug when not specify interrupts property
-Date:   Tue,  1 Dec 2020 09:52:08 +0100
-Message-Id: <20201201084713.610715337@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 021/152] powerpc/64s/exception: KVM Fix for host DSI being taken in HPT guest MMU context
+Date:   Tue,  1 Dec 2020 09:52:16 +0100
+Message-Id: <20201201084714.627633394@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,44 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 35425bafc772ee189e3c3790d7c672b80ba65909 upstream.
+commit cd81acc600a9684ea4b4d25a47900d38a3890eab upstream.
 
-Fix a bug when not specify interrupts property in dts
-as follows,
-    rtc-pcf2127-i2c 1-0051: failed to request alarm irq
-    rtc-pcf2127-i2c: probe of 1-0051 failed with error -22
+Commit 2284ffea8f0c ("powerpc/64s/exception: Only test KVM in SRR
+interrupts when PR KVM is supported") removed KVM guest tests from
+interrupts that do not set HV=1, when PR-KVM is not configured.
 
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200915073213.12779-1-biwen.li@oss.nxp.com
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+This is wrong for HV-KVM HPT guest MMIO emulation case which attempts
+to load the faulting instruction word with MSR[DR]=1 and MSR[HV]=1 with
+the guest MMU context loaded. This can cause host DSI, DSLB interrupts
+which must test for KVM guest. Restore this and add a comment.
+
+Fixes: 2284ffea8f0c ("powerpc/64s/exception: Only test KVM in SRR interrupts when PR KVM is supported")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201117135617.3521127-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-pcf2127.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -559,7 +559,7 @@ static int pcf2127_probe(struct device *
- 	pcf2127->rtc->set_start_time = true; /* Sets actual start to 1970 */
- 	pcf2127->rtc->uie_unsupported = 1;
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1410,6 +1410,11 @@ END_FTR_SECTION_IFSET(CPU_FTR_HVMODE)
+  *   If none is found, do a Linux page fault. Linux page faults can happen in
+  *   kernel mode due to user copy operations of course.
+  *
++ *   KVM: The KVM HDSI handler may perform a load with MSR[DR]=1 in guest
++ *   MMU context, which may cause a DSI in the host, which must go to the
++ *   KVM handler. MSR[IR] is not enabled, so the real-mode handler will
++ *   always be used regardless of AIL setting.
++ *
+  * - Radix MMU
+  *   The hardware loads from the Linux page table directly, so a fault goes
+  *   immediately to Linux page fault.
+@@ -1420,10 +1425,8 @@ INT_DEFINE_BEGIN(data_access)
+ 	IVEC=0x300
+ 	IDAR=1
+ 	IDSISR=1
+-#ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
+ 	IKVM_SKIP=1
+ 	IKVM_REAL=1
+-#endif
+ INT_DEFINE_END(data_access)
  
--	if (alarm_irq >= 0) {
-+	if (alarm_irq > 0) {
- 		ret = devm_request_threaded_irq(dev, alarm_irq, NULL,
- 						pcf2127_rtc_irq,
- 						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-@@ -570,7 +570,7 @@ static int pcf2127_probe(struct device *
- 		}
- 	}
+ EXC_REAL_BEGIN(data_access, 0x300, 0x80)
+@@ -1462,6 +1465,8 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
+  *   ppc64_bolted_size (first segment). The kernel handler must avoid stomping
+  *   on user-handler data structures.
+  *
++ *   KVM: Same as 0x300, DSLB must test for KVM guest.
++ *
+  * A dedicated save area EXSLB is used (XXX: but it actually need not be
+  * these days, we could use EXGEN).
+  */
+@@ -1470,10 +1475,8 @@ INT_DEFINE_BEGIN(data_access_slb)
+ 	IAREA=PACA_EXSLB
+ 	IRECONCILE=0
+ 	IDAR=1
+-#ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
+ 	IKVM_SKIP=1
+ 	IKVM_REAL=1
+-#endif
+ INT_DEFINE_END(data_access_slb)
  
--	if (alarm_irq >= 0 || device_property_read_bool(dev, "wakeup-source")) {
-+	if (alarm_irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
- 		device_init_wakeup(dev, true);
- 		pcf2127->rtc->ops = &pcf2127_rtc_alrm_ops;
- 	}
+ EXC_REAL_BEGIN(data_access_slb, 0x380, 0x80)
 
 
