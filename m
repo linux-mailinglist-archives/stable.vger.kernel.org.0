@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC862C9D5F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 763E42C9D61
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727747AbgLAJWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:22:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44780 "EHLO mail.kernel.org"
+        id S1729392AbgLAJWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:22:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388638AbgLAJHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:07:44 -0500
+        id S2389130AbgLAJHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:07:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C47421D7A;
-        Tue,  1 Dec 2020 09:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D9C622249;
+        Tue,  1 Dec 2020 09:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813622;
-        bh=BbU6Hr7e+pRq9nrVXXo1dwEeD1dgrs25CEtb8rFAtv0=;
+        s=korg; t=1606813625;
+        bh=3X7nDeaHGV8ca1bsDthpExKd61Y42M88KLXSYxDFZUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X60VwPzBHglZVuWdOoPb6YFdRs21PHCRHPFHvH0J9iD8ORLXG2uslz7tuxLFui0DF
-         apg+LjyegVVYo3aaJOEauXjrHwwhsNZCOCSdNEdAzsuGuRB+rWObU+DkSSQZebPze/
-         S2QSwucKbcL+yx3sIIMt/ARvaVgGLrXlRuIc7TjY=
+        b=Y6jSkLP2TnJ26daDMQI/4iYYCFW0BbJo3n3p10NEws2c6dmgg4DIl3VZtbqRyhXDN
+         zo10xkjwgMEYr+HkOnvGFxWxvryxG8K6EVifhMGRxz/oWroW8sT5Ib1MD5v+wQTtBf
+         8P8TIie8dl3T1FQ37pGSbyAJ8IPEmxuj2MvEFLZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Cezary Rojewski <cezary.rojewski@intel.com>
-Subject: [PATCH 5.4 95/98] ASoC: Intel: Allow for ROM init retry on CNL platforms
-Date:   Tue,  1 Dec 2020 09:54:12 +0100
-Message-Id: <20201201084659.719019674@linuxfoundation.org>
+Subject: [PATCH 5.4 96/98] ASoC: Intel: Skylake: Await purge request ack on CNL
+Date:   Tue,  1 Dec 2020 09:54:13 +0100
+Message-Id: <20201201084659.771053432@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
 References: <20201201084652.827177826@linuxfoundation.org>
@@ -49,84 +49,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-commit 024aa45f55ccd40704cfdef61b2a8b6d0de9cdd1 upstream.
+commit 7693cadac86548b30389a6e11d78c38db654f393 upstream.
 
-Due to unconditional initial timeouts, firmware may fail to load during
-its initialization. This issue cannot be resolved on driver side as it
-is caused by external sources such as CSME but has to be accounted for
-nonetheless.
+Each purge request is sent by driver after master core is powered up and
+unresetted but before it is unstalled. On unstall, ROM begins processing
+the request and initializing environment for FW load. Host should await
+ROM's ack before moving forward. Without doing so, ROM init poll may
+start too early and false timeouts can occur.
 
 Fixes: cb6a55284629 ("ASoC: Intel: cnl: Add sst library functions for cnl platform")
 Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200305145314.32579-7-cezary.rojewski@intel.com
+Link: https://lore.kernel.org/r/20200305145314.32579-8-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: <stable@vger.kernel.org> # 5.4.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/skylake/bxt-sst.c     |    2 --
- sound/soc/intel/skylake/cnl-sst.c     |   15 ++++++++++-----
+ sound/soc/intel/skylake/bxt-sst.c     |    1 -
+ sound/soc/intel/skylake/cnl-sst.c     |   20 ++++++++++++++++++--
  sound/soc/intel/skylake/skl-sst-dsp.h |    1 +
- 3 files changed, 11 insertions(+), 7 deletions(-)
+ 3 files changed, 19 insertions(+), 3 deletions(-)
 
 --- a/sound/soc/intel/skylake/bxt-sst.c
 +++ b/sound/soc/intel/skylake/bxt-sst.c
-@@ -38,8 +38,6 @@
- /* Delay before scheduling D0i3 entry */
- #define BXT_D0I3_DELAY 5000
+@@ -17,7 +17,6 @@
+ #include "skl.h"
  
--#define BXT_FW_ROM_INIT_RETRY 3
--
- static unsigned int bxt_get_errorcode(struct sst_dsp *ctx)
- {
- 	 return sst_dsp_shim_read(ctx, BXT_ADSP_ERROR_CODE);
+ #define BXT_BASEFW_TIMEOUT	3000
+-#define BXT_INIT_TIMEOUT	300
+ #define BXT_ROM_INIT_TIMEOUT	70
+ #define BXT_IPC_PURGE_FW	0x01004000
+ 
 --- a/sound/soc/intel/skylake/cnl-sst.c
 +++ b/sound/soc/intel/skylake/cnl-sst.c
-@@ -109,7 +109,7 @@ static int cnl_load_base_firmware(struct
- {
- 	struct firmware stripped_fw;
- 	struct skl_dev *cnl = ctx->thread_context;
--	int ret;
-+	int ret, i;
+@@ -57,18 +57,34 @@ static int cnl_prepare_fw(struct sst_dsp
+ 	ctx->dsp_ops.stream_tag = stream_tag;
+ 	memcpy(ctx->dmab.area, fwdata, fwsize);
  
- 	if (!ctx->fw) {
- 		ret = request_firmware(&ctx->fw, ctx->fw_name, ctx->dev);
-@@ -131,12 +131,16 @@ static int cnl_load_base_firmware(struct
- 	stripped_fw.size = ctx->fw->size;
- 	skl_dsp_strip_extended_manifest(&stripped_fw);
++	ret = skl_dsp_core_power_up(ctx, SKL_DSP_CORE0_MASK);
++	if (ret < 0) {
++		dev_err(ctx->dev, "dsp core0 power up failed\n");
++		ret = -EIO;
++		goto base_fw_load_failed;
++	}
++
+ 	/* purge FW request */
+ 	sst_dsp_shim_write(ctx, CNL_ADSP_REG_HIPCIDR,
+ 			   CNL_ADSP_REG_HIPCIDR_BUSY | (CNL_IPC_PURGE |
+ 			   ((stream_tag - 1) << CNL_ROM_CTRL_DMA_ID)));
  
--	ret = cnl_prepare_fw(ctx, stripped_fw.data, stripped_fw.size);
--	if (ret < 0) {
--		dev_err(ctx->dev, "prepare firmware failed: %d\n", ret);
--		goto cnl_load_base_firmware_failed;
-+	for (i = 0; i < BXT_FW_ROM_INIT_RETRY; i++) {
-+		ret = cnl_prepare_fw(ctx, stripped_fw.data, stripped_fw.size);
-+		if (!ret)
-+			break;
-+		dev_dbg(ctx->dev, "prepare firmware failed: %d\n", ret);
+-	ret = cnl_dsp_enable_core(ctx, SKL_DSP_CORE0_MASK);
++	ret = skl_dsp_start_core(ctx, SKL_DSP_CORE0_MASK);
+ 	if (ret < 0) {
+-		dev_err(ctx->dev, "dsp boot core failed ret: %d\n", ret);
++		dev_err(ctx->dev, "Start dsp core failed ret: %d\n", ret);
+ 		ret = -EIO;
+ 		goto base_fw_load_failed;
  	}
  
-+	if (ret < 0)
-+		goto cnl_load_base_firmware_failed;
++	ret = sst_dsp_register_poll(ctx, CNL_ADSP_REG_HIPCIDA,
++				    CNL_ADSP_REG_HIPCIDA_DONE,
++				    CNL_ADSP_REG_HIPCIDA_DONE,
++				    BXT_INIT_TIMEOUT, "HIPCIDA Done");
++	if (ret < 0) {
++		dev_err(ctx->dev, "timeout for purge request: %d\n", ret);
++		goto base_fw_load_failed;
++	}
 +
- 	ret = sst_transfer_fw_host_dma(ctx);
- 	if (ret < 0) {
- 		dev_err(ctx->dev, "transfer firmware failed: %d\n", ret);
-@@ -158,6 +162,7 @@ static int cnl_load_base_firmware(struct
- 	return 0;
- 
- cnl_load_base_firmware_failed:
-+	dev_err(ctx->dev, "firmware load failed: %d\n", ret);
- 	release_firmware(ctx->fw);
- 	ctx->fw = NULL;
- 
+ 	/* enable interrupt */
+ 	cnl_ipc_int_enable(ctx);
+ 	cnl_ipc_op_int_enable(ctx);
 --- a/sound/soc/intel/skylake/skl-sst-dsp.h
 +++ b/sound/soc/intel/skylake/skl-sst-dsp.h
-@@ -67,6 +67,7 @@ struct skl_dev;
- 
+@@ -68,6 +68,7 @@ struct skl_dev;
  #define SKL_FW_INIT			0x1
  #define SKL_FW_RFW_START		0xf
-+#define BXT_FW_ROM_INIT_RETRY		3
+ #define BXT_FW_ROM_INIT_RETRY		3
++#define BXT_INIT_TIMEOUT		300
  
  #define SKL_ADSPIC_IPC			1
  #define SKL_ADSPIS_IPC			1
