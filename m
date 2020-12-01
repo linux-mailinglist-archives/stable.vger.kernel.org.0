@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F51A2C9A4F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7102C9BAE
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729193AbgLAI4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:56:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59772 "EHLO mail.kernel.org"
+        id S2389817AbgLAJLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:11:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbgLAI4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:56:38 -0500
+        id S2389805AbgLAJLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:11:12 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACE4D221FD;
-        Tue,  1 Dec 2020 08:55:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 322C72067D;
+        Tue,  1 Dec 2020 09:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812951;
-        bh=C24D8wSIW4oyyJZldw4/pHdh47wduITLn8EkdXY+pPM=;
+        s=korg; t=1606813825;
+        bh=JPA/yCCNa/xybkpeTlqzFUPnvJbpnpTyHlzNEN+EP1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fInVbm8Z/96wDAjIL9ms30dkRpNzcUDR4zsCcBI3XAAJB529trBvvDqVDveLOvfYo
-         Q6I43vqUgoT1ABUUmf8vcId4RX4s9zHZGOTe98X6jLYRUHYL4OQkcRx+jf8n0Zgq5W
-         c9FzqbXcLUPastsRsCUkXyj52j/ynZC0oWf1NKLg=
+        b=xYmst837Q/TE8DnftFOEvxSRfCUpBvTvpJxflsqbY9Xb7StG5t73hgWIFnzwvMtC+
+         H3Uh7KvcnjNk8aCntsH8xiJ/Y5xPb6L6uXjm4EPKdeT+KwNBgmVIl9c81nLrkcRmI/
+         4BJAShCZ3ed41f+1H/fKUc79DQw6ZrA2xKtdP4fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Zhao <yuzhao@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 08/42] arm64: pgtable: Fix pte_accessible()
-Date:   Tue,  1 Dec 2020 09:53:06 +0100
-Message-Id: <20201201084642.573533357@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 072/152] phy: tegra: xusb: Fix dangling pointer on probe failure
+Date:   Tue,  1 Dec 2020 09:53:07 +0100
+Message-Id: <20201201084721.363189907@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 07509e10dcc77627f8b6a57381e878fe269958d3 upstream.
+[ Upstream commit eb9c4dd9bdfdebaa13846c16a8c79b5b336066b6 ]
 
-pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
-invalidation is necessary when unmapping pages for reclaim. Although our
-implementation is correct according to the architecture, returning true
-only for valid, young ptes in the absence of racing page-table
-modifications, this is in fact flawed due to lazy invalidation of old
-ptes in ptep_clear_flush_young() where we elide the expensive DSB
-instruction for completing the TLB invalidation.
+If, for some reason, the xusb PHY fails to probe, it leaves
+a dangling pointer attached to the platform device structure.
 
-Rather than penalise the aging path, adjust pte_accessible() to return
-true for any valid pte, even if the access flag is cleared.
+This would normally be harmless, but the Tegra XHCI driver then
+goes and extract that pointer from the PHY device. Things go
+downhill from there:
 
-Cc: <stable@vger.kernel.org>
-Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
-Reported-by: Yu Zhao <yuzhao@google.com>
-Acked-by: Yu Zhao <yuzhao@google.com>
-Reviewed-by: Minchan Kim <minchan@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201120143557.6715-2-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    8.752082] [004d554e5145533c] address between user and kernel address ranges
+[    8.752085] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[    8.752088] Modules linked in: max77620_regulator(E+) xhci_tegra(E+) sdhci_tegra(E+) xhci_hcd(E) sdhci_pltfm(E) cqhci(E) fixed(E) usbcore(E) scsi_mod(E) sdhci(E) host1x(E+)
+[    8.752103] CPU: 4 PID: 158 Comm: systemd-udevd Tainted: G S      W   E     5.9.0-rc7-00298-gf6337624c4fe #1980
+[    8.752105] Hardware name: NVIDIA Jetson TX2 Developer Kit (DT)
+[    8.752108] pstate: 20000005 (nzCv daif -PAN -UAO BTYPE=--)
+[    8.752115] pc : kobject_put+0x1c/0x21c
+[    8.752120] lr : put_device+0x20/0x30
+[    8.752121] sp : ffffffc012eb3840
+[    8.752122] x29: ffffffc012eb3840 x28: ffffffc010e82638
+[    8.752125] x27: ffffffc008d56440 x26: 0000000000000000
+[    8.752128] x25: ffffff81eb508200 x24: 0000000000000000
+[    8.752130] x23: ffffff81eb538800 x22: 0000000000000000
+[    8.752132] x21: 00000000fffffdfb x20: ffffff81eb538810
+[    8.752134] x19: 3d4d554e51455300 x18: 0000000000000020
+[    8.752136] x17: ffffffc008d00270 x16: ffffffc008d00c94
+[    8.752138] x15: 0000000000000004 x14: ffffff81ebd4ae90
+[    8.752140] x13: 0000000000000000 x12: ffffff81eb86a4e8
+[    8.752142] x11: ffffff81eb86a480 x10: ffffff81eb862fea
+[    8.752144] x9 : ffffffc01055fb28 x8 : ffffff81eb86a4a8
+[    8.752146] x7 : 0000000000000001 x6 : 0000000000000001
+[    8.752148] x5 : ffffff81dff8bc38 x4 : 0000000000000000
+[    8.752150] x3 : 0000000000000001 x2 : 0000000000000001
+[    8.752152] x1 : 0000000000000002 x0 : 3d4d554e51455300
+[    8.752155] Call trace:
+[    8.752157]  kobject_put+0x1c/0x21c
+[    8.752160]  put_device+0x20/0x30
+[    8.752164]  tegra_xusb_padctl_put+0x24/0x3c
+[    8.752170]  tegra_xusb_probe+0x8b0/0xd10 [xhci_tegra]
+[    8.752174]  platform_drv_probe+0x60/0xb4
+[    8.752176]  really_probe+0xf0/0x504
+[    8.752179]  driver_probe_device+0x100/0x170
+[    8.752181]  device_driver_attach+0xcc/0xd4
+[    8.752183]  __driver_attach+0xb0/0x17c
+[    8.752185]  bus_for_each_dev+0x7c/0xd4
+[    8.752187]  driver_attach+0x30/0x3c
+[    8.752189]  bus_add_driver+0x154/0x250
+[    8.752191]  driver_register+0x84/0x140
+[    8.752193]  __platform_driver_register+0x54/0x60
+[    8.752197]  tegra_xusb_init+0x40/0x1000 [xhci_tegra]
+[    8.752201]  do_one_initcall+0x54/0x2d0
+[    8.752205]  do_init_module+0x68/0x29c
+[    8.752207]  load_module+0x2178/0x26c0
+[    8.752209]  __do_sys_finit_module+0xb0/0x120
+[    8.752211]  __arm64_sys_finit_module+0x2c/0x40
+[    8.752215]  el0_svc_common.constprop.0+0x80/0x240
+[    8.752218]  do_el0_svc+0x30/0xa0
+[    8.752220]  el0_svc+0x18/0x50
+[    8.752223]  el0_sync_handler+0x90/0x318
+[    8.752225]  el0_sync+0x158/0x180
+[    8.752230] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (3940f000)
+[    8.752232] ---[ end trace 90f6c89d62d85ff5 ]---
 
+Reset the pointer on probe failure fixes the issue.
+
+Fixes: 53d2a715c2403 ("phy: Add Tegra XUSB pad controller support")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20201013095820.311376-1-maz@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/phy/tegra/xusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -85,8 +85,6 @@ extern unsigned long empty_zero_page[PAG
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
- #define pte_valid_not_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
--#define pte_valid_young(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
- 
-@@ -94,9 +92,12 @@ extern unsigned long empty_zero_page[PAG
-  * Could the pte be present in the TLB? We must check mm_tlb_flush_pending
-  * so that we don't erroneously return false for pages that have been
-  * remapped as PROT_NONE but are yet to be flushed from the TLB.
-+ * Note that we can't make any assumptions based on the state of the access
-+ * flag, since ptep_clear_flush_young() elides a DSB when invalidating the
-+ * TLB.
-  */
- #define pte_accessible(mm, pte)	\
--	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
-+	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
- 
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
+diff --git a/drivers/phy/tegra/xusb.c b/drivers/phy/tegra/xusb.c
+index de4a46fe17630..ad88d74c18842 100644
+--- a/drivers/phy/tegra/xusb.c
++++ b/drivers/phy/tegra/xusb.c
+@@ -1242,6 +1242,7 @@ power_down:
+ reset:
+ 	reset_control_assert(padctl->rst);
+ remove:
++	platform_set_drvdata(pdev, NULL);
+ 	soc->ops->remove(padctl);
+ 	return err;
+ }
+-- 
+2.27.0
+
 
 
