@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 907102C9CCF
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6D22C9D83
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388530AbgLAJBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S2390761AbgLAJY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:24:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388524AbgLAJBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:19 -0500
+        id S2388206AbgLAJFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14D872223F;
-        Tue,  1 Dec 2020 09:01:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 024E521D7A;
+        Tue,  1 Dec 2020 09:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813263;
-        bh=VCawFnsDnQNth3TO+YKU9YQEsIltI4b3xyFvMrV7n4E=;
+        s=korg; t=1606813514;
+        bh=QAD19RwmOeK50zl3uL/i9chrctMGIBGRWAy7HvaDjn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcJTGD4tRBesoqw/2qQrljx96YDJmNKiVkYwjZPEd+Mr9kd7pXE0FhvQiQfsztOdZ
-         VWhTeu1yNR5iLJmWuiY48jEM5eI9mHRu96muwrWu2CYo4px0aLiSA7MDqLtJ8mIT+5
-         TtmQ1sv6bMea+3SUDD+sfQ9mwS1ui1INKxm7WLO4=
+        b=p61OTGK7jRUnzAfe/0lJwarW5v2H9+vTeFOlwz/1JHHVG6QFopY9K0bt8YDEeCWv3
+         rAZeNi0+wiv/8SC1mrmx7YtmERDc1zRcg/vTmIrkKAIxBI64gQ204BYgWf8h0h1F9E
+         enC3bhTnQ0a9fcHyLk73kFMtD+X4NqiWx2zwdYEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/57] IB/mthca: fix return value of error branch in mthca_init_cq()
+Subject: [PATCH 5.4 66/98] ibmvnic: fix NULL pointer dereference in ibmvic_reset_crq
 Date:   Tue,  1 Dec 2020 09:53:43 +0100
-Message-Id: <20201201084650.971301510@linuxfoundation.org>
+Message-Id: <20201201084658.314368538@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Lijun Pan <ljp@linux.ibm.com>
 
-[ Upstream commit 6830ff853a5764c75e56750d59d0bbb6b26f1835 ]
+[ Upstream commit 0e435befaea45f7ea58682eecab5e37e05b2ce65 ]
 
-We return 'err' in the error branch, but this variable may be set as zero
-by the above code. Fix it by setting 'err' as a negative value before we
-goto the error label.
+crq->msgs could be NULL if the previous reset did not complete after
+freeing crq->msgs. Check for NULL before dereferencing them.
 
-Fixes: 74c2174e7be5 ("IB uverbs: add mthca user CQ support")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/1605837422-42724-1-git-send-email-wangxiongfeng2@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Snippet of call trace:
+...
+ibmvnic 30000003 env3 (unregistering): Releasing sub-CRQ
+ibmvnic 30000003 env3 (unregistering): Releasing CRQ
+BUG: Kernel NULL pointer dereference on read at 0x00000000
+Faulting instruction address: 0xc0000000000c1a30
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: ibmvnic(E-) rpadlpar_io rpaphp xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_counter nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables xsk_diag tcp_diag udp_diag tun raw_diag inet_diag unix_diag bridge af_packet_diag netlink_diag stp llc rfkill sunrpc pseries_rng xts vmx_crypto uio_pdrv_genirq uio binfmt_misc ip_tables xfs libcrc32c sd_mod t10_pi sg ibmvscsi ibmveth scsi_transport_srp dm_mirror dm_region_hash dm_log dm_mod [last unloaded: ibmvnic]
+CPU: 20 PID: 8426 Comm: kworker/20:0 Tainted: G            E     5.10.0-rc1+ #12
+Workqueue: events __ibmvnic_reset [ibmvnic]
+NIP:  c0000000000c1a30 LR: c008000001b00c18 CTR: 0000000000000400
+REGS: c00000000d05b7a0 TRAP: 0380   Tainted: G            E      (5.10.0-rc1+)
+MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 44002480  XER: 20040000
+CFAR: c0000000000c19ec IRQMASK: 0
+GPR00: 0000000000000400 c00000000d05ba30 c008000001b17c00 0000000000000000
+GPR04: 0000000000000000 0000000000000000 0000000000000000 00000000000001e2
+GPR08: 000000000001f400 ffffffffffffd950 0000000000000000 c008000001b0b280
+GPR12: c0000000000c19c8 c00000001ec72e00 c00000000019a778 c00000002647b440
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000006 0000000000000001 0000000000000003 0000000000000002
+GPR24: 0000000000001000 c008000001b0d570 0000000000000005 c00000007ab5d550
+GPR28: c00000007ab5c000 c000000032fcf848 c00000007ab5cc00 c000000032fcf800
+NIP [c0000000000c1a30] memset+0x68/0x104
+LR [c008000001b00c18] ibmvnic_reset_crq+0x70/0x110 [ibmvnic]
+Call Trace:
+[c00000000d05ba30] [0000000000000800] 0x800 (unreliable)
+[c00000000d05bab0] [c008000001b0a930] do_reset.isra.40+0x224/0x634 [ibmvnic]
+[c00000000d05bb80] [c008000001b08574] __ibmvnic_reset+0x17c/0x3c0 [ibmvnic]
+[c00000000d05bc50] [c00000000018d9ac] process_one_work+0x2cc/0x800
+[c00000000d05bd20] [c00000000018df58] worker_thread+0x78/0x520
+[c00000000d05bdb0] [c00000000019a934] kthread+0x1c4/0x1d0
+[c00000000d05be20] [c00000000000d5d0] ret_from_kernel_thread+0x5c/0x6c
+
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mthca/mthca_cq.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index a6531ffe29a6f..a5694dec3f2ee 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -808,8 +808,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 238915410d79a..e53994ca3142c 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -4777,6 +4777,9 @@ static int ibmvnic_reset_crq(struct ibmvnic_adapter *adapter)
+ 	} while (rc == H_BUSY || H_IS_LONG_BUSY(rc));
  
- 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
--	if (IS_ERR(mailbox))
-+	if (IS_ERR(mailbox)) {
-+		err = PTR_ERR(mailbox);
- 		goto err_out_arm;
-+	}
- 
- 	cq_context = mailbox->buf;
- 
-@@ -851,9 +853,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	spin_lock_irq(&dev->cq_table.lock);
--	if (mthca_array_set(&dev->cq_table.cq,
--			    cq->cqn & (dev->limits.num_cqs - 1),
--			    cq)) {
-+	err = mthca_array_set(&dev->cq_table.cq,
-+			      cq->cqn & (dev->limits.num_cqs - 1), cq);
-+	if (err) {
- 		spin_unlock_irq(&dev->cq_table.lock);
- 		goto err_out_free_mr;
- 	}
+ 	/* Clean out the queue */
++	if (!crq->msgs)
++		return -EINVAL;
++
+ 	memset(crq->msgs, 0, PAGE_SIZE);
+ 	crq->cur = 0;
+ 	crq->active = false;
 -- 
 2.27.0
 
