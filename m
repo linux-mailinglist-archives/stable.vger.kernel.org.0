@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B8892C9A68
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8A82C9BBA
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbgLAI5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:57:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60560 "EHLO mail.kernel.org"
+        id S2389852AbgLAJLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:11:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387776AbgLAI5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:57:09 -0500
+        id S2389535AbgLAJLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:11:33 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A82721D46;
-        Tue,  1 Dec 2020 08:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 374EB21D46;
+        Tue,  1 Dec 2020 09:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812983;
-        bh=vVo6xRBuEmD283EBAlMZ8JQd4NILCllEYVVQDL/wIg8=;
+        s=korg; t=1606813877;
+        bh=VcQKVvZoLj+oU0b8djgfaTPLB8BKK/B3NMwWUTo/XxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owNrlNU2gS/qwNtdRxTiIym9XjTFKRLCQDmdum5Uej+zWbRZyNe8XdQR6djNXVO1e
-         bb3DbT6jO/TSGtAazav6hZxh0iBXC6FPt91zIi7mPC655CXMODtQzaOYG3bib2UiWa
-         7rhCdTASE61ZENGfz1cbH9XgG5NmzyRWTapZ0t3s=
+        b=c/9/xGh4t1A8HzJBEPh+6YbWw1FEtqnxJ9Q4eaQ1D1PfZa1zsMMYUkTPIyaTW5peT
+         zhEziT30X6+TQiLUn8fC00kViLQO1u7LsYGJ2ccRFUoE4UXeKC9KXlQMpXdkbuerW9
+         4cHhrz7rZdJ3HNJVQ6GuSgSISCyRM/7Cc7f088Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Michael Chan <michael.chan@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/42] nfc: s3fwrn5: use signed integer for parsing GPIO numbers
+Subject: [PATCH 5.9 091/152] bnxt_en: Release PCI regions when DMA mask setup fails during probe.
 Date:   Tue,  1 Dec 2020 09:53:26 +0100
-Message-Id: <20201201084644.430476386@linuxfoundation.org>
+Message-Id: <20201201084723.784441891@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit d8f0a86795c69f5b697f7d9e5274c124da93c92d ]
+[ Upstream commit c54bc3ced5106663c2f2b44071800621f505b00e ]
 
-GPIOs - as returned by of_get_named_gpio() and used by the gpiolib - are
-signed integers, where negative number indicates error.  The return
-value of of_get_named_gpio() should not be assigned to an unsigned int
-because in case of !CONFIG_GPIOLIB such number would be a valid GPIO.
+Jump to init_err_release to cleanup.  bnxt_unmap_bars() will also be
+called but it will do nothing if the BARs are not mapped yet.
 
-Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201123162351.209100-1-krzk@kernel.org
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Link: https://lore.kernel.org/r/1605858271-8209-1-git-send-email-michael.chan@broadcom.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
-index 3ed0adf6479b0..5b0c065bd279f 100644
---- a/drivers/nfc/s3fwrn5/i2c.c
-+++ b/drivers/nfc/s3fwrn5/i2c.c
-@@ -37,8 +37,8 @@ struct s3fwrn5_i2c_phy {
- 	struct i2c_client *i2c_dev;
- 	struct nci_dev *ndev;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index f726c91a9b3bc..50efdcf681083 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11274,7 +11274,7 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
+ 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
+ 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
+ 		rc = -EIO;
+-		goto init_err_disable;
++		goto init_err_release;
+ 	}
  
--	unsigned int gpio_en;
--	unsigned int gpio_fw_wake;
-+	int gpio_en;
-+	int gpio_fw_wake;
- 
- 	struct mutex mutex;
- 
+ 	pci_set_master(pdev);
 -- 
 2.27.0
 
