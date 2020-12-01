@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2802C9AB5
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2422C9B32
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388238AbgLAJAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:00:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
+        id S1729396AbgLAJFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387599AbgLAJAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:00:07 -0500
+        id S2388966AbgLAJEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:04:51 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18502217A0;
-        Tue,  1 Dec 2020 08:59:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A767B2222A;
+        Tue,  1 Dec 2020 09:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813191;
-        bh=csn/Hk+YBhchIph27lvMqOAt+Ne57dazRGG/PH73ALY=;
+        s=korg; t=1606813451;
+        bh=lj4Rg/mQW2j/Hrddgp8245rud0jqnoIpCn/rM+HoZ/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mje8QkGTrvi9hB9qEENSRNnJZgach22kAXxD5nqbwUZqAthKxNYjP3dZPhGfmlrlg
-         HBbkrOh+pl8rxjasrYb6hthc+u+b24btSUVlX/y2Cl7Yj/k4xrkwXwRbhoBGvMR3oD
-         8Lkv6YXRDLQMRNMtF6WVD6n9fqV9ysMwlAR2U0EU=
+        b=StFwfa//wVd1h5N8wsSzXQ6jMZ0YSCxkftc4DWIyhXN4OPNunQHc8yjlz/5xeqjZR
+         TC6GgBtv2UCgdUxc34RYImr6pYl8a4qK19UOLIKopa2d/ZS/UtBp/SwkYzeWsYYbMv
+         xGX2G/r2lroikcIdfRbs8TvGKLZ5VsYRY4qwMAP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
-        <david.gamiz@gmail.com>
-Subject: [PATCH 4.19 14/57] HID: add support for Sega Saturn
-Date:   Tue,  1 Dec 2020 09:53:19 +0100
-Message-Id: <20201201084649.323495333@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 43/98] ARM: OMAP2+: Manage MPU state properly for omap_enter_idle_coupled()
+Date:   Tue,  1 Dec 2020 09:53:20 +0100
+Message-Id: <20201201084657.218480683@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
+[ Upstream commit 294a3317bef52b189139c813b50dd14d344fa9ec ]
 
-This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
-in a consistent way.
+Based on more testing, commit 8ca5ee624b4c ("ARM: OMAP2+: Restore MPU
+power domain if cpu_cluster_pm_enter() fails") is a poor fix for handling
+cpu_cluster_pm_enter() returned errors.
 
-Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+We should not override the cpuidle states with a hardcoded PWRDM_POWER_ON
+value. Instead, we should use a configured idle state that does not cause
+the context to be lost. Otherwise we end up configuring a potentially
+improper state for the MPUSS. We also want to update the returned state
+index for the selected state.
+
+Let's just select the highest power idle state C1 to ensure no context
+loss is allowed on cpu_cluster_pm_enter() errors. With these changes we
+can now unconditionally call omap4_enter_lowpower() for WFI like we did
+earlier before commit 55be2f50336f ("ARM: OMAP2+: Handle errors for
+cpu_pm"). And we can return the selected state index.
+
+Fixes: 8f04aea048d5 ("ARM: OMAP2+: Restore MPU power domain if cpu_cluster_pm_enter() fails")
+Fixes: 55be2f50336f ("ARM: OMAP2+: Handle errors for cpu_pm")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ arch/arm/mach-omap2/cpuidle44xx.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e9155f7c8c51c..4d2a1d540a821 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -479,6 +479,7 @@
- #define USB_DEVICE_ID_PENPOWER		0x00f4
+diff --git a/arch/arm/mach-omap2/cpuidle44xx.c b/arch/arm/mach-omap2/cpuidle44xx.c
+index a92d277f81a08..c8d317fafe2ea 100644
+--- a/arch/arm/mach-omap2/cpuidle44xx.c
++++ b/arch/arm/mach-omap2/cpuidle44xx.c
+@@ -175,8 +175,11 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 		if (mpuss_can_lose_context) {
+ 			error = cpu_cluster_pm_enter();
+ 			if (error) {
+-				omap_set_pwrdm_state(mpu_pd, PWRDM_POWER_ON);
+-				goto cpu_cluster_pm_out;
++				index = 0;
++				cx = state_ptr + index;
++				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
++				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
++				mpuss_can_lose_context = 0;
+ 			}
+ 		}
+ 	}
+@@ -184,7 +187,6 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
+ 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
+ 	cpu_done[dev->cpu] = true;
  
- #define USB_VENDOR_ID_GREENASIA		0x0e8f
-+#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
- #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
+-cpu_cluster_pm_out:
+ 	/* Wakeup CPU1 only if it is not offlined */
+ 	if (dev->cpu == 0 && cpumask_test_cpu(1, cpu_online_mask)) {
  
- #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 2d8d20a7f4574..493e2e7e12de0 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -85,6 +85,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 
