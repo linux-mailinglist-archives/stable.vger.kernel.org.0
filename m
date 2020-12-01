@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5972C9A65
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B54F2C9A9F
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387802AbgLAI5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:57:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60496 "EHLO mail.kernel.org"
+        id S1728981AbgLAI71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387785AbgLAI5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:57:06 -0500
+        id S1729007AbgLAI70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFFB12225A;
-        Tue,  1 Dec 2020 08:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D73A21D46;
+        Tue,  1 Dec 2020 08:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812980;
-        bh=nMcV0TF/rDiiyT2nMQ2/33+20aLpple7nWMURFyN7HI=;
+        s=korg; t=1606813125;
+        bh=GJL65GZGi3EOuDnTzArVhNwhERhIIvwyePww8iSeO0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzwjzw3uKm6khlKK6mTrzk5OqrMlaEOzr23kCJ+7oWFUXxhtB7hUBxyaIWgutQZpR
-         ridvNypLf6SsAiGgLsCKWmaWtV6gaxzGoiaiJjx+8vqYZ6cYNUXyJoMi9Dup0WfWwB
-         NE5vZW7/1ybP7JWlxSqDBZUHXDg6hGtqX70ewufU=
+        b=MImEHIV0S9ZtUrVUtInwUkgq4F79Qx7NBOwg37WO6SKsNJLHZcPuy0UL7pHa5v+tC
+         XLRR4IIX/Z5KTJPiZpoHG9VTh9ZFSNDgFUqmpXPtGCJOenDS/ajIxWrmcEZwOUwiUi
+         fCYnFTusqWlZ6/9HV6zIzlM4tCf9gcwo6N2Ts1B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 42/42] USB: core: Fix regression in Hercules audio card
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Mario Huettel <mario.huettel@gmx.net>,
+        Sriram Dash <sriram.dash@samsung.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/50] can: m_can: fix nominal bitiming tseg2 min for version >= 3.1
 Date:   Tue,  1 Dec 2020 09:53:40 +0100
-Message-Id: <20201201084646.170521635@linuxfoundation.org>
+Message-Id: <20201201084650.146689436@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 184eead057cc7e803558269babc1f2cfb9113ad1 upstream
+[ Upstream commit e3409e4192535fbcc86a84b7a65d9351f46039ec ]
 
-Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
-aimed to make the USB stack more reliable by detecting and skipping
-over endpoints that are duplicated between interfaces.  This caused a
-regression for a Hercules audio card (reported as Bugzilla #208357),
-which contains such non-compliant duplications.  Although the
-duplications are harmless, skipping the valid endpoints prevented the
-device from working.
+At lest the revision 3.3.0 of the bosch m_can IP core specifies that valid
+register values for "Nominal Time segment after sample point (NTSEG2)" are from
+1 to 127. As the hardware uses a value of one more than the programmed value,
+mean tseg2_min is 2.
 
-This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
-the Hercules card, telling the kernel to ignore the invalid duplicate
-endpoints and thereby allowing the valid endpoints to be used as
-intended.
+This patch fixes the tseg2_min value accordingly.
 
-Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
-CC: <stable@vger.kernel.org>
-Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: use usb_endpoint_blacklist and USB_QUIRK_ENDPOINT_BLACKLIST]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Murphy <dmurphy@ti.com>
+Cc: Mario Huettel <mario.huettel@gmx.net>
+Acked-by: Sriram Dash <sriram.dash@samsung.com>
+Link: https://lore.kernel.org/r/20201124190751.3972238-1-mkl@pengutronix.de
+Fixes: b03cfc5bb0e1 ("can: m_can: Enable M_CAN version dependent initialization")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -195,6 +195,10 @@ static const struct usb_device_id usb_qu
- 	/* Guillemot Webcam Hercules Dualpix Exchange*/
- 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-+	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
-+	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
-+			USB_QUIRK_ENDPOINT_BLACKLIST },
-+
- 	/* Midiman M-Audio Keystation 88es */
- 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-@@ -351,6 +355,8 @@ static const struct usb_device_id usb_am
-  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
-  */
- static const struct usb_device_id usb_endpoint_blacklist[] = {
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
- 	{ }
- };
- 
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 680ee8345211f..a3f2548c5548c 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -972,7 +972,7 @@ static const struct can_bittiming_const m_can_bittiming_const_31X = {
+ 	.name = KBUILD_MODNAME,
+ 	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
+ 	.tseg1_max = 256,
+-	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_min = 2,		/* Time segment 2 = phase_seg2 */
+ 	.tseg2_max = 128,
+ 	.sjw_max = 128,
+ 	.brp_min = 1,
+-- 
+2.27.0
+
 
 
