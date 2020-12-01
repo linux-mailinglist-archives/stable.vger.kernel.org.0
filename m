@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4D82C9BDA
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4902C9A98
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390009AbgLAJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:12:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51024 "EHLO mail.kernel.org"
+        id S2388053AbgLAI7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389988AbgLAJMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:12:49 -0500
+        id S2388046AbgLAI7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C96222247;
-        Tue,  1 Dec 2020 09:12:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96A41217A0;
+        Tue,  1 Dec 2020 08:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813928;
-        bh=byTBPk8ZVz+XUki0AtiSUdLe6PhVwayiWW/WjRv0Cq8=;
+        s=korg; t=1606813128;
+        bh=96W6HpKPwJcjWkKM+SXn3e4faqXjMxeVabRykQNdRDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZni2jxu5YNMs1JUhFHZ+eKIHZlp9ZcNSkfIZgjjVvBeEq2gifBrmqD0cYAgmn9dJ
-         nwRRYVDpu+EBBT8cLaD0OUgLn5HZ4Bco8wBOMvmzvoijUqDJ5m8tVUkzdh6Wn5XvQj
-         nv7wMc6WyP0YlJaoIX8YvMY3alsfh7lDnWC+MU6g=
+        b=w8EbF7mhCuZJx4+kL+hPcij7wi3aPz0SftjTXqn+qpG02FyMqAJfddvGhBW55hRxw
+         MF46L0Y9EmfaKSeK8MA6vsXjI3xkHurB+FC+V7lnZWoe9NAUVAtNhXojRTBUpVKhtY
+         +LeAfb3xPgWtUhXUesyG55G90TWcRdw6fDkyURdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Narani <manish.narani@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 106/152] firmware: xilinx: Fix SD DLL node reset issue
+Subject: [PATCH 4.14 42/50] perf probe: Fix to die_entrypc() returns error correctly
 Date:   Tue,  1 Dec 2020 09:53:41 +0100
-Message-Id: <20201201084725.723191562@linuxfoundation.org>
+Message-Id: <20201201084650.223717431@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Narani <manish.narani@xilinx.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit f4426311f927b01776edf8a45f6fad90feae4e72 ]
+[ Upstream commit ab4200c17ba6fe71d2da64317aae8a8aa684624c ]
 
-Fix the SD DLL node reset issue where incorrect node is being referenced
-instead of SD DLL node.
+Fix die_entrypc() to return error correctly if the DIE has no
+DW_AT_ranges attribute. Since dwarf_ranges() will treat the case as an
+empty ranges and return 0, we have to check it by ourselves.
 
-Fixes: 426c8d85df7a ("firmware: xilinx: Use APIs instead of IOCTLs")
-
-Signed-off-by: Manish Narani <manish.narani@xilinx.com>
-Link: https://lore.kernel.org/r/1605534744-15649-1-git-send-email-manish.narani@xilinx.com
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Fixes: 91e2f539eeda ("perf probe: Fix to show function entry line as probe-able")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/160645612634.2824037.5284932731175079426.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/xilinx/zynqmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/dwarf-aux.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/firmware/xilinx/zynqmp.c b/drivers/firmware/xilinx/zynqmp.c
-index 349ab39480068..d08ac824c993c 100644
---- a/drivers/firmware/xilinx/zynqmp.c
-+++ b/drivers/firmware/xilinx/zynqmp.c
-@@ -642,7 +642,7 @@ EXPORT_SYMBOL_GPL(zynqmp_pm_set_sd_tapdelay);
-  */
- int zynqmp_pm_sd_dll_reset(u32 node_id, u32 type)
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 289ef63208fb6..7514aa9c68c99 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -332,6 +332,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
+ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
  {
--	return zynqmp_pm_invoke_fn(PM_IOCTL, node_id, IOCTL_SET_SD_TAPDELAY,
-+	return zynqmp_pm_invoke_fn(PM_IOCTL, node_id, IOCTL_SD_DLL_RESET,
- 				   type, 0, NULL);
+ 	Dwarf_Addr base, end;
++	Dwarf_Attribute attr;
+ 
+ 	if (!addr)
+ 		return -EINVAL;
+@@ -339,6 +340,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
+ 	if (dwarf_entrypc(dw_die, addr) == 0)
+ 		return 0;
+ 
++	/*
++	 *  Since the dwarf_ranges() will return 0 if there is no
++	 * DW_AT_ranges attribute, we should check it first.
++	 */
++	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
++		return -ENOENT;
++
+ 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
  }
- EXPORT_SYMBOL_GPL(zynqmp_pm_sd_dll_reset);
+ 
 -- 
 2.27.0
 
