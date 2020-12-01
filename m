@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAB12C9D72
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B18592C9D67
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729498AbgLAJX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:23:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
+        id S1729464AbgLAJXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:23:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388806AbgLAJGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:06:40 -0500
+        id S2389118AbgLAJHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:07:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEFD622250;
-        Tue,  1 Dec 2020 09:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5F652067D;
+        Tue,  1 Dec 2020 09:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813584;
-        bh=h/V3H4AiykjesDKiO/VWgUoIC/bnAutxKI+6zJayfV8=;
+        s=korg; t=1606813608;
+        bh=YzXtEo56Ux0ugtyP4gSSkJ8sPROLpbO729eQ48puBqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNsaYAsZhTfm/Vc+3VtPODILq3uivYZhfaF3NdTQtjt1kp05fAO0lf1c3gzduNbgf
-         8Zco9TEEnrE19CN1cccpclrhhZPbWmGjvANpnbTnnW+bbSMsO7THcn76ZNrIynCeT9
-         Ebnk8NOn+Rm+blWKvl9L/JQ+3r1xdy3FVxNc39u0=
+        b=HSXvTH0ablDx+PtD+3O/PYUu07AaLEaPEh3TguInAJ1zPMMkk0yY4PIyfLFS5LWRG
+         79HuhOQk9NTL8kJS7qOtWWaHxoec9gX5W5/Qblqi6Kob3YXGNwseD3vkVG75mMlYq7
+         pvioTOCIlFfSz+8BdiDpCcqXODAp+FaqBrMZPpfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.4 88/98] x86/resctrl: Remove superfluous kernfs_get() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 09:54:05 +0100
-Message-Id: <20201201084659.387509177@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 90/98] USB: core: Fix regression in Hercules audio card
+Date:   Tue,  1 Dec 2020 09:54:07 +0100
+Message-Id: <20201201084659.490281066@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
 References: <20201201084652.827177826@linuxfoundation.org>
@@ -44,166 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit fd8d9db3559a29fd737bcdb7c4fcbe1940caae34 upstream.
+commit 184eead057cc7e803558269babc1f2cfb9113ad1 upstream
 
-Willem reported growing of kernfs_node_cache entries in slabtop when
-repeatedly creating and removing resctrl subdirectories as well as when
-repeatedly mounting and unmounting the resctrl filesystem.
+Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+aimed to make the USB stack more reliable by detecting and skipping
+over endpoints that are duplicated between interfaces.  This caused a
+regression for a Hercules audio card (reported as Bugzilla #208357),
+which contains such non-compliant duplications.  Although the
+duplications are harmless, skipping the valid endpoints prevented the
+device from working.
 
-On resource group (control as well as monitoring) creation via a mkdir
-an extra kernfs_node reference is obtained to ensure that the rdtgroup
-structure remains accessible for the rdtgroup_kn_unlock() calls where it
-is removed on deletion. The kernfs_node reference count is dropped by
-kernfs_put() in rdtgroup_kn_unlock().
+This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
+the Hercules card, telling the kernel to ignore the invalid duplicate
+endpoints and thereby allowing the valid endpoints to be used as
+intended.
 
-With the above explaining the need for one kernfs_get()/kernfs_put()
-pair in resctrl there are more places where a kernfs_node reference is
-obtained without a corresponding release. The excessive amount of
-reference count on kernfs nodes will never be dropped to 0 and the
-kernfs nodes will never be freed in the call paths of rmdir and umount.
-It leads to reference count leak and kernfs_node_cache memory leak.
-
-Remove the superfluous kernfs_get() calls and expand the existing
-comments surrounding the remaining kernfs_get()/kernfs_put() pair that
-remains in use.
-
-Superfluous kernfs_get() calls are removed from two areas:
-
-  (1) In call paths of mount and mkdir, when kernfs nodes for "info",
-  "mon_groups" and "mon_data" directories and sub-directories are
-  created, the reference count of newly created kernfs node is set to 1.
-  But after kernfs_create_dir() returns, superfluous kernfs_get() are
-  called to take an additional reference.
-
-  (2) kernfs_get() calls in rmdir call paths.
-
-Fixes: 17eafd076291 ("x86/intel_rdt: Split resource group removal in two")
-Fixes: 4af4a88e0c92 ("x86/intel_rdt/cqm: Add mount,umount support")
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: d89b7379015f ("x86/intel_rdt/cqm: Add mon_data")
-Fixes: c7d9aac61311 ("x86/intel_rdt/cqm: Add mkdir support for RDT monitoring")
-Fixes: 5dc1d5c6bac2 ("x86/intel_rdt: Simplify info and base file lists")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Fixes: 4e978d06dedb ("x86/intel_rdt: Add "info" files to resctrl file system")
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Tested-by: Willem de Bruijn <willemb@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085053-31639-1-git-send-email-xiaochen.shen@intel.com
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+CC: <stable@vger.kernel.org>
+Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+[sudip: use usb_endpoint_blacklist and USB_QUIRK_ENDPOINT_BLACKLIST]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |   35 +--------------------------------
- 1 file changed, 2 insertions(+), 33 deletions(-)
+ drivers/usb/core/quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -1618,7 +1618,6 @@ static int rdtgroup_mkdir_info_resdir(st
- 	if (IS_ERR(kn_subdir))
- 		return PTR_ERR(kn_subdir);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -348,6 +348,10 @@ static const struct usb_device_id usb_qu
+ 	/* Guillemot Webcam Hercules Dualpix Exchange*/
+ 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
  
--	kernfs_get(kn_subdir);
- 	ret = rdtgroup_kn_set_ugid(kn_subdir);
- 	if (ret)
- 		return ret;
-@@ -1641,7 +1640,6 @@ static int rdtgroup_create_info_dir(stru
- 	kn_info = kernfs_create_dir(parent_kn, "info", parent_kn->mode, NULL);
- 	if (IS_ERR(kn_info))
- 		return PTR_ERR(kn_info);
--	kernfs_get(kn_info);
++	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
++	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
++			USB_QUIRK_ENDPOINT_BLACKLIST },
++
+ 	/* Midiman M-Audio Keystation 88es */
+ 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	ret = rdtgroup_add_files(kn_info, RF_TOP_INFO);
- 	if (ret)
-@@ -1662,12 +1660,6 @@ static int rdtgroup_create_info_dir(stru
- 			goto out_destroy;
- 	}
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn_info);
--
- 	ret = rdtgroup_kn_set_ugid(kn_info);
- 	if (ret)
- 		goto out_destroy;
-@@ -1696,12 +1688,6 @@ mongroup_create_dir(struct kernfs_node *
- 	if (dest_kn)
- 		*dest_kn = kn;
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn);
--
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -1988,13 +1974,11 @@ static int rdt_get_tree(struct fs_contex
- 					  &kn_mongrp);
- 		if (ret < 0)
- 			goto out_info;
--		kernfs_get(kn_mongrp);
- 
- 		ret = mkdir_mondata_all(rdtgroup_default.kn,
- 					&rdtgroup_default, &kn_mondata);
- 		if (ret < 0)
- 			goto out_mongrp;
--		kernfs_get(kn_mondata);
- 		rdtgroup_default.mon.mon_data_kn = kn_mondata;
- 	}
- 
-@@ -2365,11 +2349,6 @@ static int mkdir_mondata_subdir(struct k
- 	if (IS_ERR(kn))
- 		return PTR_ERR(kn);
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that kn is always accessible.
--	 */
--	kernfs_get(kn);
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -2705,8 +2684,8 @@ static int mkdir_rdt_prepare(struct kern
- 	/*
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
--	 * rdtgroup_kn_unlock(kn} call below. Take one extra reference
--	 * here, which will be dropped inside rdtgroup_kn_unlock().
-+	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
-+	 * which will be dropped inside rdtgroup_kn_unlock().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2921,11 +2900,6 @@ static int rdtgroup_rmdir_mon(struct ker
- 	WARN_ON(list_empty(&prdtgrp->mon.crdtgrp_list));
- 	list_del(&rdtgrp->mon.crdtgrp_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 
- 	return 0;
-@@ -2937,11 +2911,6 @@ static int rdtgroup_ctrl_remove(struct k
- 	rdtgrp->flags = RDT_DELETED;
- 	list_del(&rdtgrp->rdtgroup_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 	return 0;
- }
+@@ -525,6 +529,8 @@ static const struct usb_device_id usb_am
+  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
+  */
+ static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
+ 	{ }
 
 
