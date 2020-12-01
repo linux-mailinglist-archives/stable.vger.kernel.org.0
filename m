@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B1C2C9CCA
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E179D2C9CE6
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388456AbgLAJBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S2388099AbgLAJFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388466AbgLAJBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:02 -0500
+        id S2389057AbgLAJFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8735722210;
-        Tue,  1 Dec 2020 09:00:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0BB62223C;
+        Tue,  1 Dec 2020 09:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813216;
-        bh=ENY+mqGEe+q/L4YtMjHE/0TMdVjOn63QqfSl30mYYU8=;
+        s=korg; t=1606813468;
+        bh=msMB61T+vAGDNduTzPK9lUybgnukBXjrX1kCfano2AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jevvIAr/3IVcAtj4x3NnfR+7J9/uVPrPCjwNJZiEbeCxI0vtvuIdquCFB66kwIISE
-         kqf9/S2NCUHljR90X+aQJBVrtB8V9S+Lj8eXVajbGQm9ZMRlQDdhXV2JPzW7kGg6iZ
-         j+AIfvF09rgCFzee5rQMU7IimpSHbA4K1RJc+O8Y=
+        b=DcuVwX8lv72VqX5tm4SLXcFwmRJJibK0NSqkbBHzV6kXqY7kC6seZDc3FhNKQjkkp
+         X0TrGYoBQ6Fqew5xWzjsMpL3kRwzY2QdrufGkIicoUenjIUX+wHXnfOsbkXsdWfN27
+         4ZKGpiFWyiZXJU7V+uiHw57K/0LzcuRj/XKzmms0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/57] proc: dont allow async path resolution of /proc/self components
+Subject: [PATCH 5.4 49/98] scsi: ufs: Fix race between shutdown and runtime resume flow
 Date:   Tue,  1 Dec 2020 09:53:26 +0100
-Message-Id: <20201201084650.205087954@linuxfoundation.org>
+Message-Id: <20201201084657.497626773@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 8d4c3e76e3be11a64df95ddee52e99092d42fc19 ]
+[ Upstream commit e92643db514803c2c87d72caf5950b4c0a8faf4a ]
 
-If this is attempted by a kthread, then return -EOPNOTSUPP as we don't
-currently support that. Once we can get task_pid_ptr() doing the right
-thing, then this can go away again.
+If UFS host device is in runtime-suspended state while UFS shutdown
+callback is invoked, UFS device shall be resumed for register
+accesses. Currently only UFS local runtime resume function will be invoked
+to wake up the host.  This is not enough because if someone triggers
+runtime resume from block layer, then race may happen between shutdown and
+runtime resume flow, and finally lead to unlocked register access.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix this, in ufshcd_shutdown(), use pm_runtime_get_sync() instead of
+resuming UFS device by ufshcd_runtime_resume() "internally" to let runtime
+PM framework manage the whole resume flow.
+
+Link: https://lore.kernel.org/r/20201119062916.12931-1-stanley.chu@mediatek.com
+Fixes: 57d104c153d3 ("ufs: add UFS power management support")
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/self.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/fs/proc/self.c b/fs/proc/self.c
-index cc6d4253399d1..7922edf70ce1a 100644
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -16,6 +16,13 @@ static const char *proc_self_get_link(struct dentry *dentry,
- 	pid_t tgid = task_tgid_nr_ns(current, ns);
- 	char *name;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 0772327f87d93..b6ce880ddd153 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8160,11 +8160,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
  
-+	/*
-+	 * Not currently supported. Once we can inherit all of struct pid,
-+	 * we can allow this.
-+	 */
-+	if (current->flags & PF_KTHREAD)
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if (!tgid)
- 		return ERR_PTR(-ENOENT);
- 	/* max length of unsigned int in decimal + NULL term */
+-	if (pm_runtime_suspended(hba->dev)) {
+-		ret = ufshcd_runtime_resume(hba);
+-		if (ret)
+-			goto out;
+-	}
++	pm_runtime_get_sync(hba->dev);
+ 
+ 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
+ out:
 -- 
 2.27.0
 
