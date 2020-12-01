@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 173C42C9C7E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B9A2C9B23
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389780AbgLAJK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:10:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
+        id S2388751AbgLAJEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:04:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388775AbgLAJK4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:56 -0500
+        id S2388738AbgLAJEE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:04:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BFD521D7A;
-        Tue,  1 Dec 2020 09:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D592206CA;
+        Tue,  1 Dec 2020 09:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813840;
-        bh=oB9+iQFPwSRpfKRYDu4lhJbolyTBNVjtkPe2QzPJE/M=;
+        s=korg; t=1606813398;
+        bh=ttanmKkrCmET5nkKpnPcnHxoo6ESwqLAC67eTlRmYgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AW5XIXZ9iyHUwnID1WS8mksMKKIER5r/hvUrEMZ6/eTJLZ0ySMct0lb3XAJl3WY6l
-         2XByAd1nWXgtMsui+pWOM4FkOHKwNAGcVktsRc53ArISGSU//njINMGHgE6HhoTokj
-         3950CFcDlpsWV/GxvNL9AmRTe1t/5NCbPZyZHMUw=
+        b=WwyRjRTa9DmndIuI0rjRt7Yct4Bi4BxiwDvwN3Tra4vNDG84NCcr9J4d/MClZV8xT
+         wq54op2UspnKOoEnYkgm0ZE0ox1/GrIK3akBIVZJjsoczL7s1h0pvPwq+ko9BcFygO
+         jA/XCu2m7r8RSEjw7iMpiHrRyFWdOagH/cr8Pj1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Ferland <ferlandm@amotus.ca>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 047/152] dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Daniel Xu <dxu@dxuuu.xyz>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 05/98] btrfs: tree-checker: add missing return after error in root_item
 Date:   Tue,  1 Dec 2020 09:52:42 +0100
-Message-Id: <20201201084718.064774420@linuxfoundation.org>
+Message-Id: <20201201084653.336936280@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Ferland <ferlandm@amotus.ca>
+From: Daniel Xu <dxu@dxuuu.xyz>
 
-[ Upstream commit 0ba2df09f1500d3f27398a3382b86d39c3e6abe2 ]
+commit 1a49a97df657c63a4e8ffcd1ea9b6ed95581789b upstream.
 
-The xilinx_dma_poll_timeout macro is sometimes called while holding a
-spinlock (see xilinx_dma_issue_pending() for an example) this means we
-shouldn't sleep when polling the dma channel registers. To address it
-in xilinx poll timeout macro use readl_poll_timeout_atomic instead of
-readl_poll_timeout variant.
+There's a missing return statement after an error is found in the
+root_item, this can cause further problems when a crafted image triggers
+the error.
 
-Signed-off-by: Marc Ferland <ferlandm@amotus.ca>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1604473206-32573-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=210181
+Fixes: 259ee7754b67 ("btrfs: tree-checker: Add ROOT_ITEM check")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Daniel Xu <dxu@dxuuu.xyz>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/xilinx/xilinx_dma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-checker.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 0fc432567b857..993297d585c01 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -517,8 +517,8 @@ struct xilinx_dma_device {
- #define to_dma_tx_descriptor(tx) \
- 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
- #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
--	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
--			   cond, delay_us, timeout_us)
-+	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
-+				  val, cond, delay_us, timeout_us)
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -913,6 +913,7 @@ static int check_root_item(struct extent
+ 			    "invalid root item size, have %u expect %zu or %u",
+ 			    btrfs_item_size_nr(leaf, slot), sizeof(ri),
+ 			    btrfs_legacy_root_item_size());
++		return -EUCLEAN;
+ 	}
  
- /* IO accessors */
- static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
--- 
-2.27.0
-
+ 	/*
 
 
