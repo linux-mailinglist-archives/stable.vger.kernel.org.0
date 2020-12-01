@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 424B62C9BC8
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4BD2C9A5C
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389907AbgLAJMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:12:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
+        id S2387731AbgLAI47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:56:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389886AbgLAJMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:12:03 -0500
+        id S2387722AbgLAI4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:56:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5015920671;
-        Tue,  1 Dec 2020 09:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FF7221D7A;
+        Tue,  1 Dec 2020 08:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813907;
-        bh=bS7P7B3lMjsOed17TZjqOIDLwmzE7rc+WAAwBchKx/g=;
+        s=korg; t=1606812966;
+        bh=fjdm9nEuyx3eUE4CIIz03DRjZavEIKOwneaHpAD36cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeQIRDyzVbsSXqKlYTCrEbgnpe5gpHuontMehmW5sXEsyFC+fZAFac19I8hiE8Ksb
-         a5tMPeZDJPPSjmjV6YCrLkawKISpXT4zulX4rSei0tTahuv/xKtjuN/W/v/iCI1t1/
-         K5+F6hWlFZ54Zr2urGtUVi1q6sF+tmvjGxZRK6d4=
+        b=jJ/uLmqg2Tb++Ldc5XsS4FqwniJ3ug0g8ZsXiCUbIgwHR+FwNjtU0zma69kL5dwDo
+         fFiHNVuAQr15Y161w//LZVQhd9/9ddow+S6br/Vpj6IGLb54aGXk2TH7evC+E0lOaE
+         8z1LYKuDK07/QNlAhywmbSw8qrteqPPfEmAVADkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 100/152] ibmvnic: fix call_netdevice_notifiers in do_reset
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 4.9 37/42] usb: gadget: Fix memleak in gadgetfs_fill_super
 Date:   Tue,  1 Dec 2020 09:53:35 +0100
-Message-Id: <20201201084724.963956594@linuxfoundation.org>
+Message-Id: <20201201084645.477134828@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 8393597579f5250636f1cff157ea73f402b6501e ]
+commit 87bed3d7d26c974948a3d6e7176f304b2d41272b upstream.
 
-When netdev_notify_peers was substituted in
-commit 986103e7920c ("net/ibmvnic: Fix RTNL deadlock during device reset"),
-call_netdevice_notifiers(NETDEV_RESEND_IGMP, dev) was missed.
-Fix it now.
+usb_get_gadget_udc_name will alloc memory for CHIP
+in "Enomem" branch. we should free it before error
+returns to prevent memleak.
 
-Fixes: 986103e7920c ("net/ibmvnic: Fix RTNL deadlock during device reset")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 175f712119c57 ("usb: gadget: provide interface for legacy gadgets to get UDC name")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201117021629.1470544-3-zhangqilong3@huawei.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/legacy/inode.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index c6ee42278fdcf..723651b34f94d 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2087,8 +2087,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 	for (i = 0; i < adapter->req_rx_queues; i++)
- 		napi_schedule(&adapter->napi[i]);
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -2045,6 +2045,9 @@ gadgetfs_fill_super (struct super_block
+ 	return 0;
  
--	if (adapter->reset_reason != VNIC_RESET_FAILOVER)
-+	if (adapter->reset_reason != VNIC_RESET_FAILOVER) {
- 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
-+		call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
-+	}
+ Enomem:
++	kfree(CHIP);
++	CHIP = NULL;
++
+ 	return -ENOMEM;
+ }
  
- 	rc = 0;
- 
--- 
-2.27.0
-
 
 
