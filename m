@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 531952C9B2B
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 369922C9A80
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729363AbgLAJFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41514 "EHLO mail.kernel.org"
+        id S2387898AbgLAI6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388860AbgLAJE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:28 -0500
+        id S2387883AbgLAI6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C7F62067D;
-        Tue,  1 Dec 2020 09:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F268F206D8;
+        Tue,  1 Dec 2020 08:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813427;
-        bh=WKrF+fHOogBVoC2LlHFQk2H2rxbSoQ6iIJIKlmMZy28=;
+        s=korg; t=1606813044;
+        bh=Xf/y0BR0UcG+wkGy2k3p4yycMBIPF+xa5O9ImTP6T2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bw4suaGCix8LLypuEO/BnUKTqgg6VTvpMec160+WlhqD1UqFlzPP+2R7CPRcd4p1P
-         KBHqirycnROMULek/pyCN/fv+Hi6y4Lo9LXIXUtVAsKT95jQf5urDz/n8Lo91vfDAF
-         Vc0oiNsWz7r3A1Ag0NyjqcDMoutaSQUwZ0fDSReI=
+        b=fUlwcfcV0AAnTixLPLttjkhQp1j4eNphcQ8ysyY3edJLBb6OB7RRoK/lI6bTBFpP1
+         yTpyyIm3Ic2qIrsJNAIFp+bzE7snqtKWJji1cHGRlkKx0kxxq3mfvOv3G2kh6mlPXt
+         84F9HVxRib3AmwSKIrEjqoZxfw2gHJrq5DFjG6gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/98] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
+        stable@vger.kernel.org, Frank Yang <puilp0502@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/50] HID: cypress: Support Varmilo Keyboards media hotkeys
 Date:   Tue,  1 Dec 2020 09:53:13 +0100
-Message-Id: <20201201084656.912334712@linuxfoundation.org>
+Message-Id: <20201201084646.820453458@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +42,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sugar Zhang <sugar.zhang@rock-chips.com>
+From: Frank Yang <puilp0502@gmail.com>
 
-[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
+[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
 
-Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
-we should use burst size, not desc->rqcfg.brst_size.
+The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
+exposes media control hotkeys as a USB HID consumer control device, but
+these keys do not work in the current (5.8-rc1) kernel due to the
+incorrect HID report descriptor. Fix the problem by modifying the
+internal HID report descriptor.
 
-dma memcpy performance on Rockchip RV1126
-@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
+More specifically, the keyboard report descriptor specifies the
+logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
+boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
+incorrect interpretation of input reports, causing inputs to be ignored.
+By setting the Logical Minimum to zero, we align the logical boundary
+with the Usage ID boundary.
 
-dmatest:
+Some notes:
 
-/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
-/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
-/# echo 8 > /sys/module/dmatest/parameters/iterations
-/# echo y > /sys/module/dmatest/parameters/norandom
-/# echo y > /sys/module/dmatest/parameters/verbose
-/# echo 1 > /sys/module/dmatest/parameters/run
+* There seem to be multiple variants of the VA104M keyboard. This
+  patch specifically targets 04b4:07b1 variant.
 
-dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
-dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+* The device works out-of-the-box on Windows platform with the generic
+  consumer control device driver (hidserv.inf). This suggests that
+  Windows either ignores the Logical Minimum/Logical Maximum or
+  interprets the Usage ID assignment differently from the linux
+  implementation; Maybe there are other devices out there that only
+  works on Windows due to this problem?
 
-Before:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
-
-After this patch:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
-
-After this patch and increase dma clk to 400MHz:
-
-  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Frank Yang <puilp0502@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-ids.h     |  2 ++
+ 2 files changed, 41 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index cd81d10974a29..57b6555d6d042 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2793,7 +2793,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
- 	 */
--	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
-+	if (burst * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
+diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+index 1689568b597d4..12c5d7c96527a 100644
+--- a/drivers/hid/hid-cypress.c
++++ b/drivers/hid/hid-cypress.c
+@@ -26,19 +26,17 @@
+ #define CP_2WHEEL_MOUSE_HACK		0x02
+ #define CP_2WHEEL_MOUSE_HACK_ON		0x04
  
- 	desc->bytes_requested = len;
++#define VA_INVAL_LOGICAL_BOUNDARY	0x08
++
+ /*
+  * Some USB barcode readers from cypress have usage min and usage max in
+  * the wrong order
+  */
+-static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+-	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+ 	unsigned int i;
+ 
+-	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
+-		return rdesc;
+-
+ 	if (*rsize < 4)
+ 		return rdesc;
+ 
+@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
+ 
++static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	/*
++	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
++	 * reports Logical Minimum of its Consumer Control device as 572
++	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
++	 */
++	if (*rsize == 25 &&
++			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
++			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
++			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
++			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
++		hid_info(hdev,
++			 "fixing up varmilo VA104M consumer control report descriptor\n");
++		rdesc[12] = 0x00;
++		rdesc[13] = 0x00;
++	}
++	return rdesc;
++}
++
++static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
++		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
++	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
++		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
++
++	return rdesc;
++}
++
+ static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
+ 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
+ 		.driver_data = CP_2WHEEL_MOUSE_HACK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
++		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, cp_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a1e5e0529545b..222204c2da22a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -322,6 +322,8 @@
+ #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
+ #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
+ 
++#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++
+ #define USB_VENDOR_ID_DATA_MODUL	0x7374
+ #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
+ 
 -- 
 2.27.0
 
