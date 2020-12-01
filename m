@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1126D2C9D6A
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 907102C9CCF
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729475AbgLAJXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:23:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43506 "EHLO mail.kernel.org"
+        id S2388530AbgLAJBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389107AbgLAJG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:06:56 -0500
+        id S2388524AbgLAJBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C89E220671;
-        Tue,  1 Dec 2020 09:06:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14D872223F;
+        Tue,  1 Dec 2020 09:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813600;
-        bh=rN6gPxUS8DRh8+1qK/T7s4B5UJo6x7C1PlbAEhkXmnw=;
+        s=korg; t=1606813263;
+        bh=VCawFnsDnQNth3TO+YKU9YQEsIltI4b3xyFvMrV7n4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4BMXd7FYKKSjr4JggeLr+AHhGMPALRRs3gJj5WBOw0Jz4e8IMELklAL76gkohMsm
-         8v9and35TMvp03cwKeJ7/HutdLe7GLFL3VSnp2a7cRvcIA/xuZvVszgIF5fX+pg82L
-         zvrepaMHispl6dvojHRosqg6aUtf97betan9oP7I=
+        b=rcJTGD4tRBesoqw/2qQrljx96YDJmNKiVkYwjZPEd+Mr9kd7pXE0FhvQiQfsztOdZ
+         VWhTeu1yNR5iLJmWuiY48jEM5eI9mHRu96muwrWu2CYo4px0aLiSA7MDqLtJ8mIT+5
+         TtmQ1sv6bMea+3SUDD+sfQ9mwS1ui1INKxm7WLO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Cui <mikecui@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        Shay Agroskin <shayagr@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 64/98] net: ena: set initial DMA width to avoid intel iommu issue
-Date:   Tue,  1 Dec 2020 09:53:41 +0100
-Message-Id: <20201201084658.225580358@linuxfoundation.org>
+Subject: [PATCH 4.19 38/57] IB/mthca: fix return value of error branch in mthca_init_cq()
+Date:   Tue,  1 Dec 2020 09:53:43 +0100
+Message-Id: <20201201084650.971301510@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 09323b3bca95181c0da79daebc8b0603e500f573 ]
+[ Upstream commit 6830ff853a5764c75e56750d59d0bbb6b26f1835 ]
 
-The ENA driver uses the readless mechanism, which uses DMA, to find
-out what the DMA mask is supposed to be.
+We return 'err' in the error branch, but this variable may be set as zero
+by the above code. Fix it by setting 'err' as a negative value before we
+goto the error label.
 
-If DMA is used without setting the dma_mask first, it causes the
-Intel IOMMU driver to think that ENA is a 32-bit device and therefore
-disables IOMMU passthrough permanently.
-
-This patch sets the dma_mask to be ENA_MAX_PHYS_ADDR_SIZE_BITS=48
-before readless initialization in
-ena_device_init()->ena_com_mmio_reg_read_request_init(),
-which is large enough to workaround the intel_iommu issue.
-
-DMA mask is set again to the correct value after it's received from the
-device after readless is initialized.
-
-The patch also changes the driver to use dma_set_mask_and_coherent()
-function instead of the two pci_set_dma_mask() and
-pci_set_consistent_dma_mask() ones. Both methods achieve the same
-effect.
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Mike Cui <mikecui@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 74c2174e7be5 ("IB uverbs: add mthca user CQ support")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/1605837422-42724-1-git-send-email-wangxiongfeng2@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/mthca/mthca_cq.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 635345bced313..2e5348ec2a2e9 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2622,16 +2622,9 @@ static int ena_device_init(struct ena_com_dev *ena_dev, struct pci_dev *pdev,
- 		goto err_mmio_read_less;
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index a6531ffe29a6f..a5694dec3f2ee 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -808,8 +808,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
  	}
  
--	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_width));
-+	rc = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(dma_width));
- 	if (rc) {
--		dev_err(dev, "pci_set_dma_mask failed 0x%x\n", rc);
--		goto err_mmio_read_less;
--	}
--
--	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(dma_width));
--	if (rc) {
--		dev_err(dev, "err_pci_set_consistent_dma_mask failed 0x%x\n",
--			rc);
-+		dev_err(dev, "dma_set_mask_and_coherent failed %d\n", rc);
- 		goto err_mmio_read_less;
- 	}
- 
-@@ -3450,6 +3443,12 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		return rc;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(ENA_MAX_PHYS_ADDR_SIZE_BITS));
-+	if (rc) {
-+		dev_err(&pdev->dev, "dma_set_mask_and_coherent failed %d\n", rc);
-+		goto err_disable_device;
+ 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
+-	if (IS_ERR(mailbox))
++	if (IS_ERR(mailbox)) {
++		err = PTR_ERR(mailbox);
+ 		goto err_out_arm;
 +	}
-+
- 	pci_set_master(pdev);
  
- 	ena_dev = vzalloc(sizeof(*ena_dev));
+ 	cq_context = mailbox->buf;
+ 
+@@ -851,9 +853,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
+ 	}
+ 
+ 	spin_lock_irq(&dev->cq_table.lock);
+-	if (mthca_array_set(&dev->cq_table.cq,
+-			    cq->cqn & (dev->limits.num_cqs - 1),
+-			    cq)) {
++	err = mthca_array_set(&dev->cq_table.cq,
++			      cq->cqn & (dev->limits.num_cqs - 1), cq);
++	if (err) {
+ 		spin_unlock_irq(&dev->cq_table.lock);
+ 		goto err_out_free_mr;
+ 	}
 -- 
 2.27.0
 
