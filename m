@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74562C9C16
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF832C9C1E
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390379AbgLAJO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:14:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
+        id S2390413AbgLAJPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:15:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390367AbgLAJOz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:14:55 -0500
+        id S2390398AbgLAJPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:15:04 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10BA8221FD;
-        Tue,  1 Dec 2020 09:14:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC5AE221FF;
+        Tue,  1 Dec 2020 09:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814054;
-        bh=LhfZG3xHXZPNbZFuaekbwLOjaC7JiiaJPt/xc2EHxzM=;
+        s=korg; t=1606814057;
+        bh=MlYFzvrcym5z0JHifhqu2N67SRDCBJuqTg8gcfW8wHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTGKDNfllSlFFbZzir5opj7eBxcx0OL3InSCf2x5DW3zVw4OuiUm4VTYnVJNONyAb
-         UbWKILZkBns8hepP4ITFVr55N2h/tbD2LaNGmkRPegQw2YtBCJ4p5VgsG0eNGA9vQO
-         7Jr8zFM/mzKU5KfE3SQTvHetBHvPLJEHgT6jtj6U=
+        b=kcQtw4kGA6cPAG6zwjDs3JVAPE6OJ+ZSInkCsDrUItf2XMFYt2qAwBE+ShQc8D3fP
+         /6FHGc5uK5r36HDaXdviQtafCTBvCYmCm6K/QHQ8vxLSduC/tthDRQymMMm699ZNdl
+         NB3YKxe3KPUCzSDtqORG1koT8yF89JWEI2whkvps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.9 151/152] x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 09:54:26 +0100
-Message-Id: <20201201084731.638470131@linuxfoundation.org>
+        stable@vger.kernel.org, Likun Gao <Likun.Gao@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 152/152] drm/amdgpu: add rlc iram and dram firmware support
+Date:   Tue,  1 Dec 2020 09:54:27 +0100
+Message-Id: <20201201084731.761045636@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -44,159 +43,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Likun Gao <Likun.Gao@amd.com>
 
-commit 758999246965eeb8b253d47e72f7bfe508804b16 upstream.
+commit 843c7eb2f7571aa092a8ea010c80e8d94c197f67 upstream.
 
-On resource group creation via a mkdir an extra kernfs_node reference is
-obtained by kernfs_get() to ensure that the rdtgroup structure remains
-accessible for the rdtgroup_kn_unlock() calls where it is removed on
-deletion. Currently the extra kernfs_node reference count is only
-dropped by kernfs_put() in rdtgroup_kn_unlock() while the rdtgroup
-structure is removed in a few other locations that lack the matching
-reference drop.
+Support to load RLC iram and dram ucode when RLC firmware struct use v2.2
 
-In call paths of rmdir and umount, when a control group is removed,
-kernfs_remove() is called to remove the whole kernfs nodes tree of the
-control group (including the kernfs nodes trees of all child monitoring
-groups), and then rdtgroup structure is freed by kfree(). The rdtgroup
-structures of all child monitoring groups under the control group are
-freed by kfree() in free_all_child_rdtgrp().
-
-Before calling kfree() to free the rdtgroup structures, the kernfs node
-of the control group itself as well as the kernfs nodes of all child
-monitoring groups still take the extra references which will never be
-dropped to 0 and the kernfs nodes will never be freed. It leads to
-reference count leak and kernfs_node_cache memory leak.
-
-For example, reference count leak is observed in these two cases:
-  (1) mount -t resctrl resctrl /sys/fs/resctrl
-      mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      umount /sys/fs/resctrl
-
-  (2) mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      rmdir /sys/fs/resctrl/c1
-
-The same reference count leak issue also exists in the error exit paths
-of mkdir in mkdir_rdt_prepare() and rdtgroup_mkdir_ctrl_mon().
-
-Fix this issue by following changes to make sure the extra kernfs_node
-reference on rdtgroup is dropped before freeing the rdtgroup structure.
-  (1) Introduce rdtgroup removal helper rdtgroup_remove() to wrap up
-  kernfs_put() and kfree().
-
-  (2) Call rdtgroup_remove() in rdtgroup removal path where the rdtgroup
-  structure is about to be freed by kfree().
-
-  (3) Call rdtgroup_remove() or kernfs_put() as appropriate in the error
-  exit paths of mkdir where an extra reference is taken by kernfs_get().
-
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085088-31707-1-git-send-email-xiaochen.shen@intel.com
+Signed-off-by: Likun Gao <Likun.Gao@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c   |    6 ++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h   |    4 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c |   10 +++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h |   11 ++++++++
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c    |   39 +++++++++++++++++++++++++-----
+ drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h   |    4 +--
+ 6 files changed, 66 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -507,6 +507,24 @@ unlock:
- 	return ret ?: nbytes;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1571,6 +1571,12 @@ static int psp_get_fw_type(struct amdgpu
+ 	case AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM:
+ 		*type = GFX_FW_TYPE_RLC_RESTORE_LIST_SRM_MEM;
+ 		break;
++	case AMDGPU_UCODE_ID_RLC_IRAM:
++		*type = GFX_FW_TYPE_RLC_IRAM;
++		break;
++	case AMDGPU_UCODE_ID_RLC_DRAM:
++		*type = GFX_FW_TYPE_RLC_DRAM_BOOT;
++		break;
+ 	case AMDGPU_UCODE_ID_SMC:
+ 		*type = GFX_FW_TYPE_SMU;
+ 		break;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_rlc.h
+@@ -168,12 +168,16 @@ struct amdgpu_rlc {
+ 	u32 save_restore_list_cntl_size_bytes;
+ 	u32 save_restore_list_gpm_size_bytes;
+ 	u32 save_restore_list_srm_size_bytes;
++	u32 rlc_iram_ucode_size_bytes;
++	u32 rlc_dram_ucode_size_bytes;
+ 
+ 	u32 *register_list_format;
+ 	u32 *register_restore;
+ 	u8 *save_restore_list_cntl;
+ 	u8 *save_restore_list_gpm;
+ 	u8 *save_restore_list_srm;
++	u8 *rlc_iram_ucode;
++	u8 *rlc_dram_ucode;
+ 
+ 	bool is_rlc_v2_1;
+ 
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
+@@ -500,6 +500,8 @@ static int amdgpu_ucode_init_single_fw(s
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL &&
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_GPM_MEM &&
+ 	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM &&
++	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_IRAM &&
++	     ucode->ucode_id != AMDGPU_UCODE_ID_RLC_DRAM &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCU_ERAM &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCU_INTV &&
+ 		 ucode->ucode_id != AMDGPU_UCODE_ID_DMCUB)) {
+@@ -556,6 +558,14 @@ static int amdgpu_ucode_init_single_fw(s
+ 		ucode->ucode_size = adev->gfx.rlc.save_restore_list_srm_size_bytes;
+ 		memcpy(ucode->kaddr, adev->gfx.rlc.save_restore_list_srm,
+ 		       ucode->ucode_size);
++	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_RLC_IRAM) {
++		ucode->ucode_size = adev->gfx.rlc.rlc_iram_ucode_size_bytes;
++		memcpy(ucode->kaddr, adev->gfx.rlc.rlc_iram_ucode,
++		       ucode->ucode_size);
++	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_RLC_DRAM) {
++		ucode->ucode_size = adev->gfx.rlc.rlc_dram_ucode_size_bytes;
++		memcpy(ucode->kaddr, adev->gfx.rlc.rlc_dram_ucode,
++		       ucode->ucode_size);
+ 	} else if (ucode->ucode_id == AMDGPU_UCODE_ID_CP_MES) {
+ 		ucode->ucode_size = le32_to_cpu(mes_hdr->mes_ucode_size_bytes);
+ 		memcpy(ucode->kaddr, (void *)((uint8_t *)adev->mes.fw->data +
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.h
+@@ -221,6 +221,15 @@ struct rlc_firmware_header_v2_1 {
+ 	uint32_t save_restore_list_srm_offset_bytes;
+ };
+ 
++/* version_major=2, version_minor=1 */
++struct rlc_firmware_header_v2_2 {
++	struct rlc_firmware_header_v2_1 v2_1;
++	uint32_t rlc_iram_ucode_size_bytes;
++	uint32_t rlc_iram_ucode_offset_bytes;
++	uint32_t rlc_dram_ucode_size_bytes;
++	uint32_t rlc_dram_ucode_offset_bytes;
++};
++
+ /* version_major=1, version_minor=0 */
+ struct sdma_firmware_header_v1_0 {
+ 	struct common_firmware_header header;
+@@ -338,6 +347,8 @@ enum AMDGPU_UCODE_ID {
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL,
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_GPM_MEM,
+ 	AMDGPU_UCODE_ID_RLC_RESTORE_LIST_SRM_MEM,
++	AMDGPU_UCODE_ID_RLC_IRAM,
++	AMDGPU_UCODE_ID_RLC_DRAM,
+ 	AMDGPU_UCODE_ID_RLC_G,
+ 	AMDGPU_UCODE_ID_STORAGE,
+ 	AMDGPU_UCODE_ID_SMC,
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3596,6 +3596,17 @@ static void gfx_v10_0_init_rlc_ext_micro
+ 			le32_to_cpu(rlc_hdr->reg_list_format_direct_reg_list_length);
  }
  
-+/**
-+ * rdtgroup_remove - the helper to remove resource group safely
-+ * @rdtgrp: resource group to remove
-+ *
-+ * On resource group creation via a mkdir, an extra kernfs_node reference is
-+ * taken to ensure that the rdtgroup structure remains accessible for the
-+ * rdtgroup_kn_unlock() calls where it is removed.
-+ *
-+ * Drop the extra reference here, then free the rdtgroup structure.
-+ *
-+ * Return: void
-+ */
-+static void rdtgroup_remove(struct rdtgroup *rdtgrp)
++static void gfx_v10_0_init_rlc_iram_dram_microcode(struct amdgpu_device *adev)
 +{
-+	kernfs_put(rdtgrp->kn);
-+	kfree(rdtgrp);
++	const struct rlc_firmware_header_v2_2 *rlc_hdr;
++
++	rlc_hdr = (const struct rlc_firmware_header_v2_2 *)adev->gfx.rlc_fw->data;
++	adev->gfx.rlc.rlc_iram_ucode_size_bytes = le32_to_cpu(rlc_hdr->rlc_iram_ucode_size_bytes);
++	adev->gfx.rlc.rlc_iram_ucode = (u8 *)rlc_hdr + le32_to_cpu(rlc_hdr->rlc_iram_ucode_offset_bytes);
++	adev->gfx.rlc.rlc_dram_ucode_size_bytes = le32_to_cpu(rlc_hdr->rlc_dram_ucode_size_bytes);
++	adev->gfx.rlc.rlc_dram_ucode = (u8 *)rlc_hdr + le32_to_cpu(rlc_hdr->rlc_dram_ucode_offset_bytes);
 +}
 +
- struct task_move_callback {
- 	struct callback_head	work;
- 	struct rdtgroup		*rdtgrp;
-@@ -529,7 +547,7 @@ static void move_myself(struct callback_
- 	    (rdtgrp->flags & RDT_DELETED)) {
- 		current->closid = 0;
- 		current->rmid = 0;
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	}
- 
- 	if (unlikely(current->flags & PF_EXITING))
-@@ -2004,8 +2022,7 @@ void rdtgroup_kn_unlock(struct kernfs_no
- 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
- 			rdtgroup_pseudo_lock_remove(rdtgrp);
- 		kernfs_unbreak_active_protection(kn);
--		kernfs_put(rdtgrp->kn);
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	} else {
- 		kernfs_unbreak_active_protection(kn);
- 	}
-@@ -2292,7 +2309,7 @@ static void free_all_child_rdtgrp(struct
- 		if (atomic_read(&sentry->waitcount) != 0)
- 			sentry->flags = RDT_DELETED;
- 		else
--			kfree(sentry);
-+			rdtgroup_remove(sentry);
- 	}
- }
- 
-@@ -2334,7 +2351,7 @@ static void rmdir_all_sub(void)
- 		if (atomic_read(&rdtgrp->waitcount) != 0)
- 			rdtgrp->flags = RDT_DELETED;
- 		else
--			kfree(rdtgrp);
-+			rdtgroup_remove(rdtgrp);
- 	}
- 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
- 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
-@@ -2769,7 +2786,7 @@ static int mkdir_rdt_prepare(struct kern
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
- 	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
--	 * which will be dropped inside rdtgroup_kn_unlock().
-+	 * which will be dropped by kernfs_put() in rdtgroup_remove().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2810,6 +2827,7 @@ static int mkdir_rdt_prepare(struct kern
- out_idfree:
- 	free_rmid(rdtgrp->mon.rmid);
- out_destroy:
-+	kernfs_put(rdtgrp->kn);
- 	kernfs_remove(rdtgrp->kn);
- out_free_rgrp:
- 	kfree(rdtgrp);
-@@ -2822,7 +2840,7 @@ static void mkdir_rdt_prepare_clean(stru
+ static bool gfx_v10_0_navi10_gfxoff_should_enable(struct amdgpu_device *adev)
  {
- 	kernfs_remove(rgrp->kn);
- 	free_rmid(rgrp->mon.rmid);
--	kfree(rgrp);
-+	rdtgroup_remove(rgrp);
- }
+ 	bool ret = false;
+@@ -3711,8 +3722,6 @@ static int gfx_v10_0_init_microcode(stru
+ 		rlc_hdr = (const struct rlc_firmware_header_v2_0 *)adev->gfx.rlc_fw->data;
+ 		version_major = le16_to_cpu(rlc_hdr->header.header_version_major);
+ 		version_minor = le16_to_cpu(rlc_hdr->header.header_version_minor);
+-		if (version_major == 2 && version_minor == 1)
+-			adev->gfx.rlc.is_rlc_v2_1 = true;
  
- /*
+ 		adev->gfx.rlc_fw_version = le32_to_cpu(rlc_hdr->header.ucode_version);
+ 		adev->gfx.rlc_feature_version = le32_to_cpu(rlc_hdr->ucode_feature_version);
+@@ -3754,8 +3763,12 @@ static int gfx_v10_0_init_microcode(stru
+ 		for (i = 0 ; i < (rlc_hdr->reg_list_size_bytes >> 2); i++)
+ 			adev->gfx.rlc.register_restore[i] = le32_to_cpu(tmp[i]);
+ 
+-		if (adev->gfx.rlc.is_rlc_v2_1)
+-			gfx_v10_0_init_rlc_ext_microcode(adev);
++		if (version_major == 2) {
++			if (version_minor >= 1)
++				gfx_v10_0_init_rlc_ext_microcode(adev);
++			if (version_minor == 2)
++				gfx_v10_0_init_rlc_iram_dram_microcode(adev);
++		}
+ 	}
+ 
+ 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_mec%s.bin", chip_name, wks);
+@@ -3816,8 +3829,7 @@ static int gfx_v10_0_init_microcode(stru
+ 			adev->firmware.fw_size +=
+ 				ALIGN(le32_to_cpu(header->ucode_size_bytes), PAGE_SIZE);
+ 		}
+-		if (adev->gfx.rlc.is_rlc_v2_1 &&
+-		    adev->gfx.rlc.save_restore_list_cntl_size_bytes &&
++		if (adev->gfx.rlc.save_restore_list_cntl_size_bytes &&
+ 		    adev->gfx.rlc.save_restore_list_gpm_size_bytes &&
+ 		    adev->gfx.rlc.save_restore_list_srm_size_bytes) {
+ 			info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_RESTORE_LIST_CNTL];
+@@ -3837,6 +3849,21 @@ static int gfx_v10_0_init_microcode(stru
+ 			info->fw = adev->gfx.rlc_fw;
+ 			adev->firmware.fw_size +=
+ 				ALIGN(adev->gfx.rlc.save_restore_list_srm_size_bytes, PAGE_SIZE);
++
++			if (adev->gfx.rlc.rlc_iram_ucode_size_bytes &&
++			    adev->gfx.rlc.rlc_dram_ucode_size_bytes) {
++				info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_IRAM];
++				info->ucode_id = AMDGPU_UCODE_ID_RLC_IRAM;
++				info->fw = adev->gfx.rlc_fw;
++				adev->firmware.fw_size +=
++					ALIGN(adev->gfx.rlc.rlc_iram_ucode_size_bytes, PAGE_SIZE);
++
++				info = &adev->firmware.ucode[AMDGPU_UCODE_ID_RLC_DRAM];
++				info->ucode_id = AMDGPU_UCODE_ID_RLC_DRAM;
++				info->fw = adev->gfx.rlc_fw;
++				adev->firmware.fw_size +=
++					ALIGN(adev->gfx.rlc.rlc_dram_ucode_size_bytes, PAGE_SIZE);
++			}
+ 		}
+ 
+ 		info = &adev->firmware.ucode[AMDGPU_UCODE_ID_CP_MEC1];
+--- a/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
++++ b/drivers/gpu/drm/amd/amdgpu/psp_gfx_if.h
+@@ -214,7 +214,7 @@ enum psp_gfx_fw_type {
+ 	GFX_FW_TYPE_UVD1        = 23,   /* UVD1                     VG-20   */
+ 	GFX_FW_TYPE_TOC         = 24,   /* TOC                      NV-10   */
+ 	GFX_FW_TYPE_RLC_P                           = 25,   /* RLC P                    NV      */
+-	GFX_FW_TYPE_RLX6                            = 26,   /* RLX6                     NV      */
++	GFX_FW_TYPE_RLC_IRAM                        = 26,   /* RLC_IRAM                 NV      */
+ 	GFX_FW_TYPE_GLOBAL_TAP_DELAYS               = 27,   /* GLOBAL TAP DELAYS        NV      */
+ 	GFX_FW_TYPE_SE0_TAP_DELAYS                  = 28,   /* SE0 TAP DELAYS           NV      */
+ 	GFX_FW_TYPE_SE1_TAP_DELAYS                  = 29,   /* SE1 TAP DELAYS           NV      */
+@@ -236,7 +236,7 @@ enum psp_gfx_fw_type {
+ 	GFX_FW_TYPE_ACCUM_CTRL_RAM                  = 45,   /* ACCUM CTRL RAM           NV      */
+ 	GFX_FW_TYPE_RLCP_CAM                        = 46,   /* RLCP CAM                 NV      */
+ 	GFX_FW_TYPE_RLC_SPP_CAM_EXT                 = 47,   /* RLC SPP CAM EXT          NV      */
+-	GFX_FW_TYPE_RLX6_DRAM_BOOT                  = 48,   /* RLX6 DRAM BOOT           NV      */
++	GFX_FW_TYPE_RLC_DRAM_BOOT                   = 48,   /* RLC DRAM BOOT            NV      */
+ 	GFX_FW_TYPE_VCN0_RAM                        = 49,   /* VCN_RAM                  NV + RN */
+ 	GFX_FW_TYPE_VCN1_RAM                        = 50,   /* VCN_RAM                  NV + RN */
+ 	GFX_FW_TYPE_DMUB                            = 51,   /* DMUB                          RN */
 
 
