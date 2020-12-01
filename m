@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A2E2C9C9E
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A842C9DD8
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbgLAIzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57748 "EHLO mail.kernel.org"
+        id S2388421AbgLAJ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:28:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728965AbgLAIzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:05 -0500
+        id S2388420AbgLAJAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:53 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E654E2222C;
-        Tue,  1 Dec 2020 08:53:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 237742223F;
+        Tue,  1 Dec 2020 09:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812837;
-        bh=RhMxrXaQglKe7p18zzosxorZXKKDBSr6PbsUM8x8qLk=;
+        s=korg; t=1606813206;
+        bh=krr+BXO3ubjqEgMxgDqhjCLFm4hDcYwCqMWmI9NCuNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjLKcS7plNKVejoGqtvqcRK7Fcc9CwlS4rCO4MjPB33Nf3zTJYOdH3fPMGq3v6E3N
-         j3AjDD3q7A4cQwYKSycAmUe0vHz22ihRaTHdmEp5dWbIaOPmauda4RHhuUYmLIcUJW
-         JvWAcQQU5Bcvojrbhr4mkORAUizt98WyqPaklCYg=
+        b=cfev4CUj9xLwKG9zi6souxNKfbkuwv69tTjwNcKGPQ85yyTi5ZxmmqfiNhrt4w7f5
+         dAe3piL+2kXZPB+bg35BOQWThK1f0uGokpcOEjZqToPJZ5PvQpCh4cZHxdh5e+CuXf
+         FTtc9hiWao0Ii8QwqQb+wQ7vbFyI21OBXPj8ALCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        David Laight <David.Laight@aculab.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Brian Masney <bmasney@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 18/24] efivarfs: revert "fix memory leak in efivarfs_create()"
+Subject: [PATCH 4.19 19/57] x86/xen: dont unbind uninitialized lock_kicker_irq
 Date:   Tue,  1 Dec 2020 09:53:24 +0100
-Message-Id: <20201201084638.661650900@linuxfoundation.org>
+Message-Id: <20201201084649.984032041@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-References: <20201201084637.754785180@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Brian Masney <bmasney@redhat.com>
 
-[ Upstream commit ff04f3b6f2e27f8ae28a498416af2a8dd5072b43 ]
+[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
 
-The memory leak addressed by commit fe5186cf12e3 is a false positive:
-all allocations are recorded in a linked list, and freed when the
-filesystem is unmounted. This leads to double frees, and as reported
-by David, leads to crashes if SLUB is configured to self destruct when
-double frees occur.
+When booting a hyperthreaded system with the kernel parameter
+'mitigations=auto,nosmt', the following warning occurs:
 
-So drop the redundant kfree() again, and instead, mark the offending
-pointer variable so the allocation is ignored by kmemleak.
+    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
+    ...
+    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
+    ...
+    Call Trace:
+     xen_uninit_lock_cpu+0x28/0x62
+     xen_hvm_cpu_die+0x21/0x30
+     takedown_cpu+0x9c/0xe0
+     ? trace_suspend_resume+0x60/0x60
+     cpuhp_invoke_callback+0x9a/0x530
+     _cpu_up+0x11a/0x130
+     cpu_up+0x7e/0xc0
+     bringup_nonboot_cpus+0x48/0x50
+     smp_init+0x26/0x79
+     kernel_init_freeable+0xea/0x229
+     ? rest_init+0xaa/0xaa
+     kernel_init+0xa/0x106
+     ret_from_fork+0x35/0x40
 
-Cc: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Fixes: fe5186cf12e3 ("efivarfs: fix memory leak in efivarfs_create()")
-Reported-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+The secondary CPUs are not activated with the nosmt mitigations and only
+the primary thread on each CPU core is used. In this situation,
+xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
+not called, so the lock_kicker_irq is not initialized for the secondary
+CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
+irq is not set to avoid the warning from above for each secondary CPU.
+
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/efivarfs/inode.c | 2 ++
- fs/efivarfs/super.c | 1 -
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/xen/spinlock.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
-index e2ab6d0497f2b..151884b95ee2f 100644
---- a/fs/efivarfs/inode.c
-+++ b/fs/efivarfs/inode.c
-@@ -10,6 +10,7 @@
- #include <linux/efi.h>
- #include <linux/fs.h>
- #include <linux/ctype.h>
-+#include <linux/kmemleak.h>
- #include <linux/slab.h>
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 717b4847b473f..6fffb86a32add 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -101,10 +101,20 @@ void xen_init_lock_cpu(int cpu)
  
- #include "internal.h"
-@@ -138,6 +139,7 @@ static int efivarfs_create(struct inode *dir, struct dentry *dentry,
- 	var->var.VariableName[i] = '\0';
- 
- 	inode->i_private = var;
-+	kmemleak_ignore(var);
- 
- 	efivar_entry_add(var, &efivarfs_list);
- 	d_instantiate(dentry, inode);
-diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 0e4f20377d196..fca235020312d 100644
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,7 +23,6 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
+ void xen_uninit_lock_cpu(int cpu)
  {
- 	clear_inode(inode);
--	kfree(inode->i_private);
- }
++	int irq;
++
+ 	if (!xen_pvspin)
+ 		return;
  
- static const struct super_operations efivarfs_ops = {
+-	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
++	/*
++	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
++	 * CPUs are not activated, and lock_kicker_irq is not initialized.
++	 */
++	irq = per_cpu(lock_kicker_irq, cpu);
++	if (irq == -1)
++		return;
++
++	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+ 	kfree(per_cpu(irq_name, cpu));
+ 	per_cpu(irq_name, cpu) = NULL;
 -- 
 2.27.0
 
