@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F182C9A6D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E21AC2C9A93
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387816AbgLAI51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:57:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S2388001AbgLAI64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729248AbgLAI5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:57:25 -0500
+        id S2388029AbgLAI6y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B0F0221FD;
-        Tue,  1 Dec 2020 08:56:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCA9F21D7A;
+        Tue,  1 Dec 2020 08:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813004;
-        bh=H06m4XaXDEk9/hbe0x+PxElOB0uisivjggLwd6N0cWk=;
+        s=korg; t=1606813093;
+        bh=RccXeOf06Uamqb4/AwKlFrIiqLaMCZpeLLEmrTHswvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8h8wiPtSks/Rs6u5JTjR1jlrhc9MOW7+QfOoXpK9+8yPJ65WvpQUxBFh/dpGRxyN
-         zi4/RTzcRqfM0fnVGi1bNKhTYDJQyja6dFK/OPZZi0lSMWt3yNikOFvOxWJSqH6lgG
-         TXhYxfR/J5wist+Dy1OHbR+7R38abSapa03se8UI=
+        b=WY7pahdMJpCQyeft58MlHicv8Kidy/A7TqFF0e2ffFrudoIAMGaZHoJSLLJlYP85b
+         mfZ9JehFKtvNAiskSPsIldoiAQbHN+lLiv76q9t6PYs6wMuSqoUwHoskxBCysnJ4Fp
+         n71SbGGwwV6B5mYDzG8PqZuTEIjAYxmOLrQCqUso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        David Laight <David.Laight@aculab.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/42] efivarfs: revert "fix memory leak in efivarfs_create()"
-Date:   Tue,  1 Dec 2020 09:53:29 +0100
-Message-Id: <20201201084644.780505975@linuxfoundation.org>
+        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/50] video: hyperv_fb: Fix the cache type when mapping the VRAM
+Date:   Tue,  1 Dec 2020 09:53:30 +0100
+Message-Id: <20201201084648.875214121@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit ff04f3b6f2e27f8ae28a498416af2a8dd5072b43 ]
+[ Upstream commit 5f1251a48c17b54939d7477305e39679a565382c ]
 
-The memory leak addressed by commit fe5186cf12e3 is a false positive:
-all allocations are recorded in a linked list, and freed when the
-filesystem is unmounted. This leads to double frees, and as reported
-by David, leads to crashes if SLUB is configured to self destruct when
-double frees occur.
+x86 Hyper-V used to essentially always overwrite the effective cache type
+of guest memory accesses to WB. This was problematic in cases where there
+is a physical device assigned to the VM, since that often requires that
+the VM should have control over cache types. Thus, on newer Hyper-V since
+2018, Hyper-V always honors the VM's cache type, but unexpectedly Linux VM
+users start to complain that Linux VM's VRAM becomes very slow, and it
+turns out that Linux VM should not map the VRAM uncacheable by ioremap().
+Fix this slowness issue by using ioremap_cache().
 
-So drop the redundant kfree() again, and instead, mark the offending
-pointer variable so the allocation is ignored by kmemleak.
+On ARM64, ioremap_cache() is also required as the host also maps the VRAM
+cacheable, otherwise VM Connect can't display properly with ioremap() or
+ioremap_wc().
 
-Cc: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Fixes: fe5186cf12e3 ("efivarfs: fix memory leak in efivarfs_create()")
-Reported-by: David Laight <David.Laight@aculab.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+With this change, the VRAM on new Hyper-V is as fast as regular RAM, so
+it's no longer necessary to use the hacks we added to mitigate the
+slowness, i.e. we no longer need to allocate physical memory and use
+it to back up the VRAM in Generation-1 VM, and we also no longer need to
+allocate physical memory to back up the framebuffer in a Generation-2 VM
+and copy the framebuffer to the real VRAM. A further big change will
+address these for v5.11.
+
+Fixes: 68a2d20b79b1 ("drivers/video: add Hyper-V Synthetic Video Frame Buffer Driver")
+Tested-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Link: https://lore.kernel.org/r/20201118000305.24797-1-decui@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/efivarfs/inode.c | 2 ++
- fs/efivarfs/super.c | 1 -
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/hyperv_fb.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
-index 71fccccf317e8..5decb3e06563f 100644
---- a/fs/efivarfs/inode.c
-+++ b/fs/efivarfs/inode.c
-@@ -10,6 +10,7 @@
- #include <linux/efi.h>
- #include <linux/fs.h>
- #include <linux/ctype.h>
-+#include <linux/kmemleak.h>
- #include <linux/slab.h>
- #include <linux/uuid.h>
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 2fd49b2358f8b..f3938c5278832 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 		goto err1;
+ 	}
  
-@@ -104,6 +105,7 @@ static int efivarfs_create(struct inode *dir, struct dentry *dentry,
- 	var->var.VariableName[i] = '\0';
+-	fb_virt = ioremap(par->mem->start, screen_fb_size);
++	/*
++	 * Map the VRAM cacheable for performance. This is also required for
++	 * VM Connect to display properly for ARM64 Linux VM, as the host also
++	 * maps the VRAM cacheable.
++	 */
++	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
+ 	if (!fb_virt)
+ 		goto err2;
  
- 	inode->i_private = var;
-+	kmemleak_ignore(var);
- 
- 	err = efivar_entry_add(var, &efivarfs_list);
- 	if (err)
-diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index bbf056191aaa4..b1e6acec53041 100644
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,7 +23,6 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
--	kfree(inode->i_private);
- }
- 
- static const struct super_operations efivarfs_ops = {
 -- 
 2.27.0
 
