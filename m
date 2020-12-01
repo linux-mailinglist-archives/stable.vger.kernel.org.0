@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 829BF2C9C0F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 120082C9B40
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390340AbgLAJOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:14:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53472 "EHLO mail.kernel.org"
+        id S2388742AbgLAJGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390335AbgLAJOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:14:40 -0500
+        id S2388737AbgLAJGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:06:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BBA020671;
-        Tue,  1 Dec 2020 09:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3BB722240;
+        Tue,  1 Dec 2020 09:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814040;
-        bh=ECs0fNFD/mlQePsxXxRgX6EAPUBJt8Tf9FBGnP/2KTc=;
+        s=korg; t=1606813535;
+        bh=GDxCK7EMhtJ09P+XOLtIuIB5aM9MsET/FEncrx5ptPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4qJFzS6Atj6ob+JVhrmPocxsJuupAYRMW4VDlhN1TNHLhJtj33oABaDjjtKNHRuQ
-         ikY0m2USc1NNWd/FW0Zf3X88kNniN6Y7dEliW1DKLDS0XCsrF5TMC+Tm7Hiy8hvOkw
-         7KERc25LW6xHZ1aOzG9yPfTdhdCk4sGC2CuLmVug=
+        b=flsmlZFn283k/Im+i2F5D+cop6zHhaPU9y3Mcqn5Ge+fIx/EzhDutDJAJFzz5t6at
+         bUOiBRCtqpHtcs3oWbLQ0m1AgeO7SsQogUoZolCe3x/Vbk8KwkUHG3qY3ivd9LpwMX
+         DFxSBh2CRBUz+7jxVnnG7yONRUkHdBg6Xukk1RCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Tosk Robot <tencent_os_robot@tencent.com>,
+        Kaixu Xia <kaixuxia@tencent.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 115/152] ibmvnic: fix NULL pointer dereference in ibmvic_reset_crq
+Subject: [PATCH 5.4 73/98] platform/x86: toshiba_acpi: Fix the wrong variable assignment
 Date:   Tue,  1 Dec 2020 09:53:50 +0100
-Message-Id: <20201201084726.893841670@linuxfoundation.org>
+Message-Id: <20201201084658.641015672@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Kaixu Xia <kaixuxia@tencent.com>
 
-[ Upstream commit 0e435befaea45f7ea58682eecab5e37e05b2ce65 ]
+[ Upstream commit 2a72c46ac4d665614faa25e267c3fb27fb729ed7 ]
 
-crq->msgs could be NULL if the previous reset did not complete after
-freeing crq->msgs. Check for NULL before dereferencing them.
+The commit 78429e55e4057 ("platform/x86: toshiba_acpi: Clean up
+variable declaration") cleans up variable declaration in
+video_proc_write(). Seems it does the variable assignment in the
+wrong place, this results in dead code and changes the source code
+logic. Fix it by doing the assignment at the beginning of the funciton.
 
-Snippet of call trace:
-...
-ibmvnic 30000003 env3 (unregistering): Releasing sub-CRQ
-ibmvnic 30000003 env3 (unregistering): Releasing CRQ
-BUG: Kernel NULL pointer dereference on read at 0x00000000
-Faulting instruction address: 0xc0000000000c1a30
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: ibmvnic(E-) rpadlpar_io rpaphp xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_counter nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables xsk_diag tcp_diag udp_diag tun raw_diag inet_diag unix_diag bridge af_packet_diag netlink_diag stp llc rfkill sunrpc pseries_rng xts vmx_crypto uio_pdrv_genirq uio binfmt_misc ip_tables xfs libcrc32c sd_mod t10_pi sg ibmvscsi ibmveth scsi_transport_srp dm_mirror dm_region_hash dm_log dm_mod [last unloaded: ibmvnic]
-CPU: 20 PID: 8426 Comm: kworker/20:0 Tainted: G            E     5.10.0-rc1+ #12
-Workqueue: events __ibmvnic_reset [ibmvnic]
-NIP:  c0000000000c1a30 LR: c008000001b00c18 CTR: 0000000000000400
-REGS: c00000000d05b7a0 TRAP: 0380   Tainted: G            E      (5.10.0-rc1+)
-MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 44002480  XER: 20040000
-CFAR: c0000000000c19ec IRQMASK: 0
-GPR00: 0000000000000400 c00000000d05ba30 c008000001b17c00 0000000000000000
-GPR04: 0000000000000000 0000000000000000 0000000000000000 00000000000001e2
-GPR08: 000000000001f400 ffffffffffffd950 0000000000000000 c008000001b0b280
-GPR12: c0000000000c19c8 c00000001ec72e00 c00000000019a778 c00000002647b440
-GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR20: 0000000000000006 0000000000000001 0000000000000003 0000000000000002
-GPR24: 0000000000001000 c008000001b0d570 0000000000000005 c00000007ab5d550
-GPR28: c00000007ab5c000 c000000032fcf848 c00000007ab5cc00 c000000032fcf800
-NIP [c0000000000c1a30] memset+0x68/0x104
-LR [c008000001b00c18] ibmvnic_reset_crq+0x70/0x110 [ibmvnic]
-Call Trace:
-[c00000000d05ba30] [0000000000000800] 0x800 (unreliable)
-[c00000000d05bab0] [c008000001b0a930] do_reset.isra.40+0x224/0x634 [ibmvnic]
-[c00000000d05bb80] [c008000001b08574] __ibmvnic_reset+0x17c/0x3c0 [ibmvnic]
-[c00000000d05bc50] [c00000000018d9ac] process_one_work+0x2cc/0x800
-[c00000000d05bd20] [c00000000018df58] worker_thread+0x78/0x520
-[c00000000d05bdb0] [c00000000019a934] kthread+0x1c4/0x1d0
-[c00000000d05be20] [c00000000000d5d0] ret_from_kernel_thread+0x5c/0x6c
-
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 78429e55e4057 ("platform/x86: toshiba_acpi: Clean up variable declaration")
+Reported-by: Tosk Robot <tencent_os_robot@tencent.com>
+Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
+Link: https://lore.kernel.org/r/1606024177-16481-1-git-send-email-kaixuxia@tencent.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/toshiba_acpi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 349d0b3d9edc3..af8c10e629f88 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4919,6 +4919,9 @@ static int ibmvnic_reset_crq(struct ibmvnic_adapter *adapter)
- 	} while (rc == H_BUSY || H_IS_LONG_BUSY(rc));
+diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
+index a1e6569427c34..71a969fc3b206 100644
+--- a/drivers/platform/x86/toshiba_acpi.c
++++ b/drivers/platform/x86/toshiba_acpi.c
+@@ -1485,7 +1485,7 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
+ 	struct toshiba_acpi_dev *dev = PDE_DATA(file_inode(file));
+ 	char *buffer;
+ 	char *cmd;
+-	int lcd_out, crt_out, tv_out;
++	int lcd_out = -1, crt_out = -1, tv_out = -1;
+ 	int remain = count;
+ 	int value;
+ 	int ret;
+@@ -1517,7 +1517,6 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
  
- 	/* Clean out the queue */
-+	if (!crq->msgs)
-+		return -EINVAL;
-+
- 	memset(crq->msgs, 0, PAGE_SIZE);
- 	crq->cur = 0;
- 	crq->active = false;
+ 	kfree(cmd);
+ 
+-	lcd_out = crt_out = tv_out = -1;
+ 	ret = get_video_status(dev, &video_out);
+ 	if (!ret) {
+ 		unsigned int new_video_out = video_out;
 -- 
 2.27.0
 
