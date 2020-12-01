@@ -2,117 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E264B2C9A40
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8252C9C63
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729148AbgLAI4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:56:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59034 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbgLAI4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:56:24 -0500
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7916422240;
-        Tue,  1 Dec 2020 08:56:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812969;
-        bh=30qxOdba0SGU317bjycn3Qc0y33qxUee770q+x1BktM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6x9NpsFAe+KWx3uPx7huj9X+3ljRspd62Ssq9wr1DdYvni03nAuAzJU9ESZHu0qL
-         bGwtl7WYY+I31ho/EPRQLJ/a8YXcify5svtV+JN44V9cObwqIVrV4bpTJvhESHdiG7
-         eTK/hLvwNOybvRXFfHUlO4FQzHdUebOwQKw4sr88=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.9 38/42] x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
-Date:   Tue,  1 Dec 2020 09:53:36 +0100
-Message-Id: <20201201084645.598458089@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S2389536AbgLAJRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:17:52 -0500
+Received: from 142-4-6-44.unifiedlayer.com ([142.4.6.44]:49918 "EHLO
+        142-4-6-44.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389576AbgLAJLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 04:11:39 -0500
+Received: from aghogho239 by 142-4-6-44.ipage.com with local (Exim 4.93)
+        (envelope-from <aghogho239@142-4-6-44.ipage.com>)
+        id 1kk11m-0005fi-QE; Tue, 01 Dec 2020 01:28:51 -0700
+To:     stanislaw.woronowicz@fuw.edu.pl
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: modproofread092.org/mail2/send.php for 129.205.113.251
+X-PHP-Originating-Script: 1001:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1kk11m-0005fi-QE@142-4-6-44.ipage.com>
+Date:   Tue, 01 Dec 2020 01:28:50 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-6-44.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-6-44.ipage.com
+X-Get-Message-Sender-Via: 142-4-6-44.ipage.com: authenticated_id: aghogho239/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-6-44.ipage.com: aghogho239
+X-Source: 
+X-Source-Args: php-fpm: pool modproofread092_org                        
+X-Source-Dir: modproofread092.org:/public_html/mail2
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
-commit 33fc379df76b4991e5ae312f07bcd6820811971e upstream.
 
-When spectre_v2_user={seccomp,prctl},ibpb is specified on the command
-line, IBPB is force-enabled and STIPB is conditionally-enabled (or not
-available).
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-However, since
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author’s learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
-  21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
 
-the spectre_v2_user_ibpb variable is set to SPECTRE_V2_USER_{PRCTL,SECCOMP}
-instead of SPECTRE_V2_USER_STRICT, which is the actual behaviour.
-Because the issuing of IBPB relies on the switch_mm_*_ibpb static
-branches, the mitigations behave as expected.
+Our charges are as follows: $25 per 1000 words, meaning
 
-Since
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
 
-  1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
 
-this discrepency caused the misreporting of IB speculation via prctl().
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
 
-On CPUs with STIBP always-on and spectre_v2_user=seccomp,ibpb,
-prctl(PR_GET_SPECULATION_CTRL) would return PR_SPEC_PRCTL |
-PR_SPEC_ENABLE instead of PR_SPEC_DISABLE since both IBPB and STIPB are
-always on. It also allowed prctl(PR_SET_SPECULATION_CTRL) to set the IB
-speculation mode, even though the flag is ignored.
+Best regards,
 
-Similarly, for CPUs without SMT, prctl(PR_GET_SPECULATION_CTRL) should
-also return PR_SPEC_DISABLE since IBPB is always on and STIBP is not
-available.
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
 
- [ bp: Massage commit message. ]
-
-Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
-Fixes: 1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201110123349.1.Id0cbf996d2151f4c143c90f9028651a5b49a5908@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/x86/kernel/cpu/bugs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -732,11 +732,13 @@ spectre_v2_user_select_mitigation(enum s
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
- 
-+		spectre_v2_user_ibpb = mode;
- 		switch (cmd) {
- 		case SPECTRE_V2_USER_CMD_FORCE:
- 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
- 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 			static_branch_enable(&switch_mm_always_ibpb);
-+			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
- 			break;
- 		case SPECTRE_V2_USER_CMD_PRCTL:
- 		case SPECTRE_V2_USER_CMD_AUTO:
-@@ -750,8 +752,6 @@ spectre_v2_user_select_mitigation(enum s
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
--
--		spectre_v2_user_ibpb = mode;
- 	}
- 
- 	/*
-
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
 
