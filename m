@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5AD2C9AF9
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C31822C9B9D
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388683AbgLAJDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:03:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
+        id S2389699AbgLAJK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:10:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388678AbgLAJDd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:33 -0500
+        id S2389692AbgLAJK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92F062223F;
-        Tue,  1 Dec 2020 09:02:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 363A420809;
+        Tue,  1 Dec 2020 09:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813371;
-        bh=SVqRuYvl6eTCC7W6WAdcfgqBgCfDOcO2AnZ42XFkZnM=;
+        s=korg; t=1606813785;
+        bh=HViE9c8brhrjU3l7RPPt1FUV46WqjkcfRXug6evrFyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erAAFJUYfMfsyWG99A4FLa1L2/bVJcCiEfpUnLXxqNhu0t6CX2/9nPJRIMlqHYfdb
-         jhJr30IYpn2Vs6cl2bRVzmXcxAfSfjPAF0Kr/H/VsW085MaPni4VoDO82SksVIuJ4o
-         KOXvExHuvSKCXYq4KxXrYQE8QCYVcz0uPk1zIAiM=
+        b=vrzK2tsjEMMqi3r8k+KQIaX5V33oryACBNahZwRCvcDZnXkRfCcjQ+6JiO0G6e+zG
+         bMn5Nzh7Qjbsvnf/HxSpMyi43HhMe3PguhMUKFKLgyMb6OQ7tx67ozFjHUrpDYnfjL
+         mMYF1AjPdjn+WeRr9SgnwbA2JMYxV1gI6Epoar9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nikos Tsironis <ntsironis@arrikto.com>
-Subject: [PATCH 5.4 17/98] KVM: x86: Fix split-irqchip vs interrupt injection window request
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 059/152] vhost scsi: fix cmd completion race
 Date:   Tue,  1 Dec 2020 09:52:54 +0100
-Message-Id: <20201201084654.920393515@linuxfoundation.org>
+Message-Id: <20201201084719.660923627@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +46,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 71cc849b7093bb83af966c0e60cb11b7f35cd746 upstream.
+[ Upstream commit 47a3565e8bb14ec48a75b48daf57aa830e2691f8 ]
 
-kvm_cpu_accept_dm_intr and kvm_vcpu_ready_for_interrupt_injection are
-a hodge-podge of conditions, hacked together to get something that
-more or less works.  But what is actually needed is much simpler;
-in both cases the fundamental question is, do we have a place to stash
-an interrupt if userspace does KVM_INTERRUPT?
+We might not do the final se_cmd put from vhost_scsi_complete_cmd_work.
+When the last put happens a little later then we could race where
+vhost_scsi_complete_cmd_work does vhost_signal, the guest runs and sends
+more IO, and vhost_scsi_handle_vq runs but does not find any free cmds.
 
-In userspace irqchip mode, that is !vcpu->arch.interrupt.injected.
-Currently kvm_event_needs_reinjection(vcpu) covers it, but it is
-unnecessarily restrictive.
+This patch has us delay completing the cmd until the last lio core ref
+is dropped. We then know that once we signal to the guest that the cmd
+is completed that if it queues a new command it will find a free cmd.
 
-In split irqchip mode it's a bit more complicated, we need to check
-kvm_apic_accept_pic_intr(vcpu) (the IRQ window exit is basically an INTACK
-cycle and thus requires ExtINTs not to be masked) as well as
-!pending_userspace_extint(vcpu).  However, there is no need to
-check kvm_event_needs_reinjection(vcpu), since split irqchip keeps
-pending ExtINT state separate from event injection state, and checking
-kvm_cpu_has_interrupt(vcpu) is wrong too since ExtINT has higher
-priority than APIC interrupts.  In fact the latter fixes a bug:
-when userspace requests an IRQ window vmexit, an interrupt in the
-local APIC can cause kvm_cpu_has_interrupt() to be true and thus
-kvm_vcpu_ready_for_interrupt_injection() to return false.  When this
-happens, vcpu_run does not exit to userspace but the interrupt window
-vmexits keep occurring.  The VM loops without any hope of making progress.
-
-Once we try to fix these with something like
-
-     return kvm_arch_interrupt_allowed(vcpu) &&
--        !kvm_cpu_has_interrupt(vcpu) &&
--        !kvm_event_needs_reinjection(vcpu) &&
--        kvm_cpu_accept_dm_intr(vcpu);
-+        (!lapic_in_kernel(vcpu)
-+         ? !vcpu->arch.interrupt.injected
-+         : (kvm_apic_accept_pic_intr(vcpu)
-+            && !pending_userspace_extint(v)));
-
-we realize two things.  First, thanks to the previous patch the complex
-conditional can reuse !kvm_cpu_has_extint(vcpu).  Second, the interrupt
-window request in vcpu_enter_guest()
-
-        bool req_int_win =
-                dm_request_for_irq_injection(vcpu) &&
-                kvm_cpu_accept_dm_intr(vcpu);
-
-should be kept in sync with kvm_vcpu_ready_for_interrupt_injection():
-it is unnecessary to ask the processor for an interrupt window
-if we would not be able to return to userspace.  Therefore,
-kvm_cpu_accept_dm_intr(vcpu) is basically !kvm_cpu_has_extint(vcpu)
-ANDed with the existing check for masked ExtINT.  It all makes sense:
-
-- we can accept an interrupt from userspace if there is a place
-  to stash it (and, for irqchip split, ExtINTs are not masked).
-  Interrupts from userspace _can_ be accepted even if right now
-  EFLAGS.IF=0.
-
-- in order to tell userspace we will inject its interrupt ("IRQ
-  window open" i.e. kvm_vcpu_ready_for_interrupt_injection), both
-  KVM and the vCPU need to be ready to accept the interrupt.
-
-... and this is what the patch implements.
-
-Reported-by: David Woodhouse <dwmw@amazon.co.uk>
-Analyzed-by: David Woodhouse <dwmw@amazon.co.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Tested-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
+Link: https://lore.kernel.org/r/1604986403-4931-4-git-send-email-michael.christie@oracle.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/irq.c              |    2 +-
- arch/x86/kvm/x86.c              |   18 ++++++++++--------
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/vhost/scsi.c | 42 +++++++++++++++---------------------------
+ 1 file changed, 15 insertions(+), 27 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1560,6 +1560,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
- int kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
- int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
-+int kvm_cpu_has_extint(struct kvm_vcpu *v);
- int kvm_arch_interrupt_allowed(struct kvm_vcpu *vcpu);
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v);
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -40,7 +40,7 @@ static int pending_userspace_extint(stru
-  * check if there is pending interrupt from
-  * non-APIC source without intack.
-  */
--static int kvm_cpu_has_extint(struct kvm_vcpu *v)
-+int kvm_cpu_has_extint(struct kvm_vcpu *v)
- {
- 	/*
- 	 * FIXME: interrupt.injected represents an interrupt whose
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3624,21 +3624,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index e31339be7dd78..5d8850f5aef16 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -322,7 +322,7 @@ static u32 vhost_scsi_tpg_get_inst_index(struct se_portal_group *se_tpg)
+ 	return 1;
+ }
  
- static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
+-static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
++static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
  {
-+	/*
-+	 * We can accept userspace's request for interrupt injection
-+	 * as long as we have a place to store the interrupt number.
-+	 * The actual injection will happen when the CPU is able to
-+	 * deliver the interrupt.
-+	 */
-+	if (kvm_cpu_has_extint(vcpu))
-+		return false;
+ 	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
+ 				struct vhost_scsi_cmd, tvc_se_cmd);
+@@ -344,6 +344,16 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ 	vhost_scsi_put_inflight(inflight);
+ }
+ 
++static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
++{
++	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
++					struct vhost_scsi_cmd, tvc_se_cmd);
++	struct vhost_scsi *vs = cmd->tvc_vhost;
 +
-+	/* Acknowledging ExtINT does not happen if LINT0 is masked.  */
- 	return (!lapic_in_kernel(vcpu) ||
- 		kvm_apic_accept_pic_intr(vcpu));
- }
- 
--/*
-- * if userspace requested an interrupt window, check that the
-- * interrupt window is open.
-- *
-- * No need to exit to userspace if we already have an interrupt queued.
-- */
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
++	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
++	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
++}
++
+ static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
  {
- 	return kvm_arch_interrupt_allowed(vcpu) &&
--		!kvm_cpu_has_interrupt(vcpu) &&
--		!kvm_event_needs_reinjection(vcpu) &&
- 		kvm_cpu_accept_dm_intr(vcpu);
+ 	return 0;
+@@ -366,28 +376,15 @@ static int vhost_scsi_get_cmd_state(struct se_cmd *se_cmd)
+ 	return 0;
  }
  
+-static void vhost_scsi_complete_cmd(struct vhost_scsi_cmd *cmd)
+-{
+-	struct vhost_scsi *vs = cmd->tvc_vhost;
+-
+-	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
+-
+-	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
+-}
+-
+ static int vhost_scsi_queue_data_in(struct se_cmd *se_cmd)
+ {
+-	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+-				struct vhost_scsi_cmd, tvc_se_cmd);
+-	vhost_scsi_complete_cmd(cmd);
++	transport_generic_free_cmd(se_cmd, 0);
+ 	return 0;
+ }
+ 
+ static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
+ {
+-	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+-				struct vhost_scsi_cmd, tvc_se_cmd);
+-	vhost_scsi_complete_cmd(cmd);
++	transport_generic_free_cmd(se_cmd, 0);
+ 	return 0;
+ }
+ 
+@@ -433,15 +430,6 @@ vhost_scsi_allocate_evt(struct vhost_scsi *vs,
+ 	return evt;
+ }
+ 
+-static void vhost_scsi_free_cmd(struct vhost_scsi_cmd *cmd)
+-{
+-	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
+-
+-	/* TODO locking against target/backend threads? */
+-	transport_generic_free_cmd(se_cmd, 0);
+-
+-}
+-
+ static int vhost_scsi_check_stop_free(struct se_cmd *se_cmd)
+ {
+ 	return target_put_sess_cmd(se_cmd);
+@@ -560,7 +548,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ 		} else
+ 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
+ 
+-		vhost_scsi_free_cmd(cmd);
++		vhost_scsi_release_cmd_res(se_cmd);
+ 	}
+ 
+ 	vq = -1;
+@@ -1091,7 +1079,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 						      &prot_iter, exp_data_len,
+ 						      &data_iter))) {
+ 				vq_err(vq, "Failed to map iov to sgl\n");
+-				vhost_scsi_release_cmd(&cmd->tvc_se_cmd);
++				vhost_scsi_release_cmd_res(&cmd->tvc_se_cmd);
+ 				goto err;
+ 			}
+ 		}
+-- 
+2.27.0
+
 
 
