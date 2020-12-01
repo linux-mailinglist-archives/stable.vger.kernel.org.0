@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64C922C9A19
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016B62C9A16
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729104AbgLAIzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57722 "EHLO mail.kernel.org"
+        id S1729080AbgLAIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729090AbgLAIzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:21 -0500
+        id S1729073AbgLAIzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:18 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C98F221FF;
-        Tue,  1 Dec 2020 08:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7B6022245;
+        Tue,  1 Dec 2020 08:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812895;
-        bh=cNppHkZnF3+Z7WHrTwu0Ms/zaJMXaE3guCjcVLUTt4s=;
+        s=korg; t=1606812872;
+        bh=N/9mYrylQeD41uQIKVHiCHGYsB0T/taFOwU3YpP8X10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhvdi4mOrb8JUipJwnUkTJvTm1COlmhDhsmr25bMrwwNdDXSt0MOg/Obm6nfUEwXY
-         NVKhH+cPf7CScLGIg3cI65CFh0wbV3X3HQ18f5KXDL8M00MGbX1oEyXuG7BosX6yFs
-         g8Pr6x2AR7+KOHDSleVUm5Cm8i6DfWVZqV62Pf+I=
+        b=2h/DVU6s9hsG+U4+vuw9ZrjMUQ8ASDtVm7YSKDNsLo4xDwSJojocst3Fkb32h1kNN
+         dyfTl4S9NJZZ5I6qgdo5WD1MysGbgTpMA9yCxx1ln/qkM2Do4Sczum2+xMEC7+A0i7
+         FErKV+rC6G4sjgbqLtSgROJppgUGX7eOxo22IFv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/42] HID: hid-sensor-hub: Fix issue with devices with no report ID
-Date:   Tue,  1 Dec 2020 09:53:11 +0100
-Message-Id: <20201201084642.846849568@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Masney <bmasney@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 07/24] x86/xen: dont unbind uninitialized lock_kicker_irq
+Date:   Tue,  1 Dec 2020 09:53:13 +0100
+Message-Id: <20201201084638.114361390@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Brian Masney <bmasney@redhat.com>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit 65cae18882f943215d0505ddc7e70495877308e6 ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+When booting a hyperthreaded system with the kernel parameter
+'mitigations=auto,nosmt', the following warning occurs:
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+    WARNING: CPU: 0 PID: 1 at drivers/xen/events/events_base.c:1112 unbind_from_irqhandler+0x4e/0x60
+    ...
+    Hardware name: Xen HVM domU, BIOS 4.2.amazon 08/24/2006
+    ...
+    Call Trace:
+     xen_uninit_lock_cpu+0x28/0x62
+     xen_hvm_cpu_die+0x21/0x30
+     takedown_cpu+0x9c/0xe0
+     ? trace_suspend_resume+0x60/0x60
+     cpuhp_invoke_callback+0x9a/0x530
+     _cpu_up+0x11a/0x130
+     cpu_up+0x7e/0xc0
+     bringup_nonboot_cpus+0x48/0x50
+     smp_init+0x26/0x79
+     kernel_init_freeable+0xea/0x229
+     ? rest_init+0xaa/0xaa
+     kernel_init+0xa/0x106
+     ret_from_fork+0x35/0x40
+
+The secondary CPUs are not activated with the nosmt mitigations and only
+the primary thread on each CPU core is used. In this situation,
+xen_hvm_smp_prepare_cpus(), and more importantly xen_init_lock_cpu(), is
+not called, so the lock_kicker_irq is not initialized for the secondary
+CPUs. Let's fix this by exiting early in xen_uninit_lock_cpu() if the
+irq is not set to avoid the warning from above for each secondary CPU.
+
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+Link: https://lore.kernel.org/r/20201107011119.631442-1-bmasney@redhat.com
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/xen/spinlock.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4ef73374a8f98..7001f07ca3996 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -489,7 +489,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 85872a08994a1..e9fc0f7df0da8 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -301,10 +301,20 @@ void xen_init_lock_cpu(int cpu)
  
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
+ void xen_uninit_lock_cpu(int cpu)
+ {
++	int irq;
++
+ 	if (!xen_pvspin)
+ 		return;
  
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
+-	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
++	/*
++	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
++	 * CPUs are not activated, and lock_kicker_irq is not initialized.
++	 */
++	irq = per_cpu(lock_kicker_irq, cpu);
++	if (irq == -1)
++		return;
++
++	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+ 	kfree(per_cpu(irq_name, cpu));
+ 	per_cpu(irq_name, cpu) = NULL;
 -- 
 2.27.0
 
