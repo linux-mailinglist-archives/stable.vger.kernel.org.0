@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A622C9AD7
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D7E2C9AAC
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbgLAJBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
+        id S2388197AbgLAI7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727729AbgLAJBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:33 -0500
+        id S2387525AbgLAI7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1CEF20671;
-        Tue,  1 Dec 2020 09:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22A83217A0;
+        Tue,  1 Dec 2020 08:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813278;
-        bh=Iydk144FX0Xn6424CqCVcybGpfiJwRh5rskHhF/g9gE=;
+        s=korg; t=1606813174;
+        bh=nMcV0TF/rDiiyT2nMQ2/33+20aLpple7nWMURFyN7HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HlEHmDd/0oaP5V2H6XRC1hwXm9z94bYfz0a8UTS7DSra1J8idkD27AEegfAJgrqw9
-         0ExxOW77JfQcGOiJCdm0KaY7VeQIDKWFj5hwrJaQhT9Ie9j3qgJguA83j0KKX5H2ju
-         ANki22v+DucEEZmbZSGL3/BCWarhFCxxSUDwZLek=
+        b=R1zwL5DFFdWn8EYMxX1W+nXhyOLsWHZCOdSeErh9v9vTqBlr8MilFc7Z7v9ijcLKW
+         UmrA1bQdlZY4qkQC/sdXDuwwYKAgPzgLMFHvaNay42SZ61mcsunOQMnsamWCkWLNoE
+         QfHqhYfC0co397cNxDuzMD+qBPZ2e+1gMvWC7Ufs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rui.silva@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/57] optee: add writeback to valid memory type
-Date:   Tue,  1 Dec 2020 09:53:48 +0100
-Message-Id: <20201201084651.213385348@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 50/50] USB: core: Fix regression in Hercules audio card
+Date:   Tue,  1 Dec 2020 09:53:49 +0100
+Message-Id: <20201201084650.574312710@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rui.silva@linaro.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 853735e404244f5496cdb6188c5ed9a0f9627ee6 ]
+commit 184eead057cc7e803558269babc1f2cfb9113ad1 upstream
 
-Only in smp systems the cache policy is setup as write alloc, in
-single cpu systems the cache policy is set as writeback and it is
-normal memory, so, it should pass the is_normal_memory check in the
-share memory registration.
+Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+aimed to make the USB stack more reliable by detecting and skipping
+over endpoints that are duplicated between interfaces.  This caused a
+regression for a Hercules audio card (reported as Bugzilla #208357),
+which contains such non-compliant duplications.  Although the
+duplications are harmless, skipping the valid endpoints prevented the
+device from working.
 
-Add the right condition to make it work in no smp systems.
+This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
+the Hercules card, telling the kernel to ignore the invalid duplicate
+endpoints and thereby allowing the valid endpoints to be used as
+intended.
 
-Fixes: cdbcf83d29c1 ("tee: optee: check type of registered shared memory")
-Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+CC: <stable@vger.kernel.org>
+Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: use usb_endpoint_blacklist and USB_QUIRK_ENDPOINT_BLACKLIST]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/call.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-index a5afbe6dee686..7cb7efe62b011 100644
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -538,7 +538,8 @@ void optee_free_pages_list(void *list, size_t num_entries)
- static bool is_normal_memory(pgprot_t p)
- {
- #if defined(CONFIG_ARM)
--	return (pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC;
-+	return (((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC) ||
-+		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK));
- #elif defined(CONFIG_ARM64)
- 	return (pgprot_val(p) & PTE_ATTRINDX_MASK) == PTE_ATTRINDX(MT_NORMAL);
- #else
--- 
-2.27.0
-
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -195,6 +195,10 @@ static const struct usb_device_id usb_qu
+ 	/* Guillemot Webcam Hercules Dualpix Exchange*/
+ 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
++	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
++	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
++			USB_QUIRK_ENDPOINT_BLACKLIST },
++
+ 	/* Midiman M-Audio Keystation 88es */
+ 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
+@@ -351,6 +355,8 @@ static const struct usb_device_id usb_am
+  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
+  */
+ static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
+ 	{ }
+ };
+ 
 
 
