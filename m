@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131372C9C9C
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 444E12C9DE3
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbgLAIzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57764 "EHLO mail.kernel.org"
+        id S2388339AbgLAJ2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728985AbgLAIzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:02 -0500
+        id S2387704AbgLAJAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BCC02223C;
-        Tue,  1 Dec 2020 08:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5471522241;
+        Tue,  1 Dec 2020 09:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812845;
-        bh=fvR6XWov8DypphIb0Z8ChDOSG2vyMU6R67aQSSW+6z0=;
+        s=korg; t=1606813218;
+        bh=BPqbe0gbcVunVD/u3ObKzwmK2U47O1STxy5S5ZJKU1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDESN+E+0HMUKWdeiM8eN0LfsBYJT0MVpAHJ+ycKBPWXaiJRnbsVGPrsD6wi9dXwN
-         Lummsr1ZLBgN9Wy0iGbMtlKQsZ6nxcT1DPbllcB8d/ylQatJWHdO7y1xj7zPye/gke
-         EUlAx38Pse6AJloyIrhRGXF1qG/Lx9pNEdcRhDhg=
+        b=ChwmQ2MSuRfpIexsyCZEF7uBOzbrSLB3HvvIUCRcdHWB6DJy7L3SwwDwmd+67gCsC
+         EqZegPBVjaC5vlLQJQYIhmSig58/I1oykZUIjrzd2VmGz232zLNjTqCZmxsEJSzBv5
+         U1gYXe8O4Sl+OwyKRNAqijJgg9zFYJ0aza7A+MpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.4 20/24] USB: core: Change %pK for __user pointers to %px
-Date:   Tue,  1 Dec 2020 09:53:26 +0100
-Message-Id: <20201201084638.765195922@linuxfoundation.org>
+        stable@vger.kernel.org, Minwoo Im <minwoo.im.dev@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/57] nvme: free sq/cq dbbuf pointers when dbbuf set fails
+Date:   Tue,  1 Dec 2020 09:53:27 +0100
+Message-Id: <20201201084650.273213507@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-References: <20201201084637.754785180@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Minwoo Im <minwoo.im.dev@gmail.com>
 
-commit f3bc432aa8a7a2bfe9ebb432502be5c5d979d7fe upstream.
+[ Upstream commit 0f0d2c876c96d4908a9ef40959a44bec21bdd6cf ]
 
-Commit 2f964780c03b ("USB: core: replace %p with %pK") used the %pK
-format specifier for a bunch of __user pointers.  But as the 'K' in
-the specifier indicates, it is meant for kernel pointers.  The reason
-for the %pK specifier is to avoid leaks of kernel addresses, but when
-the pointer is to an address in userspace the security implications
-are minimal.  In particular, no kernel information is leaked.
+If Doorbell Buffer Config command fails even 'dev->dbbuf_dbs != NULL'
+which means OACS indicates that NVME_CTRL_OACS_DBBUF_SUPP is set,
+nvme_dbbuf_update_and_check_event() will check event even it's not been
+successfully set.
 
-This patch changes the __user %pK specifiers (used in a bunch of
-debugging output lines) to %px, which will always print the actual
-address with no mangling.  (Notably, there is no printk format
-specifier particularly intended for __user pointers.)
+This patch fixes mismatch among dbbuf for sq/cqs in case that dbbuf
+command fails.
 
-Fixes: 2f964780c03b ("USB: core: replace %p with %pK")
-CC: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201119170228.GB576844@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/devio.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -369,11 +369,11 @@ static void snoop_urb(struct usb_device
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 3c68a5b35ec1b..a52b2f15f372a 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -276,9 +276,21 @@ static void nvme_dbbuf_init(struct nvme_dev *dev,
+ 	nvmeq->dbbuf_cq_ei = &dev->dbbuf_eis[cq_idx(qid, dev->db_stride)];
+ }
  
- 	if (userurb) {		/* Async */
- 		if (when == SUBMIT)
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"length %u\n",
- 					userurb, ep, t, d, length);
- 		else
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"actual_length %u status %d\n",
- 					userurb, ep, t, d, length,
- 					timeout_or_status);
++static void nvme_dbbuf_free(struct nvme_queue *nvmeq)
++{
++	if (!nvmeq->qid)
++		return;
++
++	nvmeq->dbbuf_sq_db = NULL;
++	nvmeq->dbbuf_cq_db = NULL;
++	nvmeq->dbbuf_sq_ei = NULL;
++	nvmeq->dbbuf_cq_ei = NULL;
++}
++
+ static void nvme_dbbuf_set(struct nvme_dev *dev)
+ {
+ 	struct nvme_command c;
++	unsigned int i;
+ 
+ 	if (!dev->dbbuf_dbs)
+ 		return;
+@@ -292,6 +304,9 @@ static void nvme_dbbuf_set(struct nvme_dev *dev)
+ 		dev_warn(dev->ctrl.device, "unable to set dbbuf\n");
+ 		/* Free memory and continue on */
+ 		nvme_dbbuf_dma_free(dev);
++
++		for (i = 1; i <= dev->online_queues; i++)
++			nvme_dbbuf_free(&dev->queues[i]);
+ 	}
+ }
+ 
+-- 
+2.27.0
+
 
 
