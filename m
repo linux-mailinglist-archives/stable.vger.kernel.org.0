@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8E42C9B1F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4418E2C9BA2
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388727AbgLAJDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:03:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40836 "EHLO mail.kernel.org"
+        id S2389740AbgLAJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:10:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388716AbgLAJDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:03:43 -0500
+        id S2389732AbgLAJKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DC5F2067D;
-        Tue,  1 Dec 2020 09:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C36B122240;
+        Tue,  1 Dec 2020 09:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813377;
-        bh=k5DVzzqjaDSJoLUEeJg5gBxnwWjkgZXI9Cmyy6Ji0BI=;
+        s=korg; t=1606813791;
+        bh=4/iLExguJ1tDhA1BXY/9athNkJAZVQDynwf9L9ClHE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwuZ2gLU6vYA2qfpS1cdbAEhgjdusfsh+WLijXqmGIBnNtFPvCnDQRwEip1cg4nBF
-         h0gcvHK0cOPl3ISrpypQDKJd9hp0E7i69p5QxwR2mBNW2fZ9xY0pft4T1seVQzHbQY
-         dNuK8Cj12IGW9YMmpjjhgurAw2f4EgscrasMCVRY=
+        b=FlzumnBizLqKp97Bg3oXk3YeLqJt03LUXBheQI0xdSuBdH+T4xCczn8STCgSifnO4
+         SgpE61s9CwwUuZhEXaLnhqiskCEiLOweyT1+rNGKQkPUZN6rFNYrbLAq7g5G9OLfHP
+         0yh3fAOFK9acycPxsBLnJmT/EIA7/TBLgRdoiD1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Zhao <yuzhao@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 19/98] arm64: pgtable: Fix pte_accessible()
+        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 061/152] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
 Date:   Tue,  1 Dec 2020 09:52:56 +0100
-Message-Id: <20201201084655.160489931@linuxfoundation.org>
+Message-Id: <20201201084719.903487658@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-commit 07509e10dcc77627f8b6a57381e878fe269958d3 upstream.
+[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
 
-pte_accessible() is used by ptep_clear_flush() to figure out whether TLB
-invalidation is necessary when unmapping pages for reclaim. Although our
-implementation is correct according to the architecture, returning true
-only for valid, young ptes in the absence of racing page-table
-modifications, this is in fact flawed due to lazy invalidation of old
-ptes in ptep_clear_flush_young() where we elide the expensive DSB
-instruction for completing the TLB invalidation.
+Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
+we should use burst size, not desc->rqcfg.brst_size.
 
-Rather than penalise the aging path, adjust pte_accessible() to return
-true for any valid pte, even if the access flag is cleared.
+dma memcpy performance on Rockchip RV1126
+@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
 
-Cc: <stable@vger.kernel.org>
-Fixes: 76c714be0e5e ("arm64: pgtable: implement pte_accessible()")
-Reported-by: Yu Zhao <yuzhao@google.com>
-Acked-by: Yu Zhao <yuzhao@google.com>
-Reviewed-by: Minchan Kim <minchan@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20201120143557.6715-2-will@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+dmatest:
 
+/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
+/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
+/# echo 8 > /sys/module/dmatest/parameters/iterations
+/# echo y > /sys/module/dmatest/parameters/norandom
+/# echo y > /sys/module/dmatest/parameters/verbose
+/# echo 1 > /sys/module/dmatest/parameters/run
+
+dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+
+Before:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
+
+After this patch:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
+
+After this patch and increase dma clk to 400MHz:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
+
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/dma/pl330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -98,8 +98,6 @@ extern unsigned long empty_zero_page[PAG
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
- #define pte_valid_not_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
--#define pte_valid_young(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
+diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
+index 5274a0704d960..2c3c47e4f7770 100644
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2802,7 +2802,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
+ 	 * If burst size is smaller than bus width then make sure we only
+ 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
+ 	 */
+-	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
++	if (burst * 8 < pl330->pcfg.data_bus_width)
+ 		desc->rqcfg.brst_len = 1;
  
-@@ -107,9 +105,12 @@ extern unsigned long empty_zero_page[PAG
-  * Could the pte be present in the TLB? We must check mm_tlb_flush_pending
-  * so that we don't erroneously return false for pages that have been
-  * remapped as PROT_NONE but are yet to be flushed from the TLB.
-+ * Note that we can't make any assumptions based on the state of the access
-+ * flag, since ptep_clear_flush_young() elides a DSB when invalidating the
-+ * TLB.
-  */
- #define pte_accessible(mm, pte)	\
--	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
-+	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
- 
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
+ 	desc->bytes_requested = len;
+-- 
+2.27.0
+
 
 
