@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D022CA7A6
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F722CA7A5
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 17:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391995AbgLAQB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391998AbgLAQB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 1 Dec 2020 11:01:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42702 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388270AbgLAQB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 11:01:27 -0500
+        id S2391609AbgLAQB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 11:01:28 -0500
 Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23FE02224A;
+        by mail.kernel.org (Postfix) with ESMTPSA id 688692222E;
         Tue,  1 Dec 2020 16:00:07 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.94)
         (envelope-from <rostedt@goodmis.org>)
-        id 1kk84U-002R6y-1M; Tue, 01 Dec 2020 11:00:06 -0500
-Message-ID: <20201201160005.921595496@goodmis.org>
+        id 1kk84U-002R7w-AR; Tue, 01 Dec 2020 11:00:06 -0500
+Message-ID: <20201201160006.206022360@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Tue, 01 Dec 2020 10:58:41 -0500
+Date:   Tue, 01 Dec 2020 10:58:43 -0500
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org,
-        Andrea Righi <andrea.righi@canonical.com>
-Subject: [for-linus][PATCH 06/12] ring-buffer: Set the right timestamp in the slow path of
- __rb_reserve_next()
+        Ingo Molnar <mingo@redhat.com>, stable@vger.kernel.org,
+        Vasily Averin <vvs@virtuozzo.com>
+Subject: [for-linus][PATCH 08/12] tracing: Remove WARN_ON in start_thread()
 References: <20201201155835.647858317@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
@@ -38,47 +36,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-In the slow path of __rb_reserve_next() a nested event(s) can happen
-between evaluating the timestamp delta of the current event and updating
-write_stamp via local_cmpxchg(); in this case the delta is not valid
-anymore and it should be set to 0 (same timestamp as the interrupting
-event), since the event that we are currently processing is not the last
-event in the buffer.
+This patch reverts commit 978defee11a5 ("tracing: Do a WARN_ON()
+ if start_thread() in hwlat is called when thread exists")
 
-Link: https://lkml.kernel.org/r/X8IVJcp1gRE+FJCJ@xps-13-7390
+.start hook can be legally called several times if according
+tracer is stopped
+
+screen window 1
+[root@localhost ~]# echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
+[root@localhost ~]# echo 1 > /sys/kernel/tracing/options/pause-on-trace
+[root@localhost ~]# less -F /sys/kernel/tracing/trace
+
+screen window 2
+[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
+0
+[root@localhost ~]# echo hwlat >  /sys/kernel/debug/tracing/current_tracer
+[root@localhost ~]# echo 1 > /sys/kernel/debug/tracing/tracing_on
+[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
+0
+[root@localhost ~]# echo 2 > /sys/kernel/debug/tracing/tracing_on
+
+triggers warning in dmesg:
+WARNING: CPU: 3 PID: 1403 at kernel/trace/trace_hwlat.c:371 hwlat_tracer_start+0xc9/0xd0
+
+Link: https://lkml.kernel.org/r/bd4d3e70-400d-9c82-7b73-a2d695e86b58@virtuozzo.com
 
 Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lwn.net/Articles/831207
-Fixes: a389d86f7fd0 ("ring-buffer: Have nested events still record running time stamp")
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Fixes: 978defee11a5 ("tracing: Do a WARN_ON() if start_thread() in hwlat is called when thread exists")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- kernel/trace/ring_buffer.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/trace_hwlat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index bccaf88d3706..35d91b20d47a 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -3287,11 +3287,11 @@ __rb_reserve_next(struct ring_buffer_per_cpu *cpu_buffer,
- 		ts = rb_time_stamp(cpu_buffer->buffer);
- 		barrier();
-  /*E*/		if (write == (local_read(&tail_page->write) & RB_WRITE_MASK) &&
--		    info->after < ts) {
-+		    info->after < ts &&
-+		    rb_time_cmpxchg(&cpu_buffer->write_stamp,
-+				    info->after, ts)) {
- 			/* Nothing came after this event between C and E */
- 			info->delta = ts - info->after;
--			(void)rb_time_cmpxchg(&cpu_buffer->write_stamp,
--					      info->after, ts);
- 			info->ts = ts;
- 		} else {
- 			/*
+diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
+index c9ad5c6fbaad..d071fc271eef 100644
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -368,7 +368,7 @@ static int start_kthread(struct trace_array *tr)
+ 	struct task_struct *kthread;
+ 	int next_cpu;
+ 
+-	if (WARN_ON(hwlat_kthread))
++	if (hwlat_kthread)
+ 		return 0;
+ 
+ 	/* Just pick the first CPU on first iteration */
 -- 
 2.28.0
 
