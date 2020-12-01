@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3052C9A99
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 424B62C9BC8
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388064AbgLAI7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:59:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34784 "EHLO mail.kernel.org"
+        id S2389907AbgLAJMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:12:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388057AbgLAI7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:59:05 -0500
+        id S2389886AbgLAJMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:03 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 963322222E;
-        Tue,  1 Dec 2020 08:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5015920671;
+        Tue,  1 Dec 2020 09:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813105;
-        bh=JUOFd22DVgRIQGtUWwgaGyH/QHsn4SiS35LQzHEuxRA=;
+        s=korg; t=1606813907;
+        bh=bS7P7B3lMjsOed17TZjqOIDLwmzE7rc+WAAwBchKx/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPJIfS+6CYYz1Lka5JDyGZopfn8G40SYG027vKdDq6KsfFsPef+GCpkpJ/mfSs6Qu
-         k8D2dDqk6+tED1p/eA8n3B9ZHcar18LwFvSnXOQ27aiAdk09eUasOMdR0TnHeMEiGc
-         U6fZYhGBCrvDlPYE90tzKFsRw+a6wN/wm0w9kT40=
+        b=jeQIRDyzVbsSXqKlYTCrEbgnpe5gpHuontMehmW5sXEsyFC+fZAFac19I8hiE8Ksb
+         a5tMPeZDJPPSjmjV6YCrLkawKISpXT4zulX4rSei0tTahuv/xKtjuN/W/v/iCI1t1/
+         K5+F6hWlFZ54Zr2urGtUVi1q6sF+tmvjGxZRK6d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Cui <mikecui@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        Shay Agroskin <shayagr@amazon.com>,
+        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/50] net: ena: set initial DMA width to avoid intel iommu issue
-Date:   Tue,  1 Dec 2020 09:53:34 +0100
-Message-Id: <20201201084649.364603007@linuxfoundation.org>
+Subject: [PATCH 5.9 100/152] ibmvnic: fix call_netdevice_notifiers in do_reset
+Date:   Tue,  1 Dec 2020 09:53:35 +0100
+Message-Id: <20201201084724.963956594@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Lijun Pan <ljp@linux.ibm.com>
 
-[ Upstream commit 09323b3bca95181c0da79daebc8b0603e500f573 ]
+[ Upstream commit 8393597579f5250636f1cff157ea73f402b6501e ]
 
-The ENA driver uses the readless mechanism, which uses DMA, to find
-out what the DMA mask is supposed to be.
+When netdev_notify_peers was substituted in
+commit 986103e7920c ("net/ibmvnic: Fix RTNL deadlock during device reset"),
+call_netdevice_notifiers(NETDEV_RESEND_IGMP, dev) was missed.
+Fix it now.
 
-If DMA is used without setting the dma_mask first, it causes the
-Intel IOMMU driver to think that ENA is a 32-bit device and therefore
-disables IOMMU passthrough permanently.
-
-This patch sets the dma_mask to be ENA_MAX_PHYS_ADDR_SIZE_BITS=48
-before readless initialization in
-ena_device_init()->ena_com_mmio_reg_read_request_init(),
-which is large enough to workaround the intel_iommu issue.
-
-DMA mask is set again to the correct value after it's received from the
-device after readless is initialized.
-
-The patch also changes the driver to use dma_set_mask_and_coherent()
-function instead of the two pci_set_dma_mask() and
-pci_set_consistent_dma_mask() ones. Both methods achieve the same
-effect.
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Mike Cui <mikecui@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Fixes: 986103e7920c ("net/ibmvnic: Fix RTNL deadlock during device reset")
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+Reviewed-by: Dany Madden <drt@linux.ibm.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index d9ece9ac6f53c..938170b91f85e 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2474,16 +2474,9 @@ static int ena_device_init(struct ena_com_dev *ena_dev, struct pci_dev *pdev,
- 		goto err_mmio_read_less;
- 	}
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index c6ee42278fdcf..723651b34f94d 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2087,8 +2087,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 	for (i = 0; i < adapter->req_rx_queues; i++)
+ 		napi_schedule(&adapter->napi[i]);
  
--	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_width));
-+	rc = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(dma_width));
- 	if (rc) {
--		dev_err(dev, "pci_set_dma_mask failed 0x%x\n", rc);
--		goto err_mmio_read_less;
--	}
--
--	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(dma_width));
--	if (rc) {
--		dev_err(dev, "err_pci_set_consistent_dma_mask failed 0x%x\n",
--			rc);
-+		dev_err(dev, "dma_set_mask_and_coherent failed %d\n", rc);
- 		goto err_mmio_read_less;
- 	}
- 
-@@ -3141,6 +3134,12 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		return rc;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(ENA_MAX_PHYS_ADDR_SIZE_BITS));
-+	if (rc) {
-+		dev_err(&pdev->dev, "dma_set_mask_and_coherent failed %d\n", rc);
-+		goto err_disable_device;
+-	if (adapter->reset_reason != VNIC_RESET_FAILOVER)
++	if (adapter->reset_reason != VNIC_RESET_FAILOVER) {
+ 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
++		call_netdevice_notifiers(NETDEV_RESEND_IGMP, netdev);
 +	}
-+
- 	pci_set_master(pdev);
  
- 	ena_dev = vzalloc(sizeof(*ena_dev));
+ 	rc = 0;
+ 
 -- 
 2.27.0
 
