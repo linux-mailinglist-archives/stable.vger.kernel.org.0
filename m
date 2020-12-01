@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6038E2C9B74
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2FE2C9B6D
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389277AbgLAJIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:08:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46058 "EHLO mail.kernel.org"
+        id S2389194AbgLAJIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:08:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389266AbgLAJIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:08:36 -0500
+        id S2389181AbgLAJIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:17 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDE2D22245;
-        Tue,  1 Dec 2020 09:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B12782067D;
+        Tue,  1 Dec 2020 09:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813675;
-        bh=OIl2PaLR6m+mUydIo7T59Uy4mlHqDn+kQDtyLPEktvA=;
+        s=korg; t=1606813681;
+        bh=0ZKrzedkeNaQQav56syj/ZPxW7yKpfWqhJQGXPQPkac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGpOLu8VQqTynyZLFGZkUaUiJHkgcZo8T8r2iJUqVsyMGsfeXRCSmzLBmjmLJ9WCw
-         Yvwz7XY73iQhAwgQUiSrdZJfoLUbLooaNY6QuhfKILZrqw1kXfpsU8BSlHsmq/Ugfy
-         LJizv9BpRIZ+KF8XRzNPewUiT9+xLgGQPyKcKHe4=
+        b=KSZi3euRtWOSS6IRz+Ps9oKFYNtzWgmPZITQXxjrF3fbJ3FUp4S/fJn2jtOof7nXK
+         Je6yaStEMLDgLUPD6ywk2IINso8akPXeOMN0QWdFter7/S5OrcwlEv0sBYmPJ/qcML
+         WhlFFqabtk4pDWTx+ohiQEFDiWV38S1Pyunt2CKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.9 021/152] powerpc/64s/exception: KVM Fix for host DSI being taken in HPT guest MMU context
-Date:   Tue,  1 Dec 2020 09:52:16 +0100
-Message-Id: <20201201084714.627633394@linuxfoundation.org>
+        stable@vger.kernel.org, Keqian Zhu <zhukeqian1@huawei.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH 5.9 023/152] KVM: arm64: vgic-v3: Drop the reporting of GICR_TYPER.Last for userspace
+Date:   Tue,  1 Dec 2020 09:52:18 +0100
+Message-Id: <20201201084714.917455697@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -42,74 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-commit cd81acc600a9684ea4b4d25a47900d38a3890eab upstream.
+commit 23bde34771f1ea92fb5e6682c0d8c04304d34b3b upstream.
 
-Commit 2284ffea8f0c ("powerpc/64s/exception: Only test KVM in SRR
-interrupts when PR KVM is supported") removed KVM guest tests from
-interrupts that do not set HV=1, when PR-KVM is not configured.
+It was recently reported that if GICR_TYPER is accessed before the RD base
+address is set, we'll suffer from the unset @rdreg dereferencing. Oops...
 
-This is wrong for HV-KVM HPT guest MMIO emulation case which attempts
-to load the faulting instruction word with MSR[DR]=1 and MSR[HV]=1 with
-the guest MMU context loaded. This can cause host DSI, DSLB interrupts
-which must test for KVM guest. Restore this and add a comment.
+	gpa_t last_rdist_typer = rdreg->base + GICR_TYPER +
+			(rdreg->free_index - 1) * KVM_VGIC_V3_REDIST_SIZE;
 
-Fixes: 2284ffea8f0c ("powerpc/64s/exception: Only test KVM in SRR interrupts when PR KVM is supported")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201117135617.3521127-1-npiggin@gmail.com
+It's "expected" that users will access registers in the redistributor if
+the RD has been properly configured (e.g., the RD base address is set). But
+it hasn't yet been covered by the existing documentation.
+
+Per discussion on the list [1], the reporting of the GICR_TYPER.Last bit
+for userspace never actually worked. And it's difficult for us to emulate
+it correctly given that userspace has the flexibility to access it any
+time. Let's just drop the reporting of the Last bit for userspace for now
+(userspace should have full knowledge about it anyway) and it at least
+prevents kernel from panic ;-)
+
+[1] https://lore.kernel.org/kvmarm/c20865a267e44d1e2c0d52ce4e012263@kernel.org/
+
+Fixes: ba7b3f1275fd ("KVM: arm/arm64: Revisit Redistributor TYPER last bit computation")
+Reported-by: Keqian Zhu <zhukeqian1@huawei.com>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20201117151629.1738-1-yuzenghui@huawei.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/exceptions-64s.S |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/vgic/vgic-mmio-v3.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1410,6 +1410,11 @@ END_FTR_SECTION_IFSET(CPU_FTR_HVMODE)
-  *   If none is found, do a Linux page fault. Linux page faults can happen in
-  *   kernel mode due to user copy operations of course.
-  *
-+ *   KVM: The KVM HDSI handler may perform a load with MSR[DR]=1 in guest
-+ *   MMU context, which may cause a DSI in the host, which must go to the
-+ *   KVM handler. MSR[IR] is not enabled, so the real-mode handler will
-+ *   always be used regardless of AIL setting.
-+ *
-  * - Radix MMU
-  *   The hardware loads from the Linux page table directly, so a fault goes
-  *   immediately to Linux page fault.
-@@ -1420,10 +1425,8 @@ INT_DEFINE_BEGIN(data_access)
- 	IVEC=0x300
- 	IDAR=1
- 	IDSISR=1
--#ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
- 	IKVM_SKIP=1
- 	IKVM_REAL=1
--#endif
- INT_DEFINE_END(data_access)
+--- a/arch/arm64/kvm/vgic/vgic-mmio-v3.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio-v3.c
+@@ -273,6 +273,23 @@ static unsigned long vgic_mmio_read_v3r_
+ 	return extract_bytes(value, addr & 7, len);
+ }
  
- EXC_REAL_BEGIN(data_access, 0x300, 0x80)
-@@ -1462,6 +1465,8 @@ ALT_MMU_FTR_SECTION_END_IFCLR(MMU_FTR_TY
-  *   ppc64_bolted_size (first segment). The kernel handler must avoid stomping
-  *   on user-handler data structures.
-  *
-+ *   KVM: Same as 0x300, DSLB must test for KVM guest.
-+ *
-  * A dedicated save area EXSLB is used (XXX: but it actually need not be
-  * these days, we could use EXGEN).
-  */
-@@ -1470,10 +1475,8 @@ INT_DEFINE_BEGIN(data_access_slb)
- 	IAREA=PACA_EXSLB
- 	IRECONCILE=0
- 	IDAR=1
--#ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
- 	IKVM_SKIP=1
- 	IKVM_REAL=1
--#endif
- INT_DEFINE_END(data_access_slb)
- 
- EXC_REAL_BEGIN(data_access_slb, 0x380, 0x80)
++static unsigned long vgic_uaccess_read_v3r_typer(struct kvm_vcpu *vcpu,
++						 gpa_t addr, unsigned int len)
++{
++	unsigned long mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
++	int target_vcpu_id = vcpu->vcpu_id;
++	u64 value;
++
++	value = (u64)(mpidr & GENMASK(23, 0)) << 32;
++	value |= ((target_vcpu_id & 0xffff) << 8);
++
++	if (vgic_has_its(vcpu->kvm))
++		value |= GICR_TYPER_PLPIS;
++
++	/* reporting of the Last bit is not supported for userspace */
++	return extract_bytes(value, addr & 7, len);
++}
++
+ static unsigned long vgic_mmio_read_v3r_iidr(struct kvm_vcpu *vcpu,
+ 					     gpa_t addr, unsigned int len)
+ {
+@@ -593,8 +610,9 @@ static const struct vgic_register_region
+ 	REGISTER_DESC_WITH_LENGTH(GICR_IIDR,
+ 		vgic_mmio_read_v3r_iidr, vgic_mmio_write_wi, 4,
+ 		VGIC_ACCESS_32bit),
+-	REGISTER_DESC_WITH_LENGTH(GICR_TYPER,
+-		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi, 8,
++	REGISTER_DESC_WITH_LENGTH_UACCESS(GICR_TYPER,
++		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi,
++		vgic_uaccess_read_v3r_typer, vgic_mmio_uaccess_write_wi, 8,
+ 		VGIC_ACCESS_64bit | VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH(GICR_WAKER,
+ 		vgic_mmio_read_raz, vgic_mmio_write_wi, 4,
 
 
