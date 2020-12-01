@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD5B2C9C40
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D4F2C9C1A
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390140AbgLAJQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:16:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52712 "EHLO mail.kernel.org"
+        id S2390396AbgLAJPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:15:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390304AbgLAJO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:14:27 -0500
+        id S2390389AbgLAJPA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:15:00 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3132922210;
-        Tue,  1 Dec 2020 09:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB5D8206CA;
+        Tue,  1 Dec 2020 09:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814051;
-        bh=2ZY6ZZMuDMDx79nb1i4SSXUBP3ODfo1zx0V353m6TMM=;
+        s=korg; t=1606814060;
+        bh=dHXjmeE6FYGVRb6S8w2kvnBpoApvG1nJ8ma+eJ9ENVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wk9vqa9Jmw+ULkrEGGxcRD0NJtay8ONJ/9eKXwcLEmMrYOuutxBomV3mdQJDaEEBP
-         FirEDPGiz33JELbvGTtcN23ydwaY9sHKkqT7P8GTRmWgzOtiiKz8nPG4YlopZQA3EF
-         DiqEgzWjBqVrMGe6cqIVuEX5WHj7duIwyBOswdSU=
+        b=uer5cYoWJB6WJPH3rZsXeJgHKetT8W7pck6/3iew7dq4SjnNp3q8/jXV/J1QhXDWU
+         jyGQPMRG+mbgbQ47EEh7R2AS/+gliAhxqLdNwoIv5LIhtZdJX9RfODlfWSCVxxegh4
+         2XGqwe7lBLB4k8mployNk7MmwKK52DC21houZvlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.9 142/152] USB: core: Change %pK for __user pointers to %px
-Date:   Tue,  1 Dec 2020 09:54:17 +0100
-Message-Id: <20201201084730.418740073@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 5.9 143/152] usb: gadget: f_midi: Fix memleak in f_midi_alloc
+Date:   Tue,  1 Dec 2020 09:54:18 +0100
+Message-Id: <20201201084730.547420499@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,93 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit f3bc432aa8a7a2bfe9ebb432502be5c5d979d7fe upstream.
+commit e7694cb6998379341fd9bf3bd62b48c4e6a79385 upstream.
 
-Commit 2f964780c03b ("USB: core: replace %p with %pK") used the %pK
-format specifier for a bunch of __user pointers.  But as the 'K' in
-the specifier indicates, it is meant for kernel pointers.  The reason
-for the %pK specifier is to avoid leaks of kernel addresses, but when
-the pointer is to an address in userspace the security implications
-are minimal.  In particular, no kernel information is leaked.
+In the error path, if midi is not null, we should
+free the midi->id if necessary to prevent memleak.
 
-This patch changes the __user %pK specifiers (used in a bunch of
-debugging output lines) to %px, which will always print the actual
-address with no mangling.  (Notably, there is no printk format
-specifier particularly intended for __user pointers.)
-
-Fixes: 2f964780c03b ("USB: core: replace %p with %pK")
-CC: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201119170228.GB576844@rowland.harvard.edu
+Fixes: b85e9de9e818d ("usb: gadget: f_midi: convert to new function interface with backward compatibility")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201117021629.1470544-2-zhangqilong3@huawei.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/devio.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/function/f_midi.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -482,11 +482,11 @@ static void snoop_urb(struct usb_device
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1315,7 +1315,7 @@ static struct usb_function *f_midi_alloc
+ 	midi->id = kstrdup(opts->id, GFP_KERNEL);
+ 	if (opts->id && !midi->id) {
+ 		status = -ENOMEM;
+-		goto setup_fail;
++		goto midi_free;
+ 	}
+ 	midi->in_ports = opts->in_ports;
+ 	midi->out_ports = opts->out_ports;
+@@ -1327,7 +1327,7 @@ static struct usb_function *f_midi_alloc
  
- 	if (userurb) {		/* Async */
- 		if (when == SUBMIT)
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"length %u\n",
- 					userurb, ep, t, d, length);
- 		else
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"actual_length %u status %d\n",
- 					userurb, ep, t, d, length,
- 					timeout_or_status);
-@@ -1997,7 +1997,7 @@ static int proc_reapurb(struct usb_dev_s
- 	if (as) {
- 		int retval;
+ 	status = kfifo_alloc(&midi->in_req_fifo, midi->qlen, GFP_KERNEL);
+ 	if (status)
+-		goto setup_fail;
++		goto midi_free;
  
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -2014,7 +2014,7 @@ static int proc_reapurbnonblock(struct u
+ 	spin_lock_init(&midi->transmit_lock);
  
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2142,7 +2142,7 @@ static int proc_reapurb_compat(struct us
- 	if (as) {
- 		int retval;
+@@ -1343,9 +1343,13 @@ static struct usb_function *f_midi_alloc
  
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -2159,7 +2159,7 @@ static int proc_reapurbnonblock_compat(s
+ 	return &midi->func;
  
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2624,7 +2624,7 @@ static long usbdev_do_ioctl(struct file
- #endif
- 
- 	case USBDEVFS_DISCARDURB:
--		snoop(&dev->dev, "%s: DISCARDURB %pK\n", __func__, p);
-+		snoop(&dev->dev, "%s: DISCARDURB %px\n", __func__, p);
- 		ret = proc_unlinkurb(ps, p);
- 		break;
++midi_free:
++	if (midi)
++		kfree(midi->id);
++	kfree(midi);
+ setup_fail:
+ 	mutex_unlock(&opts->lock);
+-	kfree(midi);
++
+ 	return ERR_PTR(status);
+ }
  
 
 
