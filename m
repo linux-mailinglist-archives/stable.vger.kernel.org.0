@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5162C9CC6
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C6C2C9E66
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387829AbgLAJAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:00:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36612 "EHLO mail.kernel.org"
+        id S2387889AbgLAJya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:54:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388388AbgLAJAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:00:43 -0500
+        id S2387811AbgLAJya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:54:30 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAA6B21D46;
-        Tue,  1 Dec 2020 09:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C461620657;
+        Tue,  1 Dec 2020 09:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813228;
-        bh=xRhEKCxH1itKE1wlM/YR80gfrAOlSyTV8ixtllnBiPs=;
+        s=korg; t=1606816429;
+        bh=SB/Hk7R0n+b3SjIUqJI7XY22RvV/OORb7UXI9hQY3E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4Zjss3x65dWQbvSOygEcEm8fudd1SCm7DXMISqOlW1EFCpO1uXan80wjBoLyP0Rs
-         WVXd2Af8KxyxnmMeXnX9MRKOucJXqaqacbbpdd3iJT8oCNAWOu0DbgQSBEOl/lwFwd
-         AAPqUJl2cMyHBLw79veEs3NxjllyfIFE7cwtYtWs=
+        b=OuyHnlVCOlV+J2ZPhQ8cnBDVj6iIzbdubLInB+q4p/xK3CchWlhMvk7VED05AjS9I
+         atYl/aPkL5NLgOPPZLWB98h3sUVUvWe0euDm3epPzixreJ3DaiRFEoTSlt7u+JpRCe
+         JpcCs2sbpsmyem3IsN4HuHTBhuvOusbH5SUXtYAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/57] scsi: target: iscsi: Fix cmd abort fabric stop race
-Date:   Tue,  1 Dec 2020 09:53:30 +0100
-Message-Id: <20201201084650.410035711@linuxfoundation.org>
+Subject: [PATCH 4.9 34/42] perf probe: Fix to die_entrypc() returns error correctly
+Date:   Tue,  1 Dec 2020 09:53:32 +0100
+Message-Id: <20201201084645.128091107@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit f36199355c64a39fe82cfddc7623d827c7e050da ]
+[ Upstream commit ab4200c17ba6fe71d2da64317aae8a8aa684624c ]
 
-Maurizio found a race where the abort and cmd stop paths can race as
-follows:
+Fix die_entrypc() to return error correctly if the DIE has no
+DW_AT_ranges attribute. Since dwarf_ranges() will treat the case as an
+empty ranges and return 0, we have to check it by ourselves.
 
- 1. thread1 runs iscsit_release_commands_from_conn and sets
-    CMD_T_FABRIC_STOP.
-
- 2. thread2 runs iscsit_aborted_task and then does __iscsit_free_cmd. It
-    then returns from the aborted_task callout and we finish
-    target_handle_abort and do:
-
-    target_handle_abort -> transport_cmd_check_stop_to_fabric ->
-	lio_check_stop_free -> target_put_sess_cmd
-
-    The cmd is now freed.
-
- 3. thread1 now finishes iscsit_release_commands_from_conn and runs
-    iscsit_free_cmd while accessing a command we just released.
-
-In __target_check_io_state we check for CMD_T_FABRIC_STOP and set the
-CMD_T_ABORTED if the driver is not cleaning up the cmd because of a session
-shutdown. However, iscsit_release_commands_from_conn only sets the
-CMD_T_FABRIC_STOP and does not check to see if the abort path has claimed
-completion ownership of the command.
-
-This adds a check in iscsit_release_commands_from_conn so only the abort or
-fabric stop path cleanup the command.
-
-Link: https://lore.kernel.org/r/1605318378-9269-1-git-send-email-michael.christie@oracle.com
-Reported-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 91e2f539eeda ("perf probe: Fix to show function entry line as probe-able")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/160645612634.2824037.5284932731175079426.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ tools/perf/util/dwarf-aux.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index 2602b57936d4b..58ccded1be857 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -492,8 +492,7 @@ EXPORT_SYMBOL(iscsit_queue_rsp);
- void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index fb4e1d2839c5f..cbbacc3467494 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -329,6 +329,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
+ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
  {
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
+ 	Dwarf_Addr base, end;
++	Dwarf_Attribute attr;
  
-@@ -4054,12 +4053,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
+ 	if (!addr)
+ 		return -EINVAL;
+@@ -336,6 +337,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
+ 	if (dwarf_entrypc(dw_die, addr) == 0)
+ 		return 0;
  
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
++	/*
++	 *  Since the dwarf_ranges() will return 0 if there is no
++	 * DW_AT_ranges attribute, we should check it first.
++	 */
++	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
++		return -ENOENT;
++
+ 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
+ }
  
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
 -- 
 2.27.0
 
