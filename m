@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E21AC2C9A93
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1202C9C56
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388001AbgLAI64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:58:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
+        id S2389912AbgLAJRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:17:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388029AbgLAI6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:54 -0500
+        id S2389929AbgLAJMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCA9F21D7A;
-        Tue,  1 Dec 2020 08:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A988122210;
+        Tue,  1 Dec 2020 09:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813093;
-        bh=RccXeOf06Uamqb4/AwKlFrIiqLaMCZpeLLEmrTHswvQ=;
+        s=korg; t=1606813889;
+        bh=biJyByNtqt9R7tDM/ysdUIZVpLb/qN50NEwQCDriDsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WY7pahdMJpCQyeft58MlHicv8Kidy/A7TqFF0e2ffFrudoIAMGaZHoJSLLJlYP85b
-         mfZ9JehFKtvNAiskSPsIldoiAQbHN+lLiv76q9t6PYs6wMuSqoUwHoskxBCysnJ4Fp
-         n71SbGGwwV6B5mYDzG8PqZuTEIjAYxmOLrQCqUso=
+        b=ReQXtFLvZyK/2Qx0vtpnpTeTgNyk0kxhXr4Q767PiLUEV2+hVkyuv57RZJiAfQdqX
+         Z9JWLTYCZ61ay2/VrEcFgxYHn0qMPfLCCFXHIqmUMthW1KLisvHm5wBtfibSsxe6ji
+         mCaeNWWTqsE597nkuAgTwisDP4YSv9U4soG9xM/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/50] video: hyperv_fb: Fix the cache type when mapping the VRAM
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 095/152] s390/qeth: make af_iucv TX notification call more robust
 Date:   Tue,  1 Dec 2020 09:53:30 +0100
-Message-Id: <20201201084648.875214121@linuxfoundation.org>
+Message-Id: <20201201084724.313826228@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 5f1251a48c17b54939d7477305e39679a565382c ]
+[ Upstream commit 34c7f50f7d0d36fa663c74aee39e25e912505320 ]
 
-x86 Hyper-V used to essentially always overwrite the effective cache type
-of guest memory accesses to WB. This was problematic in cases where there
-is a physical device assigned to the VM, since that often requires that
-the VM should have control over cache types. Thus, on newer Hyper-V since
-2018, Hyper-V always honors the VM's cache type, but unexpectedly Linux VM
-users start to complain that Linux VM's VRAM becomes very slow, and it
-turns out that Linux VM should not map the VRAM uncacheable by ioremap().
-Fix this slowness issue by using ioremap_cache().
+Calling into socket code is ugly already, at least check whether we are
+dealing with the expected sk_family. Only looking at skb->protocol is
+bound to cause troubles (consider eg. af_packet).
 
-On ARM64, ioremap_cache() is also required as the host also maps the VRAM
-cacheable, otherwise VM Connect can't display properly with ioremap() or
-ioremap_wc().
-
-With this change, the VRAM on new Hyper-V is as fast as regular RAM, so
-it's no longer necessary to use the hacks we added to mitigate the
-slowness, i.e. we no longer need to allocate physical memory and use
-it to back up the VRAM in Generation-1 VM, and we also no longer need to
-allocate physical memory to back up the framebuffer in a Generation-2 VM
-and copy the framebuffer to the real VRAM. A further big change will
-address these for v5.11.
-
-Fixes: 68a2d20b79b1 ("drivers/video: add Hyper-V Synthetic Video Frame Buffer Driver")
-Tested-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/20201118000305.24797-1-decui@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/hyperv_fb.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index 2fd49b2358f8b..f3938c5278832 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 		goto err1;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 6a73982514237..f22e3653da52d 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -32,6 +32,7 @@
+ 
+ #include <net/iucv/af_iucv.h>
+ #include <net/dsfield.h>
++#include <net/sock.h>
+ 
+ #include <asm/ebcdic.h>
+ #include <asm/chpid.h>
+@@ -1408,7 +1409,7 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *q,
+ 	skb_queue_walk(&buf->skb_list, skb) {
+ 		QETH_CARD_TEXT_(q->card, 5, "skbn%d", notification);
+ 		QETH_CARD_TEXT_(q->card, 5, "%lx", (long) skb);
+-		if (skb->protocol == htons(ETH_P_AF_IUCV) && skb->sk)
++		if (skb->sk && skb->sk->sk_family == PF_IUCV)
+ 			iucv_sk(skb->sk)->sk_txnotify(skb, notification);
  	}
- 
--	fb_virt = ioremap(par->mem->start, screen_fb_size);
-+	/*
-+	 * Map the VRAM cacheable for performance. This is also required for
-+	 * VM Connect to display properly for ARM64 Linux VM, as the host also
-+	 * maps the VRAM cacheable.
-+	 */
-+	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
- 	if (!fb_virt)
- 		goto err2;
- 
+ }
 -- 
 2.27.0
 
