@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D628F2C9CDD
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7542C9DE7
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727819AbgLAJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40992 "EHLO mail.kernel.org"
+        id S2388283AbgLAJ3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:29:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388766AbgLAJEJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:09 -0500
+        id S2388293AbgLAJAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C7162223C;
-        Tue,  1 Dec 2020 09:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E8C02222C;
+        Tue,  1 Dec 2020 08:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813433;
-        bh=vKN+smQs+O6NRO7xw/6qlFUKjZ99MLpoAhY7O11xeok=;
+        s=korg; t=1606813180;
+        bh=b5rsoKaCLDSuOig1FR2q0l47uR23uR/gaiHrq928fZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/wrZXe2O1zCG4qUHhYiNcJ200P8o1QSAAJTA8hWZG6UF5yTsfg/HVRnc7s7ljWDf
-         Wyus1fnUI4NfuwrAKm5p/18EN61fXfmZ62Br3jR4wjz1MM83JEKjPjidsOKSd5V31v
-         wSNwdJ4tgCvVX1Lwt7RtCdwMYwdf5OQ96KDcIelE=
+        b=ib4Wc2xEyWmcdres8fQhOo6dX6GiLqtJGa0B1lfHa3rSdNrJUHBXsGJefb4ieaAGL
+         A/YAciRGEMajfEg5Xw1Oufgo3Xr+m6AcSnoY8uxTCXeXV0znmj0iYKLgUEFKdqxwtP
+         6gMyQ0R5Gmg/Uos3P84jCttdpJoWqMJfW+zLRlDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/98] scsi: target: iscsi: Fix cmd abort fabric stop race
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 10/57] arm64: pgtable: Ensure dirty bit is preserved across pte_wrprotect()
 Date:   Tue,  1 Dec 2020 09:53:15 +0100
-Message-Id: <20201201084656.981880136@linuxfoundation.org>
+Message-Id: <20201201084648.870421536@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit f36199355c64a39fe82cfddc7623d827c7e050da ]
+commit ff1712f953e27f0b0718762ec17d0adb15c9fd0b upstream.
 
-Maurizio found a race where the abort and cmd stop paths can race as
-follows:
+With hardware dirty bit management, calling pte_wrprotect() on a writable,
+dirty PTE will lose the dirty state and return a read-only, clean entry.
 
- 1. thread1 runs iscsit_release_commands_from_conn and sets
-    CMD_T_FABRIC_STOP.
+Move the logic from ptep_set_wrprotect() into pte_wrprotect() to ensure that
+the dirty bit is preserved for writable entries, as this is required for
+soft-dirty bit management if we enable it in the future.
 
- 2. thread2 runs iscsit_aborted_task and then does __iscsit_free_cmd. It
-    then returns from the aborted_task callout and we finish
-    target_handle_abort and do:
+Cc: <stable@vger.kernel.org>
+Fixes: 2f4b829c625e ("arm64: Add support for hardware updates of the access and dirty pte bits")
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201120143557.6715-3-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-    target_handle_abort -> transport_cmd_check_stop_to_fabric ->
-	lio_check_stop_free -> target_put_sess_cmd
-
-    The cmd is now freed.
-
- 3. thread1 now finishes iscsit_release_commands_from_conn and runs
-    iscsit_free_cmd while accessing a command we just released.
-
-In __target_check_io_state we check for CMD_T_FABRIC_STOP and set the
-CMD_T_ABORTED if the driver is not cleaning up the cmd because of a session
-shutdown. However, iscsit_release_commands_from_conn only sets the
-CMD_T_FABRIC_STOP and does not check to see if the abort path has claimed
-completion ownership of the command.
-
-This adds a check in iscsit_release_commands_from_conn so only the abort or
-fabric stop path cleanup the command.
-
-Link: https://lore.kernel.org/r/1605318378-9269-1-git-send-email-michael.christie@oracle.com
-Reported-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/pgtable.h |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index bca183369ad8b..3403667a9592f 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -483,8 +483,7 @@ EXPORT_SYMBOL(iscsit_queue_rsp);
- void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -145,13 +145,6 @@ static inline pte_t set_pte_bit(pte_t pt
+ 	return pte;
+ }
+ 
+-static inline pte_t pte_wrprotect(pte_t pte)
+-{
+-	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
+-	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
+-	return pte;
+-}
+-
+ static inline pte_t pte_mkwrite(pte_t pte)
  {
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
+ 	pte = set_pte_bit(pte, __pgprot(PTE_WRITE));
+@@ -177,6 +170,20 @@ static inline pte_t pte_mkdirty(pte_t pt
+ 	return pte;
+ }
  
-@@ -4082,12 +4081,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
- 
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
- 
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
--- 
-2.27.0
-
++static inline pte_t pte_wrprotect(pte_t pte)
++{
++	/*
++	 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
++	 * clear), set the PTE_DIRTY bit.
++	 */
++	if (pte_hw_dirty(pte))
++		pte = pte_mkdirty(pte);
++
++	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
++	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
++	return pte;
++}
++
+ static inline pte_t pte_mkold(pte_t pte)
+ {
+ 	return clear_pte_bit(pte, __pgprot(PTE_AF));
+@@ -669,12 +676,6 @@ static inline void ptep_set_wrprotect(st
+ 	pte = READ_ONCE(*ptep);
+ 	do {
+ 		old_pte = pte;
+-		/*
+-		 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
+-		 * clear), set the PTE_DIRTY bit.
+-		 */
+-		if (pte_hw_dirty(pte))
+-			pte = pte_mkdirty(pte);
+ 		pte = pte_wrprotect(pte);
+ 		pte_val(pte) = cmpxchg_relaxed(&pte_val(*ptep),
+ 					       pte_val(old_pte), pte_val(pte));
 
 
