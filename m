@@ -2,79 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F262CA676
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 16:02:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B3A2CA681
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 16:05:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389683AbgLAPBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 10:01:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389514AbgLAPBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 10:01:45 -0500
-Received: from localhost (cpc102334-sgyl38-2-0-cust884.18-2.cable.virginm.net [92.233.91.117])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A7952076C;
-        Tue,  1 Dec 2020 15:01:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606834865;
-        bh=tdQZ8jjvG7J/xpHtajPQDufefYQVstBWL2sN2icfXrs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O7qEBHqFQMeuZY3W5sm8BFgn6tbZbZi+ISHgPGeYyyorUHINEItzSjng4EPROcO+X
-         tYAhqHwnpybwSs3KtBPVXer9NCQqt3HD0LVIIHrLR7gmFTm7aqX0ou7lKcVjTlTBSp
-         qqfxZLsL+7Ho72pDOR/6mMydz0uNR4+vexrzik6I=
-Date:   Tue, 1 Dec 2020 15:00:36 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     dinghua ma <dinghua.ma.sz@gmail.com>
-Cc:     Chen-Yu Tsai <wens@csie.org>, Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] regulatx DLDO2 voltage control register mask for
- AXP22x
-Message-ID: <20201201150036.GH5239@sirena.org.uk>
-References: <20201130234520.13255-1-dinghua.ma.sz@gmail.com>
- <CA+Jj2f8ADtb8JPPPzafvgVM0jssk8fz_BS-3LDUaYjZHcouTJQ@mail.gmail.com>
+        id S2389010AbgLAPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 10:04:09 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:59891 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388658AbgLAPEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 10:04:09 -0500
+Received: from mail-qt1-f198.google.com ([209.85.160.198])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <gpiccoli@canonical.com>)
+        id 1kk7Bd-00055l-C8
+        for stable@vger.kernel.org; Tue, 01 Dec 2020 15:03:25 +0000
+Received: by mail-qt1-f198.google.com with SMTP id t22so1476402qtq.2
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 07:03:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=03aW3appDRquFTem8NKdNwurfEBt6THO7qtROGC6hF8=;
+        b=fWsYFUhCYb7/wR+kwcmNs+Dl3nLNUL35FxCqQrLoyQOZ3SN6VY4Py1xrVDInIBbtP6
+         XIik6vmcUxH1kvQBboj6zKLtgPuyfkbtukvIjmizB/k//PqtVhhJSQb1AsZj44hqgrpE
+         kmtpo+h3vxEIqzpWp7YNVRYF2PHGd6IVtHhY/LdWRezl8zWox0QcKr4pfeFj/Mcrwbc9
+         5Lp8rhPD8p5tYws+xHdrLrrJZSjs5Q/ptBvk/gDoKOIYkijeal0UQB1gP2TyQN7BfFF2
+         8Hd0mYNpSzJHb9kAdAbcTt00jJuBAiBPCJeM8D/5ucszQMALcCv5v/sGx8wcUR1wtATd
+         3lIw==
+X-Gm-Message-State: AOAM533bjowbRdohHlSu+TFm3AdR70HnOXVx2FAxeIgBlq4MTg0Sg/WH
+        JqLWHDH2wi3nIsF6WzVjD+862mP9HF3qbcHFwABkjwO3wUZTfOyMMZz3+ubMgY8qECPQCIO4hel
+        LX6Yuxf/TgUHeG3vl+VHbiukDm/hC7QxfcA==
+X-Received: by 2002:aed:2946:: with SMTP id s64mr3164800qtd.73.1606835004372;
+        Tue, 01 Dec 2020 07:03:24 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyhCOEH3tdpoPIsJf7Damqz4tZBE04wTcuEVBjySz3qyzcNv7MDF5mDP61cBvAgAJKwFxIuMQ==
+X-Received: by 2002:aed:2946:: with SMTP id s64mr3164766qtd.73.1606835004069;
+        Tue, 01 Dec 2020 07:03:24 -0800 (PST)
+Received: from [192.168.1.75] (200-160-92-130.static-user.ajato.com.br. [200.160.92.130])
+        by smtp.gmail.com with ESMTPSA id i9sm2092277qtp.72.2020.12.01.07.03.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Dec 2020 07:03:23 -0800 (PST)
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
+ leaf_cfs_rq list" failed to apply to 5.4-stable tree
+To:     Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
+        bsegall@google.com, Ingo Molnar <mingo@redhat.com>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        gregkh@linuxfoundation.org, pauld@redhat.com,
+        zohooouoto@zoho.com.cn, stable@vger.kernel.org,
+        Gavin Guo <gavin.guo@canonical.com>,
+        nivedita.singhvi@canonical.com, halves@canonical.com,
+        Jay Vosburgh <jay.vosburgh@canonical.com>
+References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@canonical.com>
+Autocrypt: addr=gpiccoli@canonical.com; prefer-encrypt=mutual; keydata=
+ xsBNBFpVBxcBCADPNKmu2iNKLepiv8+Ssx7+fVR8lrL7cvakMNFPXsXk+f0Bgq9NazNKWJIn
+ Qxpa1iEWTZcLS8ikjatHMECJJqWlt2YcjU5MGbH1mZh+bT3RxrJRhxONz5e5YILyNp7jX+Vh
+ 30rhj3J0vdrlIhPS8/bAt5tvTb3ceWEic9mWZMsosPavsKVcLIO6iZFlzXVu2WJ9cov8eQM/
+ irIgzvmFEcRyiQ4K+XUhuA0ccGwgvoJv4/GWVPJFHfMX9+dat0Ev8HQEbN/mko/bUS4Wprdv
+ 7HR5tP9efSLucnsVzay0O6niZ61e5c97oUa9bdqHyApkCnGgKCpg7OZqLMM9Y3EcdMIJABEB
+ AAHNLUd1aWxoZXJtZSBHLiBQaWNjb2xpIDxncGljY29saUBjYW5vbmljYWwuY29tPsLAdwQT
+ AQgAIQUCWmClvQIbAwULCQgHAgYVCAkKCwIEFgIDAQIeAQIXgAAKCRDOR5EF9K/7Gza3B/9d
+ 5yczvEwvlh6ksYq+juyuElLvNwMFuyMPsvMfP38UslU8S3lf+ETukN1S8XVdeq9yscwtsRW/
+ 4YoUwHinJGRovqy8gFlm3SAtjfdqysgJqUJwBmOtcsHkmvFXJmPPGVoH9rMCUr9s6VDPox8f
+ q2W5M7XE9YpsfchS/0fMn+DenhQpV3W6pbLtuDvH/81GKrhxO8whSEkByZbbc+mqRhUSTdN3
+ iMpRL0sULKPVYbVMbQEAnfJJ1LDkPqlTikAgt3peP7AaSpGs1e3pFzSEEW1VD2jIUmmDku0D
+ LmTHRl4t9KpbU/H2/OPZkrm7809QovJGRAxjLLPcYOAP7DUeltvezsBNBFpVBxcBCADbxD6J
+ aNw/KgiSsbx5Sv8nNqO1ObTjhDR1wJw+02Bar9DGuFvx5/qs3ArSZkl8qX0X9Vhptk8rYnkn
+ pfcrtPBYLoux8zmrGPA5vRgK2ItvSc0WN31YR/6nqnMfeC4CumFa/yLl26uzHJa5RYYQ47jg
+ kZPehpc7IqEQ5IKy6cCKjgAkuvM1rDP1kWQ9noVhTUFr2SYVTT/WBHqUWorjhu57/OREo+Tl
+ nxI1KrnmW0DbF52tYoHLt85dK10HQrV35OEFXuz0QPSNrYJT0CZHpUprkUxrupDgkM+2F5LI
+ bIcaIQ4uDMWRyHpDbczQtmTke0x41AeIND3GUc+PQ4hWGp9XABEBAAHCwF8EGAEIAAkFAlpV
+ BxcCGwwACgkQzkeRBfSv+xv1wwgAj39/45O3eHN5pK0XMyiRF4ihH9p1+8JVfBoSQw7AJ6oU
+ 1Hoa+sZnlag/l2GTjC8dfEGNoZd3aRxqfkTrpu2TcfT6jIAsxGjnu+fUCoRNZzmjvRziw3T8
+ egSPz+GbNXrTXB8g/nc9mqHPPprOiVHDSK8aGoBqkQAPZDjUtRwVx112wtaQwArT2+bDbb/Y
+ Yh6gTrYoRYHo6FuQl5YsHop/fmTahpTx11IMjuh6IJQ+lvdpdfYJ6hmAZ9kiVszDF6pGFVkY
+ kHWtnE2Aa5qkxnA2HoFpqFifNWn5TyvJFpyqwVhVI8XYtXyVHub/WbXLWQwSJA4OHmqU8gDl
+ X18zwLgdiQ==
+Message-ID: <e87e517b-7f97-66ba-4f17-718330910a7b@canonical.com>
+Date:   Tue, 1 Dec 2020 12:03:18 -0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="G44BJl3Aq1QbV/QL"
-Content-Disposition: inline
-In-Reply-To: <CA+Jj2f8ADtb8JPPPzafvgVM0jssk8fz_BS-3LDUaYjZHcouTJQ@mail.gmail.com>
-X-Cookie: Who was that masked man?
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hey Sasha, sorry to annoy again, but maybe Peter is very busy - wouldn't
+be possible maybe to get that merged after a review from Ben or Ingo? I
+see them in the MAINTAINERS file, specially Ben as CONFIG_CFS_BANDWIDTH
+maintainer.
 
---G44BJl3Aq1QbV/QL
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I understand the confidence in this patch is relatively high, since it's
+a backport from the author, right?
 
-On Tue, Dec 01, 2020 at 08:04:51AM +0800, dinghua ma wrote:
+Let me know your thoughts, and thanks all in advance!
+Cheers,
 
-> I feel very sorry, I found the subject of the email was wrong at the
-> moment I sent the email, which wasted everyone=E2=80=99s reading time. I =
-have
-> already sent the third email and I am sorry again
 
-I don't appear to have any other mail from you recently and can't look
-it up with lore either so I think perhaps it got stopped by some filter
-somewhere in your mail system and you've not actually been disrupting
-anything, at least for me - can you resend please?
-
---G44BJl3Aq1QbV/QL
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl/GWpMACgkQJNaLcl1U
-h9CFMAf/W1lhCenUB8rEjQ/pjj4ikfn1PtGIq87fBx9jEXAbKNEGpgEbpZP7fisV
-RyJCvLwe8OKOcUl2pHnPMolqpgYUoR4zv+BGs2SqASCYPI7PtV4ND1Lzpc0H0TpR
-N+e3CzRMtGT9BLEdKZ/NTO7r7NlT5iYtcNEYFNCyRimjIr0SfCgEAeGqDMRs+pon
-wBw1BgbXSemUiz75enEAlNYdN5woF7BO64/9q+ktaHXrYfJVd3LgjNBxEtZgAUc8
-6c9JvabnnNMk80Z0903WvhC6znvofiAS8lt7OwahUSjeg8fMBkpsgJHpJ0yCZb02
-urZbOglmNkvA5J8cYSPzFnbBRNmwOg==
-=gEwI
------END PGP SIGNATURE-----
-
---G44BJl3Aq1QbV/QL--
+Guilherme
