@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7FC12C9B2A
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF872C9C4F
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729358AbgLAJFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
+        id S2390261AbgLAJRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:17:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388829AbgLAJEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:20 -0500
+        id S2389974AbgLAJMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0637120671;
-        Tue,  1 Dec 2020 09:03:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DDCF221FF;
+        Tue,  1 Dec 2020 09:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813439;
-        bh=1e2Hlq7wAXg/fySaQFlHoIq8be1MOy+VJqG9Okkf8+o=;
+        s=korg; t=1606813940;
+        bh=bEDj/ayOo9FSI2LF5zwMfXhptGHqEvSGIeU2P4MsVuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYj7Uer0Ouv2d2iHtT8rNnvCINkOIgDmSWgfFwM7jsDxoW25JXSnc7kDlFlzH4XGE
-         xL6vfbc2/zJQFhLWIlcLv3WBqGdUHlf/H7mFSZNk5bWqgZ1cJ2GGA/PqpDVY8uVUKR
-         6T2IG5R6P4PRi2dfy5V7Fe7OTs4T8ZNQF4qBa0Es=
+        b=ElmyZjjNU65v7LmKY7+Rc5LuvIkFrLKq5htA0yboV2/LRkXnYBbWmU4wAtg0179On
+         vq/Mrj5T8R47djJxg38KE7xRar8qt0CvXeqczwkrK89jn9DL9HAzqm5zdTA88JuTd+
+         btAlNA6pLV0p83ity21pdagmNJH3SwfzAMqRyz4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/98] xtensa: uaccess: Add missing __user to strncpy_from_user() prototype
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 082/152] phy: qualcomm: usb: Fix SuperSpeed PHY OF dependency
 Date:   Tue,  1 Dec 2020 09:53:17 +0100
-Message-Id: <20201201084657.068991994@linuxfoundation.org>
+Message-Id: <20201201084722.638109463@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit dc293f2106903ab9c24e9cea18c276e32c394c33 ]
+[ Upstream commit 44786a26a7485e12a1d2aaad2adfb3c82f6ad171 ]
 
-When adding __user annotations in commit 2adf5352a34a, the
-strncpy_from_user() function declaration for the
-CONFIG_GENERIC_STRNCPY_FROM_USER case was missed. Fix it.
+This Kconfig entry should declare a dependency on OF
 
+Fixes: 6076967a500c ("phy: qualcomm: usb: Add SuperSpeed PHY driver")
 Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Message-Id: <20200831210937.17938-1-laurent.pinchart@ideasonboard.com>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Link: https://lkml.org/lkml/2020/11/13/414
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20201113151225.1657600-2-bryan.odonoghue@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/include/asm/uaccess.h | 2 +-
+ drivers/phy/qualcomm/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
-index 3f80386f18838..5cb24a789e9e1 100644
---- a/arch/xtensa/include/asm/uaccess.h
-+++ b/arch/xtensa/include/asm/uaccess.h
-@@ -300,7 +300,7 @@ strncpy_from_user(char *dst, const char *src, long count)
- 	return -EFAULT;
- }
- #else
--long strncpy_from_user(char *dst, const char *src, long count);
-+long strncpy_from_user(char *dst, const char __user *src, long count);
- #endif
+diff --git a/drivers/phy/qualcomm/Kconfig b/drivers/phy/qualcomm/Kconfig
+index 928db510b86c6..9129c4b8bb9b1 100644
+--- a/drivers/phy/qualcomm/Kconfig
++++ b/drivers/phy/qualcomm/Kconfig
+@@ -98,7 +98,7 @@ config PHY_QCOM_USB_HS_28NM
  
- /*
+ config PHY_QCOM_USB_SS
+ 	tristate "Qualcomm USB Super-Speed PHY driver"
+-	depends on ARCH_QCOM || COMPILE_TEST
++	depends on OF && (ARCH_QCOM || COMPILE_TEST)
+ 	depends on EXTCON || !EXTCON # if EXTCON=m, this cannot be built-in
+ 	select GENERIC_PHY
+ 	help
 -- 
 2.27.0
 
