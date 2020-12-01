@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1A92C9AE2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 265042C9C0C
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388610AbgLAJB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38748 "EHLO mail.kernel.org"
+        id S2390328AbgLAJOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:14:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388626AbgLAJB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:01:56 -0500
+        id S2390324AbgLAJOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:14:35 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCAF02220B;
-        Tue,  1 Dec 2020 09:01:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1C422067D;
+        Tue,  1 Dec 2020 09:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813275;
-        bh=POF5jd+M8d/HXfCWrtvv6nTZG3tCkD4jE+qfiowAcyg=;
+        s=korg; t=1606814034;
+        bh=U/540WdSDlNdB8MiXa9CwxDnUNaX8dDBtbRSQEu7pXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdhTKnxAPSSJi0B7jRP11RctiHX4EpJrgy69bKG568x8s4KbmkMucpbMDT1yjcKYj
-         OpX4BjH+JVESa1OnV4HSAYXarqnEy6kMgdFpbYN4HNptVaqTsa3KFprxUXTa2Z4m4m
-         XrPiuTHzhRIXmzP7PBYZ96BR/hJuFs2Eiy+UhL3g=
+        b=1PMCbX1KLBF5rjtWDTJutXaOa6BJz/t6TeKRRd3/Df0CpSeXRZo3wGoQn+R5PwBxP
+         uVutPWrk5hXr2pBEH8KFSl55ii4g37rB0NDZ4upNfwfKFvC6IOSvCErbSntRzJY9SD
+         NFra4x/S1gk1VJ06QXZhzrkySKwy/NYN8zteAycM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/57] ibmvnic: fix NULL pointer dereference in ibmvic_reset_crq
-Date:   Tue,  1 Dec 2020 09:53:47 +0100
-Message-Id: <20201201084651.168022031@linuxfoundation.org>
+Subject: [PATCH 5.9 113/152] net: ena: fix packets addresses for rx_offset feature
+Date:   Tue,  1 Dec 2020 09:53:48 +0100
+Message-Id: <20201201084726.657345190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +43,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Shay Agroskin <shayagr@amazon.com>
 
-[ Upstream commit 0e435befaea45f7ea58682eecab5e37e05b2ce65 ]
+[ Upstream commit 1396d3148bd250db880573f9ed0abe5d6fba1fce ]
 
-crq->msgs could be NULL if the previous reset did not complete after
-freeing crq->msgs. Check for NULL before dereferencing them.
+This patch fixes two lines in which the rx_offset received by the device
+wasn't taken into account:
 
-Snippet of call trace:
-...
-ibmvnic 30000003 env3 (unregistering): Releasing sub-CRQ
-ibmvnic 30000003 env3 (unregistering): Releasing CRQ
-BUG: Kernel NULL pointer dereference on read at 0x00000000
-Faulting instruction address: 0xc0000000000c1a30
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: ibmvnic(E-) rpadlpar_io rpaphp xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_counter nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables xsk_diag tcp_diag udp_diag tun raw_diag inet_diag unix_diag bridge af_packet_diag netlink_diag stp llc rfkill sunrpc pseries_rng xts vmx_crypto uio_pdrv_genirq uio binfmt_misc ip_tables xfs libcrc32c sd_mod t10_pi sg ibmvscsi ibmveth scsi_transport_srp dm_mirror dm_region_hash dm_log dm_mod [last unloaded: ibmvnic]
-CPU: 20 PID: 8426 Comm: kworker/20:0 Tainted: G            E     5.10.0-rc1+ #12
-Workqueue: events __ibmvnic_reset [ibmvnic]
-NIP:  c0000000000c1a30 LR: c008000001b00c18 CTR: 0000000000000400
-REGS: c00000000d05b7a0 TRAP: 0380   Tainted: G            E      (5.10.0-rc1+)
-MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 44002480  XER: 20040000
-CFAR: c0000000000c19ec IRQMASK: 0
-GPR00: 0000000000000400 c00000000d05ba30 c008000001b17c00 0000000000000000
-GPR04: 0000000000000000 0000000000000000 0000000000000000 00000000000001e2
-GPR08: 000000000001f400 ffffffffffffd950 0000000000000000 c008000001b0b280
-GPR12: c0000000000c19c8 c00000001ec72e00 c00000000019a778 c00000002647b440
-GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR20: 0000000000000006 0000000000000001 0000000000000003 0000000000000002
-GPR24: 0000000000001000 c008000001b0d570 0000000000000005 c00000007ab5d550
-GPR28: c00000007ab5c000 c000000032fcf848 c00000007ab5cc00 c000000032fcf800
-NIP [c0000000000c1a30] memset+0x68/0x104
-LR [c008000001b00c18] ibmvnic_reset_crq+0x70/0x110 [ibmvnic]
-Call Trace:
-[c00000000d05ba30] [0000000000000800] 0x800 (unreliable)
-[c00000000d05bab0] [c008000001b0a930] do_reset.isra.40+0x224/0x634 [ibmvnic]
-[c00000000d05bb80] [c008000001b08574] __ibmvnic_reset+0x17c/0x3c0 [ibmvnic]
-[c00000000d05bc50] [c00000000018d9ac] process_one_work+0x2cc/0x800
-[c00000000d05bd20] [c00000000018df58] worker_thread+0x78/0x520
-[c00000000d05bdb0] [c00000000019a934] kthread+0x1c4/0x1d0
-[c00000000d05be20] [c00000000000d5d0] ret_from_kernel_thread+0x5c/0x6c
+- prefetch function:
+	In our driver the copied data would reside in
+	rx_info->page + rx_headroom + rx_offset
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
+	so the prefetch function is changed accordingly.
+
+- setting page_offset to zero for descriptors > 1:
+	for every descriptor but the first, the rx_offset is zero. Hence
+	the page_offset value should be set to rx_headroom.
+
+	The previous implementation changed the value of rx_info after
+	the descriptor was added to the SKB (essentially providing wrong
+	page offset).
+
+Fixes: 68f236df93a9 ("net: ena: add support for the rx offset feature")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 2fc8f281c2766..2938ac440fb36 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4462,6 +4462,9 @@ static int ibmvnic_reset_crq(struct ibmvnic_adapter *adapter)
- 	} while (rc == H_BUSY || H_IS_LONG_BUSY(rc));
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 1c978c7987adc..36134fc3e9197 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -920,10 +920,14 @@ static void ena_free_all_io_rx_resources(struct ena_adapter *adapter)
+ static int ena_alloc_rx_page(struct ena_ring *rx_ring,
+ 				    struct ena_rx_buffer *rx_info, gfp_t gfp)
+ {
++	int headroom = rx_ring->rx_headroom;
+ 	struct ena_com_buf *ena_buf;
+ 	struct page *page;
+ 	dma_addr_t dma;
  
- 	/* Clean out the queue */
-+	if (!crq->msgs)
-+		return -EINVAL;
++	/* restore page offset value in case it has been changed by device */
++	rx_info->page_offset = headroom;
 +
- 	memset(crq->msgs, 0, PAGE_SIZE);
- 	crq->cur = 0;
- 	crq->active = false;
+ 	/* if previous allocated page is not used */
+ 	if (unlikely(rx_info->page))
+ 		return 0;
+@@ -953,10 +957,9 @@ static int ena_alloc_rx_page(struct ena_ring *rx_ring,
+ 		  "alloc page %p, rx_info %p\n", page, rx_info);
+ 
+ 	rx_info->page = page;
+-	rx_info->page_offset = 0;
+ 	ena_buf = &rx_info->ena_buf;
+-	ena_buf->paddr = dma + rx_ring->rx_headroom;
+-	ena_buf->len = ENA_PAGE_SIZE - rx_ring->rx_headroom;
++	ena_buf->paddr = dma + headroom;
++	ena_buf->len = ENA_PAGE_SIZE - headroom;
+ 
+ 	return 0;
+ }
+@@ -1368,7 +1371,8 @@ static struct sk_buff *ena_rx_skb(struct ena_ring *rx_ring,
+ 
+ 	/* save virt address of first buffer */
+ 	va = page_address(rx_info->page) + rx_info->page_offset;
+-	prefetch(va + NET_IP_ALIGN);
++
++	prefetch(va);
+ 
+ 	if (len <= rx_ring->rx_copybreak) {
+ 		skb = ena_alloc_skb(rx_ring, false);
+@@ -1409,8 +1413,6 @@ static struct sk_buff *ena_rx_skb(struct ena_ring *rx_ring,
+ 
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rx_info->page,
+ 				rx_info->page_offset, len, ENA_PAGE_SIZE);
+-		/* The offset is non zero only for the first buffer */
+-		rx_info->page_offset = 0;
+ 
+ 		netif_dbg(rx_ring->adapter, rx_status, rx_ring->netdev,
+ 			  "rx skb updated. len %d. data_len %d\n",
+@@ -1529,8 +1531,7 @@ static int ena_xdp_handle_buff(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 	int ret;
+ 
+ 	rx_info = &rx_ring->rx_buffer_info[rx_ring->ena_bufs[0].req_id];
+-	xdp->data = page_address(rx_info->page) +
+-		rx_info->page_offset + rx_ring->rx_headroom;
++	xdp->data = page_address(rx_info->page) + rx_info->page_offset;
+ 	xdp_set_data_meta_invalid(xdp);
+ 	xdp->data_hard_start = page_address(rx_info->page);
+ 	xdp->data_end = xdp->data + rx_ring->ena_bufs[0].len;
+@@ -1597,8 +1598,9 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 		if (unlikely(ena_rx_ctx.descs == 0))
+ 			break;
+ 
++		/* First descriptor might have an offset set by the device */
+ 		rx_info = &rx_ring->rx_buffer_info[rx_ring->ena_bufs[0].req_id];
+-		rx_info->page_offset = ena_rx_ctx.pkt_offset;
++		rx_info->page_offset += ena_rx_ctx.pkt_offset;
+ 
+ 		netif_dbg(rx_ring->adapter, rx_status, rx_ring->netdev,
+ 			  "rx_poll: q %d got packet from ena. descs #: %d l3 proto %d l4 proto %d hash: %x\n",
 -- 
 2.27.0
 
