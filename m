@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 792A62C9A0A
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCBD2C9A0E
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 09:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728971AbgLAIzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57750 "EHLO mail.kernel.org"
+        id S1729023AbgLAIzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728968AbgLAIzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:00 -0500
+        id S1729014AbgLAIzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:05 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57A202222A;
-        Tue,  1 Dec 2020 08:53:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C0C62223F;
+        Tue,  1 Dec 2020 08:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812839;
-        bh=YIPr9Z7UI174ncEFWwzjrk33rZ/qeI5Q7yAMSpY8n0Y=;
+        s=korg; t=1606812847;
+        bh=MaVmqD/Ua5tkFRf8oBGzMJO9fBJT64Rshriv1BZuS+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpQHDo149hrB8ZNumu/qwqCZ/mlBDkIfjSSib6nazDTu6o8of5W9XusxRHHkqiWJ/
-         3P+KeVxYlwoVi5ML8EkLEIEljuYZ4zcSPwVfGoO/biv7Yqoh4YcwAIVzrGzuvYX59V
-         3b96qr9Uqu3wk09ZMEPhKhEpdukONfV/BUVY7ixs=
+        b=wyaiZEzBBtFshxEBeYn8iwmfkz2q6HyIeIdlH30pXPZ+rk11QvPa405EYi68FN02/
+         Ys86oWvjxEgI+Ejtyt1jm85g7tM6x+p5wW2jllF34TyiV1odGxpzFV6Op14WTtgACe
+         FrNlLXu6h1ejutGPyTJXM3T2aSSRmGLW5FzQWY18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/24] perf probe: Fix to die_entrypc() returns error correctly
-Date:   Tue,  1 Dec 2020 09:53:25 +0100
-Message-Id: <20201201084638.713235362@linuxfoundation.org>
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.4 21/24] x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
+Date:   Tue,  1 Dec 2020 09:53:27 +0100
+Message-Id: <20201201084638.819045957@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
 References: <20201201084637.754785180@linuxfoundation.org>
@@ -45,53 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Anand K Mistry <amistry@google.com>
 
-[ Upstream commit ab4200c17ba6fe71d2da64317aae8a8aa684624c ]
+commit 33fc379df76b4991e5ae312f07bcd6820811971e upstream.
 
-Fix die_entrypc() to return error correctly if the DIE has no
-DW_AT_ranges attribute. Since dwarf_ranges() will treat the case as an
-empty ranges and return 0, we have to check it by ourselves.
+When spectre_v2_user={seccomp,prctl},ibpb is specified on the command
+line, IBPB is force-enabled and STIPB is conditionally-enabled (or not
+available).
 
-Fixes: 91e2f539eeda ("perf probe: Fix to show function entry line as probe-able")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/160645612634.2824037.5284932731175079426.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, since
+
+  21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+
+the spectre_v2_user_ibpb variable is set to SPECTRE_V2_USER_{PRCTL,SECCOMP}
+instead of SPECTRE_V2_USER_STRICT, which is the actual behaviour.
+Because the issuing of IBPB relies on the switch_mm_*_ibpb static
+branches, the mitigations behave as expected.
+
+Since
+
+  1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+
+this discrepency caused the misreporting of IB speculation via prctl().
+
+On CPUs with STIBP always-on and spectre_v2_user=seccomp,ibpb,
+prctl(PR_GET_SPECULATION_CTRL) would return PR_SPEC_PRCTL |
+PR_SPEC_ENABLE instead of PR_SPEC_DISABLE since both IBPB and STIPB are
+always on. It also allowed prctl(PR_SET_SPECULATION_CTRL) to set the IB
+speculation mode, even though the flag is ignored.
+
+Similarly, for CPUs without SMT, prctl(PR_GET_SPECULATION_CTRL) should
+also return PR_SPEC_DISABLE since IBPB is always on and STIBP is not
+available.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Fixes: 1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201110123349.1.Id0cbf996d2151f4c143c90f9028651a5b49a5908@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/perf/util/dwarf-aux.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index fd460aca36e55..40e4c933b3728 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -305,6 +305,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- {
- 	Dwarf_Addr base, end;
-+	Dwarf_Attribute attr;
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -707,11 +707,13 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
  
- 	if (!addr)
- 		return -EINVAL;
-@@ -312,6 +313,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- 	if (dwarf_entrypc(dw_die, addr) == 0)
- 		return 0;
++		spectre_v2_user_ibpb = mode;
+ 		switch (cmd) {
+ 		case SPECTRE_V2_USER_CMD_FORCE:
+ 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
+ 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
+ 			static_branch_enable(&switch_mm_always_ibpb);
++			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
+ 			break;
+ 		case SPECTRE_V2_USER_CMD_PRCTL:
+ 		case SPECTRE_V2_USER_CMD_AUTO:
+@@ -725,8 +727,6 @@ spectre_v2_user_select_mitigation(enum s
+ 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
+ 			static_key_enabled(&switch_mm_always_ibpb) ?
+ 			"always-on" : "conditional");
+-
+-		spectre_v2_user_ibpb = mode;
+ 	}
  
-+	/*
-+	 *  Since the dwarf_ranges() will return 0 if there is no
-+	 * DW_AT_ranges attribute, we should check it first.
-+	 */
-+	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
-+		return -ENOENT;
-+
- 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
- }
- 
--- 
-2.27.0
-
+ 	/*
 
 
