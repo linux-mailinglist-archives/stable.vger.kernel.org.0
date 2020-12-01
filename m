@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 105982CA49F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 15:00:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E56012CA563
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 15:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbgLAN4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 08:56:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
+        id S1729277AbgLAOPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 09:15:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728194AbgLAN4v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 08:56:51 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE0CC0613CF
-        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 05:56:11 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id r9so1263069pjl.5
-        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 05:56:11 -0800 (PST)
+        with ESMTP id S1728848AbgLAOPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 09:15:53 -0500
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2B0C0613CF
+        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 06:15:13 -0800 (PST)
+Received: by mail-pg1-x541.google.com with SMTP id w16so1260513pga.9
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 06:15:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=9KkhbwKvs1e+p10mdl5XCY+OJvX6mfGoeHn4WoB6Hjw=;
-        b=srs6OBt7oRkZHBfG2DmSqqwrLwE13KzOmkfBMx6F9ggVKnjKEQVDEGRAV6bzlO9+fG
-         ycHDv0svfQiTgPXil8eHgPADRXeRgTw0L3amQoQi6lHQMPOf6uy9ZDv2RB7CHToUP+uM
-         uAKuDvAkPsDoV72f1qyOUd8cpw9BUPZ6hB/du/nts7Knn2FdHCRR1X3LFx8QgGoUN9eE
-         zNsw2n8uP5NObmsdqINCS9ZWmlOwHPgooe8PThrztanYu1fdXbbR5Fu+zRbDryLpoZNC
-         930E0pd89pwQwOwiaOq4WE7rbTnXB2YSCHj3ebPSnF4RPCP2DEQUspdnGGGA5ZUnNfPL
-         w8og==
+        bh=hnFccOm8Vg0UeB4++Ty2X08vtNxsIePZPIZJC4ZyKec=;
+        b=EGVYi3UMe8CB4uIkvrtVFYQesYbZ+AZVyyAa7ffRdGOskVq3nXI+MmXnGH6a/BzpWD
+         hDmWr4cu5jX9lFgam+iJA+IIWPu6QLJgChPCT5XBqVBqXshLIAj3ZHMubS2QZ++W9lSl
+         rgCnmQcCsHz4mObGH6OXYx4QJa32LYP3A22E2+c49jSlN3L9x25Z4ORyIT1Tkav9w3GZ
+         j3F40KRvV3Y6if+ffof4um4RYSJPD472WwA6Ksv8QWrnfSiSANjbsiPBeM8RKDCd1dIx
+         5Nh0K4olQ19IxHzYNfy05DKPlxQIIvsjj0vihgVb2xuazTPDyEMN68ZVNkpTg0V3RqqD
+         bSYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=9KkhbwKvs1e+p10mdl5XCY+OJvX6mfGoeHn4WoB6Hjw=;
-        b=UjqcaYCpmjBbFPFnY1x35skLaLxWGQ4JsZ6NXjc9wrm6CwzdedMzjWy+HWwgNEag/E
-         H3EvPVa7i+znT0zrSkrbnayzOotrAKJFI7aOx6ooBB5czPfGYP8sLyScmnJzpcnqTF0q
-         eokgxw87+DGAcRIC2nbDRELnRpbiTpvRnxeVTtcylO/MsggqyeYs4Lma1sRix0GU5e4k
-         SaACzubz1Qb5pNXq9QIc8Y5XwRPhA4JVeyNPuHkw3KePjbXM92NsZWiHitZUK49RK8dK
-         h11LdHE47eRI5X67+ndJzs93T1rbCKKS4vxt733rn0BDL9iiEGJRFn3ihtvXiubs+Hps
-         +0fw==
-X-Gm-Message-State: AOAM532Dj0QQVTlSXtcEuA4qpUf8prwZkq0/Qu4tDPuoHVPR2b9O0nsE
-        2y5oVNJLphg5s319+3DrftS53Ootrs6czg==
-X-Google-Smtp-Source: ABdhPJzRs/DzbckrBgCxwmmj6HLRoP3lCy+iu7/6pYR8/gnsFCfJd6O/2g/HwvRvSF/c2BYyTFuL0Q==
-X-Received: by 2002:a17:902:aa4b:b029:d8:f87e:1f3c with SMTP id c11-20020a170902aa4bb02900d8f87e1f3cmr2888889plr.23.1606830969384;
-        Tue, 01 Dec 2020 05:56:09 -0800 (PST)
+        bh=hnFccOm8Vg0UeB4++Ty2X08vtNxsIePZPIZJC4ZyKec=;
+        b=Bwgl9AGQWbWeBiq+FDXr/NgQPUvh73mj9H8UfLGitUGBEwpnMtS2fZQhOKdyuZ+GbQ
+         ITwdSXTRA/u+0q0kmtyPllnSK+rE7RUzxSSPFRPhXGPI0p+OIf5dBMAeQ/Q7YgBC+UxQ
+         6Nsk8fF0XNczxyJSyXVHo4Ez4UMZmwnkttR7TMjdV9bZ1Ej26qsb6tIqfyqKaQG0d9uD
+         BD63AdQSK5NxwuhzmnC9FVaTFZ7TxQ1r+eA3TXqMMDGGjvvrgXx3fURkhwhdDyZWMjz1
+         JOWbSrEEAscujTVovOhkaECUCAhCQE3D4Firq22bH5MzvBzU+fhQTIWbYk0F+eR2SpCo
+         wGqQ==
+X-Gm-Message-State: AOAM5338re0PX+IdPxvIHi6eSMdBZn6dh1QpDAaXfNk71gLvOUR8BSDr
+        wGWoxL5pwGSUFHN9FlJTAkRDQeWaNTSwAQ==
+X-Google-Smtp-Source: ABdhPJwMs0o6VqJA0rIPUJ8kG1uriBbO7L8fN+1VGWZ4CTA67hgSe6vD4U0rG8EQMUA5YfCwWjdfhQ==
+X-Received: by 2002:a62:2ec4:0:b029:18e:f566:d459 with SMTP id u187-20020a622ec40000b029018ef566d459mr2690568pfu.80.1606832111300;
+        Tue, 01 Dec 2020 06:15:11 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s5sm2953694pju.9.2020.12.01.05.56.08
+        by smtp.gmail.com with ESMTPSA id h7sm3155225pfq.76.2020.12.01.06.15.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Dec 2020 05:56:08 -0800 (PST)
-Message-ID: <5fc64b78.1c69fb81.523a4.5b12@mx.google.com>
-Date:   Tue, 01 Dec 2020 05:56:08 -0800 (PST)
+        Tue, 01 Dec 2020 06:15:10 -0800 (PST)
+Message-ID: <5fc64fee.1c69fb81.183cc.61a0@mx.google.com>
+Date:   Tue, 01 Dec 2020 06:15:10 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
+X-Kernelci-Branch: linux-4.19.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.160-57-g6b3a6609941e
+X-Kernelci-Kernel: v4.19.160-58-g8d3deb1adb93
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.19 build: 206 builds: 0 failed, 206 passed,
- 77 warnings (v4.19.160-57-g6b3a6609941e)
+Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
+ 77 warnings (v4.19.160-58-g8d3deb1adb93)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 206 builds: 0 failed, 206 passed, 77 warnings (=
-v4.19.160-57-g6b3a6609941e)
+stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 77 warnings=
+ (v4.19.160-58-g8d3deb1adb93)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.160-57-g6b3a6609941e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.160-58-g8d3deb1adb93/
 
 Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.160-57-g6b3a6609941e
-Git Commit: 6b3a6609941eb93d927a101b30eff922781ad5f7
+Branch: linux-4.19.y
+Git Describe: v4.19.160-58-g8d3deb1adb93
+Git Commit: 8d3deb1adb93c5d5ff713e5cf5026cacd87a9404
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -173,7 +173,7 @@ x86_64:
 
 Warnings summary:
 
-    69   drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 de=
+    70   drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 de=
 fined but not used [-Wunused-variable]
     3    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes=
  is larger than 1024 bytes [-Wframe-larger-than=3D]
@@ -210,15 +210,6 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
 
@@ -237,6 +228,16 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
@@ -246,8 +247,12 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -257,11 +262,6 @@ ismatches
 Warnings:
     drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
  but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1373,16 +1373,15 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
 
 Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
+    .config:1010:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
 
 Warnings:
@@ -1391,11 +1390,12 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
 
 Warnings:
-    .config:1010:warning: override: UNWINDER_GUESS changes choice state
+    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1408,7 +1408,7 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
 smatches
 
 Warnings:
