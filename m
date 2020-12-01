@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6CF12C9D0D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C0D2C9D1C
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389664AbgLAJKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47802 "EHLO mail.kernel.org"
+        id S2390145AbgLAJTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:19:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389662AbgLAJKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:17 -0500
+        id S2389673AbgLAJKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:10:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89BEC2223F;
-        Tue,  1 Dec 2020 09:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78C272222A;
+        Tue,  1 Dec 2020 09:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813777;
-        bh=PF4DyltYMiXeqtX1ZkatjLYdcckflbeLZAslTMDY33M=;
+        s=korg; t=1606813780;
+        bh=2iKQUJsUQI9l2vvcbu3mNWUXjhNPMztzv4VhPexSgrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EStAEcUrTF9cua+BALXgPzk6UHa63wPMnbUWlWs07BjgPeDuJ/05uTL4QmY3JXnhJ
-         d0PIt28EP5jxjs6A6eNN7YDca3o8NuzOZMVweSEOLJV1Xy9eDSdp6Q4OubZoGL50fW
-         eUxSqGISyBdT13eiYfLVtRPmFs+gqfEv4oX3uAgE=
+        b=OAr1JeFaC5FPEgoX2POERDEP5YH5EUOlLEUKmQ4Cxt2HOTmMfmBputvJUh5KuaBFQ
+         /LpljF0j1N7X6EifM+S3lSCnfVDomWw9eOfufQaH3KObn5Se+Q/uaMZuH6jByoPUF0
+         415xy6Mvx6SjB8Rb+jStLUuVplJq5aAYTCbE5mao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Laurent Vivier <lvivier@redhat.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.9 056/152] vdpasim: fix "mac_pton" undefined error
-Date:   Tue,  1 Dec 2020 09:52:51 +0100
-Message-Id: <20201201084719.287455147@linuxfoundation.org>
+        Jason Wang <jasowang@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 057/152] vhost: add helper to check if a vq has been setup
+Date:   Tue,  1 Dec 2020 09:52:52 +0100
+Message-Id: <20201201084719.420908068@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -45,38 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit a312db697cb05dfa781848afe8585a1e1f2a5a99 ]
+[ Upstream commit 6bcf34224ac1e94103797fd68b9836061762f2b2 ]
 
-   ERROR: modpost: "mac_pton" [drivers/vdpa/vdpa_sim/vdpa_sim.ko] undefined!
+This adds a helper check if a vq has been setup. The next patches
+will use this when we move the vhost scsi cmd preallocation from per
+session to per vq. In the per vq case, we only want to allocate cmds
+for vqs that have actually been setup and not for all the possible
+vqs.
 
-mac_pton() is defined in lib/net_utils.c and is not built if NET is not set.
-
-Select GENERIC_NET_UTILS as vdpasim doesn't depend on NET.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Link: https://lore.kernel.org/r/20201113155706.599434-1-lvivier@redhat.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/1604986403-4931-2-git-send-email-michael.christie@oracle.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vhost/vhost.c | 6 ++++++
+ drivers/vhost/vhost.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index d7d32b6561021..358f6048dd3ce 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -13,6 +13,7 @@ config VDPA_SIM
- 	depends on RUNTIME_TESTING_MENU && HAS_DMA
- 	select DMA_OPS
- 	select VHOST_RING
-+	select GENERIC_NET_UTILS
- 	default n
- 	help
- 	  vDPA networking device simulator which loop TX traffic back
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9ad45e1d27f0f..23e7b2d624511 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -305,6 +305,12 @@ static void vhost_vring_call_reset(struct vhost_vring_call *call_ctx)
+ 	spin_lock_init(&call_ctx->ctx_lock);
+ }
+ 
++bool vhost_vq_is_setup(struct vhost_virtqueue *vq)
++{
++	return vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq);
++}
++EXPORT_SYMBOL_GPL(vhost_vq_is_setup);
++
+ static void vhost_vq_reset(struct vhost_dev *dev,
+ 			   struct vhost_virtqueue *vq)
+ {
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 9032d3c2a9f48..3d30b3da7bcf5 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -190,6 +190,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *,
+ 		      struct vhost_log *log, unsigned int *log_num);
+ void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+ 
++bool vhost_vq_is_setup(struct vhost_virtqueue *vq);
+ int vhost_vq_init_access(struct vhost_virtqueue *);
+ int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+ int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
 -- 
 2.27.0
 
