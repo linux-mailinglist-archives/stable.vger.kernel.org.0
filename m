@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F6D2C9B70
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA522C9B71
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389232AbgLAJI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389234AbgLAJI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 1 Dec 2020 04:08:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45260 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389221AbgLAJI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389224AbgLAJI0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 1 Dec 2020 04:08:26 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81FB206CA;
-        Tue,  1 Dec 2020 09:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E40B920656;
+        Tue,  1 Dec 2020 09:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813684;
-        bh=P7xgj838hqxXBue6fEyOp3fcYfutepcV+JG4HL6sZAk=;
+        s=korg; t=1606813690;
+        bh=U4DM5UEjmLYd3d1w/doEcRmwgiqhXB+Fp4BzzWtfBfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvk39uAOpQ9F55dZ+aEW70MIi0HWf85XFbW/POjNX5ZQLJjlTGV6I3tL6a2DmVPtI
-         hxhTfF87syvTbnMBofcSLf15QGn1DsUd0ndnh3aZndkkNp/m9eWbzNLQGBsb8RBkPU
-         1ZCEmlkcZsIRmu4yT+jVoaZxzceYTKrulCFv67Ro=
+        b=NrUsUf/w7Sd9rIsF0yBSAhOBiUICNxnrZ4vvFwzBWuUGbJ6iO19AvzkZx20yspNjr
+         D0ajQ9550xonoR/CYsks3vBaTgW1/TfYyU5drrntfUKnMztzhpA4a0Ac22WetQl9A5
+         kcJ4wjfAwyRYY3VBworJQ17P0RV2Bnw6kECVnr+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filippo Sironi <sironi@amazon.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.9 024/152] KVM: x86: handle !lapic_in_kernel case in kvm_cpu_*_extint
-Date:   Tue,  1 Dec 2020 09:52:19 +0100
-Message-Id: <20201201084715.047445468@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.9 026/152] iommu/vt-d: Dont read VCCAP register unless it exists
+Date:   Tue,  1 Dec 2020 09:52:21 +0100
+Message-Id: <20201201084715.313869297@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,163 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-commit 72c3bcdcda494cbd600712a32e67702cdee60c07 upstream.
+commit d76b42e92780c3587c1a998a3a943b501c137553 upstream.
 
-Centralize handling of interrupts from the userspace APIC
-in kvm_cpu_has_extint and kvm_cpu_get_extint, since
-userspace APIC interrupts are handled more or less the
-same as ExtINTs are with split irqchip.  This removes
-duplicated code from kvm_cpu_has_injectable_intr and
-kvm_cpu_has_interrupt, and makes the code more similar
-between kvm_cpu_has_{extint,interrupt} on one side
-and kvm_cpu_get_{extint,interrupt} on the other.
+My virtual IOMMU implementation is whining that the guest is reading a
+register that doesn't exist. Only read the VCCAP_REG if the corresponding
+capability is set in ECAP_REG to indicate that it actually exists.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Filippo Sironi <sironi@amazon.de>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-Tested-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 3375303e8287 ("iommu/vt-d: Add custom allocator for IOASID")
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Liu Yi L <yi.l.liu@intel.com>
+Cc: stable@vger.kernel.org # v5.7+
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/de32b150ffaa752e0cff8571b17dfb1213fbe71c.camel@infradead.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/irq.c   |   83 ++++++++++++++++++++-------------------------------
- arch/x86/kvm/lapic.c |    2 -
- 2 files changed, 34 insertions(+), 51 deletions(-)
+ drivers/iommu/intel/dmar.c  |    3 ++-
+ drivers/iommu/intel/iommu.c |    4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -42,27 +42,8 @@ static int pending_userspace_extint(stru
-  */
- static int kvm_cpu_has_extint(struct kvm_vcpu *v)
- {
--	u8 accept = kvm_apic_accept_pic_intr(v);
--
--	if (accept) {
--		if (irqchip_split(v->kvm))
--			return pending_userspace_extint(v);
--		else
--			return v->kvm->arch.vpic->output;
--	} else
--		return 0;
--}
--
--/*
-- * check if there is injectable interrupt:
-- * when virtual interrupt delivery enabled,
-- * interrupt from apic will handled by hardware,
-- * we don't need to check it here.
-- */
--int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
--{
- 	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
-+	 * FIXME: interrupt.injected represents an interrupt whose
- 	 * side-effects have already been applied (e.g. bit from IRR
- 	 * already moved to ISR). Therefore, it is incorrect to rely
- 	 * on interrupt.injected to know if there is a pending
-@@ -75,6 +56,23 @@ int kvm_cpu_has_injectable_intr(struct k
- 	if (!lapic_in_kernel(v))
- 		return v->arch.interrupt.injected;
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -964,7 +964,8 @@ static int map_iommu(struct intel_iommu
+ 		warn_invalid_dmar(phys_addr, " returns all ones");
+ 		goto unmap;
+ 	}
+-	iommu->vccap = dmar_readq(iommu->reg + DMAR_VCCAP_REG);
++	if (ecap_vcs(iommu->ecap))
++		iommu->vccap = dmar_readq(iommu->reg + DMAR_VCCAP_REG);
  
-+	if (!kvm_apic_accept_pic_intr(v))
-+		return 0;
-+
-+	if (irqchip_split(v->kvm))
-+		return pending_userspace_extint(v);
-+	else
-+		return v->kvm->arch.vpic->output;
-+}
-+
-+/*
-+ * check if there is injectable interrupt:
-+ * when virtual interrupt delivery enabled,
-+ * interrupt from apic will handled by hardware,
-+ * we don't need to check it here.
-+ */
-+int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
-+{
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
+ 	/* the registers might be more than one page */
+ 	map_size = max_t(int, ecap_max_iotlb_offset(iommu->ecap),
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -1798,7 +1798,7 @@ static void free_dmar_iommu(struct intel
+ 		if (ecap_prs(iommu->ecap))
+ 			intel_svm_finish_prq(iommu);
+ 	}
+-	if (ecap_vcs(iommu->ecap) && vccap_pasid(iommu->vccap))
++	if (vccap_pasid(iommu->vccap))
+ 		ioasid_unregister_allocator(&iommu->pasid_allocator);
  
-@@ -91,20 +89,6 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_injectable
-  */
- int kvm_cpu_has_interrupt(struct kvm_vcpu *v)
- {
--	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
--	 * side-effects have already been applied (e.g. bit from IRR
--	 * already moved to ISR). Therefore, it is incorrect to rely
--	 * on interrupt.injected to know if there is a pending
--	 * interrupt in the user-mode LAPIC.
--	 * This leads to nVMX/nSVM not be able to distinguish
--	 * if it should exit from L2 to L1 on EXTERNAL_INTERRUPT on
--	 * pending interrupt or should re-inject an injected
--	 * interrupt.
--	 */
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.injected;
--
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
+ #endif
+@@ -3177,7 +3177,7 @@ static void register_pasid_allocator(str
+ 	 * is active. All vIOMMU allocators will eventually be calling the same
+ 	 * host allocator.
+ 	 */
+-	if (!ecap_vcs(iommu->ecap) || !vccap_pasid(iommu->vccap))
++	if (!vccap_pasid(iommu->vccap))
+ 		return;
  
-@@ -118,16 +102,21 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_interrupt)
-  */
- static int kvm_cpu_get_extint(struct kvm_vcpu *v)
- {
--	if (kvm_cpu_has_extint(v)) {
--		if (irqchip_split(v->kvm)) {
--			int vector = v->arch.pending_external_vector;
--
--			v->arch.pending_external_vector = -1;
--			return vector;
--		} else
--			return kvm_pic_read_irq(v->kvm); /* PIC */
--	} else
-+	if (!kvm_cpu_has_extint(v)) {
-+		WARN_ON(!lapic_in_kernel(v));
- 		return -1;
-+	}
-+
-+	if (!lapic_in_kernel(v))
-+		return v->arch.interrupt.nr;
-+
-+	if (irqchip_split(v->kvm)) {
-+		int vector = v->arch.pending_external_vector;
-+
-+		v->arch.pending_external_vector = -1;
-+		return vector;
-+	} else
-+		return kvm_pic_read_irq(v->kvm); /* PIC */
- }
- 
- /*
-@@ -135,13 +124,7 @@ static int kvm_cpu_get_extint(struct kvm
-  */
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v)
- {
--	int vector;
--
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.nr;
--
--	vector = kvm_cpu_get_extint(v);
--
-+	int vector = kvm_cpu_get_extint(v);
- 	if (vector != -1)
- 		return vector;			/* PIC */
- 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2461,7 +2461,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	u32 ppr;
- 
--	if (!kvm_apic_hw_enabled(apic))
-+	if (!kvm_apic_present(vcpu))
- 		return -1;
- 
- 	__apic_update_ppr(apic, &ppr);
+ 	pr_info("Register custom PASID allocator\n");
 
 
