@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 306782C9C67
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A252C9AC3
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389832AbgLAJLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:11:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S2387715AbgLAJAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:00:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389827AbgLAJLS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:11:18 -0500
+        id S2388364AbgLAJAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:38 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA69D2223F;
-        Tue,  1 Dec 2020 09:11:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5D7F21D7F;
+        Tue,  1 Dec 2020 08:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813863;
-        bh=l/6/TSOPO7fWj6RFG6mgP7piWhupJSRqSCE3om6mm30=;
+        s=korg; t=1606813197;
+        bh=oyAliAb+r1d1FgAbyRqcN+imWJ8VIKhFjlTvOEeWGmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dy1wfd9g3VwCPcyiyiFHh417C2jPpoC0lWyJAEq3nH0moZ4Ef50F1RUP5ymx/AksB
-         ipNa2yn5t88lH9a+A2qpJbT7kWPduxQElMqWMd+wQLlwdTFBJyayvQGs9BjzFQn47h
-         q46rqPyylyDvS6jmyquaVgNgcZIBYeDZfohYwnTM=
+        b=tC5rlM3mtEKE/LDgl1aqPFu3ro+gbWU4eU1xTxPisYlhuKnSVMXro+TOCIkGwzWAs
+         qsWXDyRPwkzbLqg2XURG5H4fjL/VB7RETYbvnrvHTrlDkKz1IyNUUTo5lYu39Hl9Lx
+         I29G5Sgl9GWhSSM4IkB4vu2LL+HvWSySGZOPezaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 086/152] ARM: dts: dra76x: m_can: fix order of clocks
+        stable@vger.kernel.org, Pablo Ceballos <pceballos@google.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/57] HID: hid-sensor-hub: Fix issue with devices with no report ID
 Date:   Tue,  1 Dec 2020 09:53:21 +0100
-Message-Id: <20201201084723.141019483@linuxfoundation.org>
+Message-Id: <20201201084649.580746478@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Pablo Ceballos <pceballos@google.com>
 
-[ Upstream commit 05d5de6ba7dbe490dd413b5ca11d0875bd2bc006 ]
+[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
 
-According to the bosch,m_can.yaml bindings the first clock shall be the "hclk",
-while the second clock "cclk".
+Some HID devices don't use a report ID because they only have a single
+report. In those cases, the report ID in struct hid_report will be zero
+and the data for the report will start at the first byte, so don't skip
+over the first byte.
 
-This patch fixes the order accordingly.
-
-Fixes: 0adbe832f21a ("ARM: dts: dra76x: Add MCAN node")
-Cc: Faiz Abbas <faiz_abbas@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Pablo Ceballos <pceballos@google.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra76x.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/dra76x.dtsi b/arch/arm/boot/dts/dra76x.dtsi
-index b69c7d40f5d82..2f326151116b7 100644
---- a/arch/arm/boot/dts/dra76x.dtsi
-+++ b/arch/arm/boot/dts/dra76x.dtsi
-@@ -32,8 +32,8 @@
- 				interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>,
- 					     <GIC_SPI 68 IRQ_TYPE_LEVEL_HIGH>;
- 				interrupt-names = "int0", "int1";
--				clocks = <&mcan_clk>, <&l3_iclk_div>;
--				clock-names = "cclk", "hclk";
-+				clocks = <&l3_iclk_div>, <&mcan_clk>;
-+				clock-names = "hclk", "cclk";
- 				bosch,mram-cfg = <0x0 0 0 32 0 0 1 1>;
- 			};
- 		};
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4256fdc5cd6d5..21fbdcde1faa1 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -496,7 +496,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 		return 1;
+ 
+ 	ptr = raw_data;
+-	ptr++; /* Skip report id */
++	if (report->id)
++		ptr++; /* Skip report id */
+ 
+ 	spin_lock_irqsave(&pdata->lock, flags);
+ 
 -- 
 2.27.0
 
