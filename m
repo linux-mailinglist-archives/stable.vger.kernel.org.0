@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2EE2C9E12
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B61B2C9DDA
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388074AbgLAJbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:31:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57762 "EHLO mail.kernel.org"
+        id S2388411AbgLAJ2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:28:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728984AbgLAIzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:02 -0500
+        id S2387830AbgLAJAw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:00:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3BBA2222E;
-        Tue,  1 Dec 2020 08:54:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89FCE2222C;
+        Tue,  1 Dec 2020 09:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812842;
-        bh=cFHxVMbT9D+JYMdFYcKovG1LxuP+mMnbh1HyPMniGD0=;
+        s=korg; t=1606813231;
+        bh=cvtI4bTCeMhfkoPYF698Gzr7Iim9KkLwf1S7FSzJEM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaBR051SfzuSvLKcZGqVCDWr8Zh1EuTuUqn/sWmM1sqPva4EJtqnOQ8WjEvBXK/El
-         IbnlbR5rmbTeB2QM0VwDplF2j2PnM8O4/JbfjHFXI82urfDtfM1ql4cQAA8ee04e20
-         F238TJsZTvMYXsLKVyEA5livAFynFUkamqELtNOw=
+        b=O5UdmOfme4sq4cyq0lM0htMjqQmn7MyXOceKhZ6LGbw4vwu8lwaf48D8rJtwEYSor
+         aLBwE4RB4rpQvHonA8rqJ/ZciGrzVBfPuodXcL0as/TqN4MDcU5Gc+uhpvnmmQd0RC
+         70dynfStxmshxR5AZBN94o2c5fW9bjjVc9wX6DXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoon Jungyeon <jungyeon@gatech.edu>,
-        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 02/24] btrfs: inode: Verify inode mode to avoid NULL pointer dereference
+        stable@vger.kernel.org,
+        syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com,
+        Nikolay Borisov <nborisov@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 03/57] btrfs: dont access possibly stale fs_info data for printing duplicate device
 Date:   Tue,  1 Dec 2020 09:53:08 +0100
-Message-Id: <20201201084637.885690100@linuxfoundation.org>
+Message-Id: <20201201084648.130524023@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-References: <20201201084637.754785180@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,197 +46,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 6bf9e4bd6a277840d3fe8c5d5d530a1fbd3db592 upstream
+commit 0697d9a610998b8bdee6b2390836cb2391d8fd1a upstream.
 
-[BUG]
-When accessing a file on a crafted image, btrfs can crash in block layer:
+Syzbot reported a possible use-after-free when printing a duplicate device
+warning device_list_add().
 
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-  PGD 136501067 P4D 136501067 PUD 124519067 PMD 0
-  CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.0.0-rc8-default #252
-  RIP: 0010:end_bio_extent_readpage+0x144/0x700
+At this point it can happen that a btrfs_device::fs_info is not correctly
+setup yet, so we're accessing stale data, when printing the warning
+message using the btrfs_printk() wrappers.
+
+  ==================================================================
+  BUG: KASAN: use-after-free in btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
+  Read of size 8 at addr ffff8880878e06a8 by task syz-executor225/7068
+
+  CPU: 1 PID: 7068 Comm: syz-executor225 Not tainted 5.9.0-rc5-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
   Call Trace:
-   <IRQ>
-   blk_update_request+0x8f/0x350
-   blk_mq_end_request+0x1a/0x120
-   blk_done_softirq+0x99/0xc0
-   __do_softirq+0xc7/0x467
-   irq_exit+0xd1/0xe0
-   call_function_single_interrupt+0xf/0x20
-   </IRQ>
-  RIP: 0010:default_idle+0x1e/0x170
+   __dump_stack lib/dump_stack.c:77 [inline]
+   dump_stack+0x1d6/0x29e lib/dump_stack.c:118
+   print_address_description+0x66/0x620 mm/kasan/report.c:383
+   __kasan_report mm/kasan/report.c:513 [inline]
+   kasan_report+0x132/0x1d0 mm/kasan/report.c:530
+   btrfs_printk+0x3eb/0x435 fs/btrfs/super.c:245
+   device_list_add+0x1a88/0x1d60 fs/btrfs/volumes.c:943
+   btrfs_scan_one_device+0x196/0x490 fs/btrfs/volumes.c:1359
+   btrfs_mount_root+0x48f/0xb60 fs/btrfs/super.c:1634
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   fc_mount fs/namespace.c:978 [inline]
+   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
+   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   do_new_mount fs/namespace.c:2875 [inline]
+   path_mount+0x179d/0x29e0 fs/namespace.c:3192
+   do_mount fs/namespace.c:3205 [inline]
+   __do_sys_mount fs/namespace.c:3413 [inline]
+   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
+   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x44840a
+  RSP: 002b:00007ffedfffd608 EFLAGS: 00000293 ORIG_RAX: 00000000000000a5
+  RAX: ffffffffffffffda RBX: 00007ffedfffd670 RCX: 000000000044840a
+  RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffedfffd630
+  RBP: 00007ffedfffd630 R08: 00007ffedfffd670 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000293 R12: 000000000000001a
+  R13: 0000000000000004 R14: 0000000000000003 R15: 0000000000000003
 
-[CAUSE]
-The crafted image has a tricky corruption, the INODE_ITEM has a
-different type against its parent dir:
+  Allocated by task 6945:
+   kasan_save_stack mm/kasan/common.c:48 [inline]
+   kasan_set_track mm/kasan/common.c:56 [inline]
+   __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
+   kmalloc_node include/linux/slab.h:577 [inline]
+   kvmalloc_node+0x81/0x110 mm/util.c:574
+   kvmalloc include/linux/mm.h:757 [inline]
+   kvzalloc include/linux/mm.h:765 [inline]
+   btrfs_mount_root+0xd0/0xb60 fs/btrfs/super.c:1613
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   fc_mount fs/namespace.c:978 [inline]
+   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
+   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   do_new_mount fs/namespace.c:2875 [inline]
+   path_mount+0x179d/0x29e0 fs/namespace.c:3192
+   do_mount fs/namespace.c:3205 [inline]
+   __do_sys_mount fs/namespace.c:3413 [inline]
+   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
+   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-        item 20 key (268 INODE_ITEM 0) itemoff 2808 itemsize 160
-                generation 13 transid 13 size 1048576 nbytes 1048576
-                block group 0 mode 121644 links 1 uid 0 gid 0 rdev 0
-                sequence 9 flags 0x0(none)
+  Freed by task 6945:
+   kasan_save_stack mm/kasan/common.c:48 [inline]
+   kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
+   kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
+   __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
+   __cache_free mm/slab.c:3418 [inline]
+   kfree+0x113/0x200 mm/slab.c:3756
+   deactivate_locked_super+0xa7/0xf0 fs/super.c:335
+   btrfs_mount_root+0x72b/0xb60 fs/btrfs/super.c:1678
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   fc_mount fs/namespace.c:978 [inline]
+   vfs_kern_mount+0xc9/0x160 fs/namespace.c:1008
+   btrfs_mount+0x33c/0xae0 fs/btrfs/super.c:1732
+   legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+   vfs_get_tree+0x88/0x270 fs/super.c:1547
+   do_new_mount fs/namespace.c:2875 [inline]
+   path_mount+0x179d/0x29e0 fs/namespace.c:3192
+   do_mount fs/namespace.c:3205 [inline]
+   __do_sys_mount fs/namespace.c:3413 [inline]
+   __se_sys_mount+0x126/0x180 fs/namespace.c:3390
+   do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-This mode number 0120000 means it's a symlink.
+  The buggy address belongs to the object at ffff8880878e0000
+   which belongs to the cache kmalloc-16k of size 16384
+  The buggy address is located 1704 bytes inside of
+   16384-byte region [ffff8880878e0000, ffff8880878e4000)
+  The buggy address belongs to the page:
+  page:0000000060704f30 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x878e0
+  head:0000000060704f30 order:3 compound_mapcount:0 compound_pincount:0
+  flags: 0xfffe0000010200(slab|head)
+  raw: 00fffe0000010200 ffffea00028e9a08 ffffea00021e3608 ffff8880aa440b00
+  raw: 0000000000000000 ffff8880878e0000 0000000100000001 0000000000000000
+  page dumped because: kasan: bad access detected
 
-But the dir item think it's still a regular file:
+  Memory state around the buggy address:
+   ffff8880878e0580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+   ffff8880878e0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  >ffff8880878e0680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+				    ^
+   ffff8880878e0700: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+   ffff8880878e0780: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ==================================================================
 
-        item 8 key (264 DIR_INDEX 5) itemoff 3707 itemsize 32
-                location key (268 INODE_ITEM 0) type FILE
-                transid 13 data_len 0 name_len 2
-                name: f4
-        item 40 key (264 DIR_ITEM 51821248) itemoff 1573 itemsize 32
-                location key (268 INODE_ITEM 0) type FILE
-                transid 13 data_len 0 name_len 2
-                name: f4
+The syzkaller reproducer for this use-after-free crafts a filesystem image
+and loop mounts it twice in a loop. The mount will fail as the crafted
+image has an invalid chunk tree. When this happens btrfs_mount_root() will
+call deactivate_locked_super(), which then cleans up fs_info and
+fs_info::sb. If a second thread now adds the same block-device to the
+filesystem, it will get detected as a duplicate device and
+device_list_add() will reject the duplicate and print a warning. But as
+the fs_info pointer passed in is non-NULL this will result in a
+use-after-free.
 
-For symlink, we don't set BTRFS_I(inode)->io_tree.ops and leave it
-empty, as symlink is only designed to have inlined extent, all handled
-by tree block read.  Thus no need to trigger btrfs_submit_bio_hook() for
-inline file extent.
+Instead of printing possibly uninitialized or already freed memory in
+btrfs_printk(), explicitly pass in a NULL fs_info so the printing of the
+device name will be skipped altogether.
 
-However end_bio_extent_readpage() expects tree->ops populated, as it's
-reading regular data extent.  This causes NULL pointer dereference.
+There was a slightly different approach discussed in
+https://lore.kernel.org/linux-btrfs/20200114060920.4527-1-anand.jain@oracle.com/t/#u
 
-[FIX]
-This patch fixes the problem in two ways:
-
-- Verify inode mode against its dir item when looking up inode
-  So in btrfs_lookup_dentry() if we find inode mode mismatch with dir
-  item, we error out so that corrupted inode will not be accessed.
-
-- Verify inode mode when getting extent mapping
-  Only regular file should have regular or preallocated extent.
-  If we found regular/preallocated file extent for symlink or
-  the rest, we error out before submitting the read bio.
-
-With this fix that crafted image can be rejected gracefully:
-
-  BTRFS critical (device loop0): inode mode mismatch with dir: inode mode=0121644 btrfs type=7 dir type=1
-
-Reported-by: Yoon Jungyeon <jungyeon@gatech.edu>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202763
+Link: https://lore.kernel.org/linux-btrfs/000000000000c9e14b05afcc41ba@google.com
+Reported-by: syzbot+582e66e5edf36a22c7b0@syzkaller.appspotmail.com
+CC: stable@vger.kernel.org # 4.19+
 Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
-[sudip: use original btrfs_inode_type(), btrfs_crit with root->fs_info,
-ISREG with inode->i_mode and adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/inode.c             |   41 +++++++++++++++++++++++++++++++++--------
- fs/btrfs/tests/inode-tests.c |    1 +
- 2 files changed, 34 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -5370,11 +5370,13 @@ no_delete:
- }
- 
- /*
-- * this returns the key found in the dir entry in the location pointer.
-+ * Return the key found in the dir entry in the location pointer, fill @type
-+ * with BTRFS_FT_*, and return 0.
-+ *
-  * If no dir entries were found, location->objectid is 0.
-  */
- static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
--			       struct btrfs_key *location)
-+			       struct btrfs_key *location, u8 *type)
- {
- 	const char *name = dentry->d_name.name;
- 	int namelen = dentry->d_name.len;
-@@ -5396,6 +5398,8 @@ static int btrfs_inode_by_name(struct in
- 		goto out_err;
- 
- 	btrfs_dir_item_key_to_cpu(path->nodes[0], di, location);
-+	if (!ret)
-+		*type = btrfs_dir_type(path->nodes[0], di);
- out:
- 	btrfs_free_path(path);
- 	return ret;
-@@ -5681,19 +5685,25 @@ static struct inode *new_simple_dir(stru
- 	return inode;
- }
- 
-+static inline u8 btrfs_inode_type(struct inode *inode)
-+{
-+	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
-+}
-+
- struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
- {
- 	struct inode *inode;
- 	struct btrfs_root *root = BTRFS_I(dir)->root;
- 	struct btrfs_root *sub_root = root;
- 	struct btrfs_key location;
-+	u8 di_type = 0;
- 	int index;
- 	int ret = 0;
- 
- 	if (dentry->d_name.len > BTRFS_NAME_LEN)
- 		return ERR_PTR(-ENAMETOOLONG);
- 
--	ret = btrfs_inode_by_name(dir, dentry, &location);
-+	ret = btrfs_inode_by_name(dir, dentry, &location, &di_type);
- 	if (ret < 0)
- 		return ERR_PTR(ret);
- 
-@@ -5702,6 +5712,18 @@ struct inode *btrfs_lookup_dentry(struct
- 
- 	if (location.type == BTRFS_INODE_ITEM_KEY) {
- 		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
-+		if (IS_ERR(inode))
-+			return inode;
-+
-+		/* Do extra check against inode mode with di_type */
-+		if (btrfs_inode_type(inode) != di_type) {
-+			btrfs_crit(root->fs_info,
-+"inode mode mismatch with dir: inode mode=0%o btrfs type=%u dir type=%u",
-+				  inode->i_mode, btrfs_inode_type(inode),
-+				  di_type);
-+			iput(inode);
-+			return ERR_PTR(-EUCLEAN);
-+		}
- 		return inode;
- 	}
- 
-@@ -6315,11 +6337,6 @@ fail:
- 	return ERR_PTR(ret);
- }
- 
--static inline u8 btrfs_inode_type(struct inode *inode)
--{
--	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
--}
--
- /*
-  * utility function to add 'inode' into 'parent_inode' with
-  * a give name and a given sequence number.
-@@ -6904,6 +6921,14 @@ again:
- 	extent_start = found_key.offset;
- 	if (found_type == BTRFS_FILE_EXTENT_REG ||
- 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
-+		/* Only regular file could have regular/prealloc extent */
-+		if (!S_ISREG(inode->i_mode)) {
-+			ret = -EUCLEAN;
-+			btrfs_crit(root->fs_info,
-+		"regular/prealloc extent found for non-regular inode %llu",
-+				   btrfs_ino(inode));
-+			goto out;
-+		}
- 		extent_end = extent_start +
- 		       btrfs_file_extent_num_bytes(leaf, item);
- 	} else if (found_type == BTRFS_FILE_EXTENT_INLINE) {
---- a/fs/btrfs/tests/inode-tests.c
-+++ b/fs/btrfs/tests/inode-tests.c
-@@ -235,6 +235,7 @@ static noinline int test_btrfs_get_exten
- 		return ret;
- 	}
- 
-+	inode->i_mode = S_IFREG;
- 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
- 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
- 	BTRFS_I(inode)->location.offset = 0;
+---
+ fs/btrfs/volumes.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -857,7 +857,13 @@ static noinline struct btrfs_device *dev
+ 			if (device->bdev != path_bdev) {
+ 				bdput(path_bdev);
+ 				mutex_unlock(&fs_devices->device_list_mutex);
+-				btrfs_warn_in_rcu(device->fs_info,
++				/*
++				 * device->fs_info may not be reliable here, so
++				 * pass in a NULL instead. This avoids a
++				 * possible use-after-free when the fs_info and
++				 * fs_info->sb are already torn down.
++				 */
++				btrfs_warn_in_rcu(NULL,
+ 	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
+ 						  path, devid, found_transid,
+ 						  current->comm,
 
 
