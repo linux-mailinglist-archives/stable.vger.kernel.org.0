@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9122C9B5B
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF862C9C43
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388996AbgLAJHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:07:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S2390142AbgLAJOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:14:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389134AbgLAJHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:07:31 -0500
+        id S2390205AbgLAJOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:14:11 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDF5E206C1;
-        Tue,  1 Dec 2020 09:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10E02221FF;
+        Tue,  1 Dec 2020 09:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813611;
-        bh=aolf/JTFx8UwBgnU90Rlf5q5kYjL3ySZ4Yh56LQpZUk=;
+        s=korg; t=1606814007;
+        bh=C7Hr7eeAjhgBmS1+zePSlbyKpdNUKtdPF2tBJncRM5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xt5BMYMRdrS7+eSNdwB/ABwr1rAn1fyshUyftM4XExQiKe+Dc/EUhGkdgaGlUC9oA
-         OPwYmKrb6Ku0YRRKDe2TIlwgdh/vqSZ5Vt+rDCRddkz8ZRO6af8s5K+3xFeu2BQLaC
-         VLKnSmglR86RhEY6YrHqa6CeXf/sQm2s6Zla5f38=
+        b=r6HG/0kfP0TCfJBLbMaACERjHIRtbhOm5TaF7grgA630HUh2RS4OcL+rs2IRZGpo+
+         MQ5Pwq02DaBsf1/AAQ3aQIv4meKToHiH/oFOJvXU8+aiBUEWDOsZGYYeQ5ac1/5Stt
+         dRYepkHodeZeahHk2LoNXLV5JYTpuUYueTsInzqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "alsa-devel@alsa-project.org, broonie@kernel.org, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com, mateusz.gorski@linux.intel.com,
-        Cezary Rojewski" <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>
-Subject: [PATCH 5.4 91/98] ASoC: Intel: Skylake: Remove superfluous chip initialization
-Date:   Tue,  1 Dec 2020 09:54:08 +0100
-Message-Id: <20201201084659.522735398@linuxfoundation.org>
+        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 134/152] RDMA/hns: Fix retry_cnt and rnr_cnt when querying QP
+Date:   Tue,  1 Dec 2020 09:54:09 +0100
+Message-Id: <20201201084729.364928887@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Wenpeng Liang <liangwenpeng@huawei.com>
 
-commit 2ef81057d80456870b97890dd79c8f56a85b1242 upstream.
+[ Upstream commit ab6f7248cc446b85fe9e31091670ad7c4293d7fd ]
 
-Skylake driver does the controller init operation twice:
-- first during probe (only to stop it just before scheduling probe_work)
-- and during said probe_work where the actual correct sequence is
-executed
+The maximum number of retransmission should be returned when querying QP,
+not the value of retransmission counter.
 
-To properly complete boot sequence when iDisp codec is present, bus
-initialization has to be called only after _i915_init() finishes.
-With additional _reset_list preceding _i915_init(), iDisp codec never
-gets the chance to enumerate on the link. Remove the superfluous
-initialization to address the issue.
-
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200305145314.32579-2-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 99fcf82521d9 ("RDMA/hns: Fix the wrong value of rnr_retry when querying qp")
+Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
+Link: https://lore.kernel.org/r/1606382977-21431-1-git-send-email-liweihang@huawei.com
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl.c |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/soc/intel/skylake/skl.c
-+++ b/sound/soc/intel/skylake/skl.c
-@@ -807,6 +807,9 @@ static void skl_probe_work(struct work_s
- 			return;
- 	}
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index cee140920c579..ccbe12de8e59b 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4771,11 +4771,11 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
+ 					      V2_QPC_BYTE_28_AT_M,
+ 					      V2_QPC_BYTE_28_AT_S);
+ 	qp_attr->retry_cnt = roce_get_field(context.byte_212_lsn,
+-					    V2_QPC_BYTE_212_RETRY_CNT_M,
+-					    V2_QPC_BYTE_212_RETRY_CNT_S);
++					    V2_QPC_BYTE_212_RETRY_NUM_INIT_M,
++					    V2_QPC_BYTE_212_RETRY_NUM_INIT_S);
+ 	qp_attr->rnr_retry = roce_get_field(context.byte_244_rnr_rxack,
+-					    V2_QPC_BYTE_244_RNR_CNT_M,
+-					    V2_QPC_BYTE_244_RNR_CNT_S);
++					    V2_QPC_BYTE_244_RNR_NUM_INIT_M,
++					    V2_QPC_BYTE_244_RNR_NUM_INIT_S);
  
-+	skl_init_pci(skl);
-+	skl_dum_set(bus);
-+
- 	err = skl_init_chip(bus, true);
- 	if (err < 0) {
- 		dev_err(bus->dev, "Init chip failed with err: %d\n", err);
-@@ -922,8 +925,6 @@ static int skl_first_init(struct hdac_bu
- 		return -ENXIO;
- 	}
- 
--	snd_hdac_bus_reset_link(bus, true);
--
- 	snd_hdac_bus_parse_capabilities(bus);
- 
- 	/* check if PPCAP exists */
-@@ -971,11 +972,7 @@ static int skl_first_init(struct hdac_bu
- 	if (err < 0)
- 		return err;
- 
--	/* initialize chip */
--	skl_init_pci(skl);
--	skl_dum_set(bus);
--
--	return skl_init_chip(bus, true);
-+	return 0;
- }
- 
- static int skl_probe(struct pci_dev *pci,
-@@ -1080,8 +1077,6 @@ static int skl_probe(struct pci_dev *pci
- 	if (bus->mlcap)
- 		snd_hdac_ext_bus_get_ml_capabilities(bus);
- 
--	snd_hdac_bus_stop_chip(bus);
--
- 	/* create device for soc dmic */
- 	err = skl_dmic_device_register(skl);
- 	if (err < 0) {
+ done:
+ 	qp_attr->cur_qp_state = qp_attr->qp_state;
+-- 
+2.27.0
+
 
 
