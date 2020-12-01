@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DE52C9C33
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3052C9B49
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390240AbgLAJOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:14:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
+        id S2388828AbgLAJGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:06:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390111AbgLAJNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:13:33 -0500
+        id S1727879AbgLAJGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:06:45 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF66E206CA;
-        Tue,  1 Dec 2020 09:12:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDA162067D;
+        Tue,  1 Dec 2020 09:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813972;
-        bh=69fkISq22tvJMkqFDRcEKEXQrl2GDojcM2m3rXq6E0c=;
+        s=korg; t=1606813564;
+        bh=dHXjmeE6FYGVRb6S8w2kvnBpoApvG1nJ8ma+eJ9ENVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMkY5gKvORH2srxVXY6OIlGToZlYYWwvEYpjPKKVYoJFq+TFClRc0KfuRVsm49k5w
-         AhNOAV4ZdlcSzg0jyHKYQuVGrreVEKICOpScqBW+fdtW4riI2i9ubTBpCNTjoYhOzm
-         E8s0sempMqvyvM+WzCNNwpMSGGs2MoVk056mY3lw=
+        b=I7NMWzMepqOsVfnolzl/mAUcJICcQs0WzYCcGzp9WpE22kJpg38QoFg7iexaIWykc
+         pgibNwKWsePVwl4fv1CRi4ykFnNqv6o/kcJZB5jGhVodY5hy3KHKt1Lx9rICbIoxL+
+         wI+fQDcDQ7C1eIy6V+BOoUb+pmHFv2W8WV57kf44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Bill Wendling <morbo@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 123/152] riscv: Explicitly specify the build id style in vDSO Makefile again
-Date:   Tue,  1 Dec 2020 09:53:58 +0100
-Message-Id: <20201201084727.948331893@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 5.4 82/98] usb: gadget: f_midi: Fix memleak in f_midi_alloc
+Date:   Tue,  1 Dec 2020 09:53:59 +0100
+Message-Id: <20201201084659.061065407@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit e553fdc8105ac2ef3f321739da3908bb6673f7de ]
+commit e7694cb6998379341fd9bf3bd62b48c4e6a79385 upstream.
 
-Commit a96843372331 ("kbuild: explicitly specify the build id style")
-explicitly set the build ID style to SHA1. Commit c2c81bb2f691 ("RISC-V:
-Fix the VDSO symbol generaton for binutils-2.35+") undid this change,
-likely unintentionally.
+In the error path, if midi is not null, we should
+free the midi->id if necessary to prevent memleak.
 
-Restore it so that the build ID style stays consistent across the tree
-regardless of linker.
+Fixes: b85e9de9e818d ("usb: gadget: f_midi: convert to new function interface with backward compatibility")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201117021629.1470544-2-zhangqilong3@huawei.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: c2c81bb2f691 ("RISC-V: Fix the VDSO symbol generaton for binutils-2.35+")
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Bill Wendling <morbo@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_midi.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index cb8f9e4cfcbf8..0cfd6da784f84 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -44,7 +44,7 @@ SYSCFLAGS_vdso.so.dbg = $(c_flags)
- $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
- SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
--	-Wl,--build-id -Wl,--hash-style=both
-+	-Wl,--build-id=sha1 -Wl,--hash-style=both
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1315,7 +1315,7 @@ static struct usb_function *f_midi_alloc
+ 	midi->id = kstrdup(opts->id, GFP_KERNEL);
+ 	if (opts->id && !midi->id) {
+ 		status = -ENOMEM;
+-		goto setup_fail;
++		goto midi_free;
+ 	}
+ 	midi->in_ports = opts->in_ports;
+ 	midi->out_ports = opts->out_ports;
+@@ -1327,7 +1327,7 @@ static struct usb_function *f_midi_alloc
  
- # We also create a special relocatable object that should mirror the symbol
- # table and layout of the linked DSO. With ld --just-symbols we can then
--- 
-2.27.0
-
+ 	status = kfifo_alloc(&midi->in_req_fifo, midi->qlen, GFP_KERNEL);
+ 	if (status)
+-		goto setup_fail;
++		goto midi_free;
+ 
+ 	spin_lock_init(&midi->transmit_lock);
+ 
+@@ -1343,9 +1343,13 @@ static struct usb_function *f_midi_alloc
+ 
+ 	return &midi->func;
+ 
++midi_free:
++	if (midi)
++		kfree(midi->id);
++	kfree(midi);
+ setup_fail:
+ 	mutex_unlock(&opts->lock);
+-	kfree(midi);
++
+ 	return ERR_PTR(status);
+ }
+ 
 
 
