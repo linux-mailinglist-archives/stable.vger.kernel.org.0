@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6230F2C9C2D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B722C9C2F
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390448AbgLAJPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:15:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54084 "EHLO mail.kernel.org"
+        id S2389741AbgLAJPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:15:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390443AbgLAJPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:15:16 -0500
+        id S2390444AbgLAJPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:15:19 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F3B620656;
-        Tue,  1 Dec 2020 09:14:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F362067D;
+        Tue,  1 Dec 2020 09:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814075;
-        bh=1uaD0cjVTc0yfXt0xJqIVsB+2NUgvutpUbrpETVOIcA=;
+        s=korg; t=1606814078;
+        bh=YCy8sYJ6WMZONK4wP1UFLQxbXydJzFn4vVHzJZ9TjuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1PTznhSzNr2VC03go1GCjDQ5ZSV1VA6IeK1nxb6CZEjW8yZsFv3HxASGHHl9MAbn
-         iNAMnB5MEhabroWMwnR1BV+1YROU4wI6XzXQ6AWHUSkoC2+ZnUugIJUS6K4lac2xkd
-         lAWpMmyVJB0rTh7L+EK5elffAQbGixVmtz1sT6MM=
+        b=kEQNOaBgOtH7IgdashqFJz7FhMeWN9FQqxEj5sdRqtteNDBQFgOVscNQeN61VTLHc
+         Q2j8zW7UdgFh5xd0QDLXRVroECIcud0A2fEL9F+Jit/vyKhdTB9I22aUeTSf2G4vHS
+         31TvvDM3dnDkAwG3vMt0jGirWyUhzbjwEmo/3yEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gabriele Paoloni <gabriele.paoloni@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.9 148/152] x86/mce: Do not overwrite no_way_out if mce_end() fails
-Date:   Tue,  1 Dec 2020 09:54:23 +0100
-Message-Id: <20201201084731.240832074@linuxfoundation.org>
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.9 149/152] x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
+Date:   Tue,  1 Dec 2020 09:54:24 +0100
+Message-Id: <20201201084731.394462329@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -43,47 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriele Paoloni <gabriele.paoloni@intel.com>
+From: Anand K Mistry <amistry@google.com>
 
-commit 25bc65d8ddfc17cc1d7a45bd48e9bdc0e729ced3 upstream.
+commit 33fc379df76b4991e5ae312f07bcd6820811971e upstream.
 
-Currently, if mce_end() fails, no_way_out - the variable denoting
-whether the machine can recover from this MCE - is determined by whether
-the worst severity that was found across the MCA banks associated with
-the current CPU, is of panic severity.
+When spectre_v2_user={seccomp,prctl},ibpb is specified on the command
+line, IBPB is force-enabled and STIPB is conditionally-enabled (or not
+available).
 
-However, at this point no_way_out could have been already set by
-mca_start() after looking at all severities of all CPUs that entered the
-MCE handler. If mce_end() fails, check first if no_way_out is already
-set and, if so, stick to it, otherwise use the local worst value.
+However, since
 
- [ bp: Massage. ]
+  21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
 
-Signed-off-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
+the spectre_v2_user_ibpb variable is set to SPECTRE_V2_USER_{PRCTL,SECCOMP}
+instead of SPECTRE_V2_USER_STRICT, which is the actual behaviour.
+Because the issuing of IBPB relies on the switch_mm_*_ibpb static
+branches, the mitigations behave as expected.
+
+Since
+
+  1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+
+this discrepency caused the misreporting of IB speculation via prctl().
+
+On CPUs with STIBP always-on and spectre_v2_user=seccomp,ibpb,
+prctl(PR_GET_SPECULATION_CTRL) would return PR_SPEC_PRCTL |
+PR_SPEC_ENABLE instead of PR_SPEC_DISABLE since both IBPB and STIPB are
+always on. It also allowed prctl(PR_SET_SPECULATION_CTRL) to set the IB
+speculation mode, even though the flag is ignored.
+
+Similarly, for CPUs without SMT, prctl(PR_GET_SPECULATION_CTRL) should
+also return PR_SPEC_DISABLE since IBPB is always on and STIBP is not
+available.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 21998a351512 ("x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.")
+Fixes: 1978b3a53a74 ("x86/speculation: Allow IBPB to be conditionally enabled on CPUs with always-on STIBP")
+Signed-off-by: Anand K Mistry <amistry@google.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201127161819.3106432-2-gabriele.paoloni@intel.com
+Link: https://lkml.kernel.org/r/20201110123349.1.Id0cbf996d2151f4c143c90f9028651a5b49a5908@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mce/core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1363,8 +1363,10 @@ noinstr void do_machine_check(struct pt_
- 	 * When there's any problem use only local no_way_out state.
- 	 */
- 	if (!lmce) {
--		if (mce_end(order) < 0)
--			no_way_out = worst >= MCE_PANIC_SEVERITY;
-+		if (mce_end(order) < 0) {
-+			if (!no_way_out)
-+				no_way_out = worst >= MCE_PANIC_SEVERITY;
-+		}
- 	} else {
- 		/*
- 		 * If there was a fatal machine check we should have
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -739,11 +739,13 @@ spectre_v2_user_select_mitigation(enum s
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
+ 
++		spectre_v2_user_ibpb = mode;
+ 		switch (cmd) {
+ 		case SPECTRE_V2_USER_CMD_FORCE:
+ 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
+ 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
+ 			static_branch_enable(&switch_mm_always_ibpb);
++			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
+ 			break;
+ 		case SPECTRE_V2_USER_CMD_PRCTL:
+ 		case SPECTRE_V2_USER_CMD_AUTO:
+@@ -757,8 +759,6 @@ spectre_v2_user_select_mitigation(enum s
+ 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
+ 			static_key_enabled(&switch_mm_always_ibpb) ?
+ 			"always-on" : "conditional");
+-
+-		spectre_v2_user_ibpb = mode;
+ 	}
+ 
+ 	/*
 
 
