@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EBC2C9D2D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1B62C9D29
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389644AbgLAJTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:19:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47472 "EHLO mail.kernel.org"
+        id S2390747AbgLAJTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:19:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389180AbgLAJJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:09:49 -0500
+        id S2389587AbgLAJJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:09:52 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2DA920656;
-        Tue,  1 Dec 2020 09:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2CFB2067D;
+        Tue,  1 Dec 2020 09:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813748;
-        bh=1bsPkY/khwinDBj9eb7F1U92WTaj3JTsPymPdGoIYBg=;
+        s=korg; t=1606813751;
+        bh=1DfRXf9BYssmgm85lj3xv7Mys1IYXJC9ajufzMFz7UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zkYjwio6KRkB8fEYv/V4c1KvHgT6Au8hYXa9NBeocS1ncDbIFN188f0vp8SBoEqur
-         Gdl1XMdDa1aUh62YWSWUcbW2hAM9f66dZXfgWpw2bTbA1UlYVGAueVhWYfbQSyV44G
-         iyri6AMjo9t3VlfarNXNMUWyU5Wne0XclCkfx9N0=
+        b=K7pTQW6wvUq9mb877KnWelFqSm1tVVwpb97GMtLmePXP4gHdeRlyLL9rq8YZ+hUKy
+         qwtlv2R1GcLlNetwDbS983TPdWH4loquRK+vL93WbNSGThGSuaHtyIwYWebxOCsIwN
+         e+gpXG5CVWQo+7J7T/yyWit2BoQFwVzUcVOuCP1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3622cea378100f45d59f@syzkaller.appspotmail.com,
-        Qian Cai <cai@lca.pw>, Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 015/152] mm: fix VM_BUG_ON(PageTail) and BUG_ON(PageWriteback)
-Date:   Tue,  1 Dec 2020 09:52:10 +0100
-Message-Id: <20201201084713.856094481@linuxfoundation.org>
+        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.9 016/152] smb3: Call cifs reconnect from demultiplex thread
+Date:   Tue,  1 Dec 2020 09:52:11 +0100
+Message-Id: <20201201084713.994192252@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -44,123 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Rohith Surabattula <rohiths@microsoft.com>
 
-commit 073861ed77b6b957c3c8d54a11dc503f7d986ceb upstream.
+commit de9ac0a6e9efdffc8cde18781f48fb56ca4157b7 upstream.
 
-Twice now, when exercising ext4 looped on shmem huge pages, I have crashed
-on the PF_ONLY_HEAD check inside PageWaiters(): ext4_finish_bio() calling
-end_page_writeback() calling wake_up_page() on tail of a shmem huge page,
-no longer an ext4 page at all.
+cifs_reconnect needs to be called only from demultiplex thread.
+skip cifs_reconnect in offload thread. So, cifs_reconnect will be
+called by demultiplex thread in subsequent request.
 
-The problem is that PageWriteback is not accompanied by a page reference
-(as the NOTE at the end of test_clear_page_writeback() acknowledges): as
-soon as TestClearPageWriteback has been done, that page could be removed
-from page cache, freed, and reused for something else by the time that
-wake_up_page() is reached.
+These patches address a problem found during decryption offload:
+     CIFS: VFS: trying to dequeue a deleted mid
+that can cause a refcount use after free:
 
-https://lore.kernel.org/linux-mm/20200827122019.GC14765@casper.infradead.org/
-Matthew Wilcox suggested avoiding or weakening the PageWaiters() tail
-check; but I'm paranoid about even looking at an unreferenced struct page,
-lest its memory might itself have already been reused or hotremoved (and
-wake_up_page_bit() may modify that memory with its ClearPageWaiters()).
+[ 1271.389453] Workqueue: smb3decryptd smb2_decrypt_offload [cifs]
+[ 1271.389456] RIP: 0010:refcount_warn_saturate+0xae/0xf0
+[ 1271.389457] Code: fa 1d 6a 01 01 e8 c7 44 b1 ff 0f 0b 5d c3 80 3d e7 1d 6a 01 00 75 91 48 c7 c7 d8 be 1d a2 c6 05 d7 1d 6a 01 01 e8 a7 44 b1 ff <0f> 0b 5d c3 80 3d c5 1d 6a 01 00 0f 85 6d ff ff ff 48 c7 c7 30 bf
+[ 1271.389458] RSP: 0018:ffffa4cdc1f87e30 EFLAGS: 00010286
+[ 1271.389458] RAX: 0000000000000000 RBX: ffff9974d2809f00 RCX: ffff9974df898cc8
+[ 1271.389459] RDX: 00000000ffffffd8 RSI: 0000000000000027 RDI: ffff9974df898cc0
+[ 1271.389460] RBP: ffffa4cdc1f87e30 R08: 0000000000000004 R09: 00000000000002c0
+[ 1271.389460] R10: 0000000000000000 R11: 0000000000000001 R12: ffff9974b7fdb5c0
+[ 1271.389461] R13: ffff9974d2809f00 R14: ffff9974ccea0a80 R15: ffff99748e60db80
+[ 1271.389462] FS:  0000000000000000(0000) GS:ffff9974df880000(0000) knlGS:0000000000000000
+[ 1271.389462] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1271.389463] CR2: 000055c60f344fe4 CR3: 0000001031a3c002 CR4: 00000000003706e0
+[ 1271.389465] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1271.389465] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1271.389466] Call Trace:
+[ 1271.389483]  cifs_mid_q_entry_release+0xce/0x110 [cifs]
+[ 1271.389499]  smb2_decrypt_offload+0xa9/0x1c0 [cifs]
+[ 1271.389501]  process_one_work+0x1e8/0x3b0
+[ 1271.389503]  worker_thread+0x50/0x370
+[ 1271.389504]  kthread+0x12f/0x150
+[ 1271.389506]  ? process_one_work+0x3b0/0x3b0
+[ 1271.389507]  ? __kthread_bind_mask+0x70/0x70
+[ 1271.389509]  ret_from_fork+0x22/0x30
 
-Then on crashing a second time, realized there's a stronger reason against
-that approach.  If my testing just occasionally crashes on that check,
-when the page is reused for part of a compound page, wouldn't it be much
-more common for the page to get reused as an order-0 page before reaching
-wake_up_page()?  And on rare occasions, might that reused page already be
-marked PageWriteback by its new user, and already be waited upon?  What
-would that look like?
-
-It would look like BUG_ON(PageWriteback) after wait_on_page_writeback()
-in write_cache_pages() (though I have never seen that crash myself).
-
-Matthew Wilcox explaining this to himself:
- "page is allocated, added to page cache, dirtied, writeback starts,
-
-  --- thread A ---
-  filesystem calls end_page_writeback()
-        test_clear_page_writeback()
-  --- context switch to thread B ---
-  truncate_inode_pages_range() finds the page, it doesn't have writeback set,
-  we delete it from the page cache.  Page gets reallocated, dirtied, writeback
-  starts again.  Then we call write_cache_pages(), see
-  PageWriteback() set, call wait_on_page_writeback()
-  --- context switch back to thread A ---
-  wake_up_page(page, PG_writeback);
-  ... thread B is woken, but because the wakeup was for the old use of
-  the page, PageWriteback is still set.
-
-  Devious"
-
-And prior to 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common() logic")
-this would have been much less likely: before that, wake_page_function()'s
-non-exclusive case would stop walking and not wake if it found Writeback
-already set again; whereas now the non-exclusive case proceeds to wake.
-
-I have not thought of a fix that does not add a little overhead: the
-simplest fix is for end_page_writeback() to get_page() before calling
-test_clear_page_writeback(), then put_page() after wake_up_page().
-
-Was there a chance of missed wakeups before, since a page freed before
-reaching wake_up_page() would have PageWaiters cleared?  I think not,
-because each waiter does hold a reference on the page.  This bug comes
-when the old use of the page, the one we do TestClearPageWriteback on,
-had *no* waiters, so no additional page reference beyond the page cache
-(and whoever racily freed it).  The reuse of the page has a waiter
-holding a reference, and its own PageWriteback set; but the belated
-wake_up_page() has woken the reuse to hit that BUG_ON(PageWriteback).
-
-Reported-by: syzbot+3622cea378100f45d59f@syzkaller.appspotmail.com
-Reported-by: Qian Cai <cai@lca.pw>
-Fixes: 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common() logic")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+CC: Stable <stable@vger.kernel.org> #5.4+
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/filemap.c        |    8 ++++++++
- mm/page-writeback.c |    6 ------
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ fs/cifs/smb2ops.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1464,11 +1464,19 @@ void end_page_writeback(struct page *pag
- 		rotate_reclaimable_page(page);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4212,7 +4212,8 @@ init_read_bvec(struct page **pages, unsi
+ static int
+ handle_read_data(struct TCP_Server_Info *server, struct mid_q_entry *mid,
+ 		 char *buf, unsigned int buf_len, struct page **pages,
+-		 unsigned int npages, unsigned int page_data_size)
++		 unsigned int npages, unsigned int page_data_size,
++		 bool is_offloaded)
+ {
+ 	unsigned int data_offset;
+ 	unsigned int data_len;
+@@ -4234,7 +4235,8 @@ handle_read_data(struct TCP_Server_Info
+ 
+ 	if (server->ops->is_session_expired &&
+ 	    server->ops->is_session_expired(buf)) {
+-		cifs_reconnect(server);
++		if (!is_offloaded)
++			cifs_reconnect(server);
+ 		return -1;
  	}
  
-+	/*
-+	 * Writeback does not hold a page reference of its own, relying
-+	 * on truncation to wait for the clearing of PG_writeback.
-+	 * But here we must make sure that the page is not freed and
-+	 * reused before the wake_up_page().
-+	 */
-+	get_page(page);
- 	if (!test_clear_page_writeback(page))
- 		BUG();
+@@ -4374,7 +4376,8 @@ static void smb2_decrypt_offload(struct
+ 		mid->decrypted = true;
+ 		rc = handle_read_data(dw->server, mid, dw->buf,
+ 				      dw->server->vals->read_rsp_size,
+-				      dw->ppages, dw->npages, dw->len);
++				      dw->ppages, dw->npages, dw->len,
++				      true);
+ 		mid->callback(mid);
+ 		cifs_mid_q_entry_release(mid);
+ 	}
+@@ -4478,7 +4481,7 @@ non_offloaded_decrypt:
+ 		(*mid)->decrypted = true;
+ 		rc = handle_read_data(server, *mid, buf,
+ 				      server->vals->read_rsp_size,
+-				      pages, npages, len);
++				      pages, npages, len, false);
+ 	}
  
- 	smp_mb__after_atomic();
- 	wake_up_page(page, PG_writeback);
-+	put_page(page);
+ free_pages:
+@@ -4621,7 +4624,7 @@ smb3_handle_read_data(struct TCP_Server_
+ 	char *buf = server->large_buf ? server->bigbuf : server->smallbuf;
+ 
+ 	return handle_read_data(server, mid, buf, server->pdu_size,
+-				NULL, 0, 0);
++				NULL, 0, 0, false);
  }
- EXPORT_SYMBOL(end_page_writeback);
  
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -2754,12 +2754,6 @@ int test_clear_page_writeback(struct pag
- 	} else {
- 		ret = TestClearPageWriteback(page);
- 	}
--	/*
--	 * NOTE: Page might be free now! Writeback doesn't hold a page
--	 * reference on its own, it relies on truncation to wait for
--	 * the clearing of PG_writeback. The below can only access
--	 * page state that is static across allocation cycles.
--	 */
- 	if (ret) {
- 		dec_lruvec_state(lruvec, NR_WRITEBACK);
- 		dec_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+ static int
 
 
