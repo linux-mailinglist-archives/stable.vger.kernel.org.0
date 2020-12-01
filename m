@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238CE2C9CA9
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08D252C9CAF
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387610AbgLAIz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:55:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
+        id S2387916AbgLAI6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:58:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387591AbgLAIzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:55:52 -0500
+        id S2387909AbgLAI6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:58:20 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3B89206D8;
-        Tue,  1 Dec 2020 08:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ABE82222E;
+        Tue,  1 Dec 2020 08:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606812936;
-        bh=ML0MJyV/L1jpRCdYMNccYQa3xrhWVP+pUjMBTDVU/TE=;
+        s=korg; t=1606813058;
+        bh=HGJs1bqJwsJloupKewMaTrSib487ZEU/2foh7InBp+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brl0sHAExqf83FlIMw71LCzwtybuLG3mnnt++PF1BLJS3H+aRM8mdQiW5CFimIqry
-         PranMmwUAzZJPS7IeKdAALDBj1bbkj6/Kj8LIzYPpX3wdFSXmpjC+3WlWIpeQraNlM
-         0VqRRWLIUCsoiebQMCPlVaeFKF2AeaVoMCoKSjU4=
+        b=uUDpfGhhgf4Gh4g6f04BpSTC37rzQ9GcooU5KhZuVDLhBlwUak6UzVUAJAo6T6mVV
+         JrqoXyZUU+JcZV+XAiJioqIKJM8vL1NAbG5zfPL7KRqRpHshEEja6AJHzGPNDWWB2m
+         396Fxx89hZ2eLKcSUX9DL00L6yManBxnRzZxsopo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 03/42] btrfs: fix lockdep splat when reading qgroup config on mount
-Date:   Tue,  1 Dec 2020 09:53:01 +0100
-Message-Id: <20201201084642.338225206@linuxfoundation.org>
+Subject: [PATCH 4.14 03/50] btrfs: fix lockdep splat when reading qgroup config on mount
+Date:   Tue,  1 Dec 2020 09:53:02 +0100
+Message-Id: <20201201084645.169876968@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -184,7 +184,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/btrfs/qgroup.c
 +++ b/fs/btrfs/qgroup.c
-@@ -461,13 +461,13 @@ next2:
+@@ -424,13 +424,13 @@ next2:
  			break;
  	}
  out:
