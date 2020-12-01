@@ -2,40 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C037B2C9D1D
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7E22C9E0C
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390588AbgLAJTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:19:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
+        id S2391218AbgLAJax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:30:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389663AbgLAJKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:10:18 -0500
+        id S1729092AbgLAIzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:21 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D44920656;
-        Tue,  1 Dec 2020 09:10:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 056B32224B;
+        Tue,  1 Dec 2020 08:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813803;
-        bh=KS5sNnxLHtIs9E9OLCHNsPezCmnd4ggTIjINV5NcBbE=;
+        s=korg; t=1606812883;
+        bh=j8jIezXE1iVzqmmri5lVcq0mQjhgAkZGwGITFThS85Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTpwM+XLx4C/M4IdEFK3gB4kQWY1TMWL4K3n19wApmu6GO7HPbo+7F5RnCjonFCch
-         mC5TAGrZuGElK4TSKaOlpIbR6XUdqpGI32y87meMpJwU/QW9XZ5ltOZZH1z9AdFol3
-         DxvEx9GjXH9SYnJw+JyyH5/GXh8KqVqtBKoq2rFM=
+        b=bwIRIvppxCs6KL2BKgTL+65xHinmgkzgQYzlmRb+gYj+nFsl5sDXDcW0tBoSi1JDe
+         w5t/iQ9FLWi9pdTbiNtV+HtG8IL9boXCoTdpHMhl2+fAdvRjQv5T65il9KTbT2d3ul
+         IiP02VH87f7YWcBMeWG8ycDYH/PnYUMuz6QkDpNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 064/152] lockdep: Put graph lock/unlock under lock_recursion protection
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Dahl <ada@thorsis.com>
+Subject: [PATCH 4.9 01/42] perf event: Check ref_reloc_sym before using it
 Date:   Tue,  1 Dec 2020 09:52:59 +0100
-Message-Id: <20201201084720.323912400@linuxfoundation.org>
+Message-Id: <20201201084642.245523020@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
+References: <20201201084642.194933793@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,86 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Igor Lubashev <ilubashe@akamai.com>
 
-[ Upstream commit 43be4388e94b915799a24f0eaf664bf95b85231f ]
+commit e9a6882f267a8105461066e3ea6b4b6b9be1b807 upstream.
 
-A warning was hit when running xfstests/generic/068 in a Hyper-V guest:
+Check for ref_reloc_sym before using it instead of checking
+symbol_conf.kptr_restrict and relying solely on that check.
 
-[...] ------------[ cut here ]------------
-[...] DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled())
-[...] WARNING: CPU: 2 PID: 1350 at kernel/locking/lockdep.c:5280 check_flags.part.0+0x165/0x170
-[...] ...
-[...] Workqueue: events pwq_unbound_release_workfn
-[...] RIP: 0010:check_flags.part.0+0x165/0x170
-[...] ...
-[...] Call Trace:
-[...]  lock_is_held_type+0x72/0x150
-[...]  ? lock_acquire+0x16e/0x4a0
-[...]  rcu_read_lock_sched_held+0x3f/0x80
-[...]  __send_ipi_one+0x14d/0x1b0
-[...]  hv_send_ipi+0x12/0x30
-[...]  __pv_queued_spin_unlock_slowpath+0xd1/0x110
-[...]  __raw_callee_save___pv_queued_spin_unlock_slowpath+0x11/0x20
-[...]  .slowpath+0x9/0xe
-[...]  lockdep_unregister_key+0x128/0x180
-[...]  pwq_unbound_release_workfn+0xbb/0xf0
-[...]  process_one_work+0x227/0x5c0
-[...]  worker_thread+0x55/0x3c0
-[...]  ? process_one_work+0x5c0/0x5c0
-[...]  kthread+0x153/0x170
-[...]  ? __kthread_bind_mask+0x60/0x60
-[...]  ret_from_fork+0x1f/0x30
+Reported-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Igor Lubashev <ilubashe@akamai.com>
+Tested-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/1566869956-7154-2-git-send-email-ilubashe@akamai.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Dahl <ada@thorsis.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The cause of the problem is we have call chain lockdep_unregister_key()
--> <irq disabled by raw_local_irq_save()> lockdep_unlock() ->
-arch_spin_unlock() -> __pv_queued_spin_unlock_slowpath() -> pv_kick() ->
-__send_ipi_one() -> trace_hyperv_send_ipi_one().
-
-Although this particular warning is triggered because Hyper-V has a
-trace point in ipi sending, but in general arch_spin_unlock() may call
-another function having a trace point in it, so put the arch_spin_lock()
-and arch_spin_unlock() after lock_recursion protection to fix this
-problem and avoid similiar problems.
-
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201113110512.1056501-1-boqun.feng@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/perf/util/event.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 3eb35ad1b5241..04134a242f3d5 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -108,19 +108,21 @@ static inline void lockdep_lock(void)
- {
- 	DEBUG_LOCKS_WARN_ON(!irqs_disabled());
+--- a/tools/perf/util/event.c
++++ b/tools/perf/util/event.c
+@@ -682,11 +682,13 @@ int perf_event__synthesize_kernel_mmap(s
+ 	int err;
+ 	union perf_event *event;
  
-+	__this_cpu_inc(lockdep_recursion);
- 	arch_spin_lock(&__lock);
- 	__owner = current;
--	__this_cpu_inc(lockdep_recursion);
- }
+-	if (symbol_conf.kptr_restrict)
+-		return -1;
+ 	if (map == NULL)
+ 		return -1;
  
- static inline void lockdep_unlock(void)
- {
-+	DEBUG_LOCKS_WARN_ON(!irqs_disabled());
++	kmap = map__kmap(map);
++	if (!kmap->ref_reloc_sym)
++		return -1;
 +
- 	if (debug_locks && DEBUG_LOCKS_WARN_ON(__owner != current))
- 		return;
+ 	/*
+ 	 * We should get this from /sys/kernel/sections/.text, but till that is
+ 	 * available use this, and after it is use this as a fallback for older
+@@ -710,7 +712,6 @@ int perf_event__synthesize_kernel_mmap(s
+ 		event->header.misc = PERF_RECORD_MISC_GUEST_KERNEL;
+ 	}
  
--	__this_cpu_dec(lockdep_recursion);
- 	__owner = NULL;
- 	arch_spin_unlock(&__lock);
-+	__this_cpu_dec(lockdep_recursion);
- }
- 
- static inline bool lockdep_assert_locked(void)
--- 
-2.27.0
-
+-	kmap = map__kmap(map);
+ 	size = snprintf(event->mmap.filename, sizeof(event->mmap.filename),
+ 			"%s%s", mmap_name, kmap->ref_reloc_sym->name) + 1;
+ 	size = PERF_ALIGN(size, sizeof(u64));
 
 
