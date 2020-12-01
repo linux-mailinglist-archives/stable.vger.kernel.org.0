@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 175AB2C9C01
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4102C9C08
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390173AbgLAJOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:14:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51926 "EHLO mail.kernel.org"
+        id S2390315AbgLAJO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:14:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390170AbgLAJNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:13:54 -0500
+        id S2390236AbgLAJOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:14:16 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB01F2222E;
-        Tue,  1 Dec 2020 09:13:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A38F3206CA;
+        Tue,  1 Dec 2020 09:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814013;
-        bh=gecVF6A1+Hy6gwPEBRHTPic0X2KNA1rxrAldAZWhKQ0=;
+        s=korg; t=1606814016;
+        bh=QqlQ6Sgkx1P3HyqjJ6RMdu9lyjZDCdJz5lmc1xAzmAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZl9SxmrVRaaN85CFJW/bmkEhf03bXo7HxYAV8WiVbuJ24xtYKDCicrGUF6n+aHp/
-         cqv6jnzn2ctRZZ+khzgu95a34ysq/paG/6sxLQEqZH6szqtcN1rDJdbPFfuzX97sJ8
-         xPmCYuptzMm+68/yCzrYo6dR2MtJkm12W6ZoKaLw=
+        b=XMcwoAJotNWFJiWyIaM7zY0S0tnU3yodJbKiGfbA0rsowDHFPTTsxnvjtErpk9RMT
+         9OPzF8qF2lVdO/AQy91vRNegY5MO69M37XLIvx7Xwru77kRIDxeWNkEmJq2eidNDDV
+         E8EUi1OitafQ2smyZ8r68I7hxhAKO1TEjcK86VDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Mario Huettel <mario.huettel@gmx.net>,
         Sriram Dash <sriram.dash@samsung.com>,
-        Pankaj Sharma <pankj.sharma@samsung.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 136/152] can: m_can: m_can_open(): remove IRQF_TRIGGER_FALLING from request_threaded_irq()s flags
-Date:   Tue,  1 Dec 2020 09:54:11 +0100
-Message-Id: <20201201084729.636840217@linuxfoundation.org>
+Subject: [PATCH 5.9 137/152] can: m_can: fix nominal bitiming tseg2 min for version >= 3.1
+Date:   Tue,  1 Dec 2020 09:54:12 +0100
+Message-Id: <20201201084729.776972198@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -47,29 +47,20 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 865f5b671b48d0088ce981cff1e822d9f7da441f ]
+[ Upstream commit e3409e4192535fbcc86a84b7a65d9351f46039ec ]
 
-The threaded IRQ handler is used for the tcan4x5x driver only. The IRQ pin of
-the tcan4x5x controller is active low, so better not use IRQF_TRIGGER_FALLING
-when requesting the IRQ. As this can result in missing interrupts.
+At lest the revision 3.3.0 of the bosch m_can IP core specifies that valid
+register values for "Nominal Time segment after sample point (NTSEG2)" are from
+1 to 127. As the hardware uses a value of one more than the programmed value,
+mean tseg2_min is 2.
 
-Further, if the device tree specified the interrupt as "IRQ_TYPE_LEVEL_LOW",
-unloading and reloading of the driver results in the following error during
-ifup:
+This patch fixes the tseg2_min value accordingly.
 
-| irq: type mismatch, failed to map hwirq-31 for gpio@20a8000!
-| tcan4x5x spi1.1: m_can device registered (irq=0, version=32)
-| tcan4x5x spi1.1 can2: TCAN4X5X successfully initialized.
-| tcan4x5x spi1.1 can2: failed to request interrupt
-
-This patch fixes the problem by removing the IRQF_TRIGGER_FALLING from the
-request_threaded_irq().
-
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
 Cc: Dan Murphy <dmurphy@ti.com>
-Cc: Sriram Dash <sriram.dash@samsung.com>
-Cc: Pankaj Sharma <pankj.sharma@samsung.com>
-Link: https://lore.kernel.org/r/20201127093548.509253-1-mkl@pengutronix.de
+Cc: Mario Huettel <mario.huettel@gmx.net>
+Acked-by: Sriram Dash <sriram.dash@samsung.com>
+Link: https://lore.kernel.org/r/20201124190751.3972238-1-mkl@pengutronix.de
+Fixes: b03cfc5bb0e1 ("can: m_can: Enable M_CAN version dependent initialization")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -77,18 +68,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index f3fc37e96b087..c62439bdee28c 100644
+index c62439bdee28c..d4030abad935d 100644
 --- a/drivers/net/can/m_can/m_can.c
 +++ b/drivers/net/can/m_can/m_can.c
-@@ -1653,7 +1653,7 @@ static int m_can_open(struct net_device *dev)
- 		INIT_WORK(&cdev->tx_work, m_can_tx_work_queue);
- 
- 		err = request_threaded_irq(dev->irq, NULL, m_can_isr,
--					   IRQF_ONESHOT | IRQF_TRIGGER_FALLING,
-+					   IRQF_ONESHOT,
- 					   dev->name, dev);
- 	} else {
- 		err = request_irq(dev->irq, m_can_isr, IRQF_SHARED, dev->name,
+@@ -1033,7 +1033,7 @@ static const struct can_bittiming_const m_can_bittiming_const_31X = {
+ 	.name = KBUILD_MODNAME,
+ 	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
+ 	.tseg1_max = 256,
+-	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_min = 2,		/* Time segment 2 = phase_seg2 */
+ 	.tseg2_max = 128,
+ 	.sjw_max = 128,
+ 	.brp_min = 1,
 -- 
 2.27.0
 
