@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E632C9B5F
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDAD82C9B6A
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729427AbgLAJHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:07:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44102 "EHLO mail.kernel.org"
+        id S2388141AbgLAJIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729421AbgLAJHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:07:38 -0500
+        id S1729397AbgLAJIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:08:09 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CC74206D8;
-        Tue,  1 Dec 2020 09:07:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7092C21D46;
+        Tue,  1 Dec 2020 09:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813643;
-        bh=qYfa4oSFlu5hO8s1dC0SHGIj90Gzg0ib2jMS1cSYg8E=;
+        s=korg; t=1606813649;
+        bh=50yd1u6iPrFppC8uI9SEv2TSO/9i/T9PeeCFpCq5ZLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsWe5uSrbOwMtKcJoU/0UZ13EWhdX9uu2dnYS/T47tZ4/ZLjfLKyCxCsn3+U219UI
-         IvxTWRR/1iy1obASM/h+6RAl7wJcLkjYRuLqcwjpxc/uYfXMjmpIrEljxrnidqEkTF
-         romzEQ50bk0q79voen2M3cNOmakMovbS5PJQlHeQ=
+        b=YhAaFWkKP6goa0P9hs4+gBXl+eBHTNQ4ge5RrWjtK+7h5VgyAD3+rtNoykIrprJTh
+         YrLMD+Q/k2mmYmmylDggesnPIKG6nW1D+iKhql+/RHBN6+55xtaADXFZZcZYH+4Z2b
+         Yhue9/neFtnogJe6WsbWryvdyMqbt0YFgiP8Dhfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.9 003/152] spi: bcm-qspi: Fix use-after-free on unbind
-Date:   Tue,  1 Dec 2020 09:51:58 +0100
-Message-Id: <20201201084712.110575812@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@arm.com>,
+        Florian Klink <flokli@flokli.de>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 005/152] ipv4: use IS_ENABLED instead of ifdef
+Date:   Tue,  1 Dec 2020 09:52:00 +0100
+Message-Id: <20201201084712.358338824@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
 References: <20201201084711.707195422@linuxfoundation.org>
@@ -45,133 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Florian Klink <flokli@flokli.de>
 
-commit 63c5395bb7a9777a33f0e7b5906f2c0170a23692 upstream
+commit c09c8a27b9baa417864b9adc3228b10ae5eeec93 upstream.
 
-bcm_qspi_remove() calls spi_unregister_master() even though
-bcm_qspi_probe() calls devm_spi_register_master().  The spi_master is
-therefore unregistered and freed twice on unbind.
+Checking for ifdef CONFIG_x fails if CONFIG_x=m.
 
-Moreover, since commit 0392727c261b ("spi: bcm-qspi: Handle clock probe
-deferral"), bcm_qspi_probe() leaks the spi_master allocation if the call
-to devm_clk_get_optional() fails.
+Use IS_ENABLED instead, which is true for both built-ins and modules.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound and also
-avoids the spi_master leak on probe.
+Otherwise, a
+> ip -4 route add 1.2.3.4/32 via inet6 fe80::2 dev eth1
+fails with the message "Error: IPv6 support not enabled in kernel." if
+CONFIG_IPV6 is `m`.
 
-While at it, fix an ordering issue in bcm_qspi_remove() wherein
-spi_unregister_master() is called after uninitializing the hardware,
-disabling the clock and freeing an IRQ data structure.  The correct
-order is to call spi_unregister_master() *before* those teardown steps
-because bus accesses may still be ongoing until that function returns.
+In the spirit of b8127113d01e53adba15b41aefd37b90ed83d631.
 
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.9+: 123456789abc: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/5e31a9a59fd1c0d0b795b2fe219f25e5ee855f9d.1605121038.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: d15662682db2 ("ipv4: Allow ipv6 gateway with ipv4 routes")
+Cc: Kim Phillips <kim.phillips@arm.com>
+Signed-off-by: Florian Klink <flokli@flokli.de>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20201115224509.2020651-1-flokli@flokli.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi-bcm-qspi.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
 
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1334,7 +1334,7 @@ int bcm_qspi_probe(struct platform_devic
- 
- 	data = of_id->data;
- 
--	master = spi_alloc_master(dev, sizeof(struct bcm_qspi));
-+	master = devm_spi_alloc_master(dev, sizeof(struct bcm_qspi));
- 	if (!master) {
- 		dev_err(dev, "error allocating spi_master\n");
- 		return -ENOMEM;
-@@ -1374,21 +1374,17 @@ int bcm_qspi_probe(struct platform_devic
- 
- 	if (res) {
- 		qspi->base[MSPI]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[MSPI])) {
--			ret = PTR_ERR(qspi->base[MSPI]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[MSPI]))
-+			return PTR_ERR(qspi->base[MSPI]);
- 	} else {
--		goto qspi_resource_err;
-+		return 0;
- 	}
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "bspi");
- 	if (res) {
- 		qspi->base[BSPI]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[BSPI])) {
--			ret = PTR_ERR(qspi->base[BSPI]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[BSPI]))
-+			return PTR_ERR(qspi->base[BSPI]);
- 		qspi->bspi_mode = true;
- 	} else {
- 		qspi->bspi_mode = false;
-@@ -1399,18 +1395,14 @@ int bcm_qspi_probe(struct platform_devic
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "cs_reg");
- 	if (res) {
- 		qspi->base[CHIP_SELECT]  = devm_ioremap_resource(dev, res);
--		if (IS_ERR(qspi->base[CHIP_SELECT])) {
--			ret = PTR_ERR(qspi->base[CHIP_SELECT]);
--			goto qspi_resource_err;
--		}
-+		if (IS_ERR(qspi->base[CHIP_SELECT]))
-+			return PTR_ERR(qspi->base[CHIP_SELECT]);
- 	}
- 
- 	qspi->dev_ids = kcalloc(num_irqs, sizeof(struct bcm_qspi_dev_id),
- 				GFP_KERNEL);
--	if (!qspi->dev_ids) {
--		ret = -ENOMEM;
--		goto qspi_resource_err;
--	}
-+	if (!qspi->dev_ids)
-+		return -ENOMEM;
- 
- 	for (val = 0; val < num_irqs; val++) {
- 		irq = -1;
-@@ -1491,7 +1483,7 @@ int bcm_qspi_probe(struct platform_devic
- 	qspi->xfer_mode.addrlen = -1;
- 	qspi->xfer_mode.hp = -1;
- 
--	ret = devm_spi_register_master(&pdev->dev, master);
-+	ret = spi_register_master(master);
- 	if (ret < 0) {
- 		dev_err(dev, "can't register master\n");
- 		goto qspi_reg_err;
-@@ -1504,8 +1496,6 @@ qspi_reg_err:
- 	clk_disable_unprepare(qspi->clk);
- qspi_probe_err:
- 	kfree(qspi->dev_ids);
--qspi_resource_err:
--	spi_master_put(master);
- 	return ret;
- }
- /* probe function to be called by SoC specific platform driver probe */
-@@ -1515,10 +1505,10 @@ int bcm_qspi_remove(struct platform_devi
- {
- 	struct bcm_qspi *qspi = platform_get_drvdata(pdev);
- 
-+	spi_unregister_master(qspi->master);
- 	bcm_qspi_hw_uninit(qspi);
- 	clk_disable_unprepare(qspi->clk);
- 	kfree(qspi->dev_ids);
--	spi_unregister_master(qspi->master);
- 
- 	return 0;
- }
+---
+ net/ipv4/fib_frontend.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -696,7 +696,7 @@ int fib_gw_from_via(struct fib_config *c
+ 		cfg->fc_gw4 = *((__be32 *)via->rtvia_addr);
+ 		break;
+ 	case AF_INET6:
+-#ifdef CONFIG_IPV6
++#if IS_ENABLED(CONFIG_IPV6)
+ 		if (alen != sizeof(struct in6_addr)) {
+ 			NL_SET_ERR_MSG(extack, "Invalid IPv6 address in RTA_VIA");
+ 			return -EINVAL;
 
 
