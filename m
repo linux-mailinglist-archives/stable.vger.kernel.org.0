@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42F232C9BAF
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3972C9ACF
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389829AbgLAJLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:11:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49088 "EHLO mail.kernel.org"
+        id S2388515AbgLAJBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389822AbgLAJLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:11:16 -0500
+        id S2388489AbgLAJBP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:15 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DB2320671;
-        Tue,  1 Dec 2020 09:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BD6322240;
+        Tue,  1 Dec 2020 09:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813834;
-        bh=skMfoH2JHmqSIhbFL76fEtbTvnwEIFRvw+4iJ/yGo9I=;
+        s=korg; t=1606813234;
+        bh=KwdCcHQY9A0WVX2ME6rWu2QsUDZwa8W/9L9y6kX4PnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tfaoezeq3bFOlfNj6HKrU0barh064kuzOUfiT0BKu57bdgDcNTHtar/1MLbBXTa2
-         nwnSsvxNZQnPP8dtVzmNTt3Ppx5S2/zqAG94R6WVsSNE0y/y3o/yGO5h7zOcFC7IDT
-         EIW9+84DZfeS6PgkqiGUb4UT9CWxAMOe4l/HN5EU=
+        b=jUm8smEhuDskSRehPbS4ab+Bb9lapYLxAMuFwMVvrmbnMq/OwmVLFIQ8rDlk10eG5
+         +AEEGZcDW8xdno+evqi7TpTlinVp0Y9S+1Mjvw3Z6Y3PZXlifVqQ/kg0QvgtiYky+z
+         OuwqmyfIy8ewF16JgOF16z3CDN2c7BmHsGYXk1AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 074/152] iwlwifi: mvm: properly cancel a session protection for P2P
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 04/57] btrfs: fix lockdep splat when reading qgroup config on mount
 Date:   Tue,  1 Dec 2020 09:53:09 +0100
-Message-Id: <20201201084721.620611986@linuxfoundation.org>
+Message-Id: <20201201084648.230353203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,256 +42,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 1cf260e3a75b87726ec609ad1b6b88f515749786 ]
+commit 3d05cad3c357a2b749912914356072b38435edfa upstream.
 
-We need to feed the configuration id to remove  session protection
-properly.
-Remember the conf_id when we add the session protection so that we
-can give it back when we want to remove the session protection.
-While at it, slightly improve the kernel doc for the conf_id
-of the notification.
+Lockdep reported the following splat when running test btrfs/190 from
+fstests:
 
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Fixes: fe959c7b2049 ("iwlwifi: mvm: use the new session protection command")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20201107104557.3642f730333d.I01a98ecde62096d00d171cf34ad775bf80cb0277@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [ 9482.126098] ======================================================
+  [ 9482.126184] WARNING: possible circular locking dependency detected
+  [ 9482.126281] 5.10.0-rc4-btrfs-next-73 #1 Not tainted
+  [ 9482.126365] ------------------------------------------------------
+  [ 9482.126456] mount/24187 is trying to acquire lock:
+  [ 9482.126534] ffffa0c869a7dac0 (&fs_info->qgroup_rescan_lock){+.+.}-{3:3}, at: qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.126647]
+		 but task is already holding lock:
+  [ 9482.126777] ffffa0c892ebd3a0 (btrfs-quota-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.126886]
+		 which lock already depends on the new lock.
+
+  [ 9482.127078]
+		 the existing dependency chain (in reverse order) is:
+  [ 9482.127213]
+		 -> #1 (btrfs-quota-00){++++}-{3:3}:
+  [ 9482.127366]        lock_acquire+0xd8/0x490
+  [ 9482.127436]        down_read_nested+0x45/0x220
+  [ 9482.127528]        __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.127613]        btrfs_read_lock_root_node+0x41/0x130 [btrfs]
+  [ 9482.127702]        btrfs_search_slot+0x514/0xc30 [btrfs]
+  [ 9482.127788]        update_qgroup_status_item+0x72/0x140 [btrfs]
+  [ 9482.127877]        btrfs_qgroup_rescan_worker+0xde/0x680 [btrfs]
+  [ 9482.127964]        btrfs_work_helper+0xf1/0x600 [btrfs]
+  [ 9482.128039]        process_one_work+0x24e/0x5e0
+  [ 9482.128110]        worker_thread+0x50/0x3b0
+  [ 9482.128181]        kthread+0x153/0x170
+  [ 9482.128256]        ret_from_fork+0x22/0x30
+  [ 9482.128327]
+		 -> #0 (&fs_info->qgroup_rescan_lock){+.+.}-{3:3}:
+  [ 9482.128464]        check_prev_add+0x91/0xc60
+  [ 9482.128551]        __lock_acquire+0x1740/0x3110
+  [ 9482.128623]        lock_acquire+0xd8/0x490
+  [ 9482.130029]        __mutex_lock+0xa3/0xb30
+  [ 9482.130590]        qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.131577]        btrfs_read_qgroup_config+0x43a/0x550 [btrfs]
+  [ 9482.132175]        open_ctree+0x1228/0x18a0 [btrfs]
+  [ 9482.132756]        btrfs_mount_root.cold+0x13/0xed [btrfs]
+  [ 9482.133325]        legacy_get_tree+0x30/0x60
+  [ 9482.133866]        vfs_get_tree+0x28/0xe0
+  [ 9482.134392]        fc_mount+0xe/0x40
+  [ 9482.134908]        vfs_kern_mount.part.0+0x71/0x90
+  [ 9482.135428]        btrfs_mount+0x13b/0x3e0 [btrfs]
+  [ 9482.135942]        legacy_get_tree+0x30/0x60
+  [ 9482.136444]        vfs_get_tree+0x28/0xe0
+  [ 9482.136949]        path_mount+0x2d7/0xa70
+  [ 9482.137438]        do_mount+0x75/0x90
+  [ 9482.137923]        __x64_sys_mount+0x8e/0xd0
+  [ 9482.138400]        do_syscall_64+0x33/0x80
+  [ 9482.138873]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [ 9482.139346]
+		 other info that might help us debug this:
+
+  [ 9482.140735]  Possible unsafe locking scenario:
+
+  [ 9482.141594]        CPU0                    CPU1
+  [ 9482.142011]        ----                    ----
+  [ 9482.142411]   lock(btrfs-quota-00);
+  [ 9482.142806]                                lock(&fs_info->qgroup_rescan_lock);
+  [ 9482.143216]                                lock(btrfs-quota-00);
+  [ 9482.143629]   lock(&fs_info->qgroup_rescan_lock);
+  [ 9482.144056]
+		  *** DEADLOCK ***
+
+  [ 9482.145242] 2 locks held by mount/24187:
+  [ 9482.145637]  #0: ffffa0c8411c40e8 (&type->s_umount_key#44/1){+.+.}-{3:3}, at: alloc_super+0xb9/0x400
+  [ 9482.146061]  #1: ffffa0c892ebd3a0 (btrfs-quota-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.146509]
+		 stack backtrace:
+  [ 9482.147350] CPU: 1 PID: 24187 Comm: mount Not tainted 5.10.0-rc4-btrfs-next-73 #1
+  [ 9482.147788] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  [ 9482.148709] Call Trace:
+  [ 9482.149169]  dump_stack+0x8d/0xb5
+  [ 9482.149628]  check_noncircular+0xff/0x110
+  [ 9482.150090]  check_prev_add+0x91/0xc60
+  [ 9482.150561]  ? kvm_clock_read+0x14/0x30
+  [ 9482.151017]  ? kvm_sched_clock_read+0x5/0x10
+  [ 9482.151470]  __lock_acquire+0x1740/0x3110
+  [ 9482.151941]  ? __btrfs_tree_read_lock+0x27/0x120 [btrfs]
+  [ 9482.152402]  lock_acquire+0xd8/0x490
+  [ 9482.152887]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.153354]  __mutex_lock+0xa3/0xb30
+  [ 9482.153826]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.154301]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.154768]  ? qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.155226]  qgroup_rescan_init+0x43/0xf0 [btrfs]
+  [ 9482.155690]  btrfs_read_qgroup_config+0x43a/0x550 [btrfs]
+  [ 9482.156160]  open_ctree+0x1228/0x18a0 [btrfs]
+  [ 9482.156643]  btrfs_mount_root.cold+0x13/0xed [btrfs]
+  [ 9482.157108]  ? rcu_read_lock_sched_held+0x5d/0x90
+  [ 9482.157567]  ? kfree+0x31f/0x3e0
+  [ 9482.158030]  legacy_get_tree+0x30/0x60
+  [ 9482.158489]  vfs_get_tree+0x28/0xe0
+  [ 9482.158947]  fc_mount+0xe/0x40
+  [ 9482.159403]  vfs_kern_mount.part.0+0x71/0x90
+  [ 9482.159875]  btrfs_mount+0x13b/0x3e0 [btrfs]
+  [ 9482.160335]  ? rcu_read_lock_sched_held+0x5d/0x90
+  [ 9482.160805]  ? kfree+0x31f/0x3e0
+  [ 9482.161260]  ? legacy_get_tree+0x30/0x60
+  [ 9482.161714]  legacy_get_tree+0x30/0x60
+  [ 9482.162166]  vfs_get_tree+0x28/0xe0
+  [ 9482.162616]  path_mount+0x2d7/0xa70
+  [ 9482.163070]  do_mount+0x75/0x90
+  [ 9482.163525]  __x64_sys_mount+0x8e/0xd0
+  [ 9482.163986]  do_syscall_64+0x33/0x80
+  [ 9482.164437]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [ 9482.164902] RIP: 0033:0x7f51e907caaa
+
+This happens because at btrfs_read_qgroup_config() we can call
+qgroup_rescan_init() while holding a read lock on a quota btree leaf,
+acquired by the previous call to btrfs_search_slot_for_read(), and
+qgroup_rescan_init() acquires the mutex qgroup_rescan_lock.
+
+A qgroup rescan worker does the opposite: it acquires the mutex
+qgroup_rescan_lock, at btrfs_qgroup_rescan_worker(), and then tries to
+update the qgroup status item in the quota btree through the call to
+update_qgroup_status_item(). This inversion of locking order
+between the qgroup_rescan_lock mutex and quota btree locks causes the
+splat.
+
+Fix this simply by releasing and freeing the path before calling
+qgroup_rescan_init() at btrfs_read_qgroup_config().
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../intel/iwlwifi/fw/api/time-event.h         |  8 +-
- .../wireless/intel/iwlwifi/mvm/time-event.c   | 94 +++++++++++++------
- 2 files changed, 68 insertions(+), 34 deletions(-)
+ fs/btrfs/qgroup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/time-event.h b/drivers/net/wireless/intel/iwlwifi/fw/api/time-event.h
-index a731f28e101a6..53b438d709dbe 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/api/time-event.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/api/time-event.h
-@@ -8,7 +8,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -31,7 +31,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -421,12 +421,14 @@ struct iwl_hs20_roc_res {
-  *	able to run the GO Negotiation. Will not be fragmented and not
-  *	repetitive. Valid only on the P2P Device MAC. Only the duration will
-  *	be taken into account.
-+ * @SESSION_PROTECT_CONF_MAX_ID: not used
-  */
- enum iwl_mvm_session_prot_conf_id {
- 	SESSION_PROTECT_CONF_ASSOC,
- 	SESSION_PROTECT_CONF_GO_CLIENT_ASSOC,
- 	SESSION_PROTECT_CONF_P2P_DEVICE_DISCOV,
- 	SESSION_PROTECT_CONF_P2P_GO_NEGOTIATION,
-+	SESSION_PROTECT_CONF_MAX_ID,
- }; /* SESSION_PROTECTION_CONF_ID_E_VER_1 */
- 
- /**
-@@ -459,7 +461,7 @@ struct iwl_mvm_session_prot_cmd {
-  * @mac_id: the mac id for which the session protection started / ended
-  * @status: 1 means success, 0 means failure
-  * @start: 1 means the session protection started, 0 means it ended
-- * @conf_id: the configuration id of the session that started / eneded
-+ * @conf_id: see &enum iwl_mvm_session_prot_conf_id
-  *
-  * Note that any session protection will always get two notifications: start
-  * and end even the firmware could not schedule it.
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-index da52c1e433a29..6ca45e89a820c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-@@ -638,11 +638,32 @@ void iwl_mvm_protect_session(struct iwl_mvm *mvm,
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -488,13 +488,13 @@ next2:
+ 			break;
  	}
- }
+ out:
++	btrfs_free_path(path);
+ 	fs_info->qgroup_flags |= flags;
+ 	if (!(fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_ON))
+ 		clear_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
+ 	else if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN &&
+ 		 ret >= 0)
+ 		ret = qgroup_rescan_init(fs_info, rescan_progress, 0);
+-	btrfs_free_path(path);
  
-+static void iwl_mvm_cancel_session_protection(struct iwl_mvm *mvm,
-+					      struct iwl_mvm_vif *mvmvif)
-+{
-+	struct iwl_mvm_session_prot_cmd cmd = {
-+		.id_and_color =
-+			cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
-+							mvmvif->color)),
-+		.action = cpu_to_le32(FW_CTXT_ACTION_REMOVE),
-+		.conf_id = cpu_to_le32(mvmvif->time_event_data.id),
-+	};
-+	int ret;
-+
-+	ret = iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(SESSION_PROTECTION_CMD,
-+						   MAC_CONF_GROUP, 0),
-+				   0, sizeof(cmd), &cmd);
-+	if (ret)
-+		IWL_ERR(mvm,
-+			"Couldn't send the SESSION_PROTECTION_CMD: %d\n", ret);
-+}
-+
- static bool __iwl_mvm_remove_time_event(struct iwl_mvm *mvm,
- 					struct iwl_mvm_time_event_data *te_data,
- 					u32 *uid)
- {
- 	u32 id;
-+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(te_data->vif);
- 
- 	/*
- 	 * It is possible that by the time we got to this point the time
-@@ -660,14 +681,29 @@ static bool __iwl_mvm_remove_time_event(struct iwl_mvm *mvm,
- 	iwl_mvm_te_clear_data(mvm, te_data);
- 	spin_unlock_bh(&mvm->time_event_lock);
- 
--	/*
--	 * It is possible that by the time we try to remove it, the time event
--	 * has already ended and removed. In such a case there is no need to
--	 * send a removal command.
-+	/* When session protection is supported, the te_data->id field
-+	 * is reused to save session protection's configuration.
- 	 */
--	if (id == TE_MAX) {
--		IWL_DEBUG_TE(mvm, "TE 0x%x has already ended\n", *uid);
-+	if (fw_has_capa(&mvm->fw->ucode_capa,
-+			IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD)) {
-+		if (mvmvif && id < SESSION_PROTECT_CONF_MAX_ID) {
-+			/* Session protection is still ongoing. Cancel it */
-+			iwl_mvm_cancel_session_protection(mvm, mvmvif);
-+			if (te_data->vif->type == NL80211_IFTYPE_P2P_DEVICE) {
-+				set_bit(IWL_MVM_STATUS_NEED_FLUSH_P2P, &mvm->status);
-+				iwl_mvm_roc_finished(mvm);
-+			}
-+		}
- 		return false;
-+	} else {
-+		/* It is possible that by the time we try to remove it, the
-+		 * time event has already ended and removed. In such a case
-+		 * there is no need to send a removal command.
-+		 */
-+		if (id == TE_MAX) {
-+			IWL_DEBUG_TE(mvm, "TE 0x%x has already ended\n", *uid);
-+			return false;
-+		}
- 	}
- 
- 	return true;
-@@ -768,6 +804,7 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
- 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
- 	struct iwl_mvm_session_prot_notif *notif = (void *)pkt->data;
- 	struct ieee80211_vif *vif;
-+	struct iwl_mvm_vif *mvmvif;
- 
- 	rcu_read_lock();
- 	vif = iwl_mvm_rcu_dereference_vif_id(mvm, le32_to_cpu(notif->mac_id),
-@@ -776,9 +813,10 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
- 	if (!vif)
- 		goto out_unlock;
- 
-+	mvmvif = iwl_mvm_vif_from_mac80211(vif);
-+
- 	/* The vif is not a P2P_DEVICE, maintain its time_event_data */
- 	if (vif->type != NL80211_IFTYPE_P2P_DEVICE) {
--		struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
- 		struct iwl_mvm_time_event_data *te_data =
- 			&mvmvif->time_event_data;
- 
-@@ -813,10 +851,14 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
- 
- 	if (!le32_to_cpu(notif->status) || !le32_to_cpu(notif->start)) {
- 		/* End TE, notify mac80211 */
-+		mvmvif->time_event_data.id = SESSION_PROTECT_CONF_MAX_ID;
- 		ieee80211_remain_on_channel_expired(mvm->hw);
- 		set_bit(IWL_MVM_STATUS_NEED_FLUSH_P2P, &mvm->status);
- 		iwl_mvm_roc_finished(mvm);
- 	} else if (le32_to_cpu(notif->start)) {
-+		if (WARN_ON(mvmvif->time_event_data.id !=
-+				le32_to_cpu(notif->conf_id)))
-+			goto out_unlock;
- 		set_bit(IWL_MVM_STATUS_ROC_RUNNING, &mvm->status);
- 		ieee80211_ready_on_channel(mvm->hw); /* Start TE */
- 	}
-@@ -842,20 +884,24 @@ iwl_mvm_start_p2p_roc_session_protection(struct iwl_mvm *mvm,
- 
- 	lockdep_assert_held(&mvm->mutex);
- 
-+	/* The time_event_data.id field is reused to save session
-+	 * protection's configuration.
-+	 */
- 	switch (type) {
- 	case IEEE80211_ROC_TYPE_NORMAL:
--		cmd.conf_id =
--			cpu_to_le32(SESSION_PROTECT_CONF_P2P_DEVICE_DISCOV);
-+		mvmvif->time_event_data.id =
-+			SESSION_PROTECT_CONF_P2P_DEVICE_DISCOV;
- 		break;
- 	case IEEE80211_ROC_TYPE_MGMT_TX:
--		cmd.conf_id =
--			cpu_to_le32(SESSION_PROTECT_CONF_P2P_GO_NEGOTIATION);
-+		mvmvif->time_event_data.id =
-+			SESSION_PROTECT_CONF_P2P_GO_NEGOTIATION;
- 		break;
- 	default:
- 		WARN_ONCE(1, "Got an invalid ROC type\n");
- 		return -EINVAL;
- 	}
- 
-+	cmd.conf_id = cpu_to_le32(mvmvif->time_event_data.id);
- 	return iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(SESSION_PROTECTION_CMD,
- 						    MAC_CONF_GROUP, 0),
- 				    0, sizeof(cmd), &cmd);
-@@ -957,25 +1003,6 @@ void iwl_mvm_cleanup_roc_te(struct iwl_mvm *mvm)
- 		__iwl_mvm_remove_time_event(mvm, te_data, &uid);
- }
- 
--static void iwl_mvm_cancel_session_protection(struct iwl_mvm *mvm,
--					      struct iwl_mvm_vif *mvmvif)
--{
--	struct iwl_mvm_session_prot_cmd cmd = {
--		.id_and_color =
--			cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
--							mvmvif->color)),
--		.action = cpu_to_le32(FW_CTXT_ACTION_REMOVE),
--	};
--	int ret;
--
--	ret = iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(SESSION_PROTECTION_CMD,
--						   MAC_CONF_GROUP, 0),
--				   0, sizeof(cmd), &cmd);
--	if (ret)
--		IWL_ERR(mvm,
--			"Couldn't send the SESSION_PROTECTION_CMD: %d\n", ret);
--}
--
- void iwl_mvm_stop_roc(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- {
- 	struct iwl_mvm_vif *mvmvif;
-@@ -1104,10 +1131,15 @@ void iwl_mvm_schedule_session_protection(struct iwl_mvm *mvm,
- 			cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
- 							mvmvif->color)),
- 		.action = cpu_to_le32(FW_CTXT_ACTION_ADD),
--		.conf_id = cpu_to_le32(SESSION_PROTECT_CONF_ASSOC),
- 		.duration_tu = cpu_to_le32(MSEC_TO_TU(duration)),
- 	};
- 
-+	/* The time_event_data.id field is reused to save session
-+	 * protection's configuration.
-+	 */
-+	mvmvif->time_event_data.id = SESSION_PROTECT_CONF_ASSOC;
-+	cmd.conf_id = cpu_to_le32(mvmvif->time_event_data.id);
-+
- 	lockdep_assert_held(&mvm->mutex);
- 
- 	spin_lock_bh(&mvm->time_event_lock);
--- 
-2.27.0
-
+ 	if (ret < 0) {
+ 		ulist_free(fs_info->qgroup_ulist);
 
 
