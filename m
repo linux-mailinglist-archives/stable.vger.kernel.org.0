@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 568FA2C9AEB
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A33922C9BE2
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388657AbgLAJCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:02:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39258 "EHLO mail.kernel.org"
+        id S2389294AbgLAJNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:13:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388643AbgLAJCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:02:19 -0500
+        id S2390022AbgLAJM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:12:58 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDCEE20671;
-        Tue,  1 Dec 2020 09:01:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3EA220809;
+        Tue,  1 Dec 2020 09:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813298;
-        bh=GWzSPCgvJLv1OoLb7dNBzwaz9Od3Hn/Fpf8xBrBwdMg=;
+        s=korg; t=1606813963;
+        bh=a+sG0RYOjYM8JqKT8I3axdNLLN6AmqISkuuujrt1Weo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D18QmsscuZyay1W5hS8dVBjfd47HAVQyZib1VZgTVjjBYLTXwlPZdJ+0qH610pTOQ
-         +0vFhpKUR4TpkahTTZvnVCWBN5IDSbiL6HI5bQptG3KVsJGpT/hb37V+BHecxkBJ5Y
-         vwiT9mSPlynvPKHS8TToQsKUXgUKsvavyMx6q5+c=
+        b=OLn5hyDlCKDFDxV66/CsZVYVV3Jb0aV9zHQGKxKlJhuUXq6pYF3+03mPOmOpOsjEl
+         tPEzLaMSIHbC3wOyK8ZpV+6XAEfopssQD4fGBPJ6dI/3mgSF3TDyd4otKfAphhtXJ0
+         ZMUGjYxw9lOblQFVvstgSdrrmqIPL6qtW7lSbfpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/57] perf probe: Fix to die_entrypc() returns error correctly
-Date:   Tue,  1 Dec 2020 09:53:54 +0100
-Message-Id: <20201201084651.520449776@linuxfoundation.org>
+Subject: [PATCH 5.9 120/152] efi/efivars: Set generic ops before loading SSDT
+Date:   Tue,  1 Dec 2020 09:53:55 +0100
+Message-Id: <20201201084727.513958611@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
+References: <20201201084711.707195422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit ab4200c17ba6fe71d2da64317aae8a8aa684624c ]
+[ Upstream commit 50bdcf047503e30126327d0be4f0ad7337106d68 ]
 
-Fix die_entrypc() to return error correctly if the DIE has no
-DW_AT_ranges attribute. Since dwarf_ranges() will treat the case as an
-empty ranges and return 0, we have to check it by ourselves.
+Efivars allows for overriding of SSDT tables, however starting with
+commit
 
-Fixes: 91e2f539eeda ("perf probe: Fix to show function entry line as probe-able")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/160645612634.2824037.5284932731175079426.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+  bf67fad19e493b ("efi: Use more granular check for availability for variable services")
+
+this use case is broken. When loading SSDT generic ops should be set
+first, however mentioned commit reversed order of operations. Fix this
+by restoring original order of operations.
+
+Fixes: bf67fad19e493b ("efi: Use more granular check for availability for variable services")
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Link: https://lore.kernel.org/r/20201123172817.124146-1-amadeuszx.slawinski@linux.intel.com
+Tested-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/firmware/efi/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 29e75c051d045..230e94bf7775a 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -332,6 +332,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- {
- 	Dwarf_Addr base, end;
-+	Dwarf_Attribute attr;
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index 3aa07c3b51369..8ead4379e6e85 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -387,10 +387,10 @@ static int __init efisubsys_init(void)
  
- 	if (!addr)
- 		return -EINVAL;
-@@ -339,6 +340,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- 	if (dwarf_entrypc(dw_die, addr) == 0)
- 		return 0;
- 
-+	/*
-+	 *  Since the dwarf_ranges() will return 0 if there is no
-+	 * DW_AT_ranges attribute, we should check it first.
-+	 */
-+	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
-+		return -ENOENT;
-+
- 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
- }
+ 	if (efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE |
+ 				      EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME)) {
+-		efivar_ssdt_load();
+ 		error = generic_ops_register();
+ 		if (error)
+ 			goto err_put;
++		efivar_ssdt_load();
+ 		platform_device_register_simple("efivars", 0, NULL, 0);
+ 	}
  
 -- 
 2.27.0
