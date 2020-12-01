@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070222C9B33
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E10022C9AB0
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729400AbgLAJFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:05:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42008 "EHLO mail.kernel.org"
+        id S2388216AbgLAI7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:59:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388984AbgLAJEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:04:55 -0500
+        id S2388213AbgLAI7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:59:54 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90D49206CA;
-        Tue,  1 Dec 2020 09:04:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7005E2222E;
+        Tue,  1 Dec 2020 08:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813454;
-        bh=lajipe96Kdnq0bDlHZ3LzfLiVsaFN+NAq1S/Adxi6yc=;
+        s=korg; t=1606813154;
+        bh=s04otEKyyrUeTCStCHfLrx++jbsvN6FsIIB0dPDYNPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqmj0UbX54rAFmVWSSDdWMY8FYTTjRIu5+hdOUYhJxXckjuvH4dDFqYbCOPjp2Qoq
-         Jhl2Rs3X2XNvggkZemIkRGUsOnTiN5qp5T9Hh0SosQQTAZMGGW+xWwlD+SlMRh2bZZ
-         qe5q4LGkbqby01QwIQiuC3VERZvQ8jUYaTe6wAhs=
+        b=ubZZ4ojAz/C/AOKyepFDBGZpqTHnLqfEfNSrrosQug48c1xBfq0vC8/I/Cr9ykDtt
+         UTK2jxx4A/RvU/uGUbmQpJ6al6VfQTTc1O67xOJu7mjQZXRnNAFOMucQi0XegkUZHM
+         0OZU2vjHUHgkoUBdZkoM//KeK8DsgsPDJefVhKxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/98] phy: tegra: xusb: Fix dangling pointer on probe failure
+Subject: [PATCH 4.14 22/50] dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
 Date:   Tue,  1 Dec 2020 09:53:21 +0100
-Message-Id: <20201201084657.265415545@linuxfoundation.org>
+Message-Id: <20201201084647.834515954@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
-References: <20201201084652.827177826@linuxfoundation.org>
+In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
+References: <20201201084644.803812112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-[ Upstream commit eb9c4dd9bdfdebaa13846c16a8c79b5b336066b6 ]
+[ Upstream commit e773ca7da8beeca7f17fe4c9d1284a2b66839cc1 ]
 
-If, for some reason, the xusb PHY fails to probe, it leaves
-a dangling pointer attached to the platform device structure.
+Actually, burst size is equal to '1 << desc->rqcfg.brst_size'.
+we should use burst size, not desc->rqcfg.brst_size.
 
-This would normally be harmless, but the Tegra XHCI driver then
-goes and extract that pointer from the PHY device. Things go
-downhill from there:
+dma memcpy performance on Rockchip RV1126
+@ 1512MHz A7, 1056MHz LPDDR3, 200MHz DMA:
 
-    8.752082] [004d554e5145533c] address between user and kernel address ranges
-[    8.752085] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[    8.752088] Modules linked in: max77620_regulator(E+) xhci_tegra(E+) sdhci_tegra(E+) xhci_hcd(E) sdhci_pltfm(E) cqhci(E) fixed(E) usbcore(E) scsi_mod(E) sdhci(E) host1x(E+)
-[    8.752103] CPU: 4 PID: 158 Comm: systemd-udevd Tainted: G S      W   E     5.9.0-rc7-00298-gf6337624c4fe #1980
-[    8.752105] Hardware name: NVIDIA Jetson TX2 Developer Kit (DT)
-[    8.752108] pstate: 20000005 (nzCv daif -PAN -UAO BTYPE=--)
-[    8.752115] pc : kobject_put+0x1c/0x21c
-[    8.752120] lr : put_device+0x20/0x30
-[    8.752121] sp : ffffffc012eb3840
-[    8.752122] x29: ffffffc012eb3840 x28: ffffffc010e82638
-[    8.752125] x27: ffffffc008d56440 x26: 0000000000000000
-[    8.752128] x25: ffffff81eb508200 x24: 0000000000000000
-[    8.752130] x23: ffffff81eb538800 x22: 0000000000000000
-[    8.752132] x21: 00000000fffffdfb x20: ffffff81eb538810
-[    8.752134] x19: 3d4d554e51455300 x18: 0000000000000020
-[    8.752136] x17: ffffffc008d00270 x16: ffffffc008d00c94
-[    8.752138] x15: 0000000000000004 x14: ffffff81ebd4ae90
-[    8.752140] x13: 0000000000000000 x12: ffffff81eb86a4e8
-[    8.752142] x11: ffffff81eb86a480 x10: ffffff81eb862fea
-[    8.752144] x9 : ffffffc01055fb28 x8 : ffffff81eb86a4a8
-[    8.752146] x7 : 0000000000000001 x6 : 0000000000000001
-[    8.752148] x5 : ffffff81dff8bc38 x4 : 0000000000000000
-[    8.752150] x3 : 0000000000000001 x2 : 0000000000000001
-[    8.752152] x1 : 0000000000000002 x0 : 3d4d554e51455300
-[    8.752155] Call trace:
-[    8.752157]  kobject_put+0x1c/0x21c
-[    8.752160]  put_device+0x20/0x30
-[    8.752164]  tegra_xusb_padctl_put+0x24/0x3c
-[    8.752170]  tegra_xusb_probe+0x8b0/0xd10 [xhci_tegra]
-[    8.752174]  platform_drv_probe+0x60/0xb4
-[    8.752176]  really_probe+0xf0/0x504
-[    8.752179]  driver_probe_device+0x100/0x170
-[    8.752181]  device_driver_attach+0xcc/0xd4
-[    8.752183]  __driver_attach+0xb0/0x17c
-[    8.752185]  bus_for_each_dev+0x7c/0xd4
-[    8.752187]  driver_attach+0x30/0x3c
-[    8.752189]  bus_add_driver+0x154/0x250
-[    8.752191]  driver_register+0x84/0x140
-[    8.752193]  __platform_driver_register+0x54/0x60
-[    8.752197]  tegra_xusb_init+0x40/0x1000 [xhci_tegra]
-[    8.752201]  do_one_initcall+0x54/0x2d0
-[    8.752205]  do_init_module+0x68/0x29c
-[    8.752207]  load_module+0x2178/0x26c0
-[    8.752209]  __do_sys_finit_module+0xb0/0x120
-[    8.752211]  __arm64_sys_finit_module+0x2c/0x40
-[    8.752215]  el0_svc_common.constprop.0+0x80/0x240
-[    8.752218]  do_el0_svc+0x30/0xa0
-[    8.752220]  el0_svc+0x18/0x50
-[    8.752223]  el0_sync_handler+0x90/0x318
-[    8.752225]  el0_sync+0x158/0x180
-[    8.752230] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (3940f000)
-[    8.752232] ---[ end trace 90f6c89d62d85ff5 ]---
+dmatest:
 
-Reset the pointer on probe failure fixes the issue.
+/# echo dma0chan0 > /sys/module/dmatest/parameters/channel
+/# echo 4194304 > /sys/module/dmatest/parameters/test_buf_size
+/# echo 8 > /sys/module/dmatest/parameters/iterations
+/# echo y > /sys/module/dmatest/parameters/norandom
+/# echo y > /sys/module/dmatest/parameters/verbose
+/# echo 1 > /sys/module/dmatest/parameters/run
 
-Fixes: 53d2a715c2403 ("phy: Add Tegra XUSB pad controller support")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20201013095820.311376-1-maz@kernel.org
+dmatest: dma0chan0-copy0: result #1: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #2: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #3: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #4: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #5: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #6: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #7: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+dmatest: dma0chan0-copy0: result #8: 'test passed' with src_off=0x0 dst_off=0x0 len=0x400000
+
+Before:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 48 iops 200338 KB/s (0)
+
+After this patch:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 179 iops 734873 KB/s (0)
+
+After this patch and increase dma clk to 400MHz:
+
+  dmatest: dma0chan0-copy0: summary 8 tests, 0 failures 259 iops 1062929 KB/s (0)
+
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1605326106-55681-1-git-send-email-sugar.zhang@rock-chips.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/tegra/xusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/pl330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/tegra/xusb.c b/drivers/phy/tegra/xusb.c
-index 2ea8497af82a6..bf5d80b97597b 100644
---- a/drivers/phy/tegra/xusb.c
-+++ b/drivers/phy/tegra/xusb.c
-@@ -949,6 +949,7 @@ power_down:
- reset:
- 	reset_control_assert(padctl->rst);
- remove:
-+	platform_set_drvdata(pdev, NULL);
- 	soc->ops->remove(padctl);
- 	return err;
- }
+diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
+index ff8b7042d28f4..c034f506e015a 100644
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2666,7 +2666,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
+ 	 * If burst size is smaller than bus width then make sure we only
+ 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
+ 	 */
+-	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
++	if (burst * 8 < pl330->pcfg.data_bus_width)
+ 		desc->rqcfg.brst_len = 1;
+ 
+ 	desc->bytes_requested = len;
 -- 
 2.27.0
 
