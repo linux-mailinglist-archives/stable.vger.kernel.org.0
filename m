@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78D662C9A62
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E762C9B35
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387780AbgLAI5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:57:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58602 "EHLO mail.kernel.org"
+        id S2387849AbgLAJFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387776AbgLAI5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:57:05 -0500
+        id S2389054AbgLAJFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:05:06 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94582206D8;
-        Tue,  1 Dec 2020 08:56:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0747E20770;
+        Tue,  1 Dec 2020 09:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813010;
-        bh=xU1rQjC7OfyYaTi9ml0RZogbix/lo4WzsaNp7q1Aa6M=;
+        s=korg; t=1606813485;
+        bh=YA5Hb5iW4oPD5YG/PKpDlP0HxEPYoCp4gDPPfvoEFMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2e0WvYVtVmgU6W/UONiCFLzutpzRNsWrlDaLTAgq3a6jQYZzbYqetWbpOwXi5v4BZ
-         SGayrDRHnnaGLiXnGUNAf5IFV+eZO9v6EnFcdqfgU7D9+eeqDR5JPr1PPxw153RuEH
-         hEbFmz9M8269TL6xTOkjy1M8E2cDDmnzw3cnWr7E=
+        b=O768hO3+ZUDuxxd4PrNl/ow2jAPwibrjeiJkBjZpaKaFAukwnpDL/VdRvXG8p+cv1
+         F2wTVcTpHdRnrhwLGAymbyuRFLofddQxiV3/229GMyq0/f9ADzSl3yWA+9sUIoA3Gr
+         TGZ76ZiufC4vfbCcmAmvUfgn8PZk0MwUedAWIfAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tosk Robot <tencent_os_robot@tencent.com>,
-        Kaixu Xia <kaixuxia@tencent.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/42] platform/x86: toshiba_acpi: Fix the wrong variable assignment
+Subject: [PATCH 5.4 54/98] cxgb4: fix the panic caused by non smac rewrite
 Date:   Tue,  1 Dec 2020 09:53:31 +0100
-Message-Id: <20201201084645.011215155@linuxfoundation.org>
+Message-Id: <20201201084657.749144116@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084642.194933793@linuxfoundation.org>
-References: <20201201084642.194933793@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaixu Xia <kaixuxia@tencent.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit 2a72c46ac4d665614faa25e267c3fb27fb729ed7 ]
+[ Upstream commit bff453921ae105a8dbbad0ed7dd5f5ce424536e7 ]
 
-The commit 78429e55e4057 ("platform/x86: toshiba_acpi: Clean up
-variable declaration") cleans up variable declaration in
-video_proc_write(). Seems it does the variable assignment in the
-wrong place, this results in dead code and changes the source code
-logic. Fix it by doing the assignment at the beginning of the funciton.
+SMT entry is allocated only when loopback Source MAC
+rewriting is requested. Accessing SMT entry for non
+smac rewrite cases results in kernel panic.
 
-Fixes: 78429e55e4057 ("platform/x86: toshiba_acpi: Clean up variable declaration")
-Reported-by: Tosk Robot <tencent_os_robot@tencent.com>
-Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
-Link: https://lore.kernel.org/r/1606024177-16481-1-git-send-email-kaixuxia@tencent.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fix the panic caused by non smac rewrite
+
+Fixes: 937d84205884 ("cxgb4: set up filter action after rewrites")
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Link: https://lore.kernel.org/r/20201118143213.13319-1-rajur@chelsio.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/toshiba_acpi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
-index 79a2289370729..f25278bb3e1a8 100644
---- a/drivers/platform/x86/toshiba_acpi.c
-+++ b/drivers/platform/x86/toshiba_acpi.c
-@@ -1497,7 +1497,7 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
- 	struct toshiba_acpi_dev *dev = PDE_DATA(file_inode(file));
- 	char *buffer;
- 	char *cmd;
--	int lcd_out, crt_out, tv_out;
-+	int lcd_out = -1, crt_out = -1, tv_out = -1;
- 	int remain = count;
- 	int value;
- 	int ret;
-@@ -1534,7 +1534,6 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
- 
- 	kfree(cmd);
- 
--	lcd_out = crt_out = tv_out = -1;
- 	ret = get_video_status(dev, &video_out);
- 	if (!ret) {
- 		unsigned int new_video_out = video_out;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+index 202af8dc79662..cb50b41cd3df2 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -630,7 +630,8 @@ int set_filter_wr(struct adapter *adapter, int fidx)
+ 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
+ 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
+ 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
+-	fwr->smac_sel = f->smt->idx;
++	if (f->fs.newsmac)
++		fwr->smac_sel = f->smt->idx;
+ 	fwr->rx_chan_rx_rpl_iq =
+ 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
+ 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
 -- 
 2.27.0
 
