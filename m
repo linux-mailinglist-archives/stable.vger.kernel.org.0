@@ -2,152 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BF12C9573
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 03:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 111842C95A2
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 04:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbgLAC56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Nov 2020 21:57:58 -0500
-Received: from mail-eopbgr70089.outbound.protection.outlook.com ([40.107.7.89]:49126
-        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725859AbgLAC56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Nov 2020 21:57:58 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c51aJ2GzWSR2OV49KQ7P0mVj6vFfqekHvsHrX1ekxPnoGnBNKkh3kzfDT52iInBiBPN9c3+xIwo6kOM+cp54nptQ+1JpMETStx7wg75ybF3pLqaPaKvDMxgU7hLPV9TD2SWpiGlRpWvu9VgtJ0+KLlkznAquD4n8wKlnFkYCrFdNNqAKl/s7bhCEZ3VXYyfEz5uveWevHYRVqgStkDApfxuwHEc2Gj26HVCCU+LDktzArCzlrpTfzA0bsZUhNsa6m5LdozpeJ2EjCYQ26LUXHMxHKdkKB0jsiqGX5mciZcY5RxMTf2EKNSRNgAHEXOUGBgniNHB9wOjGnv+94XvwUQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rHPftpjLs7b0cb+2CtSM5Vw8323QUJ2LtOhEqqu25zU=;
- b=j+X2eq0NDeGC5W2pA6vx4LWhkCHTVD30YoQkGOrdxZtxFA2HTrejvHiX47uChZVsm3cOQSe//WfALB/q/HV3DoNgbdWnH+fxgn93G+3pTXgr5xv1z3bIAGZ+ymu3KX+H0ASg8NGpz2kTxtHd+2r0Is7Dc1U0Bkr6O5+13XLb2ipn3v3J2Nim28sB/ioAln8kVxZ91zlzKIegqb0rABrHpNTJ6xPbF2YtR552voiFBiQd2Fd8c2TUNh7ya68GU4OuixM4WsJepsOdv9dGR1lxmfVfmQxe6HQGoO+0DZ4V8luFXVJeAJDbJHNF2BS+0YAtfmhSszrdPmvvmvLFz96cxg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rHPftpjLs7b0cb+2CtSM5Vw8323QUJ2LtOhEqqu25zU=;
- b=ppKmOCeBh4sJrgcPvMEArdFMhNA/n0Ul2gwYbE9Q83NQRpxGtsrhH6v/eVQzs/w5RwTz6U+0/fo8V0dZQW52tIa0yaPaEZaS9RkX+InqdPX7ssBs6XoqsfcA22+wlUPA/IDRQwbpdIIMQxIHu5wxWdKJsajzCjX7jKPj8kYb9pQ=
-Received: from DBBPR04MB7979.eurprd04.prod.outlook.com (2603:10a6:10:1ec::9)
- by DBAPR04MB7222.eurprd04.prod.outlook.com (2603:10a6:10:1af::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3611.25; Tue, 1 Dec
- 2020 02:57:08 +0000
-Received: from DBBPR04MB7979.eurprd04.prod.outlook.com
- ([fe80::c8c:888f:3e0c:8d5c]) by DBBPR04MB7979.eurprd04.prod.outlook.com
- ([fe80::c8c:888f:3e0c:8d5c%5]) with mapi id 15.20.3611.031; Tue, 1 Dec 2020
- 02:57:08 +0000
-From:   Peter Chen <peter.chen@nxp.com>
-To:     Fabio Estevam <festevam@gmail.com>
-CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] usb: chipidea: ci_hdrc_imx: Pass
- DISABLE_DEVICE_STREAMING flag to imx6ul
-Thread-Topic: [PATCH v2] usb: chipidea: ci_hdrc_imx: Pass
- DISABLE_DEVICE_STREAMING flag to imx6ul
-Thread-Index: AQHWxwxFchVR00Q6iUer2IB/+RVOsqnhjRWA
-Date:   Tue, 1 Dec 2020 02:57:08 +0000
-Message-ID: <20201201025639.GB11393@b29397-desktop>
-References: <20201130113047.9659-1-festevam@gmail.com>
-In-Reply-To: <20201130113047.9659-1-festevam@gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mutt/1.9.4 (2018-02-28)
-authentication-results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=nxp.com;
-x-originating-ip: [119.31.174.67]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: c512b617-2e05-4929-80b8-08d895a4cb18
-x-ms-traffictypediagnostic: DBAPR04MB7222:
-x-microsoft-antispam-prvs: <DBAPR04MB7222876C35B957886CA720E08BF40@DBAPR04MB7222.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1417;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: g8aZwxZ9EDgxYAxYzxYuJf3UwO0jWo2RImPtvxOGz5DYl0IpZBNvCbjBsxGjt/S0xTNYeul0BWbTX8KOBrngHjd4KCp6a3YrWyyhrzzHO7LjHSF8vRWaxkZPg4zn0vXH0itn2oi7OOz6Rxt1ckMQIoXTnhQCxyfavncrMi65WPB1irtNIfqgY9i5CzW4lNBSAY02MxTG/mqJyJsdNUPj9RbBgv2uS5co6CF+20oyAdhQnidkzEg1bjn0Dd+Xe3o7P1eCvlLyIgFctLLSX6KK3p2Del9slvvUQ99ISStTy3J8oHgs//Bh50CvL78XGqxbDAJt8tiQzOFuLdoFsX6m0ZantKm1IrwIWRuz4ZTzlqxbJFQLA0y/UYm3A88GjpZ3QFWD7Y8UG5i8qEPk07h4+LFi27J/kpg3z4ldz8PV/cdekS75Y8eFnUMWmbMuIH+1b/omXAs5VKGnPtIZei/hnQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DBBPR04MB7979.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(39850400004)(136003)(396003)(366004)(346002)(376002)(66446008)(44832011)(6512007)(54906003)(6506007)(2906002)(66556008)(91956017)(316002)(9686003)(86362001)(966005)(4326008)(64756008)(186003)(66476007)(71200400001)(53546011)(66946007)(76116006)(8936002)(83380400001)(26005)(5660300002)(33716001)(33656002)(45080400002)(478600001)(6486002)(6916009)(8676002)(1076003)(32563001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?aL6WWAehIQ/rxuqBxfP8RjDZxqzTwSVzaR0wYJEBqyKTOtjQbam5icpQm+HO?=
- =?us-ascii?Q?U2HbGhkk3RKSj8aj05FhZTlWJBBZjTQL4a0eZQFmC3R/Ts5NoIoiIQ2fnj0p?=
- =?us-ascii?Q?vFGXqnpMVXmN1JvgbYJUZdpazpf2W22BD5ABA6GEr6S6hFjAQzNagkQv2ye3?=
- =?us-ascii?Q?HLYIA1prBu62WVgIOTnBeEYWCSPr7+5cFtticLJNzVNq9nyRoQ8oWYf3B4zK?=
- =?us-ascii?Q?DUw+GPvDdqJADU+uhSfIGgu8+1cMgUOps13cdJuxZHod3GgxOExelud9jZb3?=
- =?us-ascii?Q?yGdM74YHCm/MRRsAbNPzQuVnH1gy2MFHF7aCC5RPcbW0QSCZbewM2VJXTzo2?=
- =?us-ascii?Q?YtFNcNQuoPxVj/0SyJ/s53oArMts2lj7wElMT7YtIURKYOolLJ5cPcAv4/ca?=
- =?us-ascii?Q?HI0BKYUzoyRel4DiGWkYHMGA9m4E6/v/EuRkHhdgUQqItS1GFMNnBKFUhOBe?=
- =?us-ascii?Q?J2O8ct91LBShtBekL9hl3r9NBZWrm09dw/7D+W4MLyGeyJafauNzGWlGsCgx?=
- =?us-ascii?Q?7SmZCXTdmacax/ijVm/NHmGGbFgT7n9WyQNMXO+8k9qYG7rU06UmaE4Rt+Jv?=
- =?us-ascii?Q?pB2/sHy0IjELEAJ0XNlXsSN6kZe+OuGidO6yGhofhlosKMwKjyV1Ov9eTIzW?=
- =?us-ascii?Q?PC86V1mURD1PgalXx3W1QyUGKRZA58HLCAAB0sgeqIRzP58S4FJoMcSyK+66?=
- =?us-ascii?Q?CBiyrDT40GGwAZp5hBSLDeZgwvILrkjmEsIiZnJq2Nb66lIkTPhY3rnbElLJ?=
- =?us-ascii?Q?PxiWZUvnd1M+U7wlJGqG1T0w1D9dmWu3Oo7E1LXO6zVbT019PK5AZwaqROgx?=
- =?us-ascii?Q?O0/C/803kO62XtW98dbHcY3vawkoiKwjOq/ohTuRV/YkCJN3Hr+Pb/J6DWw4?=
- =?us-ascii?Q?xSXdZoppP3xkF2qX8Oq9lH71EZmiVkrntuN8KKbtDC03OhiHQzE1+JtM1vt1?=
- =?us-ascii?Q?+T73bPeXz0OvYvnbXEkwH6p2tfqBU/J8Ff+hlvOmZ6TgacmD4Yn0M6X27rT6?=
- =?us-ascii?Q?NdBN?=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <EC5CD9739A6B034DB602512E5F6CFE36@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DBBPR04MB7979.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c512b617-2e05-4929-80b8-08d895a4cb18
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Dec 2020 02:57:08.6196
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: O9fQeOqaMITAOvyHdtj9s29vGnArTLMMDIntbRVL/+mYkDUZyzoByVm8jgILbDStcwenE3lCco2L/Yv2Fyrwdg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBAPR04MB7222
+        id S1726067AbgLADNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Nov 2020 22:13:53 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20366 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727175AbgLADNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Nov 2020 22:13:52 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0B12XWtF006157;
+        Mon, 30 Nov 2020 22:13:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=U+7tVdah5JE6eK79o/rDLnBG1iVAJhi1zZFFZuJdUoI=;
+ b=nJvsqH/TBLc+bfD1FJgxehzybeOIXPaKrq7a42pLx4ToFJ+W0ltWoE6G5fHz8zZ7k6Uh
+ flkPpUj4T/X/eyZT5svj7nBDHW6ET1rdntb6xdahghiKyDh2flaa7ipY9hj85H+OnvLA
+ g5CklXIyalVuask+cUVtnLXsJ2TSfsNBczntIEI8LkjlyMkT2vWlWvtlFFp1lgrDaw1K
+ f616rQcwyb5+BQELArp+dStxd7o4Y794OrbKx/tBVWkIY/wq+xsEKm/vKywV/pJkeWfH
+ t8tvmQHp0nkYZpl6g/NQcjhGKTJ6BoOydbKRl4sUQGTqHuAYVEQSrUQ8OEET7k+LddgD BA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 355d210yx2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 30 Nov 2020 22:13:10 -0500
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0B131ljO121314;
+        Mon, 30 Nov 2020 22:13:10 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 355d210ywd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 30 Nov 2020 22:13:10 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0B138TBH028584;
+        Tue, 1 Dec 2020 03:13:08 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 354fpd9df5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Dec 2020 03:13:07 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0B13D5re45809934
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Dec 2020 03:13:05 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 95D02A4057;
+        Tue,  1 Dec 2020 03:13:05 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 189E8A4051;
+        Tue,  1 Dec 2020 03:13:04 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.59.46])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Dec 2020 03:13:03 +0000 (GMT)
+Message-ID: <02e53ce5fc00a2eaff3cace9c94b8b375dc580ef.camel@linux.ibm.com>
+Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with
+ kernel measurements
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maurizio Drocco <maurizio.drocco@ibm.com>,
+        Bruno Meneguele <bmeneg@redhat.com>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date:   Mon, 30 Nov 2020 22:13:02 -0500
+In-Reply-To: <20201201002157.GT643756@sasha-vm>
+References: <20200708154116.3199728-1-sashal@kernel.org>
+         <20200708154116.3199728-3-sashal@kernel.org>
+         <1594224793.23056.251.camel@linux.ibm.com>
+         <20200709012735.GX2722994@sasha-vm>
+         <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
+         <20201201002157.GT643756@sasha-vm>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-11-30_12:2020-11-30,2020-11-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 clxscore=1031 malwarescore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 mlxscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012010015
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20-11-30 08:30:47, Fabio Estevam wrote:
-> According to the i.MX6UL Errata document:
-> https://eur01.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fwww.n=
-xp.com%2Fdocs%2Fen%2Ferrata%2FIMX6ULCE.pdf&amp;data=3D04%7C01%7CPeter.Chen%=
-40nxp.com%7C2d4f5ecc4fbf4100891808d89523674c%7C686ea1d3bc2b4c6fa92cd99c5c30=
-1635%7C0%7C1%7C637423326572381531%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwM=
-DAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C2000&amp;sdata=3DlIBiWv=
-deey56ihYUwT8nE%2B26GTykl67aQ2liekzOYt0%3D&amp;reserved=3D0
->=20
-> ERR007881 also affects i.MX6UL, so pass the
-> CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
->=20
-> Cc: <stable@vger.kernel.org>
-> Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
-> ---
-> Changes since v1:
-> - Use the CI_HDRC_DISABLE_DEVICE_STREAMING flag instead - Peter
->=20
->  drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci=
-_hdrc_imx.c
-> index 25c65accf089..5e07a0a86d11 100644
-> --- a/drivers/usb/chipidea/ci_hdrc_imx.c
-> +++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-> @@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_us=
-b_data =3D {
-> =20
->  static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data =3D {
->  	.flags =3D CI_HDRC_SUPPORTS_RUNTIME_PM |
-> -		CI_HDRC_TURN_VBUS_EARLY_ON,
-> +		CI_HDRC_TURN_VBUS_EARLY_ON |
-> +		CI_HDRC_DISABLE_DEVICE_STREAMING,
->  };
-> =20
->  static const struct ci_hdrc_imx_platform_flag imx7d_usb_data =3D {
-> --=20
+On Mon, 2020-11-30 at 19:21 -0500, Sasha Levin wrote:
+> On Sun, Nov 29, 2020 at 08:17:38AM -0500, Mimi Zohar wrote:
+> >Hi Sasha,
+> >
+> >On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
+> >> On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
+> >> >Hi Sasha,
+> >> >
+> >> >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
+> >> >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
+> >> >>
+> >> >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
+> >> >>
+> >> >> Registers 8-9 are used to store measurements of the kernel and its
+> >> >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
+> >> >> should include them in the boot aggregate. Registers 8-9 should be
+> >> >> only included in non-SHA1 digests to avoid ambiguity.
+> >> >
+> >> >Prior to Linux 5.8, the SHA1 template data hashes were padded before
+> >> >being extended into the TPM.  Support for calculating and extending
+> >> >the per TPM bank template data digests is only being upstreamed in
+> >> >Linux 5.8.
+> >> >
+> >> >How will attestation servers know whether to include PCRs 8 & 9 in the
+> >> >the boot_aggregate calculation?  Now, there is a direct relationship
+> >> >between the template data SHA1 padded digest not including PCRs 8 & 9,
+> >> >and the new per TPM bank template data digest including them.
+> >>
+> >> Got it, I'll drop it then, thank you!
+> >
+> >After re-thinking this over, I realized that the attestation server can
+> >verify the "boot_aggregate" based on the quoted PCRs without knowing
+> >whether padded SHA1 hashes or per TPM bank hash values were extended
+> >into the TPM[1], but non-SHA1 boot aggregate values [2] should always
+> >include PCRs 8 & 9.
+> >
+> >Any place commit 6f1a1d103b48 was backported [2], this commit
+> >20c59ce010f8 ("ima: extend boot_aggregate with kernel measurements")
+> >should be backported as well.
+> 
+> Which kernels should it apply to? 5.7 is EOL now, so I looked at 5.4 but
+> it doesn't apply cleanly there.
 
-Applied, thanks.
+For 5.4, both "git cherry-pick" and "git am --3way" for 20c59ce010f8
+seem to work.
 
---=20
+thanks,
 
-Thanks,
-Peter Chen=
+Mimi
+
