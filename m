@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 642AF2C9CB2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E15062C9CA4
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387977AbgLAI6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 03:58:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34166 "EHLO mail.kernel.org"
+        id S2387486AbgLAIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 03:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387971AbgLAI6h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:58:37 -0500
+        id S2387462AbgLAIze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 03:55:34 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68BB422241;
-        Tue,  1 Dec 2020 08:57:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7879C217A0;
+        Tue,  1 Dec 2020 08:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813076;
-        bh=N/C1JiIj6VQne11zfGbWAwPrbPCiG77eVWMcMavvBug=;
+        s=korg; t=1606812860;
+        bh=iapb//kpuJeti/zgqpTc+h+YoyQLUxhqqHUjO3jqInU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yy6NEPg1foXdWd0BhdfZ4r2hr/N3WGUVELguFC92pmzRXl1zbpJIg3jvIWCcT2LTu
-         lgQtYacnDiSNPLxlf8O2BOLvrgqVZJ4cqV6ML43dvPMXnYMzzMAfC8kEwGDhHLeG9n
-         IgDBl8t51YfC4sVCK3C5gjK4ilE1uBl5Xrl/8PNI=
+        b=vgumKHFBEfU/6wNtEMo68XqswZoH0M7+0qspMkAKkkVWD0N0eGbBg9d8NHmLXZCb4
+         fyW4lRR3Q5FpsgNPITcJRjhPUQYrsESjHAQuHmw5TJ0pe65Ejysv36B8atSiZnDgKr
+         iblR5c/uLzkMRdCgmDWcPOSK6dIaedBBPMVlKTGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Nikos Tsironis <ntsironis@arrikto.com>
-Subject: [PATCH 4.14 09/50] KVM: x86: Fix split-irqchip vs interrupt injection window request
-Date:   Tue,  1 Dec 2020 09:53:08 +0100
-Message-Id: <20201201084646.008889795@linuxfoundation.org>
+Subject: [PATCH 4.4 03/24] KVM: x86: Fix split-irqchip vs interrupt injection window request
+Date:   Tue,  1 Dec 2020 09:53:09 +0100
+Message-Id: <20201201084637.936564497@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084644.803812112@linuxfoundation.org>
-References: <20201201084644.803812112@linuxfoundation.org>
+In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
+References: <20201201084637.754785180@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -124,7 +124,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1395,6 +1395,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
+@@ -1220,6 +1220,7 @@ int kvm_test_age_hva(struct kvm *kvm, un
  void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
  int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
  int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
@@ -134,7 +134,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
 --- a/arch/x86/kvm/irq.c
 +++ b/arch/x86/kvm/irq.c
-@@ -52,7 +52,7 @@ static int pending_userspace_extint(stru
+@@ -49,7 +49,7 @@ static int pending_userspace_extint(stru
   * check if there is pending interrupt from
   * non-APIC source without intack.
   */
@@ -145,7 +145,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -3144,21 +3144,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
+@@ -2866,21 +2866,23 @@ static int kvm_vcpu_ioctl_set_lapic(stru
  
  static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
  {
