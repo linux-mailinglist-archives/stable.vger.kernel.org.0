@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3288A2C9C35
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0082C9ADD
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389669AbgLAJQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:16:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53576 "EHLO mail.kernel.org"
+        id S2387926AbgLAJBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:01:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390349AbgLAJOq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:14:46 -0500
+        id S1729244AbgLAJBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:01:50 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36EC520809;
-        Tue,  1 Dec 2020 09:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5939221EB;
+        Tue,  1 Dec 2020 09:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606814045;
-        bh=I7zec5XKVFOpAujn43qhFeJhbJU70mbj3jifrQPgHy4=;
+        s=korg; t=1606813295;
+        bh=w4Kw8hjKvXA+89Z/xICVuwnp0mI0nXBXK0ZJq6uaAEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtFbauNUDL1wS7jLq/jYxvya+mgrJ0sOxMAWwdh9pmw47w56A52x53Jn3PQZVGp4R
-         q55jc+X5mDIExo59JoAdfjbnrcA4YG03xZnqOUq7EsqDTFv+MNTmYw26+2fZFSj/R9
-         U1SVzzjbbor8YxX/NyKTugSEWqEdYVkBFMxwvUms=
+        b=zlYMWzrRePaso3brjMtY3ZjJRl0A1M9HzXCR9KkFwS24zfK+iU1qvqqE3KZ0ZvJrW
+         KYv3LmShPGLYEw/97n8yAqRhgrZYWSwDUzV8XUBoCzbSoBPYIxt8R+zddcY1qVDrje
+         dysOW6tMBgCQphmaKBhhnC1dmxSvj8XYWUe0dCRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rui.silva@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Mario Huettel <mario.huettel@gmx.net>,
+        Sriram Dash <sriram.dash@samsung.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 117/152] optee: add writeback to valid memory type
-Date:   Tue,  1 Dec 2020 09:53:52 +0100
-Message-Id: <20201201084727.137553773@linuxfoundation.org>
+Subject: [PATCH 4.19 48/57] can: m_can: fix nominal bitiming tseg2 min for version >= 3.1
+Date:   Tue,  1 Dec 2020 09:53:53 +0100
+Message-Id: <20201201084651.470703221@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084711.707195422@linuxfoundation.org>
-References: <20201201084711.707195422@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+References: <20201201084647.751612010@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rui.silva@linaro.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 853735e404244f5496cdb6188c5ed9a0f9627ee6 ]
+[ Upstream commit e3409e4192535fbcc86a84b7a65d9351f46039ec ]
 
-Only in smp systems the cache policy is setup as write alloc, in
-single cpu systems the cache policy is set as writeback and it is
-normal memory, so, it should pass the is_normal_memory check in the
-share memory registration.
+At lest the revision 3.3.0 of the bosch m_can IP core specifies that valid
+register values for "Nominal Time segment after sample point (NTSEG2)" are from
+1 to 127. As the hardware uses a value of one more than the programmed value,
+mean tseg2_min is 2.
 
-Add the right condition to make it work in no smp systems.
+This patch fixes the tseg2_min value accordingly.
 
-Fixes: cdbcf83d29c1 ("tee: optee: check type of registered shared memory")
-Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Cc: Dan Murphy <dmurphy@ti.com>
+Cc: Mario Huettel <mario.huettel@gmx.net>
+Acked-by: Sriram Dash <sriram.dash@samsung.com>
+Link: https://lore.kernel.org/r/20201124190751.3972238-1-mkl@pengutronix.de
+Fixes: b03cfc5bb0e1 ("can: m_can: Enable M_CAN version dependent initialization")
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/optee/call.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-index 20b6fd7383c54..c981757ba0d40 100644
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -534,7 +534,8 @@ void optee_free_pages_list(void *list, size_t num_entries)
- static bool is_normal_memory(pgprot_t p)
- {
- #if defined(CONFIG_ARM)
--	return (pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC;
-+	return (((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC) ||
-+		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK));
- #elif defined(CONFIG_ARM64)
- 	return (pgprot_val(p) & PTE_ATTRINDX_MASK) == PTE_ATTRINDX(MT_NORMAL);
- #else
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index efaa342600c41..fbb970220c2d7 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -976,7 +976,7 @@ static const struct can_bittiming_const m_can_bittiming_const_31X = {
+ 	.name = KBUILD_MODNAME,
+ 	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
+ 	.tseg1_max = 256,
+-	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_min = 2,		/* Time segment 2 = phase_seg2 */
+ 	.tseg2_max = 128,
+ 	.sjw_max = 128,
+ 	.brp_min = 1,
 -- 
 2.27.0
 
