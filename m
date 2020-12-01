@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D4572C9DC2
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D012C9CD9
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389279AbgLAJ1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:27:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39872 "EHLO mail.kernel.org"
+        id S1729334AbgLAJCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:02:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729335AbgLAJCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:02:49 -0500
+        id S1729326AbgLAJCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:02:46 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C46DE221EB;
-        Tue,  1 Dec 2020 09:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B9052223F;
+        Tue,  1 Dec 2020 09:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813322;
-        bh=kJVZTwye+Q2JvwaWwFs2+OBaAL1zgdw9ZsYL07770JA=;
+        s=korg; t=1606813325;
+        bh=YzXtEo56Ux0ugtyP4gSSkJ8sPROLpbO729eQ48puBqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddBsIC3sFHfkzgcF6MdLEGakoRrhtW1zmCa96ndVaRPmHPwhMpaJima4Al7e8ehhb
-         opt40EWEQ/gSSHq7rgWBl0g8vO4KqhlSoc9DyEsFftvuiuFocj4s7pCStPL7ni6+vv
-         TZIyCACcadQwIfeHpgRGsgVTMtgrdNNUFJnzC3Gk=
+        b=JY+hQCgensNRCeAf2DUsVM9uE/y3ruS7OABrvq1tSOqQEZkakpjZpaoUC7gwOzHKk
+         8nnaVZ5AzY0YzKdAgV/+u80rx3qvzXi2kwTdBRf0cFtUbSq4pCe05xbZ9DkJhJqk10
+         NC48C1LWQU3pf4630Vm6btmK62OADrF7iabnzNWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 4.19 56/57] x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak
-Date:   Tue,  1 Dec 2020 09:54:01 +0100
-Message-Id: <20201201084651.859277051@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 57/57] USB: core: Fix regression in Hercules audio card
+Date:   Tue,  1 Dec 2020 09:54:02 +0100
+Message-Id: <20201201084651.909089474@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
 References: <20201201084647.751612010@linuxfoundation.org>
@@ -44,167 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 758999246965eeb8b253d47e72f7bfe508804b16 upstream.
+commit 184eead057cc7e803558269babc1f2cfb9113ad1 upstream
 
-On resource group creation via a mkdir an extra kernfs_node reference is
-obtained by kernfs_get() to ensure that the rdtgroup structure remains
-accessible for the rdtgroup_kn_unlock() calls where it is removed on
-deletion. Currently the extra kernfs_node reference count is only
-dropped by kernfs_put() in rdtgroup_kn_unlock() while the rdtgroup
-structure is removed in a few other locations that lack the matching
-reference drop.
+Commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+aimed to make the USB stack more reliable by detecting and skipping
+over endpoints that are duplicated between interfaces.  This caused a
+regression for a Hercules audio card (reported as Bugzilla #208357),
+which contains such non-compliant duplications.  Although the
+duplications are harmless, skipping the valid endpoints prevented the
+device from working.
 
-In call paths of rmdir and umount, when a control group is removed,
-kernfs_remove() is called to remove the whole kernfs nodes tree of the
-control group (including the kernfs nodes trees of all child monitoring
-groups), and then rdtgroup structure is freed by kfree(). The rdtgroup
-structures of all child monitoring groups under the control group are
-freed by kfree() in free_all_child_rdtgrp().
+This patch fixes the regression by adding ENDPOINT_IGNORE quirks for
+the Hercules card, telling the kernel to ignore the invalid duplicate
+endpoints and thereby allowing the valid endpoints to be used as
+intended.
 
-Before calling kfree() to free the rdtgroup structures, the kernfs node
-of the control group itself as well as the kernfs nodes of all child
-monitoring groups still take the extra references which will never be
-dropped to 0 and the kernfs nodes will never be freed. It leads to
-reference count leak and kernfs_node_cache memory leak.
-
-For example, reference count leak is observed in these two cases:
-  (1) mount -t resctrl resctrl /sys/fs/resctrl
-      mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      umount /sys/fs/resctrl
-
-  (2) mkdir /sys/fs/resctrl/c1
-      mkdir /sys/fs/resctrl/c1/mon_groups/m1
-      rmdir /sys/fs/resctrl/c1
-
-The same reference count leak issue also exists in the error exit paths
-of mkdir in mkdir_rdt_prepare() and rdtgroup_mkdir_ctrl_mon().
-
-Fix this issue by following changes to make sure the extra kernfs_node
-reference on rdtgroup is dropped before freeing the rdtgroup structure.
-  (1) Introduce rdtgroup removal helper rdtgroup_remove() to wrap up
-  kernfs_put() and kfree().
-
-  (2) Call rdtgroup_remove() in rdtgroup removal path where the rdtgroup
-  structure is about to be freed by kfree().
-
-  (3) Call rdtgroup_remove() or kernfs_put() as appropriate in the error
-  exit paths of mkdir where an extra reference is taken by kernfs_get().
-
-Backporting notes:
-
-Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
-files to a separate directory"), the file
-arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
-arch/x86/kernel/cpu/resctrl/rdtgroup.c.
-Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-in older stable trees.
-
-Fixes: f3cbeacaa06e ("x86/intel_rdt/cqm: Add rmdir support")
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Fixes: 60cf5e101fd4 ("x86/intel_rdt: Add mkdir to resctrl file system")
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1604085088-31707-1-git-send-email-xiaochen.shen@intel.com
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+CC: <stable@vger.kernel.org>
+Reported-by: Alexander Chalikiopoulos <bugzilla.kernel.org@mrtoasted.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201119170040.GA576844@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[sudip: use usb_endpoint_blacklist and USB_QUIRK_ENDPOINT_BLACKLIST]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c |   32 ++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/usb/core/quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -515,6 +515,24 @@ unlock:
- 	return ret ?: nbytes;
- }
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -348,6 +348,10 @@ static const struct usb_device_id usb_qu
+ 	/* Guillemot Webcam Hercules Dualpix Exchange*/
+ 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
  
-+/**
-+ * rdtgroup_remove - the helper to remove resource group safely
-+ * @rdtgrp: resource group to remove
-+ *
-+ * On resource group creation via a mkdir, an extra kernfs_node reference is
-+ * taken to ensure that the rdtgroup structure remains accessible for the
-+ * rdtgroup_kn_unlock() calls where it is removed.
-+ *
-+ * Drop the extra reference here, then free the rdtgroup structure.
-+ *
-+ * Return: void
-+ */
-+static void rdtgroup_remove(struct rdtgroup *rdtgrp)
-+{
-+	kernfs_put(rdtgrp->kn);
-+	kfree(rdtgrp);
-+}
++	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
++	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
++			USB_QUIRK_ENDPOINT_BLACKLIST },
 +
- struct task_move_callback {
- 	struct callback_head	work;
- 	struct rdtgroup		*rdtgrp;
-@@ -537,7 +555,7 @@ static void move_myself(struct callback_
- 	    (rdtgrp->flags & RDT_DELETED)) {
- 		current->closid = 0;
- 		current->rmid = 0;
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	}
+ 	/* Midiman M-Audio Keystation 88es */
+ 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	preempt_disable();
-@@ -1959,8 +1977,7 @@ void rdtgroup_kn_unlock(struct kernfs_no
- 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
- 			rdtgroup_pseudo_lock_remove(rdtgrp);
- 		kernfs_unbreak_active_protection(kn);
--		kernfs_put(rdtgrp->kn);
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	} else {
- 		kernfs_unbreak_active_protection(kn);
- 	}
-@@ -2169,7 +2186,7 @@ static void free_all_child_rdtgrp(struct
- 		if (atomic_read(&sentry->waitcount) != 0)
- 			sentry->flags = RDT_DELETED;
- 		else
--			kfree(sentry);
-+			rdtgroup_remove(sentry);
- 	}
- }
- 
-@@ -2211,7 +2228,7 @@ static void rmdir_all_sub(void)
- 		if (atomic_read(&rdtgrp->waitcount) != 0)
- 			rdtgrp->flags = RDT_DELETED;
- 		else
--			kfree(rdtgrp);
-+			rdtgroup_remove(rdtgrp);
- 	}
- 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
- 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
-@@ -2602,7 +2619,7 @@ static int mkdir_rdt_prepare(struct kern
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
- 	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
--	 * which will be dropped inside rdtgroup_kn_unlock().
-+	 * which will be dropped by kernfs_put() in rdtgroup_remove().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2643,6 +2660,7 @@ static int mkdir_rdt_prepare(struct kern
- out_idfree:
- 	free_rmid(rdtgrp->mon.rmid);
- out_destroy:
-+	kernfs_put(rdtgrp->kn);
- 	kernfs_remove(rdtgrp->kn);
- out_free_rgrp:
- 	kfree(rdtgrp);
-@@ -2655,7 +2673,7 @@ static void mkdir_rdt_prepare_clean(stru
- {
- 	kernfs_remove(rgrp->kn);
- 	free_rmid(rgrp->mon.rmid);
--	kfree(rgrp);
-+	rdtgroup_remove(rgrp);
- }
- 
- /*
+@@ -525,6 +529,8 @@ static const struct usb_device_id usb_am
+  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
+  */
+ static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
++	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
+ 	{ }
 
 
