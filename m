@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A252C9AC3
-	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070222C9B33
+	for <lists+stable@lfdr.de>; Tue,  1 Dec 2020 10:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387715AbgLAJAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 04:00:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
+        id S1729400AbgLAJFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 04:05:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388364AbgLAJAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Dec 2020 04:00:38 -0500
+        id S2388984AbgLAJEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Dec 2020 04:04:55 -0500
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5D7F21D7F;
-        Tue,  1 Dec 2020 08:59:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90D49206CA;
+        Tue,  1 Dec 2020 09:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1606813197;
-        bh=oyAliAb+r1d1FgAbyRqcN+imWJ8VIKhFjlTvOEeWGmM=;
+        s=korg; t=1606813454;
+        bh=lajipe96Kdnq0bDlHZ3LzfLiVsaFN+NAq1S/Adxi6yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tC5rlM3mtEKE/LDgl1aqPFu3ro+gbWU4eU1xTxPisYlhuKnSVMXro+TOCIkGwzWAs
-         qsWXDyRPwkzbLqg2XURG5H4fjL/VB7RETYbvnrvHTrlDkKz1IyNUUTo5lYu39Hl9Lx
-         I29G5Sgl9GWhSSM4IkB4vu2LL+HvWSySGZOPezaE=
+        b=cqmj0UbX54rAFmVWSSDdWMY8FYTTjRIu5+hdOUYhJxXckjuvH4dDFqYbCOPjp2Qoq
+         Jhl2Rs3X2XNvggkZemIkRGUsOnTiN5qp5T9Hh0SosQQTAZMGGW+xWwlD+SlMRh2bZZ
+         qe5q4LGkbqby01QwIQiuC3VERZvQ8jUYaTe6wAhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/57] HID: hid-sensor-hub: Fix issue with devices with no report ID
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 44/98] phy: tegra: xusb: Fix dangling pointer on probe failure
 Date:   Tue,  1 Dec 2020 09:53:21 +0100
-Message-Id: <20201201084649.580746478@linuxfoundation.org>
+Message-Id: <20201201084657.265415545@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
-References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084652.827177826@linuxfoundation.org>
+References: <20201201084652.827177826@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit eb9c4dd9bdfdebaa13846c16a8c79b5b336066b6 ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+If, for some reason, the xusb PHY fails to probe, it leaves
+a dangling pointer attached to the platform device structure.
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This would normally be harmless, but the Tegra XHCI driver then
+goes and extract that pointer from the PHY device. Things go
+downhill from there:
+
+    8.752082] [004d554e5145533c] address between user and kernel address ranges
+[    8.752085] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[    8.752088] Modules linked in: max77620_regulator(E+) xhci_tegra(E+) sdhci_tegra(E+) xhci_hcd(E) sdhci_pltfm(E) cqhci(E) fixed(E) usbcore(E) scsi_mod(E) sdhci(E) host1x(E+)
+[    8.752103] CPU: 4 PID: 158 Comm: systemd-udevd Tainted: G S      W   E     5.9.0-rc7-00298-gf6337624c4fe #1980
+[    8.752105] Hardware name: NVIDIA Jetson TX2 Developer Kit (DT)
+[    8.752108] pstate: 20000005 (nzCv daif -PAN -UAO BTYPE=--)
+[    8.752115] pc : kobject_put+0x1c/0x21c
+[    8.752120] lr : put_device+0x20/0x30
+[    8.752121] sp : ffffffc012eb3840
+[    8.752122] x29: ffffffc012eb3840 x28: ffffffc010e82638
+[    8.752125] x27: ffffffc008d56440 x26: 0000000000000000
+[    8.752128] x25: ffffff81eb508200 x24: 0000000000000000
+[    8.752130] x23: ffffff81eb538800 x22: 0000000000000000
+[    8.752132] x21: 00000000fffffdfb x20: ffffff81eb538810
+[    8.752134] x19: 3d4d554e51455300 x18: 0000000000000020
+[    8.752136] x17: ffffffc008d00270 x16: ffffffc008d00c94
+[    8.752138] x15: 0000000000000004 x14: ffffff81ebd4ae90
+[    8.752140] x13: 0000000000000000 x12: ffffff81eb86a4e8
+[    8.752142] x11: ffffff81eb86a480 x10: ffffff81eb862fea
+[    8.752144] x9 : ffffffc01055fb28 x8 : ffffff81eb86a4a8
+[    8.752146] x7 : 0000000000000001 x6 : 0000000000000001
+[    8.752148] x5 : ffffff81dff8bc38 x4 : 0000000000000000
+[    8.752150] x3 : 0000000000000001 x2 : 0000000000000001
+[    8.752152] x1 : 0000000000000002 x0 : 3d4d554e51455300
+[    8.752155] Call trace:
+[    8.752157]  kobject_put+0x1c/0x21c
+[    8.752160]  put_device+0x20/0x30
+[    8.752164]  tegra_xusb_padctl_put+0x24/0x3c
+[    8.752170]  tegra_xusb_probe+0x8b0/0xd10 [xhci_tegra]
+[    8.752174]  platform_drv_probe+0x60/0xb4
+[    8.752176]  really_probe+0xf0/0x504
+[    8.752179]  driver_probe_device+0x100/0x170
+[    8.752181]  device_driver_attach+0xcc/0xd4
+[    8.752183]  __driver_attach+0xb0/0x17c
+[    8.752185]  bus_for_each_dev+0x7c/0xd4
+[    8.752187]  driver_attach+0x30/0x3c
+[    8.752189]  bus_add_driver+0x154/0x250
+[    8.752191]  driver_register+0x84/0x140
+[    8.752193]  __platform_driver_register+0x54/0x60
+[    8.752197]  tegra_xusb_init+0x40/0x1000 [xhci_tegra]
+[    8.752201]  do_one_initcall+0x54/0x2d0
+[    8.752205]  do_init_module+0x68/0x29c
+[    8.752207]  load_module+0x2178/0x26c0
+[    8.752209]  __do_sys_finit_module+0xb0/0x120
+[    8.752211]  __arm64_sys_finit_module+0x2c/0x40
+[    8.752215]  el0_svc_common.constprop.0+0x80/0x240
+[    8.752218]  do_el0_svc+0x30/0xa0
+[    8.752220]  el0_svc+0x18/0x50
+[    8.752223]  el0_sync_handler+0x90/0x318
+[    8.752225]  el0_sync+0x158/0x180
+[    8.752230] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (3940f000)
+[    8.752232] ---[ end trace 90f6c89d62d85ff5 ]---
+
+Reset the pointer on probe failure fixes the issue.
+
+Fixes: 53d2a715c2403 ("phy: Add Tegra XUSB pad controller support")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20201013095820.311376-1-maz@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/phy/tegra/xusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4256fdc5cd6d5..21fbdcde1faa1 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -496,7 +496,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
- 
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
+diff --git a/drivers/phy/tegra/xusb.c b/drivers/phy/tegra/xusb.c
+index 2ea8497af82a6..bf5d80b97597b 100644
+--- a/drivers/phy/tegra/xusb.c
++++ b/drivers/phy/tegra/xusb.c
+@@ -949,6 +949,7 @@ power_down:
+ reset:
+ 	reset_control_assert(padctl->rst);
+ remove:
++	platform_set_drvdata(pdev, NULL);
+ 	soc->ops->remove(padctl);
+ 	return err;
+ }
 -- 
 2.27.0
 
