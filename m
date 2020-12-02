@@ -2,80 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5247C2CCA39
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 00:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7DC2CCA7D
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 00:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387817AbgLBXBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 18:01:40 -0500
-Received: from ssl.serverraum.org ([176.9.125.105]:38379 "EHLO
-        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727084AbgLBXBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 18:01:40 -0500
-Received: from apollo.fritz.box (unknown [IPv6:2a02:810c:c200:2e91:6257:18ff:fec4:ca34])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id E408D23E4A;
-        Thu,  3 Dec 2020 00:00:55 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1606950056;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TnA/qUXIYTXaM01hsHMLcQl3An0XNPm+t1vCVx7R0w8=;
-        b=kSsyKryQib1ypctEuHcEV3YtWwpvJ4y+79qu6gvXBVIg/BKbTYziL5tcYwFbMaHgA0uNsh
-        RntnQuL54pMs8LMPF0x5ZCZB6AcbUUKumu5r5/BBT6RdUcRSwIrhLnaMSK+ayLdTUq9Xjj
-        mv7DdUqgOzgLf3VJjJJ+LV12y9VCvkI=
-From:   Michael Walle <michael@walle.cc>
-To:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Michael Walle <michael@walle.cc>, stable@vger.kernel.org
-Subject: [PATCH v7 1/7] mtd: spi-nor: sst: fix BPn bits for the SST25VF064C
-Date:   Thu,  3 Dec 2020 00:00:34 +0100
-Message-Id: <20201202230040.14009-2-michael@walle.cc>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201202230040.14009-1-michael@walle.cc>
-References: <20201202230040.14009-1-michael@walle.cc>
+        id S1725971AbgLBXZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 18:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728862AbgLBXZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 18:25:00 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EC4C0617A7
+        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 15:24:14 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id e23so206928pgk.12
+        for <stable@vger.kernel.org>; Wed, 02 Dec 2020 15:24:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=dnoTL/j78/GLlJgkxUiUGABx5fodVU0RbVMA54xb55A=;
+        b=cbdvv4HEcqxdANldfkOLzVi0e72dF7T3cfOFN+8+kGmQ4/OgsjpC72C7olbbm/eqZx
+         J/zpD66GKtwfzhCny8aVzfLJFrji/YiZ5YTkj1Lv7e5F++ZOgX8rk7X5s8YRgeiZLjB0
+         Dq47WNQFXZATDNCru8dlbSZoLgqsu0l/lz+xgQ4UXG2cqWGdRQi3GLaqxL8hPM4oD10A
+         mMC5LEINqzql8lAKM+0qLS1wxKriJ2EMdqsaJV3FrpdiL0yqQzmHQrFTv5s2qe/v4r7S
+         wvaE7gOj19J073EQtgwRWCX8XkqIz/QxxlQn793hqeVvKva3iw1tPeEumAS2EsxG3N7o
+         g4QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dnoTL/j78/GLlJgkxUiUGABx5fodVU0RbVMA54xb55A=;
+        b=a4Hp/0G+NfyxYG6EBmp5ByAT+kHLZRPUJFvGenM8XrjyOLh+gjlbtvjSh5JA93jdyO
+         dsbV86ynarA9H/KXjnhrqnh+kuZsDmpEk6Bi7Z49a7VxWYVMghtfpOQNd/A8Ku1tXysH
+         Pyyp1Y0UwwO1FUbTTbQF+5NfF/9WCkyefCwnnGPHOz9fiKbj11y1Cc2Gw6O6Kl9XXzU7
+         KEKRKSuP5G5ShU333H7m2paw+Ve5U08s83nLHzOqhmF25AJ0/tNk8V5Tw7VryvoibfXG
+         FKQTFUoSyQ0B8FieIzJR4XBmamcZw7PfBTeTPXBhQC01kqEcJouDv/VvrON/gbl9EhZz
+         4F7w==
+X-Gm-Message-State: AOAM533ZSl35IdRDCeBMdNbKlnlKO4RHK97DE+sc+I0yZkdET34FkqK7
+        kqhBlLOr8ipSIl4kbARY2f3qUBqbN/OqqA==
+X-Google-Smtp-Source: ABdhPJw8qNWfh77J+ibW7chTT6vTsbGxkWB07n3S2BEDgzvVERRpVIRDf6sw8mC6RWEXIY8fc0HHdQ==
+X-Received: by 2002:a62:2a81:0:b029:18c:310f:74fe with SMTP id q123-20020a622a810000b029018c310f74femr563331pfq.50.1606951453831;
+        Wed, 02 Dec 2020 15:24:13 -0800 (PST)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id o11sm19638pjs.36.2020.12.02.15.24.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 02 Dec 2020 15:24:13 -0800 (PST)
+Subject: Re: [PATCH 5.10] io_uring: fix recvmsg setup with compat buf-select
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <70a236ff44cc9361ed03ebcd9c361864efdf8dc3.1606674793.git.asml.silence@gmail.com>
+ <ee19d846-6f58-5ff0-7928-48c00fcbce3a@kernel.dk>
+ <14be454c-46cc-310a-1a43-6065f3b3020b@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <d67dd667-d161-a070-06ed-0cd0ae0e617a@kernel.dk>
+Date:   Wed, 2 Dec 2020 16:24:12 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <14be454c-46cc-310a-1a43-6065f3b3020b@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This flash part actually has 4 block protection bits.
+On 12/2/20 3:04 PM, Pavel Begunkov wrote:
+> On 30/11/2020 18:12, Jens Axboe wrote:
+>> On 11/29/20 11:33 AM, Pavel Begunkov wrote:
+>>> __io_compat_recvmsg_copy_hdr() with REQ_F_BUFFER_SELECT reads out iov
+>>> len but never assigns it to iov/fast_iov, leaving sr->len with garbage.
+>>> Hopefully, following io_buffer_select() truncates it to the selected
+>>> buffer size, but the value is still may be under what was specified.
+>>
+>> Applied, thanks.
+> 
+> Jens, apologies but where did it go? Can't find at git.kernel.dk
 
-Reported-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Michael Walle <michael@walle.cc>
----
-I didn't add the Fixes: tag because we depend on the 4bit BP support which
-was introduced in 5.7.
+Looks like I forgot to push it out, but it did get applied to
+io_uring-5.10. My git box is having an issue right now, so can't even
+push it out... Will do so tomorrow morning.
 
-changes since v6:
- - new patch
-
- drivers/mtd/spi-nor/sst.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/mtd/spi-nor/sst.c b/drivers/mtd/spi-nor/sst.c
-index e0af6d25d573..0ab07624fb73 100644
---- a/drivers/mtd/spi-nor/sst.c
-+++ b/drivers/mtd/spi-nor/sst.c
-@@ -18,7 +18,8 @@ static const struct flash_info sst_parts[] = {
- 			      SECT_4K | SST_WRITE) },
- 	{ "sst25vf032b", INFO(0xbf254a, 0, 64 * 1024, 64,
- 			      SECT_4K | SST_WRITE) },
--	{ "sst25vf064c", INFO(0xbf254b, 0, 64 * 1024, 128, SECT_4K) },
-+	{ "sst25vf064c", INFO(0xbf254b, 0, 64 * 1024, 128,
-+			      SECT_4K | SPI_NOR_4BIT_BP) },
- 	{ "sst25wf512",  INFO(0xbf2501, 0, 64 * 1024,  1,
- 			      SECT_4K | SST_WRITE) },
- 	{ "sst25wf010",  INFO(0xbf2502, 0, 64 * 1024,  2,
 -- 
-2.20.1
+Jens Axboe
 
