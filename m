@@ -2,2320 +2,1543 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B1F2CB82B
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 10:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA1B2CB8A8
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 10:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387729AbgLBJJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 04:09:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728914AbgLBJJb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Dec 2020 04:09:31 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.161
-Date:   Wed,  2 Dec 2020 10:09:46 +0100
-Message-Id: <1606900185154223@kroah.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <160690018565156@kroah.com>
-References: <160690018565156@kroah.com>
+        id S1729097AbgLBJWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 04:22:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbgLBJWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 04:22:03 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 040E2C0613CF
+        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 01:21:23 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id y7so839729pfq.11
+        for <stable@vger.kernel.org>; Wed, 02 Dec 2020 01:21:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2DQr+LbIK2sxVcwu47IzYKX3v+NyEtiRI3DZwsAE6ZU=;
+        b=1LUIT9RCOLnfni8tF9KULCQjgB61TW3E/TIPZhBntkks1rB25mLkVwnTN5aZGH5/24
+         Ff+5OP45ExgtpDdmWV4N+1mbrtM8D/+jat7Johx/smehg/H0UUcmudb3rS2+GJaq0AdL
+         +OuvexRV2uL3FSrDPPuWT1dMLQlTXrZa9yo4Br0yur6qKRlGNJfaRLxhAgN7CJ9J44oP
+         hEjWVBxa3qczuKoOgG2VAqmHUaRasmGbnwkK6qSDjfz49Q17WM0ZE7bRNbn+Fh0Xn2NS
+         UDUk7uMNbBae0mgwE0PkXCaWeoIP/+whvI7zBauGucjhh8oqd662guRuCBNZEIcRVeQs
+         ER/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2DQr+LbIK2sxVcwu47IzYKX3v+NyEtiRI3DZwsAE6ZU=;
+        b=l9fvyRJ1Xfnq+EMK7Q+4LsPzUjZ3kBmjt8u8QGjBUiGCGKkG41FflUMWLqiklst4LT
+         2LWtpqfqVPrlsSlITDrQhDOv3+niiZ26wRi3jih19apAiHBHKzSJxQiWTGNBZWpD8YAW
+         t+uPrWoC4UWjoQfOfpcGjG6P0J3qpfK/0RyXKWU76ELGhICxoixMPhCM88fZ8hLwyG0x
+         nOp5bSrccHk1xFGoo/LKtmHpqG9yTnXKcERSa9hHq/RXPtwBtyC6G+iv6YTB5QUfNmpU
+         I4rp21mDQQYITRY6htpe3AzoaAuIESLEyrPBwyoiHswJrzA7F0J03+H6vCBgDbWz/76Y
+         SxRw==
+X-Gm-Message-State: AOAM531IPmoaE0csGv+bsA6J17d2sgNYDkyC3I4D2v76zEQqKfi50IYs
+        lO0e4EegLJvLw+yXMAu6K8qYXjuV3rKsGg==
+X-Google-Smtp-Source: ABdhPJx4afE3Mbnm2VYfWuitBEBc8k7c3/d5+lF9/xbzjT6Uk43JBIi+YwgXCV4oju4o+jxxjtbMPA==
+X-Received: by 2002:a63:1707:: with SMTP id x7mr1792934pgl.71.1606900881395;
+        Wed, 02 Dec 2020 01:21:21 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c6sm1417360pgl.38.2020.12.02.01.21.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Dec 2020 01:21:20 -0800 (PST)
+Message-ID: <5fc75c90.1c69fb81.dfb49.3537@mx.google.com>
+Date:   Wed, 02 Dec 2020 01:21:20 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.81
+X-Kernelci-Report-Type: build
+Subject: stable-rc/linux-5.4.y build: 200 builds: 0 failed, 200 passed,
+ 109 warnings (v5.4.81)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index c58711498422..84807cee57b8 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 160
-+SUBLEVEL = 161
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/arm/boot/dts/dra76x.dtsi b/arch/arm/boot/dts/dra76x.dtsi
-index 216e1d1a69c7..473d6721b788 100644
---- a/arch/arm/boot/dts/dra76x.dtsi
-+++ b/arch/arm/boot/dts/dra76x.dtsi
-@@ -35,8 +35,8 @@
- 				interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>,
- 					     <GIC_SPI 68 IRQ_TYPE_LEVEL_HIGH>;
- 				interrupt-names = "int0", "int1";
--				clocks = <&mcan_clk>, <&l3_iclk_div>;
--				clock-names = "cclk", "hclk";
-+				clocks = <&l3_iclk_div>, <&mcan_clk>;
-+				clock-names = "hclk", "cclk";
- 				bosch,mram-cfg = <0x0 0 0 32 0 0 1 1>;
- 			};
- 		};
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 291fed0a9df8..f43519b71061 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -107,8 +107,6 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
- #define pte_valid(pte)		(!!(pte_val(pte) & PTE_VALID))
- #define pte_valid_not_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == PTE_VALID)
--#define pte_valid_young(pte) \
--	((pte_val(pte) & (PTE_VALID | PTE_AF)) == (PTE_VALID | PTE_AF))
- #define pte_valid_user(pte) \
- 	((pte_val(pte) & (PTE_VALID | PTE_USER)) == (PTE_VALID | PTE_USER))
- 
-@@ -116,9 +114,12 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
-  * Could the pte be present in the TLB? We must check mm_tlb_flush_pending
-  * so that we don't erroneously return false for pages that have been
-  * remapped as PROT_NONE but are yet to be flushed from the TLB.
-+ * Note that we can't make any assumptions based on the state of the access
-+ * flag, since ptep_clear_flush_young() elides a DSB when invalidating the
-+ * TLB.
-  */
- #define pte_accessible(mm, pte)	\
--	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid_young(pte))
-+	(mm_tlb_flush_pending(mm) ? pte_present(pte) : pte_valid(pte))
- 
- /*
-  * p??_access_permitted() is true for valid user mappings (subject to the
-@@ -144,13 +145,6 @@ static inline pte_t set_pte_bit(pte_t pte, pgprot_t prot)
- 	return pte;
- }
- 
--static inline pte_t pte_wrprotect(pte_t pte)
--{
--	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
--	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
--	return pte;
--}
--
- static inline pte_t pte_mkwrite(pte_t pte)
- {
- 	pte = set_pte_bit(pte, __pgprot(PTE_WRITE));
-@@ -176,6 +170,20 @@ static inline pte_t pte_mkdirty(pte_t pte)
- 	return pte;
- }
- 
-+static inline pte_t pte_wrprotect(pte_t pte)
-+{
-+	/*
-+	 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
-+	 * clear), set the PTE_DIRTY bit.
-+	 */
-+	if (pte_hw_dirty(pte))
-+		pte = pte_mkdirty(pte);
-+
-+	pte = clear_pte_bit(pte, __pgprot(PTE_WRITE));
-+	pte = set_pte_bit(pte, __pgprot(PTE_RDONLY));
-+	return pte;
-+}
-+
- static inline pte_t pte_mkold(pte_t pte)
- {
- 	return clear_pte_bit(pte, __pgprot(PTE_AF));
-@@ -668,12 +676,6 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addres
- 	pte = READ_ONCE(*ptep);
- 	do {
- 		old_pte = pte;
--		/*
--		 * If hardware-dirty (PTE_WRITE/DBM bit set and PTE_RDONLY
--		 * clear), set the PTE_DIRTY bit.
--		 */
--		if (pte_hw_dirty(pte))
--			pte = pte_mkdirty(pte);
- 		pte = pte_wrprotect(pte);
- 		pte_val(pte) = cmpxchg_relaxed(&pte_val(*ptep),
- 					       pte_val(old_pte), pte_val(pte));
-diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
-index 4a650eb3d94a..3b3cd12c0692 100644
---- a/arch/x86/events/intel/cstate.c
-+++ b/arch/x86/events/intel/cstate.c
-@@ -100,14 +100,14 @@
- MODULE_LICENSE("GPL");
- 
- #define DEFINE_CSTATE_FORMAT_ATTR(_var, _name, _format)		\
--static ssize_t __cstate_##_var##_show(struct kobject *kobj,	\
--				struct kobj_attribute *attr,	\
-+static ssize_t __cstate_##_var##_show(struct device *dev,	\
-+				struct device_attribute *attr,	\
- 				char *page)			\
- {								\
- 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
- 	return sprintf(page, _format "\n");			\
- }								\
--static struct kobj_attribute format_attr_##_var =		\
-+static struct device_attribute format_attr_##_var =		\
- 	__ATTR(_name, 0444, __cstate_##_var##_show, NULL)
- 
- static ssize_t cstate_get_attr_cpumask(struct device *dev,
-diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/intel/rapl.c
-index 2413169ce362..bc348663da94 100644
---- a/arch/x86/events/intel/rapl.c
-+++ b/arch/x86/events/intel/rapl.c
-@@ -115,18 +115,6 @@ static const char *const rapl_domain_names[NR_RAPL_DOMAINS] __initconst = {
-  * any other bit is reserved
-  */
- #define RAPL_EVENT_MASK	0xFFULL
--
--#define DEFINE_RAPL_FORMAT_ATTR(_var, _name, _format)		\
--static ssize_t __rapl_##_var##_show(struct kobject *kobj,	\
--				struct kobj_attribute *attr,	\
--				char *page)			\
--{								\
--	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);		\
--	return sprintf(page, _format "\n");			\
--}								\
--static struct kobj_attribute format_attr_##_var =		\
--	__ATTR(_name, 0444, __rapl_##_var##_show, NULL)
--
- #define RAPL_CNTR_WIDTH 32
- 
- #define RAPL_EVENT_ATTR_STR(_name, v, str)					\
-@@ -548,7 +536,7 @@ static struct attribute_group rapl_pmu_events_group = {
- 	.attrs = NULL, /* patched at runtime */
- };
- 
--DEFINE_RAPL_FORMAT_ATTR(event, event, "config:0-7");
-+PMU_FORMAT_ATTR(event, "config:0-7");
- static struct attribute *rapl_formats_attr[] = {
- 	&format_attr_event.attr,
- 	NULL,
-diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
-index 7098b9b05d56..2f4ed5aa08ba 100644
---- a/arch/x86/events/intel/uncore.c
-+++ b/arch/x86/events/intel/uncore.c
-@@ -90,8 +90,8 @@ struct pci2phy_map *__find_pci2phy_map(int segment)
- 	return map;
- }
- 
--ssize_t uncore_event_show(struct kobject *kobj,
--			  struct kobj_attribute *attr, char *buf)
-+ssize_t uncore_event_show(struct device *dev,
-+			  struct device_attribute *attr, char *buf)
- {
- 	struct uncore_event_desc *event =
- 		container_of(attr, struct uncore_event_desc, attr);
-diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
-index 40e040ec31b5..0fc86ac73b51 100644
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -133,7 +133,7 @@ struct intel_uncore_box {
- #define UNCORE_BOX_FLAG_CTL_OFFS8	1 /* event config registers are 8-byte apart */
- 
- struct uncore_event_desc {
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- 	const char *config;
- };
- 
-@@ -153,8 +153,8 @@ struct pci2phy_map {
- 
- struct pci2phy_map *__find_pci2phy_map(int segment);
- 
--ssize_t uncore_event_show(struct kobject *kobj,
--			  struct kobj_attribute *attr, char *buf);
-+ssize_t uncore_event_show(struct device *dev,
-+			  struct device_attribute *attr, char *buf);
- 
- #define INTEL_UNCORE_EVENT_DESC(_name, _config)			\
- {								\
-@@ -163,14 +163,14 @@ ssize_t uncore_event_show(struct kobject *kobj,
- }
- 
- #define DEFINE_UNCORE_FORMAT_ATTR(_var, _name, _format)			\
--static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
--				struct kobj_attribute *attr,		\
-+static ssize_t __uncore_##_var##_show(struct device *dev,		\
-+				struct device_attribute *attr,		\
- 				char *page)				\
- {									\
- 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);			\
- 	return sprintf(page, _format "\n");				\
- }									\
--static struct kobj_attribute format_attr_##_var =			\
-+static struct device_attribute format_attr_##_var =			\
- 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
- 
- static inline bool uncore_pmc_fixed(int idx)
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 4876411a072a..98b74711e6b7 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1472,6 +1472,7 @@ int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
- void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
- int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v);
- int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
-+int kvm_cpu_has_extint(struct kvm_vcpu *v);
- int kvm_arch_interrupt_allowed(struct kvm_vcpu *vcpu);
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v);
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event);
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 9e482fbdb28f..c524fa1f4c0e 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -733,11 +733,13 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
- 
-+		spectre_v2_user_ibpb = mode;
- 		switch (cmd) {
- 		case SPECTRE_V2_USER_CMD_FORCE:
- 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
- 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 			static_branch_enable(&switch_mm_always_ibpb);
-+			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
- 			break;
- 		case SPECTRE_V2_USER_CMD_PRCTL:
- 		case SPECTRE_V2_USER_CMD_AUTO:
-@@ -751,8 +753,6 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
--
--		spectre_v2_user_ibpb = mode;
- 	}
- 
- 	/*
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index e62e416dd116..12083f200e09 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -515,6 +515,24 @@ static ssize_t rdtgroup_cpus_write(struct kernfs_open_file *of,
- 	return ret ?: nbytes;
- }
- 
-+/**
-+ * rdtgroup_remove - the helper to remove resource group safely
-+ * @rdtgrp: resource group to remove
-+ *
-+ * On resource group creation via a mkdir, an extra kernfs_node reference is
-+ * taken to ensure that the rdtgroup structure remains accessible for the
-+ * rdtgroup_kn_unlock() calls where it is removed.
-+ *
-+ * Drop the extra reference here, then free the rdtgroup structure.
-+ *
-+ * Return: void
-+ */
-+static void rdtgroup_remove(struct rdtgroup *rdtgrp)
-+{
-+	kernfs_put(rdtgrp->kn);
-+	kfree(rdtgrp);
-+}
-+
- struct task_move_callback {
- 	struct callback_head	work;
- 	struct rdtgroup		*rdtgrp;
-@@ -537,7 +555,7 @@ static void move_myself(struct callback_head *head)
- 	    (rdtgrp->flags & RDT_DELETED)) {
- 		current->closid = 0;
- 		current->rmid = 0;
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	}
- 
- 	preempt_disable();
-@@ -1626,7 +1644,6 @@ static int rdtgroup_mkdir_info_resdir(struct rdt_resource *r, char *name,
- 	if (IS_ERR(kn_subdir))
- 		return PTR_ERR(kn_subdir);
- 
--	kernfs_get(kn_subdir);
- 	ret = rdtgroup_kn_set_ugid(kn_subdir);
- 	if (ret)
- 		return ret;
-@@ -1649,7 +1666,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 	kn_info = kernfs_create_dir(parent_kn, "info", parent_kn->mode, NULL);
- 	if (IS_ERR(kn_info))
- 		return PTR_ERR(kn_info);
--	kernfs_get(kn_info);
- 
- 	ret = rdtgroup_add_files(kn_info, RF_TOP_INFO);
- 	if (ret)
-@@ -1670,12 +1686,6 @@ static int rdtgroup_create_info_dir(struct kernfs_node *parent_kn)
- 			goto out_destroy;
- 	}
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn_info);
--
- 	ret = rdtgroup_kn_set_ugid(kn_info);
- 	if (ret)
- 		goto out_destroy;
-@@ -1704,12 +1714,6 @@ mongroup_create_dir(struct kernfs_node *parent_kn, struct rdtgroup *prgrp,
- 	if (dest_kn)
- 		*dest_kn = kn;
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that @rdtgrp->kn is always accessible.
--	 */
--	kernfs_get(kn);
--
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -1973,8 +1977,7 @@ void rdtgroup_kn_unlock(struct kernfs_node *kn)
- 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
- 			rdtgroup_pseudo_lock_remove(rdtgrp);
- 		kernfs_unbreak_active_protection(kn);
--		kernfs_put(rdtgrp->kn);
--		kfree(rdtgrp);
-+		rdtgroup_remove(rdtgrp);
- 	} else {
- 		kernfs_unbreak_active_protection(kn);
- 	}
-@@ -2025,7 +2028,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_info;
- 		}
--		kernfs_get(kn_mongrp);
- 
- 		ret = mkdir_mondata_all(rdtgroup_default.kn,
- 					&rdtgroup_default, &kn_mondata);
-@@ -2033,7 +2035,6 @@ static struct dentry *rdt_mount(struct file_system_type *fs_type,
- 			dentry = ERR_PTR(ret);
- 			goto out_mongrp;
- 		}
--		kernfs_get(kn_mondata);
- 		rdtgroup_default.mon.mon_data_kn = kn_mondata;
- 	}
- 
-@@ -2185,7 +2186,7 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
- 		if (atomic_read(&sentry->waitcount) != 0)
- 			sentry->flags = RDT_DELETED;
- 		else
--			kfree(sentry);
-+			rdtgroup_remove(sentry);
- 	}
- }
- 
-@@ -2227,7 +2228,7 @@ static void rmdir_all_sub(void)
- 		if (atomic_read(&rdtgrp->waitcount) != 0)
- 			rdtgrp->flags = RDT_DELETED;
- 		else
--			kfree(rdtgrp);
-+			rdtgroup_remove(rdtgrp);
- 	}
- 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
- 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);
-@@ -2326,11 +2327,6 @@ static int mkdir_mondata_subdir(struct kernfs_node *parent_kn,
- 	if (IS_ERR(kn))
- 		return PTR_ERR(kn);
- 
--	/*
--	 * This extra ref will be put in kernfs_remove() and guarantees
--	 * that kn is always accessible.
--	 */
--	kernfs_get(kn);
- 	ret = rdtgroup_kn_set_ugid(kn);
- 	if (ret)
- 		goto out_destroy;
-@@ -2622,8 +2618,8 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- 	/*
- 	 * kernfs_remove() will drop the reference count on "kn" which
- 	 * will free it. But we still need it to stick around for the
--	 * rdtgroup_kn_unlock(kn} call below. Take one extra reference
--	 * here, which will be dropped inside rdtgroup_kn_unlock().
-+	 * rdtgroup_kn_unlock(kn) call. Take one extra reference here,
-+	 * which will be dropped by kernfs_put() in rdtgroup_remove().
- 	 */
- 	kernfs_get(kn);
- 
-@@ -2664,6 +2660,7 @@ static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
- out_idfree:
- 	free_rmid(rdtgrp->mon.rmid);
- out_destroy:
-+	kernfs_put(rdtgrp->kn);
- 	kernfs_remove(rdtgrp->kn);
- out_free_rgrp:
- 	kfree(rdtgrp);
-@@ -2676,7 +2673,7 @@ static void mkdir_rdt_prepare_clean(struct rdtgroup *rgrp)
- {
- 	kernfs_remove(rgrp->kn);
- 	free_rmid(rgrp->mon.rmid);
--	kfree(rgrp);
-+	rdtgroup_remove(rgrp);
- }
- 
- /*
-@@ -2838,11 +2835,6 @@ static int rdtgroup_rmdir_mon(struct kernfs_node *kn, struct rdtgroup *rdtgrp,
- 	WARN_ON(list_empty(&prdtgrp->mon.crdtgrp_list));
- 	list_del(&rdtgrp->mon.crdtgrp_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 
- 	return 0;
-@@ -2854,11 +2846,6 @@ static int rdtgroup_ctrl_remove(struct kernfs_node *kn,
- 	rdtgrp->flags = RDT_DELETED;
- 	list_del(&rdtgrp->rdtgroup_list);
- 
--	/*
--	 * one extra hold on this, will drop when we kfree(rdtgrp)
--	 * in rdtgroup_kn_unlock()
--	 */
--	kernfs_get(kn);
- 	kernfs_remove(rdtgrp->kn);
- 	return 0;
- }
-diff --git a/arch/x86/kvm/irq.c b/arch/x86/kvm/irq.c
-index 007bc654f928..295ebadb8f2c 100644
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -52,29 +52,10 @@ static int pending_userspace_extint(struct kvm_vcpu *v)
-  * check if there is pending interrupt from
-  * non-APIC source without intack.
-  */
--static int kvm_cpu_has_extint(struct kvm_vcpu *v)
--{
--	u8 accept = kvm_apic_accept_pic_intr(v);
--
--	if (accept) {
--		if (irqchip_split(v->kvm))
--			return pending_userspace_extint(v);
--		else
--			return v->kvm->arch.vpic->output;
--	} else
--		return 0;
--}
--
--/*
-- * check if there is injectable interrupt:
-- * when virtual interrupt delivery enabled,
-- * interrupt from apic will handled by hardware,
-- * we don't need to check it here.
-- */
--int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
-+int kvm_cpu_has_extint(struct kvm_vcpu *v)
- {
- 	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
-+	 * FIXME: interrupt.injected represents an interrupt whose
- 	 * side-effects have already been applied (e.g. bit from IRR
- 	 * already moved to ISR). Therefore, it is incorrect to rely
- 	 * on interrupt.injected to know if there is a pending
-@@ -87,6 +68,23 @@ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
- 	if (!lapic_in_kernel(v))
- 		return v->arch.interrupt.injected;
- 
-+	if (!kvm_apic_accept_pic_intr(v))
-+		return 0;
-+
-+	if (irqchip_split(v->kvm))
-+		return pending_userspace_extint(v);
-+	else
-+		return v->kvm->arch.vpic->output;
-+}
-+
-+/*
-+ * check if there is injectable interrupt:
-+ * when virtual interrupt delivery enabled,
-+ * interrupt from apic will handled by hardware,
-+ * we don't need to check it here.
-+ */
-+int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
-+{
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
- 
-@@ -102,20 +100,6 @@ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
-  */
- int kvm_cpu_has_interrupt(struct kvm_vcpu *v)
- {
--	/*
--	 * FIXME: interrupt.injected represents an interrupt that it's
--	 * side-effects have already been applied (e.g. bit from IRR
--	 * already moved to ISR). Therefore, it is incorrect to rely
--	 * on interrupt.injected to know if there is a pending
--	 * interrupt in the user-mode LAPIC.
--	 * This leads to nVMX/nSVM not be able to distinguish
--	 * if it should exit from L2 to L1 on EXTERNAL_INTERRUPT on
--	 * pending interrupt or should re-inject an injected
--	 * interrupt.
--	 */
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.injected;
--
- 	if (kvm_cpu_has_extint(v))
- 		return 1;
- 
-@@ -129,16 +113,21 @@ EXPORT_SYMBOL_GPL(kvm_cpu_has_interrupt);
-  */
- static int kvm_cpu_get_extint(struct kvm_vcpu *v)
- {
--	if (kvm_cpu_has_extint(v)) {
--		if (irqchip_split(v->kvm)) {
--			int vector = v->arch.pending_external_vector;
--
--			v->arch.pending_external_vector = -1;
--			return vector;
--		} else
--			return kvm_pic_read_irq(v->kvm); /* PIC */
--	} else
-+	if (!kvm_cpu_has_extint(v)) {
-+		WARN_ON(!lapic_in_kernel(v));
- 		return -1;
-+	}
-+
-+	if (!lapic_in_kernel(v))
-+		return v->arch.interrupt.nr;
-+
-+	if (irqchip_split(v->kvm)) {
-+		int vector = v->arch.pending_external_vector;
-+
-+		v->arch.pending_external_vector = -1;
-+		return vector;
-+	} else
-+		return kvm_pic_read_irq(v->kvm); /* PIC */
- }
- 
- /*
-@@ -146,13 +135,7 @@ static int kvm_cpu_get_extint(struct kvm_vcpu *v)
-  */
- int kvm_cpu_get_interrupt(struct kvm_vcpu *v)
- {
--	int vector;
--
--	if (!lapic_in_kernel(v))
--		return v->arch.interrupt.nr;
--
--	vector = kvm_cpu_get_extint(v);
--
-+	int vector = kvm_cpu_get_extint(v);
- 	if (vector != -1)
- 		return vector;			/* PIC */
- 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index bba2f76c356d..56a4b9762b0c 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2284,7 +2284,7 @@ int kvm_apic_has_interrupt(struct kvm_vcpu *vcpu)
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	u32 ppr;
- 
--	if (!kvm_apic_hw_enabled(apic))
-+	if (!kvm_apic_present(vcpu))
- 		return -1;
- 
- 	__apic_update_ppr(apic, &ppr);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dd182228be71..7096578ef737 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3351,21 +3351,23 @@ static int kvm_vcpu_ioctl_set_lapic(struct kvm_vcpu *vcpu,
- 
- static int kvm_cpu_accept_dm_intr(struct kvm_vcpu *vcpu)
- {
-+	/*
-+	 * We can accept userspace's request for interrupt injection
-+	 * as long as we have a place to store the interrupt number.
-+	 * The actual injection will happen when the CPU is able to
-+	 * deliver the interrupt.
-+	 */
-+	if (kvm_cpu_has_extint(vcpu))
-+		return false;
-+
-+	/* Acknowledging ExtINT does not happen if LINT0 is masked.  */
- 	return (!lapic_in_kernel(vcpu) ||
- 		kvm_apic_accept_pic_intr(vcpu));
- }
- 
--/*
-- * if userspace requested an interrupt window, check that the
-- * interrupt window is open.
-- *
-- * No need to exit to userspace if we already have an interrupt queued.
-- */
- static int kvm_vcpu_ready_for_interrupt_injection(struct kvm_vcpu *vcpu)
- {
- 	return kvm_arch_interrupt_allowed(vcpu) &&
--		!kvm_cpu_has_interrupt(vcpu) &&
--		!kvm_event_needs_reinjection(vcpu) &&
- 		kvm_cpu_accept_dm_intr(vcpu);
- }
- 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 717b4847b473..6fffb86a32ad 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -101,10 +101,20 @@ void xen_init_lock_cpu(int cpu)
- 
- void xen_uninit_lock_cpu(int cpu)
- {
-+	int irq;
-+
- 	if (!xen_pvspin)
- 		return;
- 
--	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
-+	/*
-+	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
-+	 * CPUs are not activated, and lock_kicker_irq is not initialized.
-+	 */
-+	irq = per_cpu(lock_kicker_irq, cpu);
-+	if (irq == -1)
-+		return;
-+
-+	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- 	kfree(per_cpu(irq_name, cpu));
- 	per_cpu(irq_name, cpu) = NULL;
-diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
-index f1158b4c629c..da4effe27007 100644
---- a/arch/xtensa/include/asm/uaccess.h
-+++ b/arch/xtensa/include/asm/uaccess.h
-@@ -291,7 +291,7 @@ strncpy_from_user(char *dst, const char *src, long count)
- 	return -EFAULT;
- }
- #else
--long strncpy_from_user(char *dst, const char *src, long count);
-+long strncpy_from_user(char *dst, const char __user *src, long count);
- #endif
- 
- /*
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index c564df713efc..15b30d2d8f7e 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2774,7 +2774,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
- 	 */
--	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
-+	if (burst * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
- 
- 	desc->bytes_requested = len;
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index d56b6b0e22a8..28592137fb67 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -453,8 +453,8 @@ struct xilinx_dma_device {
- #define to_dma_tx_descriptor(tx) \
- 	container_of(tx, struct xilinx_dma_tx_descriptor, async_tx)
- #define xilinx_dma_poll_timeout(chan, reg, val, cond, delay_us, timeout_us) \
--	readl_poll_timeout(chan->xdev->regs + chan->ctrl_offset + reg, val, \
--			   cond, delay_us, timeout_us)
-+	readl_poll_timeout_atomic(chan->xdev->regs + chan->ctrl_offset + reg, \
-+				  val, cond, delay_us, timeout_us)
- 
- /* IO accessors */
- static inline u32 dma_read(struct xilinx_dma_chan *chan, u32 reg)
-diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
-index 1a4b44923aec..281cf9cbb44c 100644
---- a/drivers/gpu/drm/drm_atomic.c
-+++ b/drivers/gpu/drm/drm_atomic.c
-@@ -1702,27 +1702,6 @@ drm_atomic_set_crtc_for_connector(struct drm_connector_state *conn_state,
- 	struct drm_connector *connector = conn_state->connector;
- 	struct drm_crtc_state *crtc_state;
- 
--	/*
--	 * For compatibility with legacy users, we want to make sure that
--	 * we allow DPMS On<->Off modesets on unregistered connectors, since
--	 * legacy modesetting users will not be expecting these to fail. We do
--	 * not however, want to allow legacy users to assign a connector
--	 * that's been unregistered from sysfs to another CRTC, since doing
--	 * this with a now non-existent connector could potentially leave us
--	 * in an invalid state.
--	 *
--	 * Since the connector can be unregistered at any point during an
--	 * atomic check or commit, this is racy. But that's OK: all we care
--	 * about is ensuring that userspace can't use this connector for new
--	 * configurations after it's been notified that the connector is no
--	 * longer present.
--	 */
--	if (!READ_ONCE(connector->registered) && crtc) {
--		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
--				 connector->base.id, connector->name);
--		return -EINVAL;
--	}
--
- 	if (conn_state->crtc == crtc)
- 		return 0;
- 
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index c22062cc9992..d24a15484e31 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -307,6 +307,26 @@ update_connector_routing(struct drm_atomic_state *state,
- 		return 0;
- 	}
- 
-+	crtc_state = drm_atomic_get_new_crtc_state(state,
-+						   new_connector_state->crtc);
-+	/*
-+	 * For compatibility with legacy users, we want to make sure that
-+	 * we allow DPMS On->Off modesets on unregistered connectors. Modesets
-+	 * which would result in anything else must be considered invalid, to
-+	 * avoid turning on new displays on dead connectors.
-+	 *
-+	 * Since the connector can be unregistered at any point during an
-+	 * atomic check or commit, this is racy. But that's OK: all we care
-+	 * about is ensuring that userspace can't do anything but shut off the
-+	 * display on a connector that was destroyed after its been notified,
-+	 * not before.
-+	 */
-+	if (drm_connector_is_unregistered(connector) && crtc_state->active) {
-+		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
-+				 connector->base.id, connector->name);
-+		return -EINVAL;
-+	}
-+
- 	funcs = connector->helper_private;
- 
- 	if (funcs->atomic_best_encoder)
-@@ -351,7 +371,6 @@ update_connector_routing(struct drm_atomic_state *state,
- 
- 	set_best_encoder(state, new_connector_state, new_encoder);
- 
--	crtc_state = drm_atomic_get_new_crtc_state(state, new_connector_state->crtc);
- 	crtc_state->connectors_changed = true;
- 
- 	DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] using [ENCODER:%d:%s] on [CRTC:%d:%s]\n",
-diff --git a/drivers/gpu/drm/drm_connector.c b/drivers/gpu/drm/drm_connector.c
-index 6011d769d50b..7bb68ca4aa0b 100644
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -375,7 +375,8 @@ void drm_connector_cleanup(struct drm_connector *connector)
- 	/* The connector should have been removed from userspace long before
- 	 * it is finally destroyed.
- 	 */
--	if (WARN_ON(connector->registered))
-+	if (WARN_ON(connector->registration_state ==
-+		    DRM_CONNECTOR_REGISTERED))
- 		drm_connector_unregister(connector);
- 
- 	if (connector->tile_group) {
-@@ -432,7 +433,7 @@ int drm_connector_register(struct drm_connector *connector)
- 		return 0;
- 
- 	mutex_lock(&connector->mutex);
--	if (connector->registered)
-+	if (connector->registration_state != DRM_CONNECTOR_INITIALIZING)
- 		goto unlock;
- 
- 	ret = drm_sysfs_connector_add(connector);
-@@ -452,7 +453,7 @@ int drm_connector_register(struct drm_connector *connector)
- 
- 	drm_mode_object_register(connector->dev, &connector->base);
- 
--	connector->registered = true;
-+	connector->registration_state = DRM_CONNECTOR_REGISTERED;
- 	goto unlock;
- 
- err_debugfs:
-@@ -474,7 +475,7 @@ EXPORT_SYMBOL(drm_connector_register);
- void drm_connector_unregister(struct drm_connector *connector)
- {
- 	mutex_lock(&connector->mutex);
--	if (!connector->registered) {
-+	if (connector->registration_state != DRM_CONNECTOR_REGISTERED) {
- 		mutex_unlock(&connector->mutex);
- 		return;
- 	}
-@@ -485,7 +486,7 @@ void drm_connector_unregister(struct drm_connector *connector)
- 	drm_sysfs_connector_remove(connector);
- 	drm_debugfs_connector_remove(connector);
- 
--	connector->registered = false;
-+	connector->registration_state = DRM_CONNECTOR_UNREGISTERED;
- 	mutex_unlock(&connector->mutex);
- }
- EXPORT_SYMBOL(drm_connector_unregister);
-diff --git a/drivers/gpu/drm/i915/intel_dp_mst.c b/drivers/gpu/drm/i915/intel_dp_mst.c
-index c7d52c66ff29..8a19cfcfc4f1 100644
---- a/drivers/gpu/drm/i915/intel_dp_mst.c
-+++ b/drivers/gpu/drm/i915/intel_dp_mst.c
-@@ -77,7 +77,7 @@ static bool intel_dp_mst_compute_config(struct intel_encoder *encoder,
- 	pipe_config->pbn = mst_pbn;
- 
- 	/* Zombie connectors can't have VCPI slots */
--	if (READ_ONCE(connector->registered)) {
-+	if (!drm_connector_is_unregistered(connector)) {
- 		slots = drm_dp_atomic_find_vcpi_slots(state,
- 						      &intel_dp->mst_mgr,
- 						      port,
-@@ -317,7 +317,7 @@ static int intel_dp_mst_get_ddc_modes(struct drm_connector *connector)
- 	struct edid *edid;
- 	int ret;
- 
--	if (!READ_ONCE(connector->registered))
-+	if (drm_connector_is_unregistered(connector))
- 		return intel_connector_update_modes(connector, NULL);
- 
- 	edid = drm_dp_mst_get_edid(connector, &intel_dp->mst_mgr, intel_connector->port);
-@@ -333,7 +333,7 @@ intel_dp_mst_detect(struct drm_connector *connector, bool force)
- 	struct intel_connector *intel_connector = to_intel_connector(connector);
- 	struct intel_dp *intel_dp = intel_connector->mst_port;
- 
--	if (!READ_ONCE(connector->registered))
-+	if (drm_connector_is_unregistered(connector))
- 		return connector_status_disconnected;
- 	return drm_dp_mst_detect_port(connector, &intel_dp->mst_mgr,
- 				      intel_connector->port);
-@@ -376,7 +376,7 @@ intel_dp_mst_mode_valid(struct drm_connector *connector,
- 	int bpp = 24; /* MST uses fixed bpp */
- 	int max_rate, mode_rate, max_lanes, max_link_clock;
- 
--	if (!READ_ONCE(connector->registered))
-+	if (drm_connector_is_unregistered(connector))
- 		return MODE_ERROR;
- 
- 	if (mode->flags & DRM_MODE_FLAG_DBLSCAN)
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 1689568b597d..12c5d7c96527 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -26,19 +26,17 @@
- #define CP_2WHEEL_MOUSE_HACK		0x02
- #define CP_2WHEEL_MOUSE_HACK_ON		0x04
- 
-+#define VA_INVAL_LOGICAL_BOUNDARY	0x08
-+
- /*
-  * Some USB barcode readers from cypress have usage min and usage max in
-  * the wrong order
-  */
--static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
- 	unsigned int i;
- 
--	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
--		return rdesc;
--
- 	if (*rsize < 4)
- 		return rdesc;
- 
-@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	/*
-+	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
-+	 * reports Logical Minimum of its Consumer Control device as 572
-+	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
-+	 */
-+	if (*rsize == 25 &&
-+			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
-+			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
-+			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
-+			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
-+		hid_info(hdev,
-+			 "fixing up varmilo VA104M consumer control report descriptor\n");
-+		rdesc[12] = 0x00;
-+		rdesc[13] = 0x00;
-+	}
-+	return rdesc;
-+}
-+
-+static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
-+		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
-+	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
-+		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
-+
-+	return rdesc;
-+}
-+
- static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
- 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
- 		.driver_data = CP_2WHEEL_MOUSE_HACK },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
-+		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, cp_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e18d796d985f..6d118da1615d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -330,6 +330,8 @@
- #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
- #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
- 
-+#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
-+
- #define USB_VENDOR_ID_DATA_MODUL	0x7374
- #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
- 
-@@ -442,6 +444,10 @@
- #define USB_VENDOR_ID_FRUCTEL	0x25B6
- #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
- 
-+#define USB_VENDOR_ID_GAMEVICE	0x27F8
-+#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
-+#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
-+
- #define USB_VENDOR_ID_GAMERON		0x0810
- #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
- #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
-@@ -477,6 +483,7 @@
- #define USB_DEVICE_ID_PENPOWER		0x00f4
- 
- #define USB_VENDOR_ID_GREENASIA		0x0e8f
-+#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
- #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
- 
- #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
-@@ -726,6 +733,7 @@
- #define USB_VENDOR_ID_LOGITECH		0x046d
- #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
- #define USB_DEVICE_ID_LOGITECH_T651	0xb00c
-+#define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD	0xb309
- #define USB_DEVICE_ID_LOGITECH_C007	0xc007
- #define USB_DEVICE_ID_LOGITECH_C077	0xc077
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 11bd2ca22a2e..13deb9a67685 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -331,6 +331,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
- 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 2d8d20a7f457..10cb42a00fe8 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -85,7 +85,12 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4256fdc5cd6d..21fbdcde1faa 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -496,7 +496,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
- 
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index a6531ffe29a6..a5694dec3f2e 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -808,8 +808,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
--	if (IS_ERR(mailbox))
-+	if (IS_ERR(mailbox)) {
-+		err = PTR_ERR(mailbox);
- 		goto err_out_arm;
-+	}
- 
- 	cq_context = mailbox->buf;
- 
-@@ -851,9 +853,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	spin_lock_irq(&dev->cq_table.lock);
--	if (mthca_array_set(&dev->cq_table.cq,
--			    cq->cqn & (dev->limits.num_cqs - 1),
--			    cq)) {
-+	err = mthca_array_set(&dev->cq_table.cq,
-+			      cq->cqn & (dev->limits.num_cqs - 1), cq);
-+	if (err) {
- 		spin_unlock_irq(&dev->cq_table.lock);
- 		goto err_out_free_mr;
- 	}
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 95a78ccbd847..fef3b4064f18 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -125,6 +125,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
- MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
- #endif
- 
-+static bool i8042_present;
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-@@ -345,6 +346,9 @@ int i8042_command(unsigned char *param, int command)
- 	unsigned long flags;
- 	int retval;
- 
-+	if (!i8042_present)
-+		return -1;
-+
- 	spin_lock_irqsave(&i8042_lock, flags);
- 	retval = __i8042_command(param, command);
- 	spin_unlock_irqrestore(&i8042_lock, flags);
-@@ -1613,12 +1617,15 @@ static int __init i8042_init(void)
- 
- 	err = i8042_platform_init();
- 	if (err)
--		return err;
-+		return (err == -ENODEV) ? 0 : err;
- 
- 	err = i8042_controller_check();
- 	if (err)
- 		goto err_platform_exit;
- 
-+	/* Set this before creating the dev to allow i8042_command to work right away */
-+	i8042_present = true;
-+
- 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
- 	if (IS_ERR(pdev)) {
- 		err = PTR_ERR(pdev);
-@@ -1637,6 +1644,9 @@ static int __init i8042_init(void)
- 
- static void __exit i8042_exit(void)
- {
-+	if (!i8042_present)
-+		return;
-+
- 	platform_device_unregister(i8042_platform_device);
- 	platform_driver_unregister(&i8042_driver);
- 	i8042_platform_exit();
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index efaa342600c4..fbb970220c2d 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -976,7 +976,7 @@ static const struct can_bittiming_const m_can_bittiming_const_31X = {
- 	.name = KBUILD_MODNAME,
- 	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
- 	.tseg1_max = 256,
--	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
-+	.tseg2_min = 2,		/* Time segment 2 = phase_seg2 */
- 	.tseg2_max = 128,
- 	.sjw_max = 128,
- 	.brp_min = 1,
-diff --git a/drivers/net/can/usb/gs_usb.c b/drivers/net/can/usb/gs_usb.c
-index cc2e224661b3..6a57169c2715 100644
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -71,21 +71,27 @@ enum gs_can_identify_mode {
- };
- 
- /* data types passed between host and device */
-+
-+/* The firmware on the original USB2CAN by Geschwister Schneider
-+ * Technologie Entwicklungs- und Vertriebs UG exchanges all data
-+ * between the host and the device in host byte order. This is done
-+ * with the struct gs_host_config::byte_order member, which is sent
-+ * first to indicate the desired byte order.
-+ *
-+ * The widely used open source firmware candleLight doesn't support
-+ * this feature and exchanges the data in little endian byte order.
-+ */
- struct gs_host_config {
--	u32 byte_order;
-+	__le32 byte_order;
- } __packed;
--/* All data exchanged between host and device is exchanged in host byte order,
-- * thanks to the struct gs_host_config byte_order member, which is sent first
-- * to indicate the desired byte order.
-- */
- 
- struct gs_device_config {
- 	u8 reserved1;
- 	u8 reserved2;
- 	u8 reserved3;
- 	u8 icount;
--	u32 sw_version;
--	u32 hw_version;
-+	__le32 sw_version;
-+	__le32 hw_version;
- } __packed;
- 
- #define GS_CAN_MODE_NORMAL               0
-@@ -95,26 +101,26 @@ struct gs_device_config {
- #define GS_CAN_MODE_ONE_SHOT             BIT(3)
- 
- struct gs_device_mode {
--	u32 mode;
--	u32 flags;
-+	__le32 mode;
-+	__le32 flags;
- } __packed;
- 
- struct gs_device_state {
--	u32 state;
--	u32 rxerr;
--	u32 txerr;
-+	__le32 state;
-+	__le32 rxerr;
-+	__le32 txerr;
- } __packed;
- 
- struct gs_device_bittiming {
--	u32 prop_seg;
--	u32 phase_seg1;
--	u32 phase_seg2;
--	u32 sjw;
--	u32 brp;
-+	__le32 prop_seg;
-+	__le32 phase_seg1;
-+	__le32 phase_seg2;
-+	__le32 sjw;
-+	__le32 brp;
- } __packed;
- 
- struct gs_identify_mode {
--	u32 mode;
-+	__le32 mode;
- } __packed;
- 
- #define GS_CAN_FEATURE_LISTEN_ONLY      BIT(0)
-@@ -125,23 +131,23 @@ struct gs_identify_mode {
- #define GS_CAN_FEATURE_IDENTIFY         BIT(5)
- 
- struct gs_device_bt_const {
--	u32 feature;
--	u32 fclk_can;
--	u32 tseg1_min;
--	u32 tseg1_max;
--	u32 tseg2_min;
--	u32 tseg2_max;
--	u32 sjw_max;
--	u32 brp_min;
--	u32 brp_max;
--	u32 brp_inc;
-+	__le32 feature;
-+	__le32 fclk_can;
-+	__le32 tseg1_min;
-+	__le32 tseg1_max;
-+	__le32 tseg2_min;
-+	__le32 tseg2_max;
-+	__le32 sjw_max;
-+	__le32 brp_min;
-+	__le32 brp_max;
-+	__le32 brp_inc;
- } __packed;
- 
- #define GS_CAN_FLAG_OVERFLOW 1
- 
- struct gs_host_frame {
- 	u32 echo_id;
--	u32 can_id;
-+	__le32 can_id;
- 
- 	u8 can_dlc;
- 	u8 channel;
-@@ -337,13 +343,13 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
- 		if (!skb)
- 			return;
- 
--		cf->can_id = hf->can_id;
-+		cf->can_id = le32_to_cpu(hf->can_id);
- 
- 		cf->can_dlc = get_can_dlc(hf->can_dlc);
- 		memcpy(cf->data, hf->data, 8);
- 
- 		/* ERROR frames tell us information about the controller */
--		if (hf->can_id & CAN_ERR_FLAG)
-+		if (le32_to_cpu(hf->can_id) & CAN_ERR_FLAG)
- 			gs_update_state(dev, cf);
- 
- 		netdev->stats.rx_packets++;
-@@ -426,11 +432,11 @@ static int gs_usb_set_bittiming(struct net_device *netdev)
- 	if (!dbt)
- 		return -ENOMEM;
- 
--	dbt->prop_seg = bt->prop_seg;
--	dbt->phase_seg1 = bt->phase_seg1;
--	dbt->phase_seg2 = bt->phase_seg2;
--	dbt->sjw = bt->sjw;
--	dbt->brp = bt->brp;
-+	dbt->prop_seg = cpu_to_le32(bt->prop_seg);
-+	dbt->phase_seg1 = cpu_to_le32(bt->phase_seg1);
-+	dbt->phase_seg2 = cpu_to_le32(bt->phase_seg2);
-+	dbt->sjw = cpu_to_le32(bt->sjw);
-+	dbt->brp = cpu_to_le32(bt->brp);
- 
- 	/* request bit timings */
- 	rc = usb_control_msg(interface_to_usbdev(intf),
-@@ -511,7 +517,7 @@ static netdev_tx_t gs_can_start_xmit(struct sk_buff *skb,
- 
- 	cf = (struct can_frame *)skb->data;
- 
--	hf->can_id = cf->can_id;
-+	hf->can_id = cpu_to_le32(cf->can_id);
- 	hf->can_dlc = cf->can_dlc;
- 	memcpy(hf->data, cf->data, cf->can_dlc);
- 
-@@ -581,6 +587,7 @@ static int gs_can_open(struct net_device *netdev)
- 	int rc, i;
- 	struct gs_device_mode *dm;
- 	u32 ctrlmode;
-+	u32 flags = 0;
- 
- 	rc = open_candev(netdev);
- 	if (rc)
-@@ -648,24 +655,24 @@ static int gs_can_open(struct net_device *netdev)
- 
- 	/* flags */
- 	ctrlmode = dev->can.ctrlmode;
--	dm->flags = 0;
- 
- 	if (ctrlmode & CAN_CTRLMODE_LOOPBACK)
--		dm->flags |= GS_CAN_MODE_LOOP_BACK;
-+		flags |= GS_CAN_MODE_LOOP_BACK;
- 	else if (ctrlmode & CAN_CTRLMODE_LISTENONLY)
--		dm->flags |= GS_CAN_MODE_LISTEN_ONLY;
-+		flags |= GS_CAN_MODE_LISTEN_ONLY;
- 
- 	/* Controller is not allowed to retry TX
- 	 * this mode is unavailable on atmels uc3c hardware
- 	 */
- 	if (ctrlmode & CAN_CTRLMODE_ONE_SHOT)
--		dm->flags |= GS_CAN_MODE_ONE_SHOT;
-+		flags |= GS_CAN_MODE_ONE_SHOT;
- 
- 	if (ctrlmode & CAN_CTRLMODE_3_SAMPLES)
--		dm->flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
-+		flags |= GS_CAN_MODE_TRIPLE_SAMPLE;
- 
- 	/* finally start device */
--	dm->mode = GS_CAN_MODE_START;
-+	dm->mode = cpu_to_le32(GS_CAN_MODE_START);
-+	dm->flags = cpu_to_le32(flags);
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
- 			     usb_sndctrlpipe(interface_to_usbdev(dev->iface), 0),
- 			     GS_USB_BREQ_MODE,
-@@ -745,9 +752,9 @@ static int gs_usb_set_identify(struct net_device *netdev, bool do_identify)
- 		return -ENOMEM;
- 
- 	if (do_identify)
--		imode->mode = GS_CAN_IDENTIFY_ON;
-+		imode->mode = cpu_to_le32(GS_CAN_IDENTIFY_ON);
- 	else
--		imode->mode = GS_CAN_IDENTIFY_OFF;
-+		imode->mode = cpu_to_le32(GS_CAN_IDENTIFY_OFF);
- 
- 	rc = usb_control_msg(interface_to_usbdev(dev->iface),
- 			     usb_sndctrlpipe(interface_to_usbdev(dev->iface),
-@@ -798,6 +805,7 @@ static struct gs_can *gs_make_candev(unsigned int channel,
- 	struct net_device *netdev;
- 	int rc;
- 	struct gs_device_bt_const *bt_const;
-+	u32 feature;
- 
- 	bt_const = kmalloc(sizeof(*bt_const), GFP_KERNEL);
- 	if (!bt_const)
-@@ -838,14 +846,14 @@ static struct gs_can *gs_make_candev(unsigned int channel,
- 
- 	/* dev settup */
- 	strcpy(dev->bt_const.name, "gs_usb");
--	dev->bt_const.tseg1_min = bt_const->tseg1_min;
--	dev->bt_const.tseg1_max = bt_const->tseg1_max;
--	dev->bt_const.tseg2_min = bt_const->tseg2_min;
--	dev->bt_const.tseg2_max = bt_const->tseg2_max;
--	dev->bt_const.sjw_max = bt_const->sjw_max;
--	dev->bt_const.brp_min = bt_const->brp_min;
--	dev->bt_const.brp_max = bt_const->brp_max;
--	dev->bt_const.brp_inc = bt_const->brp_inc;
-+	dev->bt_const.tseg1_min = le32_to_cpu(bt_const->tseg1_min);
-+	dev->bt_const.tseg1_max = le32_to_cpu(bt_const->tseg1_max);
-+	dev->bt_const.tseg2_min = le32_to_cpu(bt_const->tseg2_min);
-+	dev->bt_const.tseg2_max = le32_to_cpu(bt_const->tseg2_max);
-+	dev->bt_const.sjw_max = le32_to_cpu(bt_const->sjw_max);
-+	dev->bt_const.brp_min = le32_to_cpu(bt_const->brp_min);
-+	dev->bt_const.brp_max = le32_to_cpu(bt_const->brp_max);
-+	dev->bt_const.brp_inc = le32_to_cpu(bt_const->brp_inc);
- 
- 	dev->udev = interface_to_usbdev(intf);
- 	dev->iface = intf;
-@@ -862,28 +870,29 @@ static struct gs_can *gs_make_candev(unsigned int channel,
- 
- 	/* can settup */
- 	dev->can.state = CAN_STATE_STOPPED;
--	dev->can.clock.freq = bt_const->fclk_can;
-+	dev->can.clock.freq = le32_to_cpu(bt_const->fclk_can);
- 	dev->can.bittiming_const = &dev->bt_const;
- 	dev->can.do_set_bittiming = gs_usb_set_bittiming;
- 
- 	dev->can.ctrlmode_supported = 0;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_LISTEN_ONLY)
-+	feature = le32_to_cpu(bt_const->feature);
-+	if (feature & GS_CAN_FEATURE_LISTEN_ONLY)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_LISTENONLY;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_LOOP_BACK)
-+	if (feature & GS_CAN_FEATURE_LOOP_BACK)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_LOOPBACK;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_TRIPLE_SAMPLE)
-+	if (feature & GS_CAN_FEATURE_TRIPLE_SAMPLE)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_3_SAMPLES;
- 
--	if (bt_const->feature & GS_CAN_FEATURE_ONE_SHOT)
-+	if (feature & GS_CAN_FEATURE_ONE_SHOT)
- 		dev->can.ctrlmode_supported |= CAN_CTRLMODE_ONE_SHOT;
- 
- 	SET_NETDEV_DEV(netdev, &intf->dev);
- 
--	if (dconf->sw_version > 1)
--		if (bt_const->feature & GS_CAN_FEATURE_IDENTIFY)
-+	if (le32_to_cpu(dconf->sw_version) > 1)
-+		if (feature & GS_CAN_FEATURE_IDENTIFY)
- 			netdev->ethtool_ops = &gs_usb_ethtool_ops;
- 
- 	kfree(bt_const);
-@@ -918,7 +927,7 @@ static int gs_usb_probe(struct usb_interface *intf,
- 	if (!hconf)
- 		return -ENOMEM;
- 
--	hconf->byte_order = 0x0000beef;
-+	hconf->byte_order = cpu_to_le32(0x0000beef);
- 
- 	/* send host config */
- 	rc = usb_control_msg(interface_to_usbdev(intf),
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 3c3222e2dcfc..9aea4cf19d0c 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2433,16 +2433,9 @@ static int ena_device_init(struct ena_com_dev *ena_dev, struct pci_dev *pdev,
- 		goto err_mmio_read_less;
- 	}
- 
--	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(dma_width));
-+	rc = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(dma_width));
- 	if (rc) {
--		dev_err(dev, "pci_set_dma_mask failed 0x%x\n", rc);
--		goto err_mmio_read_less;
--	}
--
--	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(dma_width));
--	if (rc) {
--		dev_err(dev, "err_pci_set_consistent_dma_mask failed 0x%x\n",
--			rc);
-+		dev_err(dev, "dma_set_mask_and_coherent failed %d\n", rc);
- 		goto err_mmio_read_less;
- 	}
- 
-@@ -3183,6 +3176,12 @@ static int ena_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		return rc;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(ENA_MAX_PHYS_ADDR_SIZE_BITS));
-+	if (rc) {
-+		dev_err(&pdev->dev, "dma_set_mask_and_coherent failed %d\n", rc);
-+		goto err_disable_device;
-+	}
-+
- 	pci_set_master(pdev);
- 
- 	ena_dev = vzalloc(sizeof(*ena_dev));
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 01d28ede1fb2..db1a23b8d531 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8021,7 +8021,8 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
- 	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) != 0 &&
- 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
- 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
--		goto init_err_disable;
-+		rc = -EIO;
-+		goto init_err_release;
- 	}
- 
- 	pci_set_master(pdev);
-@@ -9120,6 +9121,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 				create_singlethread_workqueue("bnxt_pf_wq");
- 			if (!bnxt_pf_wq) {
- 				dev_err(&pdev->dev, "Unable to create workqueue.\n");
-+				rc = -ENOMEM;
- 				goto init_err_pci_clean;
- 			}
- 		}
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index a62c96001761..9160b44c68bb 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -626,7 +626,8 @@ int set_filter_wr(struct adapter *adapter, int fidx)
- 		 FW_FILTER_WR_OVLAN_VLD_V(f->fs.val.ovlan_vld) |
- 		 FW_FILTER_WR_IVLAN_VLDM_V(f->fs.mask.ivlan_vld) |
- 		 FW_FILTER_WR_OVLAN_VLDM_V(f->fs.mask.ovlan_vld));
--	fwr->smac_sel = f->smt->idx;
-+	if (f->fs.newsmac)
-+		fwr->smac_sel = f->smt->idx;
- 	fwr->rx_chan_rx_rpl_iq =
- 		htons(FW_FILTER_WR_RX_CHAN_V(0) |
- 		      FW_FILTER_WR_RX_RPL_IQ_V(adapter->sge.fw_evtq.abs_id));
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index d8115a9333e0..2938ac440fb3 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2560,6 +2560,9 @@ static int reset_sub_crq_queues(struct ibmvnic_adapter *adapter)
- {
- 	int i, rc;
- 
-+	if (!adapter->tx_scrq || !adapter->rx_scrq)
-+		return -EINVAL;
-+
- 	for (i = 0; i < adapter->req_tx_queues; i++) {
- 		netdev_dbg(adapter->netdev, "Re-setting tx_scrq[%d]\n", i);
- 		rc = reset_one_sub_crq_queue(adapter, adapter->tx_scrq[i]);
-@@ -4459,6 +4462,9 @@ static int ibmvnic_reset_crq(struct ibmvnic_adapter *adapter)
- 	} while (rc == H_BUSY || H_IS_LONG_BUSY(rc));
- 
- 	/* Clean out the queue */
-+	if (!crq->msgs)
-+		return -EINVAL;
-+
- 	memset(crq->msgs, 0, PAGE_SIZE);
- 	crq->cur = 0;
- 	crq->active = false;
-diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
-index 4da409e77a72..6c78529a8c89 100644
---- a/drivers/nfc/s3fwrn5/i2c.c
-+++ b/drivers/nfc/s3fwrn5/i2c.c
-@@ -37,8 +37,8 @@ struct s3fwrn5_i2c_phy {
- 	struct i2c_client *i2c_dev;
- 	struct nci_dev *ndev;
- 
--	unsigned int gpio_en;
--	unsigned int gpio_fw_wake;
-+	int gpio_en;
-+	int gpio_fw_wake;
- 
- 	struct mutex mutex;
- 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3c68a5b35ec1..a52b2f15f372 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -276,9 +276,21 @@ static void nvme_dbbuf_init(struct nvme_dev *dev,
- 	nvmeq->dbbuf_cq_ei = &dev->dbbuf_eis[cq_idx(qid, dev->db_stride)];
- }
- 
-+static void nvme_dbbuf_free(struct nvme_queue *nvmeq)
-+{
-+	if (!nvmeq->qid)
-+		return;
-+
-+	nvmeq->dbbuf_sq_db = NULL;
-+	nvmeq->dbbuf_cq_db = NULL;
-+	nvmeq->dbbuf_sq_ei = NULL;
-+	nvmeq->dbbuf_cq_ei = NULL;
-+}
-+
- static void nvme_dbbuf_set(struct nvme_dev *dev)
- {
- 	struct nvme_command c;
-+	unsigned int i;
- 
- 	if (!dev->dbbuf_dbs)
- 		return;
-@@ -292,6 +304,9 @@ static void nvme_dbbuf_set(struct nvme_dev *dev)
- 		dev_warn(dev->ctrl.device, "unable to set dbbuf\n");
- 		/* Free memory and continue on */
- 		nvme_dbbuf_dma_free(dev);
-+
-+		for (i = 1; i <= dev->online_queues; i++)
-+			nvme_dbbuf_free(&dev->queues[i]);
- 	}
- }
- 
-diff --git a/drivers/phy/tegra/xusb.c b/drivers/phy/tegra/xusb.c
-index de1b4ebe4de2..39c01ef57d83 100644
---- a/drivers/phy/tegra/xusb.c
-+++ b/drivers/phy/tegra/xusb.c
-@@ -899,6 +899,7 @@ static int tegra_xusb_padctl_probe(struct platform_device *pdev)
- reset:
- 	reset_control_assert(padctl->rst);
- remove:
-+	platform_set_drvdata(pdev, NULL);
- 	soc->ops->remove(padctl);
- 	return err;
- }
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 98bd8213b037..8cc01857bc5c 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -4251,6 +4251,7 @@ static void hotkey_resume(void)
- 		pr_err("error while attempting to reset the event firmware interface\n");
- 
- 	tpacpi_send_radiosw_update();
-+	tpacpi_input_send_tabletsw();
- 	hotkey_tablet_mode_notify_change();
- 	hotkey_wakeup_reason_notify_change();
- 	hotkey_wakeup_hotunplug_complete_notify_change();
-diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
-index e366977bda41..8c3e9bac4754 100644
---- a/drivers/platform/x86/toshiba_acpi.c
-+++ b/drivers/platform/x86/toshiba_acpi.c
-@@ -1497,7 +1497,7 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
- 	struct toshiba_acpi_dev *dev = PDE_DATA(file_inode(file));
- 	char *buffer;
- 	char *cmd;
--	int lcd_out, crt_out, tv_out;
-+	int lcd_out = -1, crt_out = -1, tv_out = -1;
- 	int remain = count;
- 	int value;
- 	int ret;
-@@ -1529,7 +1529,6 @@ static ssize_t video_proc_write(struct file *file, const char __user *buf,
- 
- 	kfree(cmd);
- 
--	lcd_out = crt_out = tv_out = -1;
- 	ret = get_video_status(dev, &video_out);
- 	if (!ret) {
- 		unsigned int new_video_out = video_out;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5f59e2dfc7db..d0aaef937b0f 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -470,12 +470,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- 
- 		}
- 	}
--	if (forced_cleanup && (atomic_read(&(q->bufs[bidx]->state)) ==
--					QETH_QDIO_BUF_HANDLED_DELAYED)) {
--		/* for recovery situations */
--		qeth_init_qdio_out_buf(q, bidx);
--		QETH_CARD_TEXT(q->card, 2, "clprecov");
--	}
- }
- 
- 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 7a05c7271766..1c69515e870c 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -571,8 +571,8 @@ static void iscsi_complete_task(struct iscsi_task *task, int state)
- 	if (conn->task == task)
- 		conn->task = NULL;
- 
--	if (conn->ping_task == task)
--		conn->ping_task = NULL;
-+	if (READ_ONCE(conn->ping_task) == task)
-+		WRITE_ONCE(conn->ping_task, NULL);
- 
- 	/* release get from queueing */
- 	__iscsi_put_task(task);
-@@ -781,6 +781,9 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
- 						   task->conn->session->age);
- 	}
- 
-+	if (unlikely(READ_ONCE(conn->ping_task) == INVALID_SCSI_TASK))
-+		WRITE_ONCE(conn->ping_task, task);
-+
- 	if (!ihost->workq) {
- 		if (iscsi_prep_mgmt_task(conn, task))
- 			goto free_task;
-@@ -988,8 +991,11 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
-         struct iscsi_nopout hdr;
- 	struct iscsi_task *task;
- 
--	if (!rhdr && conn->ping_task)
--		return -EINVAL;
-+	if (!rhdr) {
-+		if (READ_ONCE(conn->ping_task))
-+			return -EINVAL;
-+		WRITE_ONCE(conn->ping_task, INVALID_SCSI_TASK);
-+	}
- 
- 	memset(&hdr, 0, sizeof(struct iscsi_nopout));
- 	hdr.opcode = ISCSI_OP_NOOP_OUT | ISCSI_OP_IMMEDIATE;
-@@ -1004,11 +1010,12 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
- 
- 	task = __iscsi_conn_send_pdu(conn, (struct iscsi_hdr *)&hdr, NULL, 0);
- 	if (!task) {
-+		if (!rhdr)
-+			WRITE_ONCE(conn->ping_task, NULL);
- 		iscsi_conn_printk(KERN_ERR, conn, "Could not send nopout\n");
- 		return -EIO;
- 	} else if (!rhdr) {
- 		/* only track our nops */
--		conn->ping_task = task;
- 		conn->last_ping = jiffies;
- 	}
- 
-@@ -1021,7 +1028,7 @@ static int iscsi_nop_out_rsp(struct iscsi_task *task,
- 	struct iscsi_conn *conn = task->conn;
- 	int rc = 0;
- 
--	if (conn->ping_task != task) {
-+	if (READ_ONCE(conn->ping_task) != task) {
- 		/*
- 		 * If this is not in response to one of our
- 		 * nops then it must be from userspace.
-@@ -1961,7 +1968,7 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
-  */
- static int iscsi_has_ping_timed_out(struct iscsi_conn *conn)
- {
--	if (conn->ping_task &&
-+	if (READ_ONCE(conn->ping_task) &&
- 	    time_before_eq(conn->last_recv + (conn->recv_timeout * HZ) +
- 			   (conn->ping_timeout * HZ), jiffies))
- 		return 1;
-@@ -2096,7 +2103,7 @@ enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
- 	 * Checking the transport already or nop from a cmd timeout still
- 	 * running
- 	 */
--	if (conn->ping_task) {
-+	if (READ_ONCE(conn->ping_task)) {
- 		task->have_checked_conn = true;
- 		rc = BLK_EH_RESET_TIMER;
- 		goto done;
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a63119c35fde..7e4e6e982055 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -7926,11 +7926,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
- 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
- 		goto out;
- 
--	if (pm_runtime_suspended(hba->dev)) {
--		ret = ufshcd_runtime_resume(hba);
--		if (ret)
--			goto out;
--	}
-+	pm_runtime_get_sync(hba->dev);
- 
- 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
- out:
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index 2602b57936d4..58ccded1be85 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -492,8 +492,7 @@ EXPORT_SYMBOL(iscsit_queue_rsp);
- void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
- {
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
- 
-@@ -4054,12 +4053,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
- 
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
- 
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
-diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
-index a5afbe6dee68..7cb7efe62b01 100644
---- a/drivers/tee/optee/call.c
-+++ b/drivers/tee/optee/call.c
-@@ -538,7 +538,8 @@ void optee_free_pages_list(void *list, size_t num_entries)
- static bool is_normal_memory(pgprot_t p)
- {
- #if defined(CONFIG_ARM)
--	return (pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC;
-+	return (((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC) ||
-+		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK));
- #elif defined(CONFIG_ARM64)
- 	return (pgprot_val(p) & PTE_ATTRINDX_MASK) == PTE_ATTRINDX(MT_NORMAL);
- #else
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 00204824bffd..732e7f1687dd 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -463,11 +463,11 @@ static void snoop_urb(struct usb_device *udev,
- 
- 	if (userurb) {		/* Async */
- 		if (when == SUBMIT)
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"length %u\n",
- 					userurb, ep, t, d, length);
- 		else
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"actual_length %u status %d\n",
- 					userurb, ep, t, d, length,
- 					timeout_or_status);
-@@ -1927,7 +1927,7 @@ static int proc_reapurb(struct usb_dev_state *ps, void __user *arg)
- 	if (as) {
- 		int retval;
- 
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -1944,7 +1944,7 @@ static int proc_reapurbnonblock(struct usb_dev_state *ps, void __user *arg)
- 
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2070,7 +2070,7 @@ static int proc_reapurb_compat(struct usb_dev_state *ps, void __user *arg)
- 	if (as) {
- 		int retval;
- 
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 		return retval;
-@@ -2087,7 +2087,7 @@ static int proc_reapurbnonblock_compat(struct usb_dev_state *ps, void __user *ar
- 
- 	as = async_getcompleted(ps);
- 	if (as) {
--		snoop(&ps->dev->dev, "reap %pK\n", as->userurb);
-+		snoop(&ps->dev->dev, "reap %px\n", as->userurb);
- 		retval = processcompl_compat(as, (void __user * __user *)arg);
- 		free_async(as);
- 	} else {
-@@ -2512,7 +2512,7 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
- #endif
- 
- 	case USBDEVFS_DISCARDURB:
--		snoop(&dev->dev, "%s: DISCARDURB %pK\n", __func__, p);
-+		snoop(&dev->dev, "%s: DISCARDURB %px\n", __func__, p);
- 		ret = proc_unlinkurb(ps, p);
- 		break;
- 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 5ad14cdd9762..b55c3a699fc6 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -348,6 +348,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* Guillemot Webcam Hercules Dualpix Exchange*/
- 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-+	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
-+	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
-+			USB_QUIRK_ENDPOINT_BLACKLIST },
-+
- 	/* Midiman M-Audio Keystation 88es */
- 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-@@ -421,6 +425,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
- 
-+	/* Lenovo ThinkCenter A630Z TI024Gen3 usb-audio */
-+	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
-+			USB_QUIRK_DISCONNECT_SUSPEND },
-+
- 	/* BUILDWIN Photo Frame */
- 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
- 			USB_QUIRK_HONOR_BNUMINTERFACES },
-@@ -521,6 +529,8 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
-  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
-  */
- static const struct usb_device_id usb_endpoint_blacklist[] = {
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
- 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0208, 1), .driver_info = 0x85 },
- 	{ }
-diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
-index 46af0aa07e2e..b2b5b0689667 100644
---- a/drivers/usb/gadget/function/f_midi.c
-+++ b/drivers/usb/gadget/function/f_midi.c
-@@ -1315,7 +1315,7 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
- 	midi->id = kstrdup(opts->id, GFP_KERNEL);
- 	if (opts->id && !midi->id) {
- 		status = -ENOMEM;
--		goto setup_fail;
-+		goto midi_free;
- 	}
- 	midi->in_ports = opts->in_ports;
- 	midi->out_ports = opts->out_ports;
-@@ -1327,7 +1327,7 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
- 
- 	status = kfifo_alloc(&midi->in_req_fifo, midi->qlen, GFP_KERNEL);
- 	if (status)
--		goto setup_fail;
-+		goto midi_free;
- 
- 	spin_lock_init(&midi->transmit_lock);
- 
-@@ -1343,9 +1343,13 @@ static struct usb_function *f_midi_alloc(struct usb_function_instance *fi)
- 
- 	return &midi->func;
- 
-+midi_free:
-+	if (midi)
-+		kfree(midi->id);
-+	kfree(midi);
- setup_fail:
- 	mutex_unlock(&opts->lock);
--	kfree(midi);
-+
- 	return ERR_PTR(status);
- }
- 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 25d417ad9000..09ed5f02c24f 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -2039,6 +2039,9 @@ gadgetfs_fill_super (struct super_block *sb, void *opts, int silent)
- 	return 0;
- 
- Enomem:
-+	kfree(CHIP);
-+	CHIP = NULL;
-+
- 	return -ENOMEM;
- }
- 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index 403d8cd3e582..56e70f12c996 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 		goto err1;
- 	}
- 
--	fb_virt = ioremap(par->mem->start, screen_fb_size);
-+	/*
-+	 * Map the VRAM cacheable for performance. This is also required for
-+	 * VM Connect to display properly for ARM64 Linux VM, as the host also
-+	 * maps the VRAM cacheable.
-+	 */
-+	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
- 	if (!fb_virt)
- 		goto err2;
- 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index c8ed4db73b84..9936e4b991aa 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -488,13 +488,13 @@ int btrfs_read_qgroup_config(struct btrfs_fs_info *fs_info)
- 			break;
- 	}
- out:
-+	btrfs_free_path(path);
- 	fs_info->qgroup_flags |= flags;
- 	if (!(fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_ON))
- 		clear_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
- 	else if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN &&
- 		 ret >= 0)
- 		ret = qgroup_rescan_init(fs_info, rescan_progress, 0);
--	btrfs_free_path(path);
- 
- 	if (ret < 0) {
- 		ulist_free(fs_info->qgroup_ulist);
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 7e000d061813..95b6a4ea18f7 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -857,7 +857,13 @@ static noinline struct btrfs_device *device_list_add(const char *path,
- 			if (device->bdev != path_bdev) {
- 				bdput(path_bdev);
- 				mutex_unlock(&fs_devices->device_list_mutex);
--				btrfs_warn_in_rcu(device->fs_info,
-+				/*
-+				 * device->fs_info may not be reliable here, so
-+				 * pass in a NULL instead. This avoids a
-+				 * possible use-after-free when the fs_info and
-+				 * fs_info->sb are already torn down.
-+				 */
-+				btrfs_warn_in_rcu(NULL,
- 	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
- 						  path, devid, found_transid,
- 						  current->comm,
-diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
-index 8c6ab6c95727..7f40343b39b0 100644
---- a/fs/efivarfs/inode.c
-+++ b/fs/efivarfs/inode.c
-@@ -10,6 +10,7 @@
- #include <linux/efi.h>
- #include <linux/fs.h>
- #include <linux/ctype.h>
-+#include <linux/kmemleak.h>
- #include <linux/slab.h>
- #include <linux/uuid.h>
- 
-@@ -106,6 +107,7 @@ static int efivarfs_create(struct inode *dir, struct dentry *dentry,
- 	var->var.VariableName[i] = '\0';
- 
- 	inode->i_private = var;
-+	kmemleak_ignore(var);
- 
- 	err = efivar_entry_add(var, &efivarfs_list);
- 	if (err)
-diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 7808a26bd33f..834615f13f3e 100644
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,7 +23,6 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
--	kfree(inode->i_private);
- }
- 
- static const struct super_operations efivarfs_ops = {
-diff --git a/fs/proc/self.c b/fs/proc/self.c
-index cc6d4253399d..7922edf70ce1 100644
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -16,6 +16,13 @@ static const char *proc_self_get_link(struct dentry *dentry,
- 	pid_t tgid = task_tgid_nr_ns(current, ns);
- 	char *name;
- 
-+	/*
-+	 * Not currently supported. Once we can inherit all of struct pid,
-+	 * we can allow this.
-+	 */
-+	if (current->flags & PF_KTHREAD)
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if (!tgid)
- 		return ERR_PTR(-ENOENT);
- 	/* max length of unsigned int in decimal + NULL term */
-diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
-index 97ea41dc678f..e5f641cdab5a 100644
---- a/include/drm/drm_connector.h
-+++ b/include/drm/drm_connector.h
-@@ -81,6 +81,53 @@ enum drm_connector_status {
- 	connector_status_unknown = 3,
- };
- 
-+/**
-+ * enum drm_connector_registration_status - userspace registration status for
-+ * a &drm_connector
-+ *
-+ * This enum is used to track the status of initializing a connector and
-+ * registering it with userspace, so that DRM can prevent bogus modesets on
-+ * connectors that no longer exist.
-+ */
-+enum drm_connector_registration_state {
-+	/**
-+	 * @DRM_CONNECTOR_INITIALIZING: The connector has just been created,
-+	 * but has yet to be exposed to userspace. There should be no
-+	 * additional restrictions to how the state of this connector may be
-+	 * modified.
-+	 */
-+	DRM_CONNECTOR_INITIALIZING = 0,
-+
-+	/**
-+	 * @DRM_CONNECTOR_REGISTERED: The connector has been fully initialized
-+	 * and registered with sysfs, as such it has been exposed to
-+	 * userspace. There should be no additional restrictions to how the
-+	 * state of this connector may be modified.
-+	 */
-+	DRM_CONNECTOR_REGISTERED = 1,
-+
-+	/**
-+	 * @DRM_CONNECTOR_UNREGISTERED: The connector has either been exposed
-+	 * to userspace and has since been unregistered and removed from
-+	 * userspace, or the connector was unregistered before it had a chance
-+	 * to be exposed to userspace (e.g. still in the
-+	 * @DRM_CONNECTOR_INITIALIZING state). When a connector is
-+	 * unregistered, there are additional restrictions to how its state
-+	 * may be modified:
-+	 *
-+	 * - An unregistered connector may only have its DPMS changed from
-+	 *   On->Off. Once DPMS is changed to Off, it may not be switched back
-+	 *   to On.
-+	 * - Modesets are not allowed on unregistered connectors, unless they
-+	 *   would result in disabling its assigned CRTCs. This means
-+	 *   disabling a CRTC on an unregistered connector is OK, but enabling
-+	 *   one is not.
-+	 * - Removing a CRTC from an unregistered connector is OK, but new
-+	 *   CRTCs may never be assigned to an unregistered connector.
-+	 */
-+	DRM_CONNECTOR_UNREGISTERED = 2,
-+};
-+
- enum subpixel_order {
- 	SubPixelUnknown = 0,
- 	SubPixelHorizontalRGB,
-@@ -852,10 +899,12 @@ struct drm_connector {
- 	bool ycbcr_420_allowed;
- 
- 	/**
--	 * @registered: Is this connector exposed (registered) with userspace?
-+	 * @registration_state: Is this connector initializing, exposed
-+	 * (registered) with userspace, or unregistered?
-+	 *
- 	 * Protected by @mutex.
- 	 */
--	bool registered;
-+	enum drm_connector_registration_state registration_state;
- 
- 	/**
- 	 * @modes:
-@@ -1165,6 +1214,24 @@ static inline void drm_connector_unreference(struct drm_connector *connector)
- 	drm_connector_put(connector);
- }
- 
-+/**
-+ * drm_connector_is_unregistered - has the connector been unregistered from
-+ * userspace?
-+ * @connector: DRM connector
-+ *
-+ * Checks whether or not @connector has been unregistered from userspace.
-+ *
-+ * Returns:
-+ * True if the connector was unregistered, false if the connector is
-+ * registered or has not yet been registered with userspace.
-+ */
-+static inline bool
-+drm_connector_is_unregistered(struct drm_connector *connector)
-+{
-+	return READ_ONCE(connector->registration_state) ==
-+		DRM_CONNECTOR_UNREGISTERED;
-+}
-+
- const char *drm_get_connector_status_name(enum drm_connector_status status);
- const char *drm_get_subpixel_order_name(enum subpixel_order order);
- const char *drm_get_dpms_name(int val);
-diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
-index 72cb19c3db6a..9460a5635c90 100644
---- a/include/linux/netfilter.h
-+++ b/include/linux/netfilter.h
-@@ -300,7 +300,7 @@ NF_HOOK_LIST(uint8_t pf, unsigned int hook, struct net *net, struct sock *sk,
- 
- 	INIT_LIST_HEAD(&sublist);
- 	list_for_each_entry_safe(skb, next, head, list) {
--		list_del(&skb->list);
-+		skb_list_del_init(skb);
- 		if (nf_hook(pf, hook, net, sk, skb, in, out, okfn) == 1)
- 			list_add_tail(&skb->list, &sublist);
- 	}
-diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index c9bd935f4fd1..1ee0f30ae190 100644
---- a/include/scsi/libiscsi.h
-+++ b/include/scsi/libiscsi.h
-@@ -145,6 +145,9 @@ struct iscsi_task {
- 	void			*dd_data;	/* driver/transport data */
- };
- 
-+/* invalid scsi_task pointer */
-+#define	INVALID_SCSI_TASK	(struct iscsi_task *)-1l
-+
- static inline int iscsi_task_has_unsol_data(struct iscsi_task *task)
- {
- 	return task->unsol_r2t.data_length > task->unsol_r2t.sent;
-diff --git a/include/uapi/linux/wireless.h b/include/uapi/linux/wireless.h
-index a2c006a364e0..24f3371ad826 100644
---- a/include/uapi/linux/wireless.h
-+++ b/include/uapi/linux/wireless.h
-@@ -74,7 +74,11 @@
- #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
- #include <linux/if.h>			/* for IFNAMSIZ and co... */
- 
--#include <stddef.h>                     /* for offsetof */
-+#ifdef __KERNEL__
-+#	include <linux/stddef.h>	/* for offsetof */
-+#else
-+#	include <stddef.h>		/* for offsetof */
-+#endif
- 
- /***************************** VERSION *****************************/
- /*
-diff --git a/net/batman-adv/log.c b/net/batman-adv/log.c
-index 853773e45f79..837f67c9fad3 100644
---- a/net/batman-adv/log.c
-+++ b/net/batman-adv/log.c
-@@ -205,6 +205,7 @@ static const struct file_operations batadv_log_fops = {
- 	.read           = batadv_log_read,
- 	.poll           = batadv_log_poll,
- 	.llseek         = no_llseek,
-+	.owner          = THIS_MODULE,
- };
- 
- /**
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 708efb9b4387..f86b9b0a0607 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1955,20 +1955,23 @@ static int hdmi_pcm_close(struct hda_pcm_stream *hinfo,
- 	int pinctl;
- 	int err = 0;
- 
-+	mutex_lock(&spec->pcm_lock);
- 	if (hinfo->nid) {
- 		pcm_idx = hinfo_to_pcm_index(codec, hinfo);
--		if (snd_BUG_ON(pcm_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(pcm_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		cvt_idx = cvt_nid_to_cvt_index(codec, hinfo->nid);
--		if (snd_BUG_ON(cvt_idx < 0))
--			return -EINVAL;
-+		if (snd_BUG_ON(cvt_idx < 0)) {
-+			err = -EINVAL;
-+			goto unlock;
-+		}
- 		per_cvt = get_cvt(spec, cvt_idx);
--
- 		snd_BUG_ON(!per_cvt->assigned);
- 		per_cvt->assigned = 0;
- 		hinfo->nid = 0;
- 
--		mutex_lock(&spec->pcm_lock);
- 		snd_hda_spdif_ctls_unassign(codec, pcm_idx);
- 		clear_bit(pcm_idx, &spec->pcm_in_use);
- 		pin_idx = hinfo_to_pin_index(codec, hinfo);
-@@ -1996,10 +1999,11 @@ static int hdmi_pcm_close(struct hda_pcm_stream *hinfo,
- 		per_pin->setup = false;
- 		per_pin->channels = 0;
- 		mutex_unlock(&per_pin->lock);
--	unlock:
--		mutex_unlock(&spec->pcm_lock);
- 	}
- 
-+unlock:
-+	mutex_unlock(&spec->pcm_lock);
-+
- 	return err;
- }
- 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 29e75c051d04..230e94bf7775 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -332,6 +332,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- {
- 	Dwarf_Addr base, end;
-+	Dwarf_Attribute attr;
- 
- 	if (!addr)
- 		return -EINVAL;
-@@ -339,6 +340,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- 	if (dwarf_entrypc(dw_die, addr) == 0)
- 		return 0;
- 
-+	/*
-+	 *  Since the dwarf_ranges() will return 0 if there is no
-+	 * DW_AT_ranges attribute, we should check it first.
-+	 */
-+	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
-+		return -ENOENT;
-+
- 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
- }
- 
-diff --git a/tools/perf/util/event.c b/tools/perf/util/event.c
-index aa9c7df120ca..9c22729e2ad6 100644
---- a/tools/perf/util/event.c
-+++ b/tools/perf/util/event.c
-@@ -912,11 +912,13 @@ static int __perf_event__synthesize_kernel_mmap(struct perf_tool *tool,
- 	int err;
- 	union perf_event *event;
- 
--	if (symbol_conf.kptr_restrict)
--		return -1;
- 	if (map == NULL)
- 		return -1;
- 
-+	kmap = map__kmap(map);
-+	if (!kmap->ref_reloc_sym)
-+		return -1;
-+
- 	/*
- 	 * We should get this from /sys/kernel/sections/.text, but till that is
- 	 * available use this, and after it is use this as a fallback for older
-@@ -939,7 +941,6 @@ static int __perf_event__synthesize_kernel_mmap(struct perf_tool *tool,
- 		event->header.misc = PERF_RECORD_MISC_GUEST_KERNEL;
- 	}
- 
--	kmap = map__kmap(map);
- 	size = snprintf(event->mmap.filename, sizeof(event->mmap.filename),
- 			"%s%s", machine->mmap_name, kmap->ref_reloc_sym->name) + 1;
- 	size = PERF_ALIGN(size, sizeof(u64));
-diff --git a/virt/kvm/arm/vgic/vgic-mmio-v3.c b/virt/kvm/arm/vgic/vgic-mmio-v3.c
-index a2a175b08b17..cbb38a0d1b25 100644
---- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
-+++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
-@@ -226,6 +226,23 @@ static unsigned long vgic_mmio_read_v3r_typer(struct kvm_vcpu *vcpu,
- 	return extract_bytes(value, addr & 7, len);
- }
- 
-+static unsigned long vgic_uaccess_read_v3r_typer(struct kvm_vcpu *vcpu,
-+						 gpa_t addr, unsigned int len)
-+{
-+	unsigned long mpidr = kvm_vcpu_get_mpidr_aff(vcpu);
-+	int target_vcpu_id = vcpu->vcpu_id;
-+	u64 value;
-+
-+	value = (u64)(mpidr & GENMASK(23, 0)) << 32;
-+	value |= ((target_vcpu_id & 0xffff) << 8);
-+
-+	if (vgic_has_its(vcpu->kvm))
-+		value |= GICR_TYPER_PLPIS;
-+
-+	/* reporting of the Last bit is not supported for userspace */
-+	return extract_bytes(value, addr & 7, len);
-+}
-+
- static unsigned long vgic_mmio_read_v3r_iidr(struct kvm_vcpu *vcpu,
- 					     gpa_t addr, unsigned int len)
- {
-@@ -532,8 +549,9 @@ static const struct vgic_register_region vgic_v3_rdbase_registers[] = {
- 	REGISTER_DESC_WITH_LENGTH(GICR_IIDR,
- 		vgic_mmio_read_v3r_iidr, vgic_mmio_write_wi, 4,
- 		VGIC_ACCESS_32bit),
--	REGISTER_DESC_WITH_LENGTH(GICR_TYPER,
--		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi, 8,
-+	REGISTER_DESC_WITH_LENGTH_UACCESS(GICR_TYPER,
-+		vgic_mmio_read_v3r_typer, vgic_mmio_write_wi,
-+		vgic_uaccess_read_v3r_typer, vgic_mmio_uaccess_write_wi, 8,
- 		VGIC_ACCESS_64bit | VGIC_ACCESS_32bit),
- 	REGISTER_DESC_WITH_LENGTH(GICR_WAKER,
- 		vgic_mmio_read_raz, vgic_mmio_write_wi, 4,
+stable-rc/linux-5.4.y build: 200 builds: 0 failed, 200 passed, 109 warnings=
+ (v5.4.81)
+
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.81/
+
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.81
+Git Commit: 42af416d71462a72b02ba6ac632c8dcb9ce729a0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
+
+Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 1 warning
+    axs103_defconfig (gcc-8): 2 warnings
+    axs103_smp_defconfig (gcc-8): 2 warnings
+    haps_hs_defconfig (gcc-8): 2 warnings
+    haps_hs_smp_defconfig (gcc-8): 2 warnings
+    hsdk_defconfig (gcc-8): 2 warnings
+    nsim_hs_defconfig (gcc-8): 2 warnings
+    nsim_hs_smp_defconfig (gcc-8): 2 warnings
+    nsimosci_hs_defconfig (gcc-8): 2 warnings
+    nsimosci_hs_smp_defconfig (gcc-8): 2 warnings
+    tinyconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
+
+arm64:
+    defconfig (gcc-8): 14 warnings
+
+arm:
+    am200epdkit_defconfig (gcc-8): 1 warning
+    assabet_defconfig (gcc-8): 1 warning
+    at91_dt_defconfig (gcc-8): 1 warning
+    axm55xx_defconfig (gcc-8): 1 warning
+    cm_x2xx_defconfig (gcc-8): 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    cns3420vb_defconfig (gcc-8): 1 warning
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    collie_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    dove_defconfig (gcc-8): 1 warning
+    em_x270_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    exynos_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 1 warning
+    h3600_defconfig (gcc-8): 1 warning
+    h5000_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v4_v5_defconfig (gcc-8): 1 warning
+    imx_v6_v7_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    ixp4xx_defconfig (gcc-8): 1 warning
+    keystone_defconfig (gcc-8): 1 warning
+    lpc32xx_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    milbeaut_m10v_defconfig (gcc-8): 1 warning
+    mini2440_defconfig (gcc-8): 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
+    mv78xx0_defconfig (gcc-8): 1 warning
+    mvebu_v5_defconfig (gcc-8): 1 warning
+    mvebu_v7_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 1 warning
+    omap2plus_defconfig (gcc-8): 1 warning
+    orion5x_defconfig (gcc-8): 1 warning
+    oxnas_v6_defconfig (gcc-8): 1 warning
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    qcom_defconfig (gcc-8): 1 warning
+    realview_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    spear13xx_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 warning
+    u300_defconfig (gcc-8): 1 warning
+    u8500_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
+
+i386:
+
+mips:
+
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+
+
+Warnings summary:
+
+    61   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    24   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    2    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_=
+format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address=
+-cells =3D=3D 2, #size-cells =3D=3D 2)
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    2    ./arch/arm64/include/asm/memory.h:239:15: warning: cast from point=
+er to integer of different size [-Wpointer-to-int-cast]
+    1    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_form=
+at): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cel=
+ls =3D=3D 2, #size-cells =3D=3D 2)
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
+ce_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
+reg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
+e_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
+eg): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
+_bus_num): Failed prerequisite 'reg_format'
+    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
+g): Failed prerequisite 'reg_format'
+    1    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+Section mismatches summary:
+
+    1    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 section m=
+ismatches
+
+Warnings:
+    ./arch/arm64/include/asm/memory.h:239:15: warning: cast from pointer to=
+ integer of different size [-Wpointer-to-int-cast]
+    ./arch/arm64/include/asm/memory.h:239:15: warning: cast from pointer to=
+ integer of different size [-Wpointer-to-int-cast]
+    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
+t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
+s =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device_bus_=
+num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg): F=
+ailed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
+t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
+s =3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_device_bus=
+_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg): =
+Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_format): =
+/gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cells =
+=3D=3D 2, #size-cells =3D=3D 2)
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_device_bu=
+s_num): Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_reg):=
+ Failed prerequisite 'reg_format'
+    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
+ Failed prerequisite 'reg_format'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
