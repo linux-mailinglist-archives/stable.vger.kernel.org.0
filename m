@@ -2,133 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F7C2CC6E6
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 20:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 842D92CC6ED
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 20:48:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387803AbgLBToO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 14:44:14 -0500
-Received: from mail.efficios.com ([167.114.26.124]:35830 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387728AbgLBToN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 14:44:13 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 85A1B2958A0;
-        Wed,  2 Dec 2020 14:43:32 -0500 (EST)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id LMQl0FbQ0MwZ; Wed,  2 Dec 2020 14:43:32 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 320CF29598B;
-        Wed,  2 Dec 2020 14:43:32 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 320CF29598B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1606938212;
-        bh=ogheDfKtXNTDNHhK32MxcfwuxxfxJsU42z+GpqPElTc=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=RBHXCKKMEgXXw1xvhiAdyiNdsqDmyn0AUgnT/2Ex8LyYKGY78L+HkHaenafTrWeSy
-         myKVZe6L97RLDwSjPu7nYE+goo4eiZZaYh1nRLey5BPFp8WeQhXZJQ74MzjtavoR94
-         fMkqHM9Qp6s/daxiWuU99NOBgM9QzhPJZga7TS0J3gY1sgr6/4fZHPrrO298d0CYhW
-         tP9AwingvjbhbPOYwWBMhAsOiDImiLEmW7b2+Xec7KpFfuQu+3trtcJtMDJoTq+6JM
-         /L3oVadZwUZbvaPTq0YCxitafsgSShTRqInkxGLrJoWMqguarkTVKlluUe5Em3LTav
-         IWgPEsotKkiQQ==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id rEmeOrRFCK1m; Wed,  2 Dec 2020 14:43:32 -0500 (EST)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
-        by mail.efficios.com (Postfix) with ESMTP id 27CDE2956F7;
-        Wed,  2 Dec 2020 14:43:32 -0500 (EST)
-Date:   Wed, 2 Dec 2020 14:43:32 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     x86 <x86@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Anton Blanchard <anton@ozlabs.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <1515215436.71.1606938212130.JavaMail.zimbra@efficios.com>
-In-Reply-To: <6d4c8ff7300c72fd4d44ee5755bd149359f2661a.1606923183.git.luto@kernel.org>
-References: <cover.1606923183.git.luto@kernel.org> <6d4c8ff7300c72fd4d44ee5755bd149359f2661a.1606923183.git.luto@kernel.org>
-Subject: Re: [PATCH v2 3/4] membarrier: Explicitly sync remote cores when
- SYNC_CORE is requested
+        id S1726996AbgLBTqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 14:46:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:32011 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726704AbgLBTqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 14:46:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606938320;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lA0ydaBg0956OpL7A6r+mr0eo7Xz85q4haUdiWa+cHg=;
+        b=YcyBDH5ELuvzdGn3jxCTt1mvjq57/PwNM/Sspc+rD/Y+jmldGZYTBd2qCAeFTptuLo1WWG
+        MpC3Rb0UVKvJMidqLzBy/i3pCt9r+5IqC0i0JAz30XeijqYYDSpCh5JaTGfqsc1FooLR2L
+        4aruJvBvUDLFZv6Q7CXXTS+vtL+t3mg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-371-OuaJIIsTOvuD2TZnLwENFA-1; Wed, 02 Dec 2020 14:45:18 -0500
+X-MC-Unique: OuaJIIsTOvuD2TZnLwENFA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 778D1805C09;
+        Wed,  2 Dec 2020 19:45:17 +0000 (UTC)
+Received: from dhcp40-158.desklab.eng.bos.redhat.com (unknown [10.19.40.182])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8D2AE1002391;
+        Wed,  2 Dec 2020 19:45:13 +0000 (UTC)
+Received: from dhcp40-158.desklab.eng.bos.redhat.com (localhost [127.0.0.1])
+        by dhcp40-158.desklab.eng.bos.redhat.com (8.15.2/8.14.8) with ESMTP id 0B2JjCae103279;
+        Wed, 2 Dec 2020 14:45:12 -0500
+Received: (from tcamuso@localhost)
+        by dhcp40-158.desklab.eng.bos.redhat.com (8.15.2/8.15.2/Submit) id 0B2Jj7Dr103278;
+        Wed, 2 Dec 2020 14:45:07 -0500
+X-Authentication-Warning: dhcp40-158.desklab.eng.bos.redhat.com: tcamuso set sender to tcamuso@redhat.com using -f
+Date:   Wed, 2 Dec 2020 14:45:07 -0500
+From:   Tony Camuso <tcamuso@redhat.com>
+To:     Donghai Qiao <dqiao@redhat.com>
+Cc:     rhkernel-list@redhat.com, Len Brown <len.brown@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [RHEL8.4 BZ1844297 CVE-2020-8694 v5] powercap: restrict energy
+ meter to root access
+Message-ID: <20201202194507.GH6736@dhcp40-158.desklab.eng.bos.redhat.com>
+References: <20201110210336.14326-1-dqiao@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_3980 (ZimbraWebClient - FF83 (Linux)/8.8.15_GA_3975)
-Thread-Topic: membarrier: Explicitly sync remote cores when SYNC_CORE is requested
-Thread-Index: e/tbmxOQ2nZ95dGLmHykVXHQTDm2nQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201110210336.14326-1-dqiao@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Dec 2, 2020, at 10:35 AM, Andy Lutomirski luto@kernel.org wrote:
-
-> membarrier() does not explicitly sync_core() remote CPUs; instead, it
-> relies on the assumption that an IPI will result in a core sync.  On
-> x86, I think this may be true in practice, but it's not architecturally
-> reliable.  In particular, the SDM and APM do not appear to guarantee
-> that interrupt delivery is serializing.  While IRET does serialize, IPI
-> return can schedule, thereby switching to another task in the same mm
-> that was sleeping in a syscall.  The new task could then SYSRET back to
-> usermode without ever executing IRET.
+On Tue, Nov 10, 2020 at 04:03:36PM -0500, Donghai Qiao wrote:
+> Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1844297
+> Upstream status: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=949dd0104c496fa7c14991a23c03c62e44637e71
+> Build info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=32573686
+> CVE: CVE-2020-8694
 > 
-> Make this more robust by explicitly calling sync_core_before_usermode()
-> on remote cores.  (This also helps people who search the kernel tree for
-> instances of sync_core() and sync_core_before_usermode() -- one might be
-> surprised that the core membarrier code doesn't currently show up in a
-> such a search.)
+> author	Len Brown <len.brown@intel.com>	2020-11-10 13:00:00 -0800
+> committer	Len Brown <len.brown@intel.com>	2020-11-10 11:40:57 -0500
+> commit	949dd0104c496fa7c14991a23c03c62e44637e71 (patch)
+> tree	a90cbfb8ceb195e7160105a272122f97bab99980
+> parent	3d7772ea5602b88c7c7f0a50d512171a2eed6659 (diff)
+> download	linux-949dd0104c496fa7c14991a23c03c62e44637e71.tar.gz
+> powercap: restrict energy meter to root access
+> Remove non-privileged user access to power data contained in
+> /sys/class/powercap/intel-rapl*/*/energy_uj
 > 
+> Non-privileged users currently have read access to power data and can
+> use this data to form a security attack. Some privileged
+> drivers/applications need read access to this data, but don't expose it
+> to non-privileged users.
+> 
+> For example, thermald uses this data to ensure that power management
+> works correctly. Thus removing non-privileged access is preferred over
+> completely disabling this power reporting capability with
+> CONFIG_INTEL_RAPL=n.
+> 
+> Fixes: 95677a9a3847 ("PowerCap: Fix mode for energy counter")
+> 
+> Signed-off-by: Len Brown <len.brown@intel.com>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-
+> 
+> Signed-off-by: Donghai Qiao <dqiao@redhat.com>
 > ---
-> kernel/sched/membarrier.c | 18 ++++++++++++++++++
-> 1 file changed, 18 insertions(+)
+>  drivers/powercap/powercap_sys.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
-> index 6251d3d12abe..01538b31f27e 100644
-> --- a/kernel/sched/membarrier.c
-> +++ b/kernel/sched/membarrier.c
-> @@ -166,6 +166,23 @@ static void ipi_mb(void *info)
-> 	smp_mb();	/* IPIs should be serializing but paranoid. */
-> }
+> diff --git a/drivers/powercap/powercap_sys.c b/drivers/powercap/powercap_sys.c
+> index e85639f004cc..e2150c00b842 100644
+> --- a/drivers/powercap/powercap_sys.c
+> +++ b/drivers/powercap/powercap_sys.c
+> @@ -379,9 +379,9 @@ static void create_power_zone_common_attributes(
+>  					&dev_attr_max_energy_range_uj.attr;
+>  	if (power_zone->ops->get_energy_uj) {
+>  		if (power_zone->ops->reset_energy_uj)
+> -			dev_attr_energy_uj.attr.mode = S_IWUSR | S_IRUGO;
+> +			dev_attr_energy_uj.attr.mode = S_IWUSR | S_IRUSR;
+>  		else
+> -			dev_attr_energy_uj.attr.mode = S_IRUGO;
+> +			dev_attr_energy_uj.attr.mode = S_IRUSR;
+>  		power_zone->zone_dev_attrs[count++] =
+>  					&dev_attr_energy_uj.attr;
+>  	}
+> -- 
+> 2.18.1
 > 
-> +static void ipi_sync_core(void *info)
-> +{
-> +	/*
-> +	 * The smp_mb() in membarrier after all the IPIs is supposed to
-> +	 * ensure that memory on remote CPUs that occur before the IPI
-> +	 * become visible to membarrier()'s caller -- see scenario B in
-> +	 * the big comment at the top of this file.
-> +	 *
-> +	 * A sync_core() would provide this guarantee, but
-> +	 * sync_core_before_usermode() might end up being deferred until
-> +	 * after membarrier()'s smp_mb().
-> +	 */
-> +	smp_mb();	/* IPIs should be serializing but paranoid. */
-> +
-> +	sync_core_before_usermode();
-> +}
-> +
-> static void ipi_rseq(void *info)
-> {
-> 	/*
-> @@ -301,6 +318,7 @@ static int membarrier_private_expedited(int flags, int
-> cpu_id)
-> 		if (!(atomic_read(&mm->membarrier_state) &
-> 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY))
-> 			return -EPERM;
-> +		ipi_func = ipi_sync_core;
-> 	} else if (flags == MEMBARRIER_FLAG_RSEQ) {
-> 		if (!IS_ENABLED(CONFIG_RSEQ))
-> 			return -EINVAL;
-> --
-> 2.28.0
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+Acked-by: Tony Camuso <tcamuso@redhat.com>
+
