@@ -2,221 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD252CB4E8
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 07:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E372CB58C
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 08:12:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbgLBGSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 01:18:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725902AbgLBGSt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 01:18:49 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A31C0613CF
-        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 22:18:08 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id v22so1739542edt.9
-        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 22:18:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=s6hbxRJQzk5VDsUXqjqzyxcRudTmI7qavNHvO3TBENc=;
-        b=yYKSkXL5bv0GUxuUzoMfAgQiWAW4YK183fiV3+8jB+MBujLb1hHMP7oh9HbnWepSQ0
-         xl1qHgE05MsAOl1EQW7fmgY95nowZqH3SOKGy4bJ2qDgZBardsBINgL+W95RQMeMPwN6
-         8ATg9j5UxvUzT7vgzEvapF1jmVh+eD1gx3yc9qKpzS2mHpEpcQPBoheLaXUuGLsRF7fk
-         iUtfDMVrp40M12vF+0QR6e4p36jQ0LrQxctu+Ux14CblIUy8OxFsepTkOsk0MK3EPNdV
-         FMCA6oSTJvbyS3wtkZoHku+P4eN4C39Caq6ZL6aiDNgpMWYvBhjDf+qbfgUG2vsu7gTA
-         Fj3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=s6hbxRJQzk5VDsUXqjqzyxcRudTmI7qavNHvO3TBENc=;
-        b=oPukApznQfhAlk9GAXrmo4uM6g8Wah/7oAtio5Zo4DNfIzgT1mnwSbaHrNcriiUng1
-         vB0WK4dxJFHioDI32CcZmpGSj2sGzvRPgkDWMznE91dbOzc7fmRe+fZ4N1Rh4vcsY9b6
-         tXe/74DI9PyeKhb56QGMnF6BmFhuKLISSvT9VPcPjlBUZ1tEZJWJQcChiBvMRU4ILi5S
-         4fFhHUi+jbu1tW7WHHMoILKgRUeegJWzHP3Jc2+Qhf8StBxA7vqGvs807Ln70Jvqyjyt
-         aip3INeYmDp15hxBN+B6Vg5czGtc9iBNjFfE9PUh62PHt1UIlBC1Vhhbf+g2aBrdpGH5
-         XzJw==
-X-Gm-Message-State: AOAM532bNQNcCltAjiWrH2FUzKml736UQTQ9l/vver8xCMZJZS09IvJ9
-        MN3fLCss5LRXk3RLVJrq5F1o8t66uxpKCLMeQOVKvw==
-X-Google-Smtp-Source: ABdhPJz5hgJbTWxUrUFXZzkajs7b0tUqWkyr3x6VV6g86DH8tOoSdADGa6lYBowzl2sMk7u5w4V+Agy1GMu0/hAk4KA=
-X-Received: by 2002:a05:6402:3074:: with SMTP id bs20mr1102676edb.365.1606889887010;
- Tue, 01 Dec 2020 22:18:07 -0800 (PST)
+        id S1726716AbgLBHMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 02:12:00 -0500
+Received: from mail-eopbgr00105.outbound.protection.outlook.com ([40.107.0.105]:36930
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725912AbgLBHMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Dec 2020 02:12:00 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cZKWx6zvCNY4ly2RtbAyw//wRfxHHoNRknxMULiJeEuirieNjgBAK62aOf69KYN58NrUe5OLLc8u1V9NnGl7QEfvidPZYw7EtmbTjWBA45pOzDpcg5l3aDbgwgP0QlQp31NYPdbbrOyCCvkSX2Ppuf3wkvVa/VQ7MTgOUh1ULa8m3s8wIILfcbQpWOoL85V0MNbnghMIhY2fGU2CmGrGfd2QLEma45NnCvcf5lRMxw+Iae6unh0lsOUPamXr1Qr+KtrzXEWV+ucwTv1XGNMFCjljod9XaDvjOpphSwrsznJXLHElPKmXmuWnZZumxAoDxn6laNp3NsvUOvJfDuoiig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h9Ff4uluzavrBanx+ZMKSgz0DRRyVzNpX56BZOKaD1E=;
+ b=l1/NSZtV4LkxAspRuLmpO760PtTkGP6Htsrn54tn+BmqB7zRmrmeXhtnW7iSa7uAnwtnpwclOQ/m9mL/MYhhBeLvpiPjuyBVKAo0hXfGeE3v+/LWG6J5ayModmkvvZNFE001Pce8VnEPoEGg8a8WscC83PnxCT74jNygcoz/SykEcz5r39396MTVotPWz4hMqJFEsNVvmmbJxzEBw3k0UyLFtcwYBkG9gJDQVqp4yf4eMPIt+OV6LO1/DKOu8bs1XcUkKPV6L1eLueq4dgAfGyxZ9qvinHiFt3ey8zUjNCn0PGpsiVUx7UMfxgPFRsC5svQOvkTt1/TcoY5mbfdHow==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=leica-geosystems.com; dmarc=pass action=none
+ header.from=leica-geosystems.com; dkim=pass header.d=leica-geosystems.com;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=leica-geosystems.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h9Ff4uluzavrBanx+ZMKSgz0DRRyVzNpX56BZOKaD1E=;
+ b=GNWHt+EUq2ffW3UfUbHsyRBjVYzlVCg2tLuvTARSdf5Rp7R3nEERU9nZtcaHJk0LjHWYmALTFRG/WNekQGzjR8rLVWrg05/8V3119oF9dfOMEM4ClOxxJXJZ03jDN0XoCpiDsweEwF8sB0o4gJvKOUDwWRY9YJsjFPZk7aJwtHc=
+Authentication-Results: linaro.org; dkim=none (message not signed)
+ header.d=none;linaro.org; dmarc=none action=none
+ header.from=leica-geosystems.com;
+Received: from DB6PR0602MB2886.eurprd06.prod.outlook.com (2603:10a6:4:9b::11)
+ by DB8PR06MB6234.eurprd06.prod.outlook.com (2603:10a6:10:10f::25) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3611.25; Wed, 2 Dec
+ 2020 07:11:11 +0000
+Received: from DB6PR0602MB2886.eurprd06.prod.outlook.com
+ ([fe80::49c3:4b5b:289c:d62c]) by DB6PR0602MB2886.eurprd06.prod.outlook.com
+ ([fe80::49c3:4b5b:289c:d62c%12]) with mapi id 15.20.3611.025; Wed, 2 Dec 2020
+ 07:11:11 +0000
+From:   Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+To:     jens.wiklander@linaro.org, op-tee@lists.trustedfirmware.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] optee: extend normal memory check to also write-through
+Date:   Wed,  2 Dec 2020 07:10:57 +0000
+Message-Id: <20201202071057.4877-1-andrey.zhizhikin@leica-geosystems.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-Originating-IP: [193.8.40.112]
+X-ClientProxiedBy: ZR0P278CA0037.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:1d::6) To DB6PR0602MB2886.eurprd06.prod.outlook.com
+ (2603:10a6:4:9b::11)
 MIME-Version: 1.0
-References: <20201201084637.754785180@linuxfoundation.org>
-In-Reply-To: <20201201084637.754785180@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 2 Dec 2020 11:47:55 +0530
-Message-ID: <CA+G9fYum_Lbsvj545_hpBtpeDOPcgYKUPuFdpP6WVRPYbBUFEw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/24] 4.4.247-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from aherlnxbspsrv01.lgs-net.com (193.8.40.112) by ZR0P278CA0037.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:1d::6) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3632.17 via Frontend Transport; Wed, 2 Dec 2020 07:11:10 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 85f97660-a0c5-4266-b312-08d8969172af
+X-MS-TrafficTypeDiagnostic: DB8PR06MB6234:
+X-Microsoft-Antispam-PRVS: <DB8PR06MB62340FAAB36A00EC19F18B01A6F30@DB8PR06MB6234.eurprd06.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: xkhkH2KDes4EMcI1W17BrskGOdZczqCOg/xvDKibJSE/LHSW3ds/DeSNlHK3tL7xsWawdeVy+6HhGq4S1yHsKLPJSDnlTXWYs8oDj/XoBaNxj533tRPa3ujaFPZMb4wqYShDlxGCMG3+MFUU7r29XmNte8faM8iQV21qsgUHEevaBIl3KGoWjJHaltHEWKymt+/TsHa1Ajil6NEi/WNn+Y9ra6kMEFFbOXh+y783pMiAAMtNb5qSKRjdH7X5vN8usQwPuc3fPOI5LvoMASyY+Fw0cFUle+0tI0+7zY0HlM4lLu8BLeaHKqoVlS0h9rylUh5hHqqEDxw9NutiTLXzTiyV6yFC1jy9mtezO7UzCs65ld5oUcwhL6h3cxCeK8J+hLYIQp//mSnQQ4A94AcYfQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB6PR0602MB2886.eurprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(376002)(136003)(346002)(366004)(6506007)(2906002)(1076003)(186003)(2616005)(8936002)(966005)(956004)(5660300002)(6666004)(26005)(86362001)(52116002)(6512007)(83380400001)(478600001)(16526019)(66556008)(8676002)(6486002)(66946007)(66476007)(36756003)(316002)(44832011)(4326008);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?HToZMWI259zZRvtyiplWqupQxx65XF/TJF4EjiAyl/uoU8ZmbT2sC6LCVNEX?=
+ =?us-ascii?Q?Uny9xJnKc7ecyY9m5HZtFmAlTSU30y/wq9LXW/J6T7hQNkUMjsjkCXNBLyXw?=
+ =?us-ascii?Q?pfUI96ip6e+7VG3tsjO2gGlieD24TTsj0j2njlCr4XeuQlXKWO2NZMLK3Imw?=
+ =?us-ascii?Q?YRJlZLH5gnHt7v+h/Yr6M8I14KIwB7dBunQLZnC0uFHHpSTRa1nah0A85ceT?=
+ =?us-ascii?Q?lB9ZX77RyEnEJ+FViQfvwjo4k9S3Q3iOMnCOqhRpbdvElk1jkQOJY8d2fxtl?=
+ =?us-ascii?Q?FcbSr4cWQEw/SDJ4YQfg75mGHpmjPZHw7RaDOJ/bXSKNyrJEzW9TvC39rm2T?=
+ =?us-ascii?Q?AZ6ke5uTioqSNBSY4pAxNa5UiE0Z0aof69yUtahYgfQP7WPaOpGdXfLrAYLh?=
+ =?us-ascii?Q?LIFPIoYBr6m6hW0ruoYOx83wVPwchJN08PR8eU5qM7UOXPYdrQrZPmmjS97i?=
+ =?us-ascii?Q?WIT5bj1zREQR4Nt5Ge9CBhxSEsCDRIW1nOiDffMdDlv10DSNJpQXziH/4Xg6?=
+ =?us-ascii?Q?k44YMuoY7/gZrGje2ErSLQ8iii8JUaYmbGeBmTho908fJTTeLfUsDIgsDRYE?=
+ =?us-ascii?Q?vGoOmu+lQy9MK6KOuaOyFkIoYore0aFPuQziPAUiHl8BHrN3pJgs+DSl3VAX?=
+ =?us-ascii?Q?JRAV29ZLgRcDxY02KdeAzSr6ROHsTRuPXW/QYB6gvEd9SDtU3CkXjCKpI6bV?=
+ =?us-ascii?Q?yA95J+UYF0VOqsyO6LM4lL61+Q5bVeOebYEEPtjmgH2kXNjpto8cwqEl+6mF?=
+ =?us-ascii?Q?eETwR0aDAP4z94RP6GWxU4erSp3E0jU3EGPzgWEKr3CJHPLJwKmVig/2Cil6?=
+ =?us-ascii?Q?NSgC0nXbZwD5jYcAte19xQy/hK5zkJDsidYrANyq2uVqHzQ1dnSMI0uh3Km5?=
+ =?us-ascii?Q?ZaKQQjjmL6cIfp9OYjHb7qYa4VsNDhJKEqzyBUTgPzQQpzOnsWH7Fwe56gD8?=
+ =?us-ascii?Q?b6Q2uu2ou2VVmo/jFEnSkwYn+5pqKSrIoUF1HtwFAxzJbFahArnVhtIRM7zr?=
+ =?us-ascii?Q?zPbr?=
+X-OriginatorOrg: leica-geosystems.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85f97660-a0c5-4266-b312-08d8969172af
+X-MS-Exchange-CrossTenant-AuthSource: DB6PR0602MB2886.eurprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2020 07:11:11.4335
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 1b16ab3e-b8f6-4fe3-9f3e-2db7fe549f6a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: noE13jn8lkytckTME+Rlyo/vbQjvubBxb8lXM2uhljQvxgQaZqcGG0623JWrA1sv+DBT2JPmkybxSodF0tkGWgoRfH5gkFnUuqk1D+z9p88=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR06MB6234
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 1 Dec 2020 at 14:24, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.247 release.
-> There are 24 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 03 Dec 2020 08:46:29 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.247-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+ARMv7 Architecture Reference Manual [1] section A3.5.5 details Normal
+memory type, together with cacheability attributes that could be applied
+to memory regions defined as "Normal memory".
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Section B2.1.2 of the Architecture Reference Manual [1] also provides
+details regarding the Memory attributes that could be assigned to
+particular memory regions, which includes the descrption of cacheability
+attributes and cache allocation hints.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Memory type and cacheability attributes forms 2 separate definitions,
+where cacheability attributes defines a mechanism of coherency control
+rather than the type of memory itself.
 
-Summary
-------------------------------------------------------------------------
+In other words: Normal memory type can be configured with several
+combination of cacheability attributes, namely:
+- Write-Through (WT)
+- Write-Back (WB) followed by cache allocation hint:
+  - Write-Allocate
+  - No Write-Allocate (also known as Read-Allocate)
 
-kernel: 4.4.247-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 412881df37c2300a95caf9e61b42c25814c64af9
-git describe: v4.4.246-25-g412881df37c2
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
-y/build/v4.4.246-25-g412881df37c2
+Those types are mapped in the kernel to corresponding macros:
+- Write-Through: L_PTE_MT_WRITETHROUGH
+- Write-Back Write-Allocate: L_PTE_MT_WRITEALLOC
+- Write-Back Read-Allocate: L_PTE_MT_WRITEBACK
 
-No regressions (compared to build v4.4.246)
+Current implementation of the op-tee driver takes in account only 2 last
+memory region types, while performing a check if the memory block is
+allocated as "Normal memory", leaving Write-Through allocations to be
+not considered.
 
-No fixes (compared to build v4.4.246)
+Extend verification mechanism to include also Normal memory regios,
+which are designated with Write-Through cacheability attributes.
 
-Ran 12293 total tests in the following environments and test suites.
+Link: [1]: https://developer.arm.com/documentation/ddi0406/cd
+Fixes: 853735e40424 ("optee: add writeback to valid memory type")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+---
+ drivers/tee/optee/call.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Environments
---------------
-- arm
-- arm64
-- i386
-- juno-r2 - arm64
-- mips
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
+diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
+index c981757ba0d4..8da27d02a2d6 100644
+--- a/drivers/tee/optee/call.c
++++ b/drivers/tee/optee/call.c
+@@ -535,7 +535,8 @@ static bool is_normal_memory(pgprot_t p)
+ {
+ #if defined(CONFIG_ARM)
+ 	return (((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC) ||
+-		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK));
++		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK) ||
++		((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITETHROUGH));
+ #elif defined(CONFIG_ARM64)
+ 	return (pgprot_val(p) & PTE_ATTRINDX_MASK) == PTE_ATTRINDX(MT_NORMAL);
+ #else
+-- 
+2.17.1
 
-Test Suites
------------
-* build
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-controllers-tests
-* ltp-tracing-tests
-* libhugetlbfs
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* network-basic-tests
-* perf
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.247-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.247-rc1-hikey-20201201-867
-git commit: 56c68faa4c221dab59e36da4f9fc198e41a73808
-git describe: 4.4.247-rc1-hikey-20201201-867
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.247-rc1-hikey-20201201-867
-
-No regressions (compared to build 4.4.246-rc1-hikey-20201123-865)
-
-No fixes (compared to build 4.4.246-rc1-hikey-20201123-865)
-
-Ran 1758 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
