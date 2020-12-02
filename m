@@ -2,44 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 620012CB818
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 10:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070D42CB821
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 10:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387573AbgLBJH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 04:07:56 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.24]:19365 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727701AbgLBJHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 04:07:55 -0500
-X-Greylist: delayed 478 seconds by postgrey-1.27 at vger.kernel.org; Wed, 02 Dec 2020 04:07:54 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1606899843;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=PjMKDyiY7+lF2RcIxd0I5lWhqlyFww3ysHgRV7W+Ptw=;
-        b=i+/rc65tBrhk9cT2EgB42cy0M/uYA/jAs5zxkm620cgrM27p9otljY7LxK0b8O3lVH
-        xHc4gkUxufm9F7dajedrPGZjMiw3oFSJdU/CvuFA+Lc77HAkTIjvbhWhEwdMwljAMbWH
-        Na6n15Q/KuqEa97Vv36At6/Sc9A/w/blL8jLnj6Z9lZeXTn6FBnqYSY9KJbaipGjHP+A
-        6NAxVmYU3k7NWEToX20XCM1evk73Fyw4HJTQlEgAtV2eMA6wir7UXX4MuOzmfzmNrtI5
-        DoVQHuPPlsMT+snbtK490k6V4XrpNessp+ffEUU5Oft2mEszOGFugqetm86XpkwW2Ur/
-        YGHA==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o12DNOsPj0pDyBujo5I="
-X-RZG-CLASS-ID: mo00
-Received: from iMac.fritz.box
-        by smtp.strato.de (RZmta 47.3.4 DYNA|AUTH)
-        with ESMTPSA id N02faawB28u4XiV
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Wed, 2 Dec 2020 09:56:04 +0100 (CET)
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-To:     letux-kernel@openphoenux.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
-Subject: [RFC 2/2] DTS: ARM: gta04: SPI panel chip select is active low
-Date:   Wed,  2 Dec 2020 09:56:02 +0100
-Message-Id: <5c979df0d9eb68c234686c85e6e22f84b143c7ed.1606899361.git.hns@goldelico.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <cover.1606899361.git.hns@goldelico.com>
-References: <cover.1606899361.git.hns@goldelico.com>
+        id S1727701AbgLBJI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 04:08:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41042 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727006AbgLBJI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Dec 2020 04:08:57 -0500
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.247
+Date:   Wed,  2 Dec 2020 10:09:24 +0100
+Message-Id: <160690016415333@kroah.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,84 +28,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Historically the panel driver did know the polarity and
-the device tree introduced by
+I'm announcing the release of the 4.9.247 kernel.
 
-commit c2e138bc8ed8 ("ARM: dts: omap3-gta04: Add display support")
+All users of the 4.9 kernel series must upgrade.
 
-as
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-	cs-gpios = <&gpio1 19 0>;
+thanks,
 
-The 0 was ignored because the spi-gpio driver did only
-look at the presence of an spi-cs-high property. Since
-it was not present, the CS was active low.
+greg k-h
 
-commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
+------------
 
-replaced the constant 0 by the constant GPIO_ACTIVE_HIGH
-which was no problem because it was still ignored.
+ Makefile                                     |    2 
+ arch/arm64/include/asm/pgtable.h             |    7 -
+ arch/x86/events/intel/cstate.c               |    6 -
+ arch/x86/events/intel/rapl.c                 |   14 --
+ arch/x86/events/intel/uncore.c               |    4 
+ arch/x86/events/intel/uncore.h               |   12 +-
+ arch/x86/kernel/cpu/bugs.c                   |    4 
+ arch/x86/xen/spinlock.c                      |   12 ++
+ drivers/dma/pl330.c                          |    2 
+ drivers/dma/xilinx/xilinx_dma.c              |    4 
+ drivers/hid/hid-cypress.c                    |   44 ++++++++-
+ drivers/hid/hid-ids.h                        |    2 
+ drivers/hid/hid-sensor-hub.c                 |    3 
+ drivers/infiniband/hw/mthca/mthca_cq.c       |   10 +-
+ drivers/input/serio/i8042.c                  |   12 ++
+ drivers/net/can/usb/gs_usb.c                 |  131 ++++++++++++++-------------
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |   17 +--
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c    |    3 
+ drivers/net/ethernet/ibm/ibmvnic.c           |    3 
+ drivers/nfc/s3fwrn5/i2c.c                    |    4 
+ drivers/pci/bus.c                            |    6 -
+ drivers/phy/tegra/xusb.c                     |    1 
+ drivers/platform/x86/toshiba_acpi.c          |    3 
+ drivers/regulator/core.c                     |    9 +
+ drivers/scsi/libiscsi.c                      |   23 +++-
+ drivers/scsi/ufs/ufshcd.c                    |    6 -
+ drivers/target/iscsi/iscsi_target.c          |   17 ++-
+ drivers/usb/core/config.c                    |   11 ++
+ drivers/usb/core/devio.c                     |   14 +-
+ drivers/usb/core/quirks.c                    |   38 +++++++
+ drivers/usb/core/usb.h                       |    3 
+ drivers/usb/gadget/function/f_midi.c         |   10 +-
+ drivers/usb/gadget/legacy/inode.c            |    3 
+ drivers/video/fbdev/hyperv_fb.c              |    7 +
+ fs/btrfs/inode.c                             |   41 ++++++--
+ fs/btrfs/qgroup.c                            |    2 
+ fs/btrfs/tests/inode-tests.c                 |    1 
+ fs/btrfs/volumes.c                           |    7 +
+ fs/efivarfs/inode.c                          |    2 
+ fs/efivarfs/super.c                          |    1 
+ fs/proc/self.c                               |    7 +
+ include/linux/usb/quirks.h                   |    3 
+ include/scsi/libiscsi.h                      |    3 
+ mm/huge_memory.c                             |    8 -
+ net/batman-adv/log.c                         |    1 
+ sound/pci/hda/patch_hdmi.c                   |   85 +++++++++--------
+ tools/perf/util/dwarf-aux.c                  |    8 +
+ tools/perf/util/event.c                      |    7 -
+ 48 files changed, 411 insertions(+), 212 deletions(-)
 
-Starting with
+Alan Stern (2):
+      USB: core: Change %pK for __user pointers to %px
+      USB: core: Fix regression in Hercules audio card
 
-commit 6953c57ab172 ("gpio: of: Handle SPI chipselect legacy bindings")
+Anand K Mistry (1):
+      x86/speculation: Fix prctl() when spectre_v2_user={seccomp,prctl},ibpb
 
-the gpiolib and spi-gpio drivers tried to handle both properties
-by making an inversion for GPIO_ACTIVE_HIGH definitions.
+Ard Biesheuvel (1):
+      efivarfs: revert "fix memory leak in efivarfs_create()"
 
-To keep the device tree compatible with older kernels which
-ignored the GPIO_ACTIVE property we just added spi-cs-high;.
+Brian Masney (1):
+      x86/xen: don't unbind uninitialized lock_kicker_irq
 
-This tells the inversion logic that we want an active low
-chip select as defined by the rule documented by the commit
-message of
+Dexuan Cui (1):
+      video: hyperv_fb: Fix the cache type when mapping the VRAM
 
-commit 6953c57ab172 ("gpio: of: Handle SPI chipselect legacy bindings")
+Filipe Manana (1):
+      btrfs: fix lockdep splat when reading qgroup config on mount
 
-	"If the line is tagged as active high in the device tree with
-    the second cell flag and has no "spi-cs-high" property we
-    enforce active low semantics (as this is the exception we can
-    just tag on the flag)."
+Frank Yang (1):
+      HID: cypress: Support Varmilo Keyboards' media hotkeys
 
-This went well until
+Gerald Schaefer (1):
+      mm/userfaultfd: do not access vma->vm_mm after calling handle_userfault()
 
-commit 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+Greg Kroah-Hartman (1):
+      Linux 4.9.247
 
-arrived which effectively removes the inversion logic rule.
+Hans de Goede (1):
+      Input: i8042 - allow insmod to succeed on devices without an i8042 controller
 
-Removing spi-cs-high; in a separate patch already solves the
-urgent problem, but to remove
+Igor Lubashev (1):
+      perf event: Check ref_reloc_sym before using it
 
-[    3.629791] td028ttec1@0 enforce active low on chipselect handle
+Jens Axboe (1):
+      proc: don't allow async path resolution of /proc/self components
 
-and to be safe against future changes of such rules we also define
-the cs-gpio explicitly as GPIO_ACTIVE_LOW.
+Johan Hovold (1):
+      USB: core: add endpoint-blacklist quirk
 
-Note that this patch breaks all kernels between
-commit 6953c57ab172 ("gpio: of: Handle SPI chipselect legacy bindings")
-and
-commit 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+Kai Vehmanen (1):
+      ALSA: hda/hdmi: fix incorrect locking in hdmi_pcm_close
 
-Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
-CC: stable@vger.kernel.org
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
----
- arch/arm/boot/dts/omap3-gta04.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Kaixu Xia (1):
+      platform/x86: toshiba_acpi: Fix the wrong variable assignment
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index 7c4c0124e20d45..76344b9c294512 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -139,7 +139,7 @@ spi_lcd: spi_lcd {
- 		gpio-sck = <&gpio1 12 GPIO_ACTIVE_HIGH>;
- 		gpio-miso = <&gpio1 18 GPIO_ACTIVE_HIGH>;
- 		gpio-mosi = <&gpio1 20 GPIO_ACTIVE_HIGH>;
--		cs-gpios = <&gpio1 19 GPIO_ACTIVE_HIGH>;
-+		cs-gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
- 		num-chipselects = <1>;
- 
- 		/* lcd panel */
--- 
-2.26.2
+Krzysztof Kozlowski (1):
+      nfc: s3fwrn5: use signed integer for parsing GPIO numbers
+
+Lee Duncan (1):
+      scsi: libiscsi: Fix NOP race condition
+
+Lijun Pan (1):
+      ibmvnic: fix NULL pointer dereference in ibmvic_reset_crq
+
+Marc Ferland (1):
+      dmaengine: xilinx_dma: use readl_poll_timeout_atomic variant
+
+Marc Kleine-Budde (1):
+      can: gs_usb: fix endianess problem with candleLight firmware
+
+Marc Zyngier (1):
+      phy: tegra: xusb: Fix dangling pointer on probe failure
+
+Masami Hiramatsu (1):
+      perf probe: Fix to die_entrypc() returns error correctly
+
+Michael Chan (1):
+      bnxt_en: Release PCI regions when DMA mask setup fails during probe.
+
+Michał Mirosław (2):
+      regulator: avoid resolve_supply() infinite recursion
+      regulator: workaround self-referent regulators
+
+Mike Christie (1):
+      scsi: target: iscsi: Fix cmd abort fabric stop race
+
+Pablo Ceballos (1):
+      HID: hid-sensor-hub: Fix issue with devices with no report ID
+
+Qu Wenruo (2):
+      btrfs: tree-checker: Enhance chunk checker to validate chunk profile
+      btrfs: inode: Verify inode mode to avoid NULL pointer dereference
+
+Rajat Jain (1):
+      PCI: Add device even if driver attach failed
+
+Sami Tolvanen (1):
+      perf/x86: fix sysfs type mismatches
+
+Shay Agroskin (1):
+      net: ena: set initial DMA width to avoid intel iommu issue
+
+Stanley Chu (1):
+      scsi: ufs: Fix race between shutdown and runtime resume flow
+
+Sugar Zhang (1):
+      dmaengine: pl330: _prep_dma_memcpy: Fix wrong burst size
+
+Taehee Yoo (1):
+      batman-adv: set .owner to THIS_MODULE
+
+Takashi Iwai (1):
+      ALSA: hda/hdmi: Use single mutex unlock in error paths
+
+Will Deacon (1):
+      arm64: pgtable: Fix pte_accessible()
+
+Xiongfeng Wang (1):
+      IB/mthca: fix return value of error branch in mthca_init_cq()
+
+Zhang Changzhong (1):
+      bnxt_en: fix error return code in bnxt_init_board()
+
+Zhang Qilong (2):
+      usb: gadget: f_midi: Fix memleak in f_midi_alloc
+      usb: gadget: Fix memleak in gadgetfs_fill_super
 
