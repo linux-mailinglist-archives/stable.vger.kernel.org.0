@@ -2,152 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E793C2CB425
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 06:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AAF02CB43C
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 06:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728443AbgLBE7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 23:59:20 -0500
-Received: from mailout4.samsung.com ([203.254.224.34]:27183 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727744AbgLBE7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 23:59:20 -0500
-Received: from epcas1p3.samsung.com (unknown [182.195.41.47])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20201202045838epoutp04ccc4228e631f18b93d5115297811918a~MzYBfhzuZ2032820328epoutp04J
-        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 04:58:38 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20201202045838epoutp04ccc4228e631f18b93d5115297811918a~MzYBfhzuZ2032820328epoutp04J
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1606885118;
-        bh=OFa7pYNsfTU8WW6Yo79jxkGXP6RWMrOeNC/0D673u8E=;
-        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-        b=fSw+wuFbVnCMUTQktfpyQ0ESvWKjk/b1zgFFBe0261NTjPK7GBZMnGA0TvMUBpuej
-         Y3Mxyw6mKBa5k8DgXTqyKbiLiWnDvOqKJHUHLgX2MxKu05xeoVCA5l6ELAJbckpkZg
-         vS5LC72EaF/DXpu2u1C9BD+vHFiLmN+XdHm5bKgQ=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas1p3.samsung.com (KnoxPortal) with ESMTP id
-        20201202045837epcas1p393672f0ec5cf1722ae48d4aff71ddaa6~MzYBFWLL82934329343epcas1p3d;
-        Wed,  2 Dec 2020 04:58:37 +0000 (GMT)
-Received: from epsmges1p1.samsung.com (unknown [182.195.40.162]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4Cm6Dr5smtzMqYkj; Wed,  2 Dec
-        2020 04:58:36 +0000 (GMT)
-Received: from epcas1p4.samsung.com ( [182.195.41.48]) by
-        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
-        10.99.02418.CFE17CF5; Wed,  2 Dec 2020 13:58:36 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20201202045836epcas1p1fc945fed4a7be7244a12f235c508061a~MzX-ooRSt0860908609epcas1p1h;
-        Wed,  2 Dec 2020 04:58:36 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20201202045836epsmtrp2f0b52555b45c379dcbf376882303bb3e~MzX-n1vfd2222622226epsmtrp2k;
-        Wed,  2 Dec 2020 04:58:36 +0000 (GMT)
-X-AuditID: b6c32a35-c23ff70000010972-88-5fc71efcd26b
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        39.F5.13470.CFE17CF5; Wed,  2 Dec 2020 13:58:36 +0900 (KST)
-Received: from W10PB11329 (unknown [10.253.152.129]) by epsmtip2.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20201202045836epsmtip2f75f1796c3062fc595b538e52fd7cd08~MzX-fAQSr2582325823epsmtip23;
-        Wed,  2 Dec 2020 04:58:36 +0000 (GMT)
-From:   "Sungjong Seo" <sj1557.seo@samsung.com>
-To:     "'Artem Labazov'" <123321artyom@gmail.com>
-Cc:     <stable@vger.kernel.org>,
-        "'Namjae Jeon'" <namjae.jeon@samsung.com>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20201124194749.4041176-1-123321artyom@gmail.com>
-Subject: RE: [PATCH] exfat: Avoid allocating upcase table using kcalloc()
-Date:   Wed, 2 Dec 2020 13:58:35 +0900
-Message-ID: <001101d6c867$ca8c5730$5fa50590$@samsung.com>
+        id S1726380AbgLBFMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 00:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726125AbgLBFMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 00:12:36 -0500
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C830DC0613CF
+        for <stable@vger.kernel.org>; Tue,  1 Dec 2020 21:11:50 -0800 (PST)
+Received: by mail-ot1-x341.google.com with SMTP id f16so551295otl.11
+        for <stable@vger.kernel.org>; Tue, 01 Dec 2020 21:11:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=T6tK09CTMF8DpkdCu4eHvVSCjrhIKh1EGtQIJ5HMvFI=;
+        b=N+fXQKTWhXfnFHo0kLh2BTfHeig2UuNuLOVya2mk+YpycQCXqhWTGDavk8piTdzpwV
+         Nfdf9O98/U/+cAKkl6y+urAIMDIyXP/kHUQVfSMeO2sIxLKteaa1XNsX9+Hqzoq9Q8a4
+         rznsDqzIhhZGeDyC5KFu0XHgmoxaGWPO32ZsfHYS88tlIRelFA6gt8dmfgyOlbfCwmkN
+         8RkHdR0OS0CfFbrh7+cxMOT0S2OTfO7pP88UJovhw5k62kqDancJD2XjkCosIHuUGe5w
+         +/xN9lCkqih0HxRJRvrjlvrhpz9Oh7kakJQrNQjynl3mQs7VDtQWsvgmT0RTvbBAyG1K
+         h7Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=T6tK09CTMF8DpkdCu4eHvVSCjrhIKh1EGtQIJ5HMvFI=;
+        b=ZS+BNAHOgX3Qt06wq/7IZOcvviHImpee1/F/UPSIQYPJRsAaOrcQz5eIPfnhRSplVE
+         /cucJwOdPoS2buDhcIQ8vy+StKzoJb3oT8SYY2TWlUdp8KGnxrKjL+jLIwKf3ghpa7vN
+         Zog8+cz4y1gyqwIwpm/SaE1piv2TGUzJ4b1ZmSfHnWXHiz/WMRm8CE6saNRliXVHkiJm
+         KIjMnL2yzuuK/S+Rv1buU07p6D2gYyhrIUfgM2t1WdR80+OKNChEtmgKU6WGod1j4vaA
+         2WKXvNdGbcqX0KRTY0BbJ4453CU9myxX8KN6Wh9dHpMwhh2G3ypXcJxkYWqnafeZXKm6
+         Jmnw==
+X-Gm-Message-State: AOAM532esIcdamc+wn/Dcru/09TSjRLspXm+BfC2VxAINBxaprkSywad
+        gk7wPaiaoRW0yhbSxIanI6Mim7mM0koY1mM8+uunwQ==
+X-Google-Smtp-Source: ABdhPJwfkY+m8eJBbpnNWZpTnReC5yYiV4sW6rUw5oG5NV4PFZXCGpZzUgJ3COv7IgN1whI5GvhXanZBbsP8EMVWYfY=
+X-Received: by 2002:a05:6830:12d5:: with SMTP id a21mr640726otq.281.1606885910020;
+ Tue, 01 Dec 2020 21:11:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 15.0
-Thread-Index: AQGAh9ZISCX29VPYFR7X7vXspJxNNgFOHEJzqoVNqkA=
-Content-Language: ko
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpmk+LIzCtJLcpLzFFi42LZdljTQPeP3PF4g3ln9Cw23fzGarFn70kW
-        i8u75rBZ/Jheb7Fg4yNGB1aPnbPusnv0bVnF6PF5k1wAc1SOTUZqYkpqkUJqXnJ+SmZeuq2S
-        d3C8c7ypmYGhrqGlhbmSQl5ibqqtkotPgK5bZg7QRiWFssScUqBQQGJxsZK+nU1RfmlJqkJG
-        fnGJrVJqQUpOgaFBgV5xYm5xaV66XnJ+rpWhgYGRKVBlQk7Gt3fLWQpec1csmT2HrYHxIWcX
-        IyeHhICJxOGzn1m7GLk4hAR2MEosOvSXHcL5xCjxq7ObGcL5xijxetc8NpiWx+3/mSASexkl
-        OqdeZ4NwXjJKnF43kxGkik1AV+LJjZ/MILaIgJ7EiZ07wEYxC3QxSjze9ZsFJMEpYCfx+MMm
-        oG4ODmEBT4mdCzVBwiwCKhJt1+eCzeEVsJR4/eEdlC0ocXLmE7BWZgF5ie1v5zBDXKQgsfvT
-        UVaIXVYSNzr+sEHUiEjM7mwD2ysh8Jdd4vXmqawguyQEXCQm97FC9ApLvDq+hR3ClpL4/G4v
-        1Jf1Ev/nr2WH6G1hlHj4aRsTRK+9xPtLFiAms4CmxPpd+hDlihI7f0OczCzAJ/Huaw/UJl6J
-        jjYhiBIVie8fdrLAbLry4yrTBEalWUgem4XksVlIHpiFsGwBI8sqRrHUguLc9NRiwwJD5Mje
-        xAhOjVqmOxgnvv2gd4iRiYPxEKMEB7OSCC/LvyPxQrwpiZVVqUX58UWlOanFhxhNgUE9kVlK
-        NDkfmJzzSuINTY2MjY0tTMzMzUyNlcR5/2h3xAsJpCeWpGanphakFsH0MXFwSjUwud2OVrVK
-        udLwf/mqwgyt1ZvZy0zPLJSW0U/zuLv3yfkVTbufNXtYn+q9vCdSbe269zYKAUyP5WInBou6
-        zJKMbBZ2WugXVtjcw/GkU6MvweHByerVM3yVPTqjyufN/m57e33EawfZSaubPyXIyM4yr+nL
-        NKq66JXDMPEBi2qScZ5L0363KSzLX3JkR8+oWqr49tzl38atX3ZY8WTc85nj6leufSOy9f6l
-        ju4VaXYTzP0P8Zu5HGc03CBlzHso+MLPmwVNBxY1rPOcUlE/M+jgg5ql+mXuN9MvafbW8Yv8
-        XtvRpLmoaPaN2wWhVXel7zGtjIp+oh6jrVF05aL84aiyE+c6jFNUzy89If6uWl2JpTgj0VCL
-        uag4EQAkreZXFgQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrFLMWRmVeSWpSXmKPExsWy7bCSvO4fuePxBre/8llsuvmN1WLP3pMs
-        Fpd3zWGz+DG93mLBxkeMDqweO2fdZffo27KK0ePzJrkA5igum5TUnMyy1CJ9uwSujG/vlrMU
-        vOauWDJ7DlsD40POLkZODgkBE4nH7f+Zuhi5OIQEdjNK3J12n7GLkQMoISVxcJ8mhCkscfhw
-        MUTJc0aJxZ3XWUB62QR0JZ7c+MkMYosI6Emc2LmDGaSIWaCPUeJrRx87SEJIoJ9R4umPEBCb
-        U8BO4vGHTWwgQ4UFPCV2LtQECbMIqEi0XZ/LCGLzClhKvP7wDsoWlDg58wkLSDkz0Py2jWBh
-        ZgF5ie1v5zBDnK8gsfvTUVaIE6wkbnT8YYOoEZGY3dnGPIFReBaSSbMQJs1CMmkWko4FjCyr
-        GCVTC4pz03OLDQsM81LL9YoTc4tL89L1kvNzNzGCo0NLcwfj9lUf9A4xMnEwHmKU4GBWEuFl
-        +XckXog3JbGyKrUoP76oNCe1+BCjNAeLkjjvjcKFcUIC6YklqdmpqQWpRTBZJg5OqQamvDUX
-        fY4s630ysWnaGlbbSDavlnnv/y+WebHmq5m2zuV37oriR84eNHnU6/RAdEb7t/s8Hxf8vnP9
-        H1OUyCLBmfLai17Ns/RKbnsTcsve7o+Zo8bOVnP3mt/aWY1dRV8CXBPScvxfHDRc8fRrS8MD
-        4cvxDyfKsc5WvOiT8izB5r+q88fKNpH3b9nefju8vuSwXIf4jrWH126vfVtYweN1YOXad5vv
-        sVyr8fhy4PXWOvd7ygk/l2yf0vq9x2abC882oRDzOxUHbyxasqbZ62aXWWcG20nFox65c7JO
-        ml1O5FPYL3FmXttJpQpuu7lyHgGdmh5SP4I3HXjAKFU1xSNhnojBzK8LVGrOvd7c+MojTIml
-        OCPRUIu5qDgRAHUrGJP9AgAA
-X-CMS-MailID: 20201202045836epcas1p1fc945fed4a7be7244a12f235c508061a
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20201124194858epcas1p49cacda6a9b4877ff125f25f4dc5fcadf
-References: <CGME20201124194858epcas1p49cacda6a9b4877ff125f25f4dc5fcadf@epcas1p4.samsung.com>
-        <20201124194749.4041176-1-123321artyom@gmail.com>
+References: <20201201084647.751612010@linuxfoundation.org>
+In-Reply-To: <20201201084647.751612010@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 2 Dec 2020 10:41:38 +0530
+Message-ID: <CA+G9fYuu+F0tGukW_SwHi7BUWoEe0bezWr9h2v2bwUpjNh+2vA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/57] 4.19.161-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> The table for Unicode upcase conversion requires an order-5 allocation,
-> which may fail on a highly-fragmented system:
-> 
->  pool-udisksd: page allocation failure: order:5,
-> mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO),
-> nodemask=(null),cpuset=/,mems_allowed=0
->  CPU: 4 PID: 3756880 Comm: pool-udisksd Tainted: G     U
-5.8.10-
-> 200.fc32.x86_64 #1
->  Hardware name: Dell Inc. XPS 13 9360/0PVG6D, BIOS 2.13.0 11/14/2019  Call
-> Trace:
->   dump_stack+0x6b/0x88
->   warn_alloc.cold+0x75/0xd9
->   ? _cond_resched+0x16/0x40
->   ? __alloc_pages_direct_compact+0x144/0x150
->   __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
->   ? __schedule+0x28a/0x840
->   ? __wait_on_bit_lock+0x92/0xa0
->   __alloc_pages_nodemask+0x2df/0x320
->   kmalloc_order+0x1b/0x80
->   kmalloc_order_trace+0x1d/0xa0
->   exfat_create_upcase_table+0x115/0x390 [exfat]
->   exfat_fill_super+0x3ef/0x7f0 [exfat]
->   ? sget_fc+0x1d0/0x240
->   ? exfat_init_fs_context+0x120/0x120 [exfat]
->   get_tree_bdev+0x15c/0x250
->   vfs_get_tree+0x25/0xb0
->   do_mount+0x7c3/0xaf0
->   ? copy_mount_options+0xab/0x180
->   __x64_sys_mount+0x8e/0xd0
->   do_syscall_64+0x4d/0x90
->   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> Make the driver use vmalloc() to eliminate the issue.
+On Tue, 1 Dec 2020 at 14:31, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.161 release.
+> There are 57 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 03 Dec 2020 08:46:29 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.161-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I have not yet received a report of the same issue.
-But I agree that this problem is likely to occur even if it is low
-probability.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I think it would be more appropriate to use kvcalloc and kvfree instead.
-Could you send me v2 patch?
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+NOTE:
+While running CPU hotplug testing on arm64 db410c device the following
+kernel warning was noticed on linux stable-rc 4.19 branch several times.
+WARNING: kernel/workqueue.c:4762 workqueue_online_cpu+0x18c/0x428
+https://lore.kernel.org/stable/CA+G9fYu+KK=3Dhm1AmQ78GCCgQTwsRCzyA6WHYR68oz=
+ZBzp7USiA@mail.gmail.com/
 
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.161-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 8d3deb1adb93c5d5ff713e5cf5026cacd87a9404
+git describe: v4.19.160-58-g8d3deb1adb93
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.160-58-g8d3deb1adb93
+
+No regressions (compared to build v4.19.160)
+
+No fixes (compared to build v4.19.160)
+
+Ran 46759 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* libhugetlbfs
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
