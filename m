@@ -2,154 +2,366 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFFE2CB297
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 03:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 916F82CB2E1
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 03:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbgLBCEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 21:04:45 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:44685 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727798AbgLBCEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 21:04:44 -0500
-X-UUID: 0d420efe3ae3424bb69ec4bd128bbf9c-20201202
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=OXgXiT5a8Mnp5ypB6as3xIIju8PcjOaG2sQKArLxEL4=;
-        b=PuqDEF9jUiBcksY9aI02gdjG9T8wmwEQfQZr0CVqJ63+WfV8CENYzsLhxrfTn5lqT0qdowpVdL4Lwi03gE6h9OumbnbeqlCf3O7qi5nX9gpjwT8VbD7oYj/NtVvo1D8ZP/ST9mEHwNgt8Ex+qFRZupWR5hPQEjqsKNkpng/hziU=;
-X-UUID: 0d420efe3ae3424bb69ec4bd128bbf9c-20201202
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 379939401; Wed, 02 Dec 2020 10:03:59 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 2 Dec 2020 10:03:47 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 2 Dec 2020 10:03:49 +0800
-Message-ID: <1606874629.22275.5.camel@mtkswgap22>
-Subject: Re: + proc-use-untagged_addr-for-pagemap_read-addresses.patch added
- to -mm tree
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     <akpm@linux-foundation.org>
-CC:     <adobriyan@gmail.com>, <andreyknvl@google.com>,
-        <aryabinin@virtuozzo.com>, <catalin.marinas@arm.com>,
-        <dvyukov@google.com>, <ebiederm@xmission.com>, <elver@google.com>,
-        <glider@google.com>, <mm-commits@vger.kernel.org>,
-        <song.bao.hua@hisilicon.com>, <stable@vger.kernel.org>,
-        <vincenzo.frascino@arm.com>, <will.deacon@arm.com>
-Date:   Wed, 2 Dec 2020 10:03:49 +0800
-In-Reply-To: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
-References: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1726388AbgLBCnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 21:43:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:23372 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726245AbgLBCnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 21:43:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1606876917;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=NasZtLlskcrZBaTYisjdyTaNb5QoSicGDs3tOEWFyY0=;
+        b=YBI14g1GJO1NlXK9olA2wUooP7C5NNaB9VXPQ25kE1Dplk5B8p9fMiMzVnLFPHwG1qxDX8
+        zW9fee52eXzK1BQnAfWkCP34sXfuNNPRNz7jGZhodicjYovTMhyYwa+eirA1MnWlmNg89Y
+        Esffx+HKKK9isQS0spyaAQIHvYkDDy0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-546-fEbsysh3P7Sxx25pNmb49g-1; Tue, 01 Dec 2020 21:41:55 -0500
+X-MC-Unique: fEbsysh3P7Sxx25pNmb49g-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 30C9E858182
+        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 02:41:54 +0000 (UTC)
+Received: from [172.22.7.177] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 885975D9DC;
+        Wed,  2 Dec 2020 02:41:50 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.9.11 (stable-queue)
+Date:   Wed, 02 Dec 2020 02:41:49 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>, Xiong Zhou <xzhou@redhat.com>,
+        Rachel Sibley <rasibley@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.4B0E9B006A.P4ENTRO8GT@redhat.com>
+X-Gitlab-Pipeline-ID: 618932
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/618932
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gRnJpLCAyMDIwLTExLTI3IGF0IDE5OjUyIC0wODAwLCBha3BtQGxpbnV4LWZvdW5kYXRpb24u
-b3JnIHdyb3RlOg0KPiBUaGUgcGF0Y2ggdGl0bGVkDQo+ICAgICAgU3ViamVjdDogcHJvYzogdXNl
-IHVudGFnZ2VkX2FkZHIoKSBmb3IgcGFnZW1hcF9yZWFkIGFkZHJlc3Nlcw0KPiBoYXMgYmVlbiBh
-ZGRlZCB0byB0aGUgLW1tIHRyZWUuICBJdHMgZmlsZW5hbWUgaXMNCj4gICAgICBwcm9jLXVzZS11
-bnRhZ2dlZF9hZGRyLWZvci1wYWdlbWFwX3JlYWQtYWRkcmVzc2VzLnBhdGNoDQo+IA0KPiBUaGlz
-IHBhdGNoIHNob3VsZCBzb29uIGFwcGVhciBhdA0KPiAgICAgaHR0cHM6Ly9vemxhYnMub3JnL35h
-a3BtL21tb3RzL2Jyb2tlbi1vdXQvcHJvYy11c2UtdW50YWdnZWRfYWRkci1mb3ItcGFnZW1hcF9y
-ZWFkLWFkZHJlc3Nlcy5wYXRjaA0KPiBhbmQgbGF0ZXIgYXQNCj4gICAgIGh0dHBzOi8vb3psYWJz
-Lm9yZy9+YWtwbS9tbW90bS9icm9rZW4tb3V0L3Byb2MtdXNlLXVudGFnZ2VkX2FkZHItZm9yLXBh
-Z2VtYXBfcmVhZC1hZGRyZXNzZXMucGF0Y2gNCj4gDQo+IEJlZm9yZSB5b3UganVzdCBnbyBhbmQg
-aGl0ICJyZXBseSIsIHBsZWFzZToNCj4gICAgYSkgQ29uc2lkZXIgd2hvIGVsc2Ugc2hvdWxkIGJl
-IGNjJ2VkDQo+ICAgIGIpIFByZWZlciB0byBjYyBhIHN1aXRhYmxlIG1haWxpbmcgbGlzdCBhcyB3
-ZWxsDQo+ICAgIGMpIElkZWFsbHk6IGZpbmQgdGhlIG9yaWdpbmFsIHBhdGNoIG9uIHRoZSBtYWls
-aW5nIGxpc3QgYW5kIGRvIGENCj4gICAgICAgcmVwbHktdG8tYWxsIHRvIHRoYXQsIGFkZGluZyBz
-dWl0YWJsZSBhZGRpdGlvbmFsIGNjJ3MNCj4gDQo+ICoqKiBSZW1lbWJlciB0byB1c2UgRG9jdW1l
-bnRhdGlvbi9wcm9jZXNzL3N1Ym1pdC1jaGVja2xpc3QucnN0IHdoZW4gdGVzdGluZyB5b3VyIGNv
-ZGUgKioqDQo+IA0KPiBUaGUgLW1tIHRyZWUgaXMgaW5jbHVkZWQgaW50byBsaW51eC1uZXh0IGFu
-ZCBpcyB1cGRhdGVkDQo+IHRoZXJlIGV2ZXJ5IDMtNCB3b3JraW5nIGRheXMNCg0KU29ycnkgZm9y
-IGJvdGhlcmluZywgSSBjaGVja2VkIHRoZSBuZXh0LTIwMjAxMjAxIHRhZyBhbmQgdGhlIHBhdGNo
-IGluDQpuZXh0LTIwMjAxMjAxIGlzIFsxXSwgYnV0IHRoZXJlIGlzIGEgb3ZlcmZsb3cgaXNzdWUg
-aW4gWzFdIHNvIEkNCnN1Ym1pdHRlZCB2MiBbMl0uIFdlIHNob3VsZCB0YWtlIFsyXSwgcmlnaHQ/
-IA0KKHRoZSBwYXRjaCBpbiB0aGlzIGVtYWlsIGlzIFsyXSBidXQgdGhlIHBhdGNoIGluIG5leHQt
-MjAyMDEyMDEgaXMgWzFdKQ0KDQpbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvcGF0Y2h3b3Jr
-L3BhdGNoLzEzNDMyNTgvDQpbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvcGF0Y2h3b3JrL3Bh
-dGNoLzEzNDU4NzQvDQoNCg0KDQo+IA0KPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gRnJvbTogTWlsZXMgQ2hlbiA8bWlsZXMuY2hlbkBt
-ZWRpYXRlay5jb20+DQo+IFN1YmplY3Q6IHByb2M6IHVzZSB1bnRhZ2dlZF9hZGRyKCkgZm9yIHBh
-Z2VtYXBfcmVhZCBhZGRyZXNzZXMNCj4gDQo+IFdoZW4gd2UgdHJ5IHRvIHZpc2l0IHRoZSBwYWdl
-bWFwIG9mIGEgdGFnZ2VkIHVzZXJzcGFjZSBwb2ludGVyLCB3ZSBmaW5kDQo+IHRoYXQgdGhlIHN0
-YXJ0X3ZhZGRyIGlzIG5vdCBjb3JyZWN0IGJlY2F1c2Ugb2YgdGhlIHRhZy4gIFRvIGZpeCBpdCwg
-d2UNCj4gc2hvdWxkIHVudGFnIHRoZSB1c2VzcGFjZSBwb2ludGVycyBpbiBwYWdlbWFwX3JlYWQo
-KS4NCj4gDQo+IEkgdGVzdGVkIHdpdGggNS4xMC1yYzQgYW5kIHRoZSBpc3N1ZSByZW1haW5zLg0K
-PiANCj4gRXhwbGFuYXRpb24gZnJvbSBDYXRhbGluIGluIFsxXToNCj4gDQo+IDogQXJndWFibHks
-IHRoYXQncyBhIHVzZXItc3BhY2UgYnVnIHNpbmNlIHRhZ2dlZCBmaWxlIG9mZnNldHMgd2VyZSBu
-ZXZlcg0KPiA6IHN1cHBvcnRlZC4gIEluIHRoaXMgY2FzZSBpdCdzIG5vdCBldmVuIGEgdGFnIGF0
-IGJpdCA1NiBhcyBwZXIgdGhlIGFybTY0DQo+IDogdGFnZ2VkIGFkZHJlc3MgQUJJIGJ1dCByYXRo
-ZXIgZG93biB0byBiaXQgNDcuICBZb3UgY291bGQgc2F5IHRoYXQgdGhlDQo+IDogcHJvYmxlbSBp
-cyBjYXVzZWQgYnkgdGhlIEMgbGlicmFyeSAobWFsbG9jKCkpIG9yIHdob2V2ZXIgY3JlYXRlZCB0
-aGUNCj4gOiB0YWdnZWQgdmFkZHIgYW5kIHBhc3NlZCBpdCB0byB0aGlzIGZ1bmN0aW9uLiAgSXQn
-cyBub3QgYSBrZXJuZWwgcmVncmVzc2lvbg0KPiA6IGFzIHdlJ3ZlIG5ldmVyIHN1cHBvcnRlZCBp
-dC4NCj4gOiANCj4gOiBOb3csIHBhZ2VtYXAgaXMgYSBzcGVjaWFsIGNhc2Ugd2hlcmUgdGhlIG9m
-ZnNldCBpcyB1c3VhbGx5IG5vdCBnZW5lcmF0ZWQNCj4gOiBhcyBhIGNsYXNzaWMgZmlsZSBvZmZz
-ZXQgYnV0IHJhdGhlciBkZXJpdmVkIGJ5IHNoaWZ0aW5nIGEgdXNlciB2aXJ0dWFsDQo+IDogYWRk
-cmVzcy4gIEkgZ3Vlc3Mgd2UgY2FuIG1ha2UgYSBjb25jZXNzaW9uIGZvciBwYWdlbWFwIChvbmx5
-KSBhbmQgYWxsb3cNCj4gOiBzdWNoIG9mZnNldCB3aXRoIHRoZSB0YWcgYXQgYml0ICg1NiAtIFBB
-R0VfU0hJRlQgKyAzKS4NCj4gDQo+IE15IHRlc3QgY29kZSBpcyBiYWVkIG9uIFsyXToNCj4gDQo+
-IEEgdXNlcnNwYWNlIHBvaW50ZXIgd2hpY2ggaGFzIGJlZW4gdGFnZ2VkIGJ5IDB4YjQ6IDB4YjQw
-MDAwNzY2MmY1NDFjOA0KPiANCj4gPT09IHVzZXJzcGFjZSBwcm9ncmFtID09PQ0KPiANCj4gdWlu
-dDY0IE9zTGF5ZXI6OlZpcnR1YWxUb1BoeXNpY2FsKHZvaWQgKnZhZGRyKSB7DQo+IAl1aW50NjQg
-ZnJhbWUsIHBhZGRyLCBwZm5tYXNrLCBwYWdlbWFzazsNCj4gCWludCBwYWdlc2l6ZSA9IHN5c2Nv
-bmYoX1NDX1BBR0VTSVpFKTsNCj4gCW9mZjY0X3Qgb2ZmID0gKCh1aW50cHRyX3QpdmFkZHIpIC8g
-cGFnZXNpemUgKiA4OyAvLyBvZmYgPSAweGI0MDAwMDc2NjJmNTQxYzggLyBwYWdlc2l6ZSAqIDgg
-PSAweDVhMDAwMDNiMzE3YWEwDQo+IAlpbnQgZmQgPSBvcGVuKGtQYWdlbWFwUGF0aCwgT19SRE9O
-TFkpOw0KPiAJLi4uDQo+IA0KPiAJaWYgKGxzZWVrNjQoZmQsIG9mZiwgU0VFS19TRVQpICE9IG9m
-ZiB8fCByZWFkKGZkLCAmZnJhbWUsIDgpICE9IDgpIHsNCj4gCQlpbnQgZXJyID0gZXJybm87DQo+
-IAkJc3RyaW5nIGVycnR4dCA9IEVycm9yU3RyaW5nKGVycik7DQo+IAkJaWYgKGZkID49IDApDQo+
-IAkJCWNsb3NlKGZkKTsNCj4gCQlyZXR1cm4gMDsNCj4gCX0NCj4gLi4uDQo+IH0NCj4gDQo+ID09
-PSBrZXJuZWwgZnMvcHJvYy90YXNrX21tdS5jID09PQ0KPiANCj4gc3RhdGljIHNzaXplX3QgcGFn
-ZW1hcF9yZWFkKHN0cnVjdCBmaWxlICpmaWxlLCBjaGFyIF9fdXNlciAqYnVmLA0KPiAJCXNpemVf
-dCBjb3VudCwgbG9mZl90ICpwcG9zKQ0KPiB7DQo+IAkuLi4NCj4gCXNyYyA9ICpwcG9zOw0KPiAJ
-c3ZwZm4gPSBzcmMgLyBQTV9FTlRSWV9CWVRFUzsgLy8gc3ZwZm4gPT0gMHhiNDAwMDA3NjYyZjU0
-DQo+IAlzdGFydF92YWRkciA9IHN2cGZuIDw8IFBBR0VfU0hJRlQ7IC8vIHN0YXJ0X3ZhZGRyID09
-IDB4YjQwMDAwNzY2MmY1NDAwMA0KPiAJZW5kX3ZhZGRyID0gbW0tPnRhc2tfc2l6ZTsNCj4gDQo+
-IAkvKiB3YXRjaCBvdXQgZm9yIHdyYXBhcm91bmQgKi8NCj4gCS8vIHN2cGZuID09IDB4YjQwMDAw
-NzY2MmY1NA0KPiAJLy8gKG1tLT50YXNrX3NpemUgPj4gUEFHRSkgPT0gMHg4MDAwMDAwDQo+IAlp
-ZiAoc3ZwZm4gPiBtbS0+dGFza19zaXplID4+IFBBR0VfU0hJRlQpIC8vIHRoZSBjb25kaXRpb24g
-aXMgdHJ1ZSBiZWNhdXNlIG9mIHRoZSB0YWcgMHhiNA0KPiAJCXN0YXJ0X3ZhZGRyID0gZW5kX3Zh
-ZGRyOw0KPiANCj4gCXJldCA9IDA7DQo+IAl3aGlsZSAoY291bnQgJiYgKHN0YXJ0X3ZhZGRyIDwg
-ZW5kX3ZhZGRyKSkgeyAvLyB3ZSBjYW5ub3QgdmlzaXQgY29ycmVjdCBlbnRyeSBiZWNhdXNlIHN0
-YXJ0X3ZhZGRyIGlzIHNldCB0byBlbmRfdmFkZHINCj4gCQlpbnQgbGVuOw0KPiAJCXVuc2lnbmVk
-IGxvbmcgZW5kOw0KPiAJCS4uLg0KPiAJfQ0KPiAJLi4uDQo+IH0NCj4gDQo+IFsxXSBodHRwczov
-L2xvcmUua2VybmVsLm9yZy9wYXRjaHdvcmsvcGF0Y2gvMTM0MzI1OC8NCj4gWzJdIGh0dHBzOi8v
-Z2l0aHViLmNvbS9zdHJlc3NhcHB0ZXN0L3N0cmVzc2FwcHRlc3QvYmxvYi9tYXN0ZXIvc3JjL29z
-LmNjI0wxNTgNCj4gDQo+IExpbms6IGh0dHBzOi8vbGttbC5rZXJuZWwub3JnL3IvMjAyMDExMjcw
-NTA3MzguMTQ0NDAtMS1taWxlcy5jaGVuQG1lZGlhdGVrLmNvbQ0KPiBTaWduZWQtb2ZmLWJ5OiBN
-aWxlcyBDaGVuIDxtaWxlcy5jaGVuQG1lZGlhdGVrLmNvbT4NCj4gQ2M6IEFsZXhleSBEb2JyaXlh
-biA8YWRvYnJpeWFuQGdtYWlsLmNvbT4NCj4gQ2M6IEFuZHJleSBLb25vdmFsb3YgPGFuZHJleWtu
-dmxAZ29vZ2xlLmNvbT4NCj4gQ2M6IEFsZXhhbmRlciBQb3RhcGVua28gPGdsaWRlckBnb29nbGUu
-Y29tPg0KPiBDYzogVmluY2Vuem8gRnJhc2Npbm8gPHZpbmNlbnpvLmZyYXNjaW5vQGFybS5jb20+
-DQo+IENjOiBBbmRyZXkgUnlhYmluaW4gPGFyeWFiaW5pbkB2aXJ0dW96em8uY29tPg0KPiBDYzog
-Q2F0YWxpbiBNYXJpbmFzIDxjYXRhbGluLm1hcmluYXNAYXJtLmNvbT4NCj4gQ2M6IERtaXRyeSBW
-eXVrb3YgPGR2eXVrb3ZAZ29vZ2xlLmNvbT4NCj4gQ2M6IE1hcmNvIEVsdmVyIDxlbHZlckBnb29n
-bGUuY29tPg0KPiBDYzogV2lsbCBEZWFjb24gPHdpbGwuZGVhY29uQGFybS5jb20+DQo+IENjOiBF
-cmljIFcuIEJpZWRlcm1hbiA8ZWJpZWRlcm1AeG1pc3Npb24uY29tPg0KPiBDYzogU29uZyBCYW8g
-SHVhIChCYXJyeSBTb25nKSA8c29uZy5iYW8uaHVhQGhpc2lsaWNvbi5jb20+DQo+IENjOiA8c3Rh
-YmxlQHZnZXIua2VybmVsLm9yZz4JWzUuNCtdDQo+IFNpZ25lZC1vZmYtYnk6IEFuZHJldyBNb3J0
-b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5vcmc+DQo+IC0tLQ0KPiANCj4gIGZzL3Byb2MvdGFz
-a19tbXUuYyB8ICAgIDggKysrKysrLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMo
-KyksIDIgZGVsZXRpb25zKC0pDQo+IA0KPiAtLS0gYS9mcy9wcm9jL3Rhc2tfbW11LmN+cHJvYy11
-c2UtdW50YWdnZWRfYWRkci1mb3ItcGFnZW1hcF9yZWFkLWFkZHJlc3Nlcw0KPiArKysgYS9mcy9w
-cm9jL3Rhc2tfbW11LmMNCj4gQEAgLTE1OTksMTEgKzE1OTksMTUgQEAgc3RhdGljIHNzaXplX3Qg
-cGFnZW1hcF9yZWFkKHN0cnVjdCBmaWxlDQo+ICANCj4gIAlzcmMgPSAqcHBvczsNCj4gIAlzdnBm
-biA9IHNyYyAvIFBNX0VOVFJZX0JZVEVTOw0KPiAtCXN0YXJ0X3ZhZGRyID0gc3ZwZm4gPDwgUEFH
-RV9TSElGVDsNCj4gIAllbmRfdmFkZHIgPSBtbS0+dGFza19zaXplOw0KPiAgDQo+ICAJLyogd2F0
-Y2ggb3V0IGZvciB3cmFwYXJvdW5kICovDQo+IC0JaWYgKHN2cGZuID4gbW0tPnRhc2tfc2l6ZSA+
-PiBQQUdFX1NISUZUKQ0KPiArCXN0YXJ0X3ZhZGRyID0gZW5kX3ZhZGRyOw0KPiArCWlmIChzdnBm
-biA8IChVTE9OR19NQVggPj4gUEFHRV9TSElGVCkpDQo+ICsJCXN0YXJ0X3ZhZGRyID0gdW50YWdn
-ZWRfYWRkcihzdnBmbiA8PCBQQUdFX1NISUZUKTsNCj4gKw0KPiArCS8qIEVuc3VyZSB0aGUgYWRk
-cmVzcyBpcyBpbnNpZGUgdGhlIHRhc2sgKi8NCj4gKwlpZiAoc3RhcnRfdmFkZHIgPiBtbS0+dGFz
-a19zaXplKQ0KPiAgCQlzdGFydF92YWRkciA9IGVuZF92YWRkcjsNCj4gIA0KPiAgCS8qDQo+IF8N
-Cj4gDQo+IFBhdGNoZXMgY3VycmVudGx5IGluIC1tbSB3aGljaCBtaWdodCBiZSBmcm9tIG1pbGVz
-LmNoZW5AbWVkaWF0ZWsuY29tIGFyZQ0KPiANCj4gcHJvYy11c2UtdW50YWdnZWRfYWRkci1mb3It
-cGFnZW1hcF9yZWFkLWFkZHJlc3Nlcy5wYXRjaA0KPiANCg0K
+
+Hello,
+
+We ran automated tests on a recent commit from this kernel tree:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: d6ff8d499cff - drm/amdgpu: add rlc iram and dram firmware=
+ support
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2020/12/01/618932
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - file-load
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
