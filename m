@@ -2,844 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F37522CB5FC
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 08:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A392CB661
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 09:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728821AbgLBHzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 02:55:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbgLBHzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Dec 2020 02:55:08 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.247
-Date:   Wed,  2 Dec 2020 08:55:16 +0100
-Message-Id: <160689571592176@kroah.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <16068957157446@kroah.com>
-References: <16068957157446@kroah.com>
+        id S1726493AbgLBIHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 03:07:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39964 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726148AbgLBIHe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 03:07:34 -0500
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D3EC0613D6
+        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 00:06:53 -0800 (PST)
+Received: by mail-ot1-x341.google.com with SMTP id z23so841918oti.13
+        for <stable@vger.kernel.org>; Wed, 02 Dec 2020 00:06:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=I0tCyRA5cbLP1uZu2kabfULOo+G8IcQ9utIsl4Q6Qro=;
+        b=rJGXmXDgcvEjb/aw5JVmkAKVpVZEp5l2a4AkLWZS3XveRXEFhukyI7gP3J1HblBfaU
+         rl6sBsPBJJ596YlrcOtcLWHGepkLSQAhUfCO2FuU+8/GDnjGV37k+Lim+2tnxwJTyBSz
+         /jWfbcsle7MfYQgW4CemIn9gseU508B5F0MnIEXpPeBa4QgUxlaLNgJLbYiWCzp7ftLb
+         EV4TMzfs0S1LyaviBHUAB1RhR6dfOqba+kkHVRZtgBGMQlPqI1eZ0KdYWPaId4UtWIxc
+         ldda6MRBHCfd9NHSj72FECyeqrZWsr51+6q5koFoUtdPZ/Y45Fo4R894RrvKoEEHeykg
+         UKeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=I0tCyRA5cbLP1uZu2kabfULOo+G8IcQ9utIsl4Q6Qro=;
+        b=rfXxTN+/xvFDttT47dgGWYvpeNfpFBtPeO4n7z08z8udnAkD1fUoJA1KV2hOceP4X/
+         eG+/mhxKrzBze53KfrsiEFnOV2fLh/goyWN1W7ochrCiww8BfUycI3GFI3C/+BBC+DMa
+         v9yzW8Rh5MuikLUT1F2lAkGNpHgd6vHdcDw4S4270kjC4b65P8LyklObbREKN5jc6EDd
+         ilg2QgXGTuJ8F3tYTAR7MKbXk36Rq8aP5pzB75/YFzd6sdIYlkN/8ebnNdc5nIZoK4t8
+         XNMkf5Vzu406uSroyFf/YKwjVBzNhDpqkeZFktdPNXe+POD2zpk8ApNviGBXbWZAN6EL
+         ej/w==
+X-Gm-Message-State: AOAM533F3I+MSyqwZzSaiIl7pVE9tkSeKY9Dg+11pFDyKhpunXipg7BR
+        BtpdvtQpeuzDhviVVmqt/YousCz0tkjAPklWHGBQ6g==
+X-Google-Smtp-Source: ABdhPJx+6kpSCP3aID8m0AhXIV6ICicwWUrtK8KxyoaYrNQLijZkzXq7vQJGtL0HtrnNGdN9zYx4lVKni6RihTYJqsI=
+X-Received: by 2002:a9d:4d83:: with SMTP id u3mr987334otk.283.1606896412771;
+ Wed, 02 Dec 2020 00:06:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201202071057.4877-1-andrey.zhizhikin@leica-geosystems.com>
+In-Reply-To: <20201202071057.4877-1-andrey.zhizhikin@leica-geosystems.com>
+From:   Jens Wiklander <jens.wiklander@linaro.org>
+Date:   Wed, 2 Dec 2020 09:06:41 +0100
+Message-ID: <CAHUa44HuNPmWufnxzqGLrwJqLxTkjCivYGaHvukEkk6nOd1r3g@mail.gmail.com>
+Subject: Re: [PATCH] optee: extend normal memory check to also write-through
+To:     Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+Cc:     op-tee@lists.trustedfirmware.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index c42ada4e8846..c493d3ae046f 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 246
-+SUBLEVEL = 247
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 2c9a2992863b..ffc3bc8111b8 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -707,11 +707,13 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
- 
-+		spectre_v2_user_ibpb = mode;
- 		switch (cmd) {
- 		case SPECTRE_V2_USER_CMD_FORCE:
- 		case SPECTRE_V2_USER_CMD_PRCTL_IBPB:
- 		case SPECTRE_V2_USER_CMD_SECCOMP_IBPB:
- 			static_branch_enable(&switch_mm_always_ibpb);
-+			spectre_v2_user_ibpb = SPECTRE_V2_USER_STRICT;
- 			break;
- 		case SPECTRE_V2_USER_CMD_PRCTL:
- 		case SPECTRE_V2_USER_CMD_AUTO:
-@@ -725,8 +727,6 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
--
--		spectre_v2_user_ibpb = mode;
- 	}
- 
- 	/*
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 85872a08994a..e9fc0f7df0da 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -301,10 +301,20 @@ void xen_init_lock_cpu(int cpu)
- 
- void xen_uninit_lock_cpu(int cpu)
- {
-+	int irq;
-+
- 	if (!xen_pvspin)
- 		return;
- 
--	unbind_from_irqhandler(per_cpu(lock_kicker_irq, cpu), NULL);
-+	/*
-+	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
-+	 * CPUs are not activated, and lock_kicker_irq is not initialized.
-+	 */
-+	irq = per_cpu(lock_kicker_irq, cpu);
-+	if (irq == -1)
-+		return;
-+
-+	unbind_from_irqhandler(irq, NULL);
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- 	kfree(per_cpu(irq_name, cpu));
- 	per_cpu(irq_name, cpu) = NULL;
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 9aa57b37381a..7f66ae1945b2 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2634,7 +2634,7 @@ pl330_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dst,
- 	 * If burst size is smaller than bus width then make sure we only
- 	 * transfer one at a time to avoid a burst stradling an MFIFO entry.
- 	 */
--	if (desc->rqcfg.brst_size * 8 < pl330->pcfg.data_bus_width)
-+	if (burst * 8 < pl330->pcfg.data_bus_width)
- 		desc->rqcfg.brst_len = 1;
- 
- 	desc->bytes_requested = len;
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 1689568b597d..12c5d7c96527 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -26,19 +26,17 @@
- #define CP_2WHEEL_MOUSE_HACK		0x02
- #define CP_2WHEEL_MOUSE_HACK_ON		0x04
- 
-+#define VA_INVAL_LOGICAL_BOUNDARY	0x08
-+
- /*
-  * Some USB barcode readers from cypress have usage min and usage max in
-  * the wrong order
-  */
--static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
- 	unsigned int i;
- 
--	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
--		return rdesc;
--
- 	if (*rsize < 4)
- 		return rdesc;
- 
-@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	/*
-+	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
-+	 * reports Logical Minimum of its Consumer Control device as 572
-+	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
-+	 */
-+	if (*rsize == 25 &&
-+			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
-+			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
-+			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
-+			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
-+		hid_info(hdev,
-+			 "fixing up varmilo VA104M consumer control report descriptor\n");
-+		rdesc[12] = 0x00;
-+		rdesc[13] = 0x00;
-+	}
-+	return rdesc;
-+}
-+
-+static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
-+		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
-+	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
-+		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
-+
-+	return rdesc;
-+}
-+
- static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
- 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
- 		.driver_data = CP_2WHEEL_MOUSE_HACK },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
-+		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, cp_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 33d2b5948d7f..773452c6edfa 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -279,6 +279,8 @@
- #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
- #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
- 
-+#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
-+
- #define USB_VENDOR_ID_DATA_MODUL	0x7374
- #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
- 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 8efaa88329aa..83e45d5801a9 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -473,7 +473,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
- 
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
- 
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index 40ba83338155..59e1f6ea2ede 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -811,8 +811,10 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	mailbox = mthca_alloc_mailbox(dev, GFP_KERNEL);
--	if (IS_ERR(mailbox))
-+	if (IS_ERR(mailbox)) {
-+		err = PTR_ERR(mailbox);
- 		goto err_out_arm;
-+	}
- 
- 	cq_context = mailbox->buf;
- 
-@@ -854,9 +856,9 @@ int mthca_init_cq(struct mthca_dev *dev, int nent,
- 	}
- 
- 	spin_lock_irq(&dev->cq_table.lock);
--	if (mthca_array_set(&dev->cq_table.cq,
--			    cq->cqn & (dev->limits.num_cqs - 1),
--			    cq)) {
-+	err = mthca_array_set(&dev->cq_table.cq,
-+			      cq->cqn & (dev->limits.num_cqs - 1), cq);
-+	if (err) {
- 		spin_unlock_irq(&dev->cq_table.lock);
- 		goto err_out_free_mr;
- 	}
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index c84c685056b9..6b648339733f 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -125,6 +125,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
- MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
- #endif
- 
-+static bool i8042_present;
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-@@ -343,6 +344,9 @@ int i8042_command(unsigned char *param, int command)
- 	unsigned long flags;
- 	int retval;
- 
-+	if (!i8042_present)
-+		return -1;
-+
- 	spin_lock_irqsave(&i8042_lock, flags);
- 	retval = __i8042_command(param, command);
- 	spin_unlock_irqrestore(&i8042_lock, flags);
-@@ -1597,12 +1601,15 @@ static int __init i8042_init(void)
- 
- 	err = i8042_platform_init();
- 	if (err)
--		return err;
-+		return (err == -ENODEV) ? 0 : err;
- 
- 	err = i8042_controller_check();
- 	if (err)
- 		goto err_platform_exit;
- 
-+	/* Set this before creating the dev to allow i8042_command to work right away */
-+	i8042_present = true;
-+
- 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
- 	if (IS_ERR(pdev)) {
- 		err = PTR_ERR(pdev);
-@@ -1621,6 +1628,9 @@ static int __init i8042_init(void)
- 
- static void __exit i8042_exit(void)
- {
-+	if (!i8042_present)
-+		return;
-+
- 	platform_device_unregister(i8042_platform_device);
- 	platform_driver_unregister(&i8042_driver);
- 	i8042_platform_exit();
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 2da1c2294645..250ecbcca019 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -5198,7 +5198,8 @@ static int bnxt_init_board(struct pci_dev *pdev, struct net_device *dev)
- 	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) != 0 &&
- 	    dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) != 0) {
- 		dev_err(&pdev->dev, "System does not support DMA, aborting\n");
--		goto init_err_disable;
-+		rc = -EIO;
-+		goto init_err_release;
- 	}
- 
- 	pci_set_master(pdev);
-diff --git a/drivers/nfc/s3fwrn5/i2c.c b/drivers/nfc/s3fwrn5/i2c.c
-index c61d8a308da4..779f7a76ecd3 100644
---- a/drivers/nfc/s3fwrn5/i2c.c
-+++ b/drivers/nfc/s3fwrn5/i2c.c
-@@ -37,8 +37,8 @@ struct s3fwrn5_i2c_phy {
- 	struct i2c_client *i2c_dev;
- 	struct nci_dev *ndev;
- 
--	unsigned int gpio_en;
--	unsigned int gpio_fw_wake;
-+	int gpio_en;
-+	int gpio_fw_wake;
- 
- 	struct mutex mutex;
- 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index b4fbcf4cade8..36e415487fe5 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -570,8 +570,8 @@ static void iscsi_complete_task(struct iscsi_task *task, int state)
- 	if (conn->task == task)
- 		conn->task = NULL;
- 
--	if (conn->ping_task == task)
--		conn->ping_task = NULL;
-+	if (READ_ONCE(conn->ping_task) == task)
-+		WRITE_ONCE(conn->ping_task, NULL);
- 
- 	/* release get from queueing */
- 	__iscsi_put_task(task);
-@@ -780,6 +780,9 @@ __iscsi_conn_send_pdu(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
- 						   task->conn->session->age);
- 	}
- 
-+	if (unlikely(READ_ONCE(conn->ping_task) == INVALID_SCSI_TASK))
-+		WRITE_ONCE(conn->ping_task, task);
-+
- 	if (!ihost->workq) {
- 		if (iscsi_prep_mgmt_task(conn, task))
- 			goto free_task;
-@@ -987,8 +990,11 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
-         struct iscsi_nopout hdr;
- 	struct iscsi_task *task;
- 
--	if (!rhdr && conn->ping_task)
--		return -EINVAL;
-+	if (!rhdr) {
-+		if (READ_ONCE(conn->ping_task))
-+			return -EINVAL;
-+		WRITE_ONCE(conn->ping_task, INVALID_SCSI_TASK);
-+	}
- 
- 	memset(&hdr, 0, sizeof(struct iscsi_nopout));
- 	hdr.opcode = ISCSI_OP_NOOP_OUT | ISCSI_OP_IMMEDIATE;
-@@ -1003,11 +1009,12 @@ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
- 
- 	task = __iscsi_conn_send_pdu(conn, (struct iscsi_hdr *)&hdr, NULL, 0);
- 	if (!task) {
-+		if (!rhdr)
-+			WRITE_ONCE(conn->ping_task, NULL);
- 		iscsi_conn_printk(KERN_ERR, conn, "Could not send nopout\n");
- 		return -EIO;
- 	} else if (!rhdr) {
- 		/* only track our nops */
--		conn->ping_task = task;
- 		conn->last_ping = jiffies;
- 	}
- 
-@@ -1020,7 +1027,7 @@ static int iscsi_nop_out_rsp(struct iscsi_task *task,
- 	struct iscsi_conn *conn = task->conn;
- 	int rc = 0;
- 
--	if (conn->ping_task != task) {
-+	if (READ_ONCE(conn->ping_task) != task) {
- 		/*
- 		 * If this is not in response to one of our
- 		 * nops then it must be from userspace.
-@@ -1960,7 +1967,7 @@ static void iscsi_start_tx(struct iscsi_conn *conn)
-  */
- static int iscsi_has_ping_timed_out(struct iscsi_conn *conn)
- {
--	if (conn->ping_task &&
-+	if (READ_ONCE(conn->ping_task) &&
- 	    time_before_eq(conn->last_recv + (conn->recv_timeout * HZ) +
- 			   (conn->ping_timeout * HZ), jiffies))
- 		return 1;
-@@ -2095,7 +2102,7 @@ static enum blk_eh_timer_return iscsi_eh_cmd_timed_out(struct scsi_cmnd *sc)
- 	 * Checking the transport already or nop from a cmd timeout still
- 	 * running
- 	 */
--	if (conn->ping_task) {
-+	if (READ_ONCE(conn->ping_task)) {
- 		task->have_checked_conn = true;
- 		rc = BLK_EH_RESET_TIMER;
- 		goto done;
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index d7a0a64f6453..e37f6db0dd15 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5387,11 +5387,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
- 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
- 		goto out;
- 
--	if (pm_runtime_suspended(hba->dev)) {
--		ret = ufshcd_runtime_resume(hba);
--		if (ret)
--			goto out;
--	}
-+	pm_runtime_get_sync(hba->dev);
- 
- 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
- out:
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index cbb4414edd71..c48aca1360c8 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -493,8 +493,7 @@ static void iscsit_aborted_task(struct iscsi_conn *conn, struct iscsi_cmd *cmd)
- 	bool scsi_cmd = (cmd->iscsi_opcode == ISCSI_OP_SCSI_CMD);
- 
- 	spin_lock_bh(&conn->cmd_lock);
--	if (!list_empty(&cmd->i_conn_node) &&
--	    !(cmd->se_cmd.transport_state & CMD_T_FABRIC_STOP))
-+	if (!list_empty(&cmd->i_conn_node))
- 		list_del_init(&cmd->i_conn_node);
- 	spin_unlock_bh(&conn->cmd_lock);
- 
-@@ -4228,12 +4227,22 @@ static void iscsit_release_commands_from_conn(struct iscsi_conn *conn)
- 	spin_lock_bh(&conn->cmd_lock);
- 	list_splice_init(&conn->conn_cmd_list, &tmp_list);
- 
--	list_for_each_entry(cmd, &tmp_list, i_conn_node) {
-+	list_for_each_entry_safe(cmd, cmd_tmp, &tmp_list, i_conn_node) {
- 		struct se_cmd *se_cmd = &cmd->se_cmd;
- 
- 		if (se_cmd->se_tfo != NULL) {
- 			spin_lock_irq(&se_cmd->t_state_lock);
--			se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			if (se_cmd->transport_state & CMD_T_ABORTED) {
-+				/*
-+				 * LIO's abort path owns the cleanup for this,
-+				 * so put it back on the list and let
-+				 * aborted_task handle it.
-+				 */
-+				list_move_tail(&cmd->i_conn_node,
-+					       &conn->conn_cmd_list);
-+			} else {
-+				se_cmd->transport_state |= CMD_T_FABRIC_STOP;
-+			}
- 			spin_unlock_irq(&se_cmd->t_state_lock);
- 		}
- 	}
-diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
-index 570a76d91250..eca8d04cfb3e 100644
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -222,6 +222,7 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 		struct usb_host_interface *ifp, int num_ep,
- 		unsigned char *buffer, int size)
- {
-+	struct usb_device *udev = to_usb_device(ddev);
- 	unsigned char *buffer0 = buffer;
- 	struct usb_endpoint_descriptor *d;
- 	struct usb_host_endpoint *endpoint;
-@@ -263,6 +264,16 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno,
- 		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
- 
-+	/* Ignore blacklisted endpoints */
-+	if (udev->quirks & USB_QUIRK_ENDPOINT_BLACKLIST) {
-+		if (usb_endpoint_is_blacklisted(udev, ifp, d)) {
-+			dev_warn(ddev, "config %d interface %d altsetting %d has a blacklisted endpoint with address 0x%X, skipping\n",
-+					cfgno, inum, asnum,
-+					d->bEndpointAddress);
-+			goto skip_to_next_endpoint_or_interface_descriptor;
-+		}
-+	}
-+
- 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
- 	++ifp->desc.bNumEndpoints;
- 
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 7559d96695da..4c1679cc5742 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -369,11 +369,11 @@ static void snoop_urb(struct usb_device *udev,
- 
- 	if (userurb) {		/* Async */
- 		if (when == SUBMIT)
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"length %u\n",
- 					userurb, ep, t, d, length);
- 		else
--			dev_info(&udev->dev, "userurb %pK, ep%d %s-%s, "
-+			dev_info(&udev->dev, "userurb %px, ep%d %s-%s, "
- 					"actual_length %u status %d\n",
- 					userurb, ep, t, d, length,
- 					timeout_or_status);
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index ca74b67c4450..34d8cece6dd3 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -195,6 +195,10 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* Guillemot Webcam Hercules Dualpix Exchange*/
- 	{ USB_DEVICE(0x06f8, 0x3005), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-+	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
-+	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
-+			USB_QUIRK_ENDPOINT_BLACKLIST },
-+
- 	/* Midiman M-Audio Keystation 88es */
- 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
- 
-@@ -344,6 +348,40 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
- 	{ }  /* terminating entry must be last */
- };
- 
-+/*
-+ * Entries for blacklisted endpoints that should be ignored when parsing
-+ * configuration descriptors.
-+ *
-+ * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
-+ */
-+static const struct usb_device_id usb_endpoint_blacklist[] = {
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
-+	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
-+	{ }
-+};
-+
-+bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd)
-+{
-+	const struct usb_device_id *id;
-+	unsigned int address;
-+
-+	for (id = usb_endpoint_blacklist; id->match_flags; ++id) {
-+		if (!usb_match_device(udev, id))
-+			continue;
-+
-+		if (!usb_match_one_id_intf(udev, intf, id))
-+			continue;
-+
-+		address = id->driver_info;
-+		if (address == epd->bEndpointAddress)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- static bool usb_match_any_interface(struct usb_device *udev,
- 				    const struct usb_device_id *id)
- {
-diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
-index 6b2f11544283..462a00c749b8 100644
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -31,6 +31,9 @@ extern void usb_deauthorize_interface(struct usb_interface *);
- extern void usb_authorize_interface(struct usb_interface *);
- extern void usb_detect_quirks(struct usb_device *udev);
- extern void usb_detect_interface_quirks(struct usb_device *udev);
-+extern bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd);
- extern int usb_remove_device(struct usb_device *udev);
- 
- extern int usb_get_device_descriptor(struct usb_device *dev,
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index e2451bdb4525..299412abb165 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -712,7 +712,12 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 		goto err1;
- 	}
- 
--	fb_virt = ioremap(par->mem->start, screen_fb_size);
-+	/*
-+	 * Map the VRAM cacheable for performance. This is also required for
-+	 * VM Connect to display properly for ARM64 Linux VM, as the host also
-+	 * maps the VRAM cacheable.
-+	 */
-+	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
- 	if (!fb_virt)
- 		goto err2;
- 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index b1125778b908..9e1f9910bdf2 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -5370,11 +5370,13 @@ no_delete:
- }
- 
- /*
-- * this returns the key found in the dir entry in the location pointer.
-+ * Return the key found in the dir entry in the location pointer, fill @type
-+ * with BTRFS_FT_*, and return 0.
-+ *
-  * If no dir entries were found, location->objectid is 0.
-  */
- static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
--			       struct btrfs_key *location)
-+			       struct btrfs_key *location, u8 *type)
- {
- 	const char *name = dentry->d_name.name;
- 	int namelen = dentry->d_name.len;
-@@ -5396,6 +5398,8 @@ static int btrfs_inode_by_name(struct inode *dir, struct dentry *dentry,
- 		goto out_err;
- 
- 	btrfs_dir_item_key_to_cpu(path->nodes[0], di, location);
-+	if (!ret)
-+		*type = btrfs_dir_type(path->nodes[0], di);
- out:
- 	btrfs_free_path(path);
- 	return ret;
-@@ -5681,19 +5685,25 @@ static struct inode *new_simple_dir(struct super_block *s,
- 	return inode;
- }
- 
-+static inline u8 btrfs_inode_type(struct inode *inode)
-+{
-+	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
-+}
-+
- struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
- {
- 	struct inode *inode;
- 	struct btrfs_root *root = BTRFS_I(dir)->root;
- 	struct btrfs_root *sub_root = root;
- 	struct btrfs_key location;
-+	u8 di_type = 0;
- 	int index;
- 	int ret = 0;
- 
- 	if (dentry->d_name.len > BTRFS_NAME_LEN)
- 		return ERR_PTR(-ENAMETOOLONG);
- 
--	ret = btrfs_inode_by_name(dir, dentry, &location);
-+	ret = btrfs_inode_by_name(dir, dentry, &location, &di_type);
- 	if (ret < 0)
- 		return ERR_PTR(ret);
- 
-@@ -5702,6 +5712,18 @@ struct inode *btrfs_lookup_dentry(struct inode *dir, struct dentry *dentry)
- 
- 	if (location.type == BTRFS_INODE_ITEM_KEY) {
- 		inode = btrfs_iget(dir->i_sb, &location, root, NULL);
-+		if (IS_ERR(inode))
-+			return inode;
-+
-+		/* Do extra check against inode mode with di_type */
-+		if (btrfs_inode_type(inode) != di_type) {
-+			btrfs_crit(root->fs_info,
-+"inode mode mismatch with dir: inode mode=0%o btrfs type=%u dir type=%u",
-+				  inode->i_mode, btrfs_inode_type(inode),
-+				  di_type);
-+			iput(inode);
-+			return ERR_PTR(-EUCLEAN);
-+		}
- 		return inode;
- 	}
- 
-@@ -6315,11 +6337,6 @@ fail:
- 	return ERR_PTR(ret);
- }
- 
--static inline u8 btrfs_inode_type(struct inode *inode)
--{
--	return btrfs_type_by_mode[(inode->i_mode & S_IFMT) >> S_SHIFT];
--}
--
- /*
-  * utility function to add 'inode' into 'parent_inode' with
-  * a give name and a given sequence number.
-@@ -6904,6 +6921,14 @@ again:
- 	extent_start = found_key.offset;
- 	if (found_type == BTRFS_FILE_EXTENT_REG ||
- 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
-+		/* Only regular file could have regular/prealloc extent */
-+		if (!S_ISREG(inode->i_mode)) {
-+			ret = -EUCLEAN;
-+			btrfs_crit(root->fs_info,
-+		"regular/prealloc extent found for non-regular inode %llu",
-+				   btrfs_ino(inode));
-+			goto out;
-+		}
- 		extent_end = extent_start +
- 		       btrfs_file_extent_num_bytes(leaf, item);
- 	} else if (found_type == BTRFS_FILE_EXTENT_INLINE) {
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 734babb6626c..18e667fbd054 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -462,6 +462,7 @@ next2:
- 			break;
- 	}
- out:
-+	btrfs_free_path(path);
- 	fs_info->qgroup_flags |= flags;
- 	if (!(fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_ON)) {
- 		fs_info->quota_enabled = 0;
-@@ -470,7 +471,6 @@ out:
- 		   ret >= 0) {
- 		ret = qgroup_rescan_init(fs_info, rescan_progress, 0);
- 	}
--	btrfs_free_path(path);
- 
- 	if (ret < 0) {
- 		ulist_free(fs_info->qgroup_ulist);
-diff --git a/fs/btrfs/tests/inode-tests.c b/fs/btrfs/tests/inode-tests.c
-index 054fc0d97131..5ff676df698f 100644
---- a/fs/btrfs/tests/inode-tests.c
-+++ b/fs/btrfs/tests/inode-tests.c
-@@ -235,6 +235,7 @@ static noinline int test_btrfs_get_extent(void)
- 		return ret;
- 	}
- 
-+	inode->i_mode = S_IFREG;
- 	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
- 	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
- 	BTRFS_I(inode)->location.offset = 0;
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 2d10b818399b..cd1e9411f926 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6262,6 +6262,13 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
- 		return -EIO;
- 	}
- 
-+	if (!is_power_of_2(type & BTRFS_BLOCK_GROUP_PROFILE_MASK) &&
-+	    (type & BTRFS_BLOCK_GROUP_PROFILE_MASK) != 0) {
-+		btrfs_err(root->fs_info,
-+		"invalid chunk profile flag: 0x%llx, expect 0 or 1 bit set",
-+			  type & BTRFS_BLOCK_GROUP_PROFILE_MASK);
-+		return -EUCLEAN;
-+	}
- 	if ((type & BTRFS_BLOCK_GROUP_TYPE_MASK) == 0) {
- 		btrfs_err(root->fs_info, "missing chunk type flag: 0x%llx", type);
- 		return -EIO;
-diff --git a/fs/efivarfs/inode.c b/fs/efivarfs/inode.c
-index e2ab6d0497f2..151884b95ee2 100644
---- a/fs/efivarfs/inode.c
-+++ b/fs/efivarfs/inode.c
-@@ -10,6 +10,7 @@
- #include <linux/efi.h>
- #include <linux/fs.h>
- #include <linux/ctype.h>
-+#include <linux/kmemleak.h>
- #include <linux/slab.h>
- 
- #include "internal.h"
-@@ -138,6 +139,7 @@ static int efivarfs_create(struct inode *dir, struct dentry *dentry,
- 	var->var.VariableName[i] = '\0';
- 
- 	inode->i_private = var;
-+	kmemleak_ignore(var);
- 
- 	efivar_entry_add(var, &efivarfs_list);
- 	d_instantiate(dentry, inode);
-diff --git a/fs/efivarfs/super.c b/fs/efivarfs/super.c
-index 0e4f20377d19..fca235020312 100644
---- a/fs/efivarfs/super.c
-+++ b/fs/efivarfs/super.c
-@@ -23,7 +23,6 @@ LIST_HEAD(efivarfs_list);
- static void efivarfs_evict_inode(struct inode *inode)
- {
- 	clear_inode(inode);
--	kfree(inode->i_private);
- }
- 
- static const struct super_operations efivarfs_ops = {
-diff --git a/fs/proc/self.c b/fs/proc/self.c
-index 2dcc2558b3aa..dffbe533d53f 100644
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -24,6 +24,13 @@ static const char *proc_self_follow_link(struct dentry *dentry, void **cookie)
- 	pid_t tgid = task_tgid_nr_ns(current, ns);
- 	char *name;
- 
-+	/*
-+	 * Not currently supported. Once we can inherit all of struct pid,
-+	 * we can allow this.
-+	 */
-+	if (current->flags & PF_KTHREAD)
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if (!tgid)
- 		return ERR_PTR(-ENOENT);
- 	/* 11 for max length of signed int in decimal + NULL term */
-diff --git a/include/linux/usb/quirks.h b/include/linux/usb/quirks.h
-index ea4f81c2a6d5..602dff213bae 100644
---- a/include/linux/usb/quirks.h
-+++ b/include/linux/usb/quirks.h
-@@ -59,4 +59,7 @@
- /* Device needs a pause after every control message. */
- #define USB_QUIRK_DELAY_CTRL_MSG		BIT(13)
- 
-+/* device has blacklisted endpoints */
-+#define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
-+
- #endif /* __LINUX_USB_QUIRKS_H */
-diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index c7b1dc713cdd..9c7f4aad6db6 100644
---- a/include/scsi/libiscsi.h
-+++ b/include/scsi/libiscsi.h
-@@ -144,6 +144,9 @@ struct iscsi_task {
- 	void			*dd_data;	/* driver/transport data */
- };
- 
-+/* invalid scsi_task pointer */
-+#define	INVALID_SCSI_TASK	(struct iscsi_task *)-1l
-+
- static inline int iscsi_task_has_unsol_data(struct iscsi_task *task)
- {
- 	return task->unsol_r2t.data_length > task->unsol_r2t.sent;
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index fd460aca36e5..40e4c933b372 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -305,6 +305,7 @@ bool die_is_func_def(Dwarf_Die *dw_die)
- int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- {
- 	Dwarf_Addr base, end;
-+	Dwarf_Attribute attr;
- 
- 	if (!addr)
- 		return -EINVAL;
-@@ -312,6 +313,13 @@ int die_entrypc(Dwarf_Die *dw_die, Dwarf_Addr *addr)
- 	if (dwarf_entrypc(dw_die, addr) == 0)
- 		return 0;
- 
-+	/*
-+	 *  Since the dwarf_ranges() will return 0 if there is no
-+	 * DW_AT_ranges attribute, we should check it first.
-+	 */
-+	if (!dwarf_attr(dw_die, DW_AT_ranges, &attr))
-+		return -ENOENT;
-+
- 	return dwarf_ranges(dw_die, 0, &base, addr, &end) < 0 ? -ENOENT : 0;
- }
- 
+Hi Andrey,
+
+On Wed, Dec 2, 2020 at 8:11 AM Andrey Zhizhikin
+<andrey.zhizhikin@leica-geosystems.com> wrote:
+>
+> ARMv7 Architecture Reference Manual [1] section A3.5.5 details Normal
+> memory type, together with cacheability attributes that could be applied
+> to memory regions defined as "Normal memory".
+>
+> Section B2.1.2 of the Architecture Reference Manual [1] also provides
+> details regarding the Memory attributes that could be assigned to
+> particular memory regions, which includes the descrption of cacheability
+> attributes and cache allocation hints.
+>
+> Memory type and cacheability attributes forms 2 separate definitions,
+> where cacheability attributes defines a mechanism of coherency control
+> rather than the type of memory itself.
+>
+> In other words: Normal memory type can be configured with several
+> combination of cacheability attributes, namely:
+> - Write-Through (WT)
+> - Write-Back (WB) followed by cache allocation hint:
+>   - Write-Allocate
+>   - No Write-Allocate (also known as Read-Allocate)
+>
+> Those types are mapped in the kernel to corresponding macros:
+> - Write-Through: L_PTE_MT_WRITETHROUGH
+> - Write-Back Write-Allocate: L_PTE_MT_WRITEALLOC
+> - Write-Back Read-Allocate: L_PTE_MT_WRITEBACK
+>
+> Current implementation of the op-tee driver takes in account only 2 last
+> memory region types, while performing a check if the memory block is
+> allocated as "Normal memory", leaving Write-Through allocations to be
+> not considered.
+>
+> Extend verification mechanism to include also Normal memory regios,
+> which are designated with Write-Through cacheability attributes.
+
+Are you trying to fix a real error with this or are you just trying to
+cover all cases? I suspect the latter since you'd likely have
+coherency problems with OP-TEE in Secure world if you used
+Write-Through instead. Correct me if I'm wrong, but "Write-Back
+Write-Allocate" and "Write-Back Read-Allocate" are both compatible
+with each other as the "Allocate" part is just a hint.
+
+Cheers,
+Jens
+
+>
+> Link: [1]: https://developer.arm.com/documentation/ddi0406/cd
+> Fixes: 853735e40424 ("optee: add writeback to valid memory type")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+> ---
+>  drivers/tee/optee/call.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
+> index c981757ba0d4..8da27d02a2d6 100644
+> --- a/drivers/tee/optee/call.c
+> +++ b/drivers/tee/optee/call.c
+> @@ -535,7 +535,8 @@ static bool is_normal_memory(pgprot_t p)
+>  {
+>  #if defined(CONFIG_ARM)
+>         return (((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEALLOC) ||
+> -               ((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK));
+> +               ((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITEBACK) ||
+> +               ((pgprot_val(p) & L_PTE_MT_MASK) == L_PTE_MT_WRITETHROUGH));
+>  #elif defined(CONFIG_ARM64)
+>         return (pgprot_val(p) & PTE_ATTRINDX_MASK) == PTE_ATTRINDX(MT_NORMAL);
+>  #else
+> --
+> 2.17.1
+>
