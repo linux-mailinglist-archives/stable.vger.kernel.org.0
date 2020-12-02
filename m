@@ -2,51 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B662CB288
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 02:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFFE2CB297
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 03:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727879AbgLBBw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Dec 2020 20:52:57 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:8177 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727941AbgLBBw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 20:52:57 -0500
-Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4Cm25F4pjhz15VC3;
-        Wed,  2 Dec 2020 09:51:45 +0800 (CST)
-Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
- (10.3.19.210) with Microsoft SMTP Server (TLS) id 14.3.487.0; Wed, 2 Dec 2020
- 09:52:04 +0800
-Subject: Re: [f2fs-dev] [PATCH] f2fs: init dirty_secmap incorrectly
-To:     Jack Qiu <jack.qiu@huawei.com>,
-        <linux-f2fs-devel@lists.sourceforge.net>
-CC:     <stable@vger.kernel.org>
-References: <20201201074547.1872-1-jack.qiu@huawei.com>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <e2f5f972-7333-9758-22f5-e9413a37e703@huawei.com>
-Date:   Wed, 2 Dec 2020 09:52:04 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1727833AbgLBCEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Dec 2020 21:04:45 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:44685 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727798AbgLBCEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Dec 2020 21:04:44 -0500
+X-UUID: 0d420efe3ae3424bb69ec4bd128bbf9c-20201202
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=OXgXiT5a8Mnp5ypB6as3xIIju8PcjOaG2sQKArLxEL4=;
+        b=PuqDEF9jUiBcksY9aI02gdjG9T8wmwEQfQZr0CVqJ63+WfV8CENYzsLhxrfTn5lqT0qdowpVdL4Lwi03gE6h9OumbnbeqlCf3O7qi5nX9gpjwT8VbD7oYj/NtVvo1D8ZP/ST9mEHwNgt8Ex+qFRZupWR5hPQEjqsKNkpng/hziU=;
+X-UUID: 0d420efe3ae3424bb69ec4bd128bbf9c-20201202
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
+        (envelope-from <miles.chen@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 379939401; Wed, 02 Dec 2020 10:03:59 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 2 Dec 2020 10:03:47 +0800
+Received: from [172.21.77.33] (172.21.77.33) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 2 Dec 2020 10:03:49 +0800
+Message-ID: <1606874629.22275.5.camel@mtkswgap22>
+Subject: Re: + proc-use-untagged_addr-for-pagemap_read-addresses.patch added
+ to -mm tree
+From:   Miles Chen <miles.chen@mediatek.com>
+To:     <akpm@linux-foundation.org>
+CC:     <adobriyan@gmail.com>, <andreyknvl@google.com>,
+        <aryabinin@virtuozzo.com>, <catalin.marinas@arm.com>,
+        <dvyukov@google.com>, <ebiederm@xmission.com>, <elver@google.com>,
+        <glider@google.com>, <mm-commits@vger.kernel.org>,
+        <song.bao.hua@hisilicon.com>, <stable@vger.kernel.org>,
+        <vincenzo.frascino@arm.com>, <will.deacon@arm.com>
+Date:   Wed, 2 Dec 2020 10:03:49 +0800
+In-Reply-To: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
+References: <20201128035253.0uYNNDp0B%akpm@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
 MIME-Version: 1.0
-In-Reply-To: <20201201074547.1872-1-jack.qiu@huawei.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.114.67]
-X-CFilter-Loop: Reflected
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/12/1 15:45, Jack Qiu wrote:
-> section is dirty, but dirty_secmap may not set
-> 
-> Reported-by: Jia Yang <jiayang5@huawei.com>
-> Fixes: da52f8ade40b ("f2fs: get the right gc victim section when section
-> has several segments")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
+T24gRnJpLCAyMDIwLTExLTI3IGF0IDE5OjUyIC0wODAwLCBha3BtQGxpbnV4LWZvdW5kYXRpb24u
+b3JnIHdyb3RlOg0KPiBUaGUgcGF0Y2ggdGl0bGVkDQo+ICAgICAgU3ViamVjdDogcHJvYzogdXNl
+IHVudGFnZ2VkX2FkZHIoKSBmb3IgcGFnZW1hcF9yZWFkIGFkZHJlc3Nlcw0KPiBoYXMgYmVlbiBh
+ZGRlZCB0byB0aGUgLW1tIHRyZWUuICBJdHMgZmlsZW5hbWUgaXMNCj4gICAgICBwcm9jLXVzZS11
+bnRhZ2dlZF9hZGRyLWZvci1wYWdlbWFwX3JlYWQtYWRkcmVzc2VzLnBhdGNoDQo+IA0KPiBUaGlz
+IHBhdGNoIHNob3VsZCBzb29uIGFwcGVhciBhdA0KPiAgICAgaHR0cHM6Ly9vemxhYnMub3JnL35h
+a3BtL21tb3RzL2Jyb2tlbi1vdXQvcHJvYy11c2UtdW50YWdnZWRfYWRkci1mb3ItcGFnZW1hcF9y
+ZWFkLWFkZHJlc3Nlcy5wYXRjaA0KPiBhbmQgbGF0ZXIgYXQNCj4gICAgIGh0dHBzOi8vb3psYWJz
+Lm9yZy9+YWtwbS9tbW90bS9icm9rZW4tb3V0L3Byb2MtdXNlLXVudGFnZ2VkX2FkZHItZm9yLXBh
+Z2VtYXBfcmVhZC1hZGRyZXNzZXMucGF0Y2gNCj4gDQo+IEJlZm9yZSB5b3UganVzdCBnbyBhbmQg
+aGl0ICJyZXBseSIsIHBsZWFzZToNCj4gICAgYSkgQ29uc2lkZXIgd2hvIGVsc2Ugc2hvdWxkIGJl
+IGNjJ2VkDQo+ICAgIGIpIFByZWZlciB0byBjYyBhIHN1aXRhYmxlIG1haWxpbmcgbGlzdCBhcyB3
+ZWxsDQo+ICAgIGMpIElkZWFsbHk6IGZpbmQgdGhlIG9yaWdpbmFsIHBhdGNoIG9uIHRoZSBtYWls
+aW5nIGxpc3QgYW5kIGRvIGENCj4gICAgICAgcmVwbHktdG8tYWxsIHRvIHRoYXQsIGFkZGluZyBz
+dWl0YWJsZSBhZGRpdGlvbmFsIGNjJ3MNCj4gDQo+ICoqKiBSZW1lbWJlciB0byB1c2UgRG9jdW1l
+bnRhdGlvbi9wcm9jZXNzL3N1Ym1pdC1jaGVja2xpc3QucnN0IHdoZW4gdGVzdGluZyB5b3VyIGNv
+ZGUgKioqDQo+IA0KPiBUaGUgLW1tIHRyZWUgaXMgaW5jbHVkZWQgaW50byBsaW51eC1uZXh0IGFu
+ZCBpcyB1cGRhdGVkDQo+IHRoZXJlIGV2ZXJ5IDMtNCB3b3JraW5nIGRheXMNCg0KU29ycnkgZm9y
+IGJvdGhlcmluZywgSSBjaGVja2VkIHRoZSBuZXh0LTIwMjAxMjAxIHRhZyBhbmQgdGhlIHBhdGNo
+IGluDQpuZXh0LTIwMjAxMjAxIGlzIFsxXSwgYnV0IHRoZXJlIGlzIGEgb3ZlcmZsb3cgaXNzdWUg
+aW4gWzFdIHNvIEkNCnN1Ym1pdHRlZCB2MiBbMl0uIFdlIHNob3VsZCB0YWtlIFsyXSwgcmlnaHQ/
+IA0KKHRoZSBwYXRjaCBpbiB0aGlzIGVtYWlsIGlzIFsyXSBidXQgdGhlIHBhdGNoIGluIG5leHQt
+MjAyMDEyMDEgaXMgWzFdKQ0KDQpbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvcGF0Y2h3b3Jr
+L3BhdGNoLzEzNDMyNTgvDQpbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvcGF0Y2h3b3JrL3Bh
+dGNoLzEzNDU4NzQvDQoNCg0KDQo+IA0KPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gRnJvbTogTWlsZXMgQ2hlbiA8bWlsZXMuY2hlbkBt
+ZWRpYXRlay5jb20+DQo+IFN1YmplY3Q6IHByb2M6IHVzZSB1bnRhZ2dlZF9hZGRyKCkgZm9yIHBh
+Z2VtYXBfcmVhZCBhZGRyZXNzZXMNCj4gDQo+IFdoZW4gd2UgdHJ5IHRvIHZpc2l0IHRoZSBwYWdl
+bWFwIG9mIGEgdGFnZ2VkIHVzZXJzcGFjZSBwb2ludGVyLCB3ZSBmaW5kDQo+IHRoYXQgdGhlIHN0
+YXJ0X3ZhZGRyIGlzIG5vdCBjb3JyZWN0IGJlY2F1c2Ugb2YgdGhlIHRhZy4gIFRvIGZpeCBpdCwg
+d2UNCj4gc2hvdWxkIHVudGFnIHRoZSB1c2VzcGFjZSBwb2ludGVycyBpbiBwYWdlbWFwX3JlYWQo
+KS4NCj4gDQo+IEkgdGVzdGVkIHdpdGggNS4xMC1yYzQgYW5kIHRoZSBpc3N1ZSByZW1haW5zLg0K
+PiANCj4gRXhwbGFuYXRpb24gZnJvbSBDYXRhbGluIGluIFsxXToNCj4gDQo+IDogQXJndWFibHks
+IHRoYXQncyBhIHVzZXItc3BhY2UgYnVnIHNpbmNlIHRhZ2dlZCBmaWxlIG9mZnNldHMgd2VyZSBu
+ZXZlcg0KPiA6IHN1cHBvcnRlZC4gIEluIHRoaXMgY2FzZSBpdCdzIG5vdCBldmVuIGEgdGFnIGF0
+IGJpdCA1NiBhcyBwZXIgdGhlIGFybTY0DQo+IDogdGFnZ2VkIGFkZHJlc3MgQUJJIGJ1dCByYXRo
+ZXIgZG93biB0byBiaXQgNDcuICBZb3UgY291bGQgc2F5IHRoYXQgdGhlDQo+IDogcHJvYmxlbSBp
+cyBjYXVzZWQgYnkgdGhlIEMgbGlicmFyeSAobWFsbG9jKCkpIG9yIHdob2V2ZXIgY3JlYXRlZCB0
+aGUNCj4gOiB0YWdnZWQgdmFkZHIgYW5kIHBhc3NlZCBpdCB0byB0aGlzIGZ1bmN0aW9uLiAgSXQn
+cyBub3QgYSBrZXJuZWwgcmVncmVzc2lvbg0KPiA6IGFzIHdlJ3ZlIG5ldmVyIHN1cHBvcnRlZCBp
+dC4NCj4gOiANCj4gOiBOb3csIHBhZ2VtYXAgaXMgYSBzcGVjaWFsIGNhc2Ugd2hlcmUgdGhlIG9m
+ZnNldCBpcyB1c3VhbGx5IG5vdCBnZW5lcmF0ZWQNCj4gOiBhcyBhIGNsYXNzaWMgZmlsZSBvZmZz
+ZXQgYnV0IHJhdGhlciBkZXJpdmVkIGJ5IHNoaWZ0aW5nIGEgdXNlciB2aXJ0dWFsDQo+IDogYWRk
+cmVzcy4gIEkgZ3Vlc3Mgd2UgY2FuIG1ha2UgYSBjb25jZXNzaW9uIGZvciBwYWdlbWFwIChvbmx5
+KSBhbmQgYWxsb3cNCj4gOiBzdWNoIG9mZnNldCB3aXRoIHRoZSB0YWcgYXQgYml0ICg1NiAtIFBB
+R0VfU0hJRlQgKyAzKS4NCj4gDQo+IE15IHRlc3QgY29kZSBpcyBiYWVkIG9uIFsyXToNCj4gDQo+
+IEEgdXNlcnNwYWNlIHBvaW50ZXIgd2hpY2ggaGFzIGJlZW4gdGFnZ2VkIGJ5IDB4YjQ6IDB4YjQw
+MDAwNzY2MmY1NDFjOA0KPiANCj4gPT09IHVzZXJzcGFjZSBwcm9ncmFtID09PQ0KPiANCj4gdWlu
+dDY0IE9zTGF5ZXI6OlZpcnR1YWxUb1BoeXNpY2FsKHZvaWQgKnZhZGRyKSB7DQo+IAl1aW50NjQg
+ZnJhbWUsIHBhZGRyLCBwZm5tYXNrLCBwYWdlbWFzazsNCj4gCWludCBwYWdlc2l6ZSA9IHN5c2Nv
+bmYoX1NDX1BBR0VTSVpFKTsNCj4gCW9mZjY0X3Qgb2ZmID0gKCh1aW50cHRyX3QpdmFkZHIpIC8g
+cGFnZXNpemUgKiA4OyAvLyBvZmYgPSAweGI0MDAwMDc2NjJmNTQxYzggLyBwYWdlc2l6ZSAqIDgg
+PSAweDVhMDAwMDNiMzE3YWEwDQo+IAlpbnQgZmQgPSBvcGVuKGtQYWdlbWFwUGF0aCwgT19SRE9O
+TFkpOw0KPiAJLi4uDQo+IA0KPiAJaWYgKGxzZWVrNjQoZmQsIG9mZiwgU0VFS19TRVQpICE9IG9m
+ZiB8fCByZWFkKGZkLCAmZnJhbWUsIDgpICE9IDgpIHsNCj4gCQlpbnQgZXJyID0gZXJybm87DQo+
+IAkJc3RyaW5nIGVycnR4dCA9IEVycm9yU3RyaW5nKGVycik7DQo+IAkJaWYgKGZkID49IDApDQo+
+IAkJCWNsb3NlKGZkKTsNCj4gCQlyZXR1cm4gMDsNCj4gCX0NCj4gLi4uDQo+IH0NCj4gDQo+ID09
+PSBrZXJuZWwgZnMvcHJvYy90YXNrX21tdS5jID09PQ0KPiANCj4gc3RhdGljIHNzaXplX3QgcGFn
+ZW1hcF9yZWFkKHN0cnVjdCBmaWxlICpmaWxlLCBjaGFyIF9fdXNlciAqYnVmLA0KPiAJCXNpemVf
+dCBjb3VudCwgbG9mZl90ICpwcG9zKQ0KPiB7DQo+IAkuLi4NCj4gCXNyYyA9ICpwcG9zOw0KPiAJ
+c3ZwZm4gPSBzcmMgLyBQTV9FTlRSWV9CWVRFUzsgLy8gc3ZwZm4gPT0gMHhiNDAwMDA3NjYyZjU0
+DQo+IAlzdGFydF92YWRkciA9IHN2cGZuIDw8IFBBR0VfU0hJRlQ7IC8vIHN0YXJ0X3ZhZGRyID09
+IDB4YjQwMDAwNzY2MmY1NDAwMA0KPiAJZW5kX3ZhZGRyID0gbW0tPnRhc2tfc2l6ZTsNCj4gDQo+
+IAkvKiB3YXRjaCBvdXQgZm9yIHdyYXBhcm91bmQgKi8NCj4gCS8vIHN2cGZuID09IDB4YjQwMDAw
+NzY2MmY1NA0KPiAJLy8gKG1tLT50YXNrX3NpemUgPj4gUEFHRSkgPT0gMHg4MDAwMDAwDQo+IAlp
+ZiAoc3ZwZm4gPiBtbS0+dGFza19zaXplID4+IFBBR0VfU0hJRlQpIC8vIHRoZSBjb25kaXRpb24g
+aXMgdHJ1ZSBiZWNhdXNlIG9mIHRoZSB0YWcgMHhiNA0KPiAJCXN0YXJ0X3ZhZGRyID0gZW5kX3Zh
+ZGRyOw0KPiANCj4gCXJldCA9IDA7DQo+IAl3aGlsZSAoY291bnQgJiYgKHN0YXJ0X3ZhZGRyIDwg
+ZW5kX3ZhZGRyKSkgeyAvLyB3ZSBjYW5ub3QgdmlzaXQgY29ycmVjdCBlbnRyeSBiZWNhdXNlIHN0
+YXJ0X3ZhZGRyIGlzIHNldCB0byBlbmRfdmFkZHINCj4gCQlpbnQgbGVuOw0KPiAJCXVuc2lnbmVk
+IGxvbmcgZW5kOw0KPiAJCS4uLg0KPiAJfQ0KPiAJLi4uDQo+IH0NCj4gDQo+IFsxXSBodHRwczov
+L2xvcmUua2VybmVsLm9yZy9wYXRjaHdvcmsvcGF0Y2gvMTM0MzI1OC8NCj4gWzJdIGh0dHBzOi8v
+Z2l0aHViLmNvbS9zdHJlc3NhcHB0ZXN0L3N0cmVzc2FwcHRlc3QvYmxvYi9tYXN0ZXIvc3JjL29z
+LmNjI0wxNTgNCj4gDQo+IExpbms6IGh0dHBzOi8vbGttbC5rZXJuZWwub3JnL3IvMjAyMDExMjcw
+NTA3MzguMTQ0NDAtMS1taWxlcy5jaGVuQG1lZGlhdGVrLmNvbQ0KPiBTaWduZWQtb2ZmLWJ5OiBN
+aWxlcyBDaGVuIDxtaWxlcy5jaGVuQG1lZGlhdGVrLmNvbT4NCj4gQ2M6IEFsZXhleSBEb2JyaXlh
+biA8YWRvYnJpeWFuQGdtYWlsLmNvbT4NCj4gQ2M6IEFuZHJleSBLb25vdmFsb3YgPGFuZHJleWtu
+dmxAZ29vZ2xlLmNvbT4NCj4gQ2M6IEFsZXhhbmRlciBQb3RhcGVua28gPGdsaWRlckBnb29nbGUu
+Y29tPg0KPiBDYzogVmluY2Vuem8gRnJhc2Npbm8gPHZpbmNlbnpvLmZyYXNjaW5vQGFybS5jb20+
+DQo+IENjOiBBbmRyZXkgUnlhYmluaW4gPGFyeWFiaW5pbkB2aXJ0dW96em8uY29tPg0KPiBDYzog
+Q2F0YWxpbiBNYXJpbmFzIDxjYXRhbGluLm1hcmluYXNAYXJtLmNvbT4NCj4gQ2M6IERtaXRyeSBW
+eXVrb3YgPGR2eXVrb3ZAZ29vZ2xlLmNvbT4NCj4gQ2M6IE1hcmNvIEVsdmVyIDxlbHZlckBnb29n
+bGUuY29tPg0KPiBDYzogV2lsbCBEZWFjb24gPHdpbGwuZGVhY29uQGFybS5jb20+DQo+IENjOiBF
+cmljIFcuIEJpZWRlcm1hbiA8ZWJpZWRlcm1AeG1pc3Npb24uY29tPg0KPiBDYzogU29uZyBCYW8g
+SHVhIChCYXJyeSBTb25nKSA8c29uZy5iYW8uaHVhQGhpc2lsaWNvbi5jb20+DQo+IENjOiA8c3Rh
+YmxlQHZnZXIua2VybmVsLm9yZz4JWzUuNCtdDQo+IFNpZ25lZC1vZmYtYnk6IEFuZHJldyBNb3J0
+b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5vcmc+DQo+IC0tLQ0KPiANCj4gIGZzL3Byb2MvdGFz
+a19tbXUuYyB8ICAgIDggKysrKysrLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMo
+KyksIDIgZGVsZXRpb25zKC0pDQo+IA0KPiAtLS0gYS9mcy9wcm9jL3Rhc2tfbW11LmN+cHJvYy11
+c2UtdW50YWdnZWRfYWRkci1mb3ItcGFnZW1hcF9yZWFkLWFkZHJlc3Nlcw0KPiArKysgYS9mcy9w
+cm9jL3Rhc2tfbW11LmMNCj4gQEAgLTE1OTksMTEgKzE1OTksMTUgQEAgc3RhdGljIHNzaXplX3Qg
+cGFnZW1hcF9yZWFkKHN0cnVjdCBmaWxlDQo+ICANCj4gIAlzcmMgPSAqcHBvczsNCj4gIAlzdnBm
+biA9IHNyYyAvIFBNX0VOVFJZX0JZVEVTOw0KPiAtCXN0YXJ0X3ZhZGRyID0gc3ZwZm4gPDwgUEFH
+RV9TSElGVDsNCj4gIAllbmRfdmFkZHIgPSBtbS0+dGFza19zaXplOw0KPiAgDQo+ICAJLyogd2F0
+Y2ggb3V0IGZvciB3cmFwYXJvdW5kICovDQo+IC0JaWYgKHN2cGZuID4gbW0tPnRhc2tfc2l6ZSA+
+PiBQQUdFX1NISUZUKQ0KPiArCXN0YXJ0X3ZhZGRyID0gZW5kX3ZhZGRyOw0KPiArCWlmIChzdnBm
+biA8IChVTE9OR19NQVggPj4gUEFHRV9TSElGVCkpDQo+ICsJCXN0YXJ0X3ZhZGRyID0gdW50YWdn
+ZWRfYWRkcihzdnBmbiA8PCBQQUdFX1NISUZUKTsNCj4gKw0KPiArCS8qIEVuc3VyZSB0aGUgYWRk
+cmVzcyBpcyBpbnNpZGUgdGhlIHRhc2sgKi8NCj4gKwlpZiAoc3RhcnRfdmFkZHIgPiBtbS0+dGFz
+a19zaXplKQ0KPiAgCQlzdGFydF92YWRkciA9IGVuZF92YWRkcjsNCj4gIA0KPiAgCS8qDQo+IF8N
+Cj4gDQo+IFBhdGNoZXMgY3VycmVudGx5IGluIC1tbSB3aGljaCBtaWdodCBiZSBmcm9tIG1pbGVz
+LmNoZW5AbWVkaWF0ZWsuY29tIGFyZQ0KPiANCj4gcHJvYy11c2UtdW50YWdnZWRfYWRkci1mb3It
+cGFnZW1hcF9yZWFkLWFkZHJlc3Nlcy5wYXRjaA0KPiANCg0K
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-
-Thanks,
