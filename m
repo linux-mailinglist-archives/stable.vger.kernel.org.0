@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2452CC372
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D26D62CC371
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387462AbgLBRVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 12:21:22 -0500
-Received: from mga18.intel.com ([134.134.136.126]:31473 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388140AbgLBRVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388984AbgLBRVV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 2 Dec 2020 12:21:21 -0500
-IronPort-SDR: jGLQAPsuPQwpgNkNMvw8xZTlOWTJ/E+wo7b5ifgY8IfhYe8vhgiGgGAvX46Xm7g9wuu+XwBzqD
- BP+IasjCrQHQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9823"; a="160824001"
+Received: from mga06.intel.com ([134.134.136.31]:44144 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387462AbgLBRVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Dec 2020 12:21:21 -0500
+IronPort-SDR: c4+MILHmL6zf6D1rlGF3sLqNsmOaCll+8Mh6JaIMGa4zUmWAkC7z6QP9X2xRQPvzhkgui1ZY+D
+ UpinEQxzUsvA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9823"; a="234659469"
 X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
-   d="scan'208";a="160824001"
+   d="scan'208";a="234659469"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:19 -0800
-IronPort-SDR: P3ppfBRVmI4/hS3NVV6zumS0IJ9BNoxgDyqMQWExWdgxrHY3Mn766JBQqcIS2VpjoSdzw57lED
- oCc1PAje0UNA==
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:39 -0800
+IronPort-SDR: fDjedfGRWQCzG19jh45PcOcIsP0AOetr7n/XofgRr+8o3TW6guoTWk9s024E0M7T2KB1ccldml
+ F1Po1SvaJsmA==
 X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
-   d="scan'208";a="550144772"
+   d="scan'208";a="550144914"
 Received: from ssaleem-mobl.amr.corp.intel.com ([10.209.134.28])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:19 -0800
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:38 -0800
 From:   Shiraz Saleem <shiraz.saleem@intel.com>
 To:     stable@vger.kernel.org
 Cc:     jgg@nvidia.com, "Saleem, Shiraz" <shiraz.saleem@intel.com>,
         Di Zhu <zhudi21@huawei.com>
-Subject: [PATCH 4.14-stable] RDMA/i40iw: Address an mmap handler exploit in i40iw
-Date:   Wed,  2 Dec 2020 11:20:09 -0600
-Message-Id: <20201202172012.801-1-shiraz.saleem@intel.com>
+Subject: [PATCH 4.19-stable] RDMA/i40iw: Address an mmap handler exploit in i40iw
+Date:   Wed,  2 Dec 2020 11:20:11 -0600
+Message-Id: <20201202172012.801-2-shiraz.saleem@intel.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20201202172012.801-1-shiraz.saleem@intel.com>
+References: <20201202172012.801-1-shiraz.saleem@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -68,7 +70,7 @@ Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
  2 files changed, 7 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/infiniband/hw/i40iw/i40iw_main.c b/drivers/infiniband/hw/i40iw/i40iw_main.c
-index 27590ae..f41ac28 100644
+index 68095f0..41227d9 100644
 --- a/drivers/infiniband/hw/i40iw/i40iw_main.c
 +++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
 @@ -54,10 +54,6 @@
@@ -82,7 +84,7 @@ index 27590ae..f41ac28 100644
  static int debug;
  module_param(debug, int, 0644);
  MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
-@@ -1564,7 +1560,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
+@@ -1584,7 +1580,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
  	if (status)
  		goto exit;
  	iwdev->obj_next = iwdev->obj_mem;
@@ -91,10 +93,10 @@ index 27590ae..f41ac28 100644
  	init_waitqueue_head(&iwdev->vchnl_waitq);
  	init_waitqueue_head(&dev->vf_reqs);
 diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-index 57bfe48..cc943b4 100644
+index a5e3349..314d191 100644
 --- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
 +++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-@@ -199,38 +199,16 @@ static int i40iw_dealloc_ucontext(struct ib_ucontext *context)
+@@ -201,38 +201,16 @@ static int i40iw_dealloc_ucontext(struct ib_ucontext *context)
   */
  static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
  {
