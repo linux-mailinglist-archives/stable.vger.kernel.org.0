@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F832CC373
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56072CC375
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:23:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728829AbgLBRVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 12:21:37 -0500
-Received: from mga18.intel.com ([134.134.136.126]:31473 "EHLO mga18.intel.com"
+        id S1730829AbgLBRWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 12:22:00 -0500
+Received: from mga04.intel.com ([192.55.52.120]:47763 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728741AbgLBRVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Dec 2020 12:21:37 -0500
-IronPort-SDR: EV6yL7XkCBtG2sd4+aQ+Fw9Agqe+Uvtr+8CrwTm5FCRUyJPNfcE48bydN9BgPhnwZPsGGRLke4
- j/SosNQaMYUw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9823"; a="160824106"
+        id S1728741AbgLBRV7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Dec 2020 12:21:59 -0500
+IronPort-SDR: eRFxWAceIm9F1Q+Kz9PjY8fJ2LQtMJvARgYlkZ71+y9wGSzIbAN13z/lRQ3vmG3rwA7nQAdxQI
+ pA7+qjQCEIxw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9823"; a="170487771"
 X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
-   d="scan'208";a="160824106"
+   d="scan'208";a="170487771"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:54 -0800
-IronPort-SDR: 3193yizMyFR8Hp4itQmPC2h8T6g8BWEH+SKY4Viu5RqGQFfRrmzTEZGGVZ9JsL/mwOUGkPuy/r
- xgzlICcnyaeg==
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:21:19 -0800
+IronPort-SDR: k365uQZEJKy2biQCqL50Wxz+Ft5Z1Qc5AlQVQ+SmpAgxF9frihODyhmTSmRK8nysIYuaqvBFGO
+ 5Ovn6CK1s4NA==
 X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
-   d="scan'208";a="550145050"
+   d="scan'208";a="550145170"
 Received: from ssaleem-mobl.amr.corp.intel.com ([10.209.134.28])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:54 -0800
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:21:18 -0800
 From:   Shiraz Saleem <shiraz.saleem@intel.com>
 To:     stable@vger.kernel.org
 Cc:     jgg@nvidia.com, "Saleem, Shiraz" <shiraz.saleem@intel.com>,
         Di Zhu <zhudi21@huawei.com>
-Subject: [PATCH 4.9-stable] RDMA/i40iw: Address an mmap handler exploit in i40iw
-Date:   Wed,  2 Dec 2020 11:20:13 -0600
-Message-Id: <20201202172012.801-3-shiraz.saleem@intel.com>
+Subject: [PATCH 5.4-stable] RDMA/i40iw: Address an mmap handler exploit in i40iw
+Date:   Wed,  2 Dec 2020 11:20:15 -0600
+Message-Id: <20201202172012.801-4-shiraz.saleem@intel.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20201202172012.801-1-shiraz.saleem@intel.com>
 References: <20201202172012.801-1-shiraz.saleem@intel.com>
