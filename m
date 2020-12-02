@@ -2,192 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2E72CC34F
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2452CC372
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 18:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbgLBRSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 12:18:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726003AbgLBRSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 12:18:39 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493F6C0613CF;
-        Wed,  2 Dec 2020 09:17:53 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id n10so1306236pgv.8;
-        Wed, 02 Dec 2020 09:17:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=j95XgfQyD6IQevO7Sfx6Snpqb0qU+IHRMy1OGEHjQN0=;
-        b=qPtUq62KAwgpe+xUnOaenURzwNPWmOmyNaI1oPkvd3gGD4Q3WpKszXuK9G4l+uAmMy
-         Efkk0tUgtIhPfRYrZi/iFxiRkJGJFcgMwKZr831DLYyzGd17wX3yDjpuIl6ynoNOWG4F
-         k0O/9Tc048UCjrh1/sHDQWXOb3LkGV+Fc35YXaeiYRvK6Ljbr7BYQXMxLTa5Ned+u/+U
-         YXh5taabnZqzpSV3gGQNxXtfrHKnLUV0hkl5XpJVBozdvsAcyIGQmQqSqzwxYwGonlfs
-         j3VdvgD7TO1qQWA8SZ9BylmAPvAAhiqTnx5w+Q0i+Rb5n9BYXzRIOfyogSxif0nPoksV
-         3opQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=j95XgfQyD6IQevO7Sfx6Snpqb0qU+IHRMy1OGEHjQN0=;
-        b=ihy4dyzyMvzJ+XchVFpuc7sx5Q0QEyVlDzoWnkWdTQWCwJoM43A62HyUzpe6Ys2U4G
-         pmwz4yrZOShGv/G/p2l+lQIijhZYfgrvccu5gWzwtTfzJQ+Yq6bQ6PUDzaivZJdmPETm
-         9m5TU9ZbhPDM+Pe7T3425n2iyC8eXW6z6Vl++ZxnqaSohq2M/BXTRj5QyTvZpjuspvhs
-         xl/7a9fYZkzoXxjYSx6Y6fmkQhbjAiLxfCwIz+TE7tprZUnXivoV8WYyTzpo6hn8Pr/w
-         59dc2K2srHP1hXsF5U7jdxlN5qfbv9fIjEqagLXSxcH4aaXy/01mQP+1vIC7POJfXBzR
-         JTTQ==
-X-Gm-Message-State: AOAM532rmkkGRvVoDlUxNyuyeQC6Nde59tZndVMa/xgYV6/RVmUZ58Qo
-        agQZghB4KlgqGAqbiQD2bWY=
-X-Google-Smtp-Source: ABdhPJy4s49K0W2g2rcdA8qvIkrcUY5cCSwuuVjlQGkUvI14t6dFCmASfNvG19Ytc1CUKH9/wc5mRA==
-X-Received: by 2002:a63:ff5d:: with SMTP id s29mr791475pgk.290.1606929472793;
-        Wed, 02 Dec 2020 09:17:52 -0800 (PST)
-Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id w63sm502454pfc.20.2020.12.02.09.17.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Dec 2020 09:17:51 -0800 (PST)
-From:   Yang Shi <shy828301@gmail.com>
-To:     guro@fb.com, ktkhai@virtuozzo.com, shakeelb@google.com,
-        vdavydov.dev@gmail.com, akpm@linux-foundation.org
-Cc:     shy828301@gmail.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v4 PATCH] mm: list_lru: set shrinker map bit when child nr_items is not zero
-Date:   Wed,  2 Dec 2020 09:17:49 -0800
-Message-Id: <20201202171749.264354-1-shy828301@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        id S2387462AbgLBRVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 12:21:22 -0500
+Received: from mga18.intel.com ([134.134.136.126]:31473 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388140AbgLBRVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Dec 2020 12:21:21 -0500
+IronPort-SDR: jGLQAPsuPQwpgNkNMvw8xZTlOWTJ/E+wo7b5ifgY8IfhYe8vhgiGgGAvX46Xm7g9wuu+XwBzqD
+ BP+IasjCrQHQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9823"; a="160824001"
+X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
+   d="scan'208";a="160824001"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:19 -0800
+IronPort-SDR: P3ppfBRVmI4/hS3NVV6zumS0IJ9BNoxgDyqMQWExWdgxrHY3Mn766JBQqcIS2VpjoSdzw57lED
+ oCc1PAje0UNA==
+X-IronPort-AV: E=Sophos;i="5.78,387,1599548400"; 
+   d="scan'208";a="550144772"
+Received: from ssaleem-mobl.amr.corp.intel.com ([10.209.134.28])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2020 09:20:19 -0800
+From:   Shiraz Saleem <shiraz.saleem@intel.com>
+To:     stable@vger.kernel.org
+Cc:     jgg@nvidia.com, "Saleem, Shiraz" <shiraz.saleem@intel.com>,
+        Di Zhu <zhudi21@huawei.com>
+Subject: [PATCH 4.14-stable] RDMA/i40iw: Address an mmap handler exploit in i40iw
+Date:   Wed,  2 Dec 2020 11:20:09 -0600
+Message-Id: <20201202172012.801-1-shiraz.saleem@intel.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When investigating a slab cache bloat problem, significant amount of
-negative dentry cache was seen, but confusingly they neither got shrunk
-by reclaimer (the host has very tight memory) nor be shrunk by dropping
-cache.  The vmcore shows there are over 14M negative dentry objects on lru,
-but tracing result shows they were even not scanned at all.  The further
-investigation shows the memcg's vfs shrinker_map bit is not set.  So the
-reclaimer or dropping cache just skip calling vfs shrinker.  So we have
-to reboot the hosts to get the memory back.
+From: "Saleem, Shiraz" <shiraz.saleem@intel.com>
 
-I didn't manage to come up with a reproducer in test environment, and the
-problem can't be reproduced after rebooting.  But it seems there is race
-between shrinker map bit clear and reparenting by code inspection.  The
-hypothesis is elaborated as below.
+backport of commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
 
-The memcg hierarchy on our production environment looks like:
-                root
-               /    \
-          system   user
+i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
+vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
+without any validation. This is vulnerable to an mmap exploit as described
+in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
 
-The main workloads are running under user slice's children, and it creates
-and removes memcg frequently.  So reparenting happens very often under user
-slice, but no task is under user slice directly.
+The push feature is disabled in the driver currently and therefore no push
+mmaps are issued from user-space. The feature does not work as expected in
+the x722 product.
 
-So with the frequent reparenting and tight memory pressure, the below
-hypothetical race condition may happen:
+Remove the push module parameter and all VMA attribute manipulations for
+this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
+mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
+to a single page.
 
-       CPU A                            CPU B
-reparent
-    dst->nr_items == 0
-                                 shrinker:
-                                     total_objects == 0
-    add src->nr_items to dst
-    set_bit
-                                     return SHRINK_EMPTY
-                                     clear_bit
-child memcg offline
-    replace child's kmemcg_id with
-    parent's (in memcg_offline_kmem())
-                                  list_lru_del() between shrinker runs
-                                     see parent's kmemcg_id
-                                     dec dst->nr_items
-reparent again
-    dst->nr_items may go negative
-    due to concurrent list_lru_del()
-
-                                 The second run of shrinker:
-                                     read nr_items without any
-                                     synchronization, so it may
-                                     see intermediate negative
-                                     nr_items then total_objects
-                                     may return 0 coincidently
-
-                                     keep the bit cleared
-    dst->nr_items != 0
-    skip set_bit
-    add scr->nr_item to dst
-
-After this point dst->nr_item may never go zero, so reparenting will not
-set shrinker_map bit anymore.  And since there is no task under user
-slice directly, so no new object will be added to its lru to set the
-shrinker map bit either.  That bit is kept cleared forever.
-
-How does list_lru_del() race with reparenting?  It is because
-reparenting replaces children's kmemcg_id to parent's without protecting
-from nlru->lock, so list_lru_del() may see parent's kmemcg_id but
-actually deleting items from child's lru, but dec'ing parent's nr_items,
-so the parent's nr_items may go negative as commit
-2788cf0c401c268b4819c5407493a8769b7007aa ("memcg: reparent list_lrus and
-free kmemcg_id on css offline") says.
-
-Since it is impossible that dst->nr_items goes negative and
-src->nr_items goes zero at the same time, so it seems we could set the
-shrinker map bit iff src->nr_items != 0.  We could synchronize
-list_lru_count_one() and reparenting with nlru->lock, but it seems
-checking src->nr_items in reparenting is the simplest and avoids lock
-contention.
-
-Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
-Suggested-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org> v4.19+
-Signed-off-by: Yang Shi <shy828301@gmail.com>
+Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
+Reported-by: Di Zhu <zhudi21@huawei.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
 ---
-v4: * Fixed the spelling errors found by Shakeel
-    * Added ack/review tag from Kirill and Shakeel
-v3: * Revised commit log per Roman's suggestion
-    * Added Roman's reviewed-by tag
-v2: * Incorporated Roman's suggestion
-    * Incorporated Kirill's suggestion
-    * Changed the subject of patch to get align with the new fix
-    * Added fixes tag
- mm/list_lru.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/i40iw/i40iw_main.c  |  5 -----
+ drivers/infiniband/hw/i40iw/i40iw_verbs.c | 36 ++++++-------------------------
+ 2 files changed, 7 insertions(+), 34 deletions(-)
 
-diff --git a/mm/list_lru.c b/mm/list_lru.c
-index 5aa6e44bc2ae..fe230081690b 100644
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -534,7 +534,6 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
- 	struct list_lru_node *nlru = &lru->node[nid];
- 	int dst_idx = dst_memcg->kmemcg_id;
- 	struct list_lru_one *src, *dst;
--	bool set;
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_main.c b/drivers/infiniband/hw/i40iw/i40iw_main.c
+index 27590ae..f41ac28 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -54,10 +54,6 @@
+ #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
+ 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
  
- 	/*
- 	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
-@@ -546,11 +545,12 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
- 	dst = list_lru_from_memcg_idx(nlru, dst_idx);
+-static int push_mode;
+-module_param(push_mode, int, 0644);
+-MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
+-
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
+@@ -1564,7 +1560,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
+ 	if (status)
+ 		goto exit;
+ 	iwdev->obj_next = iwdev->obj_mem;
+-	iwdev->push_mode = push_mode;
  
- 	list_splice_init(&src->list, &dst->list);
--	set = (!dst->nr_items && src->nr_items);
--	dst->nr_items += src->nr_items;
--	if (set)
-+
-+	if (src->nr_items) {
-+		dst->nr_items += src->nr_items;
- 		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
--	src->nr_items = 0;
-+		src->nr_items = 0;
-+	}
+ 	init_waitqueue_head(&iwdev->vchnl_waitq);
+ 	init_waitqueue_head(&dev->vf_reqs);
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+index 57bfe48..cc943b4 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -199,38 +199,16 @@ static int i40iw_dealloc_ucontext(struct ib_ucontext *context)
+  */
+ static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
+ {
+-	struct i40iw_ucontext *ucontext;
+-	u64 db_addr_offset;
+-	u64 push_offset;
+-
+-	ucontext = to_ucontext(context);
+-	if (ucontext->iwdev->sc_dev.is_pf) {
+-		db_addr_offset = I40IW_DB_ADDR_OFFSET;
+-		push_offset = I40IW_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
+-	} else {
+-		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
+-		push_offset = I40IW_VF_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
+-	}
++	struct i40iw_ucontext *ucontext = to_ucontext(context);
++	u64 dbaddr;
  
- 	spin_unlock_irq(&nlru->lock);
- }
+-	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
++	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
+ 
+-	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		vma->vm_private_data = ucontext;
+-	} else {
+-		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
+-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		else
+-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+-	}
++	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
+ 
+-	if (io_remap_pfn_range(vma, vma->vm_start,
+-			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
+-			       PAGE_SIZE, vma->vm_page_prot))
++	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
++			       pgprot_noncached(vma->vm_page_prot)))
+ 		return -EAGAIN;
+ 
+ 	return 0;
 -- 
-2.26.2
+1.8.3.1
 
