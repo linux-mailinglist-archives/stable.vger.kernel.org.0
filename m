@@ -2,169 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C553C2CB693
-	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 09:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6B52CB6F4
+	for <lists+stable@lfdr.de>; Wed,  2 Dec 2020 09:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbgLBIQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 03:16:00 -0500
-Received: from relay.sw.ru ([185.231.240.75]:34110 "EHLO relay3.sw.ru"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728833AbgLBIQA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Dec 2020 03:16:00 -0500
-Received: from [192.168.15.15]
-        by relay3.sw.ru with esmtp (Exim 4.94)
-        (envelope-from <ktkhai@virtuozzo.com>)
-        id 1kkNHu-00BNnE-5V; Wed, 02 Dec 2020 11:14:58 +0300
-Subject: Re: [v3 PATCH] mm: list_lru: set shrinker map bit when child nr_items
- is not zero
-To:     Yang Shi <shy828301@gmail.com>, guro@fb.com,
-        vdavydov.dev@gmail.com, shakeelb@google.com,
-        akpm@linux-foundation.org
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20201201212553.52164-1-shy828301@gmail.com>
-From:   Kirill Tkhai <ktkhai@virtuozzo.com>
-Message-ID: <18b7b2d4-7d51-ce84-b8f7-e61af8dcb92f@virtuozzo.com>
-Date:   Wed, 2 Dec 2020 11:15:07 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S1727089AbgLBIWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 03:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727065AbgLBIWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 03:22:12 -0500
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3805FC0613CF
+        for <stable@vger.kernel.org>; Wed,  2 Dec 2020 00:21:32 -0800 (PST)
+Received: by mail-lj1-x242.google.com with SMTP id q8so2104285ljc.12
+        for <stable@vger.kernel.org>; Wed, 02 Dec 2020 00:21:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=50hkyjdpOpzVKpMdbqi7m/ZX+zJIgmsLFnDXoZPSm2Q=;
+        b=T//dxfbZlqYIL3B9Eymb1uVKhIvGeR7JLrgZYy06DjsBlOvJ6mN3cC7CZadr8l0Mjd
+         RIjjGv0wy9lzeJO6dMZylZscEeEdhT/O2HTTbFiOpGCS8OQTkNV7OwgIu5yO4c144K0i
+         qn+7aR9AVgPxwuVIl0zXn5jwHen+CmOMd81rGkQoQwAEwyQyyfkGix2tfDbY2AqJOn71
+         EvMC++xCA6DO5fHEvDYY/jfO+T+8xJ+lRNAPR68y9DxYw9Pb7FEJZJ6bePXZv+kDKVmX
+         zFlKYgmYsZ5EdcvnPl+ELR7P+wBbscUVc5YlUGcf1LkPmYha2B92t3WUNJEqsSWVO5Io
+         AKAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=50hkyjdpOpzVKpMdbqi7m/ZX+zJIgmsLFnDXoZPSm2Q=;
+        b=Oq8Us9bPHQVeAbeiwF6HojlIgmRWORMdXP/W0HVM2nxzBdRXghaioHXh7CePQc2Ywv
+         kzL/aCNnLRYHkZ9jr1IfubQEDCcmK64CiZS88VPHEaH5u1DYW5IpGD0MBYSKAVVlOlvN
+         J1zJvVgX3l5whKmz35fEEBWFuYcQmTOKZRFQVNPK135jZdfjypG5mDCCu8qh644AxM3I
+         3QIKsvHxHD22iNDznafYw1XeuFtEjWMfHiRguErYUgvXEyBm162iEEqmxqzrG0mLVkzd
+         ZIgX9s+qZeXsc8bo6YAr6xJI+a6ST87iQrVNC7nwpKsQ9Y2NQmH0RunkrBXDaCnJpltZ
+         BFMQ==
+X-Gm-Message-State: AOAM530QzNWchA9OvB/Urq7Tjsoxiec3iBcG6LK/t4sDkDaWJnzl/G0o
+        8dLIcGs1dibSWmNpfvgiYZc0FdP6Pfbjl1WqAydQfg==
+X-Google-Smtp-Source: ABdhPJwFAQRxGlhjQ15vSiOuaTt1Tb5IURPTrmg75yaCqmsDRNd3GYAbfNvhV/Z3rERkSzAPLYO0WaNGpwdouQgT7nA=
+X-Received: by 2002:a2e:b8d0:: with SMTP id s16mr621380ljp.423.1606897290626;
+ Wed, 02 Dec 2020 00:21:30 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201201212553.52164-1-shy828301@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
+ <e87e517b-7f97-66ba-4f17-718330910a7b@canonical.com> <X8dHZP78hCVlb3n9@kroah.com>
+In-Reply-To: <X8dHZP78hCVlb3n9@kroah.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Wed, 2 Dec 2020 09:21:19 +0100
+Message-ID: <CAKfTPtDTQsaQbB3OrAD5Q=0d5oULu6TD18+WQ1b-S05n46WeyQ@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
+ leaf_cfs_rq list" failed to apply to 5.4-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Phil Auld <pauld@redhat.com>,
+        Tao Zhou <zohooouoto@zoho.com.cn>,
+        "# v4 . 16+" <stable@vger.kernel.org>,
+        Gavin Guo <gavin.guo@canonical.com>,
+        nivedita.singhvi@canonical.com, halves@canonical.com,
+        Jay Vosburgh <jay.vosburgh@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02.12.2020 00:25, Yang Shi wrote:
-> When investigating a slab cache bloat problem, significant amount of
-> negative dentry cache was seen, but confusingly they neither got shrunk
-> by reclaimer (the host has very tight memory) nor be shrunk by dropping
-> cache.  The vmcore shows there are over 14M negative dentry objects on lru,
-> but tracing result shows they were even not scanned at all.  The further
-> investigation shows the memcg's vfs shrinker_map bit is not set.  So the
-> reclaimer or dropping cache just skip calling vfs shrinker.  So we have
-> to reboot the hosts to get the memory back.
-> 
-> I didn't manage to come up with a reproducer in test environment, and the
-> problem can't be reproduced after rebooting.  But it seems there is race
-> between shrinker map bit clear and reparenting by code inspection.  The
-> hypothesis is elaborated as below.
-> 
-> The memcg hierarchy on our production environment looks like:
->                 root
->                /    \
->           system   user
-> 
-> The main workloads are running under user slice's children, and it creates
-> and removes memcg frequently.  So reparenting happens very often under user
-> slice, but no task is under user slice directly.
-> 
-> So with the frequent reparenting and tight memory pressure, the below
-> hypothetical race condition may happen:
-> 
->        CPU A                            CPU B
-> reparent
->     dst->nr_items == 0
->                                  shrinker:
->                                      total_objects == 0
->     add src->nr_items to dst
->     set_bit
->                                      retrun SHRINK_EMPTY
->                                      clear_bit
-> child memcg offline
->     replace child's kmemcg_id to
->     parent's (in memcg_offline_kmem())
->                                   list_lru_del() between shrinker runs
->                                      see parent's kmemcg_id
->                                      dec dst->nr_items
-> reparent again
->     dst->nr_items may go negative
->     due to concurrent list_lru_del()
-> 
->                                  The second run of shrinker:
->                                      read nr_items without any
->                                      synchronization, so it may
->                                      see intermediate negative
->                                      nr_items then total_objects
->                                      may return 0 conincidently
-> 
->                                      keep the bit cleared
->     dst->nr_items != 0
->     skip set_bit
->     add scr->nr_item to dst
-> 
-> After this point dst->nr_item may never go zero, so reparenting will not
-> set shrinker_map bit anymore.  And since there is no task under user
-> slice directly, so no new object will be added to its lru to set the
-> shrinker map bit either.  That bit is kept cleared forever.
-> 
-> How does list_lru_del() race with reparenting?  It is because
-> reparenting replaces childen's kmemcg_id to parent's without protecting
-> from nlru->lock, so list_lru_del() may see parent's kmemcg_id but
-> actually deleting items from child's lru, but dec'ing parent's nr_items,
-> so the parent's nr_items may go negative as commit
-> 2788cf0c401c268b4819c5407493a8769b7007aa ("memcg: reparent list_lrus and
-> free kmemcg_id on css offline") says.
-> 
-> Since it is impossible that dst->nr_items goes negative and
-> src->nr_items goes zero at the same time, so it seems we could set the
-> shrinker map bit iff src->nr_items != 0.  We could synchronize
-> list_lru_count_one() and reparenting with nlru->lock, but it seems
-> checking src->nr_items in reparenting is the simplest and avoids lock
-> contention.
-> 
-> Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
-> Suggested-by: Roman Gushchin <guro@fb.com>
-> Reviewed-by: Roman Gushchin <guro@fb.com>
-> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-> Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: <stable@vger.kernel.org> v4.19+
-> Signed-off-by: Yang Shi <shy828301@gmail.com>
+On Wed, 2 Dec 2020 at 08:49, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Dec 01, 2020 at 12:03:18PM -0300, Guilherme G. Piccoli wrote:
+> > Hey Sasha, sorry to annoy again, but maybe Peter is very busy - wouldn't
+> > be possible maybe to get that merged after a review from Ben or Ingo? I
+> > see them in the MAINTAINERS file, specially Ben as CONFIG_CFS_BANDWIDTH
+> > maintainer.
+> >
+> > I understand the confidence in this patch is relatively high, since it's
+> > a backport from the author, right?
+>
+> I still want to see an ack from the maintainer please.
 
-Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+SCHEDULER
+M: Ingo Molnar <mingo@redhat.com>
+M: Peter Zijlstra <peterz@infradead.org>
+M: Juri Lelli <juri.lelli@redhat.com> (SCHED_DEADLINE)
+M: Vincent Guittot <vincent.guittot@linaro.org> (SCHED_NORMAL)
+R: Dietmar Eggemann <dietmar.eggemann@arm.com> (SCHED_NORMAL)
+R: Steven Rostedt <rostedt@goodmis.org> (SCHED_FIFO/SCHED_RR)
+R: Ben Segall <bsegall@google.com> (CONFIG_CFS_BANDWIDTH)
+R: Mel Gorman <mgorman@suse.de> (CONFIG_NUMA_BALANCING)
+L: linux-kernel@vger.kernel.org
+T: git git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git sched/core
+S: Maintained
+F: kernel/sched/
+F: include/linux/sched.h
+F: include/uapi/linux/sched.h
+F: include/linux/wait.h
+F: include/linux/preempt.h
 
-> ---
-> v3: * Revised commit log per Roman's suggestion
->     * Added Roman's reviewed-by tag
-> v2: * Incorporated Roman's suggestion
->     * Incorporated Kirill's suggestion
->     * Changed the subject of patch to get align with the new fix
->     * Added fixes tag
-> 
->  mm/list_lru.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/mm/list_lru.c b/mm/list_lru.c
-> index 5aa6e44bc2ae..fe230081690b 100644
-> --- a/mm/list_lru.c
-> +++ b/mm/list_lru.c
-> @@ -534,7 +534,6 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
->  	struct list_lru_node *nlru = &lru->node[nid];
->  	int dst_idx = dst_memcg->kmemcg_id;
->  	struct list_lru_one *src, *dst;
-> -	bool set;
->  
->  	/*
->  	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
-> @@ -546,11 +545,12 @@ static void memcg_drain_list_lru_node(struct list_lru *lru, int nid,
->  	dst = list_lru_from_memcg_idx(nlru, dst_idx);
->  
->  	list_splice_init(&src->list, &dst->list);
-> -	set = (!dst->nr_items && src->nr_items);
-> -	dst->nr_items += src->nr_items;
-> -	if (set)
-> +
-> +	if (src->nr_items) {
-> +		dst->nr_items += src->nr_items;
->  		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
-> -	src->nr_items = 0;
-> +		src->nr_items = 0;
-> +	}
->  
->  	spin_unlock_irq(&nlru->lock);
->  }
-> 
+Isn't me and Ben enough in this case ?
 
+>
+> thanks,
+>
+> greg k-h
