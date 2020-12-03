@@ -2,61 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 713F82CD40D
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 11:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 607972CD45B
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 12:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388994AbgLCKzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 05:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387870AbgLCKzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 05:55:12 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B5AC061A4D;
-        Thu,  3 Dec 2020 02:54:32 -0800 (PST)
+        id S1729246AbgLCLMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 06:12:35 -0500
+Received: from vps.downunderonline.net.au ([182.160.155.85]:56020 "EHLO
+        vps.downunderonline.net.au" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729231AbgLCLMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 06:12:35 -0500
+X-Greylist: delayed 3508 seconds by postgrey-1.27 at vger.kernel.org; Thu, 03 Dec 2020 06:12:34 EST
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=9XAdOW0NAX0z97TKLA8+FaheS9mZEC++RheCYzCJiC0=; b=KKTMVrk2lo1kupWYSi6GnJ50BP
-        bbFlrFd213SadLnGexgRgxCz6XGnrCowFQbZYP0Ek8+TnQmvse7dy5OKwmn3pXSROdY1BzfrmJGB7
-        WW45gsa7uqgVDk/WxaN9QYY8s+hVcAKPMCMPVFg2fu9KPvvCsD0GvKgR/MmFKuTbob/dBDcKLVx5B
-        P4sgOAspA60qV3ACg3l+Xcm5i655Z8KcWvX8nWRsfPX46HdLgl5RGBnPSVO5i2BEUZohg7qg0CNNo
-        nWKWXZKL375ibiXy3GHDnLyLwKh1LD+IWnvr+atfzHA8HHC/BA61aXGhVhSOPkC/SH6irn6M9BAc8
-        ZESKvs0w==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kkmFV-0001La-1V; Thu, 03 Dec 2020 10:54:09 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3C29D305C11;
-        Thu,  3 Dec 2020 11:54:07 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 26E2820C22F92; Thu,  3 Dec 2020 11:54:07 +0100 (CET)
-Date:   Thu, 3 Dec 2020 11:54:07 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Yi Zhang <yi.zhang@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org,
-        willy@infradead.org
-Subject: Re: [PATCH] x86/mm: Fix leak of pmd ptlock
-Message-ID: <20201203105407.GL2414@hirez.programming.kicks-ass.net>
-References: <160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com>
+        d=regencywaterfrontnoosa.com.au; s=default; h=Content-Transfer-Encoding:
+        Content-Type:Message-ID:Subject:To:From:Date:MIME-Version:Sender:Reply-To:Cc:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=PgGzB3sjECFYoQ8mCIrc9pyc9nvHfjTUzcYxWQTIITc=; b=kex/y0yiHOQYWD9s4XIQsAOK/
+        uPFZHng/I5lyK3RRHuUhqVG00rR4myFFiRGwUtL4CGUefmBupb551S6nPnV2h59RLnAyHeyTsw/EU
+        kuPCXOWMB753coQ9vCagLfE6KI6BBLRpqIkXIdEo1+8DKuLg3DMXQCvnktOqpvmCrDgHuaHBYrQbm
+        RhXUBbSGouNEufVjOKzNp6I12CsAT3Pl0x0KTpNuTmoaozboyR2uXKGDt9NhRnsWeUKmweYWsFXiZ
+        hlSo0sFn9XV2XoaBhm1zqJRqVeBhJ8J29U+r7afEZ7WXvuR/qO6nZAzl+MNwuvW36ypZ82BqDQUOy
+        JTXv28opA==;
+Received: from localhost ([127.0.0.1]:49974 helo=vps.downunderonline.net.au)
+        by vps.downunderonline.net.au with esmtpa (Exim 4.93)
+        (envelope-from <huozx@gmail.com>)
+        id 1kklbW-0004VV-3K; Thu, 03 Dec 2020 21:12:54 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com>
+Date:   Thu, 03 Dec 2020 21:12:49 +1100
+From:   A <huozx@gmail.com>
+To:     undisclosed-recipients:;
+Subject: bb
+User-Agent: Roundcube Webmail/1.4.8
+Message-ID: <38aa0b93e814b2b7c1f36124ba34b5bb@gmail.com>
+X-Sender: huozx@gmail.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-OutGoing-Spam-Status: No, score=1.2
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - vps.downunderonline.net.au
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Get-Message-Sender-Via: vps.downunderonline.net.au: authenticated_id: manager@regencywaterfrontnoosa.com.au
+X-Authenticated-Sender: vps.downunderonline.net.au: manager@regencywaterfrontnoosa.com.au
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 02, 2020 at 10:28:12PM -0800, Dan Williams wrote:
-> pmd_free() is close, but it is a messy fit due to requiring an @mm arg.
-
-Hurpm, only parisc and s390 actually use that argument. And s390
-_really_ needs it, because they're doing runtime folding per mm.
-
+bbb
