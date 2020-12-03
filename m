@@ -2,451 +2,327 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E26AB2CDDB3
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5762CDDB5
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729629AbgLCSdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 13:33:00 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:44536 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729533AbgLCSc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:32:59 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R861e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0UHQyFLP_1607020326;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHQyFLP_1607020326)
+        id S1727329AbgLCSdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 13:33:16 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:58907 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729533AbgLCSdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:15 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0UHQtLj1_1607020341;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHQtLj1_1607020341)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 04 Dec 2020 02:32:15 +0800
+          Fri, 04 Dec 2020 02:32:29 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Oleg Nesterov <oleg@tv-sign.ru>,
-        Sukadev Bhattiprolu <sukadev@us.ibm.com>,
-        Paul Menage <menage@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, stable@vger.kernel.org
-Subject: [PATCH 00/10] Cover letter: fix a race in release_task when flushing the dentry
-Date:   Fri,  4 Dec 2020 02:31:54 +0800
-Message-Id: <20201203183204.63759-1-wenyang@linux.alibaba.com>
+        linux-kernel@vger.kernel.org,
+        Christian Brauner <christian@brauner.io>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        David Howells <dhowells@redhat.com>,
+        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
+        Andy Lutomirsky <luto@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 01/10] clone: add CLONE_PIDFD
+Date:   Fri,  4 Dec 2020 02:31:55 +0800
+Message-Id: <20201203183204.63759-2-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20201203183204.63759-1-wenyang@linux.alibaba.com>
+References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=y
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The dentries such as /proc/<pid>/ns/ have the DCACHE_OP_DELETE flag, they 
-should be deleted when the process exits. 
+From: Christian Brauner <christian@brauner.io>
 
-Suppose the following race appears： 
+[ Upstream commit b3e5838252665ee4cfa76b82bdf1198dca81e5be ]
 
-release_task                 dput 
--> proc_flush_task 
-                             -> dentry->d_op->d_delete(dentry) 
--> __exit_signal 
-                             -> dentry->d_lockref.count--  and return. 
+This patchset makes it possible to retrieve pid file descriptors at
+process creation time by introducing the new flag CLONE_PIDFD to the
+clone() system call.  Linus originally suggested to implement this as a
+new flag to clone() instead of making it a separate system call.  As
+spotted by Linus, there is exactly one bit for clone() left.
 
-In the proc_flush_task(), if another process is using this dentry, it will
-not be deleted. At the same time, in dput(), d_op->d_delete() can be executed
-before __exit_signal(pid has not been hashed), d_delete returns false, so
-this dentry still cannot be deleted.
+CLONE_PIDFD creates file descriptors based on the anonymous inode
+implementation in the kernel that will also be used to implement the new
+mount api.  They serve as a simple opaque handle on pids.  Logically,
+this makes it possible to interpret a pidfd differently, narrowing or
+widening the scope of various operations (e.g. signal sending).  Thus, a
+pidfd cannot just refer to a tgid, but also a tid, or in theory - given
+appropriate flag arguments in relevant syscalls - a process group or
+session. A pidfd does not represent a privilege.  This does not imply it
+cannot ever be that way but for now this is not the case.
 
-This dentry will always be cached (although its count is 0 and the
-DCACHE_OP_DELETE flag is set), its parent denry will also be cached too, and
-these dentries can only be deleted when drop_caches is manually triggered.
+A pidfd comes with additional information in fdinfo if the kernel supports
+procfs.  The fdinfo file contains the pid of the process in the callers
+pid namespace in the same format as the procfs status file, i.e. "Pid:\t%d".
 
-This will result in wasted memory. What's more troublesome is that these
-dentries reference pid, according to the commit f333c700c610 ("pidns: Add a
-limit on the number of pid namespaces"), if the pid cannot be released, it
-may result in the inability to create a new pid_ns.
+As suggested by Oleg, with CLONE_PIDFD the pidfd is returned in the
+parent_tidptr argument of clone.  This has the advantage that we can
+give back the associated pid and the pidfd at the same time.
 
-This problem occurred in our cluster environment (Linux 4.9 LTS).
-We could reproduce it by manually constructing a test program + adding some
-debugging switches in the kernel:
-* A test program to open the directory (/proc/<pid>/ns) [1]
-* Adding some debugging switches to the kernel, adding a delay between
-   proc_flush_task and __exit_signal in release_task() [2]
+To remove worries about missing metadata access this patchset comes with
+a sample program that illustrates how a combination of CLONE_PIDFD, and
+pidfd_send_signal() can be used to gain race-free access to process
+metadata through /proc/<pid>.  The sample program can easily be
+translated into a helper that would be suitable for inclusion in libc so
+that users don't have to worry about writing it themselves.
 
-The test process is as follows:
-
-A, terminal #1
-
-Turn on the debug switch:
-echo 1> /proc/sys/vm/dentry_debug_trace
-
-Execute the following unshare command:
-sudo unshare --pid --fork --mount-proc bash
-
-
-B, terminal #2
-
-Find the pid of the unshare process:
-
-# pstree -p | grep unshare
-           | `-sshd(716)---bash(718)--sudo(816)---unshare(817)---bash(818)
-
-
-Find the corresponding dentry:
-# dmesg | grep pid=818
-[70.424722] XXX proc_pid_instantiate:3119 pid=818 tid=818 entry=818/ffff8802c7b670e8
-
-
-C, terminal #3
-
-Execute the opendir program, it will always open the /proc/818/ns/ directory:
-
-# ./a.out /proc/818/ns/
-pid: 876
-.
-..
-net
-uts
-ipc
-pid
-user
-mnt
-cgroup
-
-D, go back to terminal #2
-
-Turn on the debugging switches to construct the race:
-# echo 818> /proc/sys/vm/dentry_debug_pid
-# echo 1> /proc/sys/vm/dentry_debug_delay
-
-Kill the unshare process (pid 818). Since the debugging switches have been
-turned on, it will get stuck in release_task():
-# kill -9 818
-
-Then kill the process that opened the /proc/818/ns/ directory:
-# kill -9 876
-
-Then turn off these debugging switches to allow the 818 process to exit:
-# echo 0> /proc/sys/vm/dentry_debug_delay
-# echo 0> /proc/sys/vm/dentry_debug_pid
-
-Checking the dmesg, we will find that the dentry(/proc/818/ns) ’s count is 0,
-and the flag is 2800cc (#define DCACHE_OP_DELETE 0x00000008), but it is still
-cached:
-# dmesg | grep ffff8802a3999548
-…
-[565.559156] XXX dput:853 dentry=ns/ffff8802bea7b528, flag=2800cc, cnt=0, inode=ffff8802b38c2010, pdentry=818/ffff8802c7b670e8, pflag=20008c, pcnt=1, pinode=ffff8802c7812010, keywords: be cached
-
-
-It could also be verified via the crash tool:
-
-crash> dentry.d_flags,d_iname,d_inode,d_lockref -x  ffff8802bea7b528
-  d_flags = 0x2800cc
-  d_iname = "ns\000kkkkkkkkkkkkkkkkkkkkkkkkkkkk"
-  d_inode = 0xffff8802b38c2010
-  d_lockref = {
-    {
-      lock_count = 0x0,
-      {
-        lock = {
-          {
-            rlock = {
-              raw_lock = {
-                {
-                  val = {
-                    counter = 0x0
-                  },
-                  {
-                    locked = 0x0,
-                    pending = 0x0
-                  },
-                  {
-                    locked_pending = 0x0,
-                    tail = 0x0
-                  }
-                }
-              }
-            }
-          }
-        },
-        count = 0x0
-      }
-    }
-  }
-crash> kmem  ffff8802bea7b528
-CACHE             OBJSIZE  ALLOCATED     TOTAL  SLABS  SSIZE  NAME
-ffff8802dd5f5900      192      23663     26130    871    16k  dentry
-  SLAB              MEMORY            NODE  TOTAL  ALLOCATED  FREE
-  ffffea000afa9e00  ffff8802bea78000     0     30         25     5
-  FREE / [ALLOCATED]
-  [ffff8802bea7b520]
-
-      PAGE        PHYSICAL      MAPPING       INDEX CNT FLAGS
-ffffea000afa9ec0 2bea7b000 dead000000000400        0  0 2fffff80000000
-crash>
-
-This series of patches is to fix this issue.
-
-Regards,
-Wen
-
-Alexey Dobriyan (1):
-  proc: use %u for pid printing and slightly less stack
-
-Andreas Gruenbacher (1):
-  proc: Pass file mode to proc_pid_make_inode
-
-Christian Brauner (1):
-  clone: add CLONE_PIDFD
-
-Eric W. Biederman (6):
-  proc: Better ownership of files for non-dumpable tasks in user
-    namespaces
-  proc: Rename in proc_inode rename sysctl_inodes sibling_inodes
-  proc: Generalize proc_sys_prune_dcache into proc_prune_siblings_dcache
-  proc: Clear the pieces of proc_inode that proc_evict_inode cares about
-  proc: Use d_invalidate in proc_prune_siblings_dcache
-  proc: Use a list of inodes to flush from proc
-
-Joel Fernandes (Google) (1):
-  pidfd: add polling support
-
- fs/proc/base.c             | 242 ++++++++++++++++++++-------------------------
- fs/proc/fd.c               |  20 +---
- fs/proc/inode.c            |  67 ++++++++++++-
- fs/proc/internal.h         |  22 ++---
- fs/proc/namespaces.c       |   3 +-
- fs/proc/proc_sysctl.c      |  45 ++-------
- fs/proc/self.c             |   6 +-
- fs/proc/thread_self.c      |   5 +-
- include/linux/pid.h        |   5 +
- include/linux/proc_fs.h    |   4 +-
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Co-developed-by: Jann Horn <jannh@google.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Howells <dhowells@redhat.com>
+Cc: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
+Cc: Andy Lutomirsky <luto@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org> # 4.9.x
+(clone: fix up cherry-pick conflicts for b3e583825266)
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+---
+ include/linux/pid.h        |   1 +
  include/uapi/linux/sched.h |   1 +
- kernel/exit.c              |   5 +-
- kernel/fork.c              | 145 ++++++++++++++++++++++++++-
- kernel/pid.c               |   3 +
- kernel/signal.c            |  11 +++
- security/selinux/hooks.c   |   1 +
- 16 files changed, 357 insertions(+), 228 deletions(-)
+ kernel/fork.c              | 119 +++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 117 insertions(+), 4 deletions(-)
 
-[1] A test program to open the directory (/proc/<pid>/ns)
-#include <stdio.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <errno.h>
-
-int main(int argc, char *argv[])
-{
-	DIR *dip;
-	struct dirent *dit;
-
-	if (argc < 2) {
-		printf("Usage :%s <directory>\n", argv[0]);
-		return -1;
-	}
-
-	if ((dip = opendir(argv[1])) == NULL) {
-		perror("opendir");
-		return -1;
-	}
-
-	printf("pid: %d\n", getpid());
-	while((dit = readdir (dip)) != NULL) {
-		printf("%s\n", dit->d_name);
-	}
-
-	while (1)
-		sleep (1);
-
-	return 0;
-}
-
-[2] Adding some debugging switches to the kernel, also adding a delay between
-    proc_flush_task and __exit_signal in release_task():
-
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 05bad55..fafad37 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -84,6 +84,9 @@
- int sysctl_vfs_cache_pressure __read_mostly = 100;
- EXPORT_SYMBOL_GPL(sysctl_vfs_cache_pressure);
-
-+int sysctl_dentry_debug_trace __read_mostly = 0;
-+EXPORT_SYMBOL_GPL(sysctl_dentry_debug_trace);
-+
- __cacheline_aligned_in_smp DEFINE_SEQLOCK(rename_lock);
-
- EXPORT_SYMBOL(rename_lock);
-@@ -758,6 +761,26 @@ static inline bool fast_dput(struct dentry *dentry)
- 	return 0;
- }
-
-+#define DENTRY_DEBUG_TRACE(dentry, keywords)                            \
-+do {                                                                    \
-+	if (sysctl_dentry_debug_trace)                                   \
-+		printk("XXX %s:%d "                                      \
-+                	"dentry=%s/%p, flag=%x, cnt=%d, inode=%p, "      \
-+                	"pdentry=%s/%p, pflag=%x, pcnt=%d, pinode=%p, "  \
-+			"keywords: %s\n",                                \
-+			__func__, __LINE__,                              \
-+			dentry->d_name.name,                             \
-+			dentry,                                          \
-+			dentry->d_flags,                                 \
-+			dentry->d_lockref.count,                         \
-+			dentry->d_inode,                                 \
-+			dentry->d_parent->d_name.name,                   \
-+			dentry->d_parent,                                \
-+			dentry->d_parent->d_flags,                       \
-+			dentry->d_parent->d_lockref.count,               \
-+			dentry->d_parent->d_inode,                       \
-+			keywords);                                       \
-+} while (0)
-
- /*
-  * This is dput
-@@ -804,6 +827,8 @@ void dput(struct dentry *dentry)
-
- 	WARN_ON(d_in_lookup(dentry));
-
-+	DENTRY_DEBUG_TRACE(dentry, "be checked");
-+
- 	/* Unreachable? Get rid of it */
- 	if (unlikely(d_unhashed(dentry)))
- 		goto kill_it;
-@@ -812,8 +837,10 @@ void dput(struct dentry *dentry)
- 		goto kill_it;
-
- 	if (unlikely(dentry->d_flags & DCACHE_OP_DELETE)) {
--		if (dentry->d_op->d_delete(dentry))
-+		if (dentry->d_op->d_delete(dentry)) {
-+			DENTRY_DEBUG_TRACE(dentry, "be killed");
- 			goto kill_it;
-+		}
- 	}
-
- 	if (!(dentry->d_flags & DCACHE_REFERENCED))
-@@ -822,6 +849,9 @@ void dput(struct dentry *dentry)
-
- 	dentry->d_lockref.count--;
- 	spin_unlock(&dentry->d_lock);
-+
-+	DENTRY_DEBUG_TRACE(dentry, "be cached");
-+
- 	return;
-
- kill_it:
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index b9e4183..419a409 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -3090,6 +3090,8 @@ void proc_flush_task(struct task_struct *task)
- 	}
- }
-
-+extern int sysctl_dentry_debug_trace;
-+
- static int proc_pid_instantiate(struct inode *dir,
- 				   struct dentry * dentry,
- 				   struct task_struct *task, const void *ptr)
-@@ -3111,6 +3113,12 @@ static int proc_pid_instantiate(struct inode *dir,
- 	d_set_d_op(dentry, &pid_dentry_operations);
-
- 	d_add(dentry, inode);
-+
-+	if (sysctl_dentry_debug_trace)
-+		printk("XXX %s:%d pid=%d tid=%d  entry=%s/%p\n",
-+			__func__, __LINE__, task->pid, task->tgid,
-+			dentry->d_name.name, dentry);
-+
- 	/* Close the race of the process dying before we return the dentry */
- 	if (pid_revalidate(dentry, 0))
- 		return 0;
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 27f4168..2b3e1b6 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -55,6 +55,8 @@
- #include <linux/shm.h>
- #include <linux/kcov.h>
-
-+#include <linux/delay.h>
-+
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
- #include <asm/pgtable.h>
-@@ -164,6 +166,8 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
- 	put_task_struct(tsk);
- }
-
-+int sysctl_dentry_debug_delay __read_mostly = 0;
-+int sysctl_dentry_debug_pid __read_mostly = 0;
-
- void release_task(struct task_struct *p)
+diff --git a/include/linux/pid.h b/include/linux/pid.h
+index 97b745d..7599a78 100644
+--- a/include/linux/pid.h
++++ b/include/linux/pid.h
+@@ -73,6 +73,7 @@ struct pid_link
+ 	struct hlist_node node;
+ 	struct pid *pid;
+ };
++extern const struct file_operations pidfd_fops;
+ 
+ static inline struct pid *get_pid(struct pid *pid)
  {
-@@ -178,6 +182,11 @@ void release_task(struct task_struct *p)
-
- 	proc_flush_task(p);
-
-+	if (sysctl_dentry_debug_delay && p->pid == sysctl_dentry_debug_pid) {
-+		while (sysctl_dentry_debug_delay)
-+			mdelay(1);
+diff --git a/include/uapi/linux/sched.h b/include/uapi/linux/sched.h
+index 5f0fe01..ed6e31d 100644
+--- a/include/uapi/linux/sched.h
++++ b/include/uapi/linux/sched.h
+@@ -9,6 +9,7 @@
+ #define CLONE_FS	0x00000200	/* set if fs info shared between processes */
+ #define CLONE_FILES	0x00000400	/* set if open files shared between processes */
+ #define CLONE_SIGHAND	0x00000800	/* set if signal handlers and blocked signals shared */
++#define CLONE_PIDFD	0x00001000	/* set if a pidfd should be placed in parent */
+ #define CLONE_PTRACE	0x00002000	/* set if we want to let tracing continue on the child too */
+ #define CLONE_VFORK	0x00004000	/* set if the parent wants the child to wake it up on mm_release */
+ #define CLONE_PARENT	0x00008000	/* set if we want to have the same parent as the cloner */
+diff --git a/kernel/fork.c b/kernel/fork.c
+index b64efec..076297a 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -11,7 +11,22 @@
+  * management can be a bitch. See 'mm/memory.c': 'copy_page_range()'
+  */
+ 
++#include <linux/anon_inodes.h>
+ #include <linux/slab.h>
++#if 0
++#include <linux/sched/autogroup.h>
++#include <linux/sched/mm.h>
++#include <linux/sched/coredump.h>
++#include <linux/sched/user.h>
++#include <linux/sched/numa_balancing.h>
++#include <linux/sched/stat.h>
++#include <linux/sched/task.h>
++#include <linux/sched/task_stack.h>
++#include <linux/sched/cputime.h>
++#include <linux/seq_file.h>
++#include <linux/rtmutex.h>
++>>>>>>> b3e58382... clone: add CLONE_PIDFD
++#endif
+ #include <linux/init.h>
+ #include <linux/unistd.h>
+ #include <linux/module.h>
+@@ -1460,6 +1475,58 @@ static void posix_cpu_timers_init(struct task_struct *tsk)
+ 	 task->pids[type].pid = pid;
+ }
+ 
++static int pidfd_release(struct inode *inode, struct file *file)
++{
++	struct pid *pid = file->private_data;
++
++	file->private_data = NULL;
++	put_pid(pid);
++	return 0;
++}
++
++#ifdef CONFIG_PROC_FS
++static void pidfd_show_fdinfo(struct seq_file *m, struct file *f)
++{
++	struct pid_namespace *ns = file_inode(m->file)->i_sb->s_fs_info;
++	struct pid *pid = f->private_data;
++
++	seq_put_decimal_ull(m, "Pid:\t", pid_nr_ns(pid, ns));
++	seq_putc(m, '\n');
++}
++#endif
++
++const struct file_operations pidfd_fops = {
++	.release = pidfd_release,
++#ifdef CONFIG_PROC_FS
++	.show_fdinfo = pidfd_show_fdinfo,
++#endif
++};
++
++/**
++ * pidfd_create() - Create a new pid file descriptor.
++ *
++ * @pid:  struct pid that the pidfd will reference
++ *
++ * This creates a new pid file descriptor with the O_CLOEXEC flag set.
++ *
++ * Note, that this function can only be called after the fd table has
++ * been unshared to avoid leaking the pidfd to the new process.
++ *
++ * Return: On success, a cloexec pidfd is returned.
++ *         On error, a negative errno number will be returned.
++ */
++static int pidfd_create(struct pid *pid)
++{
++	int fd;
++
++	fd = anon_inode_getfd("[pidfd]", &pidfd_fops, get_pid(pid),
++			      O_RDWR | O_CLOEXEC);
++	if (fd < 0)
++		put_pid(pid);
++
++	return fd;
++}
++
+ /*
+  * This creates a new process as a copy of the old one,
+  * but does not actually start it yet.
+@@ -1472,13 +1539,14 @@ static __latent_entropy struct task_struct *copy_process(
+ 					unsigned long clone_flags,
+ 					unsigned long stack_start,
+ 					unsigned long stack_size,
++					int __user *parent_tidptr,
+ 					int __user *child_tidptr,
+ 					struct pid *pid,
+ 					int trace,
+ 					unsigned long tls,
+ 					int node)
+ {
+-	int retval;
++	int pidfd = -1, retval;
+ 	struct task_struct *p;
+ 
+ 	if ((clone_flags & (CLONE_NEWNS|CLONE_FS)) == (CLONE_NEWNS|CLONE_FS))
+@@ -1526,6 +1594,30 @@ static __latent_entropy struct task_struct *copy_process(
+ 	retval = security_task_create(clone_flags);
+ 	if (retval)
+ 		goto fork_out;
++	if (clone_flags & CLONE_PIDFD) {
++		int reserved;
++
++		/*
++		 * - CLONE_PARENT_SETTID is useless for pidfds and also
++		 *   parent_tidptr is used to return pidfds.
++		 * - CLONE_DETACHED is blocked so that we can potentially
++		 *   reuse it later for CLONE_PIDFD.
++		 * - CLONE_THREAD is blocked until someone really needs it.
++		 */
++		if (clone_flags &
++		    (CLONE_DETACHED | CLONE_PARENT_SETTID | CLONE_THREAD))
++			return ERR_PTR(-EINVAL);
++
++		/*
++		 * Verify that parent_tidptr is sane so we can potentially
++		 * reuse it later.
++		 */
++		if (get_user(reserved, parent_tidptr))
++			return ERR_PTR(-EFAULT);
++
++		if (reserved != 0)
++			return ERR_PTR(-EINVAL);
++	}
+ 
+ 	retval = -ENOMEM;
+ 	p = dup_task_struct(current, node);
+@@ -1703,6 +1795,22 @@ static __latent_entropy struct task_struct *copy_process(
+ 		}
+ 	}
+ 
++	/*
++	 * This has to happen after we've potentially unshared the file
++	 * descriptor table (so that the pidfd doesn't leak into the child
++	 * if the fd table isn't shared).
++	 */
++	if (clone_flags & CLONE_PIDFD) {
++		retval = pidfd_create(pid);
++		if (retval < 0)
++			goto bad_fork_free_pid;
++
++		pidfd = retval;
++		retval = put_user(pidfd, parent_tidptr);
++		if (retval)
++			goto bad_fork_put_pidfd;
 +	}
 +
- 	write_lock_irq(&tasklist_lock);
- 	ptrace_release_task(p);
- 	__exit_signal(p);
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 513e6da..27f1395 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -282,6 +282,10 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
- static int max_extfrag_threshold = 1000;
+ #ifdef CONFIG_BLOCK
+ 	p->plug = NULL;
  #endif
-
-+extern int sysctl_dentry_debug_trace;
-+extern int sysctl_dentry_debug_delay;
-+extern int sysctl_dentry_debug_pid;
-+
- static struct ctl_table kern_table[] = {
- 	{
- 		.procname	= "sched_child_runs_first",
-@@ -1498,6 +1502,30 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
- 		.proc_handler	= proc_dointvec,
- 		.extra1		= &zero,
- 	},
-+	{
-+		.procname	= "dentry_debug_trace",
-+		.data		= &sysctl_dentry_debug_trace,
-+		.maxlen		= sizeof(sysctl_dentry_debug_trace),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.procname	= "dentry_debug_delay",
-+		.data		= &sysctl_dentry_debug_delay,
-+		.maxlen		= sizeof(sysctl_dentry_debug_delay),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.procname	= "dentry_debug_pid",
-+		.data		= &sysctl_dentry_debug_pid,
-+		.maxlen		= sizeof(sysctl_dentry_debug_pid),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &zero,
-+	},
- #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
- 	{
- 		.procname	= "legacy_va_layout",
-
-
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Pavel Emelyanov <xemul@openvz.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Paul Menage <menage@google.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
+@@ -1758,7 +1866,7 @@ static __latent_entropy struct task_struct *copy_process(
+ 	 */
+ 	retval = cgroup_can_fork(p);
+ 	if (retval)
+-		goto bad_fork_free_pid;
++		goto bad_fork_put_pidfd;
+ 
+ 	/*
+ 	 * From this point on we must avoid any synchronous user-space
+@@ -1869,6 +1977,9 @@ static __latent_entropy struct task_struct *copy_process(
+ 	spin_unlock(&current->sighand->siglock);
+ 	write_unlock_irq(&tasklist_lock);
+ 	cgroup_cancel_fork(p);
++bad_fork_put_pidfd:
++	if (clone_flags & CLONE_PIDFD)
++		__close_fd(current->files, pidfd);
+ bad_fork_free_pid:
+ 	threadgroup_change_end(current);
+ 	if (pid != &init_struct_pid)
+@@ -1928,7 +2039,7 @@ static inline void init_idle_pids(struct pid_link *links)
+ struct task_struct *fork_idle(int cpu)
+ {
+ 	struct task_struct *task;
+-	task = copy_process(CLONE_VM, 0, 0, NULL, &init_struct_pid, 0, 0,
++	task = copy_process(CLONE_VM, 0, 0, NULL, NULL, &init_struct_pid, 0, 0,
+ 			    cpu_to_node(cpu));
+ 	if (!IS_ERR(task)) {
+ 		init_idle_pids(task->pids);
+@@ -1973,7 +2084,7 @@ long _do_fork(unsigned long clone_flags,
+ 			trace = 0;
+ 	}
+ 
+-	p = copy_process(clone_flags, stack_start, stack_size,
++	p = copy_process(clone_flags, stack_start, stack_size, parent_tidptr,
+ 			 child_tidptr, NULL, trace, tls, NUMA_NO_NODE);
+ 	add_latent_entropy();
+ 	/*
 -- 
 1.8.3.1
 
