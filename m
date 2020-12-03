@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827AC2CDDBF
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D97092CDDC2
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731674AbgLCSdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 13:33:35 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:52330 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728065AbgLCSdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:35 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UHQtLl0_1607020361;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHQtLl0_1607020361)
+        id S1727713AbgLCSdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 13:33:44 -0500
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:60320 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726462AbgLCSdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:44 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UHRBP-0_1607020372;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHRBP-0_1607020372)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 04 Dec 2020 02:32:51 +0800
+          Fri, 04 Dec 2020 02:33:01 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
         linux-kernel@vger.kernel.org,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Paul Moore <paul@paul-moore.com>, stable@vger.kernel.org,
-        Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 03/10] proc: Pass file mode to proc_pid_make_inode
-Date:   Fri,  4 Dec 2020 02:31:57 +0800
-Message-Id: <20201203183204.63759-4-wenyang@linux.alibaba.com>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 04/10] proc: Better ownership of files for non-dumpable tasks in user namespaces
+Date:   Fri,  4 Dec 2020 02:31:58 +0800
+Message-Id: <20201203183204.63759-5-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20201203183204.63759-1-wenyang@linux.alibaba.com>
 References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
@@ -35,193 +34,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit db978da8fa1d0819b210c137d31a339149b88875 ]
+[ Upstream commit 68eb94f16227336a5773b83ecfa8290f1d6b78ce ]
 
-Pass the file mode of the proc inode to be created to
-proc_pid_make_inode.  In proc_pid_make_inode, initialize inode->i_mode
-before calling security_task_to_inode.  This allows selinux to set
-isec->sclass right away without introducing "half-initialized" inode
-security structs.
+Instead of making the files owned by the GLOBAL_ROOT_USER.  Make
+non-dumpable files whose mm has always lived in a user namespace owned
+by the user namespace root.  This allows the container root to have
+things work as expected in a container.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: <stable@vger.kernel.org> # 4.9.x
 Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- fs/proc/base.c           | 23 +++++++++--------------
- fs/proc/fd.c             |  6 ++----
- fs/proc/internal.h       |  2 +-
- fs/proc/namespaces.c     |  3 +--
- security/selinux/hooks.c |  1 +
- 5 files changed, 14 insertions(+), 21 deletions(-)
+ fs/proc/base.c     | 102 ++++++++++++++++++++++++++++++-----------------------
+ fs/proc/fd.c       |  12 +------
+ fs/proc/internal.h |  16 ++-------
+ 3 files changed, 61 insertions(+), 69 deletions(-)
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index b9e4183..ee2e0ec 100644
+index ee2e0ec..5bfdb61 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -1676,7 +1676,8 @@ static int proc_pid_readlink(struct dentry * dentry, char __user * buffer, int b
+@@ -1676,12 +1676,63 @@ static int proc_pid_readlink(struct dentry * dentry, char __user * buffer, int b
  
  /* building an inode */
  
--struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *task)
-+struct inode *proc_pid_make_inode(struct super_block * sb,
-+				  struct task_struct *task, umode_t mode)
++void task_dump_owner(struct task_struct *task, mode_t mode,
++		     kuid_t *ruid, kgid_t *rgid)
++{
++	/* Depending on the state of dumpable compute who should own a
++	 * proc file for a task.
++	 */
++	const struct cred *cred;
++	kuid_t uid;
++	kgid_t gid;
++
++	/* Default to the tasks effective ownership */
++	rcu_read_lock();
++	cred = __task_cred(task);
++	uid = cred->euid;
++	gid = cred->egid;
++	rcu_read_unlock();
++
++	/*
++	 * Before the /proc/pid/status file was created the only way to read
++	 * the effective uid of a /process was to stat /proc/pid.  Reading
++	 * /proc/pid/status is slow enough that procps and other packages
++	 * kept stating /proc/pid.  To keep the rules in /proc simple I have
++	 * made this apply to all per process world readable and executable
++	 * directories.
++	 */
++	if (mode != (S_IFDIR|S_IRUGO|S_IXUGO)) {
++		struct mm_struct *mm;
++		task_lock(task);
++		mm = task->mm;
++		/* Make non-dumpable tasks owned by some root */
++		if (mm) {
++			if (get_dumpable(mm) != SUID_DUMP_USER) {
++				struct user_namespace *user_ns = mm->user_ns;
++
++				uid = make_kuid(user_ns, 0);
++				if (!uid_valid(uid))
++					uid = GLOBAL_ROOT_UID;
++
++				gid = make_kgid(user_ns, 0);
++				if (!gid_valid(gid))
++					gid = GLOBAL_ROOT_GID;
++			}
++		} else {
++			uid = GLOBAL_ROOT_UID;
++			gid = GLOBAL_ROOT_GID;
++		}
++		task_unlock(task);
++	}
++	*ruid = uid;
++	*rgid = gid;
++}
++
+ struct inode *proc_pid_make_inode(struct super_block * sb,
+ 				  struct task_struct *task, umode_t mode)
  {
  	struct inode * inode;
  	struct proc_inode *ei;
-@@ -1690,6 +1691,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *t
+-	const struct cred *cred;
  
- 	/* Common stuff */
- 	ei = PROC_I(inode);
-+	inode->i_mode = mode;
- 	inode->i_ino = get_next_ino();
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
- 	inode->i_op = &proc_def_inode_operations;
-@@ -2041,7 +2043,9 @@ struct map_files_info {
- 	struct proc_inode *ei;
- 	struct inode *inode;
+ 	/* We need a new inode */
  
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK |
-+				    ((mode & FMODE_READ ) ? S_IRUSR : 0) |
-+				    ((mode & FMODE_WRITE) ? S_IWUSR : 0));
- 	if (!inode)
- 		return -ENOENT;
+@@ -1703,13 +1754,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb,
+ 	if (!ei->pid)
+ 		goto out_unlock;
  
-@@ -2050,12 +2054,6 @@ struct map_files_info {
+-	if (task_dumpable(task)) {
+-		rcu_read_lock();
+-		cred = __task_cred(task);
+-		inode->i_uid = cred->euid;
+-		inode->i_gid = cred->egid;
+-		rcu_read_unlock();
+-	}
++	task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
+ 	security_task_to_inode(task, inode);
  
- 	inode->i_op = &proc_map_files_link_inode_operations;
- 	inode->i_size = 64;
--	inode->i_mode = S_IFLNK;
--
--	if (mode & FMODE_READ)
--		inode->i_mode |= S_IRUSR;
--	if (mode & FMODE_WRITE)
--		inode->i_mode |= S_IWUSR;
+ out:
+@@ -1724,7 +1769,6 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct task_struct *task;
+-	const struct cred *cred;
+ 	struct pid_namespace *pid = dentry->d_sb->s_fs_info;
  
- 	d_set_d_op(dentry, &tid_map_files_dentry_operations);
- 	d_add(dentry, inode);
-@@ -2409,12 +2407,11 @@ static int proc_pident_instantiate(struct inode *dir,
- 	struct inode *inode;
- 	struct proc_inode *ei;
- 
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, p->mode);
- 	if (!inode)
- 		goto out;
- 
- 	ei = PROC_I(inode);
--	inode->i_mode = p->mode;
- 	if (S_ISDIR(inode->i_mode))
- 		set_nlink(inode, 2);	/* Use getattr to fix if necessary */
- 	if (p->iop)
-@@ -3096,11 +3093,10 @@ static int proc_pid_instantiate(struct inode *dir,
+ 	generic_fillattr(inode, stat);
+@@ -1742,12 +1786,7 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+ 			 */
+ 			return -ENOENT;
+ 		}
+-		if ((inode->i_mode == (S_IFDIR|S_IRUGO|S_IXUGO)) ||
+-		    task_dumpable(task)) {
+-			cred = __task_cred(task);
+-			stat->uid = cred->euid;
+-			stat->gid = cred->egid;
+-		}
++		task_dump_owner(task, inode->i_mode, &stat->uid, &stat->gid);
+ 	}
+ 	rcu_read_unlock();
+ 	return 0;
+@@ -1763,18 +1802,11 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+  * Rewrite the inode's ownerships here because the owning task may have
+  * performed a setuid(), etc.
+  *
+- * Before the /proc/pid/status file was created the only way to read
+- * the effective uid of a /process was to stat /proc/pid.  Reading
+- * /proc/pid/status is slow enough that procps and other packages
+- * kept stating /proc/pid.  To keep the rules in /proc simple I have
+- * made this apply to all per process world readable and executable
+- * directories.
+  */
+ int pid_revalidate(struct dentry *dentry, unsigned int flags)
  {
  	struct inode *inode;
+ 	struct task_struct *task;
+-	const struct cred *cred;
  
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
- 	if (!inode)
- 		goto out;
+ 	if (flags & LOOKUP_RCU)
+ 		return -ECHILD;
+@@ -1783,17 +1815,8 @@ int pid_revalidate(struct dentry *dentry, unsigned int flags)
+ 	task = get_proc_task(inode);
  
--	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tgid_base_inode_operations;
- 	inode->i_fop = &proc_tgid_base_operations;
- 	inode->i_flags|=S_IMMUTABLE;
-@@ -3391,11 +3387,10 @@ static int proc_task_instantiate(struct inode *dir,
- 	struct dentry *dentry, struct task_struct *task, const void *ptr)
- {
+ 	if (task) {
+-		if ((inode->i_mode == (S_IFDIR|S_IRUGO|S_IXUGO)) ||
+-		    task_dumpable(task)) {
+-			rcu_read_lock();
+-			cred = __task_cred(task);
+-			inode->i_uid = cred->euid;
+-			inode->i_gid = cred->egid;
+-			rcu_read_unlock();
+-		} else {
+-			inode->i_uid = GLOBAL_ROOT_UID;
+-			inode->i_gid = GLOBAL_ROOT_GID;
+-		}
++		task_dump_owner(task, inode->i_mode, &inode->i_uid, &inode->i_gid);
++
+ 		inode->i_mode &= ~(S_ISUID | S_ISGID);
+ 		security_task_to_inode(task, inode);
+ 		put_task_struct(task);
+@@ -1915,7 +1938,6 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
+ 	bool exact_vma_exists = false;
+ 	struct mm_struct *mm = NULL;
+ 	struct task_struct *task;
+-	const struct cred *cred;
  	struct inode *inode;
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
+ 	int status = 0;
  
- 	if (!inode)
- 		goto out;
--	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tid_base_inode_operations;
- 	inode->i_fop = &proc_tid_base_operations;
- 	inode->i_flags|=S_IMMUTABLE;
+@@ -1940,16 +1962,8 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
+ 	mmput(mm);
+ 
+ 	if (exact_vma_exists) {
+-		if (task_dumpable(task)) {
+-			rcu_read_lock();
+-			cred = __task_cred(task);
+-			inode->i_uid = cred->euid;
+-			inode->i_gid = cred->egid;
+-			rcu_read_unlock();
+-		} else {
+-			inode->i_uid = GLOBAL_ROOT_UID;
+-			inode->i_gid = GLOBAL_ROOT_GID;
+-		}
++		task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
++
+ 		security_task_to_inode(task, inode);
+ 		status = 1;
+ 	}
 diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index d21dafe..4274f83 100644
+index 4274f83..00ce153 100644
 --- a/fs/proc/fd.c
 +++ b/fs/proc/fd.c
-@@ -183,14 +183,13 @@ static int proc_fd_link(struct dentry *dentry, struct path *path)
- 	struct proc_inode *ei;
+@@ -84,7 +84,6 @@ static int tid_fd_revalidate(struct dentry *dentry, unsigned int flags)
+ {
+ 	struct files_struct *files;
+ 	struct task_struct *task;
+-	const struct cred *cred;
  	struct inode *inode;
+ 	unsigned int fd;
  
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK);
- 	if (!inode)
- 		goto out;
+@@ -108,16 +107,7 @@ static int tid_fd_revalidate(struct dentry *dentry, unsigned int flags)
+ 				rcu_read_unlock();
+ 				put_files_struct(files);
  
- 	ei = PROC_I(inode);
- 	ei->fd = fd;
+-				if (task_dumpable(task)) {
+-					rcu_read_lock();
+-					cred = __task_cred(task);
+-					inode->i_uid = cred->euid;
+-					inode->i_gid = cred->egid;
+-					rcu_read_unlock();
+-				} else {
+-					inode->i_uid = GLOBAL_ROOT_UID;
+-					inode->i_gid = GLOBAL_ROOT_GID;
+-				}
++				task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
  
--	inode->i_mode = S_IFLNK;
- 	inode->i_op = &proc_pid_link_inode_operations;
- 	inode->i_size = 64;
- 
-@@ -322,14 +321,13 @@ int proc_fd_permission(struct inode *inode, int mask)
- 	struct proc_inode *ei;
- 	struct inode *inode;
- 
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFREG | S_IRUSR);
- 	if (!inode)
- 		goto out;
- 
- 	ei = PROC_I(inode);
- 	ei->fd = fd;
- 
--	inode->i_mode = S_IFREG | S_IRUSR;
- 	inode->i_fop = &proc_fdinfo_file_operations;
- 
- 	d_set_d_op(dentry, &tid_fd_dentry_operations);
+ 				if (S_ISLNK(inode->i_mode)) {
+ 					unsigned i_mode = S_IFLNK;
 diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index c0bdece..5bc057b 100644
+index 5bc057b..103435f 100644
 --- a/fs/proc/internal.h
 +++ b/fs/proc/internal.h
-@@ -163,7 +163,7 @@ extern int proc_pid_statm(struct seq_file *, struct pid_namespace *,
- extern const struct dentry_operations pid_dentry_operations;
- extern int pid_getattr(struct vfsmount *, struct dentry *, struct kstat *);
- extern int proc_setattr(struct dentry *, struct iattr *);
--extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *);
-+extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *, umode_t);
- extern int pid_revalidate(struct dentry *, unsigned int);
- extern int pid_delete_dentry(const struct dentry *);
- extern int proc_pid_readdir(struct file *, struct dir_context *);
-diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-index 51b8b0a..766f0c6 100644
---- a/fs/proc/namespaces.c
-+++ b/fs/proc/namespaces.c
-@@ -92,12 +92,11 @@ static int proc_ns_instantiate(struct inode *dir,
- 	struct inode *inode;
- 	struct proc_inode *ei;
- 
--	inode = proc_pid_make_inode(dir->i_sb, task);
-+	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK | S_IRWXUGO);
- 	if (!inode)
- 		goto out;
- 
- 	ei = PROC_I(inode);
--	inode->i_mode = S_IFLNK|S_IRWXUGO;
- 	inode->i_op = &proc_ns_link_inode_operations;
- 	ei->ns_ops = ns_ops;
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a2b63a6..98b5f40 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3967,6 +3967,7 @@ static void selinux_task_to_inode(struct task_struct *p,
- 	struct inode_security_struct *isec = inode->i_security;
- 	u32 sid = task_sid(p);
- 
-+	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = sid;
- 	isec->initialized = LABEL_INITIALIZED;
+@@ -98,20 +98,8 @@ static inline struct task_struct *get_proc_task(struct inode *inode)
+ 	return get_pid_task(proc_pid(inode), PIDTYPE_PID);
  }
+ 
+-static inline int task_dumpable(struct task_struct *task)
+-{
+-	int dumpable = 0;
+-	struct mm_struct *mm;
+-
+-	task_lock(task);
+-	mm = task->mm;
+-	if (mm)
+-		dumpable = get_dumpable(mm);
+-	task_unlock(task);
+-	if (dumpable == SUID_DUMP_USER)
+-		return 1;
+-	return 0;
+-}
++void task_dump_owner(struct task_struct *task, mode_t mode,
++		     kuid_t *ruid, kgid_t *rgid);
+ 
+ static inline unsigned name_to_int(const struct qstr *qstr)
+ {
 -- 
 1.8.3.1
 
