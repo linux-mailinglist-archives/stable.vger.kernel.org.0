@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C2C2CD778
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1C12CD776
 	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436804AbgLCNa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:30:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S2389228AbgLCNeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:34:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436797AbgLCNa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:57 -0500
+        id S2436811AbgLCNa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:59 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hao Si <si.hao@zte.com.cn>, Lin Chen <chen.lin5@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>, Li Yang <leoyang.li@nxp.com>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 15/23] soc: fsl: dpio: Get the cpumask through cpumask_of(cpu)
-Date:   Thu,  3 Dec 2020 08:29:27 -0500
-Message-Id: <20201203132935.931362-15-sashal@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 16/23] arm64: tegra: Disable the ACONNECT for Jetson TX2
+Date:   Thu,  3 Dec 2020 08:29:28 -0500
+Message-Id: <20201203132935.931362-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -32,108 +32,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Si <si.hao@zte.com.cn>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 2663b3388551230cbc4606a40fabf3331ceb59e4 ]
+[ Upstream commit fb319496935b7475a863a00c76895e8bb3216704 ]
 
-The local variable 'cpumask_t mask' is in the stack memory, and its address
-is assigned to 'desc->affinity' in 'irq_set_affinity_hint()'.
-But the memory area where this variable is located is at risk of being
-modified.
+Commit ff4c371d2bc0 ("arm64: defconfig: Build ADMA and ACONNECT driver")
+enable the Tegra ADMA and ACONNECT drivers and this is causing resume
+from system suspend to fail on Jetson TX2. Resume is failing because the
+ACONNECT driver is being resumed before the BPMP driver, and the ACONNECT
+driver is attempting to power on a power-domain that is provided by the
+BPMP. While a proper fix for the resume sequencing problem is identified,
+disable the ACONNECT for Jetson TX2 temporarily to avoid breaking system
+suspend.
 
-During LTP testing, the following error was generated:
+Please note that ACONNECT driver is used by the Audio Processing Engine
+(APE) on Tegra, but because there is no mainline support for APE on
+Jetson TX2 currently, disabling the ACONNECT does not disable any useful
+feature at the moment.
 
-Unable to handle kernel paging request at virtual address ffff000012e9b790
-Mem abort info:
-  ESR = 0x96000007
-  Exception class = DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000007
-  CM = 0, WnR = 0
-swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000075ac5e07
-[ffff000012e9b790] pgd=00000027dbffe003, pud=00000027dbffd003,
-pmd=00000027b6d61003, pte=0000000000000000
-Internal error: Oops: 96000007 [#1] PREEMPT SMP
-Modules linked in: xt_conntrack
-Process read_all (pid: 20171, stack limit = 0x0000000044ea4095)
-CPU: 14 PID: 20171 Comm: read_all Tainted: G    B   W
-Hardware name: NXP Layerscape LX2160ARDB (DT)
-pstate: 80000085 (Nzcv daIf -PAN -UAO)
-pc : irq_affinity_hint_proc_show+0x54/0xb0
-lr : irq_affinity_hint_proc_show+0x4c/0xb0
-sp : ffff00001138bc10
-x29: ffff00001138bc10 x28: 0000ffffd131d1e0
-x27: 00000000007000c0 x26: ffff8025b9480dc0
-x25: ffff8025b9480da8 x24: 00000000000003ff
-x23: ffff8027334f8300 x22: ffff80272e97d000
-x21: ffff80272e97d0b0 x20: ffff8025b9480d80
-x19: ffff000009a49000 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0000000000000000
-x13: 0000000000000000 x12: 0000000000000040
-x11: 0000000000000000 x10: ffff802735b79b88
-x9 : 0000000000000000 x8 : 0000000000000000
-x7 : ffff000009a49848 x6 : 0000000000000003
-x5 : 0000000000000000 x4 : ffff000008157d6c
-x3 : ffff00001138bc10 x2 : ffff000012e9b790
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- irq_affinity_hint_proc_show+0x54/0xb0
- seq_read+0x1b0/0x440
- proc_reg_read+0x80/0xd8
- __vfs_read+0x60/0x178
- vfs_read+0x94/0x150
- ksys_read+0x74/0xf0
- __arm64_sys_read+0x24/0x30
- el0_svc_common.constprop.0+0xd8/0x1a0
- el0_svc_handler+0x34/0x88
- el0_svc+0x10/0x14
-Code: f9001bbf 943e0732 f94066c2 b4000062 (f9400041)
----[ end trace b495bdcb0b3b732b ]---
-Kernel panic - not syncing: Fatal exception
-SMP: stopping secondary CPUs
-SMP: failed to stop secondary CPUs 0,2-4,6,8,11,13-15
-Kernel Offset: disabled
-CPU features: 0x0,21006008
-Memory Limit: none
----[ end Kernel panic - not syncing: Fatal exception ]---
-
-Fix it by using 'cpumask_of(cpu)' to get the cpumask.
-
-Signed-off-by: Hao Si <si.hao@zte.com.cn>
-Signed-off-by: Lin Chen <chen.lin5@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/dpio/dpio-driver.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/soc/fsl/dpio/dpio-driver.c b/drivers/soc/fsl/dpio/dpio-driver.c
-index 7b642c330977f..7f397b4ad878d 100644
---- a/drivers/soc/fsl/dpio/dpio-driver.c
-+++ b/drivers/soc/fsl/dpio/dpio-driver.c
-@@ -95,7 +95,6 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
- {
- 	int error;
- 	struct fsl_mc_device_irq *irq;
--	cpumask_t mask;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
+index bdace01561bab..9df4782c90f35 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
++++ b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
+@@ -10,18 +10,6 @@ / {
+ 	model = "NVIDIA Jetson TX2 Developer Kit";
+ 	compatible = "nvidia,p2771-0000", "nvidia,tegra186";
  
- 	irq = dpio_dev->irqs[0];
- 	error = devm_request_irq(&dpio_dev->dev,
-@@ -112,9 +111,7 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
- 	}
- 
- 	/* set the affinity hint */
--	cpumask_clear(&mask);
--	cpumask_set_cpu(cpu, &mask);
--	if (irq_set_affinity_hint(irq->msi_desc->irq, &mask))
-+	if (irq_set_affinity_hint(irq->msi_desc->irq, cpumask_of(cpu)))
- 		dev_err(&dpio_dev->dev,
- 			"irq_set_affinity failed irq %d cpu %d\n",
- 			irq->msi_desc->irq, cpu);
+-	aconnect {
+-		status = "okay";
+-
+-		dma-controller@2930000 {
+-			status = "okay";
+-		};
+-
+-		interrupt-controller@2a40000 {
+-			status = "okay";
+-		};
+-	};
+-
+ 	i2c@3160000 {
+ 		power-monitor@42 {
+ 			compatible = "ti,ina3221";
 -- 
 2.27.0
 
