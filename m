@@ -2,29 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D97092CDDC2
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C80A52CDDC6
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727713AbgLCSdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 13:33:44 -0500
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:60320 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726462AbgLCSdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:44 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UHRBP-0_1607020372;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHRBP-0_1607020372)
+        id S1731703AbgLCSdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 13:33:54 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:51471 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726462AbgLCSdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:54 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UHRKr11_1607020381;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHRKr11_1607020381)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 04 Dec 2020 02:33:01 +0800
+          Fri, 04 Dec 2020 02:33:11 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
         linux-kernel@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Alexander Viro <viro@ftp.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 04/10] proc: Better ownership of files for non-dumpable tasks in user namespaces
-Date:   Fri,  4 Dec 2020 02:31:58 +0800
-Message-Id: <20201203183204.63759-5-wenyang@linux.alibaba.com>
+Subject: [PATCH 05/10] proc: use %u for pid printing and slightly less stack
+Date:   Fri,  4 Dec 2020 02:31:59 +0800
+Message-Id: <20201203183204.63759-6-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20201203183204.63759-1-wenyang@linux.alibaba.com>
 References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
@@ -34,253 +37,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 68eb94f16227336a5773b83ecfa8290f1d6b78ce ]
+[ Upstream commit e3912ac37e07a13c70675cd75020694de4841c74 ]
 
-Instead of making the files owned by the GLOBAL_ROOT_USER.  Make
-non-dumpable files whose mm has always lived in a user namespace owned
-by the user namespace root.  This allows the container root to have
-things work as expected in a container.
+PROC_NUMBUF is 13 which is enough for "negative int + \n + \0".
 
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+However PIDs and TGIDs are never negative and newline is not a concern,
+so use just 10 per integer.
+
+Link: http://lkml.kernel.org/r/20171120203005.GA27743@avx2
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Alexander Viro <viro@ftp.linux.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: <stable@vger.kernel.org> # 4.9.x
 Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- fs/proc/base.c     | 102 ++++++++++++++++++++++++++++++-----------------------
- fs/proc/fd.c       |  12 +------
- fs/proc/internal.h |  16 ++-------
- 3 files changed, 61 insertions(+), 69 deletions(-)
+ fs/proc/base.c        | 16 ++++++++--------
+ fs/proc/fd.c          |  2 +-
+ fs/proc/self.c        |  6 +++---
+ fs/proc/thread_self.c |  5 ++---
+ 4 files changed, 14 insertions(+), 15 deletions(-)
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ee2e0ec..5bfdb61 100644
+index 5bfdb61..3502a40 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -1676,12 +1676,63 @@ static int proc_pid_readlink(struct dentry * dentry, char __user * buffer, int b
- 
- /* building an inode */
- 
-+void task_dump_owner(struct task_struct *task, mode_t mode,
-+		     kuid_t *ruid, kgid_t *rgid)
-+{
-+	/* Depending on the state of dumpable compute who should own a
-+	 * proc file for a task.
-+	 */
-+	const struct cred *cred;
-+	kuid_t uid;
-+	kgid_t gid;
-+
-+	/* Default to the tasks effective ownership */
-+	rcu_read_lock();
-+	cred = __task_cred(task);
-+	uid = cred->euid;
-+	gid = cred->egid;
-+	rcu_read_unlock();
-+
-+	/*
-+	 * Before the /proc/pid/status file was created the only way to read
-+	 * the effective uid of a /process was to stat /proc/pid.  Reading
-+	 * /proc/pid/status is slow enough that procps and other packages
-+	 * kept stating /proc/pid.  To keep the rules in /proc simple I have
-+	 * made this apply to all per process world readable and executable
-+	 * directories.
-+	 */
-+	if (mode != (S_IFDIR|S_IRUGO|S_IXUGO)) {
-+		struct mm_struct *mm;
-+		task_lock(task);
-+		mm = task->mm;
-+		/* Make non-dumpable tasks owned by some root */
-+		if (mm) {
-+			if (get_dumpable(mm) != SUID_DUMP_USER) {
-+				struct user_namespace *user_ns = mm->user_ns;
-+
-+				uid = make_kuid(user_ns, 0);
-+				if (!uid_valid(uid))
-+					uid = GLOBAL_ROOT_UID;
-+
-+				gid = make_kgid(user_ns, 0);
-+				if (!gid_valid(gid))
-+					gid = GLOBAL_ROOT_GID;
-+			}
-+		} else {
-+			uid = GLOBAL_ROOT_UID;
-+			gid = GLOBAL_ROOT_GID;
-+		}
-+		task_unlock(task);
-+	}
-+	*ruid = uid;
-+	*rgid = gid;
-+}
-+
- struct inode *proc_pid_make_inode(struct super_block * sb,
- 				  struct task_struct *task, umode_t mode)
+@@ -3018,11 +3018,11 @@ static struct dentry *proc_tgid_base_lookup(struct inode *dir, struct dentry *de
+ static void proc_flush_task_mnt(struct vfsmount *mnt, pid_t pid, pid_t tgid)
  {
- 	struct inode * inode;
- 	struct proc_inode *ei;
--	const struct cred *cred;
+ 	struct dentry *dentry, *leader, *dir;
+-	char buf[PROC_NUMBUF];
++	char buf[10 + 1];
+ 	struct qstr name;
  
- 	/* We need a new inode */
+ 	name.name = buf;
+-	name.len = snprintf(buf, sizeof(buf), "%d", pid);
++	name.len = snprintf(buf, sizeof(buf), "%u", pid);
+ 	/* no ->d_hash() rejects on procfs */
+ 	dentry = d_hash_and_lookup(mnt->mnt_root, &name);
+ 	if (dentry) {
+@@ -3034,7 +3034,7 @@ static void proc_flush_task_mnt(struct vfsmount *mnt, pid_t pid, pid_t tgid)
+ 		return;
  
-@@ -1703,13 +1754,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb,
- 	if (!ei->pid)
- 		goto out_unlock;
+ 	name.name = buf;
+-	name.len = snprintf(buf, sizeof(buf), "%d", tgid);
++	name.len = snprintf(buf, sizeof(buf), "%u", tgid);
+ 	leader = d_hash_and_lookup(mnt->mnt_root, &name);
+ 	if (!leader)
+ 		goto out;
+@@ -3046,7 +3046,7 @@ static void proc_flush_task_mnt(struct vfsmount *mnt, pid_t pid, pid_t tgid)
+ 		goto out_put_leader;
  
--	if (task_dumpable(task)) {
--		rcu_read_lock();
--		cred = __task_cred(task);
--		inode->i_uid = cred->euid;
--		inode->i_gid = cred->egid;
--		rcu_read_unlock();
--	}
-+	task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
- 	security_task_to_inode(task, inode);
+ 	name.name = buf;
+-	name.len = snprintf(buf, sizeof(buf), "%d", pid);
++	name.len = snprintf(buf, sizeof(buf), "%u", pid);
+ 	dentry = d_hash_and_lookup(dir, &name);
+ 	if (dentry) {
+ 		d_invalidate(dentry);
+@@ -3226,14 +3226,14 @@ int proc_pid_readdir(struct file *file, struct dir_context *ctx)
+ 	for (iter = next_tgid(ns, iter);
+ 	     iter.task;
+ 	     iter.tgid += 1, iter = next_tgid(ns, iter)) {
+-		char name[PROC_NUMBUF];
++		char name[10 + 1];
+ 		int len;
  
- out:
-@@ -1724,7 +1769,6 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
- {
- 	struct inode *inode = d_inode(dentry);
- 	struct task_struct *task;
--	const struct cred *cred;
- 	struct pid_namespace *pid = dentry->d_sb->s_fs_info;
+ 		cond_resched();
+ 		if (!has_pid_permissions(ns, iter.task, 2))
+ 			continue;
  
- 	generic_fillattr(inode, stat);
-@@ -1742,12 +1786,7 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
- 			 */
- 			return -ENOENT;
- 		}
--		if ((inode->i_mode == (S_IFDIR|S_IRUGO|S_IXUGO)) ||
--		    task_dumpable(task)) {
--			cred = __task_cred(task);
--			stat->uid = cred->euid;
--			stat->gid = cred->egid;
--		}
-+		task_dump_owner(task, inode->i_mode, &stat->uid, &stat->gid);
- 	}
- 	rcu_read_unlock();
- 	return 0;
-@@ -1763,18 +1802,11 @@ int pid_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
-  * Rewrite the inode's ownerships here because the owning task may have
-  * performed a setuid(), etc.
-  *
-- * Before the /proc/pid/status file was created the only way to read
-- * the effective uid of a /process was to stat /proc/pid.  Reading
-- * /proc/pid/status is slow enough that procps and other packages
-- * kept stating /proc/pid.  To keep the rules in /proc simple I have
-- * made this apply to all per process world readable and executable
-- * directories.
-  */
- int pid_revalidate(struct dentry *dentry, unsigned int flags)
- {
- 	struct inode *inode;
- 	struct task_struct *task;
--	const struct cred *cred;
- 
- 	if (flags & LOOKUP_RCU)
- 		return -ECHILD;
-@@ -1783,17 +1815,8 @@ int pid_revalidate(struct dentry *dentry, unsigned int flags)
- 	task = get_proc_task(inode);
- 
- 	if (task) {
--		if ((inode->i_mode == (S_IFDIR|S_IRUGO|S_IXUGO)) ||
--		    task_dumpable(task)) {
--			rcu_read_lock();
--			cred = __task_cred(task);
--			inode->i_uid = cred->euid;
--			inode->i_gid = cred->egid;
--			rcu_read_unlock();
--		} else {
--			inode->i_uid = GLOBAL_ROOT_UID;
--			inode->i_gid = GLOBAL_ROOT_GID;
--		}
-+		task_dump_owner(task, inode->i_mode, &inode->i_uid, &inode->i_gid);
-+
- 		inode->i_mode &= ~(S_ISUID | S_ISGID);
- 		security_task_to_inode(task, inode);
- 		put_task_struct(task);
-@@ -1915,7 +1938,6 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
- 	bool exact_vma_exists = false;
- 	struct mm_struct *mm = NULL;
- 	struct task_struct *task;
--	const struct cred *cred;
- 	struct inode *inode;
- 	int status = 0;
- 
-@@ -1940,16 +1962,8 @@ static int map_files_d_revalidate(struct dentry *dentry, unsigned int flags)
- 	mmput(mm);
- 
- 	if (exact_vma_exists) {
--		if (task_dumpable(task)) {
--			rcu_read_lock();
--			cred = __task_cred(task);
--			inode->i_uid = cred->euid;
--			inode->i_gid = cred->egid;
--			rcu_read_unlock();
--		} else {
--			inode->i_uid = GLOBAL_ROOT_UID;
--			inode->i_gid = GLOBAL_ROOT_GID;
--		}
-+		task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
-+
- 		security_task_to_inode(task, inode);
- 		status = 1;
- 	}
+-		len = snprintf(name, sizeof(name), "%d", iter.tgid);
++		len = snprintf(name, sizeof(name), "%u", iter.tgid);
+ 		ctx->pos = iter.tgid + TGID_OFFSET;
+ 		if (!proc_fill_cache(file, ctx, name, len,
+ 				     proc_pid_instantiate, iter.task, NULL)) {
+@@ -3557,10 +3557,10 @@ static int proc_task_readdir(struct file *file, struct dir_context *ctx)
+ 	for (task = first_tid(proc_pid(inode), tid, ctx->pos - 2, ns);
+ 	     task;
+ 	     task = next_tid(task), ctx->pos++) {
+-		char name[PROC_NUMBUF];
++		char name[10 + 1];
+ 		int len;
+ 		tid = task_pid_nr_ns(task, ns);
+-		len = snprintf(name, sizeof(name), "%d", tid);
++		len = snprintf(name, sizeof(name), "%u", tid);
+ 		if (!proc_fill_cache(file, ctx, name, len,
+ 				proc_task_instantiate, task, NULL)) {
+ 			/* returning this tgid failed, save it as the first
 diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index 4274f83..00ce153 100644
+index 00ce153..390c2fe 100644
 --- a/fs/proc/fd.c
 +++ b/fs/proc/fd.c
-@@ -84,7 +84,6 @@ static int tid_fd_revalidate(struct dentry *dentry, unsigned int flags)
- {
- 	struct files_struct *files;
- 	struct task_struct *task;
--	const struct cred *cred;
- 	struct inode *inode;
- 	unsigned int fd;
+@@ -235,7 +235,7 @@ static int proc_readfd_common(struct file *file, struct dir_context *ctx,
+ 	for (fd = ctx->pos - 2;
+ 	     fd < files_fdtable(files)->max_fds;
+ 	     fd++, ctx->pos++) {
+-		char name[PROC_NUMBUF];
++		char name[10 + 1];
+ 		int len;
  
-@@ -108,16 +107,7 @@ static int tid_fd_revalidate(struct dentry *dentry, unsigned int flags)
- 				rcu_read_unlock();
- 				put_files_struct(files);
+ 		if (!fcheck_files(files, fd))
+diff --git a/fs/proc/self.c b/fs/proc/self.c
+index f6e2e3f..dd06755 100644
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -35,11 +35,11 @@ static const char *proc_self_get_link(struct dentry *dentry,
  
--				if (task_dumpable(task)) {
--					rcu_read_lock();
--					cred = __task_cred(task);
--					inode->i_uid = cred->euid;
--					inode->i_gid = cred->egid;
--					rcu_read_unlock();
--				} else {
--					inode->i_uid = GLOBAL_ROOT_UID;
--					inode->i_gid = GLOBAL_ROOT_GID;
--				}
-+				task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
- 
- 				if (S_ISLNK(inode->i_mode)) {
- 					unsigned i_mode = S_IFLNK;
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 5bc057b..103435f 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -98,20 +98,8 @@ static inline struct task_struct *get_proc_task(struct inode *inode)
- 	return get_pid_task(proc_pid(inode), PIDTYPE_PID);
+ 	if (!tgid)
+ 		return ERR_PTR(-ENOENT);
+-	/* 11 for max length of signed int in decimal + NULL term */
+-	name = kmalloc(12, dentry ? GFP_KERNEL : GFP_ATOMIC);
++	/* max length of unsigned int in decimal + NULL term */
++	name = kmalloc(10 + 1, dentry ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (unlikely(!name))
+ 		return dentry ? ERR_PTR(-ENOMEM) : ERR_PTR(-ECHILD);
+-	sprintf(name, "%d", tgid);
++	sprintf(name, "%u", tgid);
+ 	set_delayed_call(done, kfree_link, name);
+ 	return name;
  }
+diff --git a/fs/proc/thread_self.c b/fs/proc/thread_self.c
+index 02d1db8..44e0921 100644
+--- a/fs/proc/thread_self.c
++++ b/fs/proc/thread_self.c
+@@ -30,11 +30,10 @@ static const char *proc_thread_self_get_link(struct dentry *dentry,
  
--static inline int task_dumpable(struct task_struct *task)
--{
--	int dumpable = 0;
--	struct mm_struct *mm;
--
--	task_lock(task);
--	mm = task->mm;
--	if (mm)
--		dumpable = get_dumpable(mm);
--	task_unlock(task);
--	if (dumpable == SUID_DUMP_USER)
--		return 1;
--	return 0;
--}
-+void task_dump_owner(struct task_struct *task, mode_t mode,
-+		     kuid_t *ruid, kgid_t *rgid);
- 
- static inline unsigned name_to_int(const struct qstr *qstr)
- {
+ 	if (!pid)
+ 		return ERR_PTR(-ENOENT);
+-	name = kmalloc(PROC_NUMBUF + 6 + PROC_NUMBUF,
+-				dentry ? GFP_KERNEL : GFP_ATOMIC);
++	name = kmalloc(10 + 6 + 10 + 1, dentry ? GFP_KERNEL : GFP_ATOMIC);
+ 	if (unlikely(!name))
+ 		return dentry ? ERR_PTR(-ENOMEM) : ERR_PTR(-ECHILD);
+-	sprintf(name, "%d/task/%d", tgid, pid);
++	sprintf(name, "%u/task/%u", tgid, pid);
+ 	set_delayed_call(done, kfree_link, name);
+ 	return name;
+ }
 -- 
 1.8.3.1
 
