@@ -2,27 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F25D2CD77D
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3CD2CD779
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730708AbgLCNei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:34:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48820 "EHLO mail.kernel.org"
+        id S2436801AbgLCNa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:30:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436781AbgLCNaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:55 -0500
+        id S2436792AbgLCNa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:57 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lijun Pan <ljp@linux.ibm.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/23] ibmvnic: skip tx timeout reset while in resetting
-Date:   Thu,  3 Dec 2020 08:29:24 -0500
-Message-Id: <20201203132935.931362-12-sashal@kernel.org>
+Cc:     Xu Qiang <xuqiang36@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 13/23] irqchip/gic-v3-its: Unconditionally save/restore the ITS state on suspend
+Date:   Thu,  3 Dec 2020 08:29:25 -0500
+Message-Id: <20201203132935.931362-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -34,40 +30,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit 855a631a4c11458a9cef1ab79c1530436aa95fae ]
+[ Upstream commit 74cde1a53368aed4f2b4b54bf7030437f64a534b ]
 
-Sometimes it takes longer than 5 seconds (watchdog timeout) to complete
-failover, migration, and other resets. In stead of scheduling another
-timeout reset, we wait for the current one to complete.
+On systems without HW-based collections (i.e. anything except GIC-500),
+we rely on firmware to perform the ITS save/restore. This doesn't
+really work, as although FW can properly save everything, it cannot
+fully restore the state of the command queue (the read-side is reset
+to the head of the queue). This results in the ITS consuming previously
+processed commands, potentially corrupting the state.
 
-Suggested-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Instead, let's always save the ITS state on suspend, disabling it in the
+process, and restore the full state on resume. This saves us from broken
+FW as long as it doesn't enable the ITS by itself (for which we can't do
+anything).
+
+This amounts to simply dropping the ITS_FLAGS_SAVE_SUSPEND_STATE.
+
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+[maz: added warning on resume, rewrote commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20201107104226.14282-1-xuqiang36@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/irqchip/irq-gic-v3-its.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index e53994ca3142c..af1d9d2150616 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2266,6 +2266,12 @@ static void ibmvnic_tx_timeout(struct net_device *dev)
- {
- 	struct ibmvnic_adapter *adapter = netdev_priv(dev);
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 7966b19ceba79..f298313b87ac7 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -40,7 +40,6 @@
+ #define ITS_FLAGS_CMDQ_NEEDS_FLUSHING		(1ULL << 0)
+ #define ITS_FLAGS_WORKAROUND_CAVIUM_22375	(1ULL << 1)
+ #define ITS_FLAGS_WORKAROUND_CAVIUM_23144	(1ULL << 2)
+-#define ITS_FLAGS_SAVE_SUSPEND_STATE		(1ULL << 3)
  
-+	if (test_bit(0, &adapter->resetting)) {
-+		netdev_err(adapter->netdev,
-+			   "Adapter is resetting, skip timeout reset\n");
-+		return;
-+	}
-+
- 	ibmvnic_reset(adapter, VNIC_RESET_TIMEOUT);
- }
+ #define RDIST_FLAGS_PROPBASE_NEEDS_FLUSHING	(1 << 0)
+ #define RDIST_FLAGS_RD_TABLES_PREALLOCATED	(1 << 1)
+@@ -3367,9 +3366,6 @@ static int its_save_disable(void)
+ 	list_for_each_entry(its, &its_nodes, entry) {
+ 		void __iomem *base;
  
+-		if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-			continue;
+-
+ 		base = its->base;
+ 		its->ctlr_save = readl_relaxed(base + GITS_CTLR);
+ 		err = its_force_quiescent(base);
+@@ -3388,9 +3384,6 @@ static int its_save_disable(void)
+ 		list_for_each_entry_continue_reverse(its, &its_nodes, entry) {
+ 			void __iomem *base;
+ 
+-			if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-				continue;
+-
+ 			base = its->base;
+ 			writel_relaxed(its->ctlr_save, base + GITS_CTLR);
+ 		}
+@@ -3410,9 +3403,6 @@ static void its_restore_enable(void)
+ 		void __iomem *base;
+ 		int i;
+ 
+-		if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-			continue;
+-
+ 		base = its->base;
+ 
+ 		/*
+@@ -3420,7 +3410,10 @@ static void its_restore_enable(void)
+ 		 * don't restore it since writing to CBASER or BASER<n>
+ 		 * registers is undefined according to the GIC v3 ITS
+ 		 * Specification.
++		 *
++		 * Firmware resuming with the ITS enabled is terminally broken.
+ 		 */
++		WARN_ON(readl_relaxed(base + GITS_CTLR) & GITS_CTLR_ENABLE);
+ 		ret = its_force_quiescent(base);
+ 		if (ret) {
+ 			pr_err("ITS@%pa: failed to quiesce on resume: %d\n",
+@@ -3687,9 +3680,6 @@ static int __init its_probe_one(struct resource *res,
+ 		ctlr |= GITS_CTLR_ImDe;
+ 	writel_relaxed(ctlr, its->base + GITS_CTLR);
+ 
+-	if (GITS_TYPER_HCC(typer))
+-		its->flags |= ITS_FLAGS_SAVE_SUSPEND_STATE;
+-
+ 	err = its_init_domain(handle, its);
+ 	if (err)
+ 		goto out_free_tables;
 -- 
 2.27.0
 
