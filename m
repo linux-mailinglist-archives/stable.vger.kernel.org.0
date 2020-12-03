@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE7E2CD740
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4568F2CD73E
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437075AbgLCNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:32:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47922 "EHLO mail.kernel.org"
+        id S2389114AbgLCNcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:32:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436918AbgLCNbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:31:15 -0500
+        id S2436920AbgLCNbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:31:16 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Verevkin <me@maxverevkin.tk>,
-        Hans de Goede <hdegoede@redhat.com>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/14] platform/x86: intel-vbtn: Support for tablet mode on HP Pavilion 13 x360 PC
-Date:   Thu,  3 Dec 2020 08:30:10 -0500
-Message-Id: <20201203133010.931600-14-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/9] iwlwifi: pcie: limit memory read spin time
+Date:   Thu,  3 Dec 2020 08:30:23 -0500
+Message-Id: <20201203133031.931763-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201203133010.931600-1-sashal@kernel.org>
-References: <20201203133010.931600-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -32,39 +32,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Verevkin <me@maxverevkin.tk>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 8b205d3e1bf52ab31cdd5c55f87c87a227793d84 ]
+[ Upstream commit 04516706bb99889986ddfa3a769ed50d2dc7ac13 ]
 
-The Pavilion 13 x360 PC has a chassis-type which does not indicate it is
-a convertible, while it is actually a convertible. Add it to the
-dmi_switches_allow_list.
+When we read device memory, we lock a spinlock, write the address we
+want to read from the device and then spin in a loop reading the data
+in 32-bit quantities from another register.
 
-Signed-off-by: Max Verevkin <me@maxverevkin.tk>
-Link: https://lore.kernel.org/r/20201124131652.11165-1-me@maxverevkin.tk
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+As the description makes clear, this is rather inefficient, incurring
+a PCIe bus transaction for every read. In a typical device today, we
+want to read 786k SMEM if it crashes, leading to 192k register reads.
+Occasionally, we've seen the whole loop take over 20 seconds and then
+triggering the soft lockup detector.
+
+Clearly, it is unreasonable to spin here for such extended periods of
+time.
+
+To fix this, break the loop down into an outer and an inner loop, and
+break out of the inner loop if more than half a second elapsed. To
+avoid too much overhead, check for that only every 128 reads, though
+there's no particular reason for that number. Then, unlock and relock
+to obtain NIC access again, reprogram the start address and continue.
+
+This will keep (interrupt) latencies on the CPU down to a reasonable
+time.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201022165103.45878a7e49aa.I3b9b9c5a10002915072312ce75b68ed5b3dc6e14@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../net/wireless/intel/iwlwifi/pcie/trans.c   | 36 ++++++++++++++-----
+ 1 file changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 1e6b4661c7645..3aba207ee1745 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -197,6 +197,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Stream x360 Convertible PC 11"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index 8a074a516fb26..910edd034fe3a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -1927,18 +1927,36 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 				   void *buf, int dwords)
+ {
+ 	unsigned long flags;
+-	int offs, ret = 0;
++	int offs = 0;
+ 	u32 *vals = buf;
  
+-	if (iwl_trans_grab_nic_access(trans, &flags)) {
+-		iwl_write32(trans, HBUS_TARG_MEM_RADDR, addr);
+-		for (offs = 0; offs < dwords; offs++)
+-			vals[offs] = iwl_read32(trans, HBUS_TARG_MEM_RDAT);
+-		iwl_trans_release_nic_access(trans, &flags);
+-	} else {
+-		ret = -EBUSY;
++	while (offs < dwords) {
++		/* limit the time we spin here under lock to 1/2s */
++		ktime_t timeout = ktime_add_us(ktime_get(), 500 * USEC_PER_MSEC);
++
++		if (iwl_trans_grab_nic_access(trans, &flags)) {
++			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
++				    addr + 4 * offs);
++
++			while (offs < dwords) {
++				vals[offs] = iwl_read32(trans,
++							HBUS_TARG_MEM_RDAT);
++				offs++;
++
++				/* calling ktime_get is expensive so
++				 * do it once in 128 reads
++				 */
++				if (offs % 128 == 0 && ktime_after(ktime_get(),
++								   timeout))
++					break;
++			}
++			iwl_trans_release_nic_access(trans, &flags);
++		} else {
++			return -EBUSY;
++		}
+ 	}
+-	return ret;
++
++	return 0;
+ }
+ 
+ static int iwl_trans_pcie_write_mem(struct iwl_trans *trans, u32 addr,
 -- 
 2.27.0
 
