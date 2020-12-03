@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 854D42CD743
+	by mail.lfdr.de (Postfix) with ESMTP id F3F452CD744
 	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436943AbgLCNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2436925AbgLCNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Dec 2020 08:32:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436922AbgLCNbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2436921AbgLCNbQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Dec 2020 08:31:16 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markus Reichl <m.reichl@fivetechno.de>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 2/9] arm64: dts: rockchip: Assign a fixed index to mmc devices on rk3399 boards.
-Date:   Thu,  3 Dec 2020 08:30:24 -0500
-Message-Id: <20201203133031.931763-2-sashal@kernel.org>
+Cc:     Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/9] iwlwifi: mvm: fix kernel panic in case of assert during CSA
+Date:   Thu,  3 Dec 2020 08:30:25 -0500
+Message-Id: <20201203133031.931763-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203133031.931763-1-sashal@kernel.org>
 References: <20201203133031.931763-1-sashal@kernel.org>
@@ -34,40 +33,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Reichl <m.reichl@fivetechno.de>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 0011c6d182774fc781fb9e115ebe8baa356029ae ]
+[ Upstream commit fe56d05ee6c87f6a1a8c7267affd92c9438249cc ]
 
-Recently introduced async probe on mmc devices can shuffle block IDs.
-Pin them to fixed values to ease booting in environments where UUIDs
-are not practical. Use newly introduced aliases for mmcblk devices from [1].
+During CSA, we briefly nullify the phy context, in __iwl_mvm_unassign_vif_chanctx.
+In case we have a FW assert right after it, it remains NULL though.
+We end up running into endless loop due to mac80211 trying repeatedly to
+move us to ASSOC state, and we keep returning -EINVAL. Later down the road
+we hit a kernel panic.
 
-[1]
-https://patchwork.kernel.org/patch/11747669/
+Detect and avoid this endless loop.
 
-Signed-off-by: Markus Reichl <m.reichl@fivetechno.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20201104162356.1251-1-m.reichl@fivetechno.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201107104557.d64de2c17bff.Iedd0d2afa20a2aacba5259a5cae31cb3a119a4eb@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index b63d9653ff559..82747048381fa 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -66,6 +66,9 @@ aliases {
- 		i2c6 = &i2c6;
- 		i2c7 = &i2c7;
- 		i2c8 = &i2c8;
-+		mmc0 = &sdio0;
-+		mmc1 = &sdmmc;
-+		mmc2 = &sdhci;
- 		serial0 = &uart0;
- 		serial1 = &uart1;
- 		serial2 = &uart2;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index ec2ecdd1cc4ec..9aab9a0269548 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -2654,7 +2654,7 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
+ 
+ 	/* this would be a mac80211 bug ... but don't crash */
+ 	if (WARN_ON_ONCE(!mvmvif->phy_ctxt))
+-		return -EINVAL;
++		return test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) ? 0 : -EINVAL;
+ 
+ 	/*
+ 	 * If we are in a STA removal flow and in DQA mode:
 -- 
 2.27.0
 
