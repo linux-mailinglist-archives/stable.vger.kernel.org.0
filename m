@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC82E2CD78F
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6ACE2CD78D
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436730AbgLCNas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2436736AbgLCNas (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Dec 2020 08:30:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436713AbgLCNar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:47 -0500
+        id S2436675AbgLCNas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:48 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Georgi Djakov <georgi.djakov@linaro.org>,
-        Mike Tipton <mdtipton@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/23] interconnect: qcom: qcs404: Remove GPU and display RPM IDs
-Date:   Thu,  3 Dec 2020 08:29:21 -0500
-Message-Id: <20201203132935.931362-9-sashal@kernel.org>
+Cc:     Yves-Alexis Perez <corsac@corsac.net>,
+        Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/23] usbnet: ipheth: fix connectivity with iOS 14
+Date:   Thu,  3 Dec 2020 08:29:22 -0500
+Message-Id: <20201203132935.931362-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -33,43 +33,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Djakov <georgi.djakov@linaro.org>
+From: Yves-Alexis Perez <corsac@corsac.net>
 
-[ Upstream commit 7ab1e9117607485df977bb6e271be5c5ad649a4c ]
+[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
 
-The following errors are noticed during boot on a QCS404 board:
-[    2.926647] qcom_icc_rpm_smd_send mas 6 error -6
-[    2.934573] qcom_icc_rpm_smd_send mas 8 error -6
+Starting with iOS 14 released in September 2020, connectivity using the
+personal hotspot USB tethering function of iOS devices is broken.
 
-These errors show when we try to configure the GPU and display nodes.
-Since these particular nodes aren't supported on RPM and are purely
-local, we should just change their mas_rpm_id to -1 to avoid any
-requests being sent for these master IDs.
+Communication between the host and the device (for example ICMP traffic
+or DNS resolution using the DNS service running in the device itself)
+works fine, but communication to endpoints further away doesn't work.
 
-Reviewed-by: Mike Tipton <mdtipton@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20201118111044.26056-1-georgi.djakov@linaro.org
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+Investigation on the matter shows that no UDP and ICMP traffic from the
+tethered host is reaching the Internet at all. For TCP traffic there are
+exchanges between tethered host and server but packets are modified in
+transit leading to impossible communication.
+
+After some trials Matti Vuorela discovered that reducing the URB buffer
+size by two bytes restored the previous behavior. While a better
+solution might exist to fix the issue, since the protocol is not
+publicly documented and considering the small size of the fix, let's do
+that.
+
+Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
+Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/qcs404.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/ipheth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/interconnect/qcom/qcs404.c b/drivers/interconnect/qcom/qcs404.c
-index 8e0735a870400..3a3ce6ea65ff2 100644
---- a/drivers/interconnect/qcom/qcs404.c
-+++ b/drivers/interconnect/qcom/qcs404.c
-@@ -157,8 +157,8 @@ struct qcom_icc_desc {
- 	}
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index 8c01fbf68a895..345576f1a7470 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -59,7 +59,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
  
- DEFINE_QNODE(mas_apps_proc, QCS404_MASTER_AMPSS_M0, 8, 0, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
--DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, 6, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
--DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, 8, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
-+DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
-+DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
- DEFINE_QNODE(mas_snoc_bimc_1, QCS404_SNOC_BIMC_1_MAS, 8, 76, -1, QCS404_SLAVE_EBI_CH0);
- DEFINE_QNODE(mas_tcu_0, QCS404_MASTER_TCU_0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
- DEFINE_QNODE(mas_spdm, QCS404_MASTER_SPDM, 4, -1, -1, QCS404_PNOC_INT_3);
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
+ 
 -- 
 2.27.0
 
