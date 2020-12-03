@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4962CE080
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 22:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9198E2CE083
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 22:21:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727502AbgLCVUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 16:20:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35374 "EHLO mail.kernel.org"
+        id S1727177AbgLCVVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 16:21:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726290AbgLCVUy (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 16:20:54 -0500
-Subject: patch "iio:imu:bmi160: Fix too large a buffer." added to staging-testing
+        id S1726637AbgLCVVX (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 16:21:23 -0500
+Subject: patch "iio:imu:bmi160: Fix alignment and data leak issues" added to staging-testing
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607030413;
-        bh=ATcHKzKTo4JGUVOsxr8au6DGDWRgsK08yoMHWS2g17M=;
+        s=korg; t=1607030415;
+        bh=nF+HACnW7FMOD6gYFqNMOjJVgQnI+ZICmA7HpHudTmA=;
         h=To:From:Date:From;
-        b=BDJnk88e27gzRIaTCMCvpPmq96lf4nRbW6HNWFGgxPCXbN72wp+1bO4XY//mf+Wkr
-         BxQG5mAWm0XfmvFwAaEBMlGEHdBiyGfBdXIryGsXZ4doGSUcXsipFJI90OI2wop7Xt
-         whV3WxvwJ8fGT74DFLYthXZ0TTLgKUp3vcDQgSgI=
+        b=C9/aVPFlF5AlSA4t0twDcKqcmMp66C+wMTV/b9IuOb/5eLk7svlSYci6CaCm65PUK
+         cXTh+gEMTni5BEnSULFVazrIvjfZnu5VJ+PVpdlL6mDN5CkmJkXILHc/+VVeqaLDy2
+         Dy2LKQrlJF7q7nXkBc7Y1FcRgmxlMBeZgKtH9bd8=
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        alexandru.ardelean@analog.com, daniel.baluta@oss.nxp.com
+        alexandru.ardelean@analog.com, daniel.baluta@gmail.com,
+        daniel.baluta@oss.nxp.com, lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Dec 2020 22:19:11 +0100
-Message-ID: <1607030351124193@kroah.com>
+Date:   Thu, 03 Dec 2020 22:19:12 +0100
+Message-ID: <160703035222341@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:imu:bmi160: Fix too large a buffer.
+    iio:imu:bmi160: Fix alignment and data leak issues
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -49,44 +50,82 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From dc7de42d6b50a07b37feeba4c6b5136290fcee81 Mon Sep 17 00:00:00 2001
+From 7b6b51234df6cd8b04fe736b0b89c25612d896b8 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:38 +0100
-Subject: iio:imu:bmi160: Fix too large a buffer.
+Date: Sun, 20 Sep 2020 12:27:39 +0100
+Subject: iio:imu:bmi160: Fix alignment and data leak issues
 
-The comment implies this device has 3 sensor types, but it only
-has an accelerometer and a gyroscope (both 3D).  As such the
-buffer does not need to be as long as stated.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable array in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc() so no
+data can leak apart from previous readings.
 
-Note I've separated this from the following patch which fixes
-the alignment for passing to iio_push_to_buffers_with_timestamp()
-as they are different issues even if they affect the same line
-of code.
+In this driver, depending on which channels are enabled, the timestamp
+can be in a number of locations.  Hence we cannot use a structure
+to specify the data layout without it being misleading.
 
+Fixes: 77c4ad2d6a9b ("iio: imu: Add initial support for Bosch BMI160")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Daniel Baluta  <daniel.baluta@gmail.com>
 Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-5-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200920112742.170751-6-jic23@kernel.org
 ---
- drivers/iio/imu/bmi160/bmi160_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/imu/bmi160/bmi160.h      | 7 +++++++
+ drivers/iio/imu/bmi160/bmi160_core.c | 6 ++----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/iio/imu/bmi160/bmi160.h b/drivers/iio/imu/bmi160/bmi160.h
+index a82e040bd109..32c2ea2d7112 100644
+--- a/drivers/iio/imu/bmi160/bmi160.h
++++ b/drivers/iio/imu/bmi160/bmi160.h
+@@ -10,6 +10,13 @@ struct bmi160_data {
+ 	struct iio_trigger *trig;
+ 	struct regulator_bulk_data supplies[2];
+ 	struct iio_mount_matrix orientation;
++	/*
++	 * Ensure natural alignment for timestamp if present.
++	 * Max length needed: 2 * 3 channels + 4 bytes padding + 8 byte ts.
++	 * If fewer channels are enabled, less space may be needed, as
++	 * long as the timestamp is still aligned to 8 bytes.
++	 */
++	__le16 buf[12] __aligned(8);
+ };
+ 
+ extern const struct regmap_config bmi160_regmap_config;
 diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
-index 431076dc0d2c..c8e131c29043 100644
+index c8e131c29043..290b5ef83f77 100644
 --- a/drivers/iio/imu/bmi160/bmi160_core.c
 +++ b/drivers/iio/imu/bmi160/bmi160_core.c
-@@ -427,8 +427,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+@@ -427,8 +427,6 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
  	struct bmi160_data *data = iio_priv(indio_dev);
--	__le16 buf[16];
--	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
-+	__le16 buf[12];
-+	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
+-	__le16 buf[12];
+-	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
  	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
  	__le16 sample;
  
+@@ -438,10 +436,10 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+ 				       &sample, sizeof(sample));
+ 		if (ret)
+ 			goto done;
+-		buf[j++] = sample;
++		data->buf[j++] = sample;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, data->buf, pf->timestamp);
+ done:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 	return IRQ_HANDLED;
 -- 
 2.29.2
 
