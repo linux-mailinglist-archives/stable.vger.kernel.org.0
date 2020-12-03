@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3422E2CD7A6
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC82E2CD78F
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436703AbgLCNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:35:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        id S2436730AbgLCNas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:30:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436688AbgLCNap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:45 -0500
+        id S2436713AbgLCNar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:47 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 08/23] scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
-Date:   Thu,  3 Dec 2020 08:29:20 -0500
-Message-Id: <20201203132935.931362-8-sashal@kernel.org>
+Cc:     Georgi Djakov <georgi.djakov@linaro.org>,
+        Mike Tipton <mdtipton@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/23] interconnect: qcom: qcs404: Remove GPU and display RPM IDs
+Date:   Thu,  3 Dec 2020 08:29:21 -0500
+Message-Id: <20201203132935.931362-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -34,54 +33,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Georgi Djakov <georgi.djakov@linaro.org>
 
-[ Upstream commit 73cc291c270248567245f084dcdf5078069af6b5 ]
+[ Upstream commit 7ab1e9117607485df977bb6e271be5c5ad649a4c ]
 
-If someone plays with the UFS clk scaling devfreq governor through sysfs,
-ufshcd_devfreq_scale may be called even when HBA is not runtime ACTIVE.
-This can lead to unexpected error. We cannot just protect it by calling
-pm_runtime_get_sync() because that may cause a race condition since HBA
-runtime suspend ops need to suspend clk scaling. To fix this call
-pm_runtime_get_noresume() and check HBA's runtime status. Only proceed if
-HBA is runtime ACTIVE, otherwise just bail.
+The following errors are noticed during boot on a QCS404 board:
+[    2.926647] qcom_icc_rpm_smd_send mas 6 error -6
+[    2.934573] qcom_icc_rpm_smd_send mas 8 error -6
 
-governor_store
- devfreq_performance_handler
-  update_devfreq
-   devfreq_set_target
-    ufshcd_devfreq_target
-     ufshcd_devfreq_scale
+These errors show when we try to configure the GPU and display nodes.
+Since these particular nodes aren't supported on RPM and are purely
+local, we should just change their mas_rpm_id to -1 to avoid any
+requests being sent for these master IDs.
 
-Link: https://lore.kernel.org/r/1600758548-28576-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Mike Tipton <mdtipton@codeaurora.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20201118111044.26056-1-georgi.djakov@linaro.org
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/interconnect/qcom/qcs404.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index b6ce880ddd153..675e16e61ebdd 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1257,8 +1257,15 @@ static int ufshcd_devfreq_target(struct device *dev,
+diff --git a/drivers/interconnect/qcom/qcs404.c b/drivers/interconnect/qcom/qcs404.c
+index 8e0735a870400..3a3ce6ea65ff2 100644
+--- a/drivers/interconnect/qcom/qcs404.c
++++ b/drivers/interconnect/qcom/qcs404.c
+@@ -157,8 +157,8 @@ struct qcom_icc_desc {
  	}
- 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
  
-+	pm_runtime_get_noresume(hba->dev);
-+	if (!pm_runtime_active(hba->dev)) {
-+		pm_runtime_put_noidle(hba->dev);
-+		ret = -EAGAIN;
-+		goto out;
-+	}
- 	start = ktime_get();
- 	ret = ufshcd_devfreq_scale(hba, scale_up);
-+	pm_runtime_put(hba->dev);
- 
- 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
- 		(scale_up ? "up" : "down"),
+ DEFINE_QNODE(mas_apps_proc, QCS404_MASTER_AMPSS_M0, 8, 0, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+-DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, 6, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+-DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, 8, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
++DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
++DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+ DEFINE_QNODE(mas_snoc_bimc_1, QCS404_SNOC_BIMC_1_MAS, 8, 76, -1, QCS404_SLAVE_EBI_CH0);
+ DEFINE_QNODE(mas_tcu_0, QCS404_MASTER_TCU_0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+ DEFINE_QNODE(mas_spdm, QCS404_MASTER_SPDM, 4, -1, -1, QCS404_PNOC_INT_3);
 -- 
 2.27.0
 
