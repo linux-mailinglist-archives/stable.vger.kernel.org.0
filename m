@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EBC2CD77A
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C2C2CD778
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436547AbgLCNec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:34:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
+        id S2436804AbgLCNa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:30:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436791AbgLCNa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:56 -0500
+        id S2436797AbgLCNa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:57 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ran Wang <ran.wang_1@nxp.com>, Han Xu <han.xu@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/23] spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts
-Date:   Thu,  3 Dec 2020 08:29:26 -0500
-Message-Id: <20201203132935.931362-14-sashal@kernel.org>
+Cc:     Hao Si <si.hao@zte.com.cn>, Lin Chen <chen.lin5@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>, Li Yang <leoyang.li@nxp.com>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 15/23] soc: fsl: dpio: Get the cpumask through cpumask_of(cpu)
+Date:   Thu,  3 Dec 2020 08:29:27 -0500
+Message-Id: <20201203132935.931362-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -31,55 +32,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Wang <ran.wang_1@nxp.com>
+From: Hao Si <si.hao@zte.com.cn>
 
-[ Upstream commit 71d80563b0760a411cd90a3680536f5d887fff6b ]
+[ Upstream commit 2663b3388551230cbc4606a40fabf3331ceb59e4 ]
 
-Given the case that bootloader(such as UEFI)'s FSPI driver might not
-handle all interrupts before loading kernel, those legacy interrupts
-would assert immidiately once kernel's FSPI driver enable them. Further,
-if it was FSPI_INTR_IPCMDDONE, the irq handler nxp_fspi_irq_handler()
-would call complete(&f->c) to notify others. However, f->c might not be
-initialized yet at that time, then cause kernel panic.
+The local variable 'cpumask_t mask' is in the stack memory, and its address
+is assigned to 'desc->affinity' in 'irq_set_affinity_hint()'.
+But the memory area where this variable is located is at risk of being
+modified.
 
-Of cause, we should fix this issue within bootloader. But it would be
-better to have this pacth to make dirver more robust (by clearing all
-interrupt status bits before enabling interrupts).
+During LTP testing, the following error was generated:
 
-Suggested-by: Han Xu <han.xu@nxp.com>
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
-Link: https://lore.kernel.org/r/20201123025715.14635-1-ran.wang_1@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Unable to handle kernel paging request at virtual address ffff000012e9b790
+Mem abort info:
+  ESR = 0x96000007
+  Exception class = DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+Data abort info:
+  ISV = 0, ISS = 0x00000007
+  CM = 0, WnR = 0
+swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000075ac5e07
+[ffff000012e9b790] pgd=00000027dbffe003, pud=00000027dbffd003,
+pmd=00000027b6d61003, pte=0000000000000000
+Internal error: Oops: 96000007 [#1] PREEMPT SMP
+Modules linked in: xt_conntrack
+Process read_all (pid: 20171, stack limit = 0x0000000044ea4095)
+CPU: 14 PID: 20171 Comm: read_all Tainted: G    B   W
+Hardware name: NXP Layerscape LX2160ARDB (DT)
+pstate: 80000085 (Nzcv daIf -PAN -UAO)
+pc : irq_affinity_hint_proc_show+0x54/0xb0
+lr : irq_affinity_hint_proc_show+0x4c/0xb0
+sp : ffff00001138bc10
+x29: ffff00001138bc10 x28: 0000ffffd131d1e0
+x27: 00000000007000c0 x26: ffff8025b9480dc0
+x25: ffff8025b9480da8 x24: 00000000000003ff
+x23: ffff8027334f8300 x22: ffff80272e97d000
+x21: ffff80272e97d0b0 x20: ffff8025b9480d80
+x19: ffff000009a49000 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0000000000000000 x14: 0000000000000000
+x13: 0000000000000000 x12: 0000000000000040
+x11: 0000000000000000 x10: ffff802735b79b88
+x9 : 0000000000000000 x8 : 0000000000000000
+x7 : ffff000009a49848 x6 : 0000000000000003
+x5 : 0000000000000000 x4 : ffff000008157d6c
+x3 : ffff00001138bc10 x2 : ffff000012e9b790
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ irq_affinity_hint_proc_show+0x54/0xb0
+ seq_read+0x1b0/0x440
+ proc_reg_read+0x80/0xd8
+ __vfs_read+0x60/0x178
+ vfs_read+0x94/0x150
+ ksys_read+0x74/0xf0
+ __arm64_sys_read+0x24/0x30
+ el0_svc_common.constprop.0+0xd8/0x1a0
+ el0_svc_handler+0x34/0x88
+ el0_svc+0x10/0x14
+Code: f9001bbf 943e0732 f94066c2 b4000062 (f9400041)
+---[ end trace b495bdcb0b3b732b ]---
+Kernel panic - not syncing: Fatal exception
+SMP: stopping secondary CPUs
+SMP: failed to stop secondary CPUs 0,2-4,6,8,11,13-15
+Kernel Offset: disabled
+CPU features: 0x0,21006008
+Memory Limit: none
+---[ end Kernel panic - not syncing: Fatal exception ]---
+
+Fix it by using 'cpumask_of(cpu)' to get the cpumask.
+
+Signed-off-by: Hao Si <si.hao@zte.com.cn>
+Signed-off-by: Lin Chen <chen.lin5@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-nxp-fspi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/soc/fsl/dpio/dpio-driver.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
-index 28ae5229f889f..efd9e908e2248 100644
---- a/drivers/spi/spi-nxp-fspi.c
-+++ b/drivers/spi/spi-nxp-fspi.c
-@@ -948,6 +948,7 @@ static int nxp_fspi_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	struct nxp_fspi *f;
- 	int ret;
-+	u32 reg;
+diff --git a/drivers/soc/fsl/dpio/dpio-driver.c b/drivers/soc/fsl/dpio/dpio-driver.c
+index 7b642c330977f..7f397b4ad878d 100644
+--- a/drivers/soc/fsl/dpio/dpio-driver.c
++++ b/drivers/soc/fsl/dpio/dpio-driver.c
+@@ -95,7 +95,6 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
+ {
+ 	int error;
+ 	struct fsl_mc_device_irq *irq;
+-	cpumask_t mask;
  
- 	ctlr = spi_alloc_master(&pdev->dev, sizeof(*f));
- 	if (!ctlr)
-@@ -974,6 +975,12 @@ static int nxp_fspi_probe(struct platform_device *pdev)
- 		goto err_put_ctrl;
+ 	irq = dpio_dev->irqs[0];
+ 	error = devm_request_irq(&dpio_dev->dev,
+@@ -112,9 +111,7 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
  	}
  
-+	/* Clear potential interrupts */
-+	reg = fspi_readl(f, f->iobase + FSPI_INTR);
-+	if (reg)
-+		fspi_writel(f, reg, f->iobase + FSPI_INTR);
-+
-+
- 	/* find the resources - controller memory mapped space */
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fspi_mmap");
- 	f->ahb_addr = devm_ioremap_resource(dev, res);
+ 	/* set the affinity hint */
+-	cpumask_clear(&mask);
+-	cpumask_set_cpu(cpu, &mask);
+-	if (irq_set_affinity_hint(irq->msi_desc->irq, &mask))
++	if (irq_set_affinity_hint(irq->msi_desc->irq, cpumask_of(cpu)))
+ 		dev_err(&dpio_dev->dev,
+ 			"irq_set_affinity failed irq %d cpu %d\n",
+ 			irq->msi_desc->irq, cpu);
 -- 
 2.27.0
 
