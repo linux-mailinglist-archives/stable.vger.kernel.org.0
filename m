@@ -2,67 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D12EC2CD291
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 10:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E67C2CD347
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 11:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388597AbgLCJag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 04:30:36 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:39188 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728619AbgLCJag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 04:30:36 -0500
-Received: by mail-lj1-f195.google.com with SMTP id o24so1782940ljj.6;
-        Thu, 03 Dec 2020 01:30:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eXTBe4HsxPobzAstKcEDPTEAEKNBBgf2Gd7hq1PS7lU=;
-        b=RI0MMV6rwbR0hvzFUdEMRIFaR4TavPXQOrNiQMQVIMIQDzMc1J3t1kN7nawfUxu6D3
-         zJP6iGYGBCdfCwMqpwGw4XPnM9KJiuEzxJ3zj57zhon2P/yEZS+eUxs7aWGvdvTkMpAC
-         sJ4NcI589Jektn6dHhP64uf4M1QGtGNVaBBciSdoxJ4569upi2L63bqClU4zUq6eZtG1
-         f2W7GOxNL1EeShttoc4apusbmakxGsNQLYb8JoC6CUAwTToDFuGp+j0P2Cy/I89njPBA
-         /Itpz8xT4Mjp8aFD54twbr5SbJkmo3wbXzJ/TvwV9r9Ih7h3pZHuVP4aWRxhEC0qo9gV
-         YmBw==
-X-Gm-Message-State: AOAM533toyYuZDF2BiZyTsdinHz+9ccuRd7QUS5k4GRVGAsM60uv9WNc
-        A0GotonSfX4X6bibRaUbGiE=
-X-Google-Smtp-Source: ABdhPJyU3Qh1A0YBCbshEE2KNXUS41ltlszW602p/gobr/m23VweEOPJbOs+orcwnGSSeT+8Asj78w==
-X-Received: by 2002:a05:651c:2105:: with SMTP id a5mr889476ljq.170.1606987794545;
-        Thu, 03 Dec 2020 01:29:54 -0800 (PST)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id b21sm311025lfj.125.2020.12.03.01.29.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Dec 2020 01:29:53 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kkkwU-0004P1-Ud; Thu, 03 Dec 2020 10:30:27 +0100
-Date:   Thu, 3 Dec 2020 10:30:26 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
+        id S1728241AbgLCKRo convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 3 Dec 2020 05:17:44 -0500
+Received: from proxmox-new.maurer-it.com ([212.186.127.180]:36668 "EHLO
+        proxmox-new.maurer-it.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbgLCKRo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 05:17:44 -0500
+X-Greylist: delayed 411 seconds by postgrey-1.27 at vger.kernel.org; Thu, 03 Dec 2020 05:17:42 EST
+Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
+        by proxmox-new.maurer-it.com (Proxmox) with ESMTP id AF4C944C5A;
+        Thu,  3 Dec 2020 11:10:10 +0100 (CET)
+To:     dan.carpenter@oracle.com
+Cc:     James.Bottomley@suse.de,
+        jayamohank@HDRedirect-LB5-1afb6e2973825a56.elb.us-east-1.amazonaws.com,
+        jejb@linux.ibm.com, jitendra.bhivare@broadcom.com,
+        kernel-janitors@vger.kernel.org, ketan.mukadam@broadcom.com,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        martin.petersen@oracle.com, subbu.seetharaman@broadcom.com,
         stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: ch341: sort device-id entries
-Message-ID: <X8iwMm3vsXfVU4hK@localhost>
-References: <20201203091159.12896-1-johan@kernel.org>
- <X8iu7y5GjmhmeWdH@kroah.com>
+References: <20200928091300.GD377727@mwanda>
+From:   Thomas Lamprecht <t.lamprecht@proxmox.com>
+Subject: Re: [PATCH] scsi: be2iscsi: Fix a theoretical leak in
+ beiscsi_create_eqs()
+Message-ID: <54f36c62-10bf-8736-39ce-27ece097d9de@proxmox.com>
+Date:   Thu, 3 Dec 2020 11:10:09 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:84.0) Gecko/20100101
+ Thunderbird/84.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X8iu7y5GjmhmeWdH@kroah.com>
+In-Reply-To: <20200928091300.GD377727@mwanda>
+Content-Type: text/plain; charset=UTF-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 03, 2020 at 10:25:03AM +0100, Greg Kroah-Hartman wrote:
-> On Thu, Dec 03, 2020 at 10:11:59AM +0100, Johan Hovold wrote:
-> > Keep the device-id entries sorted to make it easier to add new ones in
-> > the right spot.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> The be_fill_queue() function can only fail when "eq_vaddress" is NULL
+> and since it's non-NULL here that means the function call can't fail.
+> But imagine if it could, then in that situation we would want to store
+> the "paddr" so that dma memory can be released.
 > 
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Fixes: bfead3b2cb46 ("[SCSI] be2iscsi: Adding msix and mcc_rings V3")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Thanks. I've applied this one to go in along with the new device id.
+This came in here through the stable 5.4 tree with v5.4.74, and we have some
+users of ours report that it results in kernel oopses and delayed boot on their
+HP DL 380 Gen 9 (and other Gen 9, FWICT) servers:
 
-Johan
+> systemd-udevd   D    0   501      1 0x80000000
+> Call Trace:
+>  __schedule+0x2e6/0x6f0
+>  schedule+0x33/0xa0
+>  schedule_timeout+0x205/0x330
+>  wait_for_completion+0xb7/0x140
+>  ? wake_up_q+0x80/0x80
+>  __flush_work+0x131/0x1e0
+>  ? worker_detach_from_pool+0xb0/0xb0
+>  work_on_cpu+0x6d/0x90
+>  ? workqueue_congested+0x80/0x80
+>  ? pci_device_shutdown+0x60/0x60
+>  pci_device_probe+0x190/0x1b0
+>  really_probe+0x1c8/0x3e0
+>  driver_probe_device+0xbb/0x100
+>  device_driver_attach+0x58/0x60
+>  __driver_attach+0x8f/0x150
+>  ? device_driver_attach+0x60/0x60
+>  bus_for_each_dev+0x79/0xc0
+>  ? kmem_cache_alloc_trace+0x1a0/0x230
+>  driver_attach+0x1e/0x20
+>  bus_add_driver+0x154/0x1f0
+>  ? 0xffffffffc0453000
+>  driver_register+0x70/0xc0
+>  ? 0xffffffffc0453000
+>  __pci_register_driver+0x57/0x60
+>  beiscsi_module_init+0x62/0x1000 [be2iscsi]
+>  do_one_initcall+0x4a/0x1fa
+>  ? _cond_resched+0x19/0x30
+>  ? kmem_cache_alloc_trace+0x1a0/0x230
+>  do_init_module+0x60/0x230
+>  load_module+0x231b/0x2590
+>  __do_sys_finit_module+0xbd/0x120
+>  ? __do_sys_finit_module+0xbd/0x120
+>  __x64_sys_finit_module+0x1a/0x20
+>  do_syscall_64+0x57/0x190
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> RIP: 0033:0x7f00aca06f59
+> Code: Bad RIP value.
+> RSP: 002b:00007ffc14380858 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+> RAX: ffffffffffffffda RBX: 0000558c726262e0 RCX: 00007f00aca06f59
+> RDX: 0000000000000000 RSI: 00007f00ac90bcad RDI: 000000000000000e
+> RBP: 00007f00ac90bcad R08: 0000000000000000 R09: 0000000000000000
+> R10: 000000000000000e R11: 0000000000000246 R12: 0000000000000000
+> R13: 0000558c725f6030 R14: 0000000000020000 R15: 0000558c726262e0
+
+Blacklisting the be2iscsi module or reverting this commit helps, I did not get
+around to look further into the mechanics at play and figured you would be
+faster at that, or that this info at least helps someone else when searching
+for the same symptoms.
+
+cheers,
+Thomas
+
+
