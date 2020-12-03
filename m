@@ -2,134 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1366F2CCB35
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 01:47:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7F32CCBDD
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 02:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbgLCAqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Dec 2020 19:46:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53970 "EHLO
+        id S1727134AbgLCBvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Dec 2020 20:51:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbgLCAqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 19:46:48 -0500
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B22FC061A54;
-        Wed,  2 Dec 2020 16:45:10 -0800 (PST)
-Received: by mail-wm1-x344.google.com with SMTP id x22so994702wmc.5;
-        Wed, 02 Dec 2020 16:45:10 -0800 (PST)
+        with ESMTP id S1726263AbgLCBvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Dec 2020 20:51:13 -0500
+Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13A7C061A4D;
+        Wed,  2 Dec 2020 17:50:26 -0800 (PST)
+Received: by mail-qt1-x82d.google.com with SMTP id o1so329795qtp.5;
+        Wed, 02 Dec 2020 17:50:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:references:from:autocrypt:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=vhHfDtVfB3voF0jBllvbHRUDCdkncKz2vVPuYQWumd0=;
-        b=Brik+Mt6ua8+6rHMl89y2/HYV8hpcNnVSYfrABWoIBFjBn1vN/doe+Et91YzutZ2hr
-         j4JuOHpFPkZXpL1l+cLlNpW9Ji3Hs4fcg8hkpzHqRjwL5CdH+9iHiHWqJQ7eG4p50nED
-         boNgwNpLgAeQTZ/kAySg92BguDIaE5alom6YwPlV0ejx2NTWc1rwTIxkmjZ7eQNQ3FQP
-         mpR+Ra6IpQEtEiDTeSSwQyixkrMkLcSHul/C4JjV2TXULoVqmXxuJA0OdL/FkDBKn2wY
-         2IKgZu3ulF6gD+XwNbyg9EW/MR4wu3fR7XspfjuH1UxZlKjEZi+kerCtCLbl8dkYGQPy
-         ZaiQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=kyVim3g1ZgvCklZC8yhQqBOa4C12iOCyA31F5yUOrys=;
+        b=jEdgYTBEjvWRNu7WJU73JtcD71zfKPuyCc8Etm/KnZTTd7SkZiI+xTlD9n8zScGPaP
+         CoeiYvjqXDCAHwsXUDBsb3jEvnrI3J/0tZePofy8ooE+SfxkX3wbpqfzkWfniVWJVQ17
+         F3a/ebV0+UvoyJDUDKhLZFVFmF3JyChSkMI9Dae62DBr3xn9JW6XMgCQ9kePrnnU2zqv
+         loLmEMxsTeazv7vyOL/06syD3WlvBg2D3rt3BLR5aggaoyqbqXjZDzqRaD66qLEYCufD
+         dpXnx2qmirnPu7fAl92ifmZr7mufiY6SA3J8ePVKUlP2SnLm4TC/owQMZ0MSL64hL+p/
+         RIEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:autocrypt:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=vhHfDtVfB3voF0jBllvbHRUDCdkncKz2vVPuYQWumd0=;
-        b=fp5lLXCz/v6Ygk3O3iohIlNCikLOK10gozkewsjV6a/VwHy/NzPlRrFt+6Kg/69glP
-         SHqW0jhG5/o8UDsa1ZZc2rTYzei0U/DBYSfiBNSD6AWXWE+X6P172/PjVvnLjXDmNi5B
-         OJDVXii/cpU6aYkbKVbLc57z5S2ZqExigKg4hpTQ2NJgBpnPnVqSoCxEjafIFfpxNY0D
-         sSss5ThrKA/wGGkk0uQC+NiRhIwFEuLrF9mW8QU/Bkv4/itQdP4JRz6dPoAjc5ozj7uS
-         VltNLJQHMQWwDimzjjnB0+f41hQwx49qB67U1B7pPpybGANasoMu2cufP1obBZiR1qBq
-         uSIw==
-X-Gm-Message-State: AOAM531IpeP/mj9EjtcVvB/IJ2pakWuBq8blFHxLzU1uaGURt0rm45yi
-        RcOzmFMhs3pDhWsGjsWw6QrinmiHqCC/gQ==
-X-Google-Smtp-Source: ABdhPJx1QoIxush08k1WYWSWmsNwx9qTeO2obDY0IA2rL/tBCGXsbHtI5mkZlWDHwsH2Lsg7pzqS8Q==
-X-Received: by 2002:a1c:7dd8:: with SMTP id y207mr464591wmc.181.1606956308749;
-        Wed, 02 Dec 2020 16:45:08 -0800 (PST)
-Received: from [192.168.1.238] (host109-152-100-135.range109-152.btcentralplus.com. [109.152.100.135])
-        by smtp.gmail.com with ESMTPSA id l8sm210652wmf.35.2020.12.02.16.45.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Dec 2020 16:45:08 -0800 (PST)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <70a236ff44cc9361ed03ebcd9c361864efdf8dc3.1606674793.git.asml.silence@gmail.com>
- <ee19d846-6f58-5ff0-7928-48c00fcbce3a@kernel.dk>
- <14be454c-46cc-310a-1a43-6065f3b3020b@gmail.com>
- <d67dd667-d161-a070-06ed-0cd0ae0e617a@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Subject: Re: [PATCH 5.10] io_uring: fix recvmsg setup with compat buf-select
-Message-ID: <0f397ee5-3aae-babe-815e-edaff1cc0abd@gmail.com>
-Date:   Thu, 3 Dec 2020 00:41:52 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=kyVim3g1ZgvCklZC8yhQqBOa4C12iOCyA31F5yUOrys=;
+        b=otjpg+yGD853tVxSZfYlQ0nuHq7bZ+b2QXTGnFctq3rVtf0l3PckgXYZzB5XNMYFpp
+         BsQSzMbf5da/Pb9A9372zcKv5l8DULchSfnPXFpU+Xn/Adz3fqIdvF9izBwoVH+p13WY
+         RyuR3fyzJ0tZYWXmn4nNJOgSWCpJCBnGJI+4Mx6H4Dzx/oiBsbu1TICZt6tZj6em4joX
+         rQVKeezKXd/O4MOLk7PvNb/KHJh5gkbRYs6DJZTFmku8X1judRSmMiWOz6A1pbJWdDDT
+         xpOJ1UWuKBO9/EuzcFicVAKJbxYZML+uSKEXDR0RHw51mrnMPe3QcAsJ2lO/3ww13vVU
+         KnDw==
+X-Gm-Message-State: AOAM532VHeEb2BDB9gUGLqeKoF4nQOXORrKosj2TAkpusjAwLfVBK68D
+        Ly4juwzvSb3zTHBWmajWRMA=
+X-Google-Smtp-Source: ABdhPJzyhjiLB/riNKk41l4mTm9zv6wmMCtqzIxV93yXnHPAIrM+H9FNH8gFLfJOjYre2VsMVPmtqg==
+X-Received: by 2002:aed:2664:: with SMTP id z91mr1128689qtc.290.1606960226216;
+        Wed, 02 Dec 2020 17:50:26 -0800 (PST)
+Received: from auth1-smtp.messagingengine.com (auth1-smtp.messagingengine.com. [66.111.4.227])
+        by smtp.gmail.com with ESMTPSA id g143sm580100qke.102.2020.12.02.17.50.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 02 Dec 2020 17:50:25 -0800 (PST)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 9CB7927C0054;
+        Wed,  2 Dec 2020 20:50:22 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 02 Dec 2020 20:50:22 -0500
+X-ME-Sender: <xms:XkTIX0G7jmr8f1-vj4Xdo-bW9dyrFEO6w_z-ofb5SHE5XVxylJCm7A>
+    <xme:XkTIX9U85OCP3HyU_OlELGpNgjgempOOQyInro2p9knQd4UQ4ZSl4k9DxKQ2XfrR8
+    gASUd6IrjwjkkLNyA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeihedgfeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhquhhn
+    ucfhvghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrfgrth
+    htvghrnhepgeektddvtdekleetvdekffevleelkefffeegiedvffeufffhiefggfehffdv
+    vdegnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdplhhinhgrrhhordhorhhgnecukf
+    hppeduieejrddvvddtrddvrdduvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghr
+    rghmpehmrghilhhfrhhomhepsghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhnrg
+    hlihhthidqieelvdeghedtieegqddujeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeep
+    ghhmrghilhdrtghomhesfhhigihmvgdrnhgrmhgv
+X-ME-Proxy: <xmx:XkTIX-KckZHR-_CTMh8gcf7mwyojqPs0lYyaAAWXZbyT3jYy1RhGDw>
+    <xmx:XkTIX2FELq8U_wOJI1581Bw8vaVg2U95H9vtVl8fmqdDxzBt_lrBTA>
+    <xmx:XkTIX6UH0os_M18AQpb3-zShx8Nf3tYWIlTdq7piKdbOK3DDTv3MVA>
+    <xmx:XkTIX2Q_UVC9giMe6nVnaPol8vEb05YhW2YnX0w0ERZBM4bN7j1FQWSClX0>
+Received: from localhost (unknown [167.220.2.126])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CCAF4240059;
+        Wed,  2 Dec 2020 20:50:21 -0500 (EST)
+Date:   Thu, 3 Dec 2020 09:49:22 +0800
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>, rcu@vger.kernel.org,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [arm64] db410c: BUG: Invalid wait context
+Message-ID: <20201203014922.GA1785576@boqun-archlinux>
+References: <CA+G9fYupbQK02Yor=U-80JEdkwacZ7bi3RKt3+D=e+qZ-o0uCA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <d67dd667-d161-a070-06ed-0cd0ae0e617a@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYupbQK02Yor=U-80JEdkwacZ7bi3RKt3+D=e+qZ-o0uCA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02/12/2020 23:24, Jens Axboe wrote:
-> On 12/2/20 3:04 PM, Pavel Begunkov wrote:
->> On 30/11/2020 18:12, Jens Axboe wrote:
->>> On 11/29/20 11:33 AM, Pavel Begunkov wrote:
->>>> __io_compat_recvmsg_copy_hdr() with REQ_F_BUFFER_SELECT reads out iov
->>>> len but never assigns it to iov/fast_iov, leaving sr->len with garbage.
->>>> Hopefully, following io_buffer_select() truncates it to the selected
->>>> buffer size, but the value is still may be under what was specified.
->>>
->>> Applied, thanks.
->>
->> Jens, apologies but where did it go? Can't find at git.kernel.dk
+Hi Naresh,
+
+On Wed, Dec 02, 2020 at 10:15:44AM +0530, Naresh Kamboju wrote:
+> While running kselftests on arm64 db410c platform "BUG: Invalid wait context"
+> noticed at different runs this specific platform running stable-rc 5.9.12-rc1.
 > 
-> Looks like I forgot to push it out, but it did get applied to
-> io_uring-5.10. My git box is having an issue right now, so can't even
-> push it out... Will do so tomorrow morning.
+> While running these two test cases we have noticed this BUG and not easily
+> reproducible.
+> 
+> # selftests: bpf: test_xdp_redirect.sh
+> # selftests: net: ip6_gre_headroom.sh
+> 
+> [  245.694901] kauditd_printk_skb: 100 callbacks suppressed
+> [  245.694913] audit: type=1334 audit(251.699:25757): prog-id=12883 op=LOAD
+> [  245.735658] audit: type=1334 audit(251.743:25758): prog-id=12884 op=LOAD
+> [  245.801299] audit: type=1334 audit(251.807:25759): prog-id=12885 op=LOAD
+> [  245.832034] audit: type=1334 audit(251.839:25760): prog-id=12886 op=LOAD
+> [  245.888601]
+> [  245.888631] =============================
+> [  245.889156] [ BUG: Invalid wait context ]
+> [  245.893071] 5.9.12-rc1 #1 Tainted: G        W
+> [  245.897056] -----------------------------
+> [  245.902091] pool/1279 is trying to lock:
+> [  245.906083] ffff000032fc1218
+> (&child->perf_event_mutex){+.+.}-{3:3}, at:
+> perf_event_exit_task+0x34/0x3a8
+> [  245.910085] other info that might help us debug this:
+> [  245.919539] context-{4:4}
+> [  245.924484] 1 lock held by pool/1279:
+> [  245.927087]  #0: ffff8000127819b8 (rcu_read_lock){....}-{1:2}, at:
+> dput+0x54/0x460
+> [  245.930739] stack backtrace:
+> [  245.938203] CPU: 1 PID: 1279 Comm: pool Tainted: G        W
+> 5.9.12-rc1 #1
+> [  245.941243] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+> [  245.948621] Call trace:
+> [  245.955390]  dump_backtrace+0x0/0x1f8
+> [  245.957560]  show_stack+0x2c/0x38
+> [  245.961382]  dump_stack+0xec/0x158
+> [  245.964679]  __lock_acquire+0x59c/0x15c8
+> [  245.967978]  lock_acquire+0x124/0x4d0
+> [  245.972058]  __mutex_lock+0xa4/0x970
+> [  245.975615]  mutex_lock_nested+0x54/0x70
+> [  245.979261]  perf_event_exit_task+0x34/0x3a8
+> [  245.983168]  do_exit+0x394/0xad8
+> [  245.987420]  do_group_exit+0x4c/0xa8
+> [  245.990633]  get_signal+0x16c/0xb40
+> [  245.994193]  do_notify_resume+0x2ec/0x678
+> [  245.997404]  work_pending+0x8/0x200
+> 
 
-That's ok, just trying to keep track. Sorry for bothering
+For the PoV of lockdep, this means some one tries to acquire a mutex
+inside an RCU read-side critical section, which is bad, because one can
+not sleep (voluntarily) inside RCU.
 
--- 
-Pavel Begunkov
+However I don't think it's the true case here, because 1) normally
+people are very careful not putting mutex or other sleepable locks
+inside RCU and 2) in the above splats, lockdep find the rcu read lock is
+held at dput() while the acquiring of the mutex is at ret_to_user(),
+clearly there is no call site (in the same context) from the RCU
+read-side critial section of dput() to ret_to_user().
+
+One chance of hitting this is that there is a bug in context/irq tracing
+that makes the contexts of dput() and ret_to_user() as one contexts so
+that lockdep gets confused and reports a false postive.
+
+FWIW, I think this might be related to some know issues for ARM64 with
+lockdep and irq tracing:
+
+	https://lore.kernel.org/lkml/20201119225352.GA5251@willie-the-truck/
+
+And Mark already has series to fix them:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/mark/linux.git/log/?h=arm64/irq-fixes
+
+But I must defer to Mark for the latest fix ;-)
+
+Regards,
+Boqun
+
+> and BUG in an other run,
+> 
+> [ 1012.068407] audit: type=1700 audit(1018.803:25886): dev=eth0 prom=0
+> old_prom=256 auid=4294967295 uid=0 gid=0 ses=4294967295
+> [ 1012.250561] IPv6: ADDRCONF(NETDEV_CHANGE): swp1: link becomes ready
+> [ 1012.251298] IPv6: ADDRCONF(NETDEV_CHANGE): h1: link becomes ready
+> [ 1012.252559]
+> [ 1012.261892] =============================
+> [ 1012.263453] [ BUG: Invalid wait context ]
+> [ 1012.267363] 5.9.12-rc1 #1 Tainted: G        W
+> [ 1012.271354] -----------------------------
+> [ 1012.276389] systemd/454 is trying to lock:
+> [ 1012.280381] ffff00003985a918 (&mm->mmap_lock){++++}-{3:3}, at:
+> __might_fault+0x60/0xa8
+> [ 1012.284378] other info that might help us debug this:
+> [ 1012.292275] context-{4:4}
+> [ 1012.297396] 1 lock held by systemd/454:
+> [ 1012.299997]  #0: ffff8000127d1f38 (rcu_read_lock){....}-{1:2}, at:
+> path_init+0x40/0x718
+> [ 1012.303649] stack backtrace:
+> [ 1012.311638] CPU: 2 PID: 454 Comm: systemd Tainted: G        W
+>   5.9.12-rc1 #1
+> [ 1012.314760] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+> [ 1012.322139] Call trace:
+> [ 1012.329084]  dump_backtrace+0x0/0x1f8
+> [ 1012.331254]  show_stack+0x2c/0x38
+> [ 1012.335075]  dump_stack+0xec/0x158
+> [ 1012.338371]  __lock_acquire+0x59c/0x15c8
+> [ 1012.341672]  lock_acquire+0x124/0x4d0
+> [ 1012.345751]  __might_fault+0x84/0xa8
+> [ 1012.349311]  cp_new_stat+0x114/0x1b8
+> [ 1012.352956]  __do_sys_newfstat+0x44/0x70
+> [ 1012.356513]  __arm64_sys_newfstat+0x24/0x30
+> [ 1012.358652] IPv6: ADDRCONF(NETDEV_CHANGE): swp3: link becomes ready
+> [ 1012.360424]  el0_svc_common.constprop.3+0x7c/0x198
+> [ 1012.370575]  do_el0_svc+0x34/0xa0
+> [ 1012.375437]  el0_sync_handler+0x16c/0x210
+> [ 1012.378824]  el0_sync+0x140/0x180
+> 
+> 
+> Full test log links,
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.y/build/v5.9.11-153-gfb49ad2107f4/testrun/3516257/suite/linux-log-parser/test/check-kernel-bug-1997042/log
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.y/build/v5.9.11-153-gfb49ad2107f4/testrun/3515038/suite/linux-log-parser/test/check-kernel-bug-1996797/log
+> 
+> metadata:
+>   git branch: linux-5.9.y
+>   git commit: fb49ad2107f4b740257c84ec2991fc6afb447f53
+>   git describe: v5.9.11-153-gfb49ad2107f4
+>   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>   kernel-config:
+> http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/dragonboard-410c/lkft/linux-stable-rc-5.9/44/config
+> 
+> -- 
+> Linaro LKFT
+> https://lkft.linaro.org
