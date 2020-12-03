@@ -2,24 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29702CD79C
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3422E2CD7A6
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:36:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436865AbgLCNfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:35:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
+        id S2436703AbgLCNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:35:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436689AbgLCNap (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2436688AbgLCNap (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Dec 2020 08:30:45 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 07/23] ARC: stack unwinding: don't assume non-current task is sleeping
-Date:   Thu,  3 Dec 2020 08:29:19 -0500
-Message-Id: <20201203132935.931362-7-sashal@kernel.org>
+Cc:     Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 08/23] scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
+Date:   Thu,  3 Dec 2020 08:29:20 -0500
+Message-Id: <20201203132935.931362-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -31,94 +34,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit e42404fa10fd11fe72d0a0e149a321d10e577715 ]
+[ Upstream commit 73cc291c270248567245f084dcdf5078069af6b5 ]
 
-To start stack unwinding (SP, PC and BLINK) are needed. When the
-explicit execution context (pt_regs etc) is not available, unwinder
-assumes the task is sleeping (in __switch_to()) and fetches SP and BLINK
-from kernel mode stack.
+If someone plays with the UFS clk scaling devfreq governor through sysfs,
+ufshcd_devfreq_scale may be called even when HBA is not runtime ACTIVE.
+This can lead to unexpected error. We cannot just protect it by calling
+pm_runtime_get_sync() because that may cause a race condition since HBA
+runtime suspend ops need to suspend clk scaling. To fix this call
+pm_runtime_get_noresume() and check HBA's runtime status. Only proceed if
+HBA is runtime ACTIVE, otherwise just bail.
 
-But this assumption is not true, specially in a SMP system, when top
-runs on 1 core, there may be active running processes on all cores.
+governor_store
+ devfreq_performance_handler
+  update_devfreq
+   devfreq_set_target
+    ufshcd_devfreq_target
+     ufshcd_devfreq_scale
 
-So when unwinding non courrent tasks, ensure they are NOT running.
-
-And while at it, handle the self unwinding case explicitly.
-
-This came out of investigation of a customer reported hang with
-rcutorture+top
-
-Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/31
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lore.kernel.org/r/1600758548-28576-1-git-send-email-cang@codeaurora.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/stacktrace.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arc/kernel/stacktrace.c b/arch/arc/kernel/stacktrace.c
-index fc65d2921e3bd..fc3054c34db19 100644
---- a/arch/arc/kernel/stacktrace.c
-+++ b/arch/arc/kernel/stacktrace.c
-@@ -38,15 +38,15 @@
- 
- #ifdef CONFIG_ARC_DW2_UNWIND
- 
--static void seed_unwind_frame_info(struct task_struct *tsk,
--				   struct pt_regs *regs,
--				   struct unwind_frame_info *frame_info)
-+static int
-+seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
-+		       struct unwind_frame_info *frame_info)
- {
- 	/*
- 	 * synchronous unwinding (e.g. dump_stack)
- 	 *  - uses current values of SP and friends
- 	 */
--	if (tsk == NULL && regs == NULL) {
-+	if (regs == NULL && (tsk == NULL || tsk == current)) {
- 		unsigned long fp, sp, blink, ret;
- 		frame_info->task = current;
- 
-@@ -65,11 +65,15 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
- 		frame_info->call_frame = 0;
- 	} else if (regs == NULL) {
- 		/*
--		 * Asynchronous unwinding of sleeping task
--		 *  - Gets SP etc from task's pt_regs (saved bottom of kernel
--		 *    mode stack of task)
-+		 * Asynchronous unwinding of a likely sleeping task
-+		 *  - first ensure it is actually sleeping
-+		 *  - if so, it will be in __switch_to, kernel mode SP of task
-+		 *    is safe-kept and BLINK at a well known location in there
- 		 */
- 
-+		if (tsk->state == TASK_RUNNING)
-+			return -1;
-+
- 		frame_info->task = tsk;
- 
- 		frame_info->regs.r27 = TSK_K_FP(tsk);
-@@ -103,6 +107,8 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
- 		frame_info->regs.r63 = regs->ret;
- 		frame_info->call_frame = 0;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b6ce880ddd153..675e16e61ebdd 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1257,8 +1257,15 @@ static int ufshcd_devfreq_target(struct device *dev,
  	}
-+
-+	return 0;
- }
+ 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
  
- #endif
-@@ -116,7 +122,8 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
- 	unsigned int address;
- 	struct unwind_frame_info frame_info;
++	pm_runtime_get_noresume(hba->dev);
++	if (!pm_runtime_active(hba->dev)) {
++		pm_runtime_put_noidle(hba->dev);
++		ret = -EAGAIN;
++		goto out;
++	}
+ 	start = ktime_get();
+ 	ret = ufshcd_devfreq_scale(hba, scale_up);
++	pm_runtime_put(hba->dev);
  
--	seed_unwind_frame_info(tsk, regs, &frame_info);
-+	if (seed_unwind_frame_info(tsk, regs, &frame_info))
-+		return 0;
- 
- 	while (1) {
- 		address = UNW_PC(&frame_info);
+ 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
+ 		(scale_up ? "up" : "down"),
 -- 
 2.27.0
 
