@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1C12CD776
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E39F2CD773
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389228AbgLCNeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:34:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
+        id S2436545AbgLCNeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:34:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436811AbgLCNa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2436812AbgLCNa7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Dec 2020 08:30:59 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/23] arm64: tegra: Disable the ACONNECT for Jetson TX2
-Date:   Thu,  3 Dec 2020 08:29:28 -0500
-Message-Id: <20201203132935.931362-16-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/23] platform/x86: thinkpad_acpi: Do not report SW_TABLET_MODE on Yoga 11e
+Date:   Thu,  3 Dec 2020 08:29:29 -0500
+Message-Id: <20201203132935.931362-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
 References: <20201203132935.931362-1-sashal@kernel.org>
@@ -32,54 +32,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fb319496935b7475a863a00c76895e8bb3216704 ]
+[ Upstream commit f2eae1888cf22590c38764b8fa3c989c0283870e ]
 
-Commit ff4c371d2bc0 ("arm64: defconfig: Build ADMA and ACONNECT driver")
-enable the Tegra ADMA and ACONNECT drivers and this is causing resume
-from system suspend to fail on Jetson TX2. Resume is failing because the
-ACONNECT driver is being resumed before the BPMP driver, and the ACONNECT
-driver is attempting to power on a power-domain that is provided by the
-BPMP. While a proper fix for the resume sequencing problem is identified,
-disable the ACONNECT for Jetson TX2 temporarily to avoid breaking system
-suspend.
+The Yoga 11e series has 2 accelerometers described by a BOSC0200 ACPI node.
+This setup relies on a Windows service which reads both accelerometers and
+then calculates the angle between the 2 halves to determine laptop / tent /
+tablet mode and then reports the calculated mode back to the EC by calling
+special ACPI methods on the BOSC0200 node.
 
-Please note that ACONNECT driver is used by the Audio Processing Engine
-(APE) on Tegra, but because there is no mainline support for APE on
-Jetson TX2 currently, disabling the ACONNECT does not disable any useful
-feature at the moment.
+The bmc150 iio driver does not support this (it involves double
+calculations requiring sqrt and arccos so this really needs to be done
+in userspace), as a result of this on the Yoga 11e the thinkpad_acpi
+code always reports SW_TABLET_MODE=0, starting with GNOME 3.38 reporting
+SW_TABLET_MODE=0 causes GNOME to:
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+1. Not show the onscreen keyboard when a text-input field is focussed
+   with the touchscreen.
+2. Disable accelerometer based auto display-rotation.
+
+This makes sense when in laptop-mode but not when in tablet-mode. But
+since for the Yoga 11e the thinkpad_acpi code always reports
+SW_TABLET_MODE=0, GNOME does not know when the device is in tablet-mode.
+
+Stop reporting the broken (always 0) SW_TABLET_MODE on Yoga 11e models
+to fix this.
+
+Note there are plans for userspace to support 360 degree hinges style
+2-in-1s with 2 accelerometers and figure out the mode by itself, see:
+https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/issues/216
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201106140130.46820-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts | 12 ------------
- 1 file changed, 12 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
-index bdace01561bab..9df4782c90f35 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
-+++ b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
-@@ -10,18 +10,6 @@ / {
- 	model = "NVIDIA Jetson TX2 Developer Kit";
- 	compatible = "nvidia,p2771-0000", "nvidia,tegra186";
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 5081048f2356e..f196a3313690f 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -3232,7 +3232,14 @@ static int hotkey_init_tablet_mode(void)
  
--	aconnect {
--		status = "okay";
--
--		dma-controller@2930000 {
--			status = "okay";
--		};
--
--		interrupt-controller@2a40000 {
--			status = "okay";
--		};
--	};
--
- 	i2c@3160000 {
- 		power-monitor@42 {
- 			compatible = "ti,ina3221";
+ 		in_tablet_mode = hotkey_gmms_get_tablet_mode(res,
+ 							     &has_tablet_mode);
+-		if (has_tablet_mode)
++		/*
++		 * The Yoga 11e series has 2 accelerometers described by a
++		 * BOSC0200 ACPI node. This setup relies on a Windows service
++		 * which calls special ACPI methods on this node to report
++		 * the laptop/tent/tablet mode to the EC. The bmc150 iio driver
++		 * does not support this, so skip the hotkey on these models.
++		 */
++		if (has_tablet_mode && !acpi_dev_present("BOSC0200", "1", -1))
+ 			tp_features.hotkey_tablet = TP_HOTKEY_TABLET_USES_GMMS;
+ 		type = "GMMS";
+ 	} else if (acpi_evalf(hkey_handle, &res, "MHKG", "qd")) {
 -- 
 2.27.0
 
