@@ -2,90 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A59E2CDF5F
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 21:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FDD2CDFEF
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 21:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729488AbgLCUIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 15:08:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725885AbgLCUIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 15:08:46 -0500
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23ABC061A4E;
-        Thu,  3 Dec 2020 12:08:05 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id x22so3787654wmc.5;
-        Thu, 03 Dec 2020 12:08:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ZM2r5b4lXD214hqcvABnHLyj4afHtDGMeqHleqjKQEY=;
-        b=XF+VTW60xoaxj1ynZIO6ayG2xJUZSyqJ9G+m2MIWTgMwE37M/OElI+7YxX7z4gwnPC
-         LRs7h3/Mcf31buwR9enp6hfoQJJcMOS8zKLvodFXe16n7HG2meE3PuxVFAsTJpaEkm07
-         GhyevuC455rj+FpOcFiQLavfvgaFOHtK3iHpuZE2CV3g/53wsowhYXdz57Ptvcd/CYXb
-         a8ht0TyMtRKzxGAj2J+Du8w5MjBjzIPapmAzYXakYgUSPmn1n3uxPFJEcZWQ9f7CIHmw
-         leXnROQp+abYAgEUvZItw/0nUpbi5j7ni7BsSUA+AOpYz+TmihSuFKHZA2jqqXczpMTJ
-         fq5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ZM2r5b4lXD214hqcvABnHLyj4afHtDGMeqHleqjKQEY=;
-        b=oN8mSnruPACxTZvKeYOZieELYcDmUx8pUtanxK0d2gKdefu7StXGb/Kw5DEmMeMlzG
-         3oXS33Tk/kCqh8uqsd2OlBev4yokcvQujPmtVeJa2/dkBPywZpD0Wflxx0TKLBslg+sf
-         /s7KmYwiXH/axNdeGuvQtqGK+47maHyXuIk6N0G8xMGt8QG57O8wCQJ7hP1gAeTfW1m+
-         97NeaWTlLpWHR+o+2bBDWUJhbebTx88KZ8hovq6u6UjpGVMjf37BeEY2oor5SmZ8++4b
-         IdygX535UbeDDqsX0LKcRl8GiZa9ua6tzsmGWEjMrXqKP3eUnBzoXB3ivEcab6xE5Ide
-         91VQ==
-X-Gm-Message-State: AOAM531g5Li2+dVaGsr2LzDt0OGjjvv3aekV//ZVZDgvelgF071FhQyp
-        UA7fLpI2AOU1al1jOykJiW54AsTzcA==
-X-Google-Smtp-Source: ABdhPJzJXWK4gnYmR65ar+HasjjFJBTnlWLAN1DVHCrW76QDB6Rx2VUnt9ngzJXFk4NP3s2GLle9ZQ==
-X-Received: by 2002:a1c:1fc2:: with SMTP id f185mr538783wmf.134.1607026084652;
-        Thu, 03 Dec 2020 12:08:04 -0800 (PST)
-Received: from localhost.localdomain ([46.53.251.73])
-        by smtp.gmail.com with ESMTPSA id o203sm528538wmb.0.2020.12.03.12.08.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Dec 2020 12:08:03 -0800 (PST)
-Date:   Thu, 3 Dec 2020 23:08:01 +0300
-From:   Alexey Dobriyan <adobriyan@gmail.com>
-To:     Wen Yang <wenyang@linux.alibaba.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@ftp.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 05/10] proc: use %u for pid printing and slightly less
- stack
-Message-ID: <20201203200801.GA3323724@localhost.localdomain>
-References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
- <20201203183204.63759-6-wenyang@linux.alibaba.com>
+        id S1727307AbgLCUsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 15:48:00 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:46630 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726761AbgLCUsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 15:48:00 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B3Kj8Ru030892;
+        Thu, 3 Dec 2020 20:45:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=1LXP9D1+B9hUfYyzLOZtgb+vEzU/N5ctuPzRovVvNtU=;
+ b=adNHtY5Dw7BRWavEq09fQxsusSS1HmYNQHluL3XKAl2nK4yJIuTzXdrvSNVoWY6IJUfE
+ MtyMFUXdgczzoxTp6+AhbXxf2G0Di19f3LvDGzPJFHnWsPzGzOtq3F0YErEB1kWfn6eH
+ zkRM4uvzOD9uoMMwh/bUppdeJc5HiBrHR4ewaTBAjQw0e1yKAApX7hvJ5msCdgJnskWC
+ ylZWnWZjtVtnjKlFqSkBGC9ifXx7WwuyBNL7utJJyIX9m2bSCNxzSlAwfZj82M6UncVn
+ 2wTPYJIqYrWsmaixYWuHs2XU5vnYJrbkqdpPFf+qxQO4u+aMNhzaLX5FCBLtmO2RKp2c +Q== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2130.oracle.com with ESMTP id 353c2b883v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 03 Dec 2020 20:45:08 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0B3KdSLD029552;
+        Thu, 3 Dec 2020 20:45:07 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3030.oracle.com with ESMTP id 3540g2ds87-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 03 Dec 2020 20:45:07 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0B3Kj4ai031535;
+        Thu, 3 Dec 2020 20:45:04 GMT
+Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 03 Dec 2020 12:45:03 -0800
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Subbu Seetharaman <subbu.seetharaman@broadcom.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Lamprecht <t.lamprecht@proxmox.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        jejb@linux.ibm.com, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org, stable@vger.kernel.org,
+        jitendra.bhivare@broadcom.com, linux-scsi@vger.kernel.org,
+        jayamohank@hdredirect-lb5-1afb6e2973825a56.elb.us-east-1.amazonaws.com,
+        James.Bottomley@suse.de, ketan.mukadam@broadcom.com,
+        Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] scsi: be2iscsi: revert "Fix a theoretical leak in beiscsi_create_eqs()"
+Date:   Thu,  3 Dec 2020 15:45:01 -0500
+Message-Id: <160702820882.27665.13232983618301808305.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <X8jXkt6eThjyVP1v@mwanda>
+References: <X8jXkt6eThjyVP1v@mwanda>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201203183204.63759-6-wenyang@linux.alibaba.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9824 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 suspectscore=0
+ phishscore=0 mlxlogscore=971 adultscore=0 mlxscore=0 bulkscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012030121
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9824 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 lowpriorityscore=0
+ clxscore=1011 bulkscore=0 mlxlogscore=982 phishscore=0 malwarescore=0
+ spamscore=0 adultscore=0 mlxscore=0 priorityscore=1501 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012030121
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 04, 2020 at 02:31:59AM +0800, Wen Yang wrote:
-> From: Alexey Dobriyan <adobriyan@gmail.com>
-> 
-> [ Upstream commit e3912ac37e07a13c70675cd75020694de4841c74 ]
-> 
-> PROC_NUMBUF is 13 which is enough for "negative int + \n + \0".
-> 
-> However PIDs and TGIDs are never negative and newline is not a concern,
-> so use just 10 per integer.
-> 
-> Link: http://lkml.kernel.org/r/20171120203005.GA27743@avx2
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> Cc: Alexander Viro <viro@ftp.linux.org.uk>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: <stable@vger.kernel.org> # 4.9.x
+On Thu, 3 Dec 2020 15:18:26 +0300, Dan Carpenter wrote:
 
-A what? How does this belong to stable?
+> My patch caused kernel Oopses and delays in boot.  Revert it.
+> 
+> The problem was that I moved the "mem->dma = paddr;" before the call to
+> be_fill_queue().  But the first thing that the be_fill_queue() function
+> does is memset the whole struct to zero which overwrites the assignment.
+
+Added Cc: stable and applied to 5.10/scsi-fixes, thanks!
+
+[1/1] scsi: be2iscsi: revert "Fix a theoretical leak in beiscsi_create_eqs()"
+      https://git.kernel.org/mkp/scsi/c/eeaf06af6f87
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
