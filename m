@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C19FE2CD755
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D49782CD753
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 14:35:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbgLCNdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 08:33:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
+        id S1730667AbgLCNdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 08:33:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436858AbgLCNbF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:31:05 -0500
+        id S2436862AbgLCNbG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:31:06 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 06/14] scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
-Date:   Thu,  3 Dec 2020 08:30:02 -0500
-Message-Id: <20201203133010.931600-6-sashal@kernel.org>
+Cc:     Yves-Alexis Perez <corsac@corsac.net>,
+        Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/14] usbnet: ipheth: fix connectivity with iOS 14
+Date:   Thu,  3 Dec 2020 08:30:03 -0500
+Message-Id: <20201203133010.931600-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203133010.931600-1-sashal@kernel.org>
 References: <20201203133010.931600-1-sashal@kernel.org>
@@ -34,54 +33,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Yves-Alexis Perez <corsac@corsac.net>
 
-[ Upstream commit 73cc291c270248567245f084dcdf5078069af6b5 ]
+[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
 
-If someone plays with the UFS clk scaling devfreq governor through sysfs,
-ufshcd_devfreq_scale may be called even when HBA is not runtime ACTIVE.
-This can lead to unexpected error. We cannot just protect it by calling
-pm_runtime_get_sync() because that may cause a race condition since HBA
-runtime suspend ops need to suspend clk scaling. To fix this call
-pm_runtime_get_noresume() and check HBA's runtime status. Only proceed if
-HBA is runtime ACTIVE, otherwise just bail.
+Starting with iOS 14 released in September 2020, connectivity using the
+personal hotspot USB tethering function of iOS devices is broken.
 
-governor_store
- devfreq_performance_handler
-  update_devfreq
-   devfreq_set_target
-    ufshcd_devfreq_target
-     ufshcd_devfreq_scale
+Communication between the host and the device (for example ICMP traffic
+or DNS resolution using the DNS service running in the device itself)
+works fine, but communication to endpoints further away doesn't work.
 
-Link: https://lore.kernel.org/r/1600758548-28576-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Investigation on the matter shows that no UDP and ICMP traffic from the
+tethered host is reaching the Internet at all. For TCP traffic there are
+exchanges between tethered host and server but packets are modified in
+transit leading to impossible communication.
+
+After some trials Matti Vuorela discovered that reducing the URB buffer
+size by two bytes restored the previous behavior. While a better
+solution might exist to fix the issue, since the protocol is not
+publicly documented and considering the small size of the fix, let's do
+that.
+
+Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
+Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/ipheth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 7e4e6e982055e..61b1eae42ea85 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1281,8 +1281,15 @@ static int ufshcd_devfreq_target(struct device *dev,
- 	}
- 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index 3d71f17163902..8e2eb20613548 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -70,7 +70,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
  
-+	pm_runtime_get_noresume(hba->dev);
-+	if (!pm_runtime_active(hba->dev)) {
-+		pm_runtime_put_noidle(hba->dev);
-+		ret = -EAGAIN;
-+		goto out;
-+	}
- 	start = ktime_get();
- 	ret = ufshcd_devfreq_scale(hba, scale_up);
-+	pm_runtime_put(hba->dev);
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
  
- 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
- 		(scale_up ? "up" : "down"),
 -- 
 2.27.0
 
