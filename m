@@ -2,41 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F692CDDBC
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 827AC2CDDBF
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 19:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731660AbgLCSd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 13:33:28 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:41104 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728065AbgLCSd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:27 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0UHQtLjr_1607020350;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHQtLjr_1607020350)
+        id S1731674AbgLCSdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 13:33:35 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:52330 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728065AbgLCSdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 13:33:35 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UHQtLl0_1607020361;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UHQtLl0_1607020361)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 04 Dec 2020 02:32:41 +0800
+          Fri, 04 Dec 2020 02:32:51 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
         linux-kernel@vger.kernel.org,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Daniel Colascione <dancol@google.com>,
-        Jann Horn <jannh@google.com>,
-        Tim Murray <timmurray@google.com>,
-        Jonathan Kowalski <bl0pbl33p@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        David Howells <dhowells@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>, kernel-team@android.com,
-        Christian Brauner <christian@brauner.io>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 02/10] pidfd: add polling support
-Date:   Fri,  4 Dec 2020 02:31:56 +0800
-Message-Id: <20201203183204.63759-3-wenyang@linux.alibaba.com>
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Paul Moore <paul@paul-moore.com>, stable@vger.kernel.org,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 03/10] proc: Pass file mode to proc_pid_make_inode
+Date:   Fri,  4 Dec 2020 02:31:57 +0800
+Message-Id: <20201203183204.63759-4-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20201203183204.63759-1-wenyang@linux.alibaba.com>
 References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
@@ -46,170 +35,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Joel Fernandes (Google)" <joel@joelfernandes.org>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit b53b0b9d9a613c418057f6cb921c2f40a6f78c24 ]
+[ Upstream commit db978da8fa1d0819b210c137d31a339149b88875 ]
 
-This patch adds polling support to pidfd.
+Pass the file mode of the proc inode to be created to
+proc_pid_make_inode.  In proc_pid_make_inode, initialize inode->i_mode
+before calling security_task_to_inode.  This allows selinux to set
+isec->sclass right away without introducing "half-initialized" inode
+security structs.
 
-Android low memory killer (LMK) needs to know when a process dies once
-it is sent the kill signal. It does so by checking for the existence of
-/proc/pid which is both racy and slow. For example, if a PID is reused
-between when LMK sends a kill signal and checks for existence of the
-PID, since the wrong PID is now possibly checked for existence.
-Using the polling support, LMK will be able to get notified when a process
-exists in race-free and fast way, and allows the LMK to do other things
-(such as by polling on other fds) while awaiting the process being killed
-to die.
-
-For notification to polling processes, we follow the same existing
-mechanism in the kernel used when the parent of the task group is to be
-notified of a child's death (do_notify_parent). This is precisely when the
-tasks waiting on a poll of pidfd are also awakened in this patch.
-
-We have decided to include the waitqueue in struct pid for the following
-reasons:
-1. The wait queue has to survive for the lifetime of the poll. Including
-   it in task_struct would not be option in this case because the task can
-   be reaped and destroyed before the poll returns.
-
-2. By including the struct pid for the waitqueue means that during
-   de_thread(), the new thread group leader automatically gets the new
-   waitqueue/pid even though its task_struct is different.
-
-Appropriate test cases are added in the second patch to provide coverage of
-all the cases the patch is handling.
-
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Daniel Colascione <dancol@google.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Tim Murray <timmurray@google.com>
-Cc: Jonathan Kowalski <bl0pbl33p@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: kernel-team@android.com
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Co-developed-by: Daniel Colascione <dancol@google.com>
-Signed-off-by: Daniel Colascione <dancol@google.com>
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Christian Brauner <christian@brauner.io>
-Cc: <stable@vger.kernel.org> # 4.9.x: b3e5838: clone: add CLONE_PIDFD
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Cc: <stable@vger.kernel.org> # 4.9.x
-(pidfd: fix up cherry-pick conflicts for b53b0b9d9a61)
 Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- include/linux/pid.h |  3 +++
- kernel/fork.c       | 26 ++++++++++++++++++++++++++
- kernel/pid.c        |  2 ++
- kernel/signal.c     | 11 +++++++++++
- 4 files changed, 42 insertions(+)
+ fs/proc/base.c           | 23 +++++++++--------------
+ fs/proc/fd.c             |  6 ++----
+ fs/proc/internal.h       |  2 +-
+ fs/proc/namespaces.c     |  3 +--
+ security/selinux/hooks.c |  1 +
+ 5 files changed, 14 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/pid.h b/include/linux/pid.h
-index 7599a78..f5552ba 100644
---- a/include/linux/pid.h
-+++ b/include/linux/pid.h
-@@ -2,6 +2,7 @@
- #define _LINUX_PID_H
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index b9e4183..ee2e0ec 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1676,7 +1676,8 @@ static int proc_pid_readlink(struct dentry * dentry, char __user * buffer, int b
  
- #include <linux/rcupdate.h>
-+#include <linux/wait.h>
+ /* building an inode */
  
- enum pid_type
+-struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *task)
++struct inode *proc_pid_make_inode(struct super_block * sb,
++				  struct task_struct *task, umode_t mode)
  {
-@@ -62,6 +63,8 @@ struct pid
- 	unsigned int level;
- 	/* lists of tasks that use this pid */
- 	struct hlist_head tasks[PIDTYPE_MAX];
-+	/* wait queue for pidfd notifications */
-+	wait_queue_head_t wait_pidfd;
- 	struct rcu_head rcu;
- 	struct upid numbers[1];
- };
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 076297a..ac57f91 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1495,8 +1495,34 @@ static void pidfd_show_fdinfo(struct seq_file *m, struct file *f)
+ 	struct inode * inode;
+ 	struct proc_inode *ei;
+@@ -1690,6 +1691,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *t
+ 
+ 	/* Common stuff */
+ 	ei = PROC_I(inode);
++	inode->i_mode = mode;
+ 	inode->i_ino = get_next_ino();
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+ 	inode->i_op = &proc_def_inode_operations;
+@@ -2041,7 +2043,9 @@ struct map_files_info {
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK |
++				    ((mode & FMODE_READ ) ? S_IRUSR : 0) |
++				    ((mode & FMODE_WRITE) ? S_IWUSR : 0));
+ 	if (!inode)
+ 		return -ENOENT;
+ 
+@@ -2050,12 +2054,6 @@ struct map_files_info {
+ 
+ 	inode->i_op = &proc_map_files_link_inode_operations;
+ 	inode->i_size = 64;
+-	inode->i_mode = S_IFLNK;
+-
+-	if (mode & FMODE_READ)
+-		inode->i_mode |= S_IRUSR;
+-	if (mode & FMODE_WRITE)
+-		inode->i_mode |= S_IWUSR;
+ 
+ 	d_set_d_op(dentry, &tid_map_files_dentry_operations);
+ 	d_add(dentry, inode);
+@@ -2409,12 +2407,11 @@ static int proc_pident_instantiate(struct inode *dir,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, p->mode);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+-	inode->i_mode = p->mode;
+ 	if (S_ISDIR(inode->i_mode))
+ 		set_nlink(inode, 2);	/* Use getattr to fix if necessary */
+ 	if (p->iop)
+@@ -3096,11 +3093,10 @@ static int proc_pid_instantiate(struct inode *dir,
+ {
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
+ 	if (!inode)
+ 		goto out;
+ 
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tgid_base_inode_operations;
+ 	inode->i_fop = &proc_tgid_base_operations;
+ 	inode->i_flags|=S_IMMUTABLE;
+@@ -3391,11 +3387,10 @@ static int proc_task_instantiate(struct inode *dir,
+ 	struct dentry *dentry, struct task_struct *task, const void *ptr)
+ {
+ 	struct inode *inode;
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
+ 
+ 	if (!inode)
+ 		goto out;
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tid_base_inode_operations;
+ 	inode->i_fop = &proc_tid_base_operations;
+ 	inode->i_flags|=S_IMMUTABLE;
+diff --git a/fs/proc/fd.c b/fs/proc/fd.c
+index d21dafe..4274f83 100644
+--- a/fs/proc/fd.c
++++ b/fs/proc/fd.c
+@@ -183,14 +183,13 @@ static int proc_fd_link(struct dentry *dentry, struct path *path)
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+ 	ei->fd = fd;
+ 
+-	inode->i_mode = S_IFLNK;
+ 	inode->i_op = &proc_pid_link_inode_operations;
+ 	inode->i_size = 64;
+ 
+@@ -322,14 +321,13 @@ int proc_fd_permission(struct inode *inode, int mask)
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFREG | S_IRUSR);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+ 	ei->fd = fd;
+ 
+-	inode->i_mode = S_IFREG | S_IRUSR;
+ 	inode->i_fop = &proc_fdinfo_file_operations;
+ 
+ 	d_set_d_op(dentry, &tid_fd_dentry_operations);
+diff --git a/fs/proc/internal.h b/fs/proc/internal.h
+index c0bdece..5bc057b 100644
+--- a/fs/proc/internal.h
++++ b/fs/proc/internal.h
+@@ -163,7 +163,7 @@ extern int proc_pid_statm(struct seq_file *, struct pid_namespace *,
+ extern const struct dentry_operations pid_dentry_operations;
+ extern int pid_getattr(struct vfsmount *, struct dentry *, struct kstat *);
+ extern int proc_setattr(struct dentry *, struct iattr *);
+-extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *);
++extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *, umode_t);
+ extern int pid_revalidate(struct dentry *, unsigned int);
+ extern int pid_delete_dentry(const struct dentry *);
+ extern int proc_pid_readdir(struct file *, struct dir_context *);
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index 51b8b0a..766f0c6 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -92,12 +92,11 @@ static int proc_ns_instantiate(struct inode *dir,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK | S_IRWXUGO);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+-	inode->i_mode = S_IFLNK|S_IRWXUGO;
+ 	inode->i_op = &proc_ns_link_inode_operations;
+ 	ei->ns_ops = ns_ops;
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a2b63a6..98b5f40 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3967,6 +3967,7 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 sid = task_sid(p);
+ 
++	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
  }
- #endif
- 
-+/*
-+ * Poll support for process exit notification.
-+ */
-+static unsigned int pidfd_poll(struct file *file, struct poll_table_struct *pts)
-+{
-+	struct task_struct *task;
-+	struct pid *pid = file->private_data;
-+	int poll_flags = 0;
-+
-+	poll_wait(file, &pid->wait_pidfd, pts);
-+
-+	rcu_read_lock();
-+	task = pid_task(pid, PIDTYPE_PID);
-+	/*
-+	 * Inform pollers only when the whole thread group exits.
-+	 * If the thread group leader exits before all other threads in the
-+	 * group, then poll(2) should block, similar to the wait(2) family.
-+	 */
-+	if (!task || (task->exit_state && thread_group_empty(task)))
-+		poll_flags = POLLIN | POLLRDNORM;
-+	rcu_read_unlock();
-+
-+	return poll_flags;
-+}
-+
- const struct file_operations pidfd_fops = {
- 	.release = pidfd_release,
-+	.poll = pidfd_poll,
- #ifdef CONFIG_PROC_FS
- 	.show_fdinfo = pidfd_show_fdinfo,
- #endif
-diff --git a/kernel/pid.c b/kernel/pid.c
-index fa704f8..e605398 100644
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -333,6 +333,8 @@ struct pid *alloc_pid(struct pid_namespace *ns)
- 	for (type = 0; type < PIDTYPE_MAX; ++type)
- 		INIT_HLIST_HEAD(&pid->tasks[type]);
- 
-+	init_waitqueue_head(&pid->wait_pidfd);
-+
- 	upid = pid->numbers + ns->level;
- 	spin_lock_irq(&pidmap_lock);
- 	if (!(ns->nr_hashed & PIDNS_HASH_ADDING))
-diff --git a/kernel/signal.c b/kernel/signal.c
-index bedca16..053de87a 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1632,6 +1632,14 @@ int send_sigqueue(struct sigqueue *q, struct task_struct *t, int group)
- 	return ret;
- }
- 
-+static void do_notify_pidfd(struct task_struct *task)
-+{
-+	struct pid *pid;
-+
-+	pid = task_pid(task);
-+	wake_up_all(&pid->wait_pidfd);
-+}
-+
- /*
-  * Let a parent know about the death of a child.
-  * For a stopped/continued status change, use do_notify_parent_cldstop instead.
-@@ -1655,6 +1663,9 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
- 	BUG_ON(!tsk->ptrace &&
- 	       (tsk->group_leader != tsk || !thread_group_empty(tsk)));
- 
-+	/* Wake up all pidfd waiters */
-+	do_notify_pidfd(tsk);
-+
- 	if (sig != SIGCHLD) {
- 		/*
- 		 * This is only possible if parent == real_parent.
 -- 
 1.8.3.1
 
