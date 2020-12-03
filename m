@@ -2,104 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD2B2CD1E0
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 09:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 774DC2CD235
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 10:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbgLCIym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 03:54:42 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:8234 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387559AbgLCIyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 03:54:41 -0500
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4CmqPG57Hgzkj4W;
-        Thu,  3 Dec 2020 16:53:22 +0800 (CST)
-Received: from huawei.com (10.174.176.134) by DGGEMS406-HUB.china.huawei.com
- (10.3.19.206) with Microsoft SMTP Server id 14.3.487.0; Thu, 3 Dec 2020
- 16:53:50 +0800
-From:   Liu Zixian <liuzixian4@huawei.com>
-To:     <akpm@linux-foundation.org>, <linmiaohe@huawei.com>,
-        <louhongxiang@huawei.com>, <linux-mm@kvack.org>,
-        <liuzixian4@huawei.com>
-CC:     <hushiyuan@huawei.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2] fix mmap return value when vma is merged after call_mmap()
-Date:   Thu, 3 Dec 2020 16:53:50 +0800
-Message-ID: <20201203085350.22624-1-liuzixian4@huawei.com>
-X-Mailer: git-send-email 2.21.0.windows.1
+        id S1728430AbgLCJMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 04:12:15 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:36850 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388247AbgLCJMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 04:12:14 -0500
+Received: by mail-lf1-f66.google.com with SMTP id v14so1666940lfo.3;
+        Thu, 03 Dec 2020 01:11:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hiHVxx96W4z2x1pL1yltWGSHglv7sYIGu+EMJa0eDKU=;
+        b=nanRNQSGYYAnDPmsDAQgsjgSSLM/xuIBqT67E4SqRJhTsY21e2DcFjX50049yvVfMb
+         VcamyYOIqP4vBOXzpaCuY8S3UCaNHAiU0xsv65wgFDenDGEgHpurpSg+h6KPqVg44w1n
+         zI94ZQlZoQn9vy3CyM9XzNJ84Yy4gQNvOBE3m6FyfxyfroHxG6gFFtV6IjbmxiqLAw9L
+         9ZP9QOCkCZE66e8Eho5r1Pz1TU/RiUiRTzDiOoI91ZapR5ThDkKMS4xyDupTaSey34MQ
+         3AHec9xa7UZbojhlyuqsnjrhajFiAsO0CX6YLMtn3/r9tca8C3qGQ3U2jFbTcMEWms+r
+         4Lzw==
+X-Gm-Message-State: AOAM532ju3EvqD8Q6L+3lYvNxZs9P9TG+obxIA/5nwlyAkKkhANveU1p
+        8IGXk81574oo3UhpAYiGSn577wLcAWl+vg==
+X-Google-Smtp-Source: ABdhPJxtDA5kwdvJEbOq+XIakcwexir/Y4TavlQ7twjMjKd8xSm0EGJauK03skzHTEQfYN/m3S4ReQ==
+X-Received: by 2002:ac2:5462:: with SMTP id e2mr929304lfn.552.1606986691942;
+        Thu, 03 Dec 2020 01:11:31 -0800 (PST)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id x189sm292840lfa.95.2020.12.03.01.11.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Dec 2020 01:11:31 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@xi.terra>)
+        id 1kkkej-0003Mj-2F; Thu, 03 Dec 2020 10:12:05 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     linux-usb@vger.kernel.org
+Cc:     Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] USB: serial: ch341: sort device-id entries
+Date:   Thu,  3 Dec 2020 10:11:59 +0100
+Message-Id: <20201203091159.12896-1-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.174.176.134]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On success, mmap should return the begin address of newly mapped area,
-but patch "mm: mmap: merge vma after call_mmap() if possible"
-set vm_start of newly merged vma to return value addr.
-Users of mmap will get wrong address if vma is merged after call_mmap().
-We fix this by moving the assignment to addr before merging vma.
+Keep the device-id entries sorted to make it easier to add new ones in
+the right spot.
 
-Fixes: d70cec898324 ("mm: mmap: merge vma after call_mmap() if possible")
-Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
-v2:
-We want to do "addr = vma->vm_start;" unconditionally,
-so move assignment to addr before if(unlikely) block.
----
- mm/mmap.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ drivers/usb/serial/ch341.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index d91ecb00d38c..5c8b4485860d 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1808,6 +1808,17 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
- 		if (error)
- 			goto unmap_and_free_vma;
+diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
+index b157a230178d..28deaaec581f 100644
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -81,11 +81,11 @@
+ #define CH341_QUIRK_SIMULATE_BREAK	BIT(1)
  
-+		/* Can addr have changed??
-+		 *
-+		 * Answer: Yes, several device drivers can do it in their
-+		 *         f_op->mmap method. -DaveM
-+		 * Bug: If addr is changed, prev, rb_link, rb_parent should
-+		 *      be updated for vma_link()
-+		 */
-+		WARN_ON_ONCE(addr != vma->vm_start);
-+
-+		addr = vma->vm_start;
-+
- 		/* If vm_flags changed after call_mmap(), we should try merge vma again
- 		 * as we may succeed this time.
- 		 */
-@@ -1822,25 +1833,12 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
- 				fput(vma->vm_file);
- 				vm_area_free(vma);
- 				vma = merge;
--				/* Update vm_flags and possible addr to pick up the change. We don't
--				 * warn here if addr changed as the vma is not linked by vma_link().
--				 */
--				addr = vma->vm_start;
-+				/* Update vm_flags to pick up the change. */
- 				vm_flags = vma->vm_flags;
- 				goto unmap_writable;
- 			}
- 		}
- 
--		/* Can addr have changed??
--		 *
--		 * Answer: Yes, several device drivers can do it in their
--		 *         f_op->mmap method. -DaveM
--		 * Bug: If addr is changed, prev, rb_link, rb_parent should
--		 *      be updated for vma_link()
--		 */
--		WARN_ON_ONCE(addr != vma->vm_start);
--
--		addr = vma->vm_start;
- 		vm_flags = vma->vm_flags;
- 	} else if (vm_flags & VM_SHARED) {
- 		error = shmem_zero_setup(vma);
+ static const struct usb_device_id id_table[] = {
+-	{ USB_DEVICE(0x4348, 0x5523) },
+-	{ USB_DEVICE(0x1a86, 0x7522) },
+-	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x1a86, 0x5512) },
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
++	{ USB_DEVICE(0x1a86, 0x7522) },
++	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 -- 
-2.23.0
+2.26.2
 
