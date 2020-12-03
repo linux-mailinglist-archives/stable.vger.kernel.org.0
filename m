@@ -2,108 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E67C2CD347
-	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 11:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 283C22CD340
+	for <lists+stable@lfdr.de>; Thu,  3 Dec 2020 11:17:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728241AbgLCKRo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 3 Dec 2020 05:17:44 -0500
-Received: from proxmox-new.maurer-it.com ([212.186.127.180]:36668 "EHLO
-        proxmox-new.maurer-it.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgLCKRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 05:17:44 -0500
-X-Greylist: delayed 411 seconds by postgrey-1.27 at vger.kernel.org; Thu, 03 Dec 2020 05:17:42 EST
-Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
-        by proxmox-new.maurer-it.com (Proxmox) with ESMTP id AF4C944C5A;
-        Thu,  3 Dec 2020 11:10:10 +0100 (CET)
-To:     dan.carpenter@oracle.com
-Cc:     James.Bottomley@suse.de,
-        jayamohank@HDRedirect-LB5-1afb6e2973825a56.elb.us-east-1.amazonaws.com,
-        jejb@linux.ibm.com, jitendra.bhivare@broadcom.com,
-        kernel-janitors@vger.kernel.org, ketan.mukadam@broadcom.com,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-        martin.petersen@oracle.com, subbu.seetharaman@broadcom.com,
-        stable@vger.kernel.org
-References: <20200928091300.GD377727@mwanda>
-From:   Thomas Lamprecht <t.lamprecht@proxmox.com>
-Subject: Re: [PATCH] scsi: be2iscsi: Fix a theoretical leak in
- beiscsi_create_eqs()
-Message-ID: <54f36c62-10bf-8736-39ce-27ece097d9de@proxmox.com>
-Date:   Thu, 3 Dec 2020 11:10:09 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:84.0) Gecko/20100101
- Thunderbird/84.0
+        id S1728635AbgLCKQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 05:16:28 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62310 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726080AbgLCKQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 05:16:28 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0B3A3HKt049343;
+        Thu, 3 Dec 2020 05:15:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=d29Q2qhjCFDHQ3KvuYzDEQ4HdAEdxxQfM1d+KMGEON0=;
+ b=bJ2Fqs430ZPcuA3gmsbQcNVVaqyMb08UzvN8TxMWxx6BB2QWAGAHxE4CS0xCA51n94mN
+ Yb+mZDFFxa0jzQh54+UlB4rqC+AwiirxKtQAopwO6HnaKbwsvLgYzVJgOFN+rsjkHzgr
+ LL03dEsMmfWV0nfqIwgku2HVeggCZNFa85i0jV4e/sDt4i571NdLbSDgpmaayxI4Dddr
+ dqKlt/jRArx6AnKm+DY6AWqkwKt1ge4SY4joZ33VZdmdW+T/uLScNDRXnFuOCIqYEFNS
+ C+y0VZwSbOEVHpZcsB+ML8bLnrOWM1b3GJW3skKzmZSP8ERl2FUMFlTWXUVwqYApjUEt UQ== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 356wbej0tk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Dec 2020 05:15:22 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0B3A7wrn030751;
+        Thu, 3 Dec 2020 10:15:19 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 353e68anbu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Dec 2020 10:15:19 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0B3AFGTD25624932
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Dec 2020 10:15:16 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AAAD6AE058;
+        Thu,  3 Dec 2020 10:15:16 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 62E5DAE05F;
+        Thu,  3 Dec 2020 10:15:16 +0000 (GMT)
+Received: from pomme.tlslab.ibm.com (unknown [9.145.64.135])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Dec 2020 10:15:16 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     linuxppc-dev@lists.ozlabs.org
+Cc:     linux-kernel@vger.kernel.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>, stable@vger.kernel.org
+Subject: [PATCH] powerpc/hotplug: assign hot added LMB to the right node
+Date:   Thu,  3 Dec 2020 11:15:14 +0100
+Message-Id: <20201203101514.33591-1-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-In-Reply-To: <20200928091300.GD377727@mwanda>
-Content-Type: text/plain; charset=UTF-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
+ definitions=2020-12-03_06:2020-12-03,2020-12-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=1 bulkscore=0
+ spamscore=0 priorityscore=1501 phishscore=0 clxscore=1015 impostorscore=0
+ malwarescore=0 adultscore=0 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012030060
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> The be_fill_queue() function can only fail when "eq_vaddress" is NULL
-> and since it's non-NULL here that means the function call can't fail.
-> But imagine if it could, then in that situation we would want to store
-> the "paddr" so that dma memory can be released.
-> 
-> Fixes: bfead3b2cb46 ("[SCSI] be2iscsi: Adding msix and mcc_rings V3")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+This patch applies to 5.9 and earlier kernels only.
 
-This came in here through the stable 5.4 tree with v5.4.74, and we have some
-users of ours report that it results in kernel oopses and delayed boot on their
-HP DL 380 Gen 9 (and other Gen 9, FWICT) servers:
+Since 5.10, this has been fortunately fixed by the commit
+e5e179aa3a39 ("pseries/drmem: don't cache node id in drmem_lmb struct").
 
-> systemd-udevd   D    0   501      1 0x80000000
-> Call Trace:
->  __schedule+0x2e6/0x6f0
->  schedule+0x33/0xa0
->  schedule_timeout+0x205/0x330
->  wait_for_completion+0xb7/0x140
->  ? wake_up_q+0x80/0x80
->  __flush_work+0x131/0x1e0
->  ? worker_detach_from_pool+0xb0/0xb0
->  work_on_cpu+0x6d/0x90
->  ? workqueue_congested+0x80/0x80
->  ? pci_device_shutdown+0x60/0x60
->  pci_device_probe+0x190/0x1b0
->  really_probe+0x1c8/0x3e0
->  driver_probe_device+0xbb/0x100
->  device_driver_attach+0x58/0x60
->  __driver_attach+0x8f/0x150
->  ? device_driver_attach+0x60/0x60
->  bus_for_each_dev+0x79/0xc0
->  ? kmem_cache_alloc_trace+0x1a0/0x230
->  driver_attach+0x1e/0x20
->  bus_add_driver+0x154/0x1f0
->  ? 0xffffffffc0453000
->  driver_register+0x70/0xc0
->  ? 0xffffffffc0453000
->  __pci_register_driver+0x57/0x60
->  beiscsi_module_init+0x62/0x1000 [be2iscsi]
->  do_one_initcall+0x4a/0x1fa
->  ? _cond_resched+0x19/0x30
->  ? kmem_cache_alloc_trace+0x1a0/0x230
->  do_init_module+0x60/0x230
->  load_module+0x231b/0x2590
->  __do_sys_finit_module+0xbd/0x120
->  ? __do_sys_finit_module+0xbd/0x120
->  __x64_sys_finit_module+0x1a/0x20
->  do_syscall_64+0x57/0x190
->  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> RIP: 0033:0x7f00aca06f59
-> Code: Bad RIP value.
-> RSP: 002b:00007ffc14380858 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-> RAX: ffffffffffffffda RBX: 0000558c726262e0 RCX: 00007f00aca06f59
-> RDX: 0000000000000000 RSI: 00007f00ac90bcad RDI: 000000000000000e
-> RBP: 00007f00ac90bcad R08: 0000000000000000 R09: 0000000000000000
-> R10: 000000000000000e R11: 0000000000000246 R12: 0000000000000000
-> R13: 0000558c725f6030 R14: 0000000000020000 R15: 0000558c726262e0
+When LMBs are added to a running system, the node id assigned to the LMB is
+fetched from the temporary DT node provided by the hypervisor.
 
-Blacklisting the be2iscsi module or reverting this commit helps, I did not get
-around to look further into the mechanics at play and figured you would be
-faster at that, or that this info at least helps someone else when searching
-for the same symptoms.
+However, LMBs added are always assigned to the first online node. This is a
+mistake and this is because hot_add_drconf_scn_to_nid() called by
+lmb_set_nid() is checking for the LMB flags DRCONF_MEM_ASSIGNED which is
+set later in dlpar_add_lmb().
 
-cheers,
-Thomas
+To fix this issue, simply set that flag earlier in dlpar_add_lmb().
 
+Note, this code has been rewrote in 5.10 and thus this fix has no meaning
+since this version.
+
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: stable@vger.kernel.org
+---
+ arch/powerpc/platforms/pseries/hotplug-memory.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
+index e54dcbd04b2f..92d83915c629 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -663,12 +663,14 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ 		return rc;
+ 	}
+ 
++	lmb->flags |= DRCONF_MEM_ASSIGNED;
+ 	lmb_set_nid(lmb);
+ 	block_sz = memory_block_size_bytes();
+ 
+ 	/* Add the memory */
+ 	rc = __add_memory(lmb->nid, lmb->base_addr, block_sz);
+ 	if (rc) {
++		lmb->flags &= ~DRCONF_MEM_ASSIGNED;
+ 		invalidate_lmb_associativity_index(lmb);
+ 		return rc;
+ 	}
+@@ -676,10 +678,9 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ 	rc = dlpar_online_lmb(lmb);
+ 	if (rc) {
+ 		__remove_memory(lmb->nid, lmb->base_addr, block_sz);
++		lmb->flags &= ~DRCONF_MEM_ASSIGNED;
+ 		invalidate_lmb_associativity_index(lmb);
+ 		lmb_clear_nid(lmb);
+-	} else {
+-		lmb->flags |= DRCONF_MEM_ASSIGNED;
+ 	}
+ 
+ 	return rc;
+-- 
+2.29.2
 
