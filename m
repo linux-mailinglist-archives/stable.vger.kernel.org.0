@@ -2,38 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 184A02CE266
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 00:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8A72CE28E
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 00:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727454AbgLCXKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 18:10:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34396 "EHLO mail.kernel.org"
+        id S1727374AbgLCXUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 18:20:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbgLCXKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Dec 2020 18:10:43 -0500
-From:   Arnd Bergmann <arnd@kernel.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kbuild@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>
-Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: avoid static_assert for genksyms
-Date:   Fri,  4 Dec 2020 00:09:44 +0100
-Message-Id: <20201203230955.1482058-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727146AbgLCXUU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Dec 2020 18:20:20 -0500
+Date:   Thu, 03 Dec 2020 15:19:38 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1607037579;
+        bh=db5rRAH85wgDQfhH0ycOb7YfOT+7cqn9LTL2Rt7n5qU=;
+        h=From:To:Subject:From;
+        b=xPeikDfRZL/MCEZQLMO2/eA/YTBPaoeLTZ12DxTH8fN6AmnIIyvtWBEpkOKMxFGgS
+         rmN9jSW7ysNfp2lqFutkh+aTKCf5dQIazV61ZkG8a8zQ9LkPoeJzKbJ3fpLh2uHhBD
+         Y25fWDpZkbJum2XgXUWAEsGmgKcUp80wCojLwkXY=
+From:   akpm@linux-foundation.org
+To:     ardb@kernel.org, arnd@arndb.de, arnd@kernel.org,
+        keescook@chromium.org, masahiroy@kernel.org,
+        michal.lkml@markovi.net, mm-commits@vger.kernel.org,
+        rikard.falkeborn@gmail.com, stable@vger.kernel.org
+Subject:  + kbuild-avoid-static_assert-for-genksyms.patch added to
+ -mm tree
+Message-ID: <20201203231938.H9QeK_2X3%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+
+The patch titled
+     Subject: kbuild: avoid static_assert for genksyms
+has been added to the -mm tree.  Its filename is
+     kbuild-avoid-static_assert-for-genksyms.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/kbuild-avoid-static_assert-for-genksyms.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/kbuild-avoid-static_assert-for-genksyms.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Arnd Bergmann <arnd@kernel.org>
+Subject: kbuild: avoid static_assert for genksyms
+
 
 genksyms does not know or care about the _Static_assert() built-in,
 and sometimes falls back to ignoring the later symbols, which causes
@@ -45,17 +69,22 @@ net/ethtool/common.o:(_ftrace_annotated_branch+0x0): dangerous relocation: unsup
 
 Redefine static_assert for genksyms to avoid that.
 
-Cc: stable@vger.kernel.org
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lkml.kernel.org/r/20201203230955.1482058-1-arnd@kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Michal Marek <michal.lkml@markovi.net>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- include/linux/build_bug.h | 5 +++++
+
+ include/linux/build_bug.h |    5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/include/linux/build_bug.h b/include/linux/build_bug.h
-index e3a0be2c90ad..7bb66e15b481 100644
---- a/include/linux/build_bug.h
-+++ b/include/linux/build_bug.h
+--- a/include/linux/build_bug.h~kbuild-avoid-static_assert-for-genksyms
++++ a/include/linux/build_bug.h
 @@ -77,4 +77,9 @@
  #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
  #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
@@ -66,6 +95,9 @@ index e3a0be2c90ad..7bb66e15b481 100644
 +#endif
 +
  #endif	/* _LINUX_BUILD_BUG_H */
--- 
-2.27.0
+_
+
+Patches currently in -mm which might be from arnd@kernel.org are
+
+kbuild-avoid-static_assert-for-genksyms.patch
 
