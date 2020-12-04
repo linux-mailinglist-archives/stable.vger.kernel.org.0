@@ -2,98 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1452CE993
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 09:29:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B372CEA50
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 09:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729088AbgLDI3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 03:29:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23393 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728487AbgLDI3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 03:29:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607070454;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=e9Y6WzFRcgbtIi5LBno88YZfeKK7F+ba+sYdLaKYH9w=;
-        b=Gg62bac1lWY9C3nvr1LFQkHRGjzBAKmpYjCuFkyRrbjzmO3uFwoH59bMyTpo4oWUwr+dSi
-        WxsaxdpEeJhJDagllXhg4XIEm+M/Lyl9Gjr9sAszWEHm0rf6NFDvspz6YrNy3Gmz4AJY9o
-        jVEG81aLGyknba9tOFPv4vnyheAcYAc=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-61-V5UUWpkyPKCn97cbFTYh7A-1; Fri, 04 Dec 2020 03:27:32 -0500
-X-MC-Unique: V5UUWpkyPKCn97cbFTYh7A-1
-Received: by mail-ej1-f70.google.com with SMTP id h17so1779897ejk.21
-        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 00:27:32 -0800 (PST)
+        id S1727772AbgLDI4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 03:56:10 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:36054 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725866AbgLDI4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 03:56:10 -0500
+Received: by mail-lj1-f194.google.com with SMTP id a1so4390949ljq.3;
+        Fri, 04 Dec 2020 00:55:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=e9Y6WzFRcgbtIi5LBno88YZfeKK7F+ba+sYdLaKYH9w=;
-        b=gGXhcRavsFjH3bbFXABfJC614EV7wm6+zLyUbGq373C6fMByjZ5Cv0eIxLxGy7iWE+
-         MyzIDeM0bx/gArcqmko94pjkvqL6gmh7hFjTyEGkK2bX9gSLKZ0EJNgtaD+6DlDbvywE
-         Fg6ckdYcD3AXlihaZ6hTEf9im3DVsjk9+qbF0HMiTVeOLzIHE8gpc8h7kd0hrFP0QNq8
-         aGBXaJMtTSt1aZ0mdQGqc7nNc3KfvotGdmnRzSoL9Y9gAS9lqqOJMb0mV1npu6DO1gKO
-         JxQkY9XoIGsjQXJ3KWqSq71sufHhg+bwDJQ1/hConFAFxJ2HcQ9IQD77s+PA7TlgL1OF
-         zxUQ==
-X-Gm-Message-State: AOAM53107NceY41X6eNL/PV4Uu3GLNECxP7xMeTJs2k18NwmRCQ5DRN3
-        9i3D8u4IrN7iAJHwFoOm4wwhNHK1dvgU7nnt7IRc76WkOQixskKIj6RdrdZj4HDsKkFe/9db/Ak
-        kCH5c9H5Ket+VV90i
-X-Received: by 2002:a50:e0ce:: with SMTP id j14mr6573304edl.18.1607070451481;
-        Fri, 04 Dec 2020 00:27:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwMIyz5LS2iwvNf1iWyhuXSvOdoCaeoLpxIQO9KF7bm/bHa+j5UQfAthZzEj17BWx0cIuFxUQ==
-X-Received: by 2002:a50:e0ce:: with SMTP id j14mr6573281edl.18.1607070451200;
-        Fri, 04 Dec 2020 00:27:31 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id dh23sm1155140edb.15.2020.12.04.00.27.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Dec 2020 00:27:30 -0800 (PST)
-Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20201125180102.GL643756@sasha-vm>
- <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
- <20201129041314.GO643756@sasha-vm>
- <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
- <20201129210650.GP643756@sasha-vm>
- <e499986d-ade5-23bd-7a04-fa5eb3f15a56@redhat.com>
- <20201130173832.GR643756@sasha-vm>
- <238cbdd1-dabc-d1c1-cff8-c9604a0c9b95@redhat.com>
- <9ec7dff6-d679-ce19-5e77-f7bcb5a63442@oracle.com>
- <4c1b2bc7-cf50-4dcd-bfd4-be07e515de2a@redhat.com>
- <20201130235959.GS643756@sasha-vm>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <6c49ded5-bd8f-f219-0c51-3500fd751633@redhat.com>
-Date:   Fri, 4 Dec 2020 09:27:28 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        bh=EDCSp0miPN9urc3464sy+Tdb5gq+YorHHrJWD0fSGKI=;
+        b=jGcVGF9T83Ffd/TbOa1/EeBP1klmF0hdJfRtVsyHfr7qLA+loQ1sHxX4t2L25OoN87
+         EpHFudiiji8S9JiSySQU8979zrL8x3iwBYElUIbmXzS/gWFzdmkhpGfuJMGEBOUfjFsA
+         8PkJXasfIjtkYdYzFKVVWUqtzRkdgvquCnP/G+u0EYvRkEKCmEzXd4mH4TmxjrXtCREX
+         ZpvdyL2xvcggHsyE47Uw1KRcCS6XVBQlrWe2FZvRXzXDqJDh9N/BACCVxHn6UH6aigJ4
+         ihMtig++N9N4nwng8S82nsvGinnvmb0zQ6JUvTzIgR1kvMGh7NlyidqRDyXoaKZ9wW8E
+         O1ww==
+X-Gm-Message-State: AOAM530vq42s5FtcvFsNPxNFYnYyjhKdpFa4SdsZMEzO1tCuOK/J4jfv
+        HxOSEqi6DK6l8s56IZIl4djqvzcwh2xOjg==
+X-Google-Smtp-Source: ABdhPJypwncW4oaG4sAVGxO1SOdEGfqoiQERwJoYKMOM7n4E7ZpHin3qPLJxXhyO/i3pGhCzHOIFHQ==
+X-Received: by 2002:a2e:9615:: with SMTP id v21mr2830397ljh.211.1607072127651;
+        Fri, 04 Dec 2020 00:55:27 -0800 (PST)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id q14sm1458163lfb.281.2020.12.04.00.55.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Dec 2020 00:55:26 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@xi.terra>)
+        id 1kl6si-0005HD-H5; Fri, 04 Dec 2020 09:56:00 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     linux-usb@vger.kernel.org
+Cc:     Himadri Pandya <himadrispandya@gmail.com>,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] USB: serial: kl5kusb105: fix memleak on open
+Date:   Fri,  4 Dec 2020 09:55:19 +0100
+Message-Id: <20201204085519.20230-1-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <20201130235959.GS643756@sasha-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01/12/20 00:59, Sasha Levin wrote:
-> 
-> It's quite easy to NAK a patch too, just reply saying "no" and it'll be
-> dropped (just like this patch was dropped right after your first reply)
-> so the burden on maintainers is minimal.
+Fix memory leak of control-message transfer buffer on successful open().
 
-The maintainers are _already_ marking patches with "Cc: stable".  That 
-(plus backports) is where the burden on maintainers should start and 
-end.  I don't see the need to second guess them.
+Fixes: 6774d5f53271 ("USB: serial: kl5kusb105: fix open error path")
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
 
-Paolo
+While reviewing Himadri's control-message series I noticed we have a
+related bug in klsi_105_open() that needs fixing.
+
+
+ drivers/usb/serial/kl5kusb105.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/usb/serial/kl5kusb105.c b/drivers/usb/serial/kl5kusb105.c
+index 5ee48b0650c4..5f6b82ebccc5 100644
+--- a/drivers/usb/serial/kl5kusb105.c
++++ b/drivers/usb/serial/kl5kusb105.c
+@@ -276,12 +276,12 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
+ 	priv->cfg.unknown2 = cfg->unknown2;
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ 
++	kfree(cfg);
++
+ 	/* READ_ON and urb submission */
+ 	rc = usb_serial_generic_open(tty, port);
+-	if (rc) {
+-		retval = rc;
+-		goto err_free_cfg;
+-	}
++	if (rc)
++		return rc;
+ 
+ 	rc = usb_control_msg(port->serial->dev,
+ 			     usb_sndctrlpipe(port->serial->dev, 0),
+@@ -324,8 +324,6 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
+ 			     KLSI_TIMEOUT);
+ err_generic_close:
+ 	usb_serial_generic_close(port);
+-err_free_cfg:
+-	kfree(cfg);
+ 
+ 	return retval;
+ }
+-- 
+2.26.2
 
