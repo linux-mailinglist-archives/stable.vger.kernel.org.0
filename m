@@ -2,181 +2,385 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00812CE5E6
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 03:46:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 378E72CE5F6
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 03:51:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbgLDCof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Dec 2020 21:44:35 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:41575 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726112AbgLDCof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 21:44:35 -0500
-X-UUID: 47ccc151455948f492b256b182df520b-20201204
-X-UUID: 47ccc151455948f492b256b182df520b-20201204
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1007854576; Fri, 04 Dec 2020 10:43:50 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs08n1.mediatek.inc (172.21.101.55) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 4 Dec 2020 10:43:48 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 4 Dec 2020 10:43:50 +0800
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Song Bao Hua <song.bao.hua@hisilicon.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v3] proc: use untagged_addr() for pagemap_read addresses
-Date:   Fri, 4 Dec 2020 10:43:47 +0800
-Message-ID: <20201204024347.8295-1-miles.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        id S1726178AbgLDCuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Dec 2020 21:50:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42418 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726158AbgLDCuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Dec 2020 21:50:40 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F1DC061A4F
+        for <stable@vger.kernel.org>; Thu,  3 Dec 2020 18:49:54 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id p21so3048068pjv.0
+        for <stable@vger.kernel.org>; Thu, 03 Dec 2020 18:49:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pTKqFiTQJRpwTSnAy/K5axElw5GzyqiUmX3nYzB+Zho=;
+        b=tdLMC8G21IsWLdvQDlu8zodOXgFLdDvldKhmHaKMUu5MaO3aGZzGc7ZGppSTIOuK5L
+         nJWOKL/ab86dR3brl7I3oltCTI29+j2u2+VZCAl9rHoPiBnuBJFjldJPZ9w8QUb2EDSZ
+         S04TAiTmDSGjn/y6UI9pB359nt4ZilqmIg7H5mm9R3S97rK2DvmRRGk9mv5uJnzTI4NR
+         jbgL9JklOnPcO1Asmoz29jrYR+7F7ZqJi2++tMZMwMzvntOVdBbaO/sb2Z/jsBiPo1Ev
+         RZSC5e7ayU8aj8GFaIUSWyZezrTF1Fv67XbwHMPcuu3jsgxPsQxbjaI/l3HJm6XcscZj
+         95dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pTKqFiTQJRpwTSnAy/K5axElw5GzyqiUmX3nYzB+Zho=;
+        b=Jnt/C97Oe6ORh5iQFDAo/GLNp5/zjxBXuVurw+8ympQqCQECS0aSh53dklPIDzP1Ar
+         ytsQgV87IUFesW9kyBj/KRSVd7HWzna0fMuQQ7A6fh1koS81yPcz5m63MOvqIKt8wC7A
+         shGGs2eUqGmKUm3qKMVGyG5IDr/eL2AfcPvq+DAGrzlCqObTdlDtbfqUsdDqoUO4IRaY
+         uABOHcwnQhRve1mGMwxWBfZ2Y62CSd+iepZtFlqWkiFHhvxrCZWWGdPhfAErvZnsj347
+         LXkrQiiRoavJiuBkMmmtX9SpvNEV5xZ18qtMVTPObrY87zppJM/9to8U2MuiO2c6/wQ/
+         DZTw==
+X-Gm-Message-State: AOAM531yjJ7DmU7xjm86vDN6O+sy1KmBioVyOL3YK+LcTjUEXwoSlFWc
+        MSz5hTf1O7LlAHvPIeDJwhPOVxE5qkxa/g==
+X-Google-Smtp-Source: ABdhPJwmvSQdFdUxVCJyQKnXg1T3dLJUqoxLA+yzIdpTHXRALDkY77Oi4XtDuG22t6oc+ej7n5VVMg==
+X-Received: by 2002:a17:90a:a45:: with SMTP id o63mr2091680pjo.146.1607050193576;
+        Thu, 03 Dec 2020 18:49:53 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s7sm1100908pfh.207.2020.12.03.18.49.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Dec 2020 18:49:52 -0800 (PST)
+Message-ID: <5fc9a3d0.1c69fb81.9a153.44eb@mx.google.com>
+Date:   Thu, 03 Dec 2020 18:49:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.210-7-g5c828e58d4a6
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 169 runs,
+ 8 regressions (v4.14.210-7-g5c828e58d4a6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When we try to visit the pagemap of a tagged userspace pointer, we find
-that the start_vaddr is not correct because of the tag.
-To fix it, we should untag the userspace pointers in pagemap_read().
+stable-rc/queue/4.14 baseline: 169 runs, 8 regressions (v4.14.210-7-g5c828e=
+58d4a6)
 
-I tested with 5.10-rc4 and the issue remains.
+Regressions Summary
+-------------------
 
-Explanation from Catalin in [1]:
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+panda                | arm    | lab-collabora   | gcc-8    | omap2plus_defc=
+onfig | 1          =
 
-:Arguably, that's a user-space bug since tagged file offsets were never
-:supported. In this case it's not even a tag at bit 56 as per the arm64
-:tagged address ABI but rather down to bit 47. You could say that the
-:problem is caused by the C library (malloc()) or whoever created the
-:tagged vaddr and passed it to this function. It's not a kernel
-:regression as we've never supported it.
-:
-:Now, pagemap is a special case where the offset is usually not generated
-:as a classic file offset but rather derived by shifting a user virtual
-:address. I guess we can make a concession for pagemap (only) and allow
-:such offset with the tag at bit (56 - PAGE_SHIFT + 3).
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
 
-My test code is based on [2]:
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
 
-A userspace pointer which has been tagged by 0xb4: 0xb400007662f541c8
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
 
-=== userspace program ===
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
 
-uint64 OsLayer::VirtualToPhysical(void *vaddr) {
-	uint64 frame, paddr, pfnmask, pagemask;
-	int pagesize = sysconf(_SC_PAGESIZE);
-	off64_t off = ((uintptr_t)vaddr) / pagesize * 8; // off = 0xb400007662f541c8 / pagesize * 8 = 0x5a00003b317aa0
-	int fd = open(kPagemapPath, O_RDONLY);
-	...
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
 
-	if (lseek64(fd, off, SEEK_SET) != off || read(fd, &frame, 8) != 8) {
-		int err = errno;
-		string errtxt = ErrorString(err);
-		if (fd >= 0)
-			close(fd);
-		return 0;
-	}
-...
-}
+qemu_x86_64          | x86_64 | lab-baylibre    | gcc-8    | x86_64_defconf=
+ig    | 1          =
 
-=== kernel fs/proc/task_mmu.c ===
+qemu_x86_64-uefi     | x86_64 | lab-baylibre    | gcc-8    | x86_64_defconf=
+ig    | 1          =
 
-static ssize_t pagemap_read(struct file *file, char __user *buf,
-		size_t count, loff_t *ppos)
-{
-	...
-	src = *ppos;
-	svpfn = src / PM_ENTRY_BYTES; // svpfn == 0xb400007662f54
-	start_vaddr = svpfn << PAGE_SHIFT; // start_vaddr == 0xb400007662f54000
-	end_vaddr = mm->task_size;
 
-	/* watch out for wraparound */
-	// svpfn == 0xb400007662f54
-	// (mm->task_size >> PAGE) == 0x8000000
-	if (svpfn > mm->task_size >> PAGE_SHIFT) // the condition is true because of the tag 0xb4
-		start_vaddr = end_vaddr;
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.210-7-g5c828e58d4a6/plan/baseline/
 
-	ret = 0;
-	while (count && (start_vaddr < end_vaddr)) { // we cannot visit correct entry because start_vaddr is set to end_vaddr
-		int len;
-		unsigned long end;
-		...
-	}
-	...
-}
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.210-7-g5c828e58d4a6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5c828e58d4a6b7c196a7a214ec0a8c41076a7b9f =
 
-[1] https://lore.kernel.org/patchwork/patch/1343258/
-[2] https://github.com/stressapptest/stressapptest/blob/master/src/os.cc#L158
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
-Cc: stable@vger.kernel.org # v5.4-
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 
----
+Test Regressions
+---------------- =
 
-Change since v1:
 
-1. Follow Eirc's and Catalin's suggestion to avoid overflow
-2. Cc to stable v5.4-
-3. add explaination from Catalin to the commit message
 
-Change since v2:
-1. replace less-than with less-than or equal
-2. Fix bad spelling in commit message
-3. Fix will's email address
----
- fs/proc/task_mmu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+panda                | arm    | lab-collabora   | gcc-8    | omap2plus_defc=
+onfig | 1          =
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 217aa2705d5d..ee5a235b3056 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1599,11 +1599,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
- 
- 	src = *ppos;
- 	svpfn = src / PM_ENTRY_BYTES;
--	start_vaddr = svpfn << PAGE_SHIFT;
- 	end_vaddr = mm->task_size;
- 
- 	/* watch out for wraparound */
--	if (svpfn > mm->task_size >> PAGE_SHIFT)
-+	start_vaddr = end_vaddr;
-+	if (svpfn <= (ULONG_MAX >> PAGE_SHIFT))
-+		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
-+
-+	/* Ensure the address is inside the task */
-+	if (start_vaddr > mm->task_size)
- 		start_vaddr = end_vaddr;
- 
- 	/*
--- 
-2.18.0
 
+  Details:     https://kernelci.org/test/plan/id/5fc972a894843df955c94cc4
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fc972a894843df=
+955c94cc9
+        failing since 5 days (last pass: v4.14.209-11-ge2326a479d95, first =
+fail: v4.14.209-14-gefcf305b1a7e8)
+        2 lines
+
+    2020-12-03 23:20:04.647000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/99
+    2020-12-03 23:20:04.656000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc96f4ded634d1630c94cd8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc96f4ded634d1630c94=
+cd9
+        failing since 20 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc96f684103b5178fc94cf0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc96f684103b5178fc94=
+cf1
+        failing since 20 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc96f2a89ec4f9bf7c94cf8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc96f2a89ec4f9bf7c94=
+cf9
+        failing since 20 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc96eeca88744be41c94cc5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc96eeca88744be41c94=
+cc6
+        failing since 20 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc972e94336d8add7c94cba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc972e94336d8add7c94=
+cbb
+        failing since 20 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_x86_64          | x86_64 | lab-baylibre    | gcc-8    | x86_64_defconf=
+ig    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc972704922ba1456c94cd5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc972704922ba1456c94=
+cd6
+        failing since 0 day (last pass: v4.14.210-7-gc5d4ef27476b9, first f=
+ail: v4.14.210-7-g5c0c3ae0c166) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+      | regressions
+---------------------+--------+-----------------+----------+---------------=
+------+------------
+qemu_x86_64-uefi     | x86_64 | lab-baylibre    | gcc-8    | x86_64_defconf=
+ig    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc9720e928775b6bec94cf0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.210=
+-7-g5c828e58d4a6/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc9720e928775b6bec94=
+cf1
+        new failure (last pass: v4.14.210-7-g5c0c3ae0c166) =
+
+ =20
