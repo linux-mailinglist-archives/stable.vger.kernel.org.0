@@ -2,131 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50DA82CF48F
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 20:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 695142CF4DE
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 20:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbgLDTLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 14:11:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53006 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726392AbgLDTLC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 14:11:02 -0500
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D77C061A52
-        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 11:10:16 -0800 (PST)
-Received: by mail-io1-xd43.google.com with SMTP id z136so6855977iof.3
-        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 11:10:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wV2zw39T+/M6f/BVtnO7Xjsvws9d6e6TeO11acbViOM=;
-        b=TZPaaCT6AtDWpDrRLEFQjqC1AAK8M1f1NPuesOWhXsk2CMwaHMxmurUY8i2ho/fGMe
-         NKK73YCx9pSrdZSq/DW6CNhl53ezVP/VvpNSHudtJmkud8va9lA7dj6UQjOd3DvULOkm
-         x+hYYuk35kAZ3aalMOGnVG8CR4t4+X96KawaBVIFhnYfh5kfzD3HJtrWebz06/MNL2Ev
-         oTs3MGBBbYLMhmo9q1XEz6wq++N2DoahjacOjcrKSghRgQYLSZXIBLcwk6gw6CN5WTsd
-         VNpIcd7y7Ya1tYhYoNiWZDd/bikOoRwBZy1rL4usLdVbyl+buObEEPHHa5RGX9FCORij
-         YGHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wV2zw39T+/M6f/BVtnO7Xjsvws9d6e6TeO11acbViOM=;
-        b=YJq2Wit1GLkuKtlrCkfc+GcvIOsvj3TI0ghgUlbMwQ4ryT2hzCsA94w4vJE76hy7qJ
-         6BFrc065GugMtD7EDL5PiPdfuVyR43mpvxUaHudbyg0dFWBFwRtRya7t2Agrml48dc6d
-         XsfRduZRrQL80+bRKM2k8rlHmBaIogiIct3S+8X8rdMcwid0/EbybMoXkrv+7Dg/42Bn
-         aQg/ATHyvCkhhxlGXDJ3Ts7JeTS8Bd4mqQXT0DxuTRf8R3Dn8+E0l+uixCsOxCRvV7n0
-         RX87fO1pNpM8iaUVjVpWynltwoCpGTXbDLU/HwkLoMID6yLvFVmjCa3bvTiIP9P1PFod
-         DHqw==
-X-Gm-Message-State: AOAM533tpFAz5SEk4159m0liY7kgGvThsdkQpPBf372bDBhyzPuvVHgM
-        R+L/rE/k7ljPSnfJ8kRG0jNCbNcUdVlAYbVCMBF0Jw==
-X-Google-Smtp-Source: ABdhPJw7ZxY6DIc+ReGLzFWFF9zz7LuyV0IuCWV+jyrBzOxXDqOKpAc4a3gmDnkre0qoKlQLvb4/ZxnxPyOlW79gJ/w=
-X-Received: by 2002:a6b:c8c1:: with SMTP id y184mr8023478iof.99.1607109015532;
- Fri, 04 Dec 2020 11:10:15 -0800 (PST)
+        id S1730406AbgLDTgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 14:36:39 -0500
+Received: from mail.efficios.com ([167.114.26.124]:59922 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729721AbgLDTgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 14:36:39 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 3FBF42CDC09;
+        Fri,  4 Dec 2020 14:35:58 -0500 (EST)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 6rMB51jRbXGC; Fri,  4 Dec 2020 14:35:57 -0500 (EST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id D41532CDD85;
+        Fri,  4 Dec 2020 14:35:57 -0500 (EST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com D41532CDD85
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1607110557;
+        bh=jwmYw8U3h/Wa2AzZqAo41IYU4vTQxznKzzONce8TSgA=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=JavCCmTYYsjZMxDWgKbMggBKekTcJEnF2+rvRMEKKBpIFApjQCb+QyRva7mxgB5Wy
+         zoPjLQKwBET9t+FVb1RLupmRpZ2VpBG0PpU3FSpwCkCphEsxtcV4TepJBwYwlszmoY
+         eExxJnp3M7jbdBrxFK9zF2QmYFh+YxFVhVUVIY7Ibn50Zh4Nz8Q6LFKzpRvHR68CDx
+         qOzmgQOf/HRHgFl3lR70Zpslf04IbAeLE5RlDUvgX7db4jcYlyVtlIYzNMXpXyG9mP
+         nDgFhFUrt/LHuhZnqJ/X243JHT9TaV/Lfv+aQ3luJzCjlUD1rZh0ipZcGojsS7Wf9q
+         GtjcZAIOZH8Tw==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 7Q5RQPLmJ-Hn; Fri,  4 Dec 2020 14:35:57 -0500 (EST)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id C5D6E2CDD04;
+        Fri,  4 Dec 2020 14:35:57 -0500 (EST)
+Date:   Fri, 4 Dec 2020 14:35:57 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     x86 <x86@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anton Blanchard <anton@ozlabs.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <729218347.6370.1607110557680.JavaMail.zimbra@efficios.com>
+In-Reply-To: <250ded637696d490c69bef1877148db86066881c.1607058304.git.luto@kernel.org>
+References: <cover.1607058304.git.luto@kernel.org> <250ded637696d490c69bef1877148db86066881c.1607058304.git.luto@kernel.org>
+Subject: Re: [PATCH v3 4/4] membarrier: Execute SYNC_CORE on the calling
+ thread
 MIME-Version: 1.0
-References: <20201204180622.14285-1-abuehaze@amazon.com>
-In-Reply-To: <20201204180622.14285-1-abuehaze@amazon.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 4 Dec 2020 20:10:04 +0100
-Message-ID: <CANn89iL1BkSyE=iSigZxvVB4_59QjWBY_5GuSoH8rcAaZ84EUg@mail.gmail.com>
-Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning
- initialisation for high latency connections
-To:     Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
-Cc:     netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
-        Yuchung Cheng <ycheng@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Wei Wang <weiwan@google.com>,
-        "Strohman, Andy" <astroh@amazon.com>,
-        Benjamin Herrenschmidt <benh@amazon.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_3980 (ZimbraWebClient - FF83 (Linux)/8.8.15_GA_3980)
+Thread-Topic: membarrier: Execute SYNC_CORE on the calling thread
+Thread-Index: Qq2Qbs3Hm65A4T6BZYHZClRs1qtt4A==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 4, 2020 at 7:08 PM Hazem Mohamed Abuelfotoh
-<abuehaze@amazon.com> wrote:
->
->     Previously receiver buffer auto-tuning starts after receiving
->     one advertised window amount of data.After the initial
->     receiver buffer was raised by
->     commit a337531b942b ("tcp: up initial rmem to 128KB
->     and SYN rwin to around 64KB"),the receiver buffer may
->     take too long for TCP autotuning to start raising
->     the receiver buffer size.
->     commit 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
->     tried to decrease the threshold at which TCP auto-tuning starts
->     but it's doesn't work well in some environments
->     where the receiver has large MTU (9001) configured
->     specially within environments where RTT is high.
->     To address this issue this patch is relying on RCV_MSS
->     so auto-tuning can start early regardless
->     the receiver configured MTU.
->
->     Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
->     Fixes: 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
->
-> Signed-off-by: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+----- On Dec 4, 2020, at 12:07 AM, Andy Lutomirski luto@kernel.org wrote:
+
+> membarrier()'s MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE is documented
+> as syncing the core on all sibling threads but not necessarily the
+> calling thread.  This behavior is fundamentally buggy and cannot be used
+> safely.  Suppose a user program has two threads.  Thread A is on CPU 0
+> and thread B is on CPU 1.  Thread A modifies some text and calls
+> membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE).  Then thread B
+> executes the modified code.  If, at any point after membarrier() decides
+> which CPUs to target, thread A could be preempted and replaced by thread
+> B on CPU 0.  This could even happen on exit from the membarrier()
+> syscall.  If this happens, thread B will end up running on CPU 0 without
+> having synced.
+> 
+> In principle, this could be fixed by arranging for the scheduler to
+> sync_core_before_usermode() whenever switching between two threads in
+> the same mm if there is any possibility of a concurrent membarrier()
+> call, but this would have considerable overhead.  Instead, make
+> membarrier() sync the calling CPU as well.
+> 
+> As an optimization, this avoids an extra smp_mb() in the default
+> barrier-only mode.
+
+^ we could also add to the commit message that it avoids doing rseq preempt
+on the caller as well.
+
+Other than that:
+
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+
+Thanks!
+
+Mathieu
+
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
 > ---
->  net/ipv4/tcp_input.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-> index 389d1b340248..f0ffac9e937b 100644
-> --- a/net/ipv4/tcp_input.c
-> +++ b/net/ipv4/tcp_input.c
-> @@ -504,13 +504,14 @@ static void tcp_grow_window(struct sock *sk, const struct sk_buff *skb)
->  static void tcp_init_buffer_space(struct sock *sk)
->  {
->         int tcp_app_win = sock_net(sk)->ipv4.sysctl_tcp_app_win;
-> +       struct inet_connection_sock *icsk = inet_csk(sk);
->         struct tcp_sock *tp = tcp_sk(sk);
->         int maxwin;
->
->         if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
->                 tcp_sndbuf_expand(sk);
->
-> -       tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
-> +       tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * icsk->icsk_ack.rcv_mss);
-
-So are you claiming icsk->icsk_ack.rcv_mss is related to MTU 9000 ?
-
-RCV_MSS is not known until we receive actual packets... The initial
-value is somthing like 536 if I am not mistaken.
-
-I think your patch does not match the changelog.
-
->         tcp_mstamp_refresh(tp);
->         tp->rcvq_space.time = tp->tcp_mstamp;
->         tp->rcvq_space.seq = tp->copied_seq;
+> kernel/sched/membarrier.c | 51 +++++++++++++++++++++++++--------------
+> 1 file changed, 33 insertions(+), 18 deletions(-)
+> 
+> diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
+> index 01538b31f27e..57266ab32ef9 100644
+> --- a/kernel/sched/membarrier.c
+> +++ b/kernel/sched/membarrier.c
+> @@ -333,7 +333,8 @@ static int membarrier_private_expedited(int flags, int
+> cpu_id)
+> 			return -EPERM;
+> 	}
+> 
+> -	if (atomic_read(&mm->mm_users) == 1 || num_online_cpus() == 1)
+> +	if (flags != MEMBARRIER_FLAG_SYNC_CORE &&
+> +	    (atomic_read(&mm->mm_users) == 1 || num_online_cpus() == 1))
+> 		return 0;
+> 
+> 	/*
+> @@ -352,8 +353,6 @@ static int membarrier_private_expedited(int flags, int
+> cpu_id)
+> 
+> 		if (cpu_id >= nr_cpu_ids || !cpu_online(cpu_id))
+> 			goto out;
+> -		if (cpu_id == raw_smp_processor_id())
+> -			goto out;
+> 		rcu_read_lock();
+> 		p = rcu_dereference(cpu_rq(cpu_id)->curr);
+> 		if (!p || p->mm != mm) {
+> @@ -368,16 +367,6 @@ static int membarrier_private_expedited(int flags, int
+> cpu_id)
+> 		for_each_online_cpu(cpu) {
+> 			struct task_struct *p;
+> 
+> -			/*
+> -			 * Skipping the current CPU is OK even through we can be
+> -			 * migrated at any point. The current CPU, at the point
+> -			 * where we read raw_smp_processor_id(), is ensured to
+> -			 * be in program order with respect to the caller
+> -			 * thread. Therefore, we can skip this CPU from the
+> -			 * iteration.
+> -			 */
+> -			if (cpu == raw_smp_processor_id())
+> -				continue;
+> 			p = rcu_dereference(cpu_rq(cpu)->curr);
+> 			if (p && p->mm == mm)
+> 				__cpumask_set_cpu(cpu, tmpmask);
+> @@ -385,12 +374,38 @@ static int membarrier_private_expedited(int flags, int
+> cpu_id)
+> 		rcu_read_unlock();
+> 	}
+> 
+> -	preempt_disable();
+> -	if (cpu_id >= 0)
+> +	if (cpu_id >= 0) {
+> +		/*
+> +		 * smp_call_function_single() will call ipi_func() if cpu_id
+> +		 * is the calling CPU.
+> +		 */
+> 		smp_call_function_single(cpu_id, ipi_func, NULL, 1);
+> -	else
+> -		smp_call_function_many(tmpmask, ipi_func, NULL, 1);
+> -	preempt_enable();
+> +	} else {
+> +		/*
+> +		 * For regular membarrier, we can save a few cycles by
+> +		 * skipping the current cpu -- we're about to do smp_mb()
+> +		 * below, and if we migrate to a different cpu, this cpu
+> +		 * and the new cpu will execute a full barrier in the
+> +		 * scheduler.
+> +		 *
+> +		 * For CORE_SYNC, we do need a barrier on the current cpu --
+> +		 * otherwise, if we are migrated and replaced by a different
+> +		 * task in the same mm just before, during, or after
+> +		 * membarrier, we will end up with some thread in the mm
+> +		 * running without a core sync.
+> +		 *
+> +		 * For RSEQ, don't rseq_preempt() the caller.  User code
+> +		 * is not supposed to issue syscalls at all from inside an
+> +		 * rseq critical section.
+> +		 */
+> +		if (flags != MEMBARRIER_FLAG_SYNC_CORE) {
+> +			preempt_disable();
+> +			smp_call_function_many(tmpmask, ipi_func, NULL, true);
+> +			preempt_enable();
+> +		} else {
+> +			on_each_cpu_mask(tmpmask, ipi_func, NULL, true);
+> +		}
+> +	}
+> 
+> out:
+> 	if (cpu_id < 0)
 > --
-> 2.16.6
->
->
->
->
-> Amazon Web Services EMEA SARL, 38 avenue John F. Kennedy, L-1855 Luxembourg, R.C.S. Luxembourg B186284
->
-> Amazon Web Services EMEA SARL, Irish Branch, One Burlington Plaza, Burlington Road, Dublin 4, Ireland, branch registration number 908705
->
->
->
+> 2.28.0
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
