@@ -2,115 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C94B42CF00A
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 15:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4DC2CF05E
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgLDOvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 09:51:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58088 "EHLO mail.kernel.org"
+        id S1726635AbgLDPIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 10:08:06 -0500
+Received: from mga09.intel.com ([134.134.136.24]:37581 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726309AbgLDOvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Dec 2020 09:51:15 -0500
-Subject: patch "of: fix linker-section match-table corruption" added to driver-core-testing
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607093434;
-        bh=s+Err1VL3UdcCJiKUHDM1ipU1hpqITXwl3Awy4jmFM0=;
-        h=To:From:Date:From;
-        b=g4WiC57S512SHzYCCGsp+7N21aJZPiEHXPiPTrgfCmTuREtiFu1rCj4Rljk//nx/s
-         yoApMv8eIVVJFPL57IeOyrmEVHt8ChqGElUaMmfV/TXhG/QXmRnN5e6gMi3PlxD6CE
-         SSZ8OopRxLS9uCEwKQkJ6ks/z8inctS+D4Y4N7EE=
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Dec 2020 15:51:51 +0100
-Message-ID: <160709351112134@kroah.com>
+        id S1725923AbgLDPIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Dec 2020 10:08:06 -0500
+IronPort-SDR: Qj36wICPLc7mAUWAj6yo3Tl0vDSRUp2xTj+QrMSbDsqmo5i9Mp7M19Kwk72spizMVJ/748l/Ka
+ srp5FU0Rex2g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9824"; a="173543044"
+X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
+   d="scan'208";a="173543044"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2020 07:06:11 -0800
+IronPort-SDR: 0KzdOnQ7FIoGWUkp9EIe1QfBgOSIa8vPp30LlDyfNEKYpdmmelWBtA9Hq3PbjNNhite2sfiC6+
+ v0oKmWMif8JA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
+   d="scan'208";a="346630844"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by orsmga002.jf.intel.com with ESMTP; 04 Dec 2020 07:06:09 -0800
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id D2B6E5C2069; Fri,  4 Dec 2020 17:03:57 +0200 (EET)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 02/24] drm/i915/gt: Ignore repeated attempts to suspend request flow across reset
+In-Reply-To: <20201204140315.24341-2-chris@chris-wilson.co.uk>
+References: <20201204140315.24341-1-chris@chris-wilson.co.uk> <20201204140315.24341-2-chris@chris-wilson.co.uk>
+Date:   Fri, 04 Dec 2020 17:03:57 +0200
+Message-ID: <877dpx395u.fsf@gaia.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-This is a note to let you know that I've just added the patch titled
+> Before reseting the engine, we suspend the execution of the guilty
+> request, so that we can continue execution with a new context while we
+> slowly compress the captured error state for the guilty context. However,
+> if the reset fails, we will promptly attempt to reset the same request
+> again, and discover the ongoing capture. Ignore the second attempt to
+> suspend and capture the same request.
+>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1168
+> Fixes: 32ff621fd744 ("drm/i915/gt: Allow temporary suspension of inflight requests")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: <stable@vger.kernel.org> # v5.7+
 
-    of: fix linker-section match-table corruption
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the driver-core-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 5812b32e01c6d86ba7a84110702b46d8a8531fe9 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Mon, 23 Nov 2020 11:23:12 +0100
-Subject: of: fix linker-section match-table corruption
-
-Specify type alignment when declaring linker-section match-table entries
-to prevent gcc from increasing alignment and corrupting the various
-tables with padding (e.g. timers, irqchips, clocks, reserved memory).
-
-This is specifically needed on x86 where gcc (typically) aligns larger
-objects like struct of_device_id with static extent on 32-byte
-boundaries which at best prevents matching on anything but the first
-entry. Specifying alignment when declaring variables suppresses this
-optimisation.
-
-Here's a 64-bit example where all entries are corrupt as 16 bytes of
-padding has been inserted before the first entry:
-
-	ffffffff8266b4b0 D __clk_of_table
-	ffffffff8266b4c0 d __of_table_fixed_factor_clk
-	ffffffff8266b5a0 d __of_table_fixed_clk
-	ffffffff8266b680 d __clk_of_table_sentinel
-
-And here's a 32-bit example where the 8-byte-aligned table happens to be
-placed on a 32-byte boundary so that all but the first entry are corrupt
-due to the 28 bytes of padding inserted between entries:
-
-	812b3ec0 D __irqchip_of_table
-	812b3ec0 d __of_table_irqchip1
-	812b3fa0 d __of_table_irqchip2
-	812b4080 d __of_table_irqchip3
-	812b4160 d irqchip_of_match_end
-
-Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
-alignment), and on arm using gcc-7.2.
-
-Note that there are no in-tree users of these tables on x86 currently
-(even if they are included in the image).
-
-Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
-Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
-Cc: stable <stable@vger.kernel.org>     # 3.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/of.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/include/linux/of.h b/include/linux/of.h
-index 5d51891cbf1a..af655d264f10 100644
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1300,6 +1300,7 @@ static inline int of_get_available_child_count(const struct device_node *np)
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section("__" #table "_of_table")		\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
--- 
-2.29.2
-
-
+> ---
+>  drivers/gpu/drm/i915/gt/intel_lrc.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index 43703efb36d1..1d209a8a95e8 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -2823,6 +2823,9 @@ static void __execlists_hold(struct i915_request *rq)
+>  static bool execlists_hold(struct intel_engine_cs *engine,
+>  			   struct i915_request *rq)
+>  {
+> +	if (i915_request_on_hold(rq))
+> +		return false;
+> +
+>  	spin_lock_irq(&engine->active.lock);
+>  
+>  	if (i915_request_completed(rq)) { /* too late! */
+> -- 
+> 2.20.1
+>
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
