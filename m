@@ -2,86 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4DC2CF05E
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:08:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A79822CF052
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726635AbgLDPIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 10:08:06 -0500
-Received: from mga09.intel.com ([134.134.136.24]:37581 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725923AbgLDPIG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Dec 2020 10:08:06 -0500
-IronPort-SDR: Qj36wICPLc7mAUWAj6yo3Tl0vDSRUp2xTj+QrMSbDsqmo5i9Mp7M19Kwk72spizMVJ/748l/Ka
- srp5FU0Rex2g==
-X-IronPort-AV: E=McAfee;i="6000,8403,9824"; a="173543044"
-X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
-   d="scan'208";a="173543044"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2020 07:06:11 -0800
-IronPort-SDR: 0KzdOnQ7FIoGWUkp9EIe1QfBgOSIa8vPp30LlDyfNEKYpdmmelWBtA9Hq3PbjNNhite2sfiC6+
- v0oKmWMif8JA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
-   d="scan'208";a="346630844"
-Received: from gaia.fi.intel.com ([10.237.72.192])
-  by orsmga002.jf.intel.com with ESMTP; 04 Dec 2020 07:06:09 -0800
-Received: by gaia.fi.intel.com (Postfix, from userid 1000)
-        id D2B6E5C2069; Fri,  4 Dec 2020 17:03:57 +0200 (EET)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 02/24] drm/i915/gt: Ignore repeated attempts to suspend request flow across reset
-In-Reply-To: <20201204140315.24341-2-chris@chris-wilson.co.uk>
-References: <20201204140315.24341-1-chris@chris-wilson.co.uk> <20201204140315.24341-2-chris@chris-wilson.co.uk>
-Date:   Fri, 04 Dec 2020 17:03:57 +0200
-Message-ID: <877dpx395u.fsf@gaia.fi.intel.com>
+        id S1730475AbgLDPEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 10:04:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726715AbgLDPEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 10:04:47 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55127C061A4F;
+        Fri,  4 Dec 2020 07:04:07 -0800 (PST)
+Date:   Fri, 04 Dec 2020 15:04:02 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1607094243;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xBCaxiL0BwpvsGon+Ubo0huVSEMgSuM9AICffUzHoL4=;
+        b=WeYZmWFT6oXOS2joyIN9ktybhrGMDFSF+dTmN1EXmj0ADklm2Sbw1/82FGaNPRDF2bhUiZ
+        ChyYBB/5cgldda85CbEfz/Br8NcU8V9A9uPP6eMu5wkKcIfBNJ1i0E0OjgAxi2qMOotqOo
+        jFdlkcCWLFacLFR5kj2T3XlZUVn8GCZmrEd7WQeW6056X+YetyMIp5UgT2WWiNsHiX3dYI
+        2vfMJf01O973wyLgsoxzvZBc03RlHfDrXT0iw8CmELiBanSa3UM1MzthbXEVNzpIw6Acyr
+        gR3To21QlNMEgjfmigja0PrWvAdOc4gufVQKlHdn9tN3hXwJKzJ1rPQdTFUZQg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1607094243;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xBCaxiL0BwpvsGon+Ubo0huVSEMgSuM9AICffUzHoL4=;
+        b=Nv305dDBeHp7Yn0y+iSByf6vZP8WQz6lbzt0F0H+orNJMCia1EniqbMkguqeEVs33Wpv7F
+        o0tMkGT/lOZe0LCw==
+From:   "tip-bot2 for Masami Hiramatsu" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/insn-eval: Use new for_each_insn_prefix() macro
+ to loop over prefixes bytes
+Cc:     syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <160697104969.3146288.16329307586428270032.stgit@devnote2>
+References: <160697104969.3146288.16329307586428270032.stgit@devnote2>
 MIME-Version: 1.0
-Content-Type: text/plain
+Message-ID: <160709424284.3364.1019606320631046834.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris Wilson <chris@chris-wilson.co.uk> writes:
+The following commit has been merged into the x86/urgent branch of tip:
 
-> Before reseting the engine, we suspend the execution of the guilty
-> request, so that we can continue execution with a new context while we
-> slowly compress the captured error state for the guilty context. However,
-> if the reset fails, we will promptly attempt to reset the same request
-> again, and discover the ongoing capture. Ignore the second attempt to
-> suspend and capture the same request.
->
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1168
-> Fixes: 32ff621fd744 ("drm/i915/gt: Allow temporary suspension of inflight requests")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: <stable@vger.kernel.org> # v5.7+
+Commit-ID:     2d7896c24ec977e91af1ff93c823032a27212700
+Gitweb:        https://git.kernel.org/tip/2d7896c24ec977e91af1ff93c823032a27212700
+Author:        Masami Hiramatsu <mhiramat@kernel.org>
+AuthorDate:    Thu, 03 Dec 2020 13:50:50 +09:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 04 Dec 2020 14:33:51 +01:00
 
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+x86/insn-eval: Use new for_each_insn_prefix() macro to loop over prefixes bytes
 
-> ---
->  drivers/gpu/drm/i915/gt/intel_lrc.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> index 43703efb36d1..1d209a8a95e8 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> @@ -2823,6 +2823,9 @@ static void __execlists_hold(struct i915_request *rq)
->  static bool execlists_hold(struct intel_engine_cs *engine,
->  			   struct i915_request *rq)
->  {
-> +	if (i915_request_on_hold(rq))
-> +		return false;
-> +
->  	spin_lock_irq(&engine->active.lock);
->  
->  	if (i915_request_completed(rq)) { /* too late! */
-> -- 
-> 2.20.1
->
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
+
+  insn.prefixes.bytes[i] != 0 and i < 4
+
+instead of using insn.prefixes.nbytes. Use the new
+for_each_insn_prefix() macro which does it correctly.
+
+Debugged by Kees Cook <keescook@chromium.org>.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
+---
+ arch/x86/lib/insn-eval.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 58f7fb9..4229950 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -63,13 +63,12 @@ static bool is_string_insn(struct insn *insn)
+  */
+ bool insn_has_rep_prefix(struct insn *insn)
+ {
++	insn_byte_t p;
+ 	int i;
+ 
+ 	insn_get_prefixes(insn);
+ 
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		insn_byte_t p = insn->prefixes.bytes[i];
+-
++	for_each_insn_prefix(insn, i, p) {
+ 		if (p == 0xf2 || p == 0xf3)
+ 			return true;
+ 	}
+@@ -95,14 +94,15 @@ static int get_seg_reg_override_idx(struct insn *insn)
+ {
+ 	int idx = INAT_SEG_REG_DEFAULT;
+ 	int num_overrides = 0, i;
++	insn_byte_t p;
+ 
+ 	insn_get_prefixes(insn);
+ 
+ 	/* Look for any segment override prefixes. */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
++	for_each_insn_prefix(insn, i, p) {
+ 		insn_attr_t attr;
+ 
+-		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
++		attr = inat_get_opcode_attribute(p);
+ 		switch (attr) {
+ 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
+ 			idx = INAT_SEG_REG_CS;
