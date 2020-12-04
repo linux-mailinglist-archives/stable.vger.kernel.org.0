@@ -2,106 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D826F2CF150
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:55:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 904C52CF187
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 17:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730655AbgLDPyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 10:54:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50654 "EHLO
+        id S1725987AbgLDQFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 11:05:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729461AbgLDPyy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 10:54:54 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE1EDC061A4F;
-        Fri,  4 Dec 2020 07:54:13 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id cm17so6341213edb.4;
-        Fri, 04 Dec 2020 07:54:13 -0800 (PST)
+        with ESMTP id S1725923AbgLDQFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 11:05:34 -0500
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6364C0613D1
+        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 08:04:53 -0800 (PST)
+Received: by mail-qk1-x742.google.com with SMTP id v143so5862140qkb.2
+        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 08:04:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zO/lnZ8NaZABQdMJqO7ITwA6pWKefST87nWhdVmyakI=;
-        b=IxQD4YqX2O/E37H5J516Q0NE5nfMAFOISY4o5aasgRcfTvRiDXtMYzGR6qb1UzxKYp
-         7Y831iudbYXWZWJ+DVuaaki2gU4mS7fut1NFh83NIHvaN2Od+egrwNmYvstfkffYuIoZ
-         SDOisZDuQF0S+dfSPi/KztBznH+aZUEiSnmcpXbAU/yM9eWeL9auQRdK1BvW4gD+YRdg
-         oQoK4ta1zJR7oZJxsvlbLozNRF31eUTbkecHftm+u383brvcu+C4Kq7tenjJtrXVDOmV
-         pStedE6trccaxDDr6x6PexJWrObxXl4GuBhNZ7qQa3cy9MtNU+C3yqVYDgkD8mIrvPnC
-         H71w==
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=t0GCmJXgaqj4UXo3UFBFtaMB4ClFHGw5pCLgLGBtmZQ=;
+        b=KLtoAV9IAem35cnxS9GOLj3tKU9CiXNaFVjcdnv/3irI1S7qPEmZMX6xJw6l2Vwz/g
+         1M/f1B6XM+eJK1OkWwnXpczProXkASFPpuYD3mgAg50qImcxnaoLhYvUOssCAo+Blc33
+         aaCV1NbtiAmavvO9eHpxXDG6gDPlt+zKqHBeQFui9gKIOzfBrbzSM28SeDqbzAQg0kAB
+         nu+QQKP3iTlatfydG4ko6auwEpHf+uSbDYK/yCLVdZ0kY4TIwgBz60idtBjPY0q8EgRd
+         m0EVSYVmzFeEULgbtQV4OFiLcVjlOv62xO7+D7SDgtFOLSMs4LJoFGmgZfW7CdsMhJVE
+         f+dA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zO/lnZ8NaZABQdMJqO7ITwA6pWKefST87nWhdVmyakI=;
-        b=JSsgQt5CgNUO0z7ogEX7g+FuOKJOcnySBmT9l9L0TNKtQJskQupYA3f6dIdA7w/L6p
-         DmUHthZI4UXjVn+kvhjbMBMFDy7wQ2pQhvJI4/tkWWmEJ4jr+yAVdION/tYwQlDFET0T
-         u2pYM/UKy+Of/fXN7op1dY+KedT3VkwvUDowZDjfjDLPpcntA6PSQNJCWnOAifCqxvBI
-         VC/BlZZ1S0oClkAMpONIWwCu8PMrxktXL+74+TzrKGkNOj7oVunkip4qj25F1/bauWVN
-         59cj448szKBdf+dvrCvAC0GL5529EacBZEwseicQMC6ysUgcwgfYD5M7aUxi8A5XSkAj
-         Q9Ww==
-X-Gm-Message-State: AOAM530M1maiN8AdmC4i0RnTdgSw8H10O7rWWxQAcmTxtxsjkDqzPxgc
-        c00GhRxPkvRL8STFnrKbUVQ=
-X-Google-Smtp-Source: ABdhPJyM+KQHySOyIZXJe/8GqKh7MhmWLNPzDyCGt734EGEbZ3fTdnQMGcEicy1GjbqoHoFlmFQs1Q==
-X-Received: by 2002:a05:6402:202e:: with SMTP id ay14mr8484994edb.102.1607097252620;
-        Fri, 04 Dec 2020 07:54:12 -0800 (PST)
-Received: from ubuntu-laptop (ip5f5bfce9.dynamic.kabel-deutschland.de. [95.91.252.233])
-        by smtp.googlemail.com with ESMTPSA id q23sm3545652edt.32.2020.12.04.07.54.10
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 04 Dec 2020 07:54:12 -0800 (PST)
-Message-ID: <26b88b53116e1ec34384f49461e8e3bda36dec7f.camel@gmail.com>
-Subject: Re: [PATCH] mmc: block: Let CMD13 polling only for MMC IOCTLS with
- the R1B response
-From:   Bean Huo <huobean@gmail.com>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        "(Exiting) Baolin Wang" <baolin.wang@linaro.org>,
-        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        =?UTF-8?Q?=E5=BD=AD=E6=B5=A9=28Richard=29?= <richard.peng@oppo.com>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        zliua@micron.com,
-        "Zoltan Szubbocsev (zszubbocsev)" <zszubbocsev@micron.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Date:   Fri, 04 Dec 2020 16:54:09 +0100
-In-Reply-To: <CAPDyKFpq-45z4MdMek0jGjR88QuG8PangcHRV+CJ4u57EcSqzg@mail.gmail.com>
-References: <20201202202320.22165-1-huobean@gmail.com>
-         <CAPDyKFpq-45z4MdMek0jGjR88QuG8PangcHRV+CJ4u57EcSqzg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=t0GCmJXgaqj4UXo3UFBFtaMB4ClFHGw5pCLgLGBtmZQ=;
+        b=FCJXEtNLFfLC2szX6mqQgDuW1g2aucsWoQikupblifqmNHT7xtHmrNdPAaABrOyeXv
+         9IHcsLbAN50MKlbQHx5glCx/JeS07GL2RtvYL8eiseaa24pzPH3JFIZ55tBxGecK8OH9
+         +fGgwiaM5Cj8mml/L6pxfoKDb0vAdIVLeSl+Z3TTdmM80/ljK34QU+Z18Mbb84eC0MAA
+         vb0AEYSmxaow/Ff+8CYQiCPbVta1rlMMm3dleKXZaHinpX7Uk/fYkgsUfYlouQUF/EWB
+         iPn7ckaqe/Pxe3HS281iyIqHb+3SSnyxPlihi9K43nTQg6ddNLfSGyjiKYgAlaCpSOFG
+         IHXg==
+X-Gm-Message-State: AOAM5335DVeINYNo2P+sr1nG1WdWqQefrrst57uwskLn4j/yxzs0moRw
+        Ik7pov92WQq97V3yrM0NFLUD6g==
+X-Google-Smtp-Source: ABdhPJxvFR4PO1GXMK5tgLDtHDnkm5Haqc/tcb8xV0C4LLeKYdLthYihVjco8s/ed2WrWilWaBRdpw==
+X-Received: by 2002:a37:9d04:: with SMTP id g4mr9419563qke.358.1607097893205;
+        Fri, 04 Dec 2020 08:04:53 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-156-34-48-30.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.48.30])
+        by smtp.gmail.com with ESMTPSA id r8sm5650266qtj.94.2020.12.04.08.04.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Dec 2020 08:04:52 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1klDZj-005vUb-9w; Fri, 04 Dec 2020 12:04:51 -0400
+Date:   Fri, 4 Dec 2020 12:04:51 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Liu Zixian <liuzixian4@huawei.com>, akpm@linux-foundation.org,
+        linmiaohe@huawei.com, louhongxiang@huawei.com, linux-mm@kvack.org,
+        hushiyuan@huawei.com, stable@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH v2] fix mmap return value when vma is merged after
+ call_mmap()
+Message-ID: <20201204160451.GC5487@ziepe.ca>
+References: <20201203085350.22624-1-liuzixian4@huawei.com>
+ <d59e9e5a-1d6e-e7dc-21ec-17777fe9f7a2@redhat.com>
+ <20201204151028.GZ5487@ziepe.ca>
+ <20201204152535.GP11935@casper.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201204152535.GP11935@casper.infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-12-04 at 15:38 +0100, Ulf Hansson wrote:
-> > There is no need to poll device status through CMD13.
-> > 
-> > Meanwhile, based on the original change commit (mmc: block: Add
-> > CMD13 polling
-> > for MMC IOCTLS with R1B response), and comment in
-> > __mmc_blk_ioctl_cmd(),
-> > current code is not in line with its original purpose. So fix it
-> > with this patch.
-> > 
-> > Fixes: a0d4c7eb71dd ("mmc: block: Add CMD13 polling for MMC IOCTLS
-> > with R1B response")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Zhan Liu <zliua@micron.com>
-> > Signed-off-by: Zhan Liu <zliua@micron.com>
-> > Signed-off-by: Bean Huo <beanhuo@micron.com>
-> 
-> Applied for fixes, thanks!
-> 
-> Note, I took the liberty to rephrase the commit message (and the
-> header) to clarify things a bit more.
-> 
+On Fri, Dec 04, 2020 at 03:25:35PM +0000, Matthew Wilcox wrote:
 
-Uffe,
-Nice, thanks a lot.
+> This commit makes no sense.  I know it's eight years old, so maybe the
+> device driver which did this has long been removed from the tree, but
+> davem's comment was (iirc) related to a device driver for a graphics
+> card that would 256MB-align the user address.  Another possibility is
+> that userspace always asks for a 256MB-aligned address these days.
 
-Bean
+Presumably the latter, otherwise people would be complaining about the
+WARN_ON.
 
+With some grep I could only find this:
+
+static int mc68x328fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+{
+#ifndef MMU
+        /* this is uClinux (no MMU) specific code */
+
+        vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+        vma->vm_start = videomemory;
+
+        return 0;
+#else
+        return -EINVAL;
+#endif
+}
+
+So it does seem gone
+
+> I don't understand why prev/rb_link/rb_parent would need to be changed
+> in this case.  It's going to be inserted at the exact same location in
+> the rbtree, just at a slightly shifted address.
+
+If the driver adjust the address, and it doesn't collide with another
+vma, and it doesn't change the tree position, then it could work
+
+But if the driver radically changes the vm_start all bets are off and
+you end up with an unsorted rb_tree at worst.
+
+Banning drivers from adjusting the vm_start/end makes sense to me, at
+least. How could a driver do this correctly anyhow?
+
+Jason
