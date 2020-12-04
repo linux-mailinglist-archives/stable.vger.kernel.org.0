@@ -2,119 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C1D2CEF92
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 15:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A8A2CEFD9
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 15:40:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729005AbgLDOOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 09:14:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35072 "EHLO
+        id S2387599AbgLDOkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 09:40:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726763AbgLDOOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 09:14:45 -0500
-Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E607EC061A51
-        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 06:14:04 -0800 (PST)
-Received: by mail-yb1-xb44.google.com with SMTP id k123so1173135ybf.9
-        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 06:14:04 -0800 (PST)
+        with ESMTP id S2387563AbgLDOkE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 09:40:04 -0500
+Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57360C08E862
+        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 06:39:00 -0800 (PST)
+Received: by mail-ua1-x943.google.com with SMTP id q68so1911950uaq.3
+        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 06:39:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=ZcMubgBNQD88dPJq0igc6MMFepKGcaeg8UtLbj101io=;
-        b=s+YszMdKy4V7OsLu7oAr8GLPd1rCoiP5lATQdO9wYFWbN+MV5PGEOFE1LskYAzAKr+
-         xlaifgtSgIHsFCeAfauV3aTIq4cAHmjD4V1JlI9H3HQTxpoTLkRnMyhYupTp/NNJ+/26
-         WumfeXVnNSL3u5Y30aRt91weqnDIk4HKdynsxpqyVEpFsdMZDB/zrQIB3ZBnn4XDGoWI
-         3+MiMCxwV/6s1O/rrjJOveePDskig/g1s+ywFF418xCxrkx5x0jGNYaxLghBuVytNICf
-         bvTyWh27gPQbKb9PqetU0P3b6LM1SciAPTpoApmd26X87hwpsBbZgraH9M6WmU/amKOo
-         lmOw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ALFvhZ1OjbfVf/iAkbXtpPEl6kf7hFGESlUg72YwV2s=;
+        b=s3Ku7AVE/9HH3DtwPJCfcA81tzqrP0dq8xSrkCN0QiwbH/+JoOwR6RvK1IlmjghAXd
+         0ieHFh843CCnahnuHpDrm6y8SBYLZByGQaSbhLCTRwzXMnxueF4/+gz6e8szcZTvV3dY
+         5EcmxsyWv/AMyx2WqithnYA33e8SJeiKc3wVrfky9TCUzo9wUNNKQzaScpg3jlGHPyxu
+         yWWo+K37fKgomlEB96lOu2lfM7682x5HWKycXPfYejW6tbMdXcNSg5uRoNZAk89GHafO
+         hyo3YXqoS10TSskEcywdeExjeoOJNwcngDBp4mfnGP7WYpySKgHPgOk1h/SWFdolhkN3
+         2aWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=ZcMubgBNQD88dPJq0igc6MMFepKGcaeg8UtLbj101io=;
-        b=PPtp/DpptNC9YJ0dxSsyXMkBfTrAlqTbNZg2z6cO34/YcpdtE4M8ipXekvjLSbMSk7
-         UD4n2pZOaAP/DujH+JkbqLb+85ms4JIsUQQLtarPb2H8nBmFqtKIa6cKpHGM6sSMkn+o
-         rNaBJk2SdaDFMYmBini+IWBy5kw3HMrpteXm5jkY+IVmeZ6tXU07o9gG7R56FrpUYRlt
-         IGWrsP4LojzaxQ61bLWYRa95bEU33cM4PKaRR3mgA6w7LA6km7drHdQlhs9OfZ9S2xZ0
-         ZS+JmkAgK+aZJWwozk3h3jwtFx5gCOP3ieVidEsqHgkjy62JvudlKvWyzuHQXxGhB92t
-         P/tw==
-X-Gm-Message-State: AOAM531AMkbBaPpj9nqKWM43hzI57lmxYzTjZ5kTKgV6U1xJQ5ZDzIK4
-        7he11+xbJxcRWgj7w79xmYQxuYPKZfsVhflCbvA=
-X-Google-Smtp-Source: ABdhPJyZ0I4pArDm78yPCEg3kQVy/WkDKFUSSToUeh9ag/sMTOBFvmO0InK8Ojn3wxUaiTlnXy5HzXXRH72DWbJLmEo=
-X-Received: by 2002:a25:d18c:: with SMTP id i134mr6096864ybg.448.1607091244188;
- Fri, 04 Dec 2020 06:14:04 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ALFvhZ1OjbfVf/iAkbXtpPEl6kf7hFGESlUg72YwV2s=;
+        b=l5pZZhaFDlQoFE+RHfKFa5XoHZSi/jqVsFDqxdEwI1c/l9Tz771A2tztu8m8sEfr+s
+         g00f++NS+xTjyUhOy3JVfBCLZdsMBvMyHvv/2VDK2tzuEibBupEJg96wPIh2BDprlBCj
+         1dEm1vhaF8lxnQHQddk5esqes2trlGuur7Tbyqf2Jn6v+/a1i9U5m5vtEYO5K0g4GqGx
+         3d9gxp6grXTLqVIodUkK3gslcplbR03QSgoIw/wJ23GHh9MeV8J8eGJdOHOQPKQ0urEU
+         ysT167/pD7t4Eq20u2QSDstdE3wauaRRevkg72zU3jlXorf4bOGjxwk8rLpZpdO0i+sz
+         FuaA==
+X-Gm-Message-State: AOAM5337ISwFVfpuVZJkubbLboamF0NSysqzxj+WqMi/s5xRAkXrqWZ2
+        32Vp9v0VXukJXYUKlaW5JgLRt7DlLFufCNaU39aX3Q==
+X-Google-Smtp-Source: ABdhPJwYn0T6jy/eo/USN9DAFcjbAf/fm07eYkJrF/ELqPyes0vB0Xl/fQW8PCZhOiWLNKZ9Fig4P3TrEJKZ7fe/V1s=
+X-Received: by 2002:ab0:23d5:: with SMTP id c21mr3340200uan.129.1607092739611;
+ Fri, 04 Dec 2020 06:38:59 -0800 (PST)
 MIME-Version: 1.0
-Sender: mrs.kimhongyeoh56@gmail.com
-Received: by 2002:a05:7108:18f:0:0:0:0 with HTTP; Fri, 4 Dec 2020 06:14:03
- -0800 (PST)
-From:   Mrs Nadia Emaan <mrsnadiaemaan50@gmail.com>
-Date:   Fri, 4 Dec 2020 14:14:03 +0000
-X-Google-Sender-Auth: BkwjbjjBV0C5N13nC11LaQdvsQA
-Message-ID: <CADCBRF9s+=aQx51wg8w6ipG5vgBy_Jr8=egmCbXkxARqm9aXaA@mail.gmail.com>
-Subject: Greetings To you My Dear Friend
-To:     undisclosed-recipients:;
+References: <20201202202320.22165-1-huobean@gmail.com>
+In-Reply-To: <20201202202320.22165-1-huobean@gmail.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Fri, 4 Dec 2020 15:38:20 +0100
+Message-ID: <CAPDyKFpq-45z4MdMek0jGjR88QuG8PangcHRV+CJ4u57EcSqzg@mail.gmail.com>
+Subject: Re: [PATCH] mmc: block: Let CMD13 polling only for MMC IOCTLS with
+ the R1B response
+To:     Bean Huo <huobean@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        "(Exiting) Baolin Wang" <baolin.wang@linaro.org>,
+        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        =?UTF-8?B?5b2t5rWpKFJpY2hhcmQp?= <richard.peng@oppo.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        zliua@micron.com,
+        "Zoltan Szubbocsev (zszubbocsev)" <zszubbocsev@micron.com>,
+        "# 4.0+" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-May God Bless you My beloved,
+On Wed, 2 Dec 2020 at 21:23, Bean Huo <huobean@gmail.com> wrote:
+>
+> From: Bean Huo <beanhuo@micron.com>
+>
+> The CMD13 polling is only needed for the command with R1B Resp. For the
+> command with R1 Resp, such as open-ended multiple block read/write
+> (CMD18/25) commands, the device will just wait for its next paired command.
+> There is no need to poll device status through CMD13.
+>
+> Meanwhile, based on the original change commit (mmc: block: Add CMD13 polling
+> for MMC IOCTLS with R1B response), and comment in __mmc_blk_ioctl_cmd(),
+> current code is not in line with its original purpose. So fix it with this patch.
+>
+> Fixes: a0d4c7eb71dd ("mmc: block: Add CMD13 polling for MMC IOCTLS with R1B response")
+> Cc: stable@vger.kernel.org
+> Reported-by: Zhan Liu <zliua@micron.com>
+> Signed-off-by: Zhan Liu <zliua@micron.com>
+> Signed-off-by: Bean Huo <beanhuo@micron.com>
 
-I am contacting you through this means because I need your urgent
-assistance and also help me to carry a charity project in your
-country. I found your email address as a true child of God for past
-few days now that I have been praying to know if you are really the
-chosen one for this great charity project, according to God's
-direction, after all prayers I am convinced, and I have decided to
-contact you. Please, i want you use the funds for the Lord's work,
-with confidence, read and respond now.
+Applied for fixes, thanks!
+
+Note, I took the liberty to rephrase the commit message (and the
+header) to clarify things a bit more.
+
+Kind regards
+Uffe
 
 
-My name is Ms. Emaan Nadia , a widow, but currently based in West
-Africa since my life with my late husband, who was a businessman in
-this country before dying some years ago. We were married to many
-years without a child. He died after a brief illness that lasted only
-six days and I myself have been suffering from an ovarian cancer
-disease. At this moment I am about to finish the race in this way
-because the disease has reached a very bad stage, without any family
-member and without children. I hope you do not expose or betray this
-trust and I am sure that I am about to trust you for the mutual
-benefit of orphans and the less privileged. I have some funds that I
-inherited from my late husband, the total sum of ($ 12,500,000.00)
-deposited at a bank here in Burkina Faso. After knowing my current
-state of health, I decided to trust you with this fund, believing that
-you will use it in the way I will instruct here.
-
-
-you will use this $12.5 Million for public benefit as follows;
-
-1. Establish An Orphanage Home To Help The Orphanages Children.
-2. Build A Hospital To Help The Poor.
-3. Build A Nursing Home For Elderly People Need Care & Meal.
-
-You will named them after my late husband.Therefore, I need you to
-help me and claim this money and use it for charities, for orphanages
-and provide justice and help to the poor, needy and to promote the
-words of God and the effort to maintain the house of God, according to
-the bible in the book of. Jeremiah 22: 15-16.
-
-It will be a pleasure to compensate with 40% percent of the total
-money for your effort in handling the transaction, while 60% of the
-money will go to charity project.
-
-All I need from you is sincerity and ability to complete the task of
-God without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund to your bank account in
-the country, even before I die here in the hospital, due to my current
-state of health, everything must be processed as soon as possible.
-
- I am waiting for your immediate response, if you are only interested
-in obtaining more details about the transaction and execution of this
-humanitarian project for the glory and honor of God.
-
-Sorry if you received this letter in your spam, is due to recent
-connection/network error here in the country.
-
-Please I am waiting for your urgent reply now.
-
-May God Bless you,
-Ms  Emaan Nadia.
+> ---
+>  drivers/mmc/core/block.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+> index 8d3df0be0355..42e27a298218 100644
+> --- a/drivers/mmc/core/block.c
+> +++ b/drivers/mmc/core/block.c
+> @@ -580,7 +580,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+>
+>         memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
+>
+> -       if (idata->rpmb || (cmd.flags & MMC_RSP_R1B)) {
+> +       if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+>                 /*
+>                  * Ensure RPMB/R1B command has completed by polling CMD13
+>                  * "Send Status".
+> --
+> 2.17.1
+>
