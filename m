@@ -2,107 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 092712CECB9
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 12:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 818482CECC9
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 12:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727518AbgLDLGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 06:06:48 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:39530 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726999AbgLDLGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 06:06:48 -0500
-Received: by mail-lj1-f194.google.com with SMTP id o24so6138090ljj.6;
-        Fri, 04 Dec 2020 03:06:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=PTgn8cGmjx6KO+ClxPA7F//3s9QN/o87+O7mKbif/hE=;
-        b=bXRDHmiusUjmj2GYCr8VKd6z2IKXhaEwtLeHf+x7JpN+IONztVMTRry2j5s4mbI1Cn
-         7KPI7GaM/AJGzzRe/y2PRLx5CqR7+8aQWM71zXzDsnyjgCFeyJcMfguOiIZ5X28LCW4Z
-         h+6f/fWWc6/rYAA8WDhE3VzodicWl4sb9pH656+tPF+VazLjMnkuScFhDQiX2okMmYyF
-         hu7lHxv7nR7Nx0OG4M+akY8g2OzD1U61gpSr1n7ed0s97gMYNFSez88SJLmT44YpRlLs
-         i4O7YF4iCiQmYBtIE9/qDNV/p7Z/Y8zYgr00Tf6VlAlNqmZb1PoycU9RQ+yO5KIVWFh9
-         H2DQ==
-X-Gm-Message-State: AOAM531RHVkDgebj339ZT09km+lNd6JqmMq3NECRnXRdCEzPaMUx1fDT
-        /7/t1eUtkSyXx5nze+r885z5X4cGbaKjsQ==
-X-Google-Smtp-Source: ABdhPJzkDZIa9NHDh0PaimLY9LZb3jr3gqzGj3lStPMm8fWQGhU+V9h5q9xuW2cGy6yrKtQAgRfhTQ==
-X-Received: by 2002:a2e:2416:: with SMTP id k22mr3188160ljk.201.1607079966137;
-        Fri, 04 Dec 2020 03:06:06 -0800 (PST)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id t6sm1544388lfc.231.2020.12.04.03.06.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Dec 2020 03:06:05 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kl8v8-00056c-Ma; Fri, 04 Dec 2020 12:06:39 +0100
-Date:   Fri, 4 Dec 2020 12:06:38 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     linux-usb@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Himadri Pandya <himadrispandya@gmail.com>,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: kl5kusb105: fix memleak on open
-Message-ID: <X8oYPir8HfGEoTzB@localhost>
-References: <20201204085519.20230-1-johan@kernel.org>
+        id S1729252AbgLDLLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 06:11:33 -0500
+Received: from mga01.intel.com ([192.55.52.88]:25373 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728532AbgLDLLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Dec 2020 06:11:32 -0500
+IronPort-SDR: eR8rgQ/81vwoQ0XA+KaTYAnczb4bwgku8Eut23F0KTfY8aMwll5KGXEWB4L3H+0V0G914FNTrj
+ epHjmr2O8Jcg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9824"; a="191604814"
+X-IronPort-AV: E=Sophos;i="5.78,392,1599548400"; 
+   d="scan'208";a="191604814"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2020 03:09:52 -0800
+IronPort-SDR: ZjwEm6o/J2uWVg/DZtrEwPqVKTtcOgQfWir1+idpURExU4w3jKruUMNfYqn+MffliTzbJ/oFnv
+ KR9K3cHQpSFw==
+X-IronPort-AV: E=Sophos;i="5.78,392,1599548400"; 
+   d="scan'208";a="550912246"
+Received: from sgefen-mobl1.ger.corp.intel.com (HELO [10.214.200.164]) ([10.214.200.164])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2020 03:09:50 -0800
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gem: Propagate error from cancelled
+ submit due to context closure
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20201203103432.31526-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <eefe8e52-3d6e-6c91-5733-e9f3474aff9e@linux.intel.com>
+Date:   Fri, 4 Dec 2020 11:09:47 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201204085519.20230-1-johan@kernel.org>
+In-Reply-To: <20201203103432.31526-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 04, 2020 at 09:55:19AM +0100, Johan Hovold wrote:
-> Fix memory leak of control-message transfer buffer on successful open().
+
+On 03/12/2020 10:34, Chris Wilson wrote:
+> In the course of discovering and closing many races with context closure
+> and execbuf submission, since commit 61231f6bd056 ("drm/i915/gem: Check
+> that the context wasn't closed during setup") we started checking that
+> the context was not closed by another userspace thread during the execbuf
+> ioctl. In doing so we cancelled the inflight request (by telling it to be
+> skipped), but kept reporting success since we do submit a request, albeit
+> one that doesn't execute. As the error is known before we return from the
+> ioctl, we can report the error we detect immediately, rather than leave
+> it on the fence status. With the immediate propagation of the error, it
+> is easier for userspace to handle.
 > 
-> Fixes: 6774d5f53271 ("USB: serial: kl5kusb105: fix open error path")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Fixes: 61231f6bd056 ("drm/i915/gem: Check that the context wasn't closed during setup")
+> Testcase: igt/gem_ctx_exec/basic-close-race
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: <stable@vger.kernel.org> # v5.7+
 > ---
+>   drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 7 +++++--
+>   1 file changed, 5 insertions(+), 2 deletions(-)
 > 
-> While reviewing Himadri's control-message series I noticed we have a
-> related bug in klsi_105_open() that needs fixing.
-> 
-> 
->  drivers/usb/serial/kl5kusb105.c | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/usb/serial/kl5kusb105.c b/drivers/usb/serial/kl5kusb105.c
-> index 5ee48b0650c4..5f6b82ebccc5 100644
-> --- a/drivers/usb/serial/kl5kusb105.c
-> +++ b/drivers/usb/serial/kl5kusb105.c
-> @@ -276,12 +276,12 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
->  	priv->cfg.unknown2 = cfg->unknown2;
->  	spin_unlock_irqrestore(&priv->lock, flags);
->  
-> +	kfree(cfg);
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> index 1904e6e5ea64..b07dc1156a0e 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> @@ -3097,7 +3097,7 @@ static void retire_requests(struct intel_timeline *tl, struct i915_request *end)
+>   			break;
+>   }
+>   
+> -static void eb_request_add(struct i915_execbuffer *eb)
+> +static int eb_request_add(struct i915_execbuffer *eb, int err)
+>   {
+>   	struct i915_request *rq = eb->request;
+>   	struct intel_timeline * const tl = i915_request_timeline(rq);
+> @@ -3118,6 +3118,7 @@ static void eb_request_add(struct i915_execbuffer *eb)
+>   		/* Serialise with context_close via the add_to_timeline */
+>   		i915_request_set_error_once(rq, -ENOENT);
+>   		__i915_request_skip(rq);
+> +		err = -ENOENT; /* override any transient errors */
+>   	}
+>   
+>   	__i915_request_queue(rq, &attr);
+> @@ -3127,6 +3128,8 @@ static void eb_request_add(struct i915_execbuffer *eb)
+>   		retire_requests(tl, prev);
+>   
+>   	mutex_unlock(&tl->mutex);
 > +
->  	/* READ_ON and urb submission */
->  	rc = usb_serial_generic_open(tty, port);
-> -	if (rc) {
-> -		retval = rc;
-> -		goto err_free_cfg;
-> -	}
-> +	if (rc)
-> +		return rc;
->  
->  	rc = usb_control_msg(port->serial->dev,
->  			     usb_sndctrlpipe(port->serial->dev, 0),
-> @@ -324,8 +324,6 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
->  			     KLSI_TIMEOUT);
->  err_generic_close:
->  	usb_serial_generic_close(port);
-> -err_free_cfg:
-> -	kfree(cfg);
->  
->  	return retval;
->  }
+> +	return err;
+>   }
+>   
+>   static const i915_user_extension_fn execbuf_extensions[] = {
+> @@ -3332,7 +3335,7 @@ i915_gem_do_execbuffer(struct drm_device *dev,
+>   	err = eb_submit(&eb, batch);
+>   err_request:
+>   	i915_request_get(eb.request);
+> -	eb_request_add(&eb);
+> +	err = eb_request_add(&eb, err);
+>   
+>   	if (eb.fences)
+>   		signal_fence_array(&eb);
+> 
 
-I've applied this one now so that I can include it in my pull-request
-for -rc7.
+Simple enough and it explains why gem_busy assert in the IGT can fail 
+after execbuf succeeded - skipped request executes before the check 
+since the payload was zapped. Fast timing but obviously possible.
 
-Greg, just let me know if you think I should hold this one off for 5.11
-instead.
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-Johan
+Regards,
+
+Tvrtko
