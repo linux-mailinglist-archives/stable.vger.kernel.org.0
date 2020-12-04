@@ -2,50 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF202CEBFD
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 11:18:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 092712CECB9
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 12:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbgLDKSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 05:18:12 -0500
-Received: from smtp.rcn.com ([69.168.97.78]:55956 "EHLO smtp.rcn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727518AbgLDKSL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Dec 2020 05:18:11 -0500
-DKIM-Signature: v=1; a=rsa-sha1; d=rcn.com; s=20180516; c=relaxed/simple;
-        q=dns/txt; i=@rcn.com; t=1607077050;
-        h=From:Subject:Date:To:MIME-Version:Content-Type;
-        bh=Ut6S2cTcuiE635YucjbN2oNoUR8=;
-        b=AzF+J/LVPsNngnjYFN9cZYo798fbcaOdpQuCawrH+6+KbZ40aqW0NUgwpWFjGoJc
-        IX0S7jXr+3fwWvPsqs4HFLHTwlZXJCxc7z4NpDkK+K8W1WAi7A5oyQ2rSlbWMRI+
-        YSS3hzyycjvf/a3XCj3tVc9wuCpQHEx0xMnYOobsLnWJCaJD4m4UA9WqCNcEKRQX
-        hCA550SfpNQoH+sZwqhWhc/+Nk+pun49t7Zo0ueQggKoNkpQtuqKUZ3fJWW9oYBP
-        TNRnFrCGx1s+lxXbjyKBFWcd+TvAEGjnKlvV4q16ZVdcB/C/gW500GmqtuB+Fz6D
-        yMC1F+LwpqalpS6An5yguA==;
-X_CMAE_Category: , ,
-X-CNFS-Analysis: v=2.3 cv=DMDxHBFb c=1 sm=1 tr=0 cx=a_idp_x a=ZgAMPEYdigWbDqFZ0VE/Og==:117 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=Nk5xcT_4VpsA:10 a=j3mE77zPJ7wA:10 a=IkcTkHD0fZMA:10 a=zTNgK-yGK50A:10 a=imV6avNoWbMA:10 a=o2HZn6luH50A:10 a=x7bEGLp0ZPQA:10 a=rSwkmj7C-laN-7vLltwA:9 a=QEXdDO2ut3YA:10 a=ScnQAaUO7OPBLyqEplRM:22
-X-CM-Score: 0
-X-Scanned-by: Cloudmark Authority Engine
-X-Authed-Username: YmlsbGZsb2RpbkByY24uY29t
-Authentication-Results: smtp01.rcn.cmh.synacor.com smtp.mail=billflodin@rcn.com; spf=softfail; sender-id=softfail
-Authentication-Results: smtp01.rcn.cmh.synacor.com header.from=billflodin@rcn.com; sender-id=softfail
-Received: from [10.33.66.4] ([10.33.66.4:39758] helo=md10.rcn.cmh.synacor.com)
-        by smtp.rcn.com (envelope-from <billflodin@rcn.com>)
-        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
-        id 39/02-59837-8BC0ACF5; Fri, 04 Dec 2020 05:17:29 -0500
-Date:   Fri, 4 Dec 2020 05:17:28 -0500 (EST)
-From:   dr rani ambani <billflodin@rcn.com>
-Reply-To: dr rani ambani <rnbnieu@gmail.com>
-To:     dr rani ambani <rnbnieu@gmail.com>
-Message-ID: <111308709.6980838.1607077048854.JavaMail.root@rcn.com>
-In-Reply-To: <1336608272.6978729.1607076796186.JavaMail.root@rcn.com>
-Subject: Re:hi ??
+        id S1727518AbgLDLGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 06:06:48 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:39530 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726999AbgLDLGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 06:06:48 -0500
+Received: by mail-lj1-f194.google.com with SMTP id o24so6138090ljj.6;
+        Fri, 04 Dec 2020 03:06:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PTgn8cGmjx6KO+ClxPA7F//3s9QN/o87+O7mKbif/hE=;
+        b=bXRDHmiusUjmj2GYCr8VKd6z2IKXhaEwtLeHf+x7JpN+IONztVMTRry2j5s4mbI1Cn
+         7KPI7GaM/AJGzzRe/y2PRLx5CqR7+8aQWM71zXzDsnyjgCFeyJcMfguOiIZ5X28LCW4Z
+         h+6f/fWWc6/rYAA8WDhE3VzodicWl4sb9pH656+tPF+VazLjMnkuScFhDQiX2okMmYyF
+         hu7lHxv7nR7Nx0OG4M+akY8g2OzD1U61gpSr1n7ed0s97gMYNFSez88SJLmT44YpRlLs
+         i4O7YF4iCiQmYBtIE9/qDNV/p7Z/Y8zYgr00Tf6VlAlNqmZb1PoycU9RQ+yO5KIVWFh9
+         H2DQ==
+X-Gm-Message-State: AOAM531RHVkDgebj339ZT09km+lNd6JqmMq3NECRnXRdCEzPaMUx1fDT
+        /7/t1eUtkSyXx5nze+r885z5X4cGbaKjsQ==
+X-Google-Smtp-Source: ABdhPJzkDZIa9NHDh0PaimLY9LZb3jr3gqzGj3lStPMm8fWQGhU+V9h5q9xuW2cGy6yrKtQAgRfhTQ==
+X-Received: by 2002:a2e:2416:: with SMTP id k22mr3188160ljk.201.1607079966137;
+        Fri, 04 Dec 2020 03:06:06 -0800 (PST)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id t6sm1544388lfc.231.2020.12.04.03.06.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Dec 2020 03:06:05 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kl8v8-00056c-Ma; Fri, 04 Dec 2020 12:06:39 +0100
+Date:   Fri, 4 Dec 2020 12:06:38 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     linux-usb@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Himadri Pandya <himadrispandya@gmail.com>,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] USB: serial: kl5kusb105: fix memleak on open
+Message-ID: <X8oYPir8HfGEoTzB@localhost>
+References: <20201204085519.20230-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [89.187.171.157]
-X-Mailer: Zimbra 7.2.7_GA_2942 (zclient/7.2.7_GA_2942)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201204085519.20230-1-johan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-aapakee kampanee ka veb pata kya hai
+On Fri, Dec 04, 2020 at 09:55:19AM +0100, Johan Hovold wrote:
+> Fix memory leak of control-message transfer buffer on successful open().
+> 
+> Fixes: 6774d5f53271 ("USB: serial: kl5kusb105: fix open error path")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+> 
+> While reviewing Himadri's control-message series I noticed we have a
+> related bug in klsi_105_open() that needs fixing.
+> 
+> 
+>  drivers/usb/serial/kl5kusb105.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/usb/serial/kl5kusb105.c b/drivers/usb/serial/kl5kusb105.c
+> index 5ee48b0650c4..5f6b82ebccc5 100644
+> --- a/drivers/usb/serial/kl5kusb105.c
+> +++ b/drivers/usb/serial/kl5kusb105.c
+> @@ -276,12 +276,12 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
+>  	priv->cfg.unknown2 = cfg->unknown2;
+>  	spin_unlock_irqrestore(&priv->lock, flags);
+>  
+> +	kfree(cfg);
+> +
+>  	/* READ_ON and urb submission */
+>  	rc = usb_serial_generic_open(tty, port);
+> -	if (rc) {
+> -		retval = rc;
+> -		goto err_free_cfg;
+> -	}
+> +	if (rc)
+> +		return rc;
+>  
+>  	rc = usb_control_msg(port->serial->dev,
+>  			     usb_sndctrlpipe(port->serial->dev, 0),
+> @@ -324,8 +324,6 @@ static int  klsi_105_open(struct tty_struct *tty, struct usb_serial_port *port)
+>  			     KLSI_TIMEOUT);
+>  err_generic_close:
+>  	usb_serial_generic_close(port);
+> -err_free_cfg:
+> -	kfree(cfg);
+>  
+>  	return retval;
+>  }
+
+I've applied this one now so that I can include it in my pull-request
+for -rc7.
+
+Greg, just let me know if you think I should hold this one off for 5.11
+instead.
+
+Johan
