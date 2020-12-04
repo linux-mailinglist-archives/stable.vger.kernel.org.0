@@ -2,113 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FE62CF14D
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D826F2CF150
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 16:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730608AbgLDPxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 10:53:18 -0500
-Received: from mga07.intel.com ([134.134.136.100]:19836 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730603AbgLDPxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Dec 2020 10:53:18 -0500
-IronPort-SDR: b5w7eHgS5HfE7ijb35nQBPosdPWn04x0Xmec/VCtAvLfmvSF3nE+Y2nplLrb1RaKyBeceTTYwc
- 6IS4m6gYVlwQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9825"; a="237510474"
-X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
-   d="scan'208";a="237510474"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Dec 2020 07:51:37 -0800
-IronPort-SDR: vxZxKm4hu9mCfL6WbZIw6VGRZfYwemk+6NrhhY8VEtwTgudiuwklfL3wA4kVLpsuSJ+RFyfMs/
- OC3lGk0qoUIg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,393,1599548400"; 
-   d="scan'208";a="435843025"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga001.fm.intel.com with SMTP; 04 Dec 2020 07:51:35 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 04 Dec 2020 17:51:34 +0200
-Date:   Fri, 4 Dec 2020 17:51:34 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Anshuman Gupta <anshuman.gupta@intel.com>
-Cc:     Imre Deak <imre.deak@intel.com>, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: Re: [RFC 2/2] drm/i915/display: Protect pipe_update against dc3co
- exit
-Message-ID: <X8pbBsHVRVV4cNfJ@intel.com>
-References: <20201130091646.25576-1-anshuman.gupta@intel.com>
- <20201130091646.25576-3-anshuman.gupta@intel.com>
- <20201130152832.GB2348711@ideak-desk.fi.intel.com>
- <20201204081003.GC30377@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201204081003.GC30377@intel.com>
-X-Patchwork-Hint: comment
+        id S1730655AbgLDPyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 10:54:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729461AbgLDPyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 10:54:54 -0500
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE1EDC061A4F;
+        Fri,  4 Dec 2020 07:54:13 -0800 (PST)
+Received: by mail-ed1-x541.google.com with SMTP id cm17so6341213edb.4;
+        Fri, 04 Dec 2020 07:54:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=zO/lnZ8NaZABQdMJqO7ITwA6pWKefST87nWhdVmyakI=;
+        b=IxQD4YqX2O/E37H5J516Q0NE5nfMAFOISY4o5aasgRcfTvRiDXtMYzGR6qb1UzxKYp
+         7Y831iudbYXWZWJ+DVuaaki2gU4mS7fut1NFh83NIHvaN2Od+egrwNmYvstfkffYuIoZ
+         SDOisZDuQF0S+dfSPi/KztBznH+aZUEiSnmcpXbAU/yM9eWeL9auQRdK1BvW4gD+YRdg
+         oQoK4ta1zJR7oZJxsvlbLozNRF31eUTbkecHftm+u383brvcu+C4Kq7tenjJtrXVDOmV
+         pStedE6trccaxDDr6x6PexJWrObxXl4GuBhNZ7qQa3cy9MtNU+C3yqVYDgkD8mIrvPnC
+         H71w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=zO/lnZ8NaZABQdMJqO7ITwA6pWKefST87nWhdVmyakI=;
+        b=JSsgQt5CgNUO0z7ogEX7g+FuOKJOcnySBmT9l9L0TNKtQJskQupYA3f6dIdA7w/L6p
+         DmUHthZI4UXjVn+kvhjbMBMFDy7wQ2pQhvJI4/tkWWmEJ4jr+yAVdION/tYwQlDFET0T
+         u2pYM/UKy+Of/fXN7op1dY+KedT3VkwvUDowZDjfjDLPpcntA6PSQNJCWnOAifCqxvBI
+         VC/BlZZ1S0oClkAMpONIWwCu8PMrxktXL+74+TzrKGkNOj7oVunkip4qj25F1/bauWVN
+         59cj448szKBdf+dvrCvAC0GL5529EacBZEwseicQMC6ysUgcwgfYD5M7aUxi8A5XSkAj
+         Q9Ww==
+X-Gm-Message-State: AOAM530M1maiN8AdmC4i0RnTdgSw8H10O7rWWxQAcmTxtxsjkDqzPxgc
+        c00GhRxPkvRL8STFnrKbUVQ=
+X-Google-Smtp-Source: ABdhPJyM+KQHySOyIZXJe/8GqKh7MhmWLNPzDyCGt734EGEbZ3fTdnQMGcEicy1GjbqoHoFlmFQs1Q==
+X-Received: by 2002:a05:6402:202e:: with SMTP id ay14mr8484994edb.102.1607097252620;
+        Fri, 04 Dec 2020 07:54:12 -0800 (PST)
+Received: from ubuntu-laptop (ip5f5bfce9.dynamic.kabel-deutschland.de. [95.91.252.233])
+        by smtp.googlemail.com with ESMTPSA id q23sm3545652edt.32.2020.12.04.07.54.10
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 04 Dec 2020 07:54:12 -0800 (PST)
+Message-ID: <26b88b53116e1ec34384f49461e8e3bda36dec7f.camel@gmail.com>
+Subject: Re: [PATCH] mmc: block: Let CMD13 polling only for MMC IOCTLS with
+ the R1B response
+From:   Bean Huo <huobean@gmail.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        "(Exiting) Baolin Wang" <baolin.wang@linaro.org>,
+        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        =?UTF-8?Q?=E5=BD=AD=E6=B5=A9=28Richard=29?= <richard.peng@oppo.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        zliua@micron.com,
+        "Zoltan Szubbocsev (zszubbocsev)" <zszubbocsev@micron.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Date:   Fri, 04 Dec 2020 16:54:09 +0100
+In-Reply-To: <CAPDyKFpq-45z4MdMek0jGjR88QuG8PangcHRV+CJ4u57EcSqzg@mail.gmail.com>
+References: <20201202202320.22165-1-huobean@gmail.com>
+         <CAPDyKFpq-45z4MdMek0jGjR88QuG8PangcHRV+CJ4u57EcSqzg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 04, 2020 at 01:40:03PM +0530, Anshuman Gupta wrote:
-> On 2020-11-30 at 17:28:32 +0200, Imre Deak wrote:
-> > On Mon, Nov 30, 2020 at 02:46:46PM +0530, Anshuman Gupta wrote:
-> > > At usual case DC3CO exit happen automatically by DMC f/w whenever
-> > > PSR2 clears idle. This happens smoothly by DMC f/w to work with flips.
-> > > But there are certain scenario where DC3CO  Disallowed by driver
-> > > asynchronous with flips. In such scenario display engine could
-> > > be already in DC3CO state and driver has disallowed it,
-> > > It initiates DC3CO exit sequence in DMC f/w which requires a
-> > > dc3co exit delay of 200us in driver.
-> > > It requires to protect intel_pipe_update_{update_end} with
-> > > dc3co exit delay.
-> > > 
-> > > Cc: Imre Deak <imre.deak@intel.com>
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+On Fri, 2020-12-04 at 15:38 +0100, Ulf Hansson wrote:
+> > There is no need to poll device status through CMD13.
 > > 
-> > To make sure that it doesn't hide the root cause (or affects unrelated
-> > platforms), I'd only add locking around DC3co changes with a new lock,
-> > using lock/unlock helpers in intel_display_power.c called from
-> > intel_pipe_update_start/end.
+> > Meanwhile, based on the original change commit (mmc: block: Add
+> > CMD13 polling
+> > for MMC IOCTLS with R1B response), and comment in
+> > __mmc_blk_ioctl_cmd(),
+> > current code is not in line with its original purpose. So fix it
+> > with this patch.
 > > 
-> > Also please submit this patch separately, w/o the optimization in patch
-> > 1/2, so we know that this change fixes the problem.
-> This patch doesn't seems to fix the issue.
-> Looks like there is some other set of display register updates before
-> completing the dc3co exit delay beyond intel_pipe_update_start/end causing this issue.
+> > Fixes: a0d4c7eb71dd ("mmc: block: Add CMD13 polling for MMC IOCTLS
+> > with R1B response")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Zhan Liu <zliua@micron.com>
+> > Signed-off-by: Zhan Liu <zliua@micron.com>
+> > Signed-off-by: Bean Huo <beanhuo@micron.com>
+> 
+> Applied for fixes, thanks!
+> 
+> Note, I took the liberty to rephrase the commit message (and the
+> header) to clarify things a bit more.
+> 
 
-Not really sure I understand the DC3CO issue here, nor how grabbing a
-mutex across the update could help.
+Uffe,
+Nice, thanks a lot.
 
-But anyways, maybe we should just:
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 2e2dd746921f..96276f0feddc 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -16268,8 +16268,7 @@ static void intel_atomic_commit_tail(struct intel_atomic_state *state)
- 
- 	drm_atomic_helper_wait_for_dependencies(&state->base);
- 
--	if (state->modeset)
--		wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_MODESET);
-+	wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_MODESET);
- 
- 	for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
- 					    new_crtc_state, i) {
-@@ -16415,8 +16414,8 @@ static void intel_atomic_commit_tail(struct intel_atomic_state *state)
- 		 * the culprit.
- 		 */
- 		intel_uncore_arm_unclaimed_mmio_detection(&dev_priv->uncore);
--		intel_display_power_put(dev_priv, POWER_DOMAIN_MODESET, wakeref);
- 	}
-+	intel_display_power_put(dev_priv, POWER_DOMAIN_MODESET, wakeref);
- 	intel_runtime_pm_put(&dev_priv->runtime_pm, state->wakeref);
- 
- 	/*
+Bean
 
-To get the DMC out of equation entirely for all plane updates?
-
--- 
-Ville Syrjälä
-Intel
