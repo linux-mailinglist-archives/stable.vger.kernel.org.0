@@ -2,88 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52C82CF5B2
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 21:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D902CF62F
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 22:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727175AbgLDUfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 15:35:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726021AbgLDUfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Dec 2020 15:35:42 -0500
-Date:   Fri, 4 Dec 2020 20:34:57 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607114101;
-        bh=Z/IXAQSuHsMdyUyeiOxn7qVElB9dwUCJ+fe8BiQfsDg=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HPa7oA5vvwTc4NFTLAMdCOjj1R4nb6XXrXVI/hxidcSO9J8I+HF8S0YJPciSQONbs
-         DbNN5dvl84tPRQaURPP77lIoGlbguCH+eQtYFXFPnXcS21qdEPGa5qRtLJMvxaqTIC
-         LMnt2q81EAAOx/kLX7Jd4ruC/LavW+L5/MgQ6cth7mZHh1xdp3biLwAJGtEJaygXGb
-         anl5TaBYSx6HeKD7ZZfLblplmzHTOMatxD7CJCNZ7TeCTwLUIczPfjmrXi7uwadIyE
-         CMhpezjqPoec2NCBFjz7nKv6Z8KeRnAobWEzlL9lF/LyBXYqU9OR13Z3dfNQjY4i3r
-         Q8XjmAYPfqHPg==
-From:   Mark Brown <broonie@kernel.org>
-To:     Chen-Yu Tsai <wens@csie.org>
-Cc:     dinghua ma <dinghua.ma.sz@gmail.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] regulatx DLDO2 voltage control register mask for
- AXP22x
-Message-ID: <20201204203457.GG4558@sirena.org.uk>
-References: <20201130234520.13255-1-dinghua.ma.sz@gmail.com>
- <CA+Jj2f8ADtb8JPPPzafvgVM0jssk8fz_BS-3LDUaYjZHcouTJQ@mail.gmail.com>
- <20201201150036.GH5239@sirena.org.uk>
- <CA+Jj2f9=oCxdnaHJTtPXwvwokRX9HRMDYUNrbDASmV+FoTefvQ@mail.gmail.com>
- <20201202161042.GI5560@sirena.org.uk>
- <CAGb2v64md8HdxzRpwCoTVkuiMFj2BWWoEKc0KNuALVUF83XAXw@mail.gmail.com>
- <20201204174020.GB4558@sirena.org.uk>
- <CAGb2v65mRo7sTZZ65P75vs9os198kUh-OyhewdDCkjyUhXuV6Q@mail.gmail.com>
+        id S2387556AbgLDV3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 16:29:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387533AbgLDV3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 16:29:33 -0500
+Received: from mail-vs1-xe44.google.com (mail-vs1-xe44.google.com [IPv6:2607:f8b0:4864:20::e44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE26C0613D1
+        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 13:28:52 -0800 (PST)
+Received: by mail-vs1-xe44.google.com with SMTP id q5so4089186vsg.0
+        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 13:28:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=69QduSGKkmK3S33PWxCrlgyCS/xRcCGtlar3bFhP0OA=;
+        b=kVUkG5lfbkJ/E/oWPpTq/kBw0J6ayDJZYbH1xHWU1Wq9cFMWGQYJpy0fUvh6qiU6Uz
+         2YZY+78nNKXAR2oHlhx0j91I0f5xYit7Gs6rfbYLcD98+QWqasDgSdUEvA93KUFV+Wh1
+         v2fKQakrGrrNCLjken7setay+qr9Joy69B+qi1BesqFyg5Xswf49zf0B2ZeATtgWoD7w
+         nkh/NrM/IlFS0hwewFY1TSrjrMGjCObNNuKKa3wyaMx+MPP0RnmYuNlOT0qewKOh+6wI
+         DkhUHDwp9SuqRGSCM1xgNcT4tNMzRYMmzPiCuUVjdgyJIx1TqZsX8TktGpdGPtJw7NKu
+         74jQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=69QduSGKkmK3S33PWxCrlgyCS/xRcCGtlar3bFhP0OA=;
+        b=HTegylH7nVPIMfFQrbHPSF+Ph+bd9ljPVxUHZNhz8TeG1unAGM92vG0PzJKOMhDiLZ
+         od4gAVttAT2hHeVbUhhDeh+FORuiADdf2I/weFmzAX6PPjaVb+plJ6cd9N+l0KCd5md3
+         WBsWIj5u9ZiAloKWuCrhmwBlmY8OvLYhZp/SwL2zuz9NuxauuFbBJufB5lrw21FBllpm
+         v1Z/iyc7VGioVpyto0kckCEEwojinsS2aXEJb0H0iWtkqZhrLqegdnuUl2Yinnwmetg7
+         X+J1gmqOD7tZdPyN082yKEJuxt0+gG2xzujr5NEyzHs7snfZqtC5cy/CQ3yFU0CAKDQ/
+         asSw==
+X-Gm-Message-State: AOAM533OBo6puMp/dCDj5/lyxqUjcHU02dZnA3OBPbz32oaOErLY5Oru
+        lztk8kWfir1Q5gMzgElmGzkd5Q3TC+XY/lUy8SMMJg==
+X-Google-Smtp-Source: ABdhPJxViztqWxn2pmE4i2+mdpvFzqyAPltkMjhCeT624GE/7Nl2CxPAMVxzLnGuJ/i/fzjvd0Nx8y8llCHBn1qWjcU=
+X-Received: by 2002:a67:cd9a:: with SMTP id r26mr6191702vsl.52.1607117331636;
+ Fri, 04 Dec 2020 13:28:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="fCcDWlUEdh43YKr8"
-Content-Disposition: inline
-In-Reply-To: <CAGb2v65mRo7sTZZ65P75vs9os198kUh-OyhewdDCkjyUhXuV6Q@mail.gmail.com>
-X-Cookie: Not a flying toy.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20201204180622.14285-1-abuehaze@amazon.com>
+In-Reply-To: <20201204180622.14285-1-abuehaze@amazon.com>
+From:   Neal Cardwell <ncardwell@google.com>
+Date:   Fri, 4 Dec 2020 16:28:35 -0500
+Message-ID: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
+Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning
+ initialisation for high latency connections
+To:     Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+Cc:     Netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
+        Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Wei Wang <weiwan@google.com>, astroh@amazon.com,
+        benh@amazon.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Dec 4, 2020 at 1:08 PM Hazem Mohamed Abuelfotoh
+<abuehaze@amazon.com> wrote:
+>
+>     Previously receiver buffer auto-tuning starts after receiving
+>     one advertised window amount of data.After the initial
+>     receiver buffer was raised by
+>     commit a337531b942b ("tcp: up initial rmem to 128KB
+>     and SYN rwin to around 64KB"),the receiver buffer may
+>     take too long for TCP autotuning to start raising
+>     the receiver buffer size.
+>     commit 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
+>     tried to decrease the threshold at which TCP auto-tuning starts
+>     but it's doesn't work well in some environments
+>     where the receiver has large MTU (9001) configured
+>     specially within environments where RTT is high.
+>     To address this issue this patch is relying on RCV_MSS
+>     so auto-tuning can start early regardless
+>     the receiver configured MTU.
+>
+>     Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
+>     Fixes: 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
+>
+> Signed-off-by: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+> ---
+>  net/ipv4/tcp_input.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+> index 389d1b340248..f0ffac9e937b 100644
+> --- a/net/ipv4/tcp_input.c
+> +++ b/net/ipv4/tcp_input.c
+> @@ -504,13 +504,14 @@ static void tcp_grow_window(struct sock *sk, const struct sk_buff *skb)
+>  static void tcp_init_buffer_space(struct sock *sk)
+>  {
+>         int tcp_app_win = sock_net(sk)->ipv4.sysctl_tcp_app_win;
+> +       struct inet_connection_sock *icsk = inet_csk(sk);
+>         struct tcp_sock *tp = tcp_sk(sk);
+>         int maxwin;
+>
+>         if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
+>                 tcp_sndbuf_expand(sk);
+>
+> -       tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
+> +       tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * icsk->icsk_ack.rcv_mss);
 
---fCcDWlUEdh43YKr8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks for the detailed report and the proposed fix.
 
-On Sat, Dec 05, 2020 at 01:56:38AM +0800, Chen-Yu Tsai wrote:
-> On Sat, Dec 5, 2020 at 1:40 AM Mark Brown <broonie@kernel.org> wrote:
+AFAICT the core of the bug is related to this part of your follow-up email:
 
-> > > I did receive it though. Would it help if I tried to bounce it to you
-> > > and the lists?
+> 10)It looks like when the issue happen we have a  kind of deadlock here
+> so advertised receive window has to exceed rcvq_space for the tcp auto
+> tuning to kickoff at the same time with the initial default  configuration the
+> receive window is not going to exceed rcvq_space
 
-> > Possibly?  It depends on what the issue is.
+The existing code is:
 
-> Looks like v3 was already there the first time though:
+> -       tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
 
-> https://lore.kernel.org/lkml/20201201001000.22302-1-dinghua.ma.sz@gmail.com/
+(1) With a typical case where both sides have an advmss based on an
+MTU of 1500 bytes, the governing limit here is around 10*1460 or so,
+or around 15Kbytes. With a tp->rcvq_space.space of that size, it is
+common for the data sender to send that amount of data in one round
+trip, which will trigger the receive buffer autotuning code in
+tcp_rcv_space_adjust(), so autotuning works well.
 
-> Me bouncing it again had no real effect.
+(2) With a case where the sender has a 1500B NIC and the receiver has
+an advmss based on an MTU of 9KB, then the  expression becomes
+governed by the receive window of 64KBytes:
 
-I've only got the bounced copy.  No sign as to why not...
+  tp->rcvq_space.space
+    ~=  min(rcv_wnd, 10*9KBytes)
+    ~= min(64KByte,90KByte) = 65536 bytes
 
---fCcDWlUEdh43YKr8
-Content-Type: application/pgp-signature; name="signature.asc"
+But because tp->rcvq_space.space is set to the rcv_wnd, and
+the sender is not allowed to send more than the receive
+window, this check in tcp_rcv_space_adjust() will always fail,
+and the receiver will take the new_measure path:
 
------BEGIN PGP SIGNATURE-----
+        /* Number of bytes copied to user in last RTT */
+        copied = tp->copied_seq - tp->rcvq_space.seq;
+        if (copied <= tp->rcvq_space.space)
+                goto new_measure;
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl/KnXEACgkQJNaLcl1U
-h9B9TAf9FQittmvUs03xlh4ecy2duZMIGjbiIOvaCOfVkGJUjKlsCrZCXfYEC/B5
-m5MS248eiqZeP+pmTuq3+BswSNDCKQDwuw5q4B1gmcJAezvxqTqA3a6wREWNJkH9
-jTOpKX3IHFMNv7H+rbvFPHZTgUwB8MwmqYvyjAmfzR/1vkkC2s//NuxeUgRZ51oL
-8H2/BkYA7GDTb846Jqkmb8HG7etDhw3nCtKXyTCPmsSu9CAnB2vrmiTYNaxQQXt9
-FxFHp90XOst5cHRsOZW4wVXBW5WMkro7sWTsM+5TbtK93MFMNkD3+d2LvcJX00yr
-q8AHuUjYfGNW0rO91HNKOG4wB0i4SA==
-=dUfO
------END PGP SIGNATURE-----
+This seems to be why receive buffer autotuning is never triggered.
 
---fCcDWlUEdh43YKr8--
+Furthermore, if we try to fix it with:
+
+-        if (copied <= tp->rcvq_space.space)
++        if (copied < tp->rcvq_space.space)
+
+The buggy behavior will still remain, because 65536 is not a multiple
+of the MSS, so the number of bytes copied to the user in the last RTT
+will never, in practice, exactly match the tp->rcvq_space.space.
+
+AFAICT the proposed patch fixes this bug by setting the
+tp->rcvq_space.space to 10*536 = 5360. This is a number of bytes that
+*can* actually be delivered in a round trip in a mixed 1500B/9KB
+scenario, so this allows receive window auto-tuning to actually be
+triggered.
+
+It seems like a reasonable approach to fix this issue, but I agree
+with Eric that it would be good to improve the commit message a bit.
+
+Also, since this is a bug fix, it seems it should be directed to the
+"net" branch rather than the "net-next" branch.
+
+Also, FWIW, I think the "for high latency connections" can be dropped
+from the commit summary/first-line, since the bug can be hit at any
+RTT, and is simply easier to notice at high RTTs. You might consider
+something like:
+
+  tcp: fix receive buffer autotuning to trigger for any valid advertised MSS
+
+best,
+neal
