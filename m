@@ -2,116 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 904C52CF187
-	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 17:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA822CF1AA
+	for <lists+stable@lfdr.de>; Fri,  4 Dec 2020 17:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725987AbgLDQFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Dec 2020 11:05:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725923AbgLDQFe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 11:05:34 -0500
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6364C0613D1
-        for <stable@vger.kernel.org>; Fri,  4 Dec 2020 08:04:53 -0800 (PST)
-Received: by mail-qk1-x742.google.com with SMTP id v143so5862140qkb.2
-        for <stable@vger.kernel.org>; Fri, 04 Dec 2020 08:04:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=t0GCmJXgaqj4UXo3UFBFtaMB4ClFHGw5pCLgLGBtmZQ=;
-        b=KLtoAV9IAem35cnxS9GOLj3tKU9CiXNaFVjcdnv/3irI1S7qPEmZMX6xJw6l2Vwz/g
-         1M/f1B6XM+eJK1OkWwnXpczProXkASFPpuYD3mgAg50qImcxnaoLhYvUOssCAo+Blc33
-         aaCV1NbtiAmavvO9eHpxXDG6gDPlt+zKqHBeQFui9gKIOzfBrbzSM28SeDqbzAQg0kAB
-         nu+QQKP3iTlatfydG4ko6auwEpHf+uSbDYK/yCLVdZ0kY4TIwgBz60idtBjPY0q8EgRd
-         m0EVSYVmzFeEULgbtQV4OFiLcVjlOv62xO7+D7SDgtFOLSMs4LJoFGmgZfW7CdsMhJVE
-         f+dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=t0GCmJXgaqj4UXo3UFBFtaMB4ClFHGw5pCLgLGBtmZQ=;
-        b=FCJXEtNLFfLC2szX6mqQgDuW1g2aucsWoQikupblifqmNHT7xtHmrNdPAaABrOyeXv
-         9IHcsLbAN50MKlbQHx5glCx/JeS07GL2RtvYL8eiseaa24pzPH3JFIZ55tBxGecK8OH9
-         +fGgwiaM5Cj8mml/L6pxfoKDb0vAdIVLeSl+Z3TTdmM80/ljK34QU+Z18Mbb84eC0MAA
-         vb0AEYSmxaow/Ff+8CYQiCPbVta1rlMMm3dleKXZaHinpX7Uk/fYkgsUfYlouQUF/EWB
-         iPn7ckaqe/Pxe3HS281iyIqHb+3SSnyxPlihi9K43nTQg6ddNLfSGyjiKYgAlaCpSOFG
-         IHXg==
-X-Gm-Message-State: AOAM5335DVeINYNo2P+sr1nG1WdWqQefrrst57uwskLn4j/yxzs0moRw
-        Ik7pov92WQq97V3yrM0NFLUD6g==
-X-Google-Smtp-Source: ABdhPJxvFR4PO1GXMK5tgLDtHDnkm5Haqc/tcb8xV0C4LLeKYdLthYihVjco8s/ed2WrWilWaBRdpw==
-X-Received: by 2002:a37:9d04:: with SMTP id g4mr9419563qke.358.1607097893205;
-        Fri, 04 Dec 2020 08:04:53 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-156-34-48-30.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.48.30])
-        by smtp.gmail.com with ESMTPSA id r8sm5650266qtj.94.2020.12.04.08.04.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Dec 2020 08:04:52 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1klDZj-005vUb-9w; Fri, 04 Dec 2020 12:04:51 -0400
-Date:   Fri, 4 Dec 2020 12:04:51 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Liu Zixian <liuzixian4@huawei.com>, akpm@linux-foundation.org,
-        linmiaohe@huawei.com, louhongxiang@huawei.com, linux-mm@kvack.org,
-        hushiyuan@huawei.com, stable@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH v2] fix mmap return value when vma is merged after
- call_mmap()
-Message-ID: <20201204160451.GC5487@ziepe.ca>
-References: <20201203085350.22624-1-liuzixian4@huawei.com>
- <d59e9e5a-1d6e-e7dc-21ec-17777fe9f7a2@redhat.com>
- <20201204151028.GZ5487@ziepe.ca>
- <20201204152535.GP11935@casper.infradead.org>
+        id S1729337AbgLDQM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Dec 2020 11:12:59 -0500
+Received: from smtprelay0130.hostedemail.com ([216.40.44.130]:44912 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729032AbgLDQM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Dec 2020 11:12:58 -0500
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay04.hostedemail.com (Postfix) with ESMTP id 24D69180A9F34;
+        Fri,  4 Dec 2020 16:12:17 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Spam-Summary: 10,1,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:967:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2393:2525:2553:2560:2563:2682:2685:2828:2859:2933:2937:2939:2942:2945:2947:2951:2954:3022:3138:3139:3140:3141:3142:3353:3622:3865:3866:3867:3868:3870:3871:3872:3873:3874:3934:3936:3938:3941:3944:3947:3950:3953:3956:3959:4250:4321:5007:6119:6248:6691:7903:8957:9025:10004:10400:10848:11232:11658:11914:12043:12297:12438:12555:12660:12740:12760:12895:13069:13311:13357:13439:13845:14096:14097:14181:14659:14721:14777:21080:21433:21450:21451:21627:21811:21889:21990:30054:30056:30090:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
+X-HE-Tag: hen76_3903285273c5
+X-Filterd-Recvd-Size: 3208
+Received: from XPS-9350.home (unknown [47.151.137.21])
+        (Authenticated sender: joe@perches.com)
+        by omf18.hostedemail.com (Postfix) with ESMTPA;
+        Fri,  4 Dec 2020 16:12:14 +0000 (UTC)
+Message-ID: <235b856857d912d93ea00685b20baa5b66800c83.camel@perches.com>
+Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
+From:   Joe Perches <joe@perches.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+Date:   Fri, 04 Dec 2020 08:12:13 -0800
+In-Reply-To: <20201204154911.GZ643756@sasha-vm>
+References: <20201129041314.GO643756@sasha-vm>
+         <7a4c3d84-8ff7-abd9-7340-3a6d7c65cfa7@redhat.com>
+         <20201129210650.GP643756@sasha-vm>
+         <e499986d-ade5-23bd-7a04-fa5eb3f15a56@redhat.com>
+         <20201130173832.GR643756@sasha-vm>
+         <238cbdd1-dabc-d1c1-cff8-c9604a0c9b95@redhat.com>
+         <9ec7dff6-d679-ce19-5e77-f7bcb5a63442@oracle.com>
+         <4c1b2bc7-cf50-4dcd-bfd4-be07e515de2a@redhat.com>
+         <20201130235959.GS643756@sasha-vm>
+         <6c49ded5-bd8f-f219-0c51-3500fd751633@redhat.com>
+         <20201204154911.GZ643756@sasha-vm>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201204152535.GP11935@casper.infradead.org>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 04, 2020 at 03:25:35PM +0000, Matthew Wilcox wrote:
+On Fri, 2020-12-04 at 10:49 -0500, Sasha Levin wrote:
+> On Fri, Dec 04, 2020 at 09:27:28AM +0100, Paolo Bonzini wrote:
+> > On 01/12/20 00:59, Sasha Levin wrote:
+> > > 
+> > > It's quite easy to NAK a patch too, just reply saying "no" and it'll be
+> > > dropped (just like this patch was dropped right after your first reply)
+> > > so the burden on maintainers is minimal.
+> > 
+> > The maintainers are _already_ marking patches with "Cc: stable".  That 
+> 
+> They're not, though. Some forget, some subsystems don't mark anything,
+> some don't mark it as it's not stable material when it lands in their
+> tree but then it turns out to be one if it sits there for too long.
+> 
+> > (plus backports) is where the burden on maintainers should start and 
+> > end.  I don't see the need to second guess them.
+> 
+> This is similar to describing our CI infrastructure as "second
+> guessing": why are we second guessing authors and maintainers who are
+> obviously doing the right thing by testing their patches and reporting
+> issues to them?
+> 
+> Are you saying that you have always gotten stable tags right? never
+> missed a stable tag where one should go?
 
-> This commit makes no sense.  I know it's eight years old, so maybe the
-> device driver which did this has long been removed from the tree, but
-> davem's comment was (iirc) related to a device driver for a graphics
-> card that would 256MB-align the user address.  Another possibility is
-> that userspace always asks for a 256MB-aligned address these days.
+I think this simply adds to the burden of being a maintainer
+without all that much value.
 
-Presumably the latter, otherwise people would be complaining about the
-WARN_ON.
+I think the primary value here would be getting people to upgrade to
+current versions rather than backporting to nominally stable and
+relatively actively changed old versions.
 
-With some grep I could only find this:
+This is very much related to this thread about trivial patches
+and maintainer burdening:
 
-static int mc68x328fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
-{
-#ifndef MMU
-        /* this is uClinux (no MMU) specific code */
+https://lore.kernel.org/lkml/1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com/
 
-        vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
-        vma->vm_start = videomemory;
 
-        return 0;
-#else
-        return -EINVAL;
-#endif
-}
-
-So it does seem gone
-
-> I don't understand why prev/rb_link/rb_parent would need to be changed
-> in this case.  It's going to be inserted at the exact same location in
-> the rbtree, just at a slightly shifted address.
-
-If the driver adjust the address, and it doesn't collide with another
-vma, and it doesn't change the tree position, then it could work
-
-But if the driver radically changes the vm_start all bets are off and
-you end up with an unsorted rb_tree at worst.
-
-Banning drivers from adjusting the vm_start/end makes sense to me, at
-least. How could a driver do this correctly anyhow?
-
-Jason
