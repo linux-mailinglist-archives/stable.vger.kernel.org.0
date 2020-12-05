@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B878B2CFD81
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 548A12CFD96
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727353AbgLESfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 13:35:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58886 "EHLO mail.kernel.org"
+        id S1726829AbgLESjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 13:39:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726149AbgLESfK (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 13:35:10 -0500
-Subject: patch "iio:magnetometer:mag3110: Fix alignment and data leak issues." added to staging-next
+        id S1726863AbgLESj2 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 13:39:28 -0500
+Subject: patch "iio:imu:bmi160: Fix too large a buffer." added to staging-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607183276;
-        bh=YP4UU36X7AZdUk9Wo86LvHnPLQ2ne2iiRM/kelXr5BU=;
+        s=korg; t=1607183278;
+        bh=eef0fHZLeN8Vl56vYEHIwBntrfChIivyIScMP/9N78E=;
         h=To:From:Date:From;
-        b=s1Y93aabDa8jYhW0AHlq11iOWdC53gRnZttf+9RWD8gXofi4leVo6lnn3GthDhqE2
-         3+rzKkNRQXcykXOSGb4ZArEg8IoT7EgXpNA8rdjJLXmSpGOnE9lzbOJQEkfwqDCilR
-         FrpwMjqmkZhUY+RlV9jkI4UNSlReDTAZWebFhkaM=
+        b=o2PEqUhpZyum9z6t8P8+AMS3GhkgsDGxf5uXUsOvdlDlYd8x3xHjuQXN+6Zs6u40N
+         V3vv4JRhE3jXURGyoOIjNCwbnrmUdIW8NmOw1uAhl2YnA0Tblk/pvwfwogS0UpoJYr
+         8K1olVjkRh/y5khaVmgZMznalPXUMnue3Gzo4Qr8=
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        alexandru.ardelean@analog.com, lars@metafoo.de
+        alexandru.ardelean@analog.com, daniel.baluta@oss.nxp.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Dec 2020 16:46:02 +0100
-Message-ID: <1607183162149161@kroah.com>
+Date:   Sat, 05 Dec 2020 16:46:03 +0100
+Message-ID: <1607183163182255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:magnetometer:mag3110: Fix alignment and data leak issues.
+    iio:imu:bmi160: Fix too large a buffer.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -49,76 +49,44 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 89deb1334252ea4a8491d47654811e28b0790364 Mon Sep 17 00:00:00 2001
+From dc7de42d6b50a07b37feeba4c6b5136290fcee81 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:37 +0100
-Subject: iio:magnetometer:mag3110: Fix alignment and data leak issues.
+Date: Sun, 20 Sep 2020 12:27:38 +0100
+Subject: iio:imu:bmi160: Fix too large a buffer.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc() so no data can leak apart from
-previous readings.
+The comment implies this device has 3 sensor types, but it only
+has an accelerometer and a gyroscope (both 3D).  As such the
+buffer does not need to be as long as stated.
 
-The explicit alignment of ts is not necessary in this case but
-does make the code slightly less fragile so I have included it.
+Note I've separated this from the following patch which fixes
+the alignment for passing to iio_push_to_buffers_with_timestamp()
+as they are different issues even if they affect the same line
+of code.
 
-Fixes: 39631b5f9584 ("iio: Add Freescale mag3110 magnetometer driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-4-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200920112742.170751-5-jic23@kernel.org
 ---
- drivers/iio/magnetometer/mag3110.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/iio/imu/bmi160/bmi160_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/mag3110.c b/drivers/iio/magnetometer/mag3110.c
-index 838b13c8bb3d..c96415a1aead 100644
---- a/drivers/iio/magnetometer/mag3110.c
-+++ b/drivers/iio/magnetometer/mag3110.c
-@@ -56,6 +56,12 @@ struct mag3110_data {
- 	int sleep_val;
- 	struct regulator *vdd_reg;
- 	struct regulator *vddio_reg;
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__be16 channels[3];
-+		u8 temperature;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- static int mag3110_request(struct mag3110_data *data)
-@@ -387,10 +393,9 @@ static irqreturn_t mag3110_trigger_handler(int irq, void *p)
+diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
+index 431076dc0d2c..c8e131c29043 100644
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -427,8 +427,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mag3110_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 3 16-bit channels + 1 byte temp + padding + ts */
- 	int ret;
+ 	struct bmi160_data *data = iio_priv(indio_dev);
+-	__le16 buf[16];
+-	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
++	__le16 buf[12];
++	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
+ 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
+ 	__le16 sample;
  
--	ret = mag3110_read(data, (__be16 *) buffer);
-+	ret = mag3110_read(data, data->scan.channels);
- 	if (ret < 0)
- 		goto done;
- 
-@@ -399,10 +404,10 @@ static irqreturn_t mag3110_trigger_handler(int irq, void *p)
- 			MAG3110_DIE_TEMP);
- 		if (ret < 0)
- 			goto done;
--		buffer[6] = ret;
-+		data->scan.temperature = ret;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
- 
- done:
 -- 
 2.29.2
 
