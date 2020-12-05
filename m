@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D79172CFD95
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7922CFD79
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726603AbgLESjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 13:39:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33372 "EHLO mail.kernel.org"
+        id S1726600AbgLESed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 13:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726602AbgLESj1 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 13:39:27 -0500
-Subject: patch "iio:adc:ti-ads124s08: Fix alignment and data leak issues." added to staging-next
+        id S1726658AbgLESe2 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 13:34:28 -0500
+Subject: patch "iio: imu: st_lsm6dsx: fix edge-trigger interrupts" added to staging-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607183290;
-        bh=LpNrsdJVXiUH2Wt20j0zcan0tnUIZLnlHq+XfCLFaC4=;
+        s=korg; t=1607183321;
+        bh=TFBNMuuIy2mnh2VlW8Dv3fYqlLqAP9lqBTpaHx2ykPQ=;
         h=To:From:Date:From;
-        b=sYy+hia5Za4jdvV7/59Q20/mtr92JLVIwJ7AgdaMAK0A4pAnYiYcu4mJmdawWWOsk
-         DwsxBpbn6VrCBWS9U5lWoiO7Qel2qpiWaKQxcXhGn/KHbNYeInQH8GuvcVvYw2uSOC
-         jlpLpkEN+393K2NZT0HcYsI3mxvVe58ihizGk9JY=
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        alexandru.ardelean@analog.com, dmurphy@ti.com, lars@metafoo.de
+        b=c7ALxsbi1NK5aMWAq4R+5du5GO0AO0ptvzS9X9EDC+6rVJtEwitiSLPRPiSmT0dV1
+         +WfUMZAPm6lFcZHPpSk92aPS+Hiyw6xJQiuDmv5ELvQBUg2kDZYrAf67xzpZg9vjpf
+         Tp/tq3M52HfUORvxKOv7Wo1UbD/gDFBFBJW6JNwI=
+To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Dec 2020 16:46:06 +0100
-Message-ID: <160718316614759@kroah.com>
+Date:   Sat, 05 Dec 2020 16:46:12 +0100
+Message-ID: <1607183172112214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:adc:ti-ads124s08: Fix alignment and data leak issues.
+    iio: imu: st_lsm6dsx: fix edge-trigger interrupts
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -49,81 +49,75 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 1e405bc2512f80a903ddd6ba8740cee885238d7f Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:42 +0100
-Subject: iio:adc:ti-ads124s08: Fix alignment and data leak issues.
+From 3f9bce7a22a3f8ac9d885c9d75bc45569f24ac8b Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Sat, 14 Nov 2020 19:39:05 +0100
+Subject: iio: imu: st_lsm6dsx: fix edge-trigger interrupts
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc() so no
-data can leak apart from previous readings.
+If we are using edge IRQs, new samples can arrive while processing
+current interrupt since there are no hw guarantees the irq line
+stays "low" long enough to properly detect the new interrupt.
+In this case the new sample will be missed.
+Polling FIFO status register in st_lsm6dsx_handler_thread routine
+allow us to read new samples even if the interrupt arrives while
+processing previous data and the timeslot where the line is "low"
+is too short to be properly detected.
 
-In this driver the timestamp can end up in various different locations
-depending on what other channels are enabled.  As a result, we don't
-use a structure to specify it's position as that would be misleading.
-
-Fixes: e717f8c6dfec ("iio: adc: Add the TI ads124s08 ADC code")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Dan Murphy <dmurphy@ti.com>
+Fixes: 89ca88a7cdf2 ("iio: imu: st_lsm6dsx: support active-low interrupts")
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/5e93cda7dc1e665f5685c53ad8e9ea71dbae782d.1605378871.git.lorenzo@kernel.org
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-9-jic23@kernel.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/ti-ads124s08.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 26 ++++++++++++++++----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-ads124s08.c b/drivers/iio/adc/ti-ads124s08.c
-index eff4f9a9898e..b4a128b19188 100644
---- a/drivers/iio/adc/ti-ads124s08.c
-+++ b/drivers/iio/adc/ti-ads124s08.c
-@@ -99,6 +99,14 @@ struct ads124s_private {
- 	struct gpio_desc *reset_gpio;
- 	struct spi_device *spi;
- 	struct mutex lock;
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 467214e2e77c..7cedaab096a7 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -2069,19 +2069,35 @@ st_lsm6dsx_report_motion_event(struct st_lsm6dsx_hw *hw)
+ static irqreturn_t st_lsm6dsx_handler_thread(int irq, void *private)
+ {
+ 	struct st_lsm6dsx_hw *hw = private;
++	int fifo_len = 0, len;
+ 	bool event;
+-	int count;
+ 
+ 	event = st_lsm6dsx_report_motion_event(hw);
+ 
+ 	if (!hw->settings->fifo_ops.read_fifo)
+ 		return event ? IRQ_HANDLED : IRQ_NONE;
+ 
+-	mutex_lock(&hw->fifo_lock);
+-	count = hw->settings->fifo_ops.read_fifo(hw);
+-	mutex_unlock(&hw->fifo_lock);
 +	/*
-+	 * Used to correctly align data.
-+	 * Ensure timestamp is naturally aligned.
-+	 * Note that the full buffer length may not be needed if not
-+	 * all channels are enabled, as long as the alignment of the
-+	 * timestamp is maintained.
++	 * If we are using edge IRQs, new samples can arrive while
++	 * processing current interrupt since there are no hw
++	 * guarantees the irq line stays "low" long enough to properly
++	 * detect the new interrupt. In this case the new sample will
++	 * be missed.
++	 * Polling FIFO status register allow us to read new
++	 * samples even if the interrupt arrives while processing
++	 * previous data and the timeslot where the line is "low" is
++	 * too short to be properly detected.
 +	 */
-+	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u32)] __aligned(8);
- 	u8 data[5] ____cacheline_aligned;
- };
++	do {
++		mutex_lock(&hw->fifo_lock);
++		len = hw->settings->fifo_ops.read_fifo(hw);
++		mutex_unlock(&hw->fifo_lock);
++
++		if (len > 0)
++			fifo_len += len;
++	} while (len > 0);
  
-@@ -269,7 +277,6 @@ static irqreturn_t ads124s_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ads124s_private *priv = iio_priv(indio_dev);
--	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u32)];
- 	int scan_index, j = 0;
- 	int ret;
+-	return count || event ? IRQ_HANDLED : IRQ_NONE;
++	return fifo_len || event ? IRQ_HANDLED : IRQ_NONE;
+ }
  
-@@ -284,7 +291,7 @@ static irqreturn_t ads124s_trigger_handler(int irq, void *p)
- 		if (ret)
- 			dev_err(&priv->spi->dev, "Start ADC conversions failed\n");
- 
--		buffer[j] = ads124s_read(indio_dev, scan_index);
-+		priv->buffer[j] = ads124s_read(indio_dev, scan_index);
- 		ret = ads124s_write_cmd(indio_dev, ADS124S08_STOP_CONV);
- 		if (ret)
- 			dev_err(&priv->spi->dev, "Stop ADC conversions failed\n");
-@@ -292,7 +299,7 @@ static irqreturn_t ads124s_trigger_handler(int irq, void *p)
- 		j++;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, priv->buffer,
- 			pf->timestamp);
- 
- 	iio_trigger_notify_done(indio_dev->trig);
+ static int st_lsm6dsx_irq_setup(struct st_lsm6dsx_hw *hw)
 -- 
 2.29.2
 
