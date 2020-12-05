@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8832CFD94
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 432C12CFD78
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbgLESjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 13:39:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
+        id S1726658AbgLESed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 13:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726839AbgLESj1 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 13:39:27 -0500
-Subject: patch "iio:adc:ti-ads124s08: Fix buffer being too long." added to staging-next
+        id S1726452AbgLESe2 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 13:34:28 -0500
+Subject: patch "iio:pressure:mpl3115: Force alignment of buffer" added to staging-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607183284;
-        bh=58hH3tBv97I1yXdlI30/dLs2jNQi9Ax70gmtwmAD7dc=;
+        s=korg; t=1607183287;
+        bh=MXCxPelJiFUOky2mu11yxpKN7YbSudEjc+i3C7muqA4=;
         h=To:From:Date:From;
-        b=nmfD+ToiodkC9+aXgleWoXPLxApkJbF2WvhX5ZNJjUYO58ru5/1eqNCaiXRXrkaj6
-         ZusYoMJoMCmx98M9KzibhXeUEBrleUg/cUwCpJwJRfprOMN2VNRMERdYzKCkQ1tBHR
-         B8Kpw75bSq1+0OAZmx4QFaKQ3zATZlzo7hnr7u34=
+        b=UhbECZ0ajz+z5rq/yb5L61JIZqpStLc6KXuJlGkTchMGi1z5Yzppa9VroIpULvCpO
+         CCkeBqATahZsYk6lYz1hD6FRAMYkO3B1wCgacdeCSU65ZkZ2kuAYH93QYSopny8V/t
+         xAmZQdnv5Amz1hqxNwNBoVipeor0AtbCJ0UuECjE=
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        alexandru.ardelean@analog.com, dmurphy@ti.com
+        alexandru.ardelean@analog.com, andy.shevchenko@gmail.com,
+        lars@metafoo.de, pmeerw@pmeerw.net
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Dec 2020 16:46:05 +0100
-Message-ID: <160718316577165@kroah.com>
+Message-ID: <160718316510186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:adc:ti-ads124s08: Fix buffer being too long.
+    iio:pressure:mpl3115: Force alignment of buffer
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -49,39 +50,57 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From b0bd27f02d768e3a861c4e6c27f8e369720e6c25 Mon Sep 17 00:00:00 2001
+From 198cf32f0503d2ad60d320b95ef6fb8243db857f Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:41 +0100
-Subject: iio:adc:ti-ads124s08: Fix buffer being too long.
+Date: Sun, 20 Sep 2020 12:27:40 +0100
+Subject: iio:pressure:mpl3115: Force alignment of buffer
 
-The buffer is expressed as a u32 array, yet the extra space for
-the s64 timestamp was expressed as sizeof(s64)/sizeof(u16).
-This will result in 2 extra u32 elements.
-Fix by dividing by sizeof(u32).
+Whilst this is another case of the issue Lars reported with
+an array of elements of smaller than 8 bytes being passed
+to iio_push_to_buffers_with_timestamp(), the solution here is
+a bit different from the other cases and relies on __aligned
+working on the stack (true since 4.6?)
 
-Fixes: e717f8c6dfec ("iio: adc: Add the TI ads124s08 ADC code")
-Signed-off-by: Jonathan Cameron<Jonathan.Cameron@huawei.com>
+This one is unusual.  We have to do an explicit memset() each time
+as we are reading 3 bytes into a potential 4 byte channel which
+may sometimes be a 2 byte channel depending on what is enabled.
+As such, moving the buffer to the heap in the iio_priv structure
+doesn't save us much.  We can't use a nice explicit structure
+on the stack either as the data channels have different storage
+sizes and are all separately controlled.
+
+Fixes: cc26ad455f57 ("iio: Add Freescale MPL3115A2 pressure / temperature sensor driver")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Dan Murphy <dmurphy@ti.com>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-8-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200920112742.170751-7-jic23@kernel.org
 ---
- drivers/iio/adc/ti-ads124s08.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/pressure/mpl3115.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ti-ads124s08.c b/drivers/iio/adc/ti-ads124s08.c
-index 4b4fbe33930c..eff4f9a9898e 100644
---- a/drivers/iio/adc/ti-ads124s08.c
-+++ b/drivers/iio/adc/ti-ads124s08.c
-@@ -269,7 +269,7 @@ static irqreturn_t ads124s_trigger_handler(int irq, void *p)
+diff --git a/drivers/iio/pressure/mpl3115.c b/drivers/iio/pressure/mpl3115.c
+index ccdb0b70e48c..1eb9e7b29e05 100644
+--- a/drivers/iio/pressure/mpl3115.c
++++ b/drivers/iio/pressure/mpl3115.c
+@@ -144,7 +144,14 @@ static irqreturn_t mpl3115_trigger_handler(int irq, void *p)
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ads124s_private *priv = iio_priv(indio_dev);
--	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u16)];
-+	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u32)];
- 	int scan_index, j = 0;
- 	int ret;
+ 	struct mpl3115_data *data = iio_priv(indio_dev);
+-	u8 buffer[16]; /* 32-bit channel + 16-bit channel + padding + ts */
++	/*
++	 * 32-bit channel + 16-bit channel + padding + ts
++	 * Note that it is possible for only one of the first 2
++	 * channels to be enabled. If that happens, the first element
++	 * of the buffer may be either 16 or 32-bits.  As such we cannot
++	 * use a simple structure definition to express this data layout.
++	 */
++	u8 buffer[16] __aligned(8);
+ 	int ret, pos = 0;
  
+ 	mutex_lock(&data->lock);
 -- 
 2.29.2
 
