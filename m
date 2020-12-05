@@ -2,75 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 403B42CFB14
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 12:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB0D2CFB58
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 13:51:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727302AbgLEK7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 05:59:55 -0500
-Received: from bilbo.ozlabs.org ([203.11.71.1]:53983 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729236AbgLEK72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 05:59:28 -0500
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4Cp64b6Yv9z9sWP;
-        Sat,  5 Dec 2020 21:58:23 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1607165904;
-        bh=1QqseYf6ezigIKf15eGL11f+r3rrJBEyN89MtXaqjS8=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=LnGNulhB656ZWd0TNJEg7ooIjHAbyLPdktP4NERmOnAFNSCpXcDBAemRp7hyF0owD
-         iXPFDbrdv3WtmvwVlmR/AAG0P0LQ5Ox5QBWvVJpV1FFXjUzVfdWgJ0VOhwIcNWE8mI
-         r8ga4HPqqqOp0HMFrUZoK/eAghYftVeItJhKS/2QsR3bur21P/dHlB5Y7w22Tvy+1h
-         fDlBgVpdCtHyqjqwW//yHYiU6pRV7jyk3rASLJBt2gwXhICj3725a1y+722G3Nbhum
-         TU71ut0kqQMO7uAiNE0DdLQyax7g3QhcmVDmVgMBt7i+MHWg+cgnNbOeFyvshLMv/Q
-         yTEH82TLxik4g==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Michal Suchanek <msuchanek@suse.de>, stable@vger.kernel.org
-Cc:     Michal Suchanek <msuchanek@suse.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] powerpc: Stop exporting __clear_user which is now inlined.
-In-Reply-To: <20201204232807.31887-1-msuchanek@suse.de>
-References: <20201204232807.31887-1-msuchanek@suse.de>
-Date:   Sat, 05 Dec 2020 21:58:23 +1100
-Message-ID: <87y2ictt80.fsf@mpe.ellerman.id.au>
+        id S1728361AbgLEK3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 05:29:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52186 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728666AbgLEK2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Dec 2020 05:28:40 -0500
+Received: from bmailout3.hostsharing.net (bmailout3.hostsharing.net [IPv6:2a01:4f8:150:2161:1:b009:f23e:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7333AC061A4F
+        for <stable@vger.kernel.org>; Sat,  5 Dec 2020 02:19:15 -0800 (PST)
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
+        by bmailout3.hostsharing.net (Postfix) with ESMTPS id 38325100DA1D5;
+        Sat,  5 Dec 2020 11:19:12 +0100 (CET)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id DA4988147; Sat,  5 Dec 2020 11:19:13 +0100 (CET)
+Date:   Sat, 5 Dec 2020 11:19:13 +0100
+From:   Lukas Wunner <lukas@wunner.de>
+To:     gregkh@linuxfoundation.org
+Cc:     peter.ujfalusi@ti.com, nsaenzjulienne@suse.de,
+        stable@vger.kernel.org, broonie@kernel.org
+Subject: Backport 666224b43b4b to 4.19-stable
+Message-ID: <20201205101913.GA7875@wunner.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Michal Suchanek <msuchanek@suse.de> writes:
-> Stable commit 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP
-> enabled") redefines __clear_user as inline function but does not remove
-> the export.
->
-> Fixes: 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP enabled")
->
-> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> ---
->  arch/powerpc/lib/ppc_ksyms.c | 1 -
->  1 file changed, 1 deletion(-)
+Hi Greg,
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+commit 666224b43b4b ("spi: bcm2835: Release the DMA channel if probe
+fails after dma_init") was not marked for stable but really should
+have been.  Here's a backport for 4.19:
 
-cheers
+-- >8 --
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Thu, 12 Dec 2019 15:55:43 +0200
+Subject: [PATCH] spi: bcm2835: Release the DMA channel if probe fails after
+ dma_init
 
-> diff --git a/arch/powerpc/lib/ppc_ksyms.c b/arch/powerpc/lib/ppc_ksyms.c
-> index c7f8e9586316..4b81fd96aa3e 100644
-> --- a/arch/powerpc/lib/ppc_ksyms.c
-> +++ b/arch/powerpc/lib/ppc_ksyms.c
-> @@ -24,7 +24,6 @@ EXPORT_SYMBOL(csum_tcpudp_magic);
->  #endif
->  
->  EXPORT_SYMBOL(__copy_tofrom_user);
-> -EXPORT_SYMBOL(__clear_user);
->  EXPORT_SYMBOL(copy_page);
->  
->  #ifdef CONFIG_PPC64
-> -- 
-> 2.26.2
+[ Upstream commit 666224b43b4bd4612ce3b758c038f9bc5c5e3fcb ]
+
+The DMA channel was not released if either devm_request_irq() or
+devm_spi_register_controller() failed.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20191212135550.4634-3-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to 4.19-stable]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+---
+ drivers/spi/spi-bcm2835.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
+index 2908df35466f..6824beae18e4 100644
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -787,18 +787,19 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 			       dev_name(&pdev->dev), master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not request IRQ: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
+ 
+ 	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
+ 
+ 	return 0;
+ 
+-out_clk_disable:
++out_dma_release:
++	bcm2835_dma_release(master);
+ 	clk_disable_unprepare(bs->clk);
+ 	return err;
+ }
+-- 
+2.29.2
+
