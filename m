@@ -2,230 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 561E22CFEDC
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 21:40:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2DE2CFEFF
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 22:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726143AbgLEUkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 15:40:17 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:46751 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725601AbgLEUkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Dec 2020 15:40:16 -0500
-Received: from mail-io1-f69.google.com ([209.85.166.69])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <dann.frazier@canonical.com>)
-        id 1kleL7-0002sR-4b
-        for stable@vger.kernel.org; Sat, 05 Dec 2020 20:39:33 +0000
-Received: by mail-io1-f69.google.com with SMTP id z10so1160522iol.2
-        for <stable@vger.kernel.org>; Sat, 05 Dec 2020 12:39:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xi9YvYLz9KzvhBwTvakjRUs8568h0QuWF+4Ntb4xX/M=;
-        b=DmnS9NCm+l3AJ/UQ26E45R4JmvYMlfj7fxYJmzpj7Zj6zZ+CofkvOOvvEBjIUfjVWu
-         ++lpfE91KziXDYTI+v1OaCjJBihnwe7dUxMgqtYoJkRYkqKY2yu23Jj+6zTWWqGHIwIB
-         NFg2KRyTtUMh8FrijP7y1kHYQaND4WG+aYmI75wkaYUXJ+d3jYLi7RsI/rPh0w7URYkZ
-         2t4fQDE4RWJgdbUQ/NXWHvO+ojlCb08ctkTH1QEdjWGR4Vd+NVdpqfuRQAoamcWBs+pq
-         QmJr8rpq51X3lUN2HBhc8KzJt6jPlxd28905F+cLQtXV/ZeOrw7ga26HeqoEfZFPTfXa
-         HKJQ==
-X-Gm-Message-State: AOAM533rflo3Z+pVcw2chtKtOADgd/Ww06w0XR94mKjdo+qHI8HBhg68
-        iDIw45/w/byYoKqo4IRURQF9G23ny2EdloofJG2gs1bw2ZlVCD14h/jFtOYBVIyTFkl5kg1kzpa
-        6rAxJWwN9hp/SjednmTWBgmRiFHb4TA6eqA==
-X-Received: by 2002:a92:d283:: with SMTP id p3mr2418398ilp.265.1607200771894;
-        Sat, 05 Dec 2020 12:39:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwgk8JiJ9jDV1I7CKNe+WuiVZSK0R+/COAnTuAvxvc+6+xwEK043NC5K3tdmVMxpOJNfAgrgg==
-X-Received: by 2002:a92:d283:: with SMTP id p3mr2418381ilp.265.1607200771604;
-        Sat, 05 Dec 2020 12:39:31 -0800 (PST)
-Received: from xps13.dannf (c-71-56-235-36.hsd1.co.comcast.net. [71.56.235.36])
-        by smtp.gmail.com with ESMTPSA id p21sm1624193ilb.10.2020.12.05.12.39.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Dec 2020 12:39:30 -0800 (PST)
-Date:   Sat, 5 Dec 2020 13:39:28 -0700
-From:   dann frazier <dann.frazier@canonical.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: Re: [PATCH 4.4 17/70] crypto: arm64/sha - avoid non-standard inline
- asm tricks
-Message-ID: <X8vwAPhPyKwElFa5@xps13.dannf>
-References: <20181126105046.722096341@linuxfoundation.org>
- <20181126105048.515352194@linuxfoundation.org>
- <X7wgQ0EW4wKERbkq@xps13.dannf>
+        id S1725976AbgLEU7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 15:59:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725379AbgLEU7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 15:59:42 -0500
+Date:   Sat, 5 Dec 2020 15:59:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607201941;
+        bh=74iRxwmFnt99WWNxEo0C+m2cD1/u91IB6ixYgd0wOdM=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z374KlqjZe4kc1SSbgtmFHMGfwkeRIYFWhpyCggp3buV5fZ3gQKevOLwV0PL0AsKz
+         DqifZT9toGw7/e8w1JJjGqyPEPCf57Gt2crZKgKjOLwCVwhaYYUTK+YBs9WXPCyBs1
+         8ZoKJL+QMOmwBs80astNJFETR4tTsMW911W/kngpuJHFVxyib8G7JNAwQad+46s+oG
+         len+BF3J3eDwtuSpOEFe+WLElNxHk6b5RzvMz2i5Q5tVEUQfJFF4Bq6umIUD63Fcgo
+         QcZOsE6wdpzD+K5+6GcsTW568xzhrqAjnBxzxs1PYhUa/RX/FuaJA+j77EY5N/8xcG
+         lDsicw86itMqw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
+Message-ID: <20201205205900.GD643756@sasha-vm>
+References: <20201129210650.GP643756@sasha-vm>
+ <e499986d-ade5-23bd-7a04-fa5eb3f15a56@redhat.com>
+ <20201130173832.GR643756@sasha-vm>
+ <238cbdd1-dabc-d1c1-cff8-c9604a0c9b95@redhat.com>
+ <9ec7dff6-d679-ce19-5e77-f7bcb5a63442@oracle.com>
+ <4c1b2bc7-cf50-4dcd-bfd4-be07e515de2a@redhat.com>
+ <20201130235959.GS643756@sasha-vm>
+ <6c49ded5-bd8f-f219-0c51-3500fd751633@redhat.com>
+ <20201204154911.GZ643756@sasha-vm>
+ <d071d714-3ebd-6929-3f3b-c941cce109f8@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <X7wgQ0EW4wKERbkq@xps13.dannf>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d071d714-3ebd-6929-3f3b-c941cce109f8@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 23, 2020 at 01:49:07PM -0700, dann frazier wrote:
-> On Mon, Nov 26, 2018 at 11:50:32AM +0100, Greg Kroah-Hartman wrote:
-> > 4.4-stable review patch.  If anyone has any objections, please let me know.
-> 
-> fyi, I bisected a regression down to this commit. This apparently
-> causes an ADR_PREL_PG_HI21 relocation to be added to the sha{1,2}_ce
-> modules. Back in 4.4 ADR_PREL_PG_HI21 relocations were forbidden if
-> built with CONFIG_ARM64_ERRATUM_843419=y, so now the sha{1,2}_ce modules
-> fail to load:
-> 
-> [   37.866250] module sha1_ce: unsupported RELA relocation: 275
-> 
-> Looks like it should be an issue for 4.14.y as well, but I haven't yet
-> tested it.
+On Fri, Dec 04, 2020 at 06:08:13PM +0100, Paolo Bonzini wrote:
+>On 04/12/20 16:49, Sasha Levin wrote:
+>>On Fri, Dec 04, 2020 at 09:27:28AM +0100, Paolo Bonzini wrote:
+>>>On 01/12/20 00:59, Sasha Levin wrote:
+>>>>
+>>>>It's quite easy to NAK a patch too, just reply saying "no" and it'll be
+>>>>dropped (just like this patch was dropped right after your first reply)
+>>>>so the burden on maintainers is minimal.
+>>>
+>>>The maintainers are _already_ marking patches with "Cc: stable".  
+>>>That
+>>
+>>They're not, though. Some forget, some subsystems don't mark anything,
+>>some don't mark it as it's not stable material when it lands in their
+>>tree but then it turns out to be one if it sits there for too long.
+>
+>That means some subsystems will be worse as far as stable release 
+>support goes.  That's not a problem:
+>
+>- some subsystems have people paid to do backports to LTS releases 
+>when patches don't apply; others don't, if the patch doesn't apply the 
+>bug is simply not fixed in LTS releases
 
-This regression appears to be limited to 4.4.y. I didn't find it when
-testing 4.9.y, and a 2nd bisection determined that it is because
-4.9.y+ also contains a backport of commit 41c066f ("arm64: assembler:
-make adr_l work in modules under KASLR"). That was pulled from 4.4.y
-because it caused a build failure:
+Why not? A warning mail is originated and folks fix those up. I fixed a
+whole bunch of these myself for subsystems I'm not "paid" to do so.
 
-  https://www.spinics.net/lists/stable/msg179709.html
+>- some subsystems are worse than others even in "normal" releases :)
 
-Shall I submit a revert of this patch for 4.4.y, or is it worth trying
-to get a backport of 41c066f to work?
+Agree with that.
 
-  -dann
-  
-> > From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > 
-> > commit f4857f4c2ee9aa4e2aacac1a845352b00197fb57 upstream.
-> > 
-> > Replace the inline asm which exports struct offsets as ELF symbols
-> > with proper const variables exposing the same values. This works
-> > around an issue with Clang which does not interpret the "i" (or "I")
-> > constraints in the same way as GCC.
-> > 
-> > Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > Tested-by: Matthias Kaehlcke <mka@chromium.org>
-> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  arch/arm64/crypto/sha1-ce-core.S |    6 ++++--
-> >  arch/arm64/crypto/sha1-ce-glue.c |   11 +++--------
-> >  arch/arm64/crypto/sha2-ce-core.S |    6 ++++--
-> >  arch/arm64/crypto/sha2-ce-glue.c |   13 +++++--------
-> >  4 files changed, 16 insertions(+), 20 deletions(-)
-> > 
-> > --- a/arch/arm64/crypto/sha1-ce-core.S
-> > +++ b/arch/arm64/crypto/sha1-ce-core.S
-> > @@ -82,7 +82,8 @@ ENTRY(sha1_ce_transform)
-> >  	ldr		dgb, [x0, #16]
-> >  
-> >  	/* load sha1_ce_state::finalize */
-> > -	ldr		w4, [x0, #:lo12:sha1_ce_offsetof_finalize]
-> > +	ldr_l		w4, sha1_ce_offsetof_finalize, x4
-> > +	ldr		w4, [x0, x4]
-> >  
-> >  	/* load input */
-> >  0:	ld1		{v8.4s-v11.4s}, [x1], #64
-> > @@ -132,7 +133,8 @@ CPU_LE(	rev32		v11.16b, v11.16b	)
-> >  	 * the padding is handled by the C code in that case.
-> >  	 */
-> >  	cbz		x4, 3f
-> > -	ldr		x4, [x0, #:lo12:sha1_ce_offsetof_count]
-> > +	ldr_l		w4, sha1_ce_offsetof_count, x4
-> > +	ldr		x4, [x0, x4]
-> >  	movi		v9.2d, #0
-> >  	mov		x8, #0x80000000
-> >  	movi		v10.2d, #0
-> > --- a/arch/arm64/crypto/sha1-ce-glue.c
-> > +++ b/arch/arm64/crypto/sha1-ce-glue.c
-> > @@ -17,9 +17,6 @@
-> >  #include <linux/crypto.h>
-> >  #include <linux/module.h>
-> >  
-> > -#define ASM_EXPORT(sym, val) \
-> > -	asm(".globl " #sym "; .set " #sym ", %0" :: "I"(val));
-> > -
-> >  MODULE_DESCRIPTION("SHA1 secure hash using ARMv8 Crypto Extensions");
-> >  MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
-> >  MODULE_LICENSE("GPL v2");
-> > @@ -32,6 +29,9 @@ struct sha1_ce_state {
-> >  asmlinkage void sha1_ce_transform(struct sha1_ce_state *sst, u8 const *src,
-> >  				  int blocks);
-> >  
-> > +const u32 sha1_ce_offsetof_count = offsetof(struct sha1_ce_state, sst.count);
-> > +const u32 sha1_ce_offsetof_finalize = offsetof(struct sha1_ce_state, finalize);
-> > +
-> >  static int sha1_ce_update(struct shash_desc *desc, const u8 *data,
-> >  			  unsigned int len)
-> >  {
-> > @@ -52,11 +52,6 @@ static int sha1_ce_finup(struct shash_de
-> >  	struct sha1_ce_state *sctx = shash_desc_ctx(desc);
-> >  	bool finalize = !sctx->sst.count && !(len % SHA1_BLOCK_SIZE);
-> >  
-> > -	ASM_EXPORT(sha1_ce_offsetof_count,
-> > -		   offsetof(struct sha1_ce_state, sst.count));
-> > -	ASM_EXPORT(sha1_ce_offsetof_finalize,
-> > -		   offsetof(struct sha1_ce_state, finalize));
-> > -
-> >  	/*
-> >  	 * Allow the asm code to perform the finalization if there is no
-> >  	 * partial data and the input is a round multiple of the block size.
-> > --- a/arch/arm64/crypto/sha2-ce-core.S
-> > +++ b/arch/arm64/crypto/sha2-ce-core.S
-> > @@ -88,7 +88,8 @@ ENTRY(sha2_ce_transform)
-> >  	ld1		{dgav.4s, dgbv.4s}, [x0]
-> >  
-> >  	/* load sha256_ce_state::finalize */
-> > -	ldr		w4, [x0, #:lo12:sha256_ce_offsetof_finalize]
-> > +	ldr_l		w4, sha256_ce_offsetof_finalize, x4
-> > +	ldr		w4, [x0, x4]
-> >  
-> >  	/* load input */
-> >  0:	ld1		{v16.4s-v19.4s}, [x1], #64
-> > @@ -136,7 +137,8 @@ CPU_LE(	rev32		v19.16b, v19.16b	)
-> >  	 * the padding is handled by the C code in that case.
-> >  	 */
-> >  	cbz		x4, 3f
-> > -	ldr		x4, [x0, #:lo12:sha256_ce_offsetof_count]
-> > +	ldr_l		w4, sha256_ce_offsetof_count, x4
-> > +	ldr		x4, [x0, x4]
-> >  	movi		v17.2d, #0
-> >  	mov		x8, #0x80000000
-> >  	movi		v18.2d, #0
-> > --- a/arch/arm64/crypto/sha2-ce-glue.c
-> > +++ b/arch/arm64/crypto/sha2-ce-glue.c
-> > @@ -17,9 +17,6 @@
-> >  #include <linux/crypto.h>
-> >  #include <linux/module.h>
-> >  
-> > -#define ASM_EXPORT(sym, val) \
-> > -	asm(".globl " #sym "; .set " #sym ", %0" :: "I"(val));
-> > -
-> >  MODULE_DESCRIPTION("SHA-224/SHA-256 secure hash using ARMv8 Crypto Extensions");
-> >  MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
-> >  MODULE_LICENSE("GPL v2");
-> > @@ -32,6 +29,11 @@ struct sha256_ce_state {
-> >  asmlinkage void sha2_ce_transform(struct sha256_ce_state *sst, u8 const *src,
-> >  				  int blocks);
-> >  
-> > +const u32 sha256_ce_offsetof_count = offsetof(struct sha256_ce_state,
-> > +					      sst.count);
-> > +const u32 sha256_ce_offsetof_finalize = offsetof(struct sha256_ce_state,
-> > +						 finalize);
-> > +
-> >  static int sha256_ce_update(struct shash_desc *desc, const u8 *data,
-> >  			    unsigned int len)
-> >  {
-> > @@ -52,11 +54,6 @@ static int sha256_ce_finup(struct shash_
-> >  	struct sha256_ce_state *sctx = shash_desc_ctx(desc);
-> >  	bool finalize = !sctx->sst.count && !(len % SHA256_BLOCK_SIZE);
-> >  
-> > -	ASM_EXPORT(sha256_ce_offsetof_count,
-> > -		   offsetof(struct sha256_ce_state, sst.count));
-> > -	ASM_EXPORT(sha256_ce_offsetof_finalize,
-> > -		   offsetof(struct sha256_ce_state, finalize));
-> > -
-> >  	/*
-> >  	 * Allow the asm code to perform the finalization if there is no
-> >  	 * partial data and the input is a round multiple of the block size.
-> > 
-> > 
+>>>(plus backports) is where the burden on maintainers should start 
+>>>and end.  I don't see the need to second guess them.
+>>
+>>This is similar to describing our CI infrastructure as "second
+>>guessing": why are we second guessing authors and maintainers who are
+>>obviously doing the right thing by testing their patches and reporting
+>>issues to them?
+>
+>No, it's not the same.  CI helps finding bugs before you have to waste 
+>time spending bisecting regressions across thousands of commits.  The 
+>lack of stable tags _can_ certainly be a problem, but it solves itself 
+>sooner or later when people upgrade their kernel.
+
+If just waiting with fixing issues is ok until a user might "eventually"
+upgrade is acceptable then why bother with a stable tree to begin with?
+
+-- 
+Thanks,
+Sasha
