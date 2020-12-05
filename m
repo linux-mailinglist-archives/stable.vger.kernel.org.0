@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7922CFD79
-	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:53:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA5B2CFD59
+	for <lists+stable@lfdr.de>; Sat,  5 Dec 2020 19:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726600AbgLESed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 13:34:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        id S1728300AbgLESb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 13:31:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726658AbgLESe2 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 13:34:28 -0500
-Subject: patch "iio: imu: st_lsm6dsx: fix edge-trigger interrupts" added to staging-next
+        id S1729009AbgLES3b (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 13:29:31 -0500
+Subject: patch "counter: microchip-tcb-capture: Fix CMR value check" added to staging-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607183321;
-        bh=TFBNMuuIy2mnh2VlW8Dv3fYqlLqAP9lqBTpaHx2ykPQ=;
+        s=korg; t=1607183325;
+        bh=zZhwIASY2WZZLF0wPSvWGKpUzQBaSlgwdwwAoObbu58=;
         h=To:From:Date:From;
-        b=c7ALxsbi1NK5aMWAq4R+5du5GO0AO0ptvzS9X9EDC+6rVJtEwitiSLPRPiSmT0dV1
-         +WfUMZAPm6lFcZHPpSk92aPS+Hiyw6xJQiuDmv5ELvQBUg2kDZYrAf67xzpZg9vjpf
-         Tp/tq3M52HfUORvxKOv7Wo1UbD/gDFBFBJW6JNwI=
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=Fa7BOuArIGRi3dbWke2rijktfdzn6w+Q89ZNv+X3hnrFXSXRDZB7iJb4XIi43mA0O
+         BrVwiJCaammH8CRiU84EhiWKqSU6YcSi68Wavyu0qi9/6KlH4qRbI/aWXDZrfsr2YP
+         UvR59UgKc1bGSgN+IdplfNcW2g4zKcnzho4hDJJk=
+To:     vilhelm.gray@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, alexandre.belloni@bootlin.com,
+        kamel.bouhara@bootlin.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Dec 2020 16:46:12 +0100
-Message-ID: <1607183172112214@kroah.com>
+Message-ID: <1607183172156183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: imu: st_lsm6dsx: fix edge-trigger interrupts
+    counter: microchip-tcb-capture: Fix CMR value check
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -49,75 +50,57 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 3f9bce7a22a3f8ac9d885c9d75bc45569f24ac8b Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Sat, 14 Nov 2020 19:39:05 +0100
-Subject: iio: imu: st_lsm6dsx: fix edge-trigger interrupts
+From 3418bd7cfce0bd8ef1ccedc4655f9f86f6c3b0ca Mon Sep 17 00:00:00 2001
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
+Date: Sat, 14 Nov 2020 18:28:05 -0500
+Subject: counter: microchip-tcb-capture: Fix CMR value check
 
-If we are using edge IRQs, new samples can arrive while processing
-current interrupt since there are no hw guarantees the irq line
-stays "low" long enough to properly detect the new interrupt.
-In this case the new sample will be missed.
-Polling FIFO status register in st_lsm6dsx_handler_thread routine
-allow us to read new samples even if the interrupt arrives while
-processing previous data and the timeslot where the line is "low"
-is too short to be properly detected.
+The ATMEL_TC_ETRGEDG_* defines are not masks but rather possible values
+for CMR. This patch fixes the action_get() callback to properly check
+for these values rather than mask them.
 
-Fixes: 89ca88a7cdf2 ("iio: imu: st_lsm6dsx: support active-low interrupts")
-Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/5e93cda7dc1e665f5685c53ad8e9ea71dbae782d.1605378871.git.lorenzo@kernel.org
+Fixes: 106b104137fd ("counter: Add microchip TCB capture counter")
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201114232805.253108-1-vilhelm.gray@gmail.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 26 ++++++++++++++++----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/counter/microchip-tcb-capture.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index 467214e2e77c..7cedaab096a7 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -2069,19 +2069,35 @@ st_lsm6dsx_report_motion_event(struct st_lsm6dsx_hw *hw)
- static irqreturn_t st_lsm6dsx_handler_thread(int irq, void *private)
- {
- 	struct st_lsm6dsx_hw *hw = private;
-+	int fifo_len = 0, len;
- 	bool event;
--	int count;
+diff --git a/drivers/counter/microchip-tcb-capture.c b/drivers/counter/microchip-tcb-capture.c
+index 039c54a78aa5..710acc0a3704 100644
+--- a/drivers/counter/microchip-tcb-capture.c
++++ b/drivers/counter/microchip-tcb-capture.c
+@@ -183,16 +183,20 @@ static int mchp_tc_count_action_get(struct counter_device *counter,
  
- 	event = st_lsm6dsx_report_motion_event(hw);
+ 	regmap_read(priv->regmap, ATMEL_TC_REG(priv->channel[0], CMR), &cmr);
  
- 	if (!hw->settings->fifo_ops.read_fifo)
- 		return event ? IRQ_HANDLED : IRQ_NONE;
+-	*action = MCHP_TC_SYNAPSE_ACTION_NONE;
+-
+-	if (cmr & ATMEL_TC_ETRGEDG_NONE)
++	switch (cmr & ATMEL_TC_ETRGEDG) {
++	default:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_NONE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_RISING)
++		break;
++	case ATMEL_TC_ETRGEDG_RISING:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_RISING_EDGE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_FALLING)
++		break;
++	case ATMEL_TC_ETRGEDG_FALLING:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_FALLING_EDGE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_BOTH)
++		break;
++	case ATMEL_TC_ETRGEDG_BOTH:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_BOTH_EDGE;
++		break;
++	}
  
--	mutex_lock(&hw->fifo_lock);
--	count = hw->settings->fifo_ops.read_fifo(hw);
--	mutex_unlock(&hw->fifo_lock);
-+	/*
-+	 * If we are using edge IRQs, new samples can arrive while
-+	 * processing current interrupt since there are no hw
-+	 * guarantees the irq line stays "low" long enough to properly
-+	 * detect the new interrupt. In this case the new sample will
-+	 * be missed.
-+	 * Polling FIFO status register allow us to read new
-+	 * samples even if the interrupt arrives while processing
-+	 * previous data and the timeslot where the line is "low" is
-+	 * too short to be properly detected.
-+	 */
-+	do {
-+		mutex_lock(&hw->fifo_lock);
-+		len = hw->settings->fifo_ops.read_fifo(hw);
-+		mutex_unlock(&hw->fifo_lock);
-+
-+		if (len > 0)
-+			fifo_len += len;
-+	} while (len > 0);
- 
--	return count || event ? IRQ_HANDLED : IRQ_NONE;
-+	return fifo_len || event ? IRQ_HANDLED : IRQ_NONE;
+ 	return 0;
  }
- 
- static int st_lsm6dsx_irq_setup(struct st_lsm6dsx_hw *hw)
 -- 
 2.29.2
 
