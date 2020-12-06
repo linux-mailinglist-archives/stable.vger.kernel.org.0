@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4BB2D03D6
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B61A2D0382
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728668AbgLFLkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
+        id S1727841AbgLFLjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728660AbgLFLkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:39 -0500
+        id S1725767AbgLFLjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:13 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 20/32] net/x25: prevent a couple of overflows
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 17/20] ALSA: usb-audio: US16x08: fix value count for level meters
 Date:   Sun,  6 Dec 2020 12:17:20 +0100
-Message-Id: <20201206111556.729478472@linuxfoundation.org>
+Message-Id: <20201206111556.353040335@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,59 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 6ee50c8e262a0f0693dad264c3c99e30e6442a56 ]
+commit 402d5840b0d40a2a26c8651165d29b534abb6d36 upstream.
 
-The .x25_addr[] address comes from the user and is not necessarily
-NUL terminated.  This leads to a couple problems.  The first problem is
-that the strlen() in x25_bind() can read beyond the end of the buffer.
+The level meter control returns 34 integers of info. This fixes:
 
-The second problem is more subtle and could result in memory corruption.
-The call tree is:
-  x25_connect()
-  --> x25_write_internal()
-      --> x25_addr_aton()
+snd-usb-audio 3-1:1.0: control 2:0:0:Level Meter:0: access overflow
 
-The .x25_addr[] buffers are copied to the "addresses" buffer from
-x25_write_internal() so it will lead to stack corruption.
-
-Verify that the strings are NUL terminated and return -EINVAL if they
-are not.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: a9288525d2ae ("X25: Dont let x25_bind use addresses containing characters")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/X8ZeAKm8FnFpN//B@mwanda
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d2bb390a2081 ("ALSA: usb-audio: Tascam US-16x08 DSP mixer quirk")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20201127132635.18947-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/x25/af_x25.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -680,7 +680,8 @@ static int x25_bind(struct socket *sock,
- 	int len, i, rc = 0;
- 
- 	if (addr_len != sizeof(struct sockaddr_x25) ||
--	    addr->sx25_family != AF_X25) {
-+	    addr->sx25_family != AF_X25 ||
-+	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -774,7 +775,8 @@ static int x25_connect(struct socket *so
- 
- 	rc = -EINVAL;
- 	if (addr_len != sizeof(struct sockaddr_x25) ||
--	    addr->sx25_family != AF_X25)
-+	    addr->sx25_family != AF_X25 ||
-+	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
- 		goto out;
- 
- 	rc = -ENETUNREACH;
+---
+ sound/usb/mixer_us16x08.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/sound/usb/mixer_us16x08.c
++++ b/sound/usb/mixer_us16x08.c
+@@ -617,7 +617,7 @@ static int snd_us16x08_eq_put(struct snd
+ static int snd_us16x08_meter_info(struct snd_kcontrol *kcontrol,
+ 	struct snd_ctl_elem_info *uinfo)
+ {
+-	uinfo->count = 1;
++	uinfo->count = 34;
+ 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+ 	uinfo->value.integer.max = 0x7FFF;
+ 	uinfo->value.integer.min = 0;
 
 
