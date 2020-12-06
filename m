@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD5EF2D0494
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F32372D0450
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbgLFLrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:47:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43170 "EHLO mail.kernel.org"
+        id S1729383AbgLFLom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729195AbgLFLnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:41 -0500
+        id S1729379AbgLFLol (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:44:41 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 34/39] net/mlx5: Fix wrong address reclaim when command interface is down
-Date:   Sun,  6 Dec 2020 12:17:38 +0100
-Message-Id: <20201206111556.315301575@linuxfoundation.org>
+Subject: [PATCH 5.9 31/46] chelsio/chtls: fix a double free in chtls_setkey()
+Date:   Sun,  6 Dec 2020 12:17:39 +0100
+Message-Id: <20201206111557.960497332@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,62 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@nvidia.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1d2bb5ad89f47d8ce8aedc70ef85059ab3870292 ]
+[ Upstream commit 391119fb5c5c4bdb4d57c7ffeb5e8d18560783d1 ]
 
-When command interface is down, driver to reclaim all 4K page chucks that
-were hold by the Firmeware. Fix a bug for 64K page size systems, where
-driver repeatedly released only the first chunk of the page.
+The "skb" is freed by the transmit code in cxgb4_ofld_send() and we
+shouldn't use it again.  But in the current code, if we hit an error
+later on in the function then the clean up code will call kfree_skb(skb)
+and so it causes a double free.
 
-Define helper function to fill 4K chunks for a given Firmware pages.
-Iterate over all unreleased Firmware pages and call the hepler per each.
+Set the "skb" to NULL and that makes the kfree_skb() a no-op.
 
-Fixes: 5adff6a08862 ("net/mlx5: Fix incorrect page count when in internal error")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: d25f2f71f653 ("crypto: chtls - Program the TLS session Key")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X8ilb6PtBRLWiSHp@mwanda
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c |   21 ++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_hw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-@@ -339,6 +339,24 @@ out_free:
- 	return err;
- }
+--- a/drivers/crypto/chelsio/chtls/chtls_hw.c
++++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
+@@ -391,6 +391,7 @@ int chtls_setkey(struct chtls_sock *csk,
+ 	csk->wr_unacked += DIV_ROUND_UP(len, 16);
+ 	enqueue_wr(csk, skb);
+ 	cxgb4_ofld_send(csk->egress_dev, skb);
++	skb = NULL;
  
-+static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
-+				     u32 npages)
-+{
-+	u32 pages_set = 0;
-+	unsigned int n;
-+
-+	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
-+		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
-+				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
-+		pages_set++;
-+
-+		if (!--npages)
-+			break;
-+	}
-+
-+	return pages_set;
-+}
-+
- static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
- 			     u32 *in, int in_size, u32 *out, int out_size)
- {
-@@ -362,8 +380,7 @@ static int reclaim_pages_cmd(struct mlx5
- 		if (fwp->func_id != func_id)
- 			continue;
- 
--		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
--		i++;
-+		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
- 	}
- 
- 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
+ 	chtls_set_scmd(csk);
+ 	/* Clear quiesce for Rx key */
 
 
