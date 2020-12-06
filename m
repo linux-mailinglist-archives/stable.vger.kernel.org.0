@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44FB82D03F0
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C552D0395
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727554AbgLFLlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39272 "EHLO mail.kernel.org"
+        id S1728007AbgLFLj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728851AbgLFLli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:41:38 -0500
+        id S1727995AbgLFLj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:28 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 12/39] staging/octeon: fix up merge error
-Date:   Sun,  6 Dec 2020 12:17:16 +0100
-Message-Id: <20201206111555.264456188@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 14/20] net: pasemi: fix error return code in pasemi_mac_open()
+Date:   Sun,  6 Dec 2020 12:17:17 +0100
+Message-Id: <20201206111556.225573507@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,46 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 673b41e04a035d760bc0aff83fa9ee24fd9c2779 upstream.
+[ Upstream commit aba84871bd4f52c4dfcf3ad5d4501a6c9d2de90e ]
 
-There's a semantic conflict in the Octeon staging network driver, which
-used the skb_reset_tc() function to reset skb state when re-using an
-skb.  But that inline helper function was removed in mainline by commit
-2c64605b590e ("net: Fix CONFIG_NET_CLS_ACT=n and
-CONFIG_NFT_FWD_NETDEV={y, m} build").
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fix it by using skb_reset_redirect() instead.  Also move it out of the
-
-This code path only ends up triggering if REUSE_SKBUFFS_WITHOUT_FREE is
-enabled, which in turn only happens if you don't have CONFIG_NETFILTER
-configured.  Which was how this wasn't caught by the usual allmodconfig
-builds.
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 72b05b9940f0 ("pasemi_mac: RX/TX ring management cleanup")
+Fixes: 8d636d8bc5ff ("pasemi_mac: jumbo frame support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1606903035-1838-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/octeon/ethernet-tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/pasemi/pasemi_mac.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/octeon/ethernet-tx.c
-+++ b/drivers/staging/octeon/ethernet-tx.c
-@@ -352,10 +352,10 @@ int cvm_oct_xmit(struct sk_buff *skb, st
- 	skb_dst_set(skb, NULL);
- 	skb_ext_reset(skb);
- 	nf_reset_ct(skb);
-+	skb_reset_redirect(skb);
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1089,16 +1089,20 @@ static int pasemi_mac_open(struct net_de
  
- #ifdef CONFIG_NET_SCHED
- 	skb->tc_index = 0;
--	skb_reset_tc(skb);
- #endif /* CONFIG_NET_SCHED */
- #endif /* REUSE_SKBUFFS_WITHOUT_FREE */
+ 	mac->tx = pasemi_mac_setup_tx_resources(dev);
  
+-	if (!mac->tx)
++	if (!mac->tx) {
++		ret = -ENOMEM;
+ 		goto out_tx_ring;
++	}
+ 
+ 	/* We might already have allocated rings in case mtu was changed
+ 	 * before interface was brought up.
+ 	 */
+ 	if (dev->mtu > 1500 && !mac->num_cs) {
+ 		pasemi_mac_setup_csrings(mac);
+-		if (!mac->num_cs)
++		if (!mac->num_cs) {
++			ret = -ENOMEM;
+ 			goto out_tx_ring;
++		}
+ 	}
+ 
+ 	/* Zero out rmon counters */
 
 
