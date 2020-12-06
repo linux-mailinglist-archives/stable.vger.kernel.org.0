@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D402D0473
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6C32D049F
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729082AbgLFLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:45:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46162 "EHLO mail.kernel.org"
+        id S1727818AbgLFLrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:47:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725804AbgLFLpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:46 -0500
+        id S1727842AbgLFLm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:42:27 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        stable@vger.kernel.org, Udai Sharma <udai.sharma@chelsio.com>,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 14/46] mptcp: fix NULL ptr dereference on bad MPJ
+Subject: [PATCH 5.4 18/39] chelsio/chtls: fix panic during unload reload chtls
 Date:   Sun,  6 Dec 2020 12:17:22 +0100
-Message-Id: <20201206111557.147478069@linuxfoundation.org>
+Message-Id: <20201206111555.553421649@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,47 +32,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-[ Upstream commit d3ab78858f1451351221061a1c365495df196500 ]
+[ Upstream commit e3d5e971d2f83d8ddd4b91a50cea4517fb488383 ]
 
-If an msk listener receives an MPJ carrying an invalid token, it
-will zero the request socket msk entry. That should later
-cause fallback and subflow reset - as per RFC - at
-subflow_syn_recv_sock() time due to failing hmac validation.
+there is kernel panic in inet_twsk_free() while chtls
+module unload when socket is in TIME_WAIT state because
+sk_prot_creator was not preserved on connection socket.
 
-Since commit 4cf8b7e48a09 ("subflow: introduce and use
-mptcp_can_accept_new_subflow()"), we unconditionally dereference
-- in mptcp_can_accept_new_subflow - the subflow request msk
-before performing hmac validation. In the above scenario we
-hit a NULL ptr dereference.
-
-Address the issue doing the hmac validation earlier.
-
-Fixes: 4cf8b7e48a09 ("subflow: introduce and use mptcp_can_accept_new_subflow()")
-Tested-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Link: https://lore.kernel.org/r/03b2cfa3ac80d8fc18272edc6442a9ddf0b1e34e.1606400227.git.pabeni@redhat.com
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Udai Sharma <udai.sharma@chelsio.com>
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Link: https://lore.kernel.org/r/20201125214913.16938-1-vinay.yadav@chelsio.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -542,9 +542,8 @@ create_msk:
- 			fallback = true;
- 	} else if (subflow_req->mp_join) {
- 		mptcp_get_options(skb, &mp_opt);
--		if (!mp_opt.mp_join ||
--		    !mptcp_can_accept_new_subflow(subflow_req->msk) ||
--		    !subflow_hmac_valid(req, &mp_opt)) {
-+		if (!mp_opt.mp_join || !subflow_hmac_valid(req, &mp_opt) ||
-+		    !mptcp_can_accept_new_subflow(subflow_req->msk)) {
- 			SUBFLOW_REQ_INC_STATS(req, MPTCP_MIB_JOINACKMAC);
- 			fallback = true;
- 		}
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -1077,6 +1077,7 @@ static struct sock *chtls_recv_sock(stru
+ 	sk_setup_caps(newsk, dst);
+ 	ctx = tls_get_ctx(lsk);
+ 	newsk->sk_destruct = ctx->sk_destruct;
++	newsk->sk_prot_creator = lsk->sk_prot_creator;
+ 	csk->sk = newsk;
+ 	csk->passive_reap_next = oreq;
+ 	csk->tx_chan = cxgb4_port_chan(ndev);
 
 
