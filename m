@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD712D0457
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCBEA2D0482
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729415AbgLFLo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:44:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44588 "EHLO mail.kernel.org"
+        id S1729051AbgLFLqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:46:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728823AbgLFLoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:44:55 -0500
+        id S1727866AbgLFLpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:33 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 36/46] net/mlx5: DR, Proper handling of unsupported Connect-X6DX SW steering
-Date:   Sun,  6 Dec 2020 12:17:44 +0100
-Message-Id: <20201206111558.197439077@linuxfoundation.org>
+Subject: [PATCH 5.9 37/46] net/mlx5: Fix wrong address reclaim when command interface is down
+Date:   Sun,  6 Dec 2020 12:17:45 +0100
+Message-Id: <20201206111558.245562509@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -32,87 +32,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+From: Eran Ben Elisha <eranbe@nvidia.com>
 
-[ Upstream commit d421e466c2373095f165ddd25cbabd6c5b077928 ]
+[ Upstream commit 1d2bb5ad89f47d8ce8aedc70ef85059ab3870292 ]
 
-STEs format for Connect-X5 and Connect-X6DX different. Currently, on
-Connext-X6DX the SW steering would break at some point when building STEs
-w/o giving a proper error message. Fix this by checking the STE format of
-the current device when initializing domain: add mlx5_ifc definitions for
-Connect-X6DX SW steering, read FW capability to get the current format
-version, and check this version when domain is being created.
+When command interface is down, driver to reclaim all 4K page chucks that
+were hold by the Firmeware. Fix a bug for 64K page size systems, where
+driver repeatedly released only the first chunk of the page.
 
-Fixes: 26d688e33f88 ("net/mlx5: DR, Add Steering entry (STE) utilities")
-Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Define helper function to fill 4K chunks for a given Firmware pages.
+Iterate over all unreleased Firmware pages and call the hepler per each.
+
+Fixes: 5adff6a08862 ("net/mlx5: Fix incorrect page count when in internal error")
+Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_cmd.c    |    1 +
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_domain.c |    5 +++++
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h  |    1 +
- include/linux/mlx5/mlx5_ifc.h                                |    9 ++++++++-
- 4 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c |   21 ++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_cmd.c
-@@ -92,6 +92,7 @@ int mlx5dr_cmd_query_device(struct mlx5_
- 	caps->eswitch_manager	= MLX5_CAP_GEN(mdev, eswitch_manager);
- 	caps->gvmi		= MLX5_CAP_GEN(mdev, vhca_id);
- 	caps->flex_protocols	= MLX5_CAP_GEN(mdev, flex_parser_protocols);
-+	caps->sw_format_ver	= MLX5_CAP_GEN(mdev, steering_format_version);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+@@ -422,6 +422,24 @@ static void release_all_pages(struct mlx
+ 		      npages, ec_function, func_id);
+ }
  
- 	if (mlx5dr_matcher_supp_flex_parser_icmp_v4(caps)) {
- 		caps->flex_parser_id_icmp_dw0 = MLX5_CAP_GEN(mdev, flex_parser_id_icmp_dw0);
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_domain.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_domain.c
-@@ -223,6 +223,11 @@ static int dr_domain_caps_init(struct ml
- 	if (ret)
- 		return ret;
- 
-+	if (dmn->info.caps.sw_format_ver != MLX5_STEERING_FORMAT_CONNECTX_5) {
-+		mlx5dr_err(dmn, "SW steering is not supported on this device\n");
-+		return -EOPNOTSUPP;
++static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
++				     u32 npages)
++{
++	u32 pages_set = 0;
++	unsigned int n;
++
++	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
++		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
++				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
++		pages_set++;
++
++		if (!--npages)
++			break;
 +	}
 +
- 	ret = dr_domain_query_fdb_caps(mdev, dmn);
- 	if (ret)
- 		return ret;
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-@@ -621,6 +621,7 @@ struct mlx5dr_cmd_caps {
- 	u8 max_ft_level;
- 	u16 roce_min_src_udp;
- 	u8 num_esw_ports;
-+	u8 sw_format_ver;
- 	bool eswitch_manager;
- 	bool rx_sw_owner;
- 	bool tx_sw_owner;
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -1222,6 +1222,11 @@ enum mlx5_fc_bulk_alloc_bitmask {
- 
- #define MLX5_FC_BULK_NUM_FCS(fc_enum) (MLX5_FC_BULK_SIZE_FACTOR * (fc_enum))
- 
-+enum {
-+	MLX5_STEERING_FORMAT_CONNECTX_5   = 0,
-+	MLX5_STEERING_FORMAT_CONNECTX_6DX = 1,
-+};
++	return pages_set;
++}
 +
- struct mlx5_ifc_cmd_hca_cap_bits {
- 	u8         reserved_at_0[0x30];
- 	u8         vhca_id[0x10];
-@@ -1519,7 +1524,9 @@ struct mlx5_ifc_cmd_hca_cap_bits {
+ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 			     u32 *in, int in_size, u32 *out, int out_size)
+ {
+@@ -448,8 +466,7 @@ static int reclaim_pages_cmd(struct mlx5
+ 		fwp = rb_entry(p, struct fw_page, rb_node);
+ 		p = rb_next(p);
  
- 	u8         general_obj_types[0x40];
+-		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
+-		i++;
++		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
+ 	}
  
--	u8         reserved_at_440[0x20];
-+	u8         reserved_at_440[0x4];
-+	u8         steering_format_version[0x4];
-+	u8         create_qp_start_hint[0x18];
- 
- 	u8         reserved_at_460[0x3];
- 	u8         log_max_uctx[0x5];
+ 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
 
 
