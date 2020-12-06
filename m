@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 792FB2D0434
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC22F2D0464
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729240AbgLFLnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:43:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43368 "EHLO mail.kernel.org"
+        id S1728955AbgLFLpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:45:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbgLFLnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:52 -0500
+        id S1729480AbgLFLpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:21 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 38/39] tracing: Remove WARN_ON in start_thread()
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 34/46] net: openvswitch: ensure LSE is pullable before reading it
 Date:   Sun,  6 Dec 2020 12:17:42 +0100
-Message-Id: <20201206111556.483147152@linuxfoundation.org>
+Message-Id: <20201206111558.100629224@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,56 +31,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit 310e3a4b5a4fc718a72201c1e4cf5c64ac6f5442 upstream.
+[ Upstream commit 43c13605bad44b8abbc9776d6e63f62ccb7a47d6 ]
 
-This patch reverts commit 978defee11a5 ("tracing: Do a WARN_ON()
- if start_thread() in hwlat is called when thread exists")
+when openvswitch is configured to mangle the LSE, the current value is
+read from the packet dereferencing 4 bytes at mpls_hdr(): ensure that
+the label is contained in the skb "linear" area.
 
-.start hook can be legally called several times if according
-tracer is stopped
+Found by code inspection.
 
-screen window 1
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/options/pause-on-trace
-[root@localhost ~]# less -F /sys/kernel/tracing/trace
-
-screen window 2
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo hwlat >  /sys/kernel/debug/tracing/current_tracer
-[root@localhost ~]# echo 1 > /sys/kernel/debug/tracing/tracing_on
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo 2 > /sys/kernel/debug/tracing/tracing_on
-
-triggers warning in dmesg:
-WARNING: CPU: 3 PID: 1403 at kernel/trace/trace_hwlat.c:371 hwlat_tracer_start+0xc9/0xd0
-
-Link: https://lkml.kernel.org/r/bd4d3e70-400d-9c82-7b73-a2d695e86b58@virtuozzo.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 978defee11a5 ("tracing: Do a WARN_ON() if start_thread() in hwlat is called when thread exists")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: d27cf5c59a12 ("net: core: add MPLS update core helper and use in OvS")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Link: https://lore.kernel.org/r/aa099f245d93218b84b5c056b67b6058ccf81a66.1606987185.git.dcaratti@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/trace/trace_hwlat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/openvswitch/actions.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -355,7 +355,7 @@ static int start_kthread(struct trace_ar
- 	struct task_struct *kthread;
- 	int next_cpu;
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -200,6 +200,9 @@ static int set_mpls(struct sk_buff *skb,
+ 	__be32 lse;
+ 	int err;
  
--	if (WARN_ON(hwlat_kthread))
-+	if (hwlat_kthread)
- 		return 0;
- 
- 	/* Just pick the first CPU on first iteration */
++	if (!pskb_may_pull(skb, skb_network_offset(skb) + MPLS_HLEN))
++		return -ENOMEM;
++
+ 	stack = mpls_hdr(skb);
+ 	lse = OVS_MASKED(stack->label_stack_entry, *mpls_lse, *mask);
+ 	err = skb_mpls_update_lse(skb, lse);
 
 
