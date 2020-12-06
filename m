@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E8F2D0449
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 055702D040C
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729351AbgLFLoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:44:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44124 "EHLO mail.kernel.org"
+        id S1728958AbgLFLmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:42:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727939AbgLFLob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:44:31 -0500
+        id S1727924AbgLFLmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:42:45 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Udai Sharma <udai.sharma@chelsio.com>,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        stable@vger.kernel.org, Maria Pasechnik <mariap@mellanox.com>,
+        Antoine Tenart <atenart@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 19/46] chelsio/chtls: fix panic during unload reload chtls
+Subject: [PATCH 5.4 23/39] net: ip6_gre: set dev->hard_header_len when using header_ops
 Date:   Sun,  6 Dec 2020 12:17:27 +0100
-Message-Id: <20201206111557.385339882@linuxfoundation.org>
+Message-Id: <20201206111555.783347806@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,33 +32,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit e3d5e971d2f83d8ddd4b91a50cea4517fb488383 ]
+[ Upstream commit 832ba596494b2c9eac7760259eff2d8b7dcad0ee ]
 
-there is kernel panic in inet_twsk_free() while chtls
-module unload when socket is in TIME_WAIT state because
-sk_prot_creator was not preserved on connection socket.
+syzkaller managed to crash the kernel using an NBMA ip6gre interface. I
+could reproduce it creating an NBMA ip6gre interface and forwarding
+traffic to it:
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Udai Sharma <udai.sharma@chelsio.com>
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Link: https://lore.kernel.org/r/20201125214913.16938-1-vinay.yadav@chelsio.com
+  skbuff: skb_under_panic: text:ffffffff8250e927 len:148 put:44 head:ffff8c03c7a33
+  ------------[ cut here ]------------
+  kernel BUG at net/core/skbuff.c:109!
+  Call Trace:
+  skb_push+0x10/0x10
+  ip6gre_header+0x47/0x1b0
+  neigh_connected_output+0xae/0xf0
+
+ip6gre tunnel provides its own header_ops->create, and sets it
+conditionally when initializing the tunnel in NBMA mode. When
+header_ops->create is used, dev->hard_header_len should reflect the
+length of the header created. Otherwise, when not used,
+dev->needed_headroom should be used.
+
+Fixes: eb95f52fc72d ("net: ipv6_gre: Fix GRO to work on IPv6 over GRE tap")
+Cc: Maria Pasechnik <mariap@mellanox.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Link: https://lore.kernel.org/r/20201130161911.464106-1-atenart@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/ip6_gre.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_cm.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -1206,6 +1206,7 @@ static struct sock *chtls_recv_sock(stru
- 	sk_setup_caps(newsk, dst);
- 	ctx = tls_get_ctx(lsk);
- 	newsk->sk_destruct = ctx->sk_destruct;
-+	newsk->sk_prot_creator = lsk->sk_prot_creator;
- 	csk->sk = newsk;
- 	csk->passive_reap_next = oreq;
- 	csk->tx_chan = cxgb4_port_chan(ndev);
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1120,8 +1120,13 @@ static void ip6gre_tnl_link_config_route
+ 			return;
+ 
+ 		if (rt->dst.dev) {
+-			dev->needed_headroom = rt->dst.dev->hard_header_len +
+-					       t_hlen;
++			unsigned short dst_len = rt->dst.dev->hard_header_len +
++						 t_hlen;
++
++			if (t->dev->header_ops)
++				dev->hard_header_len = dst_len;
++			else
++				dev->needed_headroom = dst_len;
+ 
+ 			if (set_mtu) {
+ 				dev->mtu = rt->dst.dev->mtu - t_hlen;
+@@ -1146,7 +1151,12 @@ static int ip6gre_calc_hlen(struct ip6_t
+ 	tunnel->hlen = tunnel->tun_hlen + tunnel->encap_hlen;
+ 
+ 	t_hlen = tunnel->hlen + sizeof(struct ipv6hdr);
+-	tunnel->dev->needed_headroom = LL_MAX_HEADER + t_hlen;
++
++	if (tunnel->dev->header_ops)
++		tunnel->dev->hard_header_len = LL_MAX_HEADER + t_hlen;
++	else
++		tunnel->dev->needed_headroom = LL_MAX_HEADER + t_hlen;
++
+ 	return t_hlen;
+ }
+ 
 
 
