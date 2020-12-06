@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1C52D046E
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F33C42D046D
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbgLFLph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729521AbgLFLph (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 6 Dec 2020 06:45:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45740 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728001AbgLFLpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:36 -0500
+        id S1729510AbgLFLpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:34 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 38/46] net: mlx5e: fix fs_tcp.c build when IPV6 is not enabled
-Date:   Sun,  6 Dec 2020 12:17:46 +0100
-Message-Id: <20201206111558.294498543@linuxfoundation.org>
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 39/46] ALSA: usb-audio: US16x08: fix value count for level meters
+Date:   Sun,  6 Dec 2020 12:17:47 +0100
+Message-Id: <20201206111558.342307775@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -33,53 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 8a78a440108e55ddd845b0ef46df575248667520 ]
+commit 402d5840b0d40a2a26c8651165d29b534abb6d36 upstream.
 
-Fix build when CONFIG_IPV6 is not enabled by making a function
-be built conditionally.
+The level meter control returns 34 integers of info. This fixes:
 
-Fixes these build errors and warnings:
+snd-usb-audio 3-1:1.0: control 2:0:0:Level Meter:0: access overflow
 
-../drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c: In function 'accel_fs_tcp_set_ipv6_flow':
-../include/net/sock.h:380:34: error: 'struct sock_common' has no member named 'skc_v6_daddr'; did you mean 'skc_daddr'?
-  380 | #define sk_v6_daddr  __sk_common.skc_v6_daddr
-      |                                  ^~~~~~~~~~~~
-../drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c:55:14: note: in expansion of macro 'sk_v6_daddr'
-   55 |         &sk->sk_v6_daddr, 16);
-      |              ^~~~~~~~~~~
-At top level:
-../drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c:47:13: warning: 'accel_fs_tcp_set_ipv6_flow' defined but not used [-Wunused-function]
-   47 | static void accel_fs_tcp_set_ipv6_flow(struct mlx5_flow_spec *spec, struct sock *sk)
-
-Fixes: 5229a96e59ec ("net/mlx5e: Accel, Expose flow steering API for rules add/del")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d2bb390a2081 ("ALSA: usb-audio: Tascam US-16x08 DSP mixer quirk")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20201127132635.18947-1-marcan@marcan.st
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/fs_tcp.c
-@@ -44,6 +44,7 @@ static void accel_fs_tcp_set_ipv4_flow(s
- 			 outer_headers.dst_ipv4_dst_ipv6.ipv4_layout.ipv4);
- }
- 
-+#if IS_ENABLED(CONFIG_IPV6)
- static void accel_fs_tcp_set_ipv6_flow(struct mlx5_flow_spec *spec, struct sock *sk)
+---
+ sound/usb/mixer_us16x08.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/sound/usb/mixer_us16x08.c
++++ b/sound/usb/mixer_us16x08.c
+@@ -607,7 +607,7 @@ static int snd_us16x08_eq_put(struct snd
+ static int snd_us16x08_meter_info(struct snd_kcontrol *kcontrol,
+ 	struct snd_ctl_elem_info *uinfo)
  {
- 	MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria, outer_headers.ip_protocol);
-@@ -63,6 +64,7 @@ static void accel_fs_tcp_set_ipv6_flow(s
- 			    outer_headers.dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
- 	       0xff, 16);
- }
-+#endif
- 
- void mlx5e_accel_fs_del_sk(struct mlx5_flow_handle *rule)
- {
+-	uinfo->count = 1;
++	uinfo->count = 34;
+ 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+ 	uinfo->value.integer.max = 0x7FFF;
+ 	uinfo->value.integer.min = 0;
 
 
