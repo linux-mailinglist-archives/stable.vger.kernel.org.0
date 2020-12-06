@@ -2,280 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C68DD2D0005
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 01:54:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D966C2D005F
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 05:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbgLFAyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 19:54:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725922AbgLFAyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Dec 2020 19:54:43 -0500
-Date:   Sat, 05 Dec 2020 16:54:01 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1607216042;
-        bh=D01izbM81DESjHAbmKsAs8ZrWLqmboTck7C/BOVR4XE=;
-        h=From:To:Subject:From;
-        b=Rq6yKUuvnbpEokXBFTUrjWR6umAMD2tPI9yXD/TSF+rtLgMG67yWhG11R9SPZ1JQN
-         EqaNP8flCp2VvoZahxQ9ohzhQ8DMOhYztUIyFRiX5femgr6jo7g6R+qrCnFYLHXBEp
-         WmkxShFeu05yhTNwBj2PLLb5/y2HWeQ42GVMFbj4=
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, bhe@redhat.com, cai@lca.pw, david@redhat.com,
-        mgorman@suse.de, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        rppt@linux.ibm.com, stable@vger.kernel.org, vbabka@suse.cz
-Subject:  +
- =?US-ASCII?Q?mm-initialize-struct-pages-in-reserved-regions-outside-of-t?=
- =?US-ASCII?Q?he-zone-ranges.patch?= added to -mm tree
-Message-ID: <20201206005401.qKuAVgOXr%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726712AbgLFEIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 23:08:32 -0500
+Received: from condef-09.nifty.com ([202.248.20.74]:26792 "EHLO
+        condef-09.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726023AbgLFEIZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Dec 2020 23:08:25 -0500
+Received: from conssluserg-06.nifty.com ([10.126.8.85])by condef-09.nifty.com with ESMTP id 0B62nHxM032311;
+        Sun, 6 Dec 2020 11:49:17 +0900
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174]) (authenticated)
+        by conssluserg-06.nifty.com with ESMTP id 0B62mwFa003670;
+        Sun, 6 Dec 2020 11:48:59 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 0B62mwFa003670
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1607222939;
+        bh=v6uiEMpk8vJVMRmSYb8LkEirAfPFsPFdo7sZs2oeOis=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=XdECLHBYbSL/0PnUm3c/oH/kUEZ2KReY8luCdFgPicIvGyjIiqeVLQxkys3wQ5ajj
+         m3AG4GsBmqaCf7HM/OPjTSfGjEBsv5iq2E5d/03TAZhrM8xRX2rXNQQfijm3kRlvL1
+         +ND4H0DjAaiUOSzfzgw0VknqMPl3ZkKNjqieWLtcn31q53Z1aqNbafgamDHNNhpr24
+         knGm2GVrRli3yP71HkFh2b3P4ttC5dyqs+7wQZyau3ognJuHILWTwJ3d8AlGUvPtIM
+         U1HOysnBpWu9p6OcS2qBFeeIdlnSdHhVxlDXE/GnxfW39bHDOLqmmzQuEe4qdol6ZY
+         9BAZBsaM/e3dQ==
+X-Nifty-SrcIP: [209.85.215.174]
+Received: by mail-pg1-f174.google.com with SMTP id e23so6060351pgk.12;
+        Sat, 05 Dec 2020 18:48:59 -0800 (PST)
+X-Gm-Message-State: AOAM530ZAxvOhekKbEf7zUSGx1L/+JNlF4RdqOtcBEdRyyPkvIrAonxI
+        MxVDbSY0VP2hEnZkHzMdE1BxUF8ieC3z8KA1RKc=
+X-Google-Smtp-Source: ABdhPJy0n0PbwLiEFJPDOdIhUBC40dp1Ku/JtLvcI3ttj1aa7A8y7bWkJCMS2pNbiNuVHg/eq9ckuSheCkdYCtN8IWw=
+X-Received: by 2002:aa7:9501:0:b029:155:3b11:d5c4 with SMTP id
+ b1-20020aa795010000b02901553b11d5c4mr10162846pfp.76.1607222938202; Sat, 05
+ Dec 2020 18:48:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20201203230955.1482058-1-arnd@kernel.org>
+In-Reply-To: <20201203230955.1482058-1-arnd@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Sun, 6 Dec 2020 11:48:21 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAR50sq8O-5yg1O7760JAd3-GPHSLGGG=7kPtm9dbDDqwg@mail.gmail.com>
+Message-ID: <CAK7LNAR50sq8O-5yg1O7760JAd3-GPHSLGGG=7kPtm9dbDDqwg@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: avoid static_assert for genksyms
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Arnd Bergmann <arnd@arndb.de>, stable <stable@vger.kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Dec 4, 2020 at 8:10 AM Arnd Bergmann <arnd@kernel.org> wrote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> genksyms does not know or care about the _Static_assert() built-in,
+> and sometimes falls back to ignoring the later symbols, which causes
+> undefined behavior such as
+>
+> WARNING: modpost: EXPORT symbol "ethtool_set_ethtool_phy_ops" [vmlinux] version generation failed, symbol will not be versioned.
+> ld: net/ethtool/common.o: relocation R_AARCH64_ABS32 against `__crc_ethtool_set_ethtool_phy_ops' can not be used when making a shared object
+> net/ethtool/common.o:(_ftrace_annotated_branch+0x0): dangerous relocation: unsupported relocation
+>
+> Redefine static_assert for genksyms to avoid that.
 
-The patch titled
-     Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
-has been added to the -mm tree.  Its filename is
-     mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
+Please tell the CONFIG options needed to reproduce this.
+I do not see it.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+>
+> Cc: stable@vger.kernel.org
+> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  include/linux/build_bug.h | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/include/linux/build_bug.h b/include/linux/build_bug.h
+> index e3a0be2c90ad..7bb66e15b481 100644
+> --- a/include/linux/build_bug.h
+> +++ b/include/linux/build_bug.h
+> @@ -77,4 +77,9 @@
+>  #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+>  #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
+>
+> +#ifdef __GENKSYMS__
+> +/* genksyms gets confused by _Static_assert */
+> +#define _Static_assert(expr, ...)
+> +#endif
+> +
+>  #endif /* _LINUX_BUILD_BUG_H */
+> --
+> 2.27.0
+>
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
 
-------------------------------------------------------
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
-
-Without this change, the pfn 0 isn't in any zone spanned range, and it's
-also not in any memory.memblock range, so the struct page of pfn 0 wasn't
-initialized and the PagePoison remained set when reserve_bootmem_region
-called __SetPageReserved, inducing a silent boot failure with DEBUG_VM
-(and correctly so, because the crash signaled the nodeid/nid of pfn 0
-would be again wrong).
-
-There's no enforcement that all memblock.reserved ranges must overlap
-memblock.memory ranges, so the memblock.reserved ranges also require an
-explicit initialization and the zones ranges need to be extended to
-include all memblock.reserved ranges with struct pages too or they'll be
-left uninitialized with PagePoison as it happened to pfn 0.
-
-Link: https://lkml.kernel.org/r/20201205013238.21663-2-aarcange@redhat.com
-Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/memblock.h |   17 ++++++++---
- mm/debug.c               |    3 +
- mm/memblock.c            |    4 +-
- mm/page_alloc.c          |   57 +++++++++++++++++++++++++++++--------
- 4 files changed, 63 insertions(+), 18 deletions(-)
-
---- a/include/linux/memblock.h~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/include/linux/memblock.h
-@@ -251,7 +251,8 @@ static inline bool memblock_is_nomap(str
- int memblock_search_pfn_nid(unsigned long pfn, unsigned long *start_pfn,
- 			    unsigned long  *end_pfn);
- void __next_mem_pfn_range(int *idx, int nid, unsigned long *out_start_pfn,
--			  unsigned long *out_end_pfn, int *out_nid);
-+			  unsigned long *out_end_pfn, int *out_nid,
-+			  struct memblock_type *type);
- 
- /**
-  * for_each_mem_pfn_range - early memory pfn range iterator
-@@ -263,9 +264,17 @@ void __next_mem_pfn_range(int *idx, int
-  *
-  * Walks over configured memory ranges.
-  */
--#define for_each_mem_pfn_range(i, nid, p_start, p_end, p_nid)		\
--	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid); \
--	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid))
-+#define for_each_mem_pfn_range(i, nid, p_start, p_end, p_nid)		  \
-+	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.memory);		  \
-+	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.memory))
-+
-+#define for_each_res_pfn_range(i, nid, p_start, p_end, p_nid)		  \
-+	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.reserved);		  \
-+	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.reserved))
- 
- #ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
- void __next_mem_pfn_range_in_zone(u64 *idx, struct zone *zone,
---- a/mm/debug.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/mm/debug.c
-@@ -64,7 +64,8 @@ void __dump_page(struct page *page, cons
- 	 * dump_page() when detected.
- 	 */
- 	if (page_poisoned) {
--		pr_warn("page:%px is uninitialized and poisoned", page);
-+		pr_warn("page:%px pfn:%ld is uninitialized and poisoned",
-+			page, page_to_pfn(page));
- 		goto hex_only;
- 	}
- 
---- a/mm/memblock.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/mm/memblock.c
-@@ -1198,9 +1198,9 @@ void __init_memblock __next_mem_range_re
-  */
- void __init_memblock __next_mem_pfn_range(int *idx, int nid,
- 				unsigned long *out_start_pfn,
--				unsigned long *out_end_pfn, int *out_nid)
-+				unsigned long *out_end_pfn, int *out_nid,
-+				struct memblock_type *type)
- {
--	struct memblock_type *type = &memblock.memory;
- 	struct memblock_region *r;
- 	int r_nid;
- 
---- a/mm/page_alloc.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/mm/page_alloc.c
-@@ -1458,6 +1458,7 @@ static void __meminit init_reserved_page
- {
- 	pg_data_t *pgdat;
- 	int nid, zid;
-+	bool found = false;
- 
- 	if (!early_page_uninitialised(pfn))
- 		return;
-@@ -1468,10 +1469,15 @@ static void __meminit init_reserved_page
- 	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
- 		struct zone *zone = &pgdat->node_zones[zid];
- 
--		if (pfn >= zone->zone_start_pfn && pfn < zone_end_pfn(zone))
-+		if (pfn >= zone->zone_start_pfn && pfn < zone_end_pfn(zone)) {
-+			found = true;
- 			break;
-+		}
- 	}
--	__init_single_page(pfn_to_page(pfn), pfn, zid, nid);
-+	if (likely(found))
-+		__init_single_page(pfn_to_page(pfn), pfn, zid, nid);
-+	else
-+		WARN_ON_ONCE(1);
- }
- #else
- static inline void init_reserved_page(unsigned long pfn)
-@@ -6227,7 +6233,7 @@ void __init __weak memmap_init(unsigned
- 			       unsigned long zone,
- 			       unsigned long range_start_pfn)
- {
--	unsigned long start_pfn, end_pfn, next_pfn = 0;
-+	unsigned long start_pfn, end_pfn, prev_pfn = 0;
- 	unsigned long range_end_pfn = range_start_pfn + size;
- 	u64 pgcnt = 0;
- 	int i;
-@@ -6235,7 +6241,7 @@ void __init __weak memmap_init(unsigned
- 	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
- 		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
- 		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
--		next_pfn = clamp(next_pfn, range_start_pfn, range_end_pfn);
-+		prev_pfn = clamp(prev_pfn, range_start_pfn, range_end_pfn);
- 
- 		if (end_pfn > start_pfn) {
- 			size = end_pfn - start_pfn;
-@@ -6243,10 +6249,10 @@ void __init __weak memmap_init(unsigned
- 					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
- 		}
- 
--		if (next_pfn < start_pfn)
--			pgcnt += init_unavailable_range(next_pfn, start_pfn,
-+		if (prev_pfn < start_pfn)
-+			pgcnt += init_unavailable_range(prev_pfn, start_pfn,
- 							zone, nid);
--		next_pfn = end_pfn;
-+		prev_pfn = end_pfn;
- 	}
- 
- 	/*
-@@ -6256,12 +6262,31 @@ void __init __weak memmap_init(unsigned
- 	 * considered initialized. Make sure that memmap has a well defined
- 	 * state.
- 	 */
--	if (next_pfn < range_end_pfn)
--		pgcnt += init_unavailable_range(next_pfn, range_end_pfn,
-+	if (prev_pfn < range_end_pfn)
-+		pgcnt += init_unavailable_range(prev_pfn, range_end_pfn,
- 						zone, nid);
- 
-+	/*
-+	 * memblock.reserved isn't enforced to overlap with
-+	 * memblock.memory so initialize the struct pages for
-+	 * memblock.reserved too in case it wasn't overlapping.
-+	 *
-+	 * If any struct page associated with a memblock.reserved
-+	 * range isn't overlapping with a zone range, it'll be left
-+	 * uninitialized, ideally with PagePoison, and it'll be a more
-+	 * easily detectable error.
-+	 */
-+	for_each_res_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
-+		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
-+		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
-+
-+		if (end_pfn > start_pfn)
-+			pgcnt += init_unavailable_range(start_pfn, end_pfn,
-+							zone, nid);
-+	}
-+
- 	if (pgcnt)
--		pr_info("%s: Zeroed struct page in unavailable ranges: %lld\n",
-+		pr_info("%s: pages in unavailable ranges: %lld\n",
- 			zone_names[zone], pgcnt);
- }
- 
-@@ -6499,6 +6524,10 @@ void __init get_pfn_range_for_nid(unsign
- 		*start_pfn = min(*start_pfn, this_start_pfn);
- 		*end_pfn = max(*end_pfn, this_end_pfn);
- 	}
-+	for_each_res_pfn_range(i, nid, &this_start_pfn, &this_end_pfn, NULL) {
-+		*start_pfn = min(*start_pfn, this_start_pfn);
-+		*end_pfn = max(*end_pfn, this_end_pfn);
-+	}
- 
- 	if (*start_pfn == -1UL)
- 		*start_pfn = 0;
-@@ -7126,7 +7155,13 @@ unsigned long __init node_map_pfn_alignm
-  */
- unsigned long __init find_min_pfn_with_active_regions(void)
- {
--	return PHYS_PFN(memblock_start_of_DRAM());
-+	/*
-+	 * reserved regions must be included so that their page
-+	 * structure can be part of a zone and obtain a valid zoneid
-+	 * before __SetPageReserved().
-+	 */
-+	return min(PHYS_PFN(memblock_start_of_DRAM()),
-+		   PHYS_PFN(memblock.reserved.regions[0].base));
- }
- 
- /*
-_
-
-Patches currently in -mm which might be from aarcange@redhat.com are
-
-mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
-
+-- 
+Best Regards
+Masahiro Yamada
