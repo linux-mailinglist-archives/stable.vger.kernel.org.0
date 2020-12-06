@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAF12D03A2
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE732D041E
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727967AbgLFLjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
+        id S1728074AbgLFLnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:43:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727953AbgLFLjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:25 -0500
+        id S1728276AbgLFLnV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:21 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/20] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 09/39] tun: honor IOCB_NOWAIT flag
 Date:   Sun,  6 Dec 2020 12:17:13 +0100
-Message-Id: <20201206111556.055765049@linuxfoundation.org>
+Message-Id: <20201206111555.131802749@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,66 +31,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
+[ Upstream commit 5aac0390a63b8718237a61dd0d24a29201d1c94a ]
 
-Ensure that received Subordinate Command-Response Queue (SCRQ)
-entries are properly read in order by the driver. These queues
-are used in the ibmvnic device to process RX buffer and TX completion
-descriptors. dma_rmb barriers have been added after checking for a
-pending descriptor to ensure the correct descriptor entry is checked
-and after reading the SCRQ descriptor to ensure the entire
-descriptor is read before processing.
+tun only checks the file O_NONBLOCK flag, but it should also be checking
+the iocb IOCB_NOWAIT flag. Any fops using ->read/write_iter() should check
+both, otherwise it breaks users that correctly expect O_NONBLOCK semantics
+if IOCB_NOWAIT is set.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/e9451860-96cc-c7c7-47b8-fe42cadd5f4c@kernel.dk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/net/tun.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1658,6 +1658,12 @@ restart_poll:
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2028,12 +2028,15 @@ static ssize_t tun_chr_write_iter(struct
+ 	struct tun_file *tfile = file->private_data;
+ 	struct tun_struct *tun = tun_get(tfile);
+ 	ssize_t result;
++	int noblock = 0;
  
- 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
- 			break;
-+		/* The queue entry at the current index is peeked at above
-+		 * to determine that there is a valid descriptor awaiting
-+		 * processing. We want to be sure that the current slot
-+		 * holds a valid descriptor before reading its contents.
-+		 */
-+		dma_rmb();
- 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
- 		rx_buff =
- 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
-@@ -2177,6 +2183,13 @@ restart_loop:
- 	while (pending_scrq(adapter, scrq)) {
- 		unsigned int pool = scrq->pool_index;
+ 	if (!tun)
+ 		return -EBADFD;
  
-+		/* The queue entry at the current index is peeked at above
-+		 * to determine that there is a valid descriptor awaiting
-+		 * processing. We want to be sure that the current slot
-+		 * holds a valid descriptor before reading its contents.
-+		 */
-+		dma_rmb();
+-	result = tun_get_user(tun, tfile, NULL, from,
+-			      file->f_flags & O_NONBLOCK, false);
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
 +
- 		next = ibmvnic_next_scrq(adapter, scrq);
- 		for (i = 0; i < next->tx_comp.num_comps; i++) {
- 			if (next->tx_comp.rcs[i]) {
-@@ -2530,6 +2543,11 @@ static union sub_crq *ibmvnic_next_scrq(
- 	}
- 	spin_unlock_irqrestore(&scrq->lock, flags);
++	result = tun_get_user(tun, tfile, NULL, from, noblock, false);
  
-+	/* Ensure that the entire buffer descriptor has been
-+	 * loaded before reading its contents
-+	 */
-+	dma_rmb();
+ 	tun_put(tun);
+ 	return result;
+@@ -2254,10 +2257,15 @@ static ssize_t tun_chr_read_iter(struct
+ 	struct tun_file *tfile = file->private_data;
+ 	struct tun_struct *tun = tun_get(tfile);
+ 	ssize_t len = iov_iter_count(to), ret;
++	int noblock = 0;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+-	ret = tun_do_read(tun, tfile, to, file->f_flags & O_NONBLOCK, NULL);
 +
- 	return entry;
- }
- 
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
++
++	ret = tun_do_read(tun, tfile, to, noblock, NULL);
+ 	ret = min_t(ssize_t, ret, len);
+ 	if (ret > 0)
+ 		iocb->ki_pos = ret;
 
 
