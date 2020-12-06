@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2E82D0402
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EDA2D0445
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728959AbgLFLm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:42:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
+        id S1728514AbgLFLoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728938AbgLFLmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:42:11 -0500
+        id S1728086AbgLFLoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:44:20 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 20/39] ibmvnic: Fix TX completion error handling
-Date:   Sun,  6 Dec 2020 12:17:24 +0100
-Message-Id: <20201206111555.652869533@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 17/46] ipv4: Fix tos mask in inet_rtm_getroute()
+Date:   Sun,  6 Dec 2020 12:17:25 +0100
+Message-Id: <20201206111557.290945505@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,37 +32,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit ba246c175116e2e8fa4fdfa5f8e958e086a9a818 ]
+[ Upstream commit 1ebf179037cb46c19da3a9c1e2ca16e7a754b75e ]
 
-TX completions received with an error return code are not
-being processed properly. When an error code is seen, do not
-proceed to the next completion before cleaning up the existing
-entry's data structures.
+When inet_rtm_getroute() was converted to use the RCU variants of
+ip_route_input() and ip_route_output_key(), the TOS parameters
+stopped being masked with IPTOS_RT_MASK before doing the route lookup.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As a result, "ip route get" can return a different route than what
+would be used when sending real packets.
+
+For example:
+
+    $ ip route add 192.0.2.11/32 dev eth0
+    $ ip route add unreachable 192.0.2.11/32 tos 2
+    $ ip route get 192.0.2.11 tos 2
+    RTNETLINK answers: No route to host
+
+But, packets with TOS 2 (ECT(0) if interpreted as an ECN bit) would
+actually be routed using the first route:
+
+    $ ping -c 1 -Q 2 192.0.2.11
+    PING 192.0.2.11 (192.0.2.11) 56(84) bytes of data.
+    64 bytes from 192.0.2.11: icmp_seq=1 ttl=64 time=0.173 ms
+
+    --- 192.0.2.11 ping statistics ---
+    1 packets transmitted, 1 received, 0% packet loss, time 0ms
+    rtt min/avg/max/mdev = 0.173/0.173/0.173/0.000 ms
+
+This patch re-applies IPTOS_RT_MASK in inet_rtm_getroute(), to
+return results consistent with real route lookups.
+
+Fixes: 3765d35ed8b9 ("net: ipv4: Convert inet_rtm_getroute to rcu versions of route lookup")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/b2d237d08317ca55926add9654a48409ac1b8f5b.1606412894.git.gnault@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/ipv4/route.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -3003,11 +3003,9 @@ restart_loop:
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -3221,7 +3221,7 @@ static int inet_rtm_getroute(struct sk_b
  
- 		next = ibmvnic_next_scrq(adapter, scrq);
- 		for (i = 0; i < next->tx_comp.num_comps; i++) {
--			if (next->tx_comp.rcs[i]) {
-+			if (next->tx_comp.rcs[i])
- 				dev_err(dev, "tx error %x\n",
- 					next->tx_comp.rcs[i]);
--				continue;
--			}
- 			index = be32_to_cpu(next->tx_comp.correlators[i]);
- 			if (index & IBMVNIC_TSO_POOL_MASK) {
- 				tx_pool = &adapter->tso_pool[pool];
+ 	fl4.daddr = dst;
+ 	fl4.saddr = src;
+-	fl4.flowi4_tos = rtm->rtm_tos;
++	fl4.flowi4_tos = rtm->rtm_tos & IPTOS_RT_MASK;
+ 	fl4.flowi4_oif = tb[RTA_OIF] ? nla_get_u32(tb[RTA_OIF]) : 0;
+ 	fl4.flowi4_mark = mark;
+ 	fl4.flowi4_uid = uid;
+@@ -3245,8 +3245,9 @@ static int inet_rtm_getroute(struct sk_b
+ 		fl4.flowi4_iif = iif; /* for rt_fill_info */
+ 		skb->dev	= dev;
+ 		skb->mark	= mark;
+-		err = ip_route_input_rcu(skb, dst, src, rtm->rtm_tos,
+-					 dev, &res);
++		err = ip_route_input_rcu(skb, dst, src,
++					 rtm->rtm_tos & IPTOS_RT_MASK, dev,
++					 &res);
+ 
+ 		rt = skb_rtable(skb);
+ 		if (err == 0 && rt->dst.error)
 
 
