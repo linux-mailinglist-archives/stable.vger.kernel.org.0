@@ -2,29 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6B02D0418
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F4C2D043B
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728094AbgLFLnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:43:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
+        id S1729275AbgLFLoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729061AbgLFLnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:09 -0500
+        id S1729257AbgLFLn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:57 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 05/39] net/tls: Protect from calling tls_dev_del for TLS RX twice
+Subject: [PATCH 5.9 01/46] devlink: Hold rtnl lock while reading netdev attributes
 Date:   Sun,  6 Dec 2020 12:17:09 +0100
-Message-Id: <20201206111554.929819439@linuxfoundation.org>
+Message-Id: <20201206111556.519278816@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -32,65 +33,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 025cc2fb6a4e84e9a0552c0017dcd1c24b7ac7da ]
+[ Upstream commit b187c9b4178b87954dbc94e78a7094715794714f ]
 
-tls_device_offload_cleanup_rx doesn't clear tls_ctx->netdev after
-calling tls_dev_del if TLX TX offload is also enabled. Clearing
-tls_ctx->netdev gets postponed until tls_device_gc_task. It leaves a
-time frame when tls_device_down may get called and call tls_dev_del for
-RX one extra time, confusing the driver, which may lead to a crash.
+A netdevice of a devlink port can be moved to different net namespace
+than its parent devlink instance.
+This scenario occurs when devlink reload is not used.
 
-This patch corrects this racy behavior by adding a flag to prevent
-tls_device_down from calling tls_dev_del the second time.
+When netdevice is undergoing migration to net namespace, its ifindex
+and name may change.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20201125221810.69870-1-saeedm@nvidia.com
+In such use case, devlink port query may read stale netdev attributes.
+
+Fix it by reading them under rtnl lock.
+
+Fixes: bfcd3a466172 ("Introduce devlink infrastructure")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    6 ++++++
- net/tls/tls_device.c |    5 ++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ net/core/devlink.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -221,6 +221,12 @@ enum tls_context_flags {
- 	 * to be atomic.
- 	 */
- 	TLS_TX_SYNC_SCHED = 1,
-+	/* tls_dev_del was called for the RX side, device state was released,
-+	 * but tls_ctx->netdev might still be kept, because TX-side driver
-+	 * resources might not be released yet. Used to prevent the second
-+	 * tls_dev_del call in tls_device_down if it happens simultaneously.
-+	 */
-+	TLS_RX_DEV_CLOSED = 2,
- };
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -616,6 +616,8 @@ static int devlink_nl_port_fill(struct s
+ 	if (nla_put_u32(msg, DEVLINK_ATTR_PORT_INDEX, devlink_port->index))
+ 		goto nla_put_failure;
  
- struct cipher_context {
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -1163,6 +1163,8 @@ void tls_device_offload_cleanup_rx(struc
- 	if (tls_ctx->tx_conf != TLS_HW) {
- 		dev_put(netdev);
- 		tls_ctx->netdev = NULL;
-+	} else {
-+		set_bit(TLS_RX_DEV_CLOSED, &tls_ctx->flags);
++	/* Hold rtnl lock while accessing port's netdev attributes. */
++	rtnl_lock();
+ 	spin_lock_bh(&devlink_port->type_lock);
+ 	if (nla_put_u16(msg, DEVLINK_ATTR_PORT_TYPE, devlink_port->type))
+ 		goto nla_put_failure_type_locked;
+@@ -642,6 +644,7 @@ static int devlink_nl_port_fill(struct s
+ 			goto nla_put_failure_type_locked;
  	}
- out:
- 	up_read(&device_offload_lock);
-@@ -1192,7 +1194,8 @@ static int tls_device_down(struct net_de
- 		if (ctx->tx_conf == TLS_HW)
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_TX);
--		if (ctx->rx_conf == TLS_HW)
-+		if (ctx->rx_conf == TLS_HW &&
-+		    !test_bit(TLS_RX_DEV_CLOSED, &ctx->flags))
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_RX);
- 		WRITE_ONCE(ctx->netdev, NULL);
+ 	spin_unlock_bh(&devlink_port->type_lock);
++	rtnl_unlock();
+ 	if (devlink_nl_port_attrs_put(msg, devlink_port))
+ 		goto nla_put_failure;
+ 	if (devlink_nl_port_function_attrs_put(msg, devlink_port, extack))
+@@ -652,6 +655,7 @@ static int devlink_nl_port_fill(struct s
+ 
+ nla_put_failure_type_locked:
+ 	spin_unlock_bh(&devlink_port->type_lock);
++	rtnl_unlock();
+ nla_put_failure:
+ 	genlmsg_cancel(msg, hdr);
+ 	return -EMSGSIZE;
 
 
