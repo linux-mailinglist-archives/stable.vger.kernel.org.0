@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 674342D049C
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6505E2D03C4
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729265AbgLFLri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:47:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42378 "EHLO mail.kernel.org"
+        id S1728511AbgLFLkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729064AbgLFLnD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:03 -0500
+        id S1728472AbgLFLkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:15 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        stable@vger.kernel.org, Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        Yves-Alexis Perez <corsac@corsac.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 03/39] net/af_iucv: set correct sk_protocol for child sockets
-Date:   Sun,  6 Dec 2020 12:17:07 +0100
-Message-Id: <20201206111554.832788972@linuxfoundation.org>
+Subject: [PATCH 4.19 08/32] usbnet: ipheth: fix connectivity with iOS 14
+Date:   Sun,  6 Dec 2020 12:17:08 +0100
+Message-Id: <20201206111556.168106647@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,45 +32,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Yves-Alexis Perez <corsac@corsac.net>
 
-[ Upstream commit c5dab0941fcdc9664eb0ec0d4d51433216d91336 ]
+[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
 
-Child sockets erroneously inherit their parent's sk_type (ie. SOCK_*),
-instead of the PF_IUCV protocol that the parent was created with in
-iucv_sock_create().
+Starting with iOS 14 released in September 2020, connectivity using the
+personal hotspot USB tethering function of iOS devices is broken.
 
-We're currently not using sk->sk_protocol ourselves, so this shouldn't
-have much impact (except eg. getting the output in skb_dump() right).
+Communication between the host and the device (for example ICMP traffic
+or DNS resolution using the DNS service running in the device itself)
+works fine, but communication to endpoints further away doesn't work.
 
-Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Link: https://lore.kernel.org/r/20201120100657.34407-1-jwi@linux.ibm.com
+Investigation on the matter shows that no UDP and ICMP traffic from the
+tethered host is reaching the Internet at all. For TCP traffic there are
+exchanges between tethered host and server but packets are modified in
+transit leading to impossible communication.
+
+After some trials Matti Vuorela discovered that reducing the URB buffer
+size by two bytes restored the previous behavior. While a better
+solution might exist to fix the issue, since the protocol is not
+publicly documented and considering the small size of the fix, let's do
+that.
+
+Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
+Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/iucv/af_iucv.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/ipheth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1785,7 +1785,7 @@ static int iucv_callback_connreq(struct
- 	}
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -70,7 +70,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
  
- 	/* Create the new socket */
--	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
-+	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
- 	if (!nsk) {
- 		err = pr_iucv->path_sever(path, user_data);
- 		iucv_path_free(path);
-@@ -1991,7 +1991,7 @@ static int afiucv_hs_callback_syn(struct
- 		goto out;
- 	}
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
  
--	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
-+	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
- 	bh_lock_sock(sk);
- 	if ((sk->sk_state != IUCV_LISTEN) ||
- 	    sk_acceptq_is_full(sk) ||
 
 
