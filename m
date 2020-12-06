@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD7C2D03FE
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A53B2D03DA
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728930AbgLFLmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
+        id S1728675AbgLFLkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728937AbgLFLmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:42:11 -0500
+        id S1728692AbgLFLko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:44 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 19/39] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 23/32] chelsio/chtls: fix a double free in chtls_setkey()
 Date:   Sun,  6 Dec 2020 12:17:23 +0100
-Message-Id: <20201206111555.604022136@linuxfoundation.org>
+Message-Id: <20201206111556.882450922@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,66 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
+[ Upstream commit 391119fb5c5c4bdb4d57c7ffeb5e8d18560783d1 ]
 
-Ensure that received Subordinate Command-Response Queue (SCRQ)
-entries are properly read in order by the driver. These queues
-are used in the ibmvnic device to process RX buffer and TX completion
-descriptors. dma_rmb barriers have been added after checking for a
-pending descriptor to ensure the correct descriptor entry is checked
-and after reading the SCRQ descriptor to ensure the entire
-descriptor is read before processing.
+The "skb" is freed by the transmit code in cxgb4_ofld_send() and we
+shouldn't use it again.  But in the current code, if we hit an error
+later on in the function then the clean up code will call kfree_skb(skb)
+and so it causes a double free.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Set the "skb" to NULL and that makes the kfree_skb() a no-op.
+
+Fixes: d25f2f71f653 ("crypto: chtls - Program the TLS session Key")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X8ilb6PtBRLWiSHp@mwanda
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/crypto/chelsio/chtls/chtls_hw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2307,6 +2307,12 @@ restart_poll:
+--- a/drivers/crypto/chelsio/chtls/chtls_hw.c
++++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
+@@ -376,6 +376,7 @@ int chtls_setkey(struct chtls_sock *csk,
+ 	csk->wr_unacked += DIV_ROUND_UP(len, 16);
+ 	enqueue_wr(csk, skb);
+ 	cxgb4_ofld_send(csk->egress_dev, skb);
++	skb = NULL;
  
- 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
- 			break;
-+		/* The queue entry at the current index is peeked at above
-+		 * to determine that there is a valid descriptor awaiting
-+		 * processing. We want to be sure that the current slot
-+		 * holds a valid descriptor before reading its contents.
-+		 */
-+		dma_rmb();
- 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
- 		rx_buff =
- 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
-@@ -2988,6 +2994,13 @@ restart_loop:
- 		unsigned int pool = scrq->pool_index;
- 		int num_entries = 0;
- 
-+		/* The queue entry at the current index is peeked at above
-+		 * to determine that there is a valid descriptor awaiting
-+		 * processing. We want to be sure that the current slot
-+		 * holds a valid descriptor before reading its contents.
-+		 */
-+		dma_rmb();
-+
- 		next = ibmvnic_next_scrq(adapter, scrq);
- 		for (i = 0; i < next->tx_comp.num_comps; i++) {
- 			if (next->tx_comp.rcs[i]) {
-@@ -3388,6 +3401,11 @@ static union sub_crq *ibmvnic_next_scrq(
- 	}
- 	spin_unlock_irqrestore(&scrq->lock, flags);
- 
-+	/* Ensure that the entire buffer descriptor has been
-+	 * loaded before reading its contents
-+	 */
-+	dma_rmb();
-+
- 	return entry;
- }
- 
+ 	chtls_set_scmd(csk);
+ 	/* Clear quiesce for Rx key */
 
 
