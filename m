@@ -2,24 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165242D046B
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1902D047C
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbgLFLpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:45:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
+        id S1729614AbgLFLqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:46:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728001AbgLFLpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:33 -0500
+        id S1727936AbgLFLqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:46:01 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.9 41/46] Input: i8042 - add ByteSpeed touchpad to noloop table
-Date:   Sun,  6 Dec 2020 12:17:49 +0100
-Message-Id: <20201206111558.439691299@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andre=20M=C3=BCller?= <andre.muller@web.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.9 42/46] Input: atmel_mxt_ts - fix lost interrupts
+Date:   Sun,  6 Dec 2020 12:17:50 +0100
+Message-Id: <20201206111558.487534010@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -31,38 +33,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit a48491c65b513e5cdc3e7a886a4db915f848a5f5 upstream.
+commit 8c3b55a299c325830a987de21dab6a89ecb71164 upstream.
 
-It looks like the C15B laptop got another vendor: ByteSpeed LLC.
+After commit 74d905d2d38a devices requiring the workaround for edge
+triggered interrupts stopped working.
 
-Avoid AUX loopback on this touchpad as well, thus input subsystem will
-be able to recognize a Synaptics touchpad in the AUX port.
+The hardware needs the quirk to be used before even proceeding to
+check if the quirk is needed because mxt_acquire_irq() is called
+before mxt_check_retrigen() is called and at this point pending IRQs
+need to be checked, and if the workaround is not active, all
+interrupts will be lost from this point.
 
-BugLink: https://bugs.launchpad.net/bugs/1906128
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
+Solve this by switching the calls around.
+
+Reported-by: Andre Müller <andre.muller@web.de>
+Tested-by: Andre Müller <andre.muller@web.de>
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201201123026.1416743-1-linus.walleij@linaro.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -219,6 +219,10 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
- 		},
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
-+		},
- 	},
- 	{ }
- };
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2183,11 +2183,11 @@ static int mxt_initialize(struct mxt_dat
+ 		msleep(MXT_FW_RESET_TIME);
+ 	}
+ 
+-	error = mxt_acquire_irq(data);
++	error = mxt_check_retrigen(data);
+ 	if (error)
+ 		return error;
+ 
+-	error = mxt_check_retrigen(data);
++	error = mxt_acquire_irq(data);
+ 	if (error)
+ 		return error;
+ 
 
 
