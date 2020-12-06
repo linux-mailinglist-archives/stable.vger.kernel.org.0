@@ -2,149 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E972D0127
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 07:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 925022D0129
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 07:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725781AbgLFGP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 01:15:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
+        id S1725823AbgLFGPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 01:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725379AbgLFGP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 01:15:27 -0500
-Date:   Sat, 05 Dec 2020 22:14:45 -0800
+        id S1725379AbgLFGPa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 01:15:30 -0500
+Date:   Sat, 05 Dec 2020 22:14:48 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1607235286;
-        bh=eAfzf1HXdPcS85CCArRsVIv3KL0OiSlNphIbfm68+Bw=;
+        s=korg; t=1607235289;
+        bh=AOVqoxJMKb9AUnv02YL93cYo6yHYpzGWwaF0vnteRQE=;
         h=From:To:Subject:In-Reply-To:From;
-        b=Mh7Jh5eXlMEhlQqYLQ2FVN0Q9lEwUraaYnjTY5Va2NtRMjfSqqwPrY3ejL5ExI7uh
-         Dbbv/1JgoIweDj+Fs6GJeWRzw1C9WsuATGF82N75OMEPEsMiaGT5zXGcP7JTFEBScE
-         Ccxob/DBfctjLvr9G243MJ+weBYvFN4hXQkYPisk=
+        b=IauN4NFdFj7DrjffQAjCnWC7sQyzpnOlKROaV8UADz/OgEWHgQSkzJFPkuTH984Es
+         ii4K7qKu0uXWWC+ZyuuakZNjzAOe/IYWWV9s5Zp8OM9iNSxvDxmpUn1/D5ISRNGJWi
+         ubXhVceGvRw0elpp2jAZoREktPG6eSZF5fx7G6zU=
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, guro@fb.com, hannes@cmpxchg.org,
-        linux-mm@kvack.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        shakeelb@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 03/12] mm: memcg/slab: fix obj_cgroup_charge()
- return value handling
-Message-ID: <20201206061445.FBPPaghTp%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, guro@fb.com, ktkhai@virtuozzo.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        shakeelb@google.com, shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
+Subject:  [patch 04/12] mm: list_lru: set shrinker map bit when
+ child nr_items is not zero
+Message-ID: <20201206061448.D4xiqM6MX%akpm@linux-foundation.org>
 In-Reply-To: <20201205221412.67f14b9b3a5ef531c76dd452@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
-Subject: mm: memcg/slab: fix obj_cgroup_charge() return value handling
+From: Yang Shi <shy828301@gmail.com>
+Subject: mm: list_lru: set shrinker map bit when child nr_items is not zero
 
-Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for
-all allocations") introduced a regression into the handling of the
-obj_cgroup_charge() return value.  If a non-zero value is returned
-(indicating of exceeding one of memory.max limits), the allocation should
-fail, instead of falling back to non-accounted mode.
+When investigating a slab cache bloat problem, significant amount of
+negative dentry cache was seen, but confusingly they neither got shrunk
+by reclaimer (the host has very tight memory) nor be shrunk by dropping
+cache.  The vmcore shows there are over 14M negative dentry objects on lru,
+but tracing result shows they were even not scanned at all.  The further
+investigation shows the memcg's vfs shrinker_map bit is not set.  So the
+reclaimer or dropping cache just skip calling vfs shrinker.  So we have
+to reboot the hosts to get the memory back.
 
-To make the code more readable, move memcg_slab_pre_alloc_hook() and
-memcg_slab_post_alloc_hook() calling conditions into bodies of these
-hooks.
+I didn't manage to come up with a reproducer in test environment, and the
+problem can't be reproduced after rebooting.  But it seems there is race
+between shrinker map bit clear and reparenting by code inspection.  The
+hypothesis is elaborated as below.
 
-Link: https://lkml.kernel.org/r/20201127161828.GD840171@carbon.dhcp.thefacebook.com
-Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-Signed-off-by: Roman Gushchin <guro@fb.com>
+The memcg hierarchy on our production environment looks like:
+                root
+               /    \
+          system   user
+
+The main workloads are running under user slice's children, and it creates
+and removes memcg frequently.  So reparenting happens very often under user
+slice, but no task is under user slice directly.
+
+So with the frequent reparenting and tight memory pressure, the below
+hypothetical race condition may happen:
+
+       CPU A                            CPU B
+reparent
+    dst->nr_items == 0
+                                 shrinker:
+                                     total_objects == 0
+    add src->nr_items to dst
+    set_bit
+                                     return SHRINK_EMPTY
+                                     clear_bit
+child memcg offline
+    replace child's kmemcg_id with
+    parent's (in memcg_offline_kmem())
+                                  list_lru_del() between shrinker runs
+                                     see parent's kmemcg_id
+                                     dec dst->nr_items
+reparent again
+    dst->nr_items may go negative
+    due to concurrent list_lru_del()
+
+                                 The second run of shrinker:
+                                     read nr_items without any
+                                     synchronization, so it may
+                                     see intermediate negative
+                                     nr_items then total_objects
+                                     may return 0 coincidently
+
+                                     keep the bit cleared
+    dst->nr_items != 0
+    skip set_bit
+    add scr->nr_item to dst
+
+After this point dst->nr_item may never go zero, so reparenting will not
+set shrinker_map bit anymore.  And since there is no task under user
+slice directly, so no new object will be added to its lru to set the
+shrinker map bit either.  That bit is kept cleared forever.
+
+How does list_lru_del() race with reparenting?  It is because
+reparenting replaces children's kmemcg_id to parent's without protecting
+from nlru->lock, so list_lru_del() may see parent's kmemcg_id but
+actually deleting items from child's lru, but dec'ing parent's nr_items,
+so the parent's nr_items may go negative as commit
+2788cf0c401c268b4819c5407493a8769b7007aa ("memcg: reparent list_lrus and
+free kmemcg_id on css offline") says.
+
+Since it is impossible that dst->nr_items goes negative and
+src->nr_items goes zero at the same time, so it seems we could set the
+shrinker map bit iff src->nr_items != 0.  We could synchronize
+list_lru_count_one() and reparenting with nlru->lock, but it seems
+checking src->nr_items in reparenting is the simplest and avoids lock
+contention.
+
+Link: https://lkml.kernel.org/r/20201202171749.264354-1-shy828301@gmail.com
+Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Suggested-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>	[4.19]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slab.h |   40 ++++++++++++++++++++++++----------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+ mm/list_lru.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/mm/slab.h~mm-memcg-slab-fix-obj_cgroup_charge-return-value-handling
-+++ a/mm/slab.h
-@@ -274,22 +274,32 @@ static inline size_t obj_full_size(struc
- 	return s->size + sizeof(struct obj_cgroup *);
- }
+--- a/mm/list_lru.c~mm-list_lru-set-shrinker-map-bit-when-child-nr_items-is-not-zero
++++ a/mm/list_lru.c
+@@ -534,7 +534,6 @@ static void memcg_drain_list_lru_node(st
+ 	struct list_lru_node *nlru = &lru->node[nid];
+ 	int dst_idx = dst_memcg->kmemcg_id;
+ 	struct list_lru_one *src, *dst;
+-	bool set;
  
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+/*
-+ * Returns false if the allocation should fail.
-+ */
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
- {
- 	struct obj_cgroup *objcg;
+ 	/*
+ 	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
+@@ -546,11 +545,12 @@ static void memcg_drain_list_lru_node(st
+ 	dst = list_lru_from_memcg_idx(nlru, dst_idx);
  
-+	if (!memcg_kmem_enabled())
-+		return true;
+ 	list_splice_init(&src->list, &dst->list);
+-	set = (!dst->nr_items && src->nr_items);
+-	dst->nr_items += src->nr_items;
+-	if (set)
 +
-+	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
-+		return true;
-+
- 	objcg = get_obj_cgroup_from_current();
- 	if (!objcg)
--		return NULL;
-+		return true;
++	if (src->nr_items) {
++		dst->nr_items += src->nr_items;
+ 		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
+-	src->nr_items = 0;
++		src->nr_items = 0;
++	}
  
- 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
- 		obj_cgroup_put(objcg);
--		return NULL;
-+		return false;
- 	}
- 
--	return objcg;
-+	*objcgp = objcg;
-+	return true;
+ 	spin_unlock_irq(&nlru->lock);
  }
- 
- static inline void mod_objcg_state(struct obj_cgroup *objcg,
-@@ -315,7 +325,7 @@ static inline void memcg_slab_post_alloc
- 	unsigned long off;
- 	size_t i;
- 
--	if (!objcg)
-+	if (!memcg_kmem_enabled() || !objcg)
- 		return;
- 
- 	flags &= ~__GFP_ACCOUNT;
-@@ -400,11 +410,11 @@ static inline void memcg_free_page_obj_c
- {
- }
- 
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
- {
--	return NULL;
-+	return true;
- }
- 
- static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
-@@ -508,9 +518,8 @@ static inline struct kmem_cache *slab_pr
- 	if (should_failslab(s, flags))
- 		return NULL;
- 
--	if (memcg_kmem_enabled() &&
--	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
--		*objcgp = memcg_slab_pre_alloc_hook(s, size, flags);
-+	if (!memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
-+		return NULL;
- 
- 	return s;
- }
-@@ -529,8 +538,7 @@ static inline void slab_post_alloc_hook(
- 					 s->flags, flags);
- 	}
- 
--	if (memcg_kmem_enabled())
--		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
-+	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
- }
- 
- #ifndef CONFIG_SLOB
 _
