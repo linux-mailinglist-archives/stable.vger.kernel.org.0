@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418582D03B0
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5CF2D043A
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728199AbgLFLjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36708 "EHLO mail.kernel.org"
+        id S1729247AbgLFLoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728197AbgLFLju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:50 -0500
+        id S1729262AbgLFLn6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 12/20] net/x25: prevent a couple of overflows
-Date:   Sun,  6 Dec 2020 12:17:15 +0100
-Message-Id: <20201206111556.136858754@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        syzbot+a1c743815982d9496393@syzkaller.appspotmail.com,
+        Anmol Karn <anmol.karan123@gmail.com>
+Subject: [PATCH 5.9 08/46] rose: Fix Null pointer dereference in rose_send_frame()
+Date:   Sun,  6 Dec 2020 12:17:16 +0100
+Message-Id: <20201206111556.856730928@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,59 +32,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Anmol Karn <anmol.karan123@gmail.com>
 
-[ Upstream commit 6ee50c8e262a0f0693dad264c3c99e30e6442a56 ]
+[ Upstream commit 3b3fd068c56e3fbea30090859216a368398e39bf ]
 
-The .x25_addr[] address comes from the user and is not necessarily
-NUL terminated.  This leads to a couple problems.  The first problem is
-that the strlen() in x25_bind() can read beyond the end of the buffer.
+rose_send_frame() dereferences `neigh->dev` when called from
+rose_transmit_clear_request(), and the first occurrence of the
+`neigh` is in rose_loopback_timer() as `rose_loopback_neigh`,
+and it is initialized in rose_add_loopback_neigh() as NULL.
+i.e when `rose_loopback_neigh` used in rose_loopback_timer()
+its `->dev` was still NULL and rose_loopback_timer() was calling
+rose_rx_call_request() without checking for NULL.
 
-The second problem is more subtle and could result in memory corruption.
-The call tree is:
-  x25_connect()
-  --> x25_write_internal()
-      --> x25_addr_aton()
+- net/rose/rose_link.c
+This bug seems to get triggered in this line:
 
-The .x25_addr[] buffers are copied to the "addresses" buffer from
-x25_write_internal() so it will lead to stack corruption.
+rose_call = (ax25_address *)neigh->dev->dev_addr;
 
-Verify that the strings are NUL terminated and return -EINVAL if they
-are not.
+Fix it by adding NULL checking for `rose_loopback_neigh->dev`
+in rose_loopback_timer().
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: a9288525d2ae ("X25: Dont let x25_bind use addresses containing characters")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/X8ZeAKm8FnFpN//B@mwanda
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
+Tested-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=9d2a7ca8c7f2e4b682c97578dfa3f236258300b3
+Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
+Link: https://lore.kernel.org/r/20201119191043.28813-1-anmol.karan123@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/x25/af_x25.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/rose/rose_loopback.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -679,7 +679,8 @@ static int x25_bind(struct socket *sock,
- 	int len, i, rc = 0;
+--- a/net/rose/rose_loopback.c
++++ b/net/rose/rose_loopback.c
+@@ -96,10 +96,19 @@ static void rose_loopback_timer(struct t
+ 		}
  
- 	if (addr_len != sizeof(struct sockaddr_x25) ||
--	    addr->sx25_family != AF_X25) {
-+	    addr->sx25_family != AF_X25 ||
-+	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -773,7 +774,8 @@ static int x25_connect(struct socket *so
- 
- 	rc = -EINVAL;
- 	if (addr_len != sizeof(struct sockaddr_x25) ||
--	    addr->sx25_family != AF_X25)
-+	    addr->sx25_family != AF_X25 ||
-+	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
- 		goto out;
- 
- 	rc = -ENETUNREACH;
+ 		if (frametype == ROSE_CALL_REQUEST) {
+-			if ((dev = rose_dev_get(dest)) != NULL) {
+-				if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0)
+-					kfree_skb(skb);
+-			} else {
++			if (!rose_loopback_neigh->dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			dev = rose_dev_get(dest);
++			if (!dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0) {
++				dev_put(dev);
+ 				kfree_skb(skb);
+ 			}
+ 		} else {
 
 
