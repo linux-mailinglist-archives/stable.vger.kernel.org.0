@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9703E2D03E6
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E8F2D0449
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728773AbgLFLlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:41:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39048 "EHLO mail.kernel.org"
+        id S1729351AbgLFLoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728754AbgLFLlW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:41:22 -0500
+        id S1727939AbgLFLob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:44:31 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 27/32] dt-bindings: net: correct interrupt flags in examples
+        stable@vger.kernel.org, Udai Sharma <udai.sharma@chelsio.com>,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 19/46] chelsio/chtls: fix panic during unload reload chtls
 Date:   Sun,  6 Dec 2020 12:17:27 +0100
-Message-Id: <20201206111557.073312595@linuxfoundation.org>
+Message-Id: <20201206111557.385339882@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,56 +32,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-[ Upstream commit 4d521943f76bd0d1e68ea5e02df7aadd30b2838a ]
+[ Upstream commit e3d5e971d2f83d8ddd4b91a50cea4517fb488383 ]
 
-GPIO_ACTIVE_x flags are not correct in the context of interrupt flags.
-These are simple defines so they could be used in DTS but they will not
-have the same meaning:
-1. GPIO_ACTIVE_HIGH = 0 = IRQ_TYPE_NONE
-2. GPIO_ACTIVE_LOW  = 1 = IRQ_TYPE_EDGE_RISING
+there is kernel panic in inet_twsk_free() while chtls
+module unload when socket is in TIME_WAIT state because
+sk_prot_creator was not preserved on connection socket.
 
-Correct the interrupt flags, assuming the author of the code wanted same
-logical behavior behind the name "ACTIVE_xxx", this is:
-  ACTIVE_LOW  => IRQ_TYPE_LEVEL_LOW
-  ACTIVE_HIGH => IRQ_TYPE_LEVEL_HIGH
-
-Fixes: a1a8b4594f8d ("NFC: pn544: i2c: Add DTS Documentation")
-Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
-Fixes: e3b329221567 ("dt-bindings: can: tcan4x5x: Update binding to use interrupt property")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for tcan4x5x.txt
-Link: https://lore.kernel.org/r/20201026153620.89268-1-krzk@kernel.org
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Udai Sharma <udai.sharma@chelsio.com>
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Link: https://lore.kernel.org/r/20201125214913.16938-1-vinay.yadav@chelsio.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/net/nfc/nxp-nci.txt |    2 +-
- Documentation/devicetree/bindings/net/nfc/pn544.txt   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
-+++ b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
-@@ -25,7 +25,7 @@ Example (for ARM-based BeagleBone with N
- 		clock-frequency = <100000>;
- 
- 		interrupt-parent = <&gpio1>;
--		interrupts = <29 GPIO_ACTIVE_HIGH>;
-+		interrupts = <29 IRQ_TYPE_LEVEL_HIGH>;
- 
- 		enable-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
- 		firmware-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
---- a/Documentation/devicetree/bindings/net/nfc/pn544.txt
-+++ b/Documentation/devicetree/bindings/net/nfc/pn544.txt
-@@ -25,7 +25,7 @@ Example (for ARM-based BeagleBone with P
- 		clock-frequency = <400000>;
- 
- 		interrupt-parent = <&gpio1>;
--		interrupts = <17 GPIO_ACTIVE_HIGH>;
-+		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
- 
- 		enable-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
- 		firmware-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -1206,6 +1206,7 @@ static struct sock *chtls_recv_sock(stru
+ 	sk_setup_caps(newsk, dst);
+ 	ctx = tls_get_ctx(lsk);
+ 	newsk->sk_destruct = ctx->sk_destruct;
++	newsk->sk_prot_creator = lsk->sk_prot_creator;
+ 	csk->sk = newsk;
+ 	csk->passive_reap_next = oreq;
+ 	csk->tx_chan = cxgb4_port_chan(ndev);
 
 
