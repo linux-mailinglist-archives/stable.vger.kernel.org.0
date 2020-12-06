@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F4C2D043B
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8F272D03A0
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729275AbgLFLoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:44:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
+        id S1727794AbgLFLjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729257AbgLFLn5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:57 -0500
+        id S1725767AbgLFLjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        stable@vger.kernel.org, Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        Yves-Alexis Perez <corsac@corsac.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 01/46] devlink: Hold rtnl lock while reading netdev attributes
+Subject: [PATCH 4.14 06/20] usbnet: ipheth: fix connectivity with iOS 14
 Date:   Sun,  6 Dec 2020 12:17:09 +0100
-Message-Id: <20201206111556.519278816@linuxfoundation.org>
+Message-Id: <20201206111555.851837347@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,55 +32,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Yves-Alexis Perez <corsac@corsac.net>
 
-[ Upstream commit b187c9b4178b87954dbc94e78a7094715794714f ]
+[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
 
-A netdevice of a devlink port can be moved to different net namespace
-than its parent devlink instance.
-This scenario occurs when devlink reload is not used.
+Starting with iOS 14 released in September 2020, connectivity using the
+personal hotspot USB tethering function of iOS devices is broken.
 
-When netdevice is undergoing migration to net namespace, its ifindex
-and name may change.
+Communication between the host and the device (for example ICMP traffic
+or DNS resolution using the DNS service running in the device itself)
+works fine, but communication to endpoints further away doesn't work.
 
-In such use case, devlink port query may read stale netdev attributes.
+Investigation on the matter shows that no UDP and ICMP traffic from the
+tethered host is reaching the Internet at all. For TCP traffic there are
+exchanges between tethered host and server but packets are modified in
+transit leading to impossible communication.
 
-Fix it by reading them under rtnl lock.
+After some trials Matti Vuorela discovered that reducing the URB buffer
+size by two bytes restored the previous behavior. While a better
+solution might exist to fix the issue, since the protocol is not
+publicly documented and considering the small size of the fix, let's do
+that.
 
-Fixes: bfcd3a466172 ("Introduce devlink infrastructure")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
+Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
+Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/devlink.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/ipheth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -616,6 +616,8 @@ static int devlink_nl_port_fill(struct s
- 	if (nla_put_u32(msg, DEVLINK_ATTR_PORT_INDEX, devlink_port->index))
- 		goto nla_put_failure;
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -70,7 +70,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
  
-+	/* Hold rtnl lock while accessing port's netdev attributes. */
-+	rtnl_lock();
- 	spin_lock_bh(&devlink_port->type_lock);
- 	if (nla_put_u16(msg, DEVLINK_ATTR_PORT_TYPE, devlink_port->type))
- 		goto nla_put_failure_type_locked;
-@@ -642,6 +644,7 @@ static int devlink_nl_port_fill(struct s
- 			goto nla_put_failure_type_locked;
- 	}
- 	spin_unlock_bh(&devlink_port->type_lock);
-+	rtnl_unlock();
- 	if (devlink_nl_port_attrs_put(msg, devlink_port))
- 		goto nla_put_failure;
- 	if (devlink_nl_port_function_attrs_put(msg, devlink_port, extack))
-@@ -652,6 +655,7 @@ static int devlink_nl_port_fill(struct s
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
  
- nla_put_failure_type_locked:
- 	spin_unlock_bh(&devlink_port->type_lock);
-+	rtnl_unlock();
- nla_put_failure:
- 	genlmsg_cancel(msg, hdr);
- 	return -EMSGSIZE;
 
 
