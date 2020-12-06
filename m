@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 956D92D047B
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418582D03B0
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729124AbgLFLqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:46:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46284 "EHLO mail.kernel.org"
+        id S1728199AbgLFLjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728854AbgLFLqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:46:01 -0500
+        id S1728197AbgLFLju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:50 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Martin Schiller <ms@dev.tdt.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 07/46] net/tls: Protect from calling tls_dev_del for TLS RX twice
+Subject: [PATCH 4.14 12/20] net/x25: prevent a couple of overflows
 Date:   Sun,  6 Dec 2020 12:17:15 +0100
-Message-Id: <20201206111556.806726701@linuxfoundation.org>
+Message-Id: <20201206111556.136858754@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,65 +33,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 025cc2fb6a4e84e9a0552c0017dcd1c24b7ac7da ]
+[ Upstream commit 6ee50c8e262a0f0693dad264c3c99e30e6442a56 ]
 
-tls_device_offload_cleanup_rx doesn't clear tls_ctx->netdev after
-calling tls_dev_del if TLX TX offload is also enabled. Clearing
-tls_ctx->netdev gets postponed until tls_device_gc_task. It leaves a
-time frame when tls_device_down may get called and call tls_dev_del for
-RX one extra time, confusing the driver, which may lead to a crash.
+The .x25_addr[] address comes from the user and is not necessarily
+NUL terminated.  This leads to a couple problems.  The first problem is
+that the strlen() in x25_bind() can read beyond the end of the buffer.
 
-This patch corrects this racy behavior by adding a flag to prevent
-tls_device_down from calling tls_dev_del the second time.
+The second problem is more subtle and could result in memory corruption.
+The call tree is:
+  x25_connect()
+  --> x25_write_internal()
+      --> x25_addr_aton()
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20201125221810.69870-1-saeedm@nvidia.com
+The .x25_addr[] buffers are copied to the "addresses" buffer from
+x25_write_internal() so it will lead to stack corruption.
+
+Verify that the strings are NUL terminated and return -EINVAL if they
+are not.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: a9288525d2ae ("X25: Dont let x25_bind use addresses containing characters")
+Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/X8ZeAKm8FnFpN//B@mwanda
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    6 ++++++
- net/tls/tls_device.c |    5 ++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ net/x25/af_x25.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -199,6 +199,12 @@ enum tls_context_flags {
- 	 * to be atomic.
- 	 */
- 	TLS_TX_SYNC_SCHED = 1,
-+	/* tls_dev_del was called for the RX side, device state was released,
-+	 * but tls_ctx->netdev might still be kept, because TX-side driver
-+	 * resources might not be released yet. Used to prevent the second
-+	 * tls_dev_del call in tls_device_down if it happens simultaneously.
-+	 */
-+	TLS_RX_DEV_CLOSED = 2,
- };
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -679,7 +679,8 @@ static int x25_bind(struct socket *sock,
+ 	int len, i, rc = 0;
  
- struct cipher_context {
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -1262,6 +1262,8 @@ void tls_device_offload_cleanup_rx(struc
- 	if (tls_ctx->tx_conf != TLS_HW) {
- 		dev_put(netdev);
- 		tls_ctx->netdev = NULL;
-+	} else {
-+		set_bit(TLS_RX_DEV_CLOSED, &tls_ctx->flags);
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25) {
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
+ 		rc = -EINVAL;
+ 		goto out;
  	}
- out:
- 	up_read(&device_offload_lock);
-@@ -1291,7 +1293,8 @@ static int tls_device_down(struct net_de
- 		if (ctx->tx_conf == TLS_HW)
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_TX);
--		if (ctx->rx_conf == TLS_HW)
-+		if (ctx->rx_conf == TLS_HW &&
-+		    !test_bit(TLS_RX_DEV_CLOSED, &ctx->flags))
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_RX);
- 		WRITE_ONCE(ctx->netdev, NULL);
+@@ -773,7 +774,8 @@ static int x25_connect(struct socket *so
+ 
+ 	rc = -EINVAL;
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25)
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
+ 		goto out;
+ 
+ 	rc = -ENETUNREACH;
 
 
