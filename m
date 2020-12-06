@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB34E2D03D0
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EF42D03D2
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728499AbgLFLkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
+        id S1728596AbgLFLkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728588AbgLFLkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:33 -0500
+        id S1728631AbgLFLkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:36 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 31/32] tracing: Remove WARN_ON in start_thread()
-Date:   Sun,  6 Dec 2020 12:17:31 +0100
-Message-Id: <20201206111557.264012863@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Di Zhu <zhudi21@huawei.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.19 32/32] RDMA/i40iw: Address an mmap handler exploit in i40iw
+Date:   Sun,  6 Dec 2020 12:17:32 +0100
+Message-Id: <20201206111557.314085437@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
 References: <20201206111555.787862631@linuxfoundation.org>
@@ -32,56 +33,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-commit 310e3a4b5a4fc718a72201c1e4cf5c64ac6f5442 upstream.
+commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
 
-This patch reverts commit 978defee11a5 ("tracing: Do a WARN_ON()
- if start_thread() in hwlat is called when thread exists")
+i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
+vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
+without any validation. This is vulnerable to an mmap exploit as described
+in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
 
-.start hook can be legally called several times if according
-tracer is stopped
+The push feature is disabled in the driver currently and therefore no push
+mmaps are issued from user-space. The feature does not work as expected in
+the x722 product.
 
-screen window 1
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/options/pause-on-trace
-[root@localhost ~]# less -F /sys/kernel/tracing/trace
+Remove the push module parameter and all VMA attribute manipulations for
+this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
+mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
+to a single page.
 
-screen window 2
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo hwlat >  /sys/kernel/debug/tracing/current_tracer
-[root@localhost ~]# echo 1 > /sys/kernel/debug/tracing/tracing_on
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo 2 > /sys/kernel/debug/tracing/tracing_on
-
-triggers warning in dmesg:
-WARNING: CPU: 3 PID: 1403 at kernel/trace/trace_hwlat.c:371 hwlat_tracer_start+0xc9/0xd0
-
-Link: https://lkml.kernel.org/r/bd4d3e70-400d-9c82-7b73-a2d695e86b58@virtuozzo.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 978defee11a5 ("tracing: Do a WARN_ON() if start_thread() in hwlat is called when thread exists")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@kernel.org>
+Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
+Reported-by: Di Zhu <zhudi21@huawei.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_hwlat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/i40iw/i40iw_main.c  |    5 ----
+ drivers/infiniband/hw/i40iw/i40iw_verbs.c |   36 +++++-------------------------
+ 2 files changed, 7 insertions(+), 34 deletions(-)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -355,7 +355,7 @@ static int start_kthread(struct trace_ar
- 	struct task_struct *kthread;
- 	int next_cpu;
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -54,10 +54,6 @@
+ #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
+ 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
  
--	if (WARN_ON(hwlat_kthread))
-+	if (hwlat_kthread)
- 		return 0;
+-static int push_mode;
+-module_param(push_mode, int, 0644);
+-MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
+-
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
+@@ -1584,7 +1580,6 @@ static enum i40iw_status_code i40iw_setu
+ 	if (status)
+ 		goto exit;
+ 	iwdev->obj_next = iwdev->obj_mem;
+-	iwdev->push_mode = push_mode;
  
- 	/* Just pick the first CPU on first iteration */
+ 	init_waitqueue_head(&iwdev->vchnl_waitq);
+ 	init_waitqueue_head(&dev->vf_reqs);
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -201,38 +201,16 @@ static int i40iw_dealloc_ucontext(struct
+  */
+ static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
+ {
+-	struct i40iw_ucontext *ucontext;
+-	u64 db_addr_offset;
+-	u64 push_offset;
++	struct i40iw_ucontext *ucontext = to_ucontext(context);
++	u64 dbaddr;
+ 
+-	ucontext = to_ucontext(context);
+-	if (ucontext->iwdev->sc_dev.is_pf) {
+-		db_addr_offset = I40IW_DB_ADDR_OFFSET;
+-		push_offset = I40IW_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
+-	} else {
+-		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
+-		push_offset = I40IW_VF_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
+-	}
++	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
+ 
+-	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
++	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
+ 
+-	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		vma->vm_private_data = ucontext;
+-	} else {
+-		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
+-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		else
+-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+-	}
+-
+-	if (io_remap_pfn_range(vma, vma->vm_start,
+-			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
+-			       PAGE_SIZE, vma->vm_page_prot))
++	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
++			       pgprot_noncached(vma->vm_page_prot)))
+ 		return -EAGAIN;
+ 
+ 	return 0;
 
 
