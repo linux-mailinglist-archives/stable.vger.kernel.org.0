@@ -2,130 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2542D022C
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 10:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA2AE2D023E
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 10:28:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727496AbgLFJKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 04:10:17 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:57322 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725980AbgLFJKO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 04:10:14 -0500
-Date:   Sun, 06 Dec 2020 09:09:30 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607245771;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=7NZzFHvvG3Z44Zmp07YaDC+CpeUesGmzpFQ7cGNXwMA=;
-        b=Jzqj1AL0I3o5DAgai/EFxT+42mU3dNHtLqDzOfetedseeEr7VEdixGWPxCjCDAlVK5WtoO
-        NHO9RIqBld9XAgF2vwy1mNp7XPmN4ZZwyVWa2la1RthG461v3JSYzHCW28LEpNi3toGGPx
-        atwcIf160Ki5w0eWJcvGY9tT7emUDF283+v44gYGlEGlgER1oMq987nbdnazeP0yuY09nY
-        KZL8xhsJyIM/hhNNtPu6bDMhjUR/5QTHwlr/6/c+OkMXeEA6UK9bbvCOqEEjkLdiG3yVpx
-        i96NvEJ7ZbJ9d1UGtk5F8hv09d2ioYVVG7ghmPiYPng9c6gf0ThGM+VGe5DBBA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607245771;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=7NZzFHvvG3Z44Zmp07YaDC+CpeUesGmzpFQ7cGNXwMA=;
-        b=3r++y7WkEsHYKdLsY8zkmZCiD0MXAnHijoPCbAcj1O0Awl1ca97fquFj/KNY6u1hA3yb/r
-        roIgVueEiCVpFzCw==
-From:   "tip-bot2 for Masami Hiramatsu" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/insn-eval: Use new for_each_insn_prefix() macro
- to loop over prefixes bytes
-Cc:     syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <160697104969.3146288.16329307586428270032.stgit@devnote2>
-References: <160697104969.3146288.16329307586428270032.stgit@devnote2>
+        id S1725779AbgLFJ2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 04:28:35 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:56349 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725767AbgLFJ2f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 04:28:35 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1A0011942B91;
+        Sun,  6 Dec 2020 04:27:49 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 06 Dec 2020 04:27:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XzWYJ4
+        CXUGXWMZbwV9/lkaZBkseaUPu2FAOmz/LH1kk=; b=nhGw0P6s1qJCeG/YUCsuuA
+        xbqflJiPvoY7i6Zj5PJjyz/gi1PLNBi0HYxRRYALOQy3ewk4qXMWZap0wv0xCfcr
+        z9u0LPLRocl9RT4mfYZvv4WeNo6WmBi7+oeWuTL1Q8WtE1eTyjm06wweILrXjwg9
+        2tvANryfGgGHWmb0wYQItKP1LpEtK3ovteRryKfzK6G2tkW1t99VTuKuhORN4SBq
+        3Ob6dfW/KOvfqw9kjvm+VySMtqMdyCcj527q0zBZVS2QMC53wqTtCMbiU5zeIBoV
+        zl+A9EDVbYJkaQYEU0BCuDPbl2Ioca59h4F01DipTnPCAzsik4mvnwBhE2aRF/CA
+        ==
+X-ME-Sender: <xms:FKTMXzhQCU_elGC9iKxqExregS6FntqNWTRqD9KABDzEnojsryZGeQ>
+    <xme:FKTMXwCUn9BHLuQgxRIN6O8fWvR9lEtUDCngmIluQxDiGCpoR8NqEhNCj0qduNWrL
+    XEsUYbZWG1nMQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejvddgtdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:FKTMXzFcSprhw7fgkN3y8W5fYZJA5-zIVmgrEAHWSo8hVLpwjwjWPw>
+    <xmx:FKTMXwSzjEAfWR8ua__V9WXBXfIWxarKYbtn5KmKvSkHTDsRnk45bw>
+    <xmx:FKTMXwyVsaCgjUmVXW4SrXYeYJPext3weXgpuQmCvq_96sXx7aK4gw>
+    <xmx:FaTMX9qaPSyIidN5VmhBdZC_he2PQQMLCk-gXESFm6r7sjVDH3ioKg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A026B108005F;
+        Sun,  6 Dec 2020 04:27:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] geneve: pull IP header before ECN decapsulation" failed to apply to 4.14-stable tree
+To:     edumazet@google.com, kuba@kernel.org, syzkaller@googlegroups.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 06 Dec 2020 10:29:02 +0100
+Message-ID: <160724694219419@kroah.com>
 MIME-Version: 1.0
-Message-ID: <160724577056.3364.12183431793717178640.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     12cb908a11b2544b5f53e9af856e6b6a90ed5533
-Gitweb:        https://git.kernel.org/tip/12cb908a11b2544b5f53e9af856e6b6a90ed5533
-Author:        Masami Hiramatsu <mhiramat@kernel.org>
-AuthorDate:    Thu, 03 Dec 2020 13:50:50 +09:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Sun, 06 Dec 2020 10:03:08 +01:00
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-x86/insn-eval: Use new for_each_insn_prefix() macro to loop over prefixes bytes
+thanks,
 
-Since insn.prefixes.nbytes can be bigger than the size of
-insn.prefixes.bytes[] when a prefix is repeated, the proper check must
-be
+greg k-h
 
-  insn.prefixes.bytes[i] != 0 and i < 4
+------------------ original commit in Linus's tree ------------------
 
-instead of using insn.prefixes.nbytes. Use the new
-for_each_insn_prefix() macro which does it correctly.
+From 4179b00c04d18ea7013f68d578d80f3c9d13150a Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 1 Dec 2020 01:05:07 -0800
+Subject: [PATCH] geneve: pull IP header before ECN decapsulation
 
-Debugged by Kees Cook <keescook@chromium.org>.
+IP_ECN_decapsulate() and IP6_ECN_decapsulate() assume
+IP header is already pulled.
 
- [ bp: Massage commit message. ]
+geneve does not ensure this yet.
 
-Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
-Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
----
- arch/x86/lib/insn-eval.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Fixing this generically in IP_ECN_decapsulate() and
+IP6_ECN_decapsulate() is not possible, since callers
+pass a pointer that might be freed by pskb_may_pull()
 
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 58f7fb9..4229950 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -63,13 +63,12 @@ static bool is_string_insn(struct insn *insn)
-  */
- bool insn_has_rep_prefix(struct insn *insn)
- {
-+	insn_byte_t p;
- 	int i;
+syzbot reported :
+
+BUG: KMSAN: uninit-value in __INET_ECN_decapsulate include/net/inet_ecn.h:238 [inline]
+BUG: KMSAN: uninit-value in INET_ECN_decapsulate+0x345/0x1db0 include/net/inet_ecn.h:260
+CPU: 1 PID: 8941 Comm: syz-executor.0 Not tainted 5.10.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x5f/0xa0 mm/kmsan/kmsan_instr.c:197
+ __INET_ECN_decapsulate include/net/inet_ecn.h:238 [inline]
+ INET_ECN_decapsulate+0x345/0x1db0 include/net/inet_ecn.h:260
+ geneve_rx+0x2103/0x2980 include/net/inet_ecn.h:306
+ geneve_udp_encap_recv+0x105c/0x1340 drivers/net/geneve.c:377
+ udp_queue_rcv_one_skb+0x193a/0x1af0 net/ipv4/udp.c:2093
+ udp_queue_rcv_skb+0x282/0x1050 net/ipv4/udp.c:2167
+ udp_unicast_rcv_skb net/ipv4/udp.c:2325 [inline]
+ __udp4_lib_rcv+0x399d/0x5880 net/ipv4/udp.c:2394
+ udp_rcv+0x5c/0x70 net/ipv4/udp.c:2564
+ ip_protocol_deliver_rcu+0x572/0xc50 net/ipv4/ip_input.c:204
+ ip_local_deliver_finish net/ipv4/ip_input.c:231 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip_local_deliver+0x583/0x8d0 net/ipv4/ip_input.c:252
+ dst_input include/net/dst.h:449 [inline]
+ ip_rcv_finish net/ipv4/ip_input.c:428 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip_rcv+0x5c3/0x840 net/ipv4/ip_input.c:539
+ __netif_receive_skb_one_core net/core/dev.c:5315 [inline]
+ __netif_receive_skb+0x1ec/0x640 net/core/dev.c:5429
+ process_backlog+0x523/0xc10 net/core/dev.c:6319
+ napi_poll+0x420/0x1010 net/core/dev.c:6763
+ net_rx_action+0x35c/0xd40 net/core/dev.c:6833
+ __do_softirq+0x1a9/0x6fa kernel/softirq.c:298
+ asm_call_irq_on_stack+0xf/0x20
+ </IRQ>
+ __run_on_irqstack arch/x86/include/asm/irq_stack.h:26 [inline]
+ run_on_irqstack_cond arch/x86/include/asm/irq_stack.h:77 [inline]
+ do_softirq_own_stack+0x6e/0x90 arch/x86/kernel/irq_64.c:77
+ do_softirq kernel/softirq.c:343 [inline]
+ __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:195
+ local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
+ rcu_read_unlock_bh include/linux/rcupdate.h:730 [inline]
+ __dev_queue_xmit+0x3a9b/0x4520 net/core/dev.c:4167
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:4173
+ packet_snd net/packet/af_packet.c:2992 [inline]
+ packet_sendmsg+0x86f9/0x99d0 net/packet/af_packet.c:3017
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ __sys_sendto+0x9dc/0xc80 net/socket.c:1992
+ __do_sys_sendto net/socket.c:2004 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2000
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2000
+ do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20201201090507.4137906-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index 1426bfc009bc..8ae9ce2014a4 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -257,11 +257,21 @@ static void geneve_rx(struct geneve_dev *geneve, struct geneve_sock *gs,
+ 		skb_dst_set(skb, &tun_dst->dst);
  
- 	insn_get_prefixes(insn);
+ 	/* Ignore packet loops (and multicast echo) */
+-	if (ether_addr_equal(eth_hdr(skb)->h_source, geneve->dev->dev_addr)) {
+-		geneve->dev->stats.rx_errors++;
+-		goto drop;
+-	}
++	if (ether_addr_equal(eth_hdr(skb)->h_source, geneve->dev->dev_addr))
++		goto rx_error;
  
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
--		insn_byte_t p = insn->prefixes.bytes[i];
--
-+	for_each_insn_prefix(insn, i, p) {
- 		if (p == 0xf2 || p == 0xf3)
- 			return true;
- 	}
-@@ -95,14 +94,15 @@ static int get_seg_reg_override_idx(struct insn *insn)
- {
- 	int idx = INAT_SEG_REG_DEFAULT;
- 	int num_overrides = 0, i;
-+	insn_byte_t p;
++	switch (skb_protocol(skb, true)) {
++	case htons(ETH_P_IP):
++		if (pskb_may_pull(skb, sizeof(struct iphdr)))
++			goto rx_error;
++		break;
++	case htons(ETH_P_IPV6):
++		if (pskb_may_pull(skb, sizeof(struct ipv6hdr)))
++			goto rx_error;
++		break;
++	default:
++		goto rx_error;
++	}
+ 	oiph = skb_network_header(skb);
+ 	skb_reset_network_header(skb);
  
- 	insn_get_prefixes(insn);
+@@ -298,6 +308,8 @@ static void geneve_rx(struct geneve_dev *geneve, struct geneve_sock *gs,
+ 		dev_sw_netstats_rx_add(geneve->dev, len);
  
- 	/* Look for any segment override prefixes. */
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
-+	for_each_insn_prefix(insn, i, p) {
- 		insn_attr_t attr;
- 
--		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
-+		attr = inat_get_opcode_attribute(p);
- 		switch (attr) {
- 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
- 			idx = INAT_SEG_REG_CS;
+ 	return;
++rx_error:
++	geneve->dev->stats.rx_errors++;
+ drop:
+ 	/* Consume bad packet */
+ 	kfree_skb(skb);
+
