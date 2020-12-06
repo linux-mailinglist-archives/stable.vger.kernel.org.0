@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C901B2D048B
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792FB2D0434
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727978AbgLFLqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:46:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43936 "EHLO mail.kernel.org"
+        id S1729240AbgLFLnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:43:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbgLFLor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:44:47 -0500
+        id S1729213AbgLFLnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:52 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 33/46] net: skbuff: ensure LSE is pullable before decrementing the MPLS ttl
-Date:   Sun,  6 Dec 2020 12:17:41 +0100
-Message-Id: <20201206111558.052432033@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 38/39] tracing: Remove WARN_ON in start_thread()
+Date:   Sun,  6 Dec 2020 12:17:42 +0100
+Message-Id: <20201206111556.483147152@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,37 +32,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 13de4ed9e3a9ccbe54d05f7d5c773f69ecaf6c64 ]
+commit 310e3a4b5a4fc718a72201c1e4cf5c64ac6f5442 upstream.
 
-skb_mpls_dec_ttl() reads the LSE without ensuring that it is contained in
-the skb "linear" area. Fix this calling pskb_may_pull() before reading the
-current ttl.
+This patch reverts commit 978defee11a5 ("tracing: Do a WARN_ON()
+ if start_thread() in hwlat is called when thread exists")
 
-Found by code inspection.
+.start hook can be legally called several times if according
+tracer is stopped
 
-Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
-Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Link: https://lore.kernel.org/r/53659f28be8bc336c113b5254dc637cc76bbae91.1606987074.git.dcaratti@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+screen window 1
+[root@localhost ~]# echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
+[root@localhost ~]# echo 1 > /sys/kernel/tracing/options/pause-on-trace
+[root@localhost ~]# less -F /sys/kernel/tracing/trace
+
+screen window 2
+[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
+0
+[root@localhost ~]# echo hwlat >  /sys/kernel/debug/tracing/current_tracer
+[root@localhost ~]# echo 1 > /sys/kernel/debug/tracing/tracing_on
+[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
+0
+[root@localhost ~]# echo 2 > /sys/kernel/debug/tracing/tracing_on
+
+triggers warning in dmesg:
+WARNING: CPU: 3 PID: 1403 at kernel/trace/trace_hwlat.c:371 hwlat_tracer_start+0xc9/0xd0
+
+Link: https://lkml.kernel.org/r/bd4d3e70-400d-9c82-7b73-a2d695e86b58@virtuozzo.com
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 978defee11a5 ("tracing: Do a WARN_ON() if start_thread() in hwlat is called when thread exists")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/skbuff.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5725,6 +5725,9 @@ int skb_mpls_dec_ttl(struct sk_buff *skb
- 	if (unlikely(!eth_p_mpls(skb->protocol)))
- 		return -EINVAL;
+---
+ kernel/trace/trace_hwlat.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -355,7 +355,7 @@ static int start_kthread(struct trace_ar
+ 	struct task_struct *kthread;
+ 	int next_cpu;
  
-+	if (!pskb_may_pull(skb, skb_network_offset(skb) + MPLS_HLEN))
-+		return -ENOMEM;
-+
- 	lse = be32_to_cpu(mpls_hdr(skb)->label_stack_entry);
- 	ttl = (lse & MPLS_LS_TTL_MASK) >> MPLS_LS_TTL_SHIFT;
- 	if (!--ttl)
+-	if (WARN_ON(hwlat_kthread))
++	if (hwlat_kthread)
+ 		return 0;
+ 
+ 	/* Just pick the first CPU on first iteration */
 
 
