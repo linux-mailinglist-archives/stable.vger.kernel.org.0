@@ -2,25 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B01C62D0479
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A62742D0484
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729579AbgLFLp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:45:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
+        id S1729183AbgLFLqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:46:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729572AbgLFLps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:48 -0500
+        id S1728900AbgLFLqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:46:17 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.9 44/46] tracing: Remove WARN_ON in start_thread()
-Date:   Sun,  6 Dec 2020 12:17:52 +0100
-Message-Id: <20201206111558.584406523@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Eric Sandeen <sandeen@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.9 45/46] uapi: fix statx attribute value overlap for DAX & MOUNT_ROOT
+Date:   Sun,  6 Dec 2020 12:17:53 +0100
+Message-Id: <20201206111558.632024362@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -32,56 +35,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-commit 310e3a4b5a4fc718a72201c1e4cf5c64ac6f5442 upstream.
+commit 72d1249e2ffdbc344e465031ec5335fa3489d62e upstream.
 
-This patch reverts commit 978defee11a5 ("tracing: Do a WARN_ON()
- if start_thread() in hwlat is called when thread exists")
+STATX_ATTR_MOUNT_ROOT and STATX_ATTR_DAX got merged with the same value,
+so one of them needs fixing.  Move STATX_ATTR_DAX.
 
-.start hook can be legally called several times if according
-tracer is stopped
+While we're in here, clarify the value-matching scheme for some of the
+attributes, and explain why the value for DAX does not match.
 
-screen window 1
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
-[root@localhost ~]# echo 1 > /sys/kernel/tracing/options/pause-on-trace
-[root@localhost ~]# less -F /sys/kernel/tracing/trace
-
-screen window 2
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo hwlat >  /sys/kernel/debug/tracing/current_tracer
-[root@localhost ~]# echo 1 > /sys/kernel/debug/tracing/tracing_on
-[root@localhost ~]# cat /sys/kernel/debug/tracing/tracing_on
-0
-[root@localhost ~]# echo 2 > /sys/kernel/debug/tracing/tracing_on
-
-triggers warning in dmesg:
-WARNING: CPU: 3 PID: 1403 at kernel/trace/trace_hwlat.c:371 hwlat_tracer_start+0xc9/0xd0
-
-Link: https://lkml.kernel.org/r/bd4d3e70-400d-9c82-7b73-a2d695e86b58@virtuozzo.com
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 978defee11a5 ("tracing: Do a WARN_ON() if start_thread() in hwlat is called when thread exists")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 80340fe3605c ("statx: add mount_root")
+Fixes: 712b2698e4c0 ("fs/stat: Define DAX statx attribute")
+Link: https://lore.kernel.org/linux-fsdevel/7027520f-7c79-087e-1d00-743bdefa1a1e@redhat.com/
+Link: https://lore.kernel.org/lkml/20201202214629.1563760-1-ira.weiny@intel.com/
+Reported-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Cc: <stable@vger.kernel.org> # 5.8
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_hwlat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/uapi/linux/stat.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -368,7 +368,7 @@ static int start_kthread(struct trace_ar
- 	struct task_struct *kthread;
- 	int next_cpu;
+--- a/include/uapi/linux/stat.h
++++ b/include/uapi/linux/stat.h
+@@ -171,9 +171,12 @@ struct statx {
+  * be of use to ordinary userspace programs such as GUIs or ls rather than
+  * specialised tools.
+  *
+- * Note that the flags marked [I] correspond to generic FS_IOC_FLAGS
++ * Note that the flags marked [I] correspond to the FS_IOC_SETFLAGS flags
+  * semantically.  Where possible, the numerical value is picked to correspond
+- * also.
++ * also.  Note that the DAX attribute indicates that the file is in the CPU
++ * direct access state.  It does not correspond to the per-inode flag that
++ * some filesystems support.
++ *
+  */
+ #define STATX_ATTR_COMPRESSED		0x00000004 /* [I] File is compressed by the fs */
+ #define STATX_ATTR_IMMUTABLE		0x00000010 /* [I] File is marked immutable */
+@@ -183,7 +186,7 @@ struct statx {
+ #define STATX_ATTR_AUTOMOUNT		0x00001000 /* Dir: Automount trigger */
+ #define STATX_ATTR_MOUNT_ROOT		0x00002000 /* Root of a mount */
+ #define STATX_ATTR_VERITY		0x00100000 /* [I] Verity protected file */
+-#define STATX_ATTR_DAX			0x00002000 /* [I] File is DAX */
++#define STATX_ATTR_DAX			0x00200000 /* File is currently in DAX state */
  
--	if (WARN_ON(hwlat_kthread))
-+	if (hwlat_kthread)
- 		return 0;
  
- 	/* Just pick the first CPU on first iteration */
+ #endif /* _UAPI_LINUX_STAT_H */
 
 
