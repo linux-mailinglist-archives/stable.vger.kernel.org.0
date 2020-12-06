@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 850272D03AA
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDBC2D037E
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728161AbgLFLjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36038 "EHLO mail.kernel.org"
+        id S1726604AbgLFLjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728108AbgLFLjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:45 -0500
+        id S1726076AbgLFLjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 17/32] ibmvnic: Fix TX completion error handling
-Date:   Sun,  6 Dec 2020 12:17:17 +0100
-Message-Id: <20201206111556.577337026@linuxfoundation.org>
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 15/20] net/mlx5: Fix wrong address reclaim when command interface is down
+Date:   Sun,  6 Dec 2020 12:17:18 +0100
+Message-Id: <20201206111556.265653747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,37 +32,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Eran Ben Elisha <eranbe@nvidia.com>
 
-[ Upstream commit ba246c175116e2e8fa4fdfa5f8e958e086a9a818 ]
+[ Upstream commit 1d2bb5ad89f47d8ce8aedc70ef85059ab3870292 ]
 
-TX completions received with an error return code are not
-being processed properly. When an error code is seen, do not
-proceed to the next completion before cleaning up the existing
-entry's data structures.
+When command interface is down, driver to reclaim all 4K page chucks that
+were hold by the Firmeware. Fix a bug for 64K page size systems, where
+driver repeatedly released only the first chunk of the page.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Define helper function to fill 4K chunks for a given Firmware pages.
+Iterate over all unreleased Firmware pages and call the hepler per each.
+
+Fixes: 5adff6a08862 ("net/mlx5: Fix incorrect page count when in internal error")
+Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c |   21 ++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2799,11 +2799,9 @@ restart_loop:
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+@@ -331,6 +331,24 @@ out_free:
+ 	return err;
+ }
  
- 		next = ibmvnic_next_scrq(adapter, scrq);
- 		for (i = 0; i < next->tx_comp.num_comps; i++) {
--			if (next->tx_comp.rcs[i]) {
-+			if (next->tx_comp.rcs[i])
- 				dev_err(dev, "tx error %x\n",
- 					next->tx_comp.rcs[i]);
--				continue;
--			}
- 			index = be32_to_cpu(next->tx_comp.correlators[i]);
- 			if (index & IBMVNIC_TSO_POOL_MASK) {
- 				tx_pool = &adapter->tso_pool[pool];
++static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
++				     u32 npages)
++{
++	u32 pages_set = 0;
++	unsigned int n;
++
++	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
++		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
++				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
++		pages_set++;
++
++		if (!--npages)
++			break;
++	}
++
++	return pages_set;
++}
++
+ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 			     u32 *in, int in_size, u32 *out, int out_size)
+ {
+@@ -354,8 +372,7 @@ static int reclaim_pages_cmd(struct mlx5
+ 		if (fwp->func_id != func_id)
+ 			continue;
+ 
+-		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
+-		i++;
++		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
+ 	}
+ 
+ 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
 
 
