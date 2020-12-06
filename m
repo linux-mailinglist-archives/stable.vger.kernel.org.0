@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 591F62D0389
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D402D0473
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727871AbgLFLjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36008 "EHLO mail.kernel.org"
+        id S1729082AbgLFLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:45:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727861AbgLFLjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:15 -0500
+        id S1725804AbgLFLpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:46 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 19/20] Input: i8042 - add ByteSpeed touchpad to noloop table
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 14/46] mptcp: fix NULL ptr dereference on bad MPJ
 Date:   Sun,  6 Dec 2020 12:17:22 +0100
-Message-Id: <20201206111556.444266441@linuxfoundation.org>
+Message-Id: <20201206111557.147478069@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,38 +33,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit a48491c65b513e5cdc3e7a886a4db915f848a5f5 upstream.
+[ Upstream commit d3ab78858f1451351221061a1c365495df196500 ]
 
-It looks like the C15B laptop got another vendor: ByteSpeed LLC.
+If an msk listener receives an MPJ carrying an invalid token, it
+will zero the request socket msk entry. That should later
+cause fallback and subflow reset - as per RFC - at
+subflow_syn_recv_sock() time due to failing hmac validation.
 
-Avoid AUX loopback on this touchpad as well, thus input subsystem will
-be able to recognize a Synaptics touchpad in the AUX port.
+Since commit 4cf8b7e48a09 ("subflow: introduce and use
+mptcp_can_accept_new_subflow()"), we unconditionally dereference
+- in mptcp_can_accept_new_subflow - the subflow request msk
+before performing hmac validation. In the above scenario we
+hit a NULL ptr dereference.
 
-BugLink: https://bugs.launchpad.net/bugs/1906128
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Address the issue doing the hmac validation earlier.
+
+Fixes: 4cf8b7e48a09 ("subflow: introduce and use mptcp_can_accept_new_subflow()")
+Tested-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Link: https://lore.kernel.org/r/03b2cfa3ac80d8fc18272edc6442a9ddf0b1e34e.1606400227.git.pabeni@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/serio/i8042-x86ia64io.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/mptcp/subflow.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -223,6 +223,10 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
- 		},
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
-+		},
- 	},
- 	{ }
- };
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -542,9 +542,8 @@ create_msk:
+ 			fallback = true;
+ 	} else if (subflow_req->mp_join) {
+ 		mptcp_get_options(skb, &mp_opt);
+-		if (!mp_opt.mp_join ||
+-		    !mptcp_can_accept_new_subflow(subflow_req->msk) ||
+-		    !subflow_hmac_valid(req, &mp_opt)) {
++		if (!mp_opt.mp_join || !subflow_hmac_valid(req, &mp_opt) ||
++		    !mptcp_can_accept_new_subflow(subflow_req->msk)) {
+ 			SUBFLOW_REQ_INC_STATS(req, MPTCP_MIB_JOINACKMAC);
+ 			fallback = true;
+ 		}
 
 
