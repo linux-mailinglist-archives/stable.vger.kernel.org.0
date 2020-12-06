@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6C32D049F
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 552282D03D8
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727818AbgLFLrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:47:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41146 "EHLO mail.kernel.org"
+        id S1728646AbgLFLkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727842AbgLFLm1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:42:27 -0500
+        id S1728675AbgLFLkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:41 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Udai Sharma <udai.sharma@chelsio.com>,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 18/39] chelsio/chtls: fix panic during unload reload chtls
+Subject: [PATCH 4.19 22/32] net: pasemi: fix error return code in pasemi_mac_open()
 Date:   Sun,  6 Dec 2020 12:17:22 +0100
-Message-Id: <20201206111555.553421649@linuxfoundation.org>
+Message-Id: <20201206111556.832859190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,33 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit e3d5e971d2f83d8ddd4b91a50cea4517fb488383 ]
+[ Upstream commit aba84871bd4f52c4dfcf3ad5d4501a6c9d2de90e ]
 
-there is kernel panic in inet_twsk_free() while chtls
-module unload when socket is in TIME_WAIT state because
-sk_prot_creator was not preserved on connection socket.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Udai Sharma <udai.sharma@chelsio.com>
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Link: https://lore.kernel.org/r/20201125214913.16938-1-vinay.yadav@chelsio.com
+Fixes: 72b05b9940f0 ("pasemi_mac: RX/TX ring management cleanup")
+Fixes: 8d636d8bc5ff ("pasemi_mac: jumbo frame support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1606903035-1838-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/pasemi/pasemi_mac.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_cm.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -1077,6 +1077,7 @@ static struct sock *chtls_recv_sock(stru
- 	sk_setup_caps(newsk, dst);
- 	ctx = tls_get_ctx(lsk);
- 	newsk->sk_destruct = ctx->sk_destruct;
-+	newsk->sk_prot_creator = lsk->sk_prot_creator;
- 	csk->sk = newsk;
- 	csk->passive_reap_next = oreq;
- 	csk->tx_chan = cxgb4_port_chan(ndev);
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1089,16 +1089,20 @@ static int pasemi_mac_open(struct net_de
+ 
+ 	mac->tx = pasemi_mac_setup_tx_resources(dev);
+ 
+-	if (!mac->tx)
++	if (!mac->tx) {
++		ret = -ENOMEM;
+ 		goto out_tx_ring;
++	}
+ 
+ 	/* We might already have allocated rings in case mtu was changed
+ 	 * before interface was brought up.
+ 	 */
+ 	if (dev->mtu > 1500 && !mac->num_cs) {
+ 		pasemi_mac_setup_csrings(mac);
+-		if (!mac->num_cs)
++		if (!mac->num_cs) {
++			ret = -ENOMEM;
+ 			goto out_tx_ring;
++		}
+ 	}
+ 
+ 	/* Zero out rmon counters */
 
 
