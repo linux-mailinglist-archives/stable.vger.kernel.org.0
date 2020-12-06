@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BC02D03F5
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4BB2D03D6
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgLFLlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:41:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39698 "EHLO mail.kernel.org"
+        id S1728668AbgLFLkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728880AbgLFLlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:41:52 -0500
+        id S1728660AbgLFLkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:39 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Martin Schiller <ms@dev.tdt.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 16/39] ipv4: Fix tos mask in inet_rtm_getroute()
+Subject: [PATCH 4.19 20/32] net/x25: prevent a couple of overflows
 Date:   Sun,  6 Dec 2020 12:17:20 +0100
-Message-Id: <20201206111555.458123604@linuxfoundation.org>
+Message-Id: <20201206111556.729478472@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,70 +33,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1ebf179037cb46c19da3a9c1e2ca16e7a754b75e ]
+[ Upstream commit 6ee50c8e262a0f0693dad264c3c99e30e6442a56 ]
 
-When inet_rtm_getroute() was converted to use the RCU variants of
-ip_route_input() and ip_route_output_key(), the TOS parameters
-stopped being masked with IPTOS_RT_MASK before doing the route lookup.
+The .x25_addr[] address comes from the user and is not necessarily
+NUL terminated.  This leads to a couple problems.  The first problem is
+that the strlen() in x25_bind() can read beyond the end of the buffer.
 
-As a result, "ip route get" can return a different route than what
-would be used when sending real packets.
+The second problem is more subtle and could result in memory corruption.
+The call tree is:
+  x25_connect()
+  --> x25_write_internal()
+      --> x25_addr_aton()
 
-For example:
+The .x25_addr[] buffers are copied to the "addresses" buffer from
+x25_write_internal() so it will lead to stack corruption.
 
-    $ ip route add 192.0.2.11/32 dev eth0
-    $ ip route add unreachable 192.0.2.11/32 tos 2
-    $ ip route get 192.0.2.11 tos 2
-    RTNETLINK answers: No route to host
+Verify that the strings are NUL terminated and return -EINVAL if they
+are not.
 
-But, packets with TOS 2 (ECT(0) if interpreted as an ECN bit) would
-actually be routed using the first route:
-
-    $ ping -c 1 -Q 2 192.0.2.11
-    PING 192.0.2.11 (192.0.2.11) 56(84) bytes of data.
-    64 bytes from 192.0.2.11: icmp_seq=1 ttl=64 time=0.173 ms
-
-    --- 192.0.2.11 ping statistics ---
-    1 packets transmitted, 1 received, 0% packet loss, time 0ms
-    rtt min/avg/max/mdev = 0.173/0.173/0.173/0.000 ms
-
-This patch re-applies IPTOS_RT_MASK in inet_rtm_getroute(), to
-return results consistent with real route lookups.
-
-Fixes: 3765d35ed8b9 ("net: ipv4: Convert inet_rtm_getroute to rcu versions of route lookup")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/b2d237d08317ca55926add9654a48409ac1b8f5b.1606412894.git.gnault@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: a9288525d2ae ("X25: Dont let x25_bind use addresses containing characters")
+Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/X8ZeAKm8FnFpN//B@mwanda
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/x25/af_x25.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -3132,7 +3132,7 @@ static int inet_rtm_getroute(struct sk_b
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -680,7 +680,8 @@ static int x25_bind(struct socket *sock,
+ 	int len, i, rc = 0;
  
- 	fl4.daddr = dst;
- 	fl4.saddr = src;
--	fl4.flowi4_tos = rtm->rtm_tos;
-+	fl4.flowi4_tos = rtm->rtm_tos & IPTOS_RT_MASK;
- 	fl4.flowi4_oif = tb[RTA_OIF] ? nla_get_u32(tb[RTA_OIF]) : 0;
- 	fl4.flowi4_mark = mark;
- 	fl4.flowi4_uid = uid;
-@@ -3156,8 +3156,9 @@ static int inet_rtm_getroute(struct sk_b
- 		fl4.flowi4_iif = iif; /* for rt_fill_info */
- 		skb->dev	= dev;
- 		skb->mark	= mark;
--		err = ip_route_input_rcu(skb, dst, src, rtm->rtm_tos,
--					 dev, &res);
-+		err = ip_route_input_rcu(skb, dst, src,
-+					 rtm->rtm_tos & IPTOS_RT_MASK, dev,
-+					 &res);
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25) {
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -774,7 +775,8 @@ static int x25_connect(struct socket *so
  
- 		rt = skb_rtable(skb);
- 		if (err == 0 && rt->dst.error)
+ 	rc = -EINVAL;
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25)
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
+ 		goto out;
+ 
+ 	rc = -ENETUNREACH;
 
 
