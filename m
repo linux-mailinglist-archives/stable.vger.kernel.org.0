@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E722D040D
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A1E2D0439
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbgLFLmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:42:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41788 "EHLO mail.kernel.org"
+        id S1728699AbgLFLoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:44:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727918AbgLFLmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:42:45 -0500
+        id S1728348AbgLFLn6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Morton <chromatix99@gmail.com>,
-        Pete Heist <pete@heistp.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 21/39] inet_ecn: Fix endianness of checksum update when setting ECT(1)
-Date:   Sun,  6 Dec 2020 12:17:25 +0100
-Message-Id: <20201206111555.693217763@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.9 18/46] dt-bindings: net: correct interrupt flags in examples
+Date:   Sun,  6 Dec 2020 12:17:26 +0100
+Message-Id: <20201206111557.337432983@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,37 +33,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Toke Høiland-Jørgensen" <toke@redhat.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 2867e1eac61016f59b3d730e3f7aa488e186e917 ]
+[ Upstream commit 4d521943f76bd0d1e68ea5e02df7aadd30b2838a ]
 
-When adding support for propagating ECT(1) marking in IP headers it seems I
-suffered from endianness-confusion in the checksum update calculation: In
-fact the ECN field is in the *lower* bits of the first 16-bit word of the
-IP header when calculating in network byte order. This means that the
-addition performed to update the checksum field was wrong; let's fix that.
+GPIO_ACTIVE_x flags are not correct in the context of interrupt flags.
+These are simple defines so they could be used in DTS but they will not
+have the same meaning:
+1. GPIO_ACTIVE_HIGH = 0 = IRQ_TYPE_NONE
+2. GPIO_ACTIVE_LOW  = 1 = IRQ_TYPE_EDGE_RISING
 
-Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
-Reported-by: Jonathan Morton <chromatix99@gmail.com>
-Tested-by: Pete Heist <pete@heistp.net>
-Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20201130183705.17540-1-toke@redhat.com
+Correct the interrupt flags, assuming the author of the code wanted same
+logical behavior behind the name "ACTIVE_xxx", this is:
+  ACTIVE_LOW  => IRQ_TYPE_LEVEL_LOW
+  ACTIVE_HIGH => IRQ_TYPE_LEVEL_HIGH
+
+Fixes: a1a8b4594f8d ("NFC: pn544: i2c: Add DTS Documentation")
+Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
+Fixes: e3b329221567 ("dt-bindings: can: tcan4x5x: Update binding to use interrupt property")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for tcan4x5x.txt
+Link: https://lore.kernel.org/r/20201026153620.89268-1-krzk@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_ecn.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/net/can/tcan4x5x.txt |    2 +-
+ Documentation/devicetree/bindings/net/nfc/nxp-nci.txt  |    2 +-
+ Documentation/devicetree/bindings/net/nfc/pn544.txt    |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/net/inet_ecn.h
-+++ b/include/net/inet_ecn.h
-@@ -107,7 +107,7 @@ static inline int IP_ECN_set_ect1(struct
- 	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
- 		return 0;
+--- a/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
++++ b/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
+@@ -33,7 +33,7 @@ tcan4x5x: tcan4x5x@0 {
+ 		spi-max-frequency = <10000000>;
+ 		bosch,mram-cfg = <0x0 0 0 32 0 0 1 1>;
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <14 GPIO_ACTIVE_LOW>;
++		interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
+ 		device-state-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+ 		device-wake-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+ 		reset-gpios = <&gpio1 27 GPIO_ACTIVE_HIGH>;
+--- a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
++++ b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
+@@ -25,7 +25,7 @@ Example (for ARM-based BeagleBone with N
+ 		clock-frequency = <100000>;
  
--	check += (__force u16)htons(0x100);
-+	check += (__force u16)htons(0x1);
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <29 GPIO_ACTIVE_HIGH>;
++		interrupts = <29 IRQ_TYPE_LEVEL_HIGH>;
  
- 	iph->check = (__force __sum16)(check + (check>=0xFFFF));
- 	iph->tos ^= INET_ECN_MASK;
+ 		enable-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+--- a/Documentation/devicetree/bindings/net/nfc/pn544.txt
++++ b/Documentation/devicetree/bindings/net/nfc/pn544.txt
+@@ -25,7 +25,7 @@ Example (for ARM-based BeagleBone with P
+ 		clock-frequency = <400000>;
+ 
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <17 GPIO_ACTIVE_HIGH>;
++		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+ 
+ 		enable-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
 
 
