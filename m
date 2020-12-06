@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E17D2D0422
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAF12D03A2
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728117AbgLFLnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:43:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42708 "EHLO mail.kernel.org"
+        id S1727967AbgLFLjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729144AbgLFLnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:23 -0500
+        id S1727953AbgLFLjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 08/39] tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
-Date:   Sun,  6 Dec 2020 12:17:12 +0100
-Message-Id: <20201206111555.080174878@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 10/20] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
+Date:   Sun,  6 Dec 2020 12:17:13 +0100
+Message-Id: <20201206111556.055765049@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,49 +31,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexanderduyck@fb.com>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 55472017a4219ca965a957584affdb17549ae4a4 ]
+[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
 
-When setting congestion control via a BPF program it is seen that the
-SYN/ACK for packets within a given flow will not include the ECT0 flag. A
-bit of simple printk debugging shows that when this is configured without
-BPF we will see the value INET_ECN_xmit value initialized in
-tcp_assign_congestion_control however when we configure this via BPF the
-socket is in the closed state and as such it isn't configured, and I do not
-see it being initialized when we transition the socket into the listen
-state. The result of this is that the ECT0 bit is configured based on
-whatever the default state is for the socket.
+Ensure that received Subordinate Command-Response Queue (SCRQ)
+entries are properly read in order by the driver. These queues
+are used in the ibmvnic device to process RX buffer and TX completion
+descriptors. dma_rmb barriers have been added after checking for a
+pending descriptor to ensure the correct descriptor entry is checked
+and after reading the SCRQ descriptor to ensure the entire
+descriptor is read before processing.
 
-Any easy way to reproduce this is to monitor the following with tcpdump:
-tools/testing/selftests/bpf/test_progs -t bpf_tcp_ca
-
-Without this patch the SYN/ACK will follow whatever the default is. If dctcp
-all SYN/ACK packets will have the ECT0 bit set, and if it is not then ECT0
-will be cleared on all SYN/ACK packets. With this patch applied the SYN/ACK
-bit matches the value seen on the other packets in the given stream.
-
-Fixes: 91b5b21c7c16 ("bpf: Add support for changing congestion control")
-Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cong.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/net/ipv4/tcp_cong.c
-+++ b/net/ipv4/tcp_cong.c
-@@ -197,6 +197,11 @@ static void tcp_reinit_congestion_contro
- 	icsk->icsk_ca_setsockopt = 1;
- 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1658,6 +1658,12 @@ restart_poll:
  
-+	if (ca->flags & TCP_CONG_NEEDS_ECN)
-+		INET_ECN_xmit(sk);
-+	else
-+		INET_ECN_dontxmit(sk);
+ 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
+ 			break;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
+ 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
+ 		rx_buff =
+ 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
+@@ -2177,6 +2183,13 @@ restart_loop:
+ 	while (pending_scrq(adapter, scrq)) {
+ 		unsigned int pool = scrq->pool_index;
+ 
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
 +
- 	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
- 		tcp_init_congestion_control(sk);
+ 		next = ibmvnic_next_scrq(adapter, scrq);
+ 		for (i = 0; i < next->tx_comp.num_comps; i++) {
+ 			if (next->tx_comp.rcs[i]) {
+@@ -2530,6 +2543,11 @@ static union sub_crq *ibmvnic_next_scrq(
+ 	}
+ 	spin_unlock_irqrestore(&scrq->lock, flags);
+ 
++	/* Ensure that the entire buffer descriptor has been
++	 * loaded before reading its contents
++	 */
++	dma_rmb();
++
+ 	return entry;
  }
+ 
 
 
