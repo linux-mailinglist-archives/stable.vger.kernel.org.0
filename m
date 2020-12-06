@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7052D03AC
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6442B2D037A
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728175AbgLFLjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
+        id S1726746AbgLFLih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:38:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728108AbgLFLjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:47 -0500
+        id S1725767AbgLFLih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:38:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Alexander Duyck <alexanderduyck@fb.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 07/32] tun: honor IOCB_NOWAIT flag
+Subject: [PATCH 4.14 04/20] tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
 Date:   Sun,  6 Dec 2020 12:17:07 +0100
-Message-Id: <20201206111556.130378098@linuxfoundation.org>
+Message-Id: <20201206111555.769634159@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,59 +31,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Alexander Duyck <alexanderduyck@fb.com>
 
-[ Upstream commit 5aac0390a63b8718237a61dd0d24a29201d1c94a ]
+[ Upstream commit 55472017a4219ca965a957584affdb17549ae4a4 ]
 
-tun only checks the file O_NONBLOCK flag, but it should also be checking
-the iocb IOCB_NOWAIT flag. Any fops using ->read/write_iter() should check
-both, otherwise it breaks users that correctly expect O_NONBLOCK semantics
-if IOCB_NOWAIT is set.
+When setting congestion control via a BPF program it is seen that the
+SYN/ACK for packets within a given flow will not include the ECT0 flag. A
+bit of simple printk debugging shows that when this is configured without
+BPF we will see the value INET_ECN_xmit value initialized in
+tcp_assign_congestion_control however when we configure this via BPF the
+socket is in the closed state and as such it isn't configured, and I do not
+see it being initialized when we transition the socket into the listen
+state. The result of this is that the ECT0 bit is configured based on
+whatever the default state is for the socket.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/r/e9451860-96cc-c7c7-47b8-fe42cadd5f4c@kernel.dk
+Any easy way to reproduce this is to monitor the following with tcpdump:
+tools/testing/selftests/bpf/test_progs -t bpf_tcp_ca
+
+Without this patch the SYN/ACK will follow whatever the default is. If dctcp
+all SYN/ACK packets will have the ECT0 bit set, and if it is not then ECT0
+will be cleared on all SYN/ACK packets. With this patch applied the SYN/ACK
+bit matches the value seen on the other packets in the given stream.
+
+Fixes: 91b5b21c7c16 ("bpf: Add support for changing congestion control")
+Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/tun.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_cong.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1988,12 +1988,15 @@ static ssize_t tun_chr_write_iter(struct
- 	struct tun_file *tfile = file->private_data;
- 	struct tun_struct *tun = tun_get(tfile);
- 	ssize_t result;
-+	int noblock = 0;
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -199,6 +199,11 @@ static void tcp_reinit_congestion_contro
+ 	icsk->icsk_ca_setsockopt = 1;
+ 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
  
- 	if (!tun)
- 		return -EBADFD;
- 
--	result = tun_get_user(tun, tfile, NULL, from,
--			      file->f_flags & O_NONBLOCK, false);
-+	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
-+		noblock = 1;
++	if (ca->flags & TCP_CONG_NEEDS_ECN)
++		INET_ECN_xmit(sk);
++	else
++		INET_ECN_dontxmit(sk);
 +
-+	result = tun_get_user(tun, tfile, NULL, from, noblock, false);
- 
- 	tun_put(tun);
- 	return result;
-@@ -2214,10 +2217,15 @@ static ssize_t tun_chr_read_iter(struct
- 	struct tun_file *tfile = file->private_data;
- 	struct tun_struct *tun = tun_get(tfile);
- 	ssize_t len = iov_iter_count(to), ret;
-+	int noblock = 0;
- 
- 	if (!tun)
- 		return -EBADFD;
--	ret = tun_do_read(tun, tfile, to, file->f_flags & O_NONBLOCK, NULL);
-+
-+	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
-+		noblock = 1;
-+
-+	ret = tun_do_read(tun, tfile, to, noblock, NULL);
- 	ret = min_t(ssize_t, ret, len);
- 	if (ret > 0)
- 		iocb->ki_pos = ret;
+ 	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
+ 		tcp_init_congestion_control(sk);
+ }
 
 
