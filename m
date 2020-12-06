@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A53B2D03DA
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E58B82D03E0
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728675AbgLFLkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37558 "EHLO mail.kernel.org"
+        id S1728719AbgLFLlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:41:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728692AbgLFLko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:44 -0500
+        id S1727700AbgLFLlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:41:13 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>, Andrew Lunn <andrew@lunn.ch>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 23/32] chelsio/chtls: fix a double free in chtls_setkey()
-Date:   Sun,  6 Dec 2020 12:17:23 +0100
-Message-Id: <20201206111556.882450922@linuxfoundation.org>
+Subject: [PATCH 4.19 24/32] net: mvpp2: Fix error return code in mvpp2_open()
+Date:   Sun,  6 Dec 2020 12:17:24 +0100
+Message-Id: <20201206111556.927482270@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
 References: <20201206111555.787862631@linuxfoundation.org>
@@ -31,35 +32,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 391119fb5c5c4bdb4d57c7ffeb5e8d18560783d1 ]
+[ Upstream commit 82a10dc7f0960735f40e8d7d3bee56934291600f ]
 
-The "skb" is freed by the transmit code in cxgb4_ofld_send() and we
-shouldn't use it again.  But in the current code, if we hit an error
-later on in the function then the clean up code will call kfree_skb(skb)
-and so it causes a double free.
+Fix to return negative error code -ENOENT from invalid configuration
+error handling case instead of 0, as done elsewhere in this function.
 
-Set the "skb" to NULL and that makes the kfree_skb() a no-op.
-
-Fixes: d25f2f71f653 ("crypto: chtls - Program the TLS session Key")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X8ilb6PtBRLWiSHp@mwanda
+Fixes: 4bb043262878 ("net: mvpp2: phylink support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20201203141806.37966-1-wanghai38@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_hw.c |    1 +
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/crypto/chelsio/chtls/chtls_hw.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_hw.c
-@@ -376,6 +376,7 @@ int chtls_setkey(struct chtls_sock *csk,
- 	csk->wr_unacked += DIV_ROUND_UP(len, 16);
- 	enqueue_wr(csk, skb);
- 	cxgb4_ofld_send(csk->egress_dev, skb);
-+	skb = NULL;
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -3363,6 +3363,7 @@ static int mvpp2_open(struct net_device
+ 	if (!valid) {
+ 		netdev_err(port->dev,
+ 			   "invalid configuration: no dt or link IRQ");
++		err = -ENOENT;
+ 		goto err_free_irq;
+ 	}
  
- 	chtls_set_scmd(csk);
- 	/* Clear quiesce for Rx key */
 
 
