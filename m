@@ -2,114 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E18A82D05A0
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 16:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D512D05A1
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 16:20:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726198AbgLFPSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 10:18:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56726 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726147AbgLFPSm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 10:18:42 -0500
-Date:   Sun, 6 Dec 2020 10:18:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607267881;
-        bh=z/0+2fBlDxri3UNTZZPz3BOCbaNQen6BCeUnYPXUHi0=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vAvcHop5Awz7s2MBmG6gYPRQZWddnGZgQUWP8UU5+iNwgX4YSr5v+4Y1xM2bljT/T
-         2ixtgZA0ID+g517oifZhYPjqnMeFs+QZLcV0PXRThNdX1uYfnBqZiYHd+yDOr47/DQ
-         0m8UpOmxpIFbfLQdUuyUtoYWndMv60KUDM1ghRSakCA9hmzbtvDY2rTGw+OXhwyvOG
-         F+s2tEQ7C0ZvKGi1kp+nU2+dz51+82nvSWFgbdVt2XuXM7emsKMs8GPAatBjSO+6Nm
-         vDo15eXf9g2K740LSQuxFqUvx3oaJWTlz6jjJMiuRv6Vbr4xgLQlwFVIoExJt4eO6/
-         3xXMwuLplGtOg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Tao Zhou <zohooouoto@zoho.com.cn>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-Message-ID: <20201206151800.GE643756@sasha-vm>
-References: <159041776924279@kroah.com>
- <20200525172709.GB7427@vingu-book>
- <X8yq+7/dQADbrTTL@kroah.com>
- <CAKfTPtDmpYYA2nc-+d3OfT-=2kf82+3O50WGguDQ=XOXTnbZGQ@mail.gmail.com>
- <X8zDGGvVkyDGbco/@kroah.com>
- <CAKfTPtBTXdVVwB+st4agBbJ3oXnB5gJ7BwvgM7=191PWvvxMLg@mail.gmail.com>
- <X8zJbSgaegj5He+i@kroah.com>
+        id S1726147AbgLFPUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 10:20:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725903AbgLFPUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 10:20:20 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B26CCC0613D0
+        for <stable@vger.kernel.org>; Sun,  6 Dec 2020 07:19:40 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id j1so5812275pld.3
+        for <stable@vger.kernel.org>; Sun, 06 Dec 2020 07:19:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rWLenyOYWd8e3ke9tNIKuln3gtoIlKBdAySQS2pVijQ=;
+        b=YP4X3okCAfH2j8LB3oRBp6RTZgrS15vKEhIRhS5Av/r25zvuoNZ9nLf+UUon+d1kY7
+         j0FixWB2BsN9P3lRqqouxFmTl7IcQlRdNuh8kaGSwiTKjwteEyvOfN6OQBaRqldgt8Jx
+         UiBOX6aTb9VAQEuFh3ATU2ztRJarSfAOy21FFKuwLduyZZwG0ljp41iZ3H2F7bny63uE
+         dpixiE2qvSSayzYN+cedhV58X6p/loHPf7qkNv0BcHEgCcDn6iB0EB5DTUXcGRWBWYAK
+         2mNWtQ/8VYEquaeC4r+Jg0C5NeWLtbtlXhd5eJjQgCdeLgXlDQ+uxDbFrGVOo1Nvjayv
+         CZ4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rWLenyOYWd8e3ke9tNIKuln3gtoIlKBdAySQS2pVijQ=;
+        b=UHKVJuYCmR+mAKRcxtyAljS9WKNf0SlM/BfCZ48qmw4RrtgDSkekuIqEwdRPdVOc8e
+         cROwAiBBj7XcAE/a+UzCzpowW/haS+R4VoX9q7iYzOr3Am2P6VJsQ+vf4fG+lhI7E9ms
+         oqO0fD7o8rYSxT2edqaOrbPrsrQnhd6RvNJvHEXC/waKFq9tQBI+vWMWxoGmsBjKflzP
+         r8esgu8b+288zi4dcug8gggWVl5UbPFPp6n8tvvEb3tZD755yItitG6MhmpCaO2tbsCX
+         YNMGF/PxzWnMY5YC0crOChCcLmrdvVPaOCdk/TkZ3x7iuXSEmLffY9BG9sbmo1pi7Qjx
+         D77w==
+X-Gm-Message-State: AOAM530KCvzSg2DHddq+IUfBi6T3Y7iEfcVBJyGjW2UcSUwSOycf3QyE
+        U8VeSAeBP33kEkn2zynHlkDepiR8l4WDZQ==
+X-Google-Smtp-Source: ABdhPJzjO3myxhQEJyG9VXrQcG3zWD4FBpMF8y7u7wi1ujrLfIwU8lwj5wis4U3TIwFo6sFXXO47pQ==
+X-Received: by 2002:a17:90b:1b43:: with SMTP id nv3mr12845394pjb.67.1607267979757;
+        Sun, 06 Dec 2020 07:19:39 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e6sm7597132pjr.34.2020.12.06.07.19.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Dec 2020 07:19:39 -0800 (PST)
+Message-ID: <5fccf68b.1c69fb81.737b4.1ecc@mx.google.com>
+Date:   Sun, 06 Dec 2020 07:19:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <X8zJbSgaegj5He+i@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.210-21-ga6f93b82e1d6
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.14.y baseline: 148 runs,
+ 5 regressions (v4.14.210-21-ga6f93b82e1d6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 06, 2020 at 01:07:09PM +0100, Greg KH wrote:
->On Sun, Dec 06, 2020 at 12:54:57PM +0100, Vincent Guittot wrote:
->> On Sun, 6 Dec 2020 at 12:47, Greg KH <gregkh@linuxfoundation.org> wrote:
->> >
->> > On Sun, Dec 06, 2020 at 12:25:12PM +0100, Vincent Guittot wrote:
->> > > On Sun, 6 Dec 2020 at 10:56, Greg KH <gregkh@linuxfoundation.org> wrote:
->> > > >
->> > > > On Mon, May 25, 2020 at 07:27:09PM +0200, Vincent Guittot wrote:
->> > > > > Le lundi 25 mai 2020 à 16:42:49 (+0200), gregkh@linuxfoundation.org a écrit :
->> > > > > >
->> > > > > > The patch below does not apply to the 5.4-stable tree.
->> > > > > > If someone wants it applied there, or to any other stable or longterm
->> > > > > > tree, then please email the backport, including the original git commit
->> > > > > > id to <stable@vger.kernel.org>.
->> > > > >
->> > > > > This patch needs  commit
->> > > > >     b34cb07dde7c ("sched/fair: Fix enqueue_task_fair() warning some more")
->> > > > > to be applied first. But then, it will not apply. The backport is :
->> > > > >
->> > > > > [ Upstream commit 39f23ce07b9355d05a64ae303ce20d1c4b92b957 upstream ]
->> > > > >
->> > > > > Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fair()
->> > > > > are quite close and follow the same sequence for enqueuing an entity in the
->> > > > > cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
->> > > > > enqueue_task_fair(). This fixes a problem already faced with the latter and
->> > > > > add an optimization in the last for_each_sched_entity loop.
->> > > > >
->> > > > > Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
->> > > > > Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
->> > > > > Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
->> > > > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->> > > > > Reviewed-by: Phil Auld <pauld@redhat.com>
->> > > > > Reviewed-by: Ben Segall <bsegall@google.com>
->> > > > > Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@linaro.org
->> > > > > ---
->> > > > >  kernel/sched/fair.c | 36 ++++++++++++++++++++++++++++--------
->> > > > >  1 file changed, 28 insertions(+), 8 deletions(-)
->> > > >
->> > > > This patch doesn't apply to the 5.4.y tree at all.  Can someone please
->> > > > provide a working backport?
->> > >
->> > > It seems that commit b34cb07dde7c ("sched/fair: Fix
->> > > enqueue_task_fair() warning some more") has already been applied back
->> > > in May. But then, I'm able to apply this patch on top of
->> > > v5.4.y/v5.4.81
->> > >
->> >
->> > What is "this patch" here?  I tried to apply 39f23ce07b93 ("sched/fair:
->> > Fix unthrottle_cfs_rq() for leaf_cfs_rq list") directly to the 5.4 tree
->> > and it too did not apply.
->>
->> commit 39f23ce07b93 ("sched/fair: Fix unthrottle_cfs_rq() for
->> leaf_cfs_rq list") can't apply because there are several changes which
->> are not fixes which have been applied since v5.4 on the same code.
->>
->> This patch is the backport on v5.4 of the commit 39f23ce07b93
->
->What is "this"?  I tried to apply the above patch to the 5.4.y tree, and
->it didn't apply.  So I still do not understand what I can do here...
+stable-rc/linux-4.14.y baseline: 148 runs, 5 regressions (v4.14.210-21-ga6f=
+93b82e1d6)
 
-It's already in our 5.4 tree I've added it there a few days ago :)
+Regressions Summary
+-------------------
 
--- 
-Thanks,
-Sasha
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.210-21-ga6f93b82e1d6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.210-21-ga6f93b82e1d6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a6f93b82e1d6291be12516c5afc5672e0a89eed3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fccbc0a9ec9ebc1e5c94cc2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
+p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
+p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fccbc0a9ec9ebc1e5c94=
+cc3
+        failing since 249 days (last pass: v4.14.172-114-g734382e2d26e, fir=
+st fail: v4.14.174-131-g234ce78cac23) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fccbb98d1ea87fc18c94cdc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fccbb98d1ea87fc18c94=
+cdd
+        failing since 21 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
+ fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fccbb8a2ce2beb5f5c94cc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fccbb8a2ce2beb5f5c94=
+cc9
+        failing since 21 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
+ fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fccbb5e7c2e8dc911c94cd7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fccbb5e7c2e8dc911c94=
+cd8
+        failing since 21 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
+ fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fccbb062365caf57ec94ce0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+10-21-ga6f93b82e1d6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fccbb062365caf57ec94=
+ce1
+        failing since 21 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
+ fail: v4.14.206-23-g520c3568920c8) =
+
+ =20
