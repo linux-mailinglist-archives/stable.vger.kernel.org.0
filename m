@@ -2,93 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C092D0252
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 10:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9FF62D0255
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 10:53:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726089AbgLFJuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 04:50:16 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:36993 "EHLO
+        id S1726184AbgLFJxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 04:53:04 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:55565 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725943AbgLFJuP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 04:50:15 -0500
+        by vger.kernel.org with ESMTP id S1725943AbgLFJxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 04:53:04 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 306615C0174;
-        Sun,  6 Dec 2020 04:49:29 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 06 Dec 2020 04:49:29 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 1FEB45C00B3;
+        Sun,  6 Dec 2020 04:52:18 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 06 Dec 2020 04:52:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=Es1Q0eP0V2RUbWXDDzXmKGvBLVV
-        rVtGdWx6WIbwME1g=; b=BClCqPrmifs0QL/Wl7bfFQmqp+THU3h7SPH7jKChWRw
-        8JrHqhyjUPWjw68hKash931RViSnJIZmCx3y6x9VEWTKqEd0DPbV/tp8HPy5U34Y
-        eKTiD90TVIZh+uX4ia7oeiBZAcgyivboZvOI+wv9lFIba2mDB5iwT/HnpJVVllmg
-        MfVmHEfddUYren9lIeyZta8DjktV5N2V5KCl/VX6CrlGhnmMwkx442uECOIS1mto
-        ep8o1ZNIsIqzXhFMgTJiWc0yX4VkeTF70j66O2BBP+2ooRqxIFBVpo5l04YP69kD
-        7Hz9059Py4AKDTxgCaM10tM8lTv05YIRikVAzZPeeHQ==
+        :content-type:in-reply-to; s=fm2; bh=dAgfFfY8JAvA3RSq+C4Cc3akx6O
+        jCHkEE0jdqkQ+oxE=; b=Ot4M+6HWDFOcimp3Wt5C1XS0D2gSofLOnSjMz//eFyj
+        RaKCJ3ZJ/Si8hH+rldXirxJmylT89O5u2GPRtHvmpJHlFpNQM/P+7MIgdD+JYdgr
+        oJRBaMQDchOKOekWLIglGJo1KHlpk3xCedYKHzV3I8L94tV8ku5SuaM6R9eh3YUB
+        JzvwHaPUHaEJBy50Q0sQWtjj21WN66avTshdWCe0I7fD0wMgw0TWpnfeX8PnULtR
+        3rVlU4/1MlMy8FXhT1ykgQfGlfYMbCYvBn7l6uiGJHlRnblUsm4rmKpdLGu4/j4n
+        I8MYZu556WH4a6UFv3m19e4OQKUi/F4hjlBA/wFddXg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Es1Q0e
-        P0V2RUbWXDDzXmKGvBLVVrVtGdWx6WIbwME1g=; b=kcy9TmkFmuRKIbMj5+Sv8O
-        ebB2lwSC7sbTgviB9hsM/SkMjn2HqRjbMQDriRs/caRPm77dUx3ZnorLv9Qjqgcu
-        Ngibe9/8Ictjnr3jOkPGIwAP9qIlls80FC/qEFS5vlDJeVPNQWbmqzKEQj9FN2+u
-        8pqjrKFmpHx3x32QzLo36mm+Wn88+Gp6kiVs5DFbQLdvZnIQ7dchI4JTqYrqcNQu
-        SG0noOTIDFc7IKcRkO2F7DIXnIjQT7BhDOltfjfVPpdRweR6ulPnIZwgJ8yNgRZc
-        HaybS6jtGEV2If+y/UMB4JUxCX6cuytienk4JW0SLcNpVqoNfj/yyJ0f+NB8hh8Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dAgfFf
+        Y8JAvA3RSq+C4Cc3akx6OjCHkEE0jdqkQ+oxE=; b=caQs7cpHRvU6E+sf42JO30
+        4rIQWd323iqm6MmXuAMz04KikeqZST5x+NPOi7R5YBJWodCLlP4YDU3mDmSITTsY
+        MSkQHN5KMDQSQUHcSXBUNGMOrc5FUCEudQheWJMPqvOZ0xSty0yMoPGU2WNoHVn+
+        ywbU9fzpw7+HF1DH73/N4DyYNvkzNlp3UuxVhb9EokL0EnLgkodDr/jZGDflJMQ+
+        DdC5cvY+zZkoIx9df3ui1vWS3OyU2lQcZbzqyKzTIieabd0eLKobIDda5yBZh7YU
+        nSedm0eUnilNQxsGi6oDK7OmOpe/i9p2eyF4l9rAVI8vVjw8WMmj8j7mCMt6s0sA
         ==
-X-ME-Sender: <xms:KKnMX07VieEafi04Ey6ppLFr31aDZcBbKUaI5Up6wuJS1EJgR4cuUA>
-    <xme:KKnMX14CMm2LDjeQLRVIcHliI3-5kC-wS76wvPRpLBQ0F_nyJiAnzsiOZksu6Qiwb
-    f-m845m8L-psg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejvddgtdelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:z6nMX1RrYSj0SjQfobtSf6bx2pWPUvlbc27BJV_lKHZXSrRRjqHYRw>
+    <xme:z6nMX-xGTslorP_5-QwAQ8qVS4-4SeihfTUobEIUHBLHbzI0avGQsZ1FiV7YkDbwv
+    1256mN7ScrslA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejvddguddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:KKnMXzfOcxYgd_QMt6Z5fItOA0vZSoLXa6FxH7P3qshHAk15Fg157A>
-    <xmx:KKnMX5KjK6wq3f5WOm-n8HAdo3ZeSzV3MMtPtACGWaDAyr2DNru-sw>
-    <xmx:KKnMX4KVZSaXWx0IYB7xKf7VhKaT5sfphVcR-BLsVdiyuAEYfRzXAw>
-    <xmx:KanMX9GXwV_bR_7p30rx9wY7B2nClBoM-5J7vit_IudNtgXNOOQ7vg>
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:z6nMX62S_AqhBaOkihJVevBgwn8mo4ExqtLZoDv_WgpfKg8SYFfvCQ>
+    <xmx:z6nMX9BNsRs0F4iN_eTOmus3aHCpjkJbmb1YjDaprmCidyuKrjqM7w>
+    <xmx:z6nMX-jFam5p58lnaAQwQuE2_KpmqKYrS76IiVmdc-d_vbTRZQRm_A>
+    <xmx:0qnMXyZDljvwtSRwmXA64EfqzAYQ1QVhsOKgnnnRCNR48aXjJjTF7g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 511AD24005A;
-        Sun,  6 Dec 2020 04:49:28 -0500 (EST)
-Date:   Sun, 6 Dec 2020 10:50:41 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id DFD7F1080057;
+        Sun,  6 Dec 2020 04:52:14 -0500 (EST)
+Date:   Sun, 6 Dec 2020 10:53:28 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Michal Suchanek <msuchanek@suse.de>, stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] powerpc: Stop exporting __clear_user which is now
- inlined.
-Message-ID: <X8ypcZnTF3U3aCxD@kroah.com>
-References: <20201204232807.31887-1-msuchanek@suse.de>
- <87y2ictt80.fsf@mpe.ellerman.id.au>
+To:     Shiraz Saleem <shiraz.saleem@intel.com>
+Cc:     stable@vger.kernel.org, jgg@nvidia.com, Di Zhu <zhudi21@huawei.com>
+Subject: Re: [PATCH 4.14-stable] RDMA/i40iw: Address an mmap handler exploit
+ in i40iw
+Message-ID: <X8yqGHmYVL28J0UY@kroah.com>
+References: <20201202172012.801-1-shiraz.saleem@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87y2ictt80.fsf@mpe.ellerman.id.au>
+In-Reply-To: <20201202172012.801-1-shiraz.saleem@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 05, 2020 at 09:58:23PM +1100, Michael Ellerman wrote:
-> Michal Suchanek <msuchanek@suse.de> writes:
-> > Stable commit 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP
-> > enabled") redefines __clear_user as inline function but does not remove
-> > the export.
-> >
-> > Fixes: 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP enabled")
-> >
-> > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> > ---
-> >  arch/powerpc/lib/ppc_ksyms.c | 1 -
-> >  1 file changed, 1 deletion(-)
+On Wed, Dec 02, 2020 at 11:20:09AM -0600, Shiraz Saleem wrote:
+> From: "Saleem, Shiraz" <shiraz.saleem@intel.com>
 > 
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+> backport of commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
+> 
+> i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
+> vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
+> without any validation. This is vulnerable to an mmap exploit as described
+> in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
+> 
+> The push feature is disabled in the driver currently and therefore no push
+> mmaps are issued from user-space. The feature does not work as expected in
+> the x722 product.
+> 
+> Remove the push module parameter and all VMA attribute manipulations for
+> this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
+> mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
+> to a single page.
+> 
+> Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+> Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
+> Reported-by: Di Zhu <zhudi21@huawei.com>
+> Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+> ---
+>  drivers/infiniband/hw/i40iw/i40iw_main.c  |  5 -----
+>  drivers/infiniband/hw/i40iw/i40iw_verbs.c | 36 ++++++-------------------------
+>  2 files changed, 7 insertions(+), 34 deletions(-)
 
-Now applied, thanks.
+All backports now queued up, thanks.
 
 greg k-h
