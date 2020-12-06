@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6176D2D03A1
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DD7C2D03FE
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgLFLjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36038 "EHLO mail.kernel.org"
+        id S1728930AbgLFLmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:42:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727836AbgLFLjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:24 -0500
+        id S1728937AbgLFLmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:42:11 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Di Zhu <zhudi21@huawei.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.14 20/20] RDMA/i40iw: Address an mmap handler exploit in i40iw
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 19/39] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
 Date:   Sun,  6 Dec 2020 12:17:23 +0100
-Message-Id: <20201206111556.491344409@linuxfoundation.org>
+Message-Id: <20201206111555.604022136@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,106 +31,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shiraz Saleem <shiraz.saleem@intel.com>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
+[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
 
-i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
-vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
-without any validation. This is vulnerable to an mmap exploit as described
-in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
+Ensure that received Subordinate Command-Response Queue (SCRQ)
+entries are properly read in order by the driver. These queues
+are used in the ibmvnic device to process RX buffer and TX completion
+descriptors. dma_rmb barriers have been added after checking for a
+pending descriptor to ensure the correct descriptor entry is checked
+and after reading the SCRQ descriptor to ensure the entire
+descriptor is read before processing.
 
-The push feature is disabled in the driver currently and therefore no push
-mmaps are issued from user-space. The feature does not work as expected in
-the x722 product.
-
-Remove the push module parameter and all VMA attribute manipulations for
-this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
-mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
-to a single page.
-
-Cc: <stable@kernel.org>
-Fixes: d37498417947 ("i40iw: add files for iwarp interface")
-Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
-Reported-by: Di Zhu <zhudi21@huawei.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- drivers/infiniband/hw/i40iw/i40iw_main.c  |    5 ----
- drivers/infiniband/hw/i40iw/i40iw_verbs.c |   36 +++++-------------------------
- 2 files changed, 7 insertions(+), 34 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/infiniband/hw/i40iw/i40iw_main.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
-@@ -54,10 +54,6 @@
- #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
- 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2307,6 +2307,12 @@ restart_poll:
  
--static int push_mode;
--module_param(push_mode, int, 0644);
--MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
--
- static int debug;
- module_param(debug, int, 0644);
- MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
-@@ -1564,7 +1560,6 @@ static enum i40iw_status_code i40iw_setu
- 	if (status)
- 		goto exit;
- 	iwdev->obj_next = iwdev->obj_mem;
--	iwdev->push_mode = push_mode;
+ 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
+ 			break;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
+ 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
+ 		rx_buff =
+ 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
+@@ -2988,6 +2994,13 @@ restart_loop:
+ 		unsigned int pool = scrq->pool_index;
+ 		int num_entries = 0;
  
- 	init_waitqueue_head(&iwdev->vchnl_waitq);
- 	init_waitqueue_head(&dev->vf_reqs);
---- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-@@ -199,38 +199,16 @@ static int i40iw_dealloc_ucontext(struct
-  */
- static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
- {
--	struct i40iw_ucontext *ucontext;
--	u64 db_addr_offset;
--	u64 push_offset;
-+	struct i40iw_ucontext *ucontext = to_ucontext(context);
-+	u64 dbaddr;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
++
+ 		next = ibmvnic_next_scrq(adapter, scrq);
+ 		for (i = 0; i < next->tx_comp.num_comps; i++) {
+ 			if (next->tx_comp.rcs[i]) {
+@@ -3388,6 +3401,11 @@ static union sub_crq *ibmvnic_next_scrq(
+ 	}
+ 	spin_unlock_irqrestore(&scrq->lock, flags);
  
--	ucontext = to_ucontext(context);
--	if (ucontext->iwdev->sc_dev.is_pf) {
--		db_addr_offset = I40IW_DB_ADDR_OFFSET;
--		push_offset = I40IW_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
--	} else {
--		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
--		push_offset = I40IW_VF_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
--	}
-+	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
-+		return -EINVAL;
++	/* Ensure that the entire buffer descriptor has been
++	 * loaded before reading its contents
++	 */
++	dma_rmb();
++
+ 	return entry;
+ }
  
--	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
-+	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
- 
--	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
--		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--		vma->vm_private_data = ucontext;
--	} else {
--		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
--			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--		else
--			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
--	}
--
--	if (io_remap_pfn_range(vma, vma->vm_start,
--			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
--			       PAGE_SIZE, vma->vm_page_prot))
-+	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
-+			       pgprot_noncached(vma->vm_page_prot)))
- 		return -EAGAIN;
- 
- 	return 0;
 
 
