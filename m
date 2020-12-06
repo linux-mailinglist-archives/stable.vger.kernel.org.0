@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28AB12D048E
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3122D0490
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728537AbgLFLqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44544 "EHLO mail.kernel.org"
+        id S1728857AbgLFLq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:46:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729378AbgLFLol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:44:41 -0500
+        id S1729368AbgLFLoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:44:38 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Jonathan Morton <chromatix99@gmail.com>,
+        Pete Heist <pete@heistp.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 22/46] tipc: fix incompatible mtu of transmission
-Date:   Sun,  6 Dec 2020 12:17:30 +0100
-Message-Id: <20201206111557.521963143@linuxfoundation.org>
+Subject: [PATCH 5.9 23/46] inet_ecn: Fix endianness of checksum update when setting ECT(1)
+Date:   Sun,  6 Dec 2020 12:17:31 +0100
+Message-Id: <20201206111557.570807631@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -32,39 +33,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: "Toke Høiland-Jørgensen" <toke@redhat.com>
 
-[ Upstream commit 0643334902fcdc770e2d9555811200213339a3f6 ]
+[ Upstream commit 2867e1eac61016f59b3d730e3f7aa488e186e917 ]
 
-In commit 682cd3cf946b6
-("tipc: confgiure and apply UDP bearer MTU on running links"), we
-introduced a function to change UDP bearer MTU and applied this new value
-across existing per-link. However, we did not apply this new MTU value at
-node level. This lead to packet dropped at link level if its size is
-greater than new MTU value.
+When adding support for propagating ECT(1) marking in IP headers it seems I
+suffered from endianness-confusion in the checksum update calculation: In
+fact the ECN field is in the *lower* bits of the first 16-bit word of the
+IP header when calculating in network byte order. This means that the
+addition performed to update the checksum field was wrong; let's fix that.
 
-To fix this issue, we also apply this new MTU value for node level.
-
-Fixes: 682cd3cf946b6 ("tipc: confgiure and apply UDP bearer MTU on running links")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20201130025544.3602-1-hoang.h.le@dektech.com.au
+Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
+Reported-by: Jonathan Morton <chromatix99@gmail.com>
+Tested-by: Pete Heist <pete@heistp.net>
+Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20201130183705.17540-1-toke@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/node.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/inet_ecn.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -2171,6 +2171,8 @@ void tipc_node_apply_property(struct net
- 			else if (prop == TIPC_NLA_PROP_MTU)
- 				tipc_link_set_mtu(e->link, b->mtu);
- 		}
-+		/* Update MTU for node link entry */
-+		e->mtu = tipc_link_mss(e->link);
- 		tipc_node_write_unlock(n);
- 		tipc_bearer_xmit(net, bearer_id, &xmitq, &e->maddr, NULL);
- 	}
+--- a/include/net/inet_ecn.h
++++ b/include/net/inet_ecn.h
+@@ -107,7 +107,7 @@ static inline int IP_ECN_set_ect1(struct
+ 	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
+ 		return 0;
+ 
+-	check += (__force u16)htons(0x100);
++	check += (__force u16)htons(0x1);
+ 
+ 	iph->check = (__force __sum16)(check + (check>=0xFFFF));
+ 	iph->tos ^= INET_ECN_MASK;
 
 
