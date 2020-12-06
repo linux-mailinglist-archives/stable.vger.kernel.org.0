@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933922D0374
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D7E2D03AF
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726904AbgLFLi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:38:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35366 "EHLO mail.kernel.org"
+        id S1728211AbgLFLjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726746AbgLFLi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:38:29 -0500
+        id S1727425AbgLFLjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:41 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 01/20] net/af_iucv: set correct sk_protocol for child sockets
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        syzbot+a1c743815982d9496393@syzkaller.appspotmail.com,
+        Anmol Karn <anmol.karan123@gmail.com>
+Subject: [PATCH 4.19 04/32] rose: Fix Null pointer dereference in rose_send_frame()
 Date:   Sun,  6 Dec 2020 12:17:04 +0100
-Message-Id: <20201206111555.633160292@linuxfoundation.org>
+Message-Id: <20201206111555.995574474@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,45 +32,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Anmol Karn <anmol.karan123@gmail.com>
 
-[ Upstream commit c5dab0941fcdc9664eb0ec0d4d51433216d91336 ]
+[ Upstream commit 3b3fd068c56e3fbea30090859216a368398e39bf ]
 
-Child sockets erroneously inherit their parent's sk_type (ie. SOCK_*),
-instead of the PF_IUCV protocol that the parent was created with in
-iucv_sock_create().
+rose_send_frame() dereferences `neigh->dev` when called from
+rose_transmit_clear_request(), and the first occurrence of the
+`neigh` is in rose_loopback_timer() as `rose_loopback_neigh`,
+and it is initialized in rose_add_loopback_neigh() as NULL.
+i.e when `rose_loopback_neigh` used in rose_loopback_timer()
+its `->dev` was still NULL and rose_loopback_timer() was calling
+rose_rx_call_request() without checking for NULL.
 
-We're currently not using sk->sk_protocol ourselves, so this shouldn't
-have much impact (except eg. getting the output in skb_dump() right).
+- net/rose/rose_link.c
+This bug seems to get triggered in this line:
 
-Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Link: https://lore.kernel.org/r/20201120100657.34407-1-jwi@linux.ibm.com
+rose_call = (ax25_address *)neigh->dev->dev_addr;
+
+Fix it by adding NULL checking for `rose_loopback_neigh->dev`
+in rose_loopback_timer().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
+Tested-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=9d2a7ca8c7f2e4b682c97578dfa3f236258300b3
+Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
+Link: https://lore.kernel.org/r/20201119191043.28813-1-anmol.karan123@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/iucv/af_iucv.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rose/rose_loopback.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1763,7 +1763,7 @@ static int iucv_callback_connreq(struct
- 	}
+--- a/net/rose/rose_loopback.c
++++ b/net/rose/rose_loopback.c
+@@ -99,10 +99,19 @@ static void rose_loopback_timer(struct t
+ 		}
  
- 	/* Create the new socket */
--	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
-+	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
- 	if (!nsk) {
- 		err = pr_iucv->path_sever(path, user_data);
- 		iucv_path_free(path);
-@@ -1973,7 +1973,7 @@ static int afiucv_hs_callback_syn(struct
- 		goto out;
- 	}
- 
--	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
-+	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
- 	bh_lock_sock(sk);
- 	if ((sk->sk_state != IUCV_LISTEN) ||
- 	    sk_acceptq_is_full(sk) ||
+ 		if (frametype == ROSE_CALL_REQUEST) {
+-			if ((dev = rose_dev_get(dest)) != NULL) {
+-				if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0)
+-					kfree_skb(skb);
+-			} else {
++			if (!rose_loopback_neigh->dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			dev = rose_dev_get(dest);
++			if (!dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0) {
++				dev_put(dev);
+ 				kfree_skb(skb);
+ 			}
+ 		} else {
 
 
