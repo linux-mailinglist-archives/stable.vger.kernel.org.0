@@ -2,108 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D966C2D005F
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 05:10:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C892D0063
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 05:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbgLFEIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Dec 2020 23:08:32 -0500
-Received: from condef-09.nifty.com ([202.248.20.74]:26792 "EHLO
-        condef-09.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726023AbgLFEIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Dec 2020 23:08:25 -0500
-Received: from conssluserg-06.nifty.com ([10.126.8.85])by condef-09.nifty.com with ESMTP id 0B62nHxM032311;
-        Sun, 6 Dec 2020 11:49:17 +0900
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174]) (authenticated)
-        by conssluserg-06.nifty.com with ESMTP id 0B62mwFa003670;
-        Sun, 6 Dec 2020 11:48:59 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 0B62mwFa003670
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1607222939;
-        bh=v6uiEMpk8vJVMRmSYb8LkEirAfPFsPFdo7sZs2oeOis=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=XdECLHBYbSL/0PnUm3c/oH/kUEZ2KReY8luCdFgPicIvGyjIiqeVLQxkys3wQ5ajj
-         m3AG4GsBmqaCf7HM/OPjTSfGjEBsv5iq2E5d/03TAZhrM8xRX2rXNQQfijm3kRlvL1
-         +ND4H0DjAaiUOSzfzgw0VknqMPl3ZkKNjqieWLtcn31q53Z1aqNbafgamDHNNhpr24
-         knGm2GVrRli3yP71HkFh2b3P4ttC5dyqs+7wQZyau3ognJuHILWTwJ3d8AlGUvPtIM
-         U1HOysnBpWu9p6OcS2qBFeeIdlnSdHhVxlDXE/GnxfW39bHDOLqmmzQuEe4qdol6ZY
-         9BAZBsaM/e3dQ==
-X-Nifty-SrcIP: [209.85.215.174]
-Received: by mail-pg1-f174.google.com with SMTP id e23so6060351pgk.12;
-        Sat, 05 Dec 2020 18:48:59 -0800 (PST)
-X-Gm-Message-State: AOAM530ZAxvOhekKbEf7zUSGx1L/+JNlF4RdqOtcBEdRyyPkvIrAonxI
-        MxVDbSY0VP2hEnZkHzMdE1BxUF8ieC3z8KA1RKc=
-X-Google-Smtp-Source: ABdhPJy0n0PbwLiEFJPDOdIhUBC40dp1Ku/JtLvcI3ttj1aa7A8y7bWkJCMS2pNbiNuVHg/eq9ckuSheCkdYCtN8IWw=
-X-Received: by 2002:aa7:9501:0:b029:155:3b11:d5c4 with SMTP id
- b1-20020aa795010000b02901553b11d5c4mr10162846pfp.76.1607222938202; Sat, 05
- Dec 2020 18:48:58 -0800 (PST)
-MIME-Version: 1.0
-References: <20201203230955.1482058-1-arnd@kernel.org>
-In-Reply-To: <20201203230955.1482058-1-arnd@kernel.org>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sun, 6 Dec 2020 11:48:21 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAR50sq8O-5yg1O7760JAd3-GPHSLGGG=7kPtm9dbDDqwg@mail.gmail.com>
-Message-ID: <CAK7LNAR50sq8O-5yg1O7760JAd3-GPHSLGGG=7kPtm9dbDDqwg@mail.gmail.com>
-Subject: Re: [PATCH] kbuild: avoid static_assert for genksyms
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Arnd Bergmann <arnd@arndb.de>, stable <stable@vger.kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726917AbgLFEJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Dec 2020 23:09:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49304 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726920AbgLFEJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Dec 2020 23:09:25 -0500
+Date:   Sun, 6 Dec 2020 12:53:25 +0900
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607226809;
+        bh=oNdexUdzXEELZFB/asVGYCG3iBfFGGOsLg4yKLqOUVE=;
+        h=From:To:Cc:Subject:In-Reply-To:References:From;
+        b=SpL4mxdyV/CYPWANhRJt+EBWH21CKMozVXoeFiqHlfs8S1wKYyQFgfRp7sm0uLW8V
+         5WBvSXofY7npPVpuPpw/RW6dS4xJmbf13SBUzIJlqO7O3zUuGfIAADOuVMpuZBvtuI
+         uyQ64FFiDmP1pEFctqo5YhIzVqCvB0HmNBIZ1Y4K6NPIQrhdk2NTt34RM2ZXKkjP7M
+         J+vH7IVtl3mCGpntPxY6MpeRZf8pTkKrVegE3aVp9tfo6tuZnUZ5oF+HzTBcZxuYGp
+         /lYz66ljnIIXDCw9JSocLi/U6waYNw/ZgJhPRpFRK76Zy5lpHH0WsUkjwB0fUm5UwN
+         +kBKRpOxOkWdg==
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-kernel@vger.kernel.org,
+        tip-bot2 for Masami Hiramatsu <tip-bot2@linutronix.de>,
+        linux-tip-commits@vger.kernel.org,
+        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
+        Borislav Petkov <bp@suse.de>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [tip: x86/urgent] x86/uprobes: Do not use prefixes.nbytes when
+ looping over prefixes.bytes
+Message-Id: <20201206125325.d676906774c2329742746005@kernel.org>
+In-Reply-To: <20201205101704.GB26409@zn.tnic>
+References: <160697103739.3146288.7437620795200799020.stgit@devnote2>
+        <160709424307.3364.5849503551045240938.tip-bot2@tip-bot2>
+        <20201205091256.14161a2e1606c527131efc06@kernel.org>
+        <20201205101704.GB26409@zn.tnic>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 4, 2020 at 8:10 AM Arnd Bergmann <arnd@kernel.org> wrote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> genksyms does not know or care about the _Static_assert() built-in,
-> and sometimes falls back to ignoring the later symbols, which causes
-> undefined behavior such as
->
-> WARNING: modpost: EXPORT symbol "ethtool_set_ethtool_phy_ops" [vmlinux] version generation failed, symbol will not be versioned.
-> ld: net/ethtool/common.o: relocation R_AARCH64_ABS32 against `__crc_ethtool_set_ethtool_phy_ops' can not be used when making a shared object
-> net/ethtool/common.o:(_ftrace_annotated_branch+0x0): dangerous relocation: unsupported relocation
->
-> Redefine static_assert for genksyms to avoid that.
+On Sat, 5 Dec 2020 11:17:04 +0100
+Borislav Petkov <bp@alien8.de> wrote:
 
+> On Sat, Dec 05, 2020 at 09:12:56AM +0900, Masami Hiramatsu wrote:
+> > This may break tools/objtool build. Please keep "inat.h".
+> 
+> How? Please elaborate.
+> 
+> Build tests are fine here.
 
-Please tell the CONFIG options needed to reproduce this.
-I do not see it.
+Oops, sorry, it was for perf build.
 
+Please refer commit 00a263902ac3 ("perf intel-pt: Use shared x86 insn decoder").
 
->
-> Cc: stable@vger.kernel.org
-> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  include/linux/build_bug.h | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/include/linux/build_bug.h b/include/linux/build_bug.h
-> index e3a0be2c90ad..7bb66e15b481 100644
-> --- a/include/linux/build_bug.h
-> +++ b/include/linux/build_bug.h
-> @@ -77,4 +77,9 @@
->  #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
->  #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
->
-> +#ifdef __GENKSYMS__
-> +/* genksyms gets confused by _Static_assert */
-> +#define _Static_assert(expr, ...)
-> +#endif
-> +
->  #endif /* _LINUX_BUILD_BUG_H */
-> --
-> 2.27.0
->
-
+Thank you,
 
 -- 
-Best Regards
-Masahiro Yamada
+Masami Hiramatsu <mhiramat@kernel.org>
