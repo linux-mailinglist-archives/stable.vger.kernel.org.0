@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5CF2D043A
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4A72D03B9
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgLFLoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:44:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S1728341AbgLFLkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729262AbgLFLn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:58 -0500
+        id S1728315AbgLFLkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:00 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        syzbot+a1c743815982d9496393@syzkaller.appspotmail.com,
-        Anmol Karn <anmol.karan123@gmail.com>
-Subject: [PATCH 5.9 08/46] rose: Fix Null pointer dereference in rose_send_frame()
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 16/32] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
 Date:   Sun,  6 Dec 2020 12:17:16 +0100
-Message-Id: <20201206111556.856730928@linuxfoundation.org>
+Message-Id: <20201206111556.534444504@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,64 +31,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anmol Karn <anmol.karan123@gmail.com>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 3b3fd068c56e3fbea30090859216a368398e39bf ]
+[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
 
-rose_send_frame() dereferences `neigh->dev` when called from
-rose_transmit_clear_request(), and the first occurrence of the
-`neigh` is in rose_loopback_timer() as `rose_loopback_neigh`,
-and it is initialized in rose_add_loopback_neigh() as NULL.
-i.e when `rose_loopback_neigh` used in rose_loopback_timer()
-its `->dev` was still NULL and rose_loopback_timer() was calling
-rose_rx_call_request() without checking for NULL.
+Ensure that received Subordinate Command-Response Queue (SCRQ)
+entries are properly read in order by the driver. These queues
+are used in the ibmvnic device to process RX buffer and TX completion
+descriptors. dma_rmb barriers have been added after checking for a
+pending descriptor to ensure the correct descriptor entry is checked
+and after reading the SCRQ descriptor to ensure the entire
+descriptor is read before processing.
 
-- net/rose/rose_link.c
-This bug seems to get triggered in this line:
-
-rose_call = (ax25_address *)neigh->dev->dev_addr;
-
-Fix it by adding NULL checking for `rose_loopback_neigh->dev`
-in rose_loopback_timer().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Reported-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
-Tested-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=9d2a7ca8c7f2e4b682c97578dfa3f236258300b3
-Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
-Link: https://lore.kernel.org/r/20201119191043.28813-1-anmol.karan123@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rose/rose_loopback.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/net/rose/rose_loopback.c
-+++ b/net/rose/rose_loopback.c
-@@ -96,10 +96,19 @@ static void rose_loopback_timer(struct t
- 		}
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2162,6 +2162,12 @@ restart_poll:
  
- 		if (frametype == ROSE_CALL_REQUEST) {
--			if ((dev = rose_dev_get(dest)) != NULL) {
--				if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0)
--					kfree_skb(skb);
--			} else {
-+			if (!rose_loopback_neigh->dev) {
-+				kfree_skb(skb);
-+				continue;
-+			}
+ 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
+ 			break;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
+ 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
+ 		rx_buff =
+ 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
+@@ -2784,6 +2790,13 @@ restart_loop:
+ 		unsigned int pool = scrq->pool_index;
+ 		int num_entries = 0;
+ 
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
 +
-+			dev = rose_dev_get(dest);
-+			if (!dev) {
-+				kfree_skb(skb);
-+				continue;
-+			}
+ 		next = ibmvnic_next_scrq(adapter, scrq);
+ 		for (i = 0; i < next->tx_comp.num_comps; i++) {
+ 			if (next->tx_comp.rcs[i]) {
+@@ -3180,6 +3193,11 @@ static union sub_crq *ibmvnic_next_scrq(
+ 	}
+ 	spin_unlock_irqrestore(&scrq->lock, flags);
+ 
++	/* Ensure that the entire buffer descriptor has been
++	 * loaded before reading its contents
++	 */
++	dma_rmb();
 +
-+			if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0) {
-+				dev_put(dev);
- 				kfree_skb(skb);
- 			}
- 		} else {
+ 	return entry;
+ }
+ 
 
 
