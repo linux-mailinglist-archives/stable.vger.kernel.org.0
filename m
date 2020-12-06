@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1902D047C
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3162D047F
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729614AbgLFLqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:46:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
+        id S1727936AbgLFLqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:46:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727936AbgLFLqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:46:01 -0500
+        id S1729617AbgLFLqE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:46:04 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andre=20M=C3=BCller?= <andre.muller@web.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.9 42/46] Input: atmel_mxt_ts - fix lost interrupts
-Date:   Sun,  6 Dec 2020 12:17:50 +0100
-Message-Id: <20201206111558.487534010@linuxfoundation.org>
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.9 43/46] tracing: Fix alignment of static buffer
+Date:   Sun,  6 Dec 2020 12:17:51 +0100
+Message-Id: <20201206111558.535748209@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -33,50 +32,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Minchan Kim <minchan@kernel.org>
 
-commit 8c3b55a299c325830a987de21dab6a89ecb71164 upstream.
+commit 8fa655a3a0013a0c2a2aada6f39a93ee6fc25549 upstream.
 
-After commit 74d905d2d38a devices requiring the workaround for edge
-triggered interrupts stopped working.
+With 5.9 kernel on ARM64, I found ftrace_dump output was broken but
+it had no problem with normal output "cat /sys/kernel/debug/tracing/trace".
 
-The hardware needs the quirk to be used before even proceeding to
-check if the quirk is needed because mxt_acquire_irq() is called
-before mxt_check_retrigen() is called and at this point pending IRQs
-need to be checked, and if the workaround is not active, all
-interrupts will be lost from this point.
+With investigation, it seems coping the data into temporal buffer seems to
+break the align binary printf expects if the static buffer is not aligned
+with 4-byte. IIUC, get_arg in bstr_printf expects that args has already
+right align to be decoded and seq_buf_bprintf says ``the arguments are saved
+in a 32bit word array that is defined by the format string constraints``.
+So if we don't keep the align under copy to temporal buffer, the output
+will be broken by shifting some bytes.
 
-Solve this by switching the calls around.
+This patch fixes it.
 
-Reported-by: Andre Müller <andre.muller@web.de>
-Tested-by: Andre Müller <andre.muller@web.de>
-Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Fixes: 74d905d2d38a ("Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201201123026.1416743-1-linus.walleij@linaro.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lkml.kernel.org/r/20201125225654.1618966-1-minchan@kernel.org
+
+Cc: <stable@vger.kernel.org>
+Fixes: 8e99cf91b99bb ("tracing: Do not allocate buffer in trace_find_next_entry() in atomic")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2183,11 +2183,11 @@ static int mxt_initialize(struct mxt_dat
- 		msleep(MXT_FW_RESET_TIME);
- 	}
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3516,7 +3516,7 @@ __find_next_entry(struct trace_iterator
+ }
  
--	error = mxt_acquire_irq(data);
-+	error = mxt_check_retrigen(data);
- 	if (error)
- 		return error;
+ #define STATIC_TEMP_BUF_SIZE	128
+-static char static_temp_buf[STATIC_TEMP_BUF_SIZE];
++static char static_temp_buf[STATIC_TEMP_BUF_SIZE] __aligned(4);
  
--	error = mxt_check_retrigen(data);
-+	error = mxt_acquire_irq(data);
- 	if (error)
- 		return error;
- 
+ /* Find the next real entry, without updating the iterator itself */
+ struct trace_entry *trace_find_next_entry(struct trace_iterator *iter,
 
 
