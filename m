@@ -2,83 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7832D0475
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19A422D04A2
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725804AbgLFLpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:45:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45702 "EHLO mail.kernel.org"
+        id S1728456AbgLFLs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:48:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbgLFLpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:49 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Ayaz A Siddiqui <ayaz.siddiqui@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 46/46] drm/i915/gt: Fixup tgl mocs for PTE tracking
-Date:   Sun,  6 Dec 2020 12:17:54 +0100
-Message-Id: <20201206111558.681285823@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728220AbgLFLs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:48:26 -0500
+Date:   Sun, 6 Dec 2020 12:40:08 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607255266;
+        bh=ByUeANkt1MKI6WikIBSaPHkHQBMszZGGNaERnq70ZYE=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TS/rBAv9GAMwDAPXPqKTzuBa7PlvfumaoHLWKRZZBVzXqzB8rIWSseUWW8CZDo6q0
+         GA6LM4GByBB6nWiUZqQSwoTB9tf2CXf2Rg2F8I3wmaLz9Z0BBMjJKlijd61sZEexI5
+         0PhJVOFwrbwaSwpF5e5Ezg1nNoIVluLM0SzL/w04=
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Vincent Guittot <vincent.guittot@linaro.org>
+Cc:     Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Tao Zhou <zohooouoto@zoho.com.cn>,
+        "# v4 . 16+" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
+ leaf_cfs_rq list" failed to apply to 5.4-stable tree
+Message-ID: <X8zDGGvVkyDGbco/@kroah.com>
+References: <159041776924279@kroah.com>
+ <20200525172709.GB7427@vingu-book>
+ <X8yq+7/dQADbrTTL@kroah.com>
+ <CAKfTPtDmpYYA2nc-+d3OfT-=2kf82+3O50WGguDQ=XOXTnbZGQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKfTPtDmpYYA2nc-+d3OfT-=2kf82+3O50WGguDQ=XOXTnbZGQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+On Sun, Dec 06, 2020 at 12:25:12PM +0100, Vincent Guittot wrote:
+> On Sun, 6 Dec 2020 at 10:56, Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, May 25, 2020 at 07:27:09PM +0200, Vincent Guittot wrote:
+> > > Le lundi 25 mai 2020 � 16:42:49 (+0200), gregkh@linuxfoundation.org a �crit :
+> > > >
+> > > > The patch below does not apply to the 5.4-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longterm
+> > > > tree, then please email the backport, including the original git commit
+> > > > id to <stable@vger.kernel.org>.
+> > >
+> > > This patch needs  commit
+> > >     b34cb07dde7c ("sched/fair: Fix enqueue_task_fair() warning some more")
+> > > to be applied first. But then, it will not apply. The backport is :
+> > >
+> > > [ Upstream commit 39f23ce07b9355d05a64ae303ce20d1c4b92b957 upstream ]
+> > >
+> > > Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fair()
+> > > are quite close and follow the same sequence for enqueuing an entity in the
+> > > cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
+> > > enqueue_task_fair(). This fixes a problem already faced with the latter and
+> > > add an optimization in the last for_each_sched_entity loop.
+> > >
+> > > Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
+> > > Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
+> > > Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > Reviewed-by: Phil Auld <pauld@redhat.com>
+> > > Reviewed-by: Ben Segall <bsegall@google.com>
+> > > Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@linaro.org
+> > > ---
+> > >  kernel/sched/fair.c | 36 ++++++++++++++++++++++++++++--------
+> > >  1 file changed, 28 insertions(+), 8 deletions(-)
+> >
+> > This patch doesn't apply to the 5.4.y tree at all.  Can someone please
+> > provide a working backport?
+> 
+> It seems that commit b34cb07dde7c ("sched/fair: Fix
+> enqueue_task_fair() warning some more") has already been applied back
+> in May. But then, I'm able to apply this patch on top of
+> v5.4.y/v5.4.81
+> 
 
-commit be33805c65297611971003d72e7f9235e23ec84d upstream.
+What is "this patch" here?  I tried to apply 39f23ce07b93 ("sched/fair:
+Fix unthrottle_cfs_rq() for leaf_cfs_rq list") directly to the 5.4 tree
+and it too did not apply.
 
-Forcing mocs:1 [used for our winsys follows-pte mode] to be cached
-caused display glitches. Though it is documented as deprecated (and so
-likely behaves as uncached) use the follow-pte bit and force it out of
-L3 cache.
+confused,
 
-Testcase: igt/kms_frontbuffer_tracking
-Testcase: igt/kms_big_fb
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ayaz A Siddiqui <ayaz.siddiqui@intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201015122138.30161-4-chris@chris-wilson.co.uk
-(cherry picked from commit a04ac827366594c7244f60e9be79fcb404af69f0)
-Fixes: 849c0fe9e831 ("drm/i915/gt: Initialize reserved and unspecified MOCS indices")
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-[Rodrigo: Updated Fixes tag]
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/gpu/drm/i915/gt/intel_mocs.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- a/drivers/gpu/drm/i915/gt/intel_mocs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
-@@ -243,8 +243,9 @@ static const struct drm_i915_mocs_entry
- 	 * only, __init_mocs_table() take care to program unused index with
- 	 * this entry.
- 	 */
--	MOCS_ENTRY(1, LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
--		   L3_3_WB),
-+	MOCS_ENTRY(I915_MOCS_PTE,
-+		   LE_0_PAGETABLE | LE_TC_0_PAGETABLE,
-+		   L3_1_UC),
- 	GEN11_MOCS_ENTRIES,
- 
- 	/* Implicitly enable L1 - HDC:L1 + L3 + LLC */
-
-
+greg k-h
