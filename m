@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD5F2D03E2
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E722D040D
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728738AbgLFLlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:41:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38634 "EHLO mail.kernel.org"
+        id S1729018AbgLFLmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:42:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727703AbgLFLlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:41:16 -0500
+        id S1727918AbgLFLmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:42:45 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Jonathan Morton <chromatix99@gmail.com>,
+        Pete Heist <pete@heistp.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 25/32] net/mlx5: Fix wrong address reclaim when command interface is down
+Subject: [PATCH 5.4 21/39] inet_ecn: Fix endianness of checksum update when setting ECT(1)
 Date:   Sun,  6 Dec 2020 12:17:25 +0100
-Message-Id: <20201206111556.975879222@linuxfoundation.org>
+Message-Id: <20201206111555.693217763@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
+References: <20201206111554.677764505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,62 +33,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@nvidia.com>
+From: "Toke Høiland-Jørgensen" <toke@redhat.com>
 
-[ Upstream commit 1d2bb5ad89f47d8ce8aedc70ef85059ab3870292 ]
+[ Upstream commit 2867e1eac61016f59b3d730e3f7aa488e186e917 ]
 
-When command interface is down, driver to reclaim all 4K page chucks that
-were hold by the Firmeware. Fix a bug for 64K page size systems, where
-driver repeatedly released only the first chunk of the page.
+When adding support for propagating ECT(1) marking in IP headers it seems I
+suffered from endianness-confusion in the checksum update calculation: In
+fact the ECN field is in the *lower* bits of the first 16-bit word of the
+IP header when calculating in network byte order. This means that the
+addition performed to update the checksum field was wrong; let's fix that.
 
-Define helper function to fill 4K chunks for a given Firmware pages.
-Iterate over all unreleased Firmware pages and call the hepler per each.
-
-Fixes: 5adff6a08862 ("net/mlx5: Fix incorrect page count when in internal error")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: b723748750ec ("tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040")
+Reported-by: Jonathan Morton <chromatix99@gmail.com>
+Tested-by: Pete Heist <pete@heistp.net>
+Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20201130183705.17540-1-toke@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c |   21 ++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ include/net/inet_ecn.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-@@ -331,6 +331,24 @@ out_free:
- 	return err;
- }
+--- a/include/net/inet_ecn.h
++++ b/include/net/inet_ecn.h
+@@ -107,7 +107,7 @@ static inline int IP_ECN_set_ect1(struct
+ 	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
+ 		return 0;
  
-+static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
-+				     u32 npages)
-+{
-+	u32 pages_set = 0;
-+	unsigned int n;
-+
-+	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
-+		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
-+				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
-+		pages_set++;
-+
-+		if (!--npages)
-+			break;
-+	}
-+
-+	return pages_set;
-+}
-+
- static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
- 			     u32 *in, int in_size, u32 *out, int out_size)
- {
-@@ -354,8 +372,7 @@ static int reclaim_pages_cmd(struct mlx5
- 		if (fwp->func_id != func_id)
- 			continue;
+-	check += (__force u16)htons(0x100);
++	check += (__force u16)htons(0x1);
  
--		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
--		i++;
-+		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
- 	}
- 
- 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
+ 	iph->check = (__force __sum16)(check + (check>=0xFFFF));
+ 	iph->tos ^= INET_ECN_MASK;
 
 
