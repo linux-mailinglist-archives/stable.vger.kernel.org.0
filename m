@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDA42D0471
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59A62D038A
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727700AbgLFLpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:45:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+        id S1727863AbgLFLjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727558AbgLFLpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:45:42 -0500
+        id S1725767AbgLFLjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:15 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, justin.he@arm.com,
-        Sergio Lopez <slp@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 13/46] vsock/virtio: discard packets only when socket is really closed
+        stable@vger.kernel.org, Sanjay Govind <sanjay.govind9@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 18/20] Input: xpad - support Ardwiino Controllers
 Date:   Sun,  6 Dec 2020 12:17:21 +0100
-Message-Id: <20201206111557.101061969@linuxfoundation.org>
+Message-Id: <20201206111556.401015142@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,73 +31,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Sanjay Govind <sanjay.govind9@gmail.com>
 
-[ Upstream commit 3fe356d58efae54dade9ec94ea7c919ed20cf4db ]
+commit 2aab1561439032be2e98811dd0ddbeb5b2ae4c61 upstream.
 
-Starting from commit 8692cefc433f ("virtio_vsock: Fix race condition
-in virtio_transport_recv_pkt"), we discard packets in
-virtio_transport_recv_pkt() if the socket has been released.
+This commit adds support for Ardwiino Controllers
 
-When the socket is connected, we schedule a delayed work to wait the
-RST packet from the other peer, also if SHUTDOWN_MASK is set in
-sk->sk_shutdown.
-This is done to complete the virtio-vsock shutdown algorithm, releasing
-the port assigned to the socket definitively only when the other peer
-has consumed all the packets.
-
-If we discard the RST packet received, the socket will be closed only
-when the VSOCK_CLOSE_TIMEOUT is reached.
-
-Sergio discovered the issue while running ab(1) HTTP benchmark using
-libkrun [1] and observing a latency increase with that commit.
-
-To avoid this issue, we discard packet only if the socket is really
-closed (SOCK_DONE flag is set).
-We also set SOCK_DONE in virtio_transport_release() when we don't need
-to wait any packets from the other peer (we didn't schedule the delayed
-work). In this case we remove the socket from the vsock lists, releasing
-the port assigned.
-
-[1] https://github.com/containers/libkrun
-
-Fixes: 8692cefc433f ("virtio_vsock: Fix race condition in virtio_transport_recv_pkt")
-Cc: justin.he@arm.com
-Reported-by: Sergio Lopez <slp@redhat.com>
-Tested-by: Sergio Lopez <slp@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Jia He <justin.he@arm.com>
-Link: https://lore.kernel.org/r/20201120104736.73749-1-sgarzare@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+Link: https://lore.kernel.org/r/20201201071922.131666-1-sanjay.govind9@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport_common.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -841,8 +841,10 @@ void virtio_transport_release(struct vso
- 		virtio_transport_free_pkt(pkt);
- 	}
- 
--	if (remove_sock)
-+	if (remove_sock) {
-+		sock_set_flag(sk, SOCK_DONE);
- 		vsock_remove_sock(vsk);
-+	}
- }
- EXPORT_SYMBOL_GPL(virtio_transport_release);
- 
-@@ -1132,8 +1134,8 @@ void virtio_transport_recv_pkt(struct vi
- 
- 	lock_sock(sk);
- 
--	/* Check if sk has been released before lock_sock */
--	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+	/* Check if sk has been closed before lock_sock */
-+	if (sock_flag(sk, SOCK_DONE)) {
- 		(void)virtio_transport_reset_no_sock(t, pkt);
- 		release_sock(sk);
- 		sock_put(sk);
+---
+ drivers/input/joystick/xpad.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -258,6 +258,7 @@ static const struct xpad_device {
+ 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
++	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0303, "Mortal Kombat Klassic FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -435,6 +436,7 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
+ 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
++	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
 
 
