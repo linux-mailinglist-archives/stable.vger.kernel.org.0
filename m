@@ -2,117 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526B12D0353
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 158642D03CA
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726011AbgLFL0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:26:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725822AbgLFL0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 06:26:05 -0500
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50930C0613D1
-        for <stable@vger.kernel.org>; Sun,  6 Dec 2020 03:25:25 -0800 (PST)
-Received: by mail-lj1-x242.google.com with SMTP id o24so11858152ljj.6
-        for <stable@vger.kernel.org>; Sun, 06 Dec 2020 03:25:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=2/g46V4V/x56zJEluo1Ml8ocCr4fqKEQfP04GtM99tA=;
-        b=KlSSFy5rh6HzZIS9R7olknMtq8dl9+hGYMpJaXZ/jBCAjuB/KUSHKnO4BTOSgT96rc
-         MVkUnvoA8+p+SyONWJtWBtnmBR5HAxQtxKhYUqUxXY2aBp9GezVDRRHzHB8RE0whGv41
-         QOX9m0aSauXMX6BF1jtn+u3uyveGFGDBrqzC8d69mP/RbgMGOB5tcWgtdWNDtyAWXqPA
-         A7tNdomZrxqc3OkalvelBwPpBU92KDDZU5rwDsBzMAD+Hz8oUzVwTxCGoitVc+mfliuL
-         VB/rNKyoyxpED6Nx09IvzJ8vFUl5NmRjyganUFcfDffEZ5ppUnLrjmpn1s5hW0DYbREX
-         HZNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=2/g46V4V/x56zJEluo1Ml8ocCr4fqKEQfP04GtM99tA=;
-        b=rB2iX5nLbI9S3u2+q+fbPiazTOQZKj3uskoOX67XIg0J+sgF1WO8D7duoppLUw+PQc
-         JZVBqBIFbULoluwyiMuhHGMwNlF8FYULcl7sC+tE8A2GiHSqak4seATURpz/DSB0lOrS
-         G2A6EJxOfxcB3zuOBoL0yfQ2DClaGKYDQhy6xaK+3rRpTcAaoOGLGAPBi27pwMZfDEbz
-         cNyku59DbIoXeLJZzWx1jtHIEj2Cx30KTZZ7MJ+TUqJqdg4Fi35GFuXyGfeCecRIbXmT
-         DEp+RUF3KrdjKnXWxrV73p2jHk1778N2h6gAp4VFZzfJ5R7juvcBh7efGHkLtyzgEKip
-         Lisw==
-X-Gm-Message-State: AOAM530F7hIgB+9tXMG2e5i3e99dtZ7ALW48yPXnNLZk+vEP4alToHyq
-        grtM0SKe1+dp18fOBEeBZc9kpbBGsEVvt+gNM2nsCZpnk+shuw==
-X-Google-Smtp-Source: ABdhPJwngp7EL83zeCN81bhaBVxNOA+aLurX/hrMmp0KswXbhGWuOcEql0NmDf89+D/aYe6JHucolQvdljMx9CfF5hU=
-X-Received: by 2002:a2e:b8d0:: with SMTP id s16mr6726247ljp.423.1607253923637;
- Sun, 06 Dec 2020 03:25:23 -0800 (PST)
+        id S1728571AbgLFLkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37452 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728528AbgLFLkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:20 -0500
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.19 00/32] 4.19.162-rc1 review
+Date:   Sun,  6 Dec 2020 12:17:00 +0100
+Message-Id: <20201206111555.787862631@linuxfoundation.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-References: <159041776924279@kroah.com> <20200525172709.GB7427@vingu-book> <X8yq+7/dQADbrTTL@kroah.com>
-In-Reply-To: <X8yq+7/dQADbrTTL@kroah.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Sun, 6 Dec 2020 12:25:12 +0100
-Message-ID: <CAKfTPtDmpYYA2nc-+d3OfT-=2kf82+3O50WGguDQ=XOXTnbZGQ@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Tao Zhou <zohooouoto@zoho.com.cn>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.162-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.162-rc1
+X-KernelTest-Deadline: 2020-12-08T11:15+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 6 Dec 2020 at 10:56, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, May 25, 2020 at 07:27:09PM +0200, Vincent Guittot wrote:
-> > Le lundi 25 mai 2020 =C3=A0 16:42:49 (+0200), gregkh@linuxfoundation.or=
-g a =C3=A9crit :
-> > >
-> > > The patch below does not apply to the 5.4-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git comm=
-it
-> > > id to <stable@vger.kernel.org>.
-> >
-> > This patch needs  commit
-> >     b34cb07dde7c ("sched/fair: Fix enqueue_task_fair() warning some mor=
-e")
-> > to be applied first. But then, it will not apply. The backport is :
-> >
-> > [ Upstream commit 39f23ce07b9355d05a64ae303ce20d1c4b92b957 upstream ]
-> >
-> > Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fa=
-ir()
-> > are quite close and follow the same sequence for enqueuing an entity in=
- the
-> > cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
-> > enqueue_task_fair(). This fixes a problem already faced with the latter=
- and
-> > add an optimization in the last for_each_sched_entity loop.
-> >
-> > Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-> > Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
-> > Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Reviewed-by: Phil Auld <pauld@redhat.com>
-> > Reviewed-by: Ben Segall <bsegall@google.com>
-> > Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@l=
-inaro.org
-> > ---
-> >  kernel/sched/fair.c | 36 ++++++++++++++++++++++++++++--------
-> >  1 file changed, 28 insertions(+), 8 deletions(-)
->
-> This patch doesn't apply to the 5.4.y tree at all.  Can someone please
-> provide a working backport?
+This is the start of the stable review cycle for the 4.19.162 release.
+There are 32 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-It seems that commit b34cb07dde7c ("sched/fair: Fix
-enqueue_task_fair() warning some more") has already been applied back
-in May. But then, I'm able to apply this patch on top of
-v5.4.y/v5.4.81
+Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
+Anything received after that time might be too late.
 
-Thanks
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.162-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
->
-> thanks,
->
-> greg k-h
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.162-rc1
+
+Shiraz Saleem <shiraz.saleem@intel.com>
+    RDMA/i40iw: Address an mmap handler exploit in i40iw
+
+Vasily Averin <vvs@virtuozzo.com>
+    tracing: Remove WARN_ON in start_thread()
+
+Po-Hsu Lin <po-hsu.lin@canonical.com>
+    Input: i8042 - add ByteSpeed touchpad to noloop table
+
+Sanjay Govind <sanjay.govind9@gmail.com>
+    Input: xpad - support Ardwiino Controllers
+
+Hector Martin <marcan@marcan.st>
+    ALSA: usb-audio: US16x08: fix value count for level meters
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    dt-bindings: net: correct interrupt flags in examples
+
+Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+    chelsio/chtls: fix panic during unload reload chtls
+
+Eran Ben Elisha <eranbe@nvidia.com>
+    net/mlx5: Fix wrong address reclaim when command interface is down
+
+Wang Hai <wanghai38@huawei.com>
+    net: mvpp2: Fix error return code in mvpp2_open()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    chelsio/chtls: fix a double free in chtls_setkey()
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    net: pasemi: fix error return code in pasemi_mac_open()
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    cxgb3: fix error return code in t3_sge_alloc_qset()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net/x25: prevent a couple of overflows
+
+Antoine Tenart <atenart@kernel.org>
+    net: ip6_gre: set dev->hard_header_len when using header_ops
+
+Eric Dumazet <edumazet@google.com>
+    geneve: pull IP header before ECN decapsulation
+
+Thomas Falcon <tlfalcon@linux.ibm.com>
+    ibmvnic: Fix TX completion error handling
+
+Thomas Falcon <tlfalcon@linux.ibm.com>
+    ibmvnic: Ensure that SCRQ entry reads are correctly ordered
+
+Guillaume Nault <gnault@redhat.com>
+    ipv4: Fix tos mask in inet_rtm_getroute()
+
+Antoine Tenart <atenart@kernel.org>
+    netfilter: bridge: reset skb->pkt_type after NF_INET_POST_ROUTING traversal
+
+Jamie Iles <jamie@nuviainc.com>
+    bonding: wait for sysfs kobject destruction before freeing struct slave
+
+Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+    i40e: Fix removing driver while bare-metal VFs pass traffic
+
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: notify peers when failover and migration happen
+
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: fix call_netdevice_notifiers in do_reset
+
+Maxim Mikityanskiy <maximmi@mellanox.com>
+    net/tls: Protect from calling tls_dev_del for TLS RX twice
+
+Yves-Alexis Perez <corsac@corsac.net>
+    usbnet: ipheth: fix connectivity with iOS 14
+
+Jens Axboe <axboe@kernel.dk>
+    tun: honor IOCB_NOWAIT flag
+
+Alexander Duyck <alexanderduyck@fb.com>
+    tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
+
+Willem de Bruijn <willemb@google.com>
+    sock: set sk_err to ee_errno on dequeue from errq
+
+Anmol Karn <anmol.karan123@gmail.com>
+    rose: Fix Null pointer dereference in rose_send_frame()
+
+Vadim Fedorenko <vfedorenko@novek.ru>
+    net/tls: missing received data after fast remote close
+
+Julian Wiedmann <jwi@linux.ibm.com>
+    net/af_iucv: set correct sk_protocol for child sockets
+
+Wang Hai <wanghai38@huawei.com>
+    ipv6: addrlabel: fix possible memory leak in ip6addrlbl_net_init
+
+
+-------------
+
+Diffstat:
+
+ .../devicetree/bindings/net/nfc/nxp-nci.txt        |  2 +-
+ .../devicetree/bindings/net/nfc/pn544.txt          |  2 +-
+ Makefile                                           |  4 +-
+ drivers/crypto/chelsio/chtls/chtls_cm.c            |  1 +
+ drivers/crypto/chelsio/chtls/chtls_hw.c            |  1 +
+ drivers/infiniband/hw/i40iw/i40iw_main.c           |  5 --
+ drivers/infiniband/hw/i40iw/i40iw_verbs.c          | 36 +++----------
+ drivers/input/joystick/xpad.c                      |  2 +
+ drivers/input/serio/i8042-x86ia64io.h              |  4 ++
+ drivers/net/bonding/bond_main.c                    | 61 +++++++++++++++-------
+ drivers/net/bonding/bond_sysfs_slave.c             | 18 +------
+ drivers/net/ethernet/chelsio/cxgb3/sge.c           |  1 +
+ drivers/net/ethernet/ibm/ibmvnic.c                 | 32 ++++++++++--
+ drivers/net/ethernet/intel/i40e/i40e.h             |  1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c        | 22 +++++---
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 26 +++++----
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |  1 +
+ .../net/ethernet/mellanox/mlx5/core/pagealloc.c    | 21 +++++++-
+ drivers/net/ethernet/pasemi/pasemi_mac.c           |  8 ++-
+ drivers/net/geneve.c                               | 20 +++++--
+ drivers/net/tun.c                                  | 14 +++--
+ drivers/net/usb/ipheth.c                           |  2 +-
+ include/net/bonding.h                              |  8 +++
+ include/net/tls.h                                  |  6 +++
+ kernel/trace/trace_hwlat.c                         |  2 +-
+ net/bridge/br_netfilter_hooks.c                    |  7 ++-
+ net/core/skbuff.c                                  |  2 +-
+ net/ipv4/route.c                                   |  7 +--
+ net/ipv4/tcp_cong.c                                |  5 ++
+ net/ipv6/addrlabel.c                               | 26 +++++----
+ net/ipv6/ip6_gre.c                                 | 16 ++++--
+ net/iucv/af_iucv.c                                 |  4 +-
+ net/rose/rose_loopback.c                           | 17 ++++--
+ net/tls/tls_device.c                               |  5 +-
+ net/tls/tls_sw.c                                   |  6 +++
+ net/x25/af_x25.c                                   |  6 ++-
+ sound/usb/mixer_us16x08.c                          |  2 +-
+ 37 files changed, 266 insertions(+), 137 deletions(-)
+
+
