@@ -2,30 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6459F2D03EA
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F2122D03C2
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728803AbgLFLla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:41:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39134 "EHLO mail.kernel.org"
+        id S1728238AbgLFLkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728754AbgLFLl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:41:29 -0500
+        id S1728472AbgLFLkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        stable@vger.kernel.org, Alexander Duyck <alexanderduyck@fb.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 01/39] devlink: Hold rtnl lock while reading netdev attributes
-Date:   Sun,  6 Dec 2020 12:17:05 +0100
-Message-Id: <20201206111554.745251350@linuxfoundation.org>
+Subject: [PATCH 4.19 06/32] tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
+Date:   Sun,  6 Dec 2020 12:17:06 +0100
+Message-Id: <20201206111556.085997068@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -33,55 +31,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Alexander Duyck <alexanderduyck@fb.com>
 
-[ Upstream commit b187c9b4178b87954dbc94e78a7094715794714f ]
+[ Upstream commit 55472017a4219ca965a957584affdb17549ae4a4 ]
 
-A netdevice of a devlink port can be moved to different net namespace
-than its parent devlink instance.
-This scenario occurs when devlink reload is not used.
+When setting congestion control via a BPF program it is seen that the
+SYN/ACK for packets within a given flow will not include the ECT0 flag. A
+bit of simple printk debugging shows that when this is configured without
+BPF we will see the value INET_ECN_xmit value initialized in
+tcp_assign_congestion_control however when we configure this via BPF the
+socket is in the closed state and as such it isn't configured, and I do not
+see it being initialized when we transition the socket into the listen
+state. The result of this is that the ECT0 bit is configured based on
+whatever the default state is for the socket.
 
-When netdevice is undergoing migration to net namespace, its ifindex
-and name may change.
+Any easy way to reproduce this is to monitor the following with tcpdump:
+tools/testing/selftests/bpf/test_progs -t bpf_tcp_ca
 
-In such use case, devlink port query may read stale netdev attributes.
+Without this patch the SYN/ACK will follow whatever the default is. If dctcp
+all SYN/ACK packets will have the ECT0 bit set, and if it is not then ECT0
+will be cleared on all SYN/ACK packets. With this patch applied the SYN/ACK
+bit matches the value seen on the other packets in the given stream.
 
-Fix it by reading them under rtnl lock.
-
-Fixes: bfcd3a466172 ("Introduce devlink infrastructure")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
+Fixes: 91b5b21c7c16 ("bpf: Add support for changing congestion control")
+Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/devlink.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp_cong.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -562,6 +562,8 @@ static int devlink_nl_port_fill(struct s
- 	if (nla_put_u32(msg, DEVLINK_ATTR_PORT_INDEX, devlink_port->index))
- 		goto nla_put_failure;
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -196,6 +196,11 @@ static void tcp_reinit_congestion_contro
+ 	icsk->icsk_ca_setsockopt = 1;
+ 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
  
-+	/* Hold rtnl lock while accessing port's netdev attributes. */
-+	rtnl_lock();
- 	spin_lock_bh(&devlink_port->type_lock);
- 	if (nla_put_u16(msg, DEVLINK_ATTR_PORT_TYPE, devlink_port->type))
- 		goto nla_put_failure_type_locked;
-@@ -588,6 +590,7 @@ static int devlink_nl_port_fill(struct s
- 			goto nla_put_failure_type_locked;
- 	}
- 	spin_unlock_bh(&devlink_port->type_lock);
-+	rtnl_unlock();
- 	if (devlink_nl_port_attrs_put(msg, devlink_port))
- 		goto nla_put_failure;
- 
-@@ -596,6 +599,7 @@ static int devlink_nl_port_fill(struct s
- 
- nla_put_failure_type_locked:
- 	spin_unlock_bh(&devlink_port->type_lock);
-+	rtnl_unlock();
- nla_put_failure:
- 	genlmsg_cancel(msg, hdr);
- 	return -EMSGSIZE;
++	if (ca->flags & TCP_CONG_NEEDS_ECN)
++		INET_ECN_xmit(sk);
++	else
++		INET_ECN_dontxmit(sk);
++
+ 	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
+ 		tcp_init_congestion_control(sk);
+ }
 
 
