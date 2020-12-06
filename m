@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2122D03C2
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB212D0378
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbgLFLkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S1727652AbgLFLif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:38:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728472AbgLFLkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:10 -0500
+        id S1726746AbgLFLif (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:38:35 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Duyck <alexanderduyck@fb.com>,
+        stable@vger.kernel.org, Ayush Ranjan <ayushranjan@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 06/32] tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
+Subject: [PATCH 4.14 03/20] sock: set sk_err to ee_errno on dequeue from errq
 Date:   Sun,  6 Dec 2020 12:17:06 +0100
-Message-Id: <20201206111556.085997068@linuxfoundation.org>
+Message-Id: <20201206111555.726079130@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,49 +33,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexanderduyck@fb.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 55472017a4219ca965a957584affdb17549ae4a4 ]
+[ Upstream commit 985f7337421a811cb354ca93882f943c8335a6f5 ]
 
-When setting congestion control via a BPF program it is seen that the
-SYN/ACK for packets within a given flow will not include the ECT0 flag. A
-bit of simple printk debugging shows that when this is configured without
-BPF we will see the value INET_ECN_xmit value initialized in
-tcp_assign_congestion_control however when we configure this via BPF the
-socket is in the closed state and as such it isn't configured, and I do not
-see it being initialized when we transition the socket into the listen
-state. The result of this is that the ECT0 bit is configured based on
-whatever the default state is for the socket.
+When setting sk_err, set it to ee_errno, not ee_origin.
 
-Any easy way to reproduce this is to monitor the following with tcpdump:
-tools/testing/selftests/bpf/test_progs -t bpf_tcp_ca
+Commit f5f99309fa74 ("sock: do not set sk_err in
+sock_dequeue_err_skb") disabled updating sk_err on errq dequeue,
+which is correct for most error types (origins):
 
-Without this patch the SYN/ACK will follow whatever the default is. If dctcp
-all SYN/ACK packets will have the ECT0 bit set, and if it is not then ECT0
-will be cleared on all SYN/ACK packets. With this patch applied the SYN/ACK
-bit matches the value seen on the other packets in the given stream.
+  -       sk->sk_err = err;
 
-Fixes: 91b5b21c7c16 ("bpf: Add support for changing congestion control")
-Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
+Commit 38b257938ac6 ("sock: reset sk_err when the error queue is
+empty") reenabled the behavior for IMCP origins, which do require it:
+
+  +       if (icmp_next)
+  +               sk->sk_err = SKB_EXT_ERR(skb_next)->ee.ee_origin;
+
+But read from ee_errno.
+
+Fixes: 38b257938ac6 ("sock: reset sk_err when the error queue is empty")
+Reported-by: Ayush Ranjan <ayushranjan@google.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Link: https://lore.kernel.org/r/20201126151220.2819322-1-willemdebruijn.kernel@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cong.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/core/skbuff.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_cong.c
-+++ b/net/ipv4/tcp_cong.c
-@@ -196,6 +196,11 @@ static void tcp_reinit_congestion_contro
- 	icsk->icsk_ca_setsockopt = 1;
- 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4239,7 +4239,7 @@ struct sk_buff *sock_dequeue_err_skb(str
+ 	if (skb && (skb_next = skb_peek(q))) {
+ 		icmp_next = is_icmp_err_skb(skb_next);
+ 		if (icmp_next)
+-			sk->sk_err = SKB_EXT_ERR(skb_next)->ee.ee_origin;
++			sk->sk_err = SKB_EXT_ERR(skb_next)->ee.ee_errno;
+ 	}
+ 	spin_unlock_irqrestore(&q->lock, flags);
  
-+	if (ca->flags & TCP_CONG_NEEDS_ECN)
-+		INET_ECN_xmit(sk);
-+	else
-+		INET_ECN_dontxmit(sk);
-+
- 	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
- 		tcp_init_congestion_control(sk);
- }
 
 
