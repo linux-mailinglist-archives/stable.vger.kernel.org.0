@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A55F2D03C6
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDA42D0471
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728472AbgLFLkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36844 "EHLO mail.kernel.org"
+        id S1727700AbgLFLpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:45:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728522AbgLFLkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:17 -0500
+        id S1727558AbgLFLpm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:42 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Raju Rangoju <rajur@chelsio.com>,
+        stable@vger.kernel.org, justin.he@arm.com,
+        Sergio Lopez <slp@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 21/32] cxgb3: fix error return code in t3_sge_alloc_qset()
+Subject: [PATCH 5.9 13/46] vsock/virtio: discard packets only when socket is really closed
 Date:   Sun,  6 Dec 2020 12:17:21 +0100
-Message-Id: <20201206111556.781293827@linuxfoundation.org>
+Message-Id: <20201206111557.101061969@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,33 +33,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit ff9924897f8bfed82e61894b373ab9d2dfea5b10 ]
+[ Upstream commit 3fe356d58efae54dade9ec94ea7c919ed20cf4db ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Starting from commit 8692cefc433f ("virtio_vsock: Fix race condition
+in virtio_transport_recv_pkt"), we discard packets in
+virtio_transport_recv_pkt() if the socket has been released.
 
-Fixes: b1fb1f280d09 ("cxgb3 - Fix dma mapping error path")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Raju Rangoju <rajur@chelsio.com>
-Link: https://lore.kernel.org/r/1606902965-1646-1-git-send-email-zhangchangzhong@huawei.com
+When the socket is connected, we schedule a delayed work to wait the
+RST packet from the other peer, also if SHUTDOWN_MASK is set in
+sk->sk_shutdown.
+This is done to complete the virtio-vsock shutdown algorithm, releasing
+the port assigned to the socket definitively only when the other peer
+has consumed all the packets.
+
+If we discard the RST packet received, the socket will be closed only
+when the VSOCK_CLOSE_TIMEOUT is reached.
+
+Sergio discovered the issue while running ab(1) HTTP benchmark using
+libkrun [1] and observing a latency increase with that commit.
+
+To avoid this issue, we discard packet only if the socket is really
+closed (SOCK_DONE flag is set).
+We also set SOCK_DONE in virtio_transport_release() when we don't need
+to wait any packets from the other peer (we didn't schedule the delayed
+work). In this case we remove the socket from the vsock lists, releasing
+the port assigned.
+
+[1] https://github.com/containers/libkrun
+
+Fixes: 8692cefc433f ("virtio_vsock: Fix race condition in virtio_transport_recv_pkt")
+Cc: justin.he@arm.com
+Reported-by: Sergio Lopez <slp@redhat.com>
+Tested-by: Sergio Lopez <slp@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Jia He <justin.he@arm.com>
+Link: https://lore.kernel.org/r/20201120104736.73749-1-sgarzare@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/sge.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/vmw_vsock/virtio_transport_common.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb3/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/sge.c
-@@ -3176,6 +3176,7 @@ int t3_sge_alloc_qset(struct adapter *ad
- 			  GFP_KERNEL | __GFP_COMP);
- 	if (!avail) {
- 		CH_ALERT(adapter, "free list queue 0 initialization failed\n");
-+		ret = -ENOMEM;
- 		goto err;
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -841,8 +841,10 @@ void virtio_transport_release(struct vso
+ 		virtio_transport_free_pkt(pkt);
  	}
- 	if (avail < q->fl[0].size)
+ 
+-	if (remove_sock)
++	if (remove_sock) {
++		sock_set_flag(sk, SOCK_DONE);
+ 		vsock_remove_sock(vsk);
++	}
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_release);
+ 
+@@ -1132,8 +1134,8 @@ void virtio_transport_recv_pkt(struct vi
+ 
+ 	lock_sock(sk);
+ 
+-	/* Check if sk has been released before lock_sock */
+-	if (sk->sk_shutdown == SHUTDOWN_MASK) {
++	/* Check if sk has been closed before lock_sock */
++	if (sock_flag(sk, SOCK_DONE)) {
+ 		(void)virtio_transport_reset_no_sock(t, pkt);
+ 		release_sock(sk);
+ 		sock_put(sk);
 
 
