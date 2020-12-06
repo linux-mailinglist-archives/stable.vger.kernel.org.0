@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503B42D0481
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165242D046B
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729171AbgLFLqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:46:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46736 "EHLO mail.kernel.org"
+        id S1729528AbgLFLpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:45:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728692AbgLFLqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:46:17 -0500
+        id S1728001AbgLFLpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:45:33 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanjay Govind <sanjay.govind9@gmail.com>,
+        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.9 40/46] Input: xpad - support Ardwiino Controllers
-Date:   Sun,  6 Dec 2020 12:17:48 +0100
-Message-Id: <20201206111558.391682464@linuxfoundation.org>
+Subject: [PATCH 5.9 41/46] Input: i8042 - add ByteSpeed touchpad to noloop table
+Date:   Sun,  6 Dec 2020 12:17:49 +0100
+Message-Id: <20201206111558.439691299@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
 References: <20201206111556.455533723@linuxfoundation.org>
@@ -31,39 +31,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanjay Govind <sanjay.govind9@gmail.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-commit 2aab1561439032be2e98811dd0ddbeb5b2ae4c61 upstream.
+commit a48491c65b513e5cdc3e7a886a4db915f848a5f5 upstream.
 
-This commit adds support for Ardwiino Controllers
+It looks like the C15B laptop got another vendor: ByteSpeed LLC.
 
-Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
-Link: https://lore.kernel.org/r/20201201071922.131666-1-sanjay.govind9@gmail.com
+Avoid AUX loopback on this touchpad as well, thus input subsystem will
+be able to recognize a Synaptics touchpad in the AUX port.
+
+BugLink: https://bugs.launchpad.net/bugs/1906128
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/joystick/xpad.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -241,6 +241,7 @@ static const struct xpad_device {
- 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
-+	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0303, "Mortal Kombat Klassic FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-@@ -418,6 +419,7 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
- 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
- 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
-+	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -219,6 +219,10 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
+ 		},
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
++		},
+ 	},
+ 	{ }
+ };
 
 
