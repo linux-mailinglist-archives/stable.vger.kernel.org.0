@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 126632D043C
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 382112D03A5
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729279AbgLFLoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:44:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
+        id S1727993AbgLFLj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:39:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728304AbgLFLoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:44:04 -0500
+        id S1727953AbgLFLj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:27 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 03/46] ipv6: addrlabel: fix possible memory leak in ip6addrlbl_net_init
+Subject: [PATCH 4.14 08/20] netfilter: bridge: reset skb->pkt_type after NF_INET_POST_ROUTING traversal
 Date:   Sun,  6 Dec 2020 12:17:11 +0100
-Message-Id: <20201206111556.600905754@linuxfoundation.org>
+Message-Id: <20201206111555.953900920@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,84 +32,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit e255e11e66da8281e337e4e352956e8a4999fca4 ]
+[ Upstream commit 44f64f23bae2f0fad25503bc7ab86cd08d04cd47 ]
 
-kmemleak report a memory leak as follows:
+Netfilter changes PACKET_OTHERHOST to PACKET_HOST before invoking the
+hooks as, while it's an expected value for a bridge, routing expects
+PACKET_HOST. The change is undone later on after hook traversal. This
+can be seen with pairs of functions updating skb>pkt_type and then
+reverting it to its original value:
 
-unreferenced object 0xffff8880059c6a00 (size 64):
-  comm "ip", pid 23696, jiffies 4296590183 (age 1755.384s)
-  hex dump (first 32 bytes):
-    20 01 00 10 00 00 00 00 00 00 00 00 00 00 00 00   ...............
-    1c 00 00 00 00 00 00 00 00 00 00 00 07 00 00 00  ................
-  backtrace:
-    [<00000000aa4e7a87>] ip6addrlbl_add+0x90/0xbb0
-    [<0000000070b8d7f1>] ip6addrlbl_net_init+0x109/0x170
-    [<000000006a9ca9d4>] ops_init+0xa8/0x3c0
-    [<000000002da57bf2>] setup_net+0x2de/0x7e0
-    [<000000004e52d573>] copy_net_ns+0x27d/0x530
-    [<00000000b07ae2b4>] create_new_namespaces+0x382/0xa30
-    [<000000003b76d36f>] unshare_nsproxy_namespaces+0xa1/0x1d0
-    [<0000000030653721>] ksys_unshare+0x3a4/0x780
-    [<0000000007e82e40>] __x64_sys_unshare+0x2d/0x40
-    [<0000000031a10c08>] do_syscall_64+0x33/0x40
-    [<0000000099df30e7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+For hook NF_INET_PRE_ROUTING:
+  setup_pre_routing / br_nf_pre_routing_finish
 
-We should free all rules when we catch an error in ip6addrlbl_net_init().
-otherwise a memory leak will occur.
+For hook NF_INET_FORWARD:
+  br_nf_forward_ip / br_nf_forward_finish
 
-Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20201124071728.8385-1-wanghai38@huawei.com
+But the third case where netfilter does this, for hook
+NF_INET_POST_ROUTING, the packet type is changed in br_nf_post_routing
+but never reverted. A comment says:
+
+  /* We assume any code from br_dev_queue_push_xmit onwards doesn't care
+   * about the value of skb->pkt_type. */
+
+But when having a tunnel (say vxlan) attached to a bridge we have the
+following call trace:
+
+  br_nf_pre_routing
+  br_nf_pre_routing_ipv6
+     br_nf_pre_routing_finish
+  br_nf_forward_ip
+     br_nf_forward_finish
+  br_nf_post_routing           <- pkt_type is updated to PACKET_HOST
+     br_nf_dev_queue_xmit      <- but not reverted to its original value
+  vxlan_xmit
+     vxlan_xmit_one
+        skb_tunnel_check_pmtu  <- a check on pkt_type is performed
+
+In this specific case, this creates issues such as when an ICMPv6 PTB
+should be sent back. When CONFIG_BRIDGE_NETFILTER is enabled, the PTB
+isn't sent (as skb_tunnel_check_pmtu checks if pkt_type is PACKET_HOST
+and returns early).
+
+If the comment is right and no one cares about the value of
+skb->pkt_type after br_dev_queue_push_xmit (which isn't true), resetting
+it to its original value should be safe.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Link: https://lore.kernel.org/r/20201123174902.622102-1-atenart@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrlabel.c |   26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ net/bridge/br_netfilter_hooks.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/addrlabel.c
-+++ b/net/ipv6/addrlabel.c
-@@ -306,7 +306,9 @@ static int ip6addrlbl_del(struct net *ne
- /* add default label */
- static int __net_init ip6addrlbl_net_init(struct net *net)
- {
--	int err = 0;
-+	struct ip6addrlbl_entry *p = NULL;
-+	struct hlist_node *n;
-+	int err;
- 	int i;
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -716,6 +716,11 @@ static int br_nf_dev_queue_xmit(struct n
+ 	mtu_reserved = nf_bridge_mtu_reduction(skb);
+ 	mtu = skb->dev->mtu;
  
- 	ADDRLABEL(KERN_DEBUG "%s\n", __func__);
-@@ -315,14 +317,20 @@ static int __net_init ip6addrlbl_net_ini
- 	INIT_HLIST_HEAD(&net->ipv6.ip6addrlbl_table.head);
- 
- 	for (i = 0; i < ARRAY_SIZE(ip6addrlbl_init_table); i++) {
--		int ret = ip6addrlbl_add(net,
--					 ip6addrlbl_init_table[i].prefix,
--					 ip6addrlbl_init_table[i].prefixlen,
--					 0,
--					 ip6addrlbl_init_table[i].label, 0);
--		/* XXX: should we free all rules when we catch an error? */
--		if (ret && (!err || err != -ENOMEM))
--			err = ret;
-+		err = ip6addrlbl_add(net,
-+				     ip6addrlbl_init_table[i].prefix,
-+				     ip6addrlbl_init_table[i].prefixlen,
-+				     0,
-+				     ip6addrlbl_init_table[i].label, 0);
-+		if (err)
-+			goto err_ip6addrlbl_add;
++	if (nf_bridge->pkt_otherhost) {
++		skb->pkt_type = PACKET_OTHERHOST;
++		nf_bridge->pkt_otherhost = false;
 +	}
-+	return 0;
 +
-+err_ip6addrlbl_add:
-+	hlist_for_each_entry_safe(p, n, &net->ipv6.ip6addrlbl_table.head, list) {
-+		hlist_del_rcu(&p->list);
-+		kfree_rcu(p, rcu);
- 	}
- 	return err;
- }
+ 	if (nf_bridge->frag_max_size && nf_bridge->frag_max_size < mtu)
+ 		mtu = nf_bridge->frag_max_size;
+ 
+@@ -809,8 +814,6 @@ static unsigned int br_nf_post_routing(v
+ 	else
+ 		return NF_ACCEPT;
+ 
+-	/* We assume any code from br_dev_queue_push_xmit onwards doesn't care
+-	 * about the value of skb->pkt_type. */
+ 	if (skb->pkt_type == PACKET_OTHERHOST) {
+ 		skb->pkt_type = PACKET_HOST;
+ 		nf_bridge->pkt_otherhost = true;
 
 
