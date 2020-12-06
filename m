@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F272D03A0
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FBEB2D03C8
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbgLFLjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:39:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
+        id S1728541AbgLFLkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725767AbgLFLjK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:39:10 -0500
+        id S1728528AbgLFLkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:40:18 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matti Vuorela <matti.vuorela@bitfactor.fi>,
-        Yves-Alexis Perez <corsac@corsac.net>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 06/20] usbnet: ipheth: fix connectivity with iOS 14
+Subject: [PATCH 4.19 09/32] net/tls: Protect from calling tls_dev_del for TLS RX twice
 Date:   Sun,  6 Dec 2020 12:17:09 +0100
-Message-Id: <20201206111555.851837347@linuxfoundation.org>
+Message-Id: <20201206111556.220132315@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
-References: <20201206111555.569713359@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+References: <20201206111555.787862631@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,49 +32,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yves-Alexis Perez <corsac@corsac.net>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
+[ Upstream commit 025cc2fb6a4e84e9a0552c0017dcd1c24b7ac7da ]
 
-Starting with iOS 14 released in September 2020, connectivity using the
-personal hotspot USB tethering function of iOS devices is broken.
+tls_device_offload_cleanup_rx doesn't clear tls_ctx->netdev after
+calling tls_dev_del if TLX TX offload is also enabled. Clearing
+tls_ctx->netdev gets postponed until tls_device_gc_task. It leaves a
+time frame when tls_device_down may get called and call tls_dev_del for
+RX one extra time, confusing the driver, which may lead to a crash.
 
-Communication between the host and the device (for example ICMP traffic
-or DNS resolution using the DNS service running in the device itself)
-works fine, but communication to endpoints further away doesn't work.
+This patch corrects this racy behavior by adding a flag to prevent
+tls_device_down from calling tls_dev_del the second time.
 
-Investigation on the matter shows that no UDP and ICMP traffic from the
-tethered host is reaching the Internet at all. For TCP traffic there are
-exchanges between tethered host and server but packets are modified in
-transit leading to impossible communication.
-
-After some trials Matti Vuorela discovered that reducing the URB buffer
-size by two bytes restored the previous behavior. While a better
-solution might exist to fix the issue, since the protocol is not
-publicly documented and considering the small size of the fix, let's do
-that.
-
-Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
-Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
-Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
-Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
-Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
+Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20201125221810.69870-1-saeedm@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ipheth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/tls.h    |    6 ++++++
+ net/tls/tls_device.c |    5 ++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -70,7 +70,7 @@
- #define IPHETH_USBINTF_SUBCLASS 253
- #define IPHETH_USBINTF_PROTO    1
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -163,6 +163,12 @@ enum {
  
--#define IPHETH_BUF_SIZE         1516
-+#define IPHETH_BUF_SIZE         1514
- #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
- #define IPHETH_TX_TIMEOUT       (5 * HZ)
+ enum tls_context_flags {
+ 	TLS_RX_SYNC_RUNNING = 0,
++	/* tls_dev_del was called for the RX side, device state was released,
++	 * but tls_ctx->netdev might still be kept, because TX-side driver
++	 * resources might not be released yet. Used to prevent the second
++	 * tls_dev_del call in tls_device_down if it happens simultaneously.
++	 */
++	TLS_RX_DEV_CLOSED = 2,
+ };
  
+ struct cipher_context {
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -955,6 +955,8 @@ void tls_device_offload_cleanup_rx(struc
+ 	if (tls_ctx->tx_conf != TLS_HW) {
+ 		dev_put(netdev);
+ 		tls_ctx->netdev = NULL;
++	} else {
++		set_bit(TLS_RX_DEV_CLOSED, &tls_ctx->flags);
+ 	}
+ out:
+ 	up_read(&device_offload_lock);
+@@ -984,7 +986,8 @@ static int tls_device_down(struct net_de
+ 		if (ctx->tx_conf == TLS_HW)
+ 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
+ 							TLS_OFFLOAD_CTX_DIR_TX);
+-		if (ctx->rx_conf == TLS_HW)
++		if (ctx->rx_conf == TLS_HW &&
++		    !test_bit(TLS_RX_DEV_CLOSED, &ctx->flags))
+ 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
+ 							TLS_OFFLOAD_CTX_DIR_RX);
+ 		WRITE_ONCE(ctx->netdev, NULL);
 
 
