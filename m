@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBEB2D03C8
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E5A2D042A
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728541AbgLFLkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:40:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37418 "EHLO mail.kernel.org"
+        id S1729182AbgLFLng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728528AbgLFLkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:40:18 -0500
+        id S1729177AbgLFLng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:43:36 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 09/32] net/tls: Protect from calling tls_dev_del for TLS RX twice
-Date:   Sun,  6 Dec 2020 12:17:09 +0100
-Message-Id: <20201206111556.220132315@linuxfoundation.org>
+Subject: [PATCH 5.9 02/46] devlink: Make sure devlink instance and port are in same net namespace
+Date:   Sun,  6 Dec 2020 12:17:10 +0100
+Message-Id: <20201206111556.560207616@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
-References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
+References: <20201206111556.455533723@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,65 +31,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 025cc2fb6a4e84e9a0552c0017dcd1c24b7ac7da ]
+[ Upstream commit a7b43649507dae4e55ff0087cad4e4dd1c6d5b99 ]
 
-tls_device_offload_cleanup_rx doesn't clear tls_ctx->netdev after
-calling tls_dev_del if TLX TX offload is also enabled. Clearing
-tls_ctx->netdev gets postponed until tls_device_gc_task. It leaves a
-time frame when tls_device_down may get called and call tls_dev_del for
-RX one extra time, confusing the driver, which may lead to a crash.
+When devlink reload operation is not used, netdev of an Ethernet port may
+be present in different net namespace than the net namespace of the
+devlink instance.
 
-This patch corrects this racy behavior by adding a flag to prevent
-tls_device_down from calling tls_dev_del the second time.
+Ensure that both the devlink instance and devlink port netdev are located
+in same net namespace.
 
-Fixes: e8f69799810c ("net/tls: Add generic NIC offload infrastructure")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20201125221810.69870-1-saeedm@nvidia.com
+Fixes: 070c63f20f6c ("net: devlink: allow to change namespaces during reload")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    6 ++++++
- net/tls/tls_device.c |    5 ++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ net/core/devlink.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -163,6 +163,12 @@ enum {
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -626,9 +626,10 @@ static int devlink_nl_port_fill(struct s
+ 			devlink_port->desired_type))
+ 		goto nla_put_failure_type_locked;
+ 	if (devlink_port->type == DEVLINK_PORT_TYPE_ETH) {
++		struct net *net = devlink_net(devlink_port->devlink);
+ 		struct net_device *netdev = devlink_port->type_dev;
  
- enum tls_context_flags {
- 	TLS_RX_SYNC_RUNNING = 0,
-+	/* tls_dev_del was called for the RX side, device state was released,
-+	 * but tls_ctx->netdev might still be kept, because TX-side driver
-+	 * resources might not be released yet. Used to prevent the second
-+	 * tls_dev_del call in tls_device_down if it happens simultaneously.
-+	 */
-+	TLS_RX_DEV_CLOSED = 2,
- };
- 
- struct cipher_context {
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -955,6 +955,8 @@ void tls_device_offload_cleanup_rx(struc
- 	if (tls_ctx->tx_conf != TLS_HW) {
- 		dev_put(netdev);
- 		tls_ctx->netdev = NULL;
-+	} else {
-+		set_bit(TLS_RX_DEV_CLOSED, &tls_ctx->flags);
- 	}
- out:
- 	up_read(&device_offload_lock);
-@@ -984,7 +986,8 @@ static int tls_device_down(struct net_de
- 		if (ctx->tx_conf == TLS_HW)
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_TX);
--		if (ctx->rx_conf == TLS_HW)
-+		if (ctx->rx_conf == TLS_HW &&
-+		    !test_bit(TLS_RX_DEV_CLOSED, &ctx->flags))
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_RX);
- 		WRITE_ONCE(ctx->netdev, NULL);
+-		if (netdev &&
++		if (netdev && net_eq(net, dev_net(netdev)) &&
+ 		    (nla_put_u32(msg, DEVLINK_ATTR_PORT_NETDEV_IFINDEX,
+ 				 netdev->ifindex) ||
+ 		     nla_put_string(msg, DEVLINK_ATTR_PORT_NETDEV_NAME,
 
 
