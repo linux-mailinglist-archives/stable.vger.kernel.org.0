@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE84B2D049B
-	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D9E2D03DC
+	for <lists+stable@lfdr.de>; Sun,  6 Dec 2020 12:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729278AbgLFLri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 06:47:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42414 "EHLO mail.kernel.org"
+        id S1728600AbgLFLk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Dec 2020 06:40:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729089AbgLFLnG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Dec 2020 06:43:06 -0500
+        id S1728237AbgLFLjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Dec 2020 06:39:53 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 04/39] net/tls: missing received data after fast remote close
+Subject: [PATCH 4.14 05/20] tun: honor IOCB_NOWAIT flag
 Date:   Sun,  6 Dec 2020 12:17:08 +0100
-Message-Id: <20201206111554.881431827@linuxfoundation.org>
+Message-Id: <20201206111555.813046793@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206111554.677764505@linuxfoundation.org>
-References: <20201206111554.677764505@linuxfoundation.org>
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,50 +31,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 20ffc7adf53a5fd3d19751fbff7895bcca66686e ]
+[ Upstream commit 5aac0390a63b8718237a61dd0d24a29201d1c94a ]
 
-In case when tcp socket received FIN after some data and the
-parser haven't started before reading data caller will receive
-an empty buffer. This behavior differs from plain TCP socket and
-leads to special treating in user-space.
-The flow that triggers the race is simple. Server sends small
-amount of data right after the connection is configured to use TLS
-and closes the connection. In this case receiver sees TLS Handshake
-data, configures TLS socket right after Change Cipher Spec record.
-While the configuration is in process, TCP socket receives small
-Application Data record, Encrypted Alert record and FIN packet. So
-the TCP socket changes sk_shutdown to RCV_SHUTDOWN and sk_flag with
-SK_DONE bit set. The received data is not parsed upon arrival and is
-never sent to user-space.
+tun only checks the file O_NONBLOCK flag, but it should also be checking
+the iocb IOCB_NOWAIT flag. Any fops using ->read/write_iter() should check
+both, otherwise it breaks users that correctly expect O_NONBLOCK semantics
+if IOCB_NOWAIT is set.
 
-Patch unpauses parser directly if we have unparsed data in tcp
-receive queue.
-
-Fixes: fcf4793e278e ("tls: check RCV_SHUTDOWN in tls_wait_data")
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Link: https://lore.kernel.org/r/1605801588-12236-1-git-send-email-vfedorenko@novek.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/e9451860-96cc-c7c7-47b8-fe42cadd5f4c@kernel.dk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/tun.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1291,6 +1291,12 @@ static struct sk_buff *tls_wait_data(str
- 			return NULL;
- 		}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1601,12 +1601,15 @@ static ssize_t tun_chr_write_iter(struct
+ 	struct tun_struct *tun = tun_get(file);
+ 	struct tun_file *tfile = file->private_data;
+ 	ssize_t result;
++	int noblock = 0;
  
-+		if (!skb_queue_empty(&sk->sk_receive_queue)) {
-+			__strp_unpause(&ctx->strp);
-+			if (ctx->recv_pkt)
-+				return ctx->recv_pkt;
-+		}
+ 	if (!tun)
+ 		return -EBADFD;
+ 
+-	result = tun_get_user(tun, tfile, NULL, from,
+-			      file->f_flags & O_NONBLOCK, false);
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
 +
- 		if (sk->sk_shutdown & RCV_SHUTDOWN)
- 			return NULL;
++	result = tun_get_user(tun, tfile, NULL, from, noblock, false);
  
+ 	tun_put(tun);
+ 	return result;
+@@ -1789,10 +1792,15 @@ static ssize_t tun_chr_read_iter(struct
+ 	struct tun_file *tfile = file->private_data;
+ 	struct tun_struct *tun = __tun_get(tfile);
+ 	ssize_t len = iov_iter_count(to), ret;
++	int noblock = 0;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+-	ret = tun_do_read(tun, tfile, to, file->f_flags & O_NONBLOCK, NULL);
++
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
++
++	ret = tun_do_read(tun, tfile, to, noblock, NULL);
+ 	ret = min_t(ssize_t, ret, len);
+ 	if (ret > 0)
+ 		iocb->ki_pos = ret;
 
 
