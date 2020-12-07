@@ -2,86 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95B232D1452
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 16:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FFF2D14A5
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 16:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726660AbgLGPEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 10:04:47 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:8107 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726596AbgLGPEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 10:04:47 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5fce44670000>; Mon, 07 Dec 2020 07:04:07 -0800
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 7 Dec
- 2020 15:04:07 +0000
-Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Mon, 7 Dec 2020 15:04:07 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.9 00/46] 5.9.13-rc1 review
-In-Reply-To: <20201206111556.455533723@linuxfoundation.org>
-References: <20201206111556.455533723@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1726119AbgLGP0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 10:26:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725973AbgLGP0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 10:26:10 -0500
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C4FC061794
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 07:25:30 -0800 (PST)
+Received: by mail-il1-x143.google.com with SMTP id p5so12501086iln.8
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 07:25:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Uet7jOSWGSMmrkCLu1M1tIB1UFY2TuovlvGBTfJXDos=;
+        b=bXcPFPj7b/p9PTgaxnfklSaCtv5D3FXr72XlilxCgoH7Te/G8fvRzkps5xq3jTygKs
+         opwQZ2WxxEGGf4k58wF6Wu/xIfv6cZLBpeb6ESpHNstDcNN2atlqhrKjMgj51TsUUgRe
+         emMjGHc/GbQFLJMdsJgDkPjYKoNC033DRHtJEGoCcNioebRlKta55Z6VPTXbCPLfCVvb
+         kdweR6OSjziRs6CF3ezTWYBJCix21XaWPf04SkxxXXdTxOlmX6Qtbykp38423ggEa6Qa
+         I4HrQe85AZ6EjF0x2cVGQN2Z2tniU2F2/9cvcU1Ith70ER8LDyW/L6CCZrYYCXR+zpBQ
+         ZB/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Uet7jOSWGSMmrkCLu1M1tIB1UFY2TuovlvGBTfJXDos=;
+        b=qvTatKwVUMdD5ctJIA/udrpu81da42/RfT04gg4qv4/3evSRlXPKlw/6BUF3d3Sqg7
+         kGtsjeSqAzf/mGpuQ85ZIdPHb+aBKcOT+cqyr1TE7eOCqVc8FbhW7Sl2pywvbG4Wxsgg
+         fVNMYm8V9qMh7szALw0exCTnLLZ/jPiZmH2XA4jcd8kVSHpMSVTUyz3siXX60lwQZwpH
+         bRkSWh3RTbQZdFv1hrcKE3DvMSgwdg3vs9J2xmQKbwQ2U2DSWTwBVyU2T495dDUlaQjF
+         s0T2c3RhRsggYTGYjcve6V752lsQLsB8e6nYRQKxHGsJxKKLtIby4qypVM0+sCq29bLq
+         3KJg==
+X-Gm-Message-State: AOAM532dHZ0hwYJtgh713Yj+I0iYjJ3xBSpQHurypbIKZ4H7yfpFF8f8
+        xWsVo5lzmcxPeVUTQIs1ZZraK9L1b/qvg/d9tAigOQ==
+X-Google-Smtp-Source: ABdhPJwUyBnHZ0e8dS+madvprroq9nMIZZ/fa0+cNzOgpCjMXZ64sb7bWyd1XqnAk7TkvsgPDmLX8vLpTqHE2TGSz2I=
+X-Received: by 2002:a92:d0ca:: with SMTP id y10mr13211293ila.68.1607354729664;
+ Mon, 07 Dec 2020 07:25:29 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <c2df6c0f5b0249f781ba3f08bb98ec95@HQMAIL101.nvidia.com>
-Date:   Mon, 7 Dec 2020 15:04:07 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1607353447; bh=mGGu3044exJX36R3+t8MOX4OSRupUnrp1N+tEtt4B70=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=fYhMUuS0eos0rKjRQrKB2UOXdSZkERcAzd1ukffX93V5EYQ2LYx74Y4afFWj9ydQ7
-         zvYiTuHN6Wd/yJAvU0y4CkVdrfxMAxCRpRllL5zsMQiBESqBKIfioNd5kyt3pQop/5
-         eOjuTZz/7Vn+p0UgawTJ+YS73TzdYeEgBwofSUuMiu92tF3ApNMx40Q1vwdGxM7NSh
-         uPA2rrAo3KCaKD7fMfje9Qwu8LHILuj/YYTWQc2QqXGxUkt3Gty7wuNX+CfBAcOJOY
-         j+62uymT4aLIHu0bsPDHzUEuGGUVL9ReqTUSlEHQdxHLxmOQkPnlw+bAr1zvTCLqLl
-         3ljt19i6tT/DQ==
+References: <20201204180622.14285-1-abuehaze@amazon.com> <44E3AA29-F033-4B8E-A1BC-E38824B5B1E3@amazon.com>
+ <CANn89iJgJQfOeNr9aZHb+_Vozgd9v4S87Kf4iV=mKhuPDGLkEg@mail.gmail.com> <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com>
+In-Reply-To: <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Mon, 7 Dec 2020 16:25:17 +0100
+Message-ID: <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
+Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning
+ initialisation for high latency connections
+To:     "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
+Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "ycheng@google.com" <ycheng@google.com>,
+        "ncardwell@google.com" <ncardwell@google.com>,
+        "weiwan@google.com" <weiwan@google.com>,
+        "Strohman, Andy" <astroh@amazon.com>,
+        "Herrenschmidt, Benjamin" <benh@amazon.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 06 Dec 2020 12:17:08 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.9.13 release.
-> There are 46 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Sat, Dec 5, 2020 at 1:03 PM Mohamed Abuelfotoh, Hazem
+<abuehaze@amazon.com> wrote:
+>
+> Unfortunately few things are missing in this report.
+>
+>     What is the RTT between hosts in your test ?
+>      >>>>>RTT in my test is 162 msec, but I am able to reproduce it with =
+lower RTTs for example I could see the issue downloading from google   endp=
+oint with RTT of 16.7 msec, as mentioned in my previous e-mail the issue is=
+ reproducible whenever RTT exceeded 12msec given that    the sender is usin=
+g bbr.
+>
+>         RTT between hosts where I run the iperf test.
+>         # ping 54.199.163.187
+>         PING 54.199.163.187 (54.199.163.187) 56(84) bytes of data.
+>         64 bytes from 54.199.163.187: icmp_seq=3D1 ttl=3D33 time=3D162 ms
+>         64 bytes from 54.199.163.187: icmp_seq=3D2 ttl=3D33 time=3D162 ms
+>         64 bytes from 54.199.163.187: icmp_seq=3D3 ttl=3D33 time=3D162 ms
+>         64 bytes from 54.199.163.187: icmp_seq=3D4 ttl=3D33 time=3D162 ms
+>
+>         RTT between my EC2 instances and google endpoint.
+>         # ping 172.217.4.240
+>         PING 172.217.4.240 (172.217.4.240) 56(84) bytes of data.
+>         64 bytes from 172.217.4.240: icmp_seq=3D1 ttl=3D101 time=3D16.7 m=
+s
+>         64 bytes from 172.217.4.240: icmp_seq=3D2 ttl=3D101 time=3D16.7 m=
+s
+>         64 bytes from 172.217.4.240: icmp_seq=3D3 ttl=3D101 time=3D16.7 m=
+s
+>         64 bytes from 172.217.4.240: icmp_seq=3D4 ttl=3D101 time=3D16.7 m=
+s
+>
+>     What driver is used at the receiving side ?
+>       >>>>>>I am using ENA driver version version: 2.2.10g on the receive=
+r with scatter gathering enabled.
+>
+>         # ethtool -k eth0 | grep scatter-gather
+>         scatter-gather: on
+>                 tx-scatter-gather: on
+>                 tx-scatter-gather-fraglist: off [fixed]
 
-All tests passing for Tegra ...
+This ethtool output refers to TX scatter gather, which is not relevant
+for this bug.
 
-Test results for stable-v5.9:
-    15 builds:	15 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    64 tests:	64 pass, 0 fail
+I see ENA driver might use 16 KB per incoming packet (if ENA_PAGE_SIZE is 1=
+6 KB)
 
-Linux version:	5.9.13-rc1-g1372e1af58d4
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+Since I can not reproduce this problem with another NIC on x86, I
+really wonder if this is not an issue with ENA driver on PowerPC
+perhaps ?
