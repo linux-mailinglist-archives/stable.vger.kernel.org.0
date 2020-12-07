@@ -2,69 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D852D18CE
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 19:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D022D18E7
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 20:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725915AbgLGSy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 13:54:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41978 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725877AbgLGSy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Dec 2020 13:54:27 -0500
-Date:   Mon, 7 Dec 2020 10:53:45 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607367227;
-        bh=50Fbpy3MX6B8trLlZELaraTyt75dPDYAPrm+Bv+kS68=;
-        h=From:To:Cc:Subject:In-Reply-To:References:From;
-        b=amTGpTydm7QXBa9jITflWxd2+dZ0EfIdAUYMKy7Gkb4tt5VJQDYrjJHLI3uPWnPKc
-         RJWNRDGyaWkETYu84jN0Sv7ZT59nrgyFQ4f4s3x49JbG8lzxVchDyvZW7H2KH2+7sO
-         jM2CiZmK78bmiq59G4iokXDOnmz2+6WdrzTuNU/5d5jSLvlqbZqWHlPX2KZH7fS99d
-         wygCa8Yym49Jp2OYfkxm1OJo3O5+BpOkll26MTHRzcwqkhgfN1CqsHa7inwGWdHVkD
-         s8Zb18Av0oQzPzkNuocbbAWT03/+5HHYBX/euwhzU0LcdXp6Fneew0YKUOI1zMzesF
-         pDkgOSBV5Gbyg==
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
-Cc:     <netdev@vger.kernel.org>, <stable@vger.kernel.org>,
-        <edumazet@google.com>, <ycheng@google.com>, <ncardwell@google.com>,
-        <weiwan@google.com>, <astroh@amazon.com>, <benh@amazon.com>
-Subject: Re: [PATCH net] tcp: fix receive buffer autotuning to trigger for
- any valid advertised MSS
-Message-ID: <20201207105345.4a4474f3@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
-In-Reply-To: <20201207114625.9079-1-abuehaze@amazon.com>
-References: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
-        <20201207114625.9079-1-abuehaze@amazon.com>
+        id S1725774AbgLGTAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 14:00:54 -0500
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:34212 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725915AbgLGTAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 14:00:53 -0500
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0B7IxPUC093171;
+        Mon, 7 Dec 2020 12:59:25 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1607367565;
+        bh=l8AmyJmC8gTSyUoOze7WxgteJNUwxEVxb9g16VApPdw=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=uf3lKJX3Y7M0KMBKT9zU1izumbaHH2Db6t1lq3zwqAvdV1wzNSPmjQncDfG0tN/xr
+         Q+DwVpd/lP6v/7hRySH3XNULenJWlKsfSEtOyNI0KFP3/jAjJuS6X4LEJ1yhH6X66n
+         cqVT78yK+TdsyXpenbRQ6kEU3VJ4ziMXKN7Ddgks=
+Received: from DLEE102.ent.ti.com (dlee102.ent.ti.com [157.170.170.32])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0B7IxPMB031013
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 7 Dec 2020 12:59:25 -0600
+Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE102.ent.ti.com
+ (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Mon, 7 Dec
+ 2020 12:59:25 -0600
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Mon, 7 Dec 2020 12:59:24 -0600
+Received: from [10.250.233.179] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0B7IxLb3066531;
+        Mon, 7 Dec 2020 12:59:22 -0600
+Subject: Re: ping // [PATCH] mtd:cfi_cmdset_0002: fix atomic sleep bug when
+ CONFIG_MTD_XIP=y
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Xiaoming Ni <nixiaoming@huawei.com>
+CC:     <richard@nod.at>, <tudor.ambarus@microchip.com>,
+        <tglx@linutronix.de>, <linux-mtd@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>, <wangle6@huawei.com>
+References: <20201127130731.99270-1-nixiaoming@huawei.com>
+ <a02e1364-3b82-039a-4b65-e2a216663dd4@huawei.com>
+ <20201207115228.0a6de398@xps13>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <73b539eb-616e-64d8-07d8-4606da2ea2ea@ti.com>
+Date:   Tue, 8 Dec 2020 00:29:21 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20201207115228.0a6de398@xps13>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 7 Dec 2020 11:46:25 +0000 Hazem Mohamed Abuelfotoh wrote:
->     Previously receiver buffer auto-tuning starts after receiving
->     one advertised window amount of data.After the initial
->     receiver buffer was raised by
->     commit a337531b942b ("tcp: up initial rmem to 128KB
->     and SYN rwin to around 64KB"),the receiver buffer may
->     take too long for TCP autotuning to start raising
->     the receiver buffer size.
->     commit 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
->     tried to decrease the threshold at which TCP auto-tuning starts
->     but it's doesn't work well in some environments
->     where the receiver has large MTU (9001) especially with high RTT
->     connections as in these environments rcvq_space.space will be the same
->     as rcv_wnd so TCP autotuning will never start because
->     sender can't send more than rcv_wnd size in one round trip.
->     To address this issue this patch is decreasing the initial
->     rcvq_space.space so TCP autotuning kicks in whenever the sender is
->     able to send more than 5360 bytes in one round trip regardless the
->     receiver's configured MTU.
-> 
->     Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
->     Fixes: 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
-> 
-> Signed-off-by: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+Hi Xiaoming,
 
-If the discussion concludes in favor of this patch please un-indent
-this commit message, remove the empty line after the fixes tag, and 
-repost.
+On 12/7/20 4:23 PM, Miquel Raynal wrote:
+> Hi Xiaoming,
+> 
+> Xiaoming Ni <nixiaoming@huawei.com> wrote on Mon, 7 Dec 2020 18:48:33
+> +0800:
+> 
+>> ping
+>>
+>> On 2020/11/27 21:07, Xiaoming Ni wrote:
+>>> When CONFIG_MTD_XIP=y, local_irq_disable() is called in xip_disable().
+>>> To avoid sleep in interrupt context, we need to call local_irq_enable()
+>>> before schedule().
+>>>
+>>> The problem call stack is as follows:
+>>> bug1:
+>>> 	do_write_oneword_retry()
+>>> 		xip_disable()
+>>> 			local_irq_disable()
+>>> 		do_write_oneword_once()
+>>> 			schedule()
+>>> bug2:
+>>> 	do_write_buffer()
+>>> 		xip_disable()
+>>> 			local_irq_disable()
+>>> 		do_write_buffer_wait()
+>>> 			schedule()
+>>> bug3:
+>>> 	do_erase_chip()
+>>> 		xip_disable()
+>>> 			local_irq_disable()
+>>> 		schedule()
+>>> bug4:
+>>> 	do_erase_oneblock()
+>>> 		xip_disable()
+>>> 			local_irq_disable()
+>>> 		schedule()
+>>>
+>>> Fixes: 02b15e343aee ("[MTD] XIP for AMD CFI flash.")
+>>> Cc: stable@vger.kernel.org # v2.6.13
+>>> Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+>>> ---
+>>>   drivers/mtd/chips/cfi_cmdset_0002.c | 16 ++++++++++++++++
+>>>   1 file changed, 16 insertions(+)
+>>>
+>>> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+>>> index a1f3e1031c3d..12c3776f093a 100644
+>>> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
+>>> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+>>> @@ -1682,7 +1682,11 @@ static int __xipram do_write_oneword_once(struct map_info *map,
+>>>   			set_current_state(TASK_UNINTERRUPTIBLE);
+>>>   			add_wait_queue(&chip->wq, &wait);
+>>>   			mutex_unlock(&chip->mutex);
+>>> +			if (IS_ENABLED(CONFIG_MTD_XIP))
+>>> +				local_irq_enable();
+>>>   			schedule();
+>>> +			if (IS_ENABLED(CONFIG_MTD_XIP))
+>>> +				local_irq_disable();
+> 
+> The fix really seems strange to me. I will let Vignesh decide but I
+> think we should consider updating/fixing xip_disable instead.
+
+Agree with Miquel. Have you done any testing 
+or is this purely based on code inspection?
+
+What about comment before xip_disable() function:
+
+/*
+ * No interrupt what so ever can be serviced while the flash isn't in array
+ * mode.  This is ensured by the xip_disable() and xip_enable() functions
+ * enclosing any code path where the flash is known not to be in array mode.
+ * And within a XIP disabled code path, only functions marked with __xipram
+ * may be called and nothing else (it's a good thing to inspect generated
+ * assembly to make sure inline functions were actually inlined and that gcc
+ * didn't emit calls to its own support functions). Also configuring MTD CFI
+ * support to a single buswidth and a single interleave is also recommended.
+ */
+
+So, I don't think the fix is as simple as this patch.
+
+Regards
+Vignesh
