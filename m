@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26CC12D0F99
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 12:42:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B71772D0FAC
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 12:47:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbgLGLlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 06:41:44 -0500
-Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:52949 "EHLO
-        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726198AbgLGLln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 06:41:43 -0500
+        id S1726883AbgLGLrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 06:47:48 -0500
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:4564 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726874AbgLGLrs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 06:47:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1607341303; x=1638877303;
+  t=1607341668; x=1638877668;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version;
   bh=DT8dfGvHCH2RcZ5XMyxNuf8g5vxxb2qMyJp3K1JoGJg=;
-  b=b2/03PUMKdMHp+cpxeWCelnCrrVnHoULWoyd2xEbd256PUqKGBp0s31l
-   7FRt11XUNUehORp3tI8NgfgwHjaRebwx9A6nI7AYl0GB/SkyDexLNR49O
-   Qhx1R1zSHXvyYUiqA9Qv1VG8nXa2bAaVqzpJ836d8I8h8j/yI9aYLcV6i
-   0=;
+  b=o6Ucx1C/WbtLHxBaCKtQfqSPNPQA9CioGsYJZ69uG3mCFVXpPDIOSAPY
+   VsXBuHrfEr8SVJQc+2GI/vrh8NHY3fMD3+Tsy3hu/qfnil13QRTMU3784
+   cykhbpUH4HaQ3JNYu1I0iJjF+/ZlilzQZsiv4l2aOR4u5WgCZbST/owFw
+   I=;
 X-IronPort-AV: E=Sophos;i="5.78,399,1599523200"; 
-   d="scan'208";a="901101630"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2a-22cc717f.us-west-2.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 07 Dec 2020 11:41:00 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2a-22cc717f.us-west-2.amazon.com (Postfix) with ESMTPS id D7968A18C8;
-        Mon,  7 Dec 2020 11:40:59 +0000 (UTC)
-Received: from EX13D21UWB002.ant.amazon.com (10.43.161.177) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 11:40:59 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
- EX13D21UWB002.ant.amazon.com (10.43.161.177) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 11:40:59 +0000
+   d="scan'208";a="67686016"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-42f764a0.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 07 Dec 2020 11:47:00 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-1e-42f764a0.us-east-1.amazon.com (Postfix) with ESMTPS id E815AC1E3E;
+        Mon,  7 Dec 2020 11:46:58 +0000 (UTC)
+Received: from EX13D35UWC003.ant.amazon.com (10.43.162.130) by
+ EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 7 Dec 2020 11:46:58 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
+ EX13D35UWC003.ant.amazon.com (10.43.162.130) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 7 Dec 2020 11:46:58 +0000
 Received: from dev-dsk-abuehaze-1c-926c8132.eu-west-1.amazon.com
- (10.15.10.116) by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Mon, 7 Dec 2020 11:40:57 +0000
+ (10.15.10.116) by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP
+ Server id 15.0.1497.2 via Frontend Transport; Mon, 7 Dec 2020 11:46:57 +0000
 Received: by dev-dsk-abuehaze-1c-926c8132.eu-west-1.amazon.com (Postfix, from userid 5005603)
-        id 02A718846F; Mon,  7 Dec 2020 11:40:57 +0000 (UTC)
+        id 67F518846F; Mon,  7 Dec 2020 11:46:57 +0000 (UTC)
 From:   Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
 To:     <netdev@vger.kernel.org>
 CC:     <stable@vger.kernel.org>, <edumazet@google.com>,
@@ -46,11 +46,11 @@ CC:     <stable@vger.kernel.org>, <edumazet@google.com>,
         <astroh@amazon.com>, <benh@amazon.com>,
         Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
 Subject: [PATCH net] tcp: fix receive buffer autotuning to trigger for any valid advertised MSS
-Date:   Mon, 7 Dec 2020 11:40:49 +0000
-Message-ID: <20201207114049.7634-1-abuehaze@amazon.com>
+Date:   Mon, 7 Dec 2020 11:46:25 +0000
+Message-ID: <20201207114625.9079-1-abuehaze@amazon.com>
 X-Mailer: git-send-email 2.16.6
-In-Reply-To: <4ABEB85B-262F-4657-BB69-4F37ABC0AE3D@amazon.com>
-References: <4ABEB85B-262F-4657-BB69-4F37ABC0AE3D@amazon.com>
+In-Reply-To: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
+References: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
