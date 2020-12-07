@@ -2,154 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DAD2D0D54
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 10:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 785E02D0D58
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 10:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbgLGJqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 04:46:51 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61102 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726171AbgLGJqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 04:46:51 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0B79WOcW168278;
-        Mon, 7 Dec 2020 04:46:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=qmx8hvrRJxFyiLrlp8b06k21aRfjkyZgFB+jcnLR3No=;
- b=KykL/1rfa9s+cJ66P+GRekk11dDiysYTzZAd2aXh9jazomZzwiQiD9SBVjxBnBirGUtl
- 6cWSWxrT8nxMJgF//h9/HuXSn0Fk2nb2TOtpqF4yUiDfMWyAvimpYuEWnsAVD6TXKLwQ
- pYYwx4hb+NpJ1Ye6dIlcJ/44eV+u4onPAGZGfYe5vpTg5Fw8w2ZTI2P9CDkhxjCGYkqo
- /wqn6vgBRpn28lOZv8Z03FMWiXHB+PAheNl71Xy1Im/D5XyBTcXFVZ5khcHFnJVbtFUg
- VbijwnoMs38QfCjY3gRCRS6o+NaT/mNUL+kdTs8LSZq++dwwJ+Nq4plDtTgI6zic/8ow Iw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 359h3g9sjk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Dec 2020 04:46:03 -0500
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0B79WUjF168967;
-        Mon, 7 Dec 2020 04:46:03 -0500
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 359h3g9shk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Dec 2020 04:46:03 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0B79SESG003655;
-        Mon, 7 Dec 2020 09:46:01 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3581u82b62-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Dec 2020 09:46:01 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0B79jxIP9765500
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Dec 2020 09:45:59 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10A8DAE055;
-        Mon,  7 Dec 2020 09:45:59 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C69FEAE05A;
-        Mon,  7 Dec 2020 09:45:57 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.145.50.18])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  7 Dec 2020 09:45:57 +0000 (GMT)
-Date:   Mon, 7 Dec 2020 11:45:55 +0200
-From:   Mike Rapoport <rppt@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     akpm@linux-foundation.org, aarcange@redhat.com, bhe@redhat.com,
-        cai@lca.pw, mgorman@suse.de, mhocko@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
-Subject: Re: +
- mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
- added to -mm tree
-Message-ID: <20201207094555.GD1112728@linux.ibm.com>
-References: <20201206005401.qKuAVgOXr%akpm@linux-foundation.org>
- <cb3bfacb-821d-6251-03c5-498dd07727cd@redhat.com>
+        id S1726640AbgLGJrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 04:47:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726636AbgLGJrl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 04:47:41 -0500
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1AB9C0613D1
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 01:47:00 -0800 (PST)
+Received: by mail-ed1-x541.google.com with SMTP id b73so12965800edf.13
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 01:47:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Nh8hmJxQmwGFKjIJpdn8QfXbazqpO8ZVQJAcoMlQ+3o=;
+        b=VNKKV4Fly/daUxewGdtMaBZQ3fo5sOW0ocbXzN6TrjTXhToq3hpHiiGoAZUmsQ4SIV
+         IRBqAx1kcTdaPTKV3LXqS81IP4XzpDKoicUCe/282i82pvW5uEStjqQlvb1GYeEnhhq8
+         IEyENnFrFnku0OSJFb6OPWtjtaEbi7DPuucIeEy9IoK1t66W0bADcmNq66j6VIhqM6C8
+         zYM1oCKvCtNh/r+8goR2quYyQf9pb3LqncA9NWtqyJGam5COz2SpxCAaIo7CsMo/KIEn
+         ztpdnZka7o0zxFFkSgTB9AdDHH62hZpkfbnOClyS+eyXruK1jN2PwqSAKeL+d058UfN5
+         QlAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Nh8hmJxQmwGFKjIJpdn8QfXbazqpO8ZVQJAcoMlQ+3o=;
+        b=PFTqbrm0tgyzBwb3d/4rHDin9hGEKYAa12WW2e4t+a3DoycJTrXsHZrws15agv+lxB
+         aeFRSbNswG2LkotahoPSDnrdgJFj+uOM5gZYQVgpjda3xdRpKjOscp1sdipHd2X8lbJ9
+         Vo5bi5kHBR6kXI5jq4Px2kXiauqok3Ms3zMs39w/uycYoRSKZkBKp1Ku1xR/APbT2eGF
+         55EGoje++GdUO7ok2g8HXC02Hs4Hs0JJdtsCTWFsI3wSyb/4Is6qo/FwL6MVUJDWf6sj
+         v07cx87Y3zGgLqV0E3id7NZQRr9S04KKaCEndqkkuHkgHGc2iOx5thMuuFwhjZelqXJ5
+         vb+Q==
+X-Gm-Message-State: AOAM531XGsFHz20fXdnwy+MIsD/BdUjKWvs9WH0LSfd921jv2WyxesjD
+        3ug42kr+BkLVInvt6CUEzYSFVOygp9THZoNuuQ7ngA==
+X-Google-Smtp-Source: ABdhPJzytcBIbxeErCX98lt+bmjf0polBe3qHxsOL8Xewcp2KpuP5PRo8B85e7gd/4P0iLWTCYGrRYSaohcf8g8ew9U=
+X-Received: by 2002:aa7:cdc3:: with SMTP id h3mr12675680edw.52.1607334419167;
+ Mon, 07 Dec 2020 01:46:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cb3bfacb-821d-6251-03c5-498dd07727cd@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-12-07_08:2020-12-04,2020-12-07 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 clxscore=1015
- mlxscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0 suspectscore=6
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012070058
+References: <20201206111555.787862631@linuxfoundation.org>
+In-Reply-To: <20201206111555.787862631@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 7 Dec 2020 15:16:47 +0530
+Message-ID: <CA+G9fYv++q-swaWAgWifNvoLjMENOgeowwisVEy5Re5CgGSt7Q@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/32] 4.19.162-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 09:58:37AM +0100, David Hildenbrand wrote:
-> On 06.12.20 01:54, akpm@linux-foundation.org wrote:
-> > 
-> > The patch titled
-> >      Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
-> > has been added to the -mm tree.  Its filename is
-> >      mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
-> > 
-> > This patch should soon appear at
-> >     https://ozlabs.org/~akpm/mmots/broken-out/mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
-> > and later at
-> >     https://ozlabs.org/~akpm/mmotm/broken-out/mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
-> > 
-> > Before you just go and hit "reply", please:
-> >    a) Consider who else should be cc'ed
-> >    b) Prefer to cc a suitable mailing list as well
-> >    c) Ideally: find the original patch on the mailing list and do a
-> >       reply-to-all to that, adding suitable additional cc's
-> > 
-> > *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-> > 
-> > The -mm tree is included into linux-next and is updated
-> > there every 3-4 working days
-> > 
-> > ------------------------------------------------------
-> > From: Andrea Arcangeli <aarcange@redhat.com>
-> > Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
-> > 
-> > Without this change, the pfn 0 isn't in any zone spanned range, and it's
-> > also not in any memory.memblock range, so the struct page of pfn 0 wasn't
-> > initialized and the PagePoison remained set when reserve_bootmem_region
-> > called __SetPageReserved, inducing a silent boot failure with DEBUG_VM
-> > (and correctly so, because the crash signaled the nodeid/nid of pfn 0
-> > would be again wrong).
-> > 
-> > There's no enforcement that all memblock.reserved ranges must overlap
-> > memblock.memory ranges, so the memblock.reserved ranges also require an
-> > explicit initialization and the zones ranges need to be extended to
-> > include all memblock.reserved ranges with struct pages too or they'll be
-> > left uninitialized with PagePoison as it happened to pfn 0.
-> > 
-> > Link: https://lkml.kernel.org/r/20201205013238.21663-2-aarcange@redhat.com
-> > Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
-> > Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-> > Cc: Mike Rapoport <rppt@linux.ibm.com>
-> > Cc: Baoquan He <bhe@redhat.com>
-> > Cc: David Hildenbrand <david@redhat.com>
-> > Cc: Mel Gorman <mgorman@suse.de>
-> > Cc: Michal Hocko <mhocko@kernel.org>
-> > Cc: Qian Cai <cai@lca.pw>
-> > Cc: Vlastimil Babka <vbabka@suse.cz>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> 
-> [...]
-> 
-> I've lost track which patches are we considering right now to solve the
-> overall issue. I'd appreciate a proper patch series with all relevant
-> patches.
+On Sun, 6 Dec 2020 at 17:10, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.162 release.
+> There are 32 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.162-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I think none of the patches is 100% right.
-I'll try to send a new version today.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> -- 
-> Thanks,
-> 
-> David / dhildenb
-> 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
--- 
-Sincerely yours,
-Mike.
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.162-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 35a4debf26a46be2487f7401acf73ae8b7a4a3f1
+git describe: v4.19.161-33-g35a4debf26a4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.161-33-g35a4debf26a4
+
+No regressions (compared to build v4.19.161)
+
+No fixes (compared to build v4.19.161)
+
+Ran 42661 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-io-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* v4l2-compliance
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* kselftest
+* ltp-controllers-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
