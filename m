@@ -2,89 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D842D1433
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 15:59:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A89CD2D1457
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 16:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726069AbgLGO7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 09:59:10 -0500
-Received: from smtp84.iad3a.emailsrvr.com ([173.203.187.84]:41184 "EHLO
-        smtp84.iad3a.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725772AbgLGO7K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 09:59:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=g001.emailsrvr.com;
-        s=20190322-9u7zjiwi; t=1607353108;
-        bh=YcCxsxOfPO6UHXXPtFWvbo8Y59EzcSwClxJ/pTXEQXk=;
-        h=From:To:Subject:Date:From;
-        b=qv8lQ3ETEoUcUS/1ntSzwoTejOWzFaR56BDX9dQGos3O2LHMnx7H1DCrSOvWW34J3
-         mbAJDOsiIAJJ24wJlJ6L530BR5iA9OTgp4L4fG/OMYn9YPPk5ciEHeEQtruShi3Mop
-         bqwvnrNq06lmnmUhJQcqG2aZZExVlIBDnW4XpCK4=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1607353108;
-        bh=YcCxsxOfPO6UHXXPtFWvbo8Y59EzcSwClxJ/pTXEQXk=;
-        h=From:To:Subject:Date:From;
-        b=CGuL3ZqsZlUJsHoD47/zpBYT7xuIyLNDAuzKMsj42XLbrT74eDPthdoMkU6YInHjo
-         lPkCt/enujH2iETKEo/l89XTCnoCrdRYb19rEg78D/3DLyhCD5ogQN38SMLnE4dNUO
-         8SFriPulVBefdV6Bgy2u+8aaV862aKQhtvZDb7G4=
-X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp3.relay.iad3a.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id EDB7A22FA6;
-        Mon,  7 Dec 2020 09:58:27 -0500 (EST)
-From:   Ian Abbott <abbotti@mev.co.uk>
-To:     devel@driverdev.osuosl.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ian Abbott <abbotti@mev.co.uk>,
-        H Hartley Sweeten <hsweeten@visionengravers.com>,
-        stable@vger.kernel.org, Rostislav Lisovy <lisovy@gmail.com>
-Subject: [PATCH] staging: comedi: mf6x4: Fix AI end-of-conversion detection
-Date:   Mon,  7 Dec 2020 14:58:06 +0000
-Message-Id: <20201207145806.4046-1-abbotti@mev.co.uk>
-X-Mailer: git-send-email 2.29.2
+        id S1726456AbgLGPEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 10:04:45 -0500
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:2077 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726370AbgLGPEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 10:04:45 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5fce44650001>; Mon, 07 Dec 2020 07:04:05 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 7 Dec
+ 2020 15:04:05 +0000
+Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 7 Dec 2020 15:04:05 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.14 00/20] 4.14.211-rc1 review
+In-Reply-To: <20201206111555.569713359@linuxfoundation.org>
+References: <20201206111555.569713359@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Classification-ID: 547b1621-c35d-4a06-be47-8b7791185542-1-1
+Message-ID: <040b47c8b372449c8669642e6f202362@HQMAIL111.nvidia.com>
+Date:   Mon, 7 Dec 2020 15:04:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1607353445; bh=Jnp3KWraTodT3PmmwP69uY2iIr921v2kZKt34/dbIMM=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=myDYwYVRQ4teD9BGcYfxvTh7ToDredJPHsqYH+zytU0vZoc7cZLkVzElPB2EfcUCq
+         hBwMLrG2nWWNE/SD+5DvS5N1GEjN1p78gXC7IyPN3Wk257upuJBpGatDyzrY2WlwxC
+         +pq4/wA/Yn8MjIuh7kACNhajJ6MWl1yg9YHT6IB6obckOrM8amfc+TAZr5oWRm2VfH
+         SO/jP/7F9jorVpJ+aKiwqjNKRuiPnJ2wT1GWvwzWf+2amrPtKsDoFOznzV8tADg+og
+         ky+DMm41cNQUZhfByBDBMNrmAS8igIC7PTHABUuC5yvHmy51e2hQvumz/i1yHcftpu
+         B/m0YKN9Xav5A==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I have had reports from two different people that attempts to read the
-analog input channels of the MF624 board fail with an `ETIMEDOUT` error.
+On Sun, 06 Dec 2020 12:17:03 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.211 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.211-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-After triggering the conversion, the code calls `comedi_timeout()` with
-`mf6x4_ai_eoc()` as the callback function to check if the conversion is
-complete.  The callback returns 0 if complete or `-EBUSY` if not yet
-complete.  `comedi_timeout()` returns `-ETIMEDOUT` if it has not
-completed within a timeout period which is propagated as an error to the
-user application.
+All tests passing for Tegra ...
 
-The existing code considers the conversion to be complete when the EOLC
-bit is high.  However, according to the user manuals for the MF624 and
-MF634 boards, this test is incorrect because EOLC is an active low
-signal that goes high when the conversion is triggered, and goes low
-when the conversion is complete.  Fix the problem by inverting the test
-of the EOLC bit state.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    10 boots:	10 pass, 0 fail
+    16 tests:	16 pass, 0 fail
 
-Fixes: 04b565021a83 ("comedi: Humusoft MF634 and MF624 DAQ cards driver")
-Cc: <stable@vger.kernel.org> # v4.4+
-Cc: Rostislav Lisovy <lisovy@gmail.com>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
----
- drivers/staging/comedi/drivers/mf6x4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Linux version:	4.14.211-rc1-geea918eb2691
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-diff --git a/drivers/staging/comedi/drivers/mf6x4.c b/drivers/staging/comedi/drivers/mf6x4.c
-index ea430237efa7..9da8dd748078 100644
---- a/drivers/staging/comedi/drivers/mf6x4.c
-+++ b/drivers/staging/comedi/drivers/mf6x4.c
-@@ -112,8 +112,9 @@ static int mf6x4_ai_eoc(struct comedi_device *dev,
- 	struct mf6x4_private *devpriv = dev->private;
- 	unsigned int status;
- 
-+	/* EOLC goes low at end of conversion. */
- 	status = ioread32(devpriv->gpioc_reg);
--	if (status & MF6X4_GPIOC_EOLC)
-+	if ((status & MF6X4_GPIOC_EOLC) == 0)
- 		return 0;
- 	return -EBUSY;
- }
--- 
-2.29.2
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
+Jon
