@@ -2,135 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 463592D15B2
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 17:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C747C2D15E1
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 17:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726447AbgLGQKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 11:10:37 -0500
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:4001 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726016AbgLGQKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 11:10:37 -0500
+        id S1726588AbgLGQXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 11:23:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726190AbgLGQXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 11:23:43 -0500
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DFCC061794
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 08:23:03 -0800 (PST)
+Received: by mail-il1-x12c.google.com with SMTP id x15so12735162ilq.1
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 08:23:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1607357436; x=1638893436;
-  h=from:to:cc:date:message-id:references:in-reply-to:
-   content-id:mime-version:content-transfer-encoding:subject;
-  bh=X6Pnz/VS2dUkzkOXEYaW+HQ5ULk5mIZGqzHX1tDx63Q=;
-  b=OtU3zCwhffRMzFbKGuf9yj2b16dFDbqsYxsVAbjeWDlnTUPOWCx431WH
-   Lu727rPNByOWGi8u982cv3xSM5r0hmVxcvO4NU2vzQmqK8u92ykfw2rKR
-   1cju3bYaUg8TegmsNi15aXQxc9qmC6GJ5Emo9+x9mkO1wJT0qhk0NFYlP
-   c=;
-X-IronPort-AV: E=Sophos;i="5.78,400,1599523200"; 
-   d="scan'208";a="102322107"
-Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation
- for high latency connections
-Thread-Topic: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation for
- high latency connections
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1e-57e1d233.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 07 Dec 2020 16:09:48 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1e-57e1d233.us-east-1.amazon.com (Postfix) with ESMTPS id E37AD14175A;
-        Mon,  7 Dec 2020 16:09:46 +0000 (UTC)
-Received: from EX13D21UWB001.ant.amazon.com (10.43.161.108) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 16:09:46 +0000
-Received: from EX13D18EUA004.ant.amazon.com (10.43.165.164) by
- EX13D21UWB001.ant.amazon.com (10.43.161.108) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 16:09:45 +0000
-Received: from EX13D18EUA004.ant.amazon.com ([10.43.165.164]) by
- EX13D18EUA004.ant.amazon.com ([10.43.165.164]) with mapi id 15.00.1497.006;
- Mon, 7 Dec 2020 16:09:44 +0000
-From:   "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-To:     Eric Dumazet <edumazet@google.com>
-CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=RLakMiBjCoOYKyzZFq79kUYyOZCs6r9GTHNMlIsCCEg=;
+        b=sS4ACL4uzNdvOp9dlmMKjWl2w+KiflKWrg8i0tQ+fkvJA0efxe/CirbYfgbokq1ZAm
+         3HU2e8EXGThY1LWMTS/jXMv9CkvAMTrZqeGEsah0akkF9GxvuAhAyxg/qxghaa2GGXQu
+         bqHFTLZOV7vzvEwR/s4fyuG1jjYiTaZDH/85y3HktEXjZfkBl7gHSdkPa11i1SCGCG2p
+         sJ3AVXq0ftiBsXCUfAsJGQQx1eyfYI/hg1/UqgPN0wBZKdLf4ucSWpf/M1DodV1DTeJ9
+         N/BdcHBC9Fem2tZkTdeVp1HEPSZWMg5Jn5ymo4venotSDXnQ8ETgaVzsB3tERfpdvwS3
+         VJMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=RLakMiBjCoOYKyzZFq79kUYyOZCs6r9GTHNMlIsCCEg=;
+        b=NhPsGLOKOB9d3U9+Y8L/w+KWwze1Zo+tLtR+t8ZRgFGeD4922+L+qB1fjwKJXTXREe
+         3UDX6jtswVqPQm3cS11jExO3lbayKZrcW0Ud+WWIk64biXkA0eTnD1mjbKcZk1FsX/RF
+         jjG8bVCPck1PtKxkAwID6pByRk9D4CJdvvc6NJSYDa1snk4f0IV7M9PbwEjhdfzDkX7u
+         C0jCeMYykez0JgEZXT/beQINTXlPAmSap444sHYrgLNq05mNJm6Ei41ymNpVxEcFwPnE
+         q0N2eaXV5S/WuOj+r543RINSvktrijME85d+HxpJ6Pzhuo/NFDgr4t+hWUCzKOP6WdZ0
+         928w==
+X-Gm-Message-State: AOAM531lHRlKV7CormbbxuMs06g7T/1Pv/rnUfOC7lF/pu/vM564myUN
+        UKJsvrrh7cy4w4OOXlDQo8lyzDCiPWPN+I1rRCfKSA==
+X-Google-Smtp-Source: ABdhPJyhgrWvctUCqw924PbsjT90CPA2wurjKfWFYTlFN7Pz46WnMW5/2nbcfD1gI2WuzRIjrriWHliuIcDA4dpKiS0=
+X-Received: by 2002:a92:9f59:: with SMTP id u86mr22040429ili.205.1607358182183;
+ Mon, 07 Dec 2020 08:23:02 -0800 (PST)
+MIME-Version: 1.0
+References: <20201204180622.14285-1-abuehaze@amazon.com> <44E3AA29-F033-4B8E-A1BC-E38824B5B1E3@amazon.com>
+ <CANn89iJgJQfOeNr9aZHb+_Vozgd9v4S87Kf4iV=mKhuPDGLkEg@mail.gmail.com>
+ <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com> <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
+ <781BA871-5D3D-4C89-9629-81345CC41C5C@amazon.com>
+In-Reply-To: <781BA871-5D3D-4C89-9629-81345CC41C5C@amazon.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Mon, 7 Dec 2020 17:22:50 +0100
+Message-ID: <CANn89iK1G-YMWo07uByfUwrrK8QPvQPeFrRG1vJhB_OhJo7v2A@mail.gmail.com>
+Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning
+ initialisation for high latency connections
+To:     "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
+Cc:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "ycheng@google.com" <ycheng@google.com>,
         "ncardwell@google.com" <ncardwell@google.com>,
         "weiwan@google.com" <weiwan@google.com>,
         "Strohman, Andy" <astroh@amazon.com>,
         "Herrenschmidt, Benjamin" <benh@amazon.com>
-Thread-Index: AQHWym1GjWRxI1tB2UKaX8lFVs4qcanoaEaAgANdNICAAAxqgA==
-Date:   Mon, 7 Dec 2020 16:09:44 +0000
-Message-ID: <781BA871-5D3D-4C89-9629-81345CC41C5C@amazon.com>
-References: <20201204180622.14285-1-abuehaze@amazon.com>
- <44E3AA29-F033-4B8E-A1BC-E38824B5B1E3@amazon.com>
- <CANn89iJgJQfOeNr9aZHb+_Vozgd9v4S87Kf4iV=mKhuPDGLkEg@mail.gmail.com>
- <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com>
- <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
-In-Reply-To: <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-GB
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.165.102]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <1921906471BEC4428650D69C3DA68767@amazon.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ICAgID5TaW5jZSBJIGNhbiBub3QgcmVwcm9kdWNlIHRoaXMgcHJvYmxlbSB3aXRoIGFub3RoZXIg
-TklDIG9uIHg4NiwgSQ0KICAgID5yZWFsbHkgd29uZGVyIGlmIHRoaXMgaXMgbm90IGFuIGlzc3Vl
-IHdpdGggRU5BIGRyaXZlciBvbiBQb3dlclBDDQogICAgPnBlcmhhcHMgPw0KDQoNCkkgYW0gYWJs
-ZSB0byByZXByb2R1Y2UgaXQgb24geDg2IGJhc2VkIEVDMiBpbnN0YW5jZXMgdXNpbmcgRU5BICBv
-ciAgWGVuIG5ldGZyb250IG9yIEludGVsIGl4Z2JldmYgZHJpdmVyIG9uIHRoZSByZWNlaXZlciBz
-byBpdCdzIG5vdCBzcGVjaWZpYyB0byBFTkEsIHdlIHdlcmUgYWJsZSB0byBlYXNpbHkgcmVwcm9k
-dWNlIGl0IGJldHdlZW4gMiBWTXMgcnVubmluZyBpbiB2aXJ0dWFsIGJveCBvbiB0aGUgc2FtZSBw
-aHlzaWNhbCBob3N0IGNvbnNpZGVyaW5nIHRoZSBlbnZpcm9ubWVudCByZXF1aXJlbWVudHMgSSBt
-ZW50aW9uZWQgaW4gbXkgZmlyc3QgZS1tYWlsLg0KDQpXaGF0J3MgdGhlIFJUVCBiZXR3ZWVuIHRo
-ZSBzZW5kZXIgJiByZWNlaXZlciBpbiB5b3VyIHJlcHJvZHVjdGlvbj8gQXJlIHlvdSB1c2luZyBi
-YnIgb24gdGhlIHNlbmRlciBzaWRlPw0KDQpUaGFuayB5b3UuDQoNCkhhemVtDQoNCu+7v09uIDA3
-LzEyLzIwMjAsIDE1OjI2LCAiRXJpYyBEdW1hemV0IiA8ZWR1bWF6ZXRAZ29vZ2xlLmNvbT4gd3Jv
-dGU6DQoNCiAgICBDQVVUSU9OOiBUaGlzIGVtYWlsIG9yaWdpbmF0ZWQgZnJvbSBvdXRzaWRlIG9m
-IHRoZSBvcmdhbml6YXRpb24uIERvIG5vdCBjbGljayBsaW5rcyBvciBvcGVuIGF0dGFjaG1lbnRz
-IHVubGVzcyB5b3UgY2FuIGNvbmZpcm0gdGhlIHNlbmRlciBhbmQga25vdyB0aGUgY29udGVudCBp
-cyBzYWZlLg0KDQoNCg0KICAgIE9uIFNhdCwgRGVjIDUsIDIwMjAgYXQgMTowMyBQTSBNb2hhbWVk
-IEFidWVsZm90b2gsIEhhemVtDQogICAgPGFidWVoYXplQGFtYXpvbi5jb20+IHdyb3RlOg0KICAg
-ID4NCiAgICA+IFVuZm9ydHVuYXRlbHkgZmV3IHRoaW5ncyBhcmUgbWlzc2luZyBpbiB0aGlzIHJl
-cG9ydC4NCiAgICA+DQogICAgPiAgICAgV2hhdCBpcyB0aGUgUlRUIGJldHdlZW4gaG9zdHMgaW4g
-eW91ciB0ZXN0ID8NCiAgICA+ICAgICAgPj4+Pj5SVFQgaW4gbXkgdGVzdCBpcyAxNjIgbXNlYywg
-YnV0IEkgYW0gYWJsZSB0byByZXByb2R1Y2UgaXQgd2l0aCBsb3dlciBSVFRzIGZvciBleGFtcGxl
-IEkgY291bGQgc2VlIHRoZSBpc3N1ZSBkb3dubG9hZGluZyBmcm9tIGdvb2dsZSAgIGVuZHBvaW50
-IHdpdGggUlRUIG9mIDE2LjcgbXNlYywgYXMgbWVudGlvbmVkIGluIG15IHByZXZpb3VzIGUtbWFp
-bCB0aGUgaXNzdWUgaXMgcmVwcm9kdWNpYmxlIHdoZW5ldmVyIFJUVCBleGNlZWRlZCAxMm1zZWMg
-Z2l2ZW4gdGhhdCAgICB0aGUgc2VuZGVyIGlzIHVzaW5nIGJici4NCiAgICA+DQogICAgPiAgICAg
-ICAgIFJUVCBiZXR3ZWVuIGhvc3RzIHdoZXJlIEkgcnVuIHRoZSBpcGVyZiB0ZXN0Lg0KICAgID4g
-ICAgICAgICAjIHBpbmcgNTQuMTk5LjE2My4xODcNCiAgICA+ICAgICAgICAgUElORyA1NC4xOTku
-MTYzLjE4NyAoNTQuMTk5LjE2My4xODcpIDU2KDg0KSBieXRlcyBvZiBkYXRhLg0KICAgID4gICAg
-ICAgICA2NCBieXRlcyBmcm9tIDU0LjE5OS4xNjMuMTg3OiBpY21wX3NlcT0xIHR0bD0zMyB0aW1l
-PTE2MiBtcw0KICAgID4gICAgICAgICA2NCBieXRlcyBmcm9tIDU0LjE5OS4xNjMuMTg3OiBpY21w
-X3NlcT0yIHR0bD0zMyB0aW1lPTE2MiBtcw0KICAgID4gICAgICAgICA2NCBieXRlcyBmcm9tIDU0
-LjE5OS4xNjMuMTg3OiBpY21wX3NlcT0zIHR0bD0zMyB0aW1lPTE2MiBtcw0KICAgID4gICAgICAg
-ICA2NCBieXRlcyBmcm9tIDU0LjE5OS4xNjMuMTg3OiBpY21wX3NlcT00IHR0bD0zMyB0aW1lPTE2
-MiBtcw0KICAgID4NCiAgICA+ICAgICAgICAgUlRUIGJldHdlZW4gbXkgRUMyIGluc3RhbmNlcyBh
-bmQgZ29vZ2xlIGVuZHBvaW50Lg0KICAgID4gICAgICAgICAjIHBpbmcgMTcyLjIxNy40LjI0MA0K
-ICAgID4gICAgICAgICBQSU5HIDE3Mi4yMTcuNC4yNDAgKDE3Mi4yMTcuNC4yNDApIDU2KDg0KSBi
-eXRlcyBvZiBkYXRhLg0KICAgID4gICAgICAgICA2NCBieXRlcyBmcm9tIDE3Mi4yMTcuNC4yNDA6
-IGljbXBfc2VxPTEgdHRsPTEwMSB0aW1lPTE2LjcgbXMNCiAgICA+ICAgICAgICAgNjQgYnl0ZXMg
-ZnJvbSAxNzIuMjE3LjQuMjQwOiBpY21wX3NlcT0yIHR0bD0xMDEgdGltZT0xNi43IG1zDQogICAg
-PiAgICAgICAgIDY0IGJ5dGVzIGZyb20gMTcyLjIxNy40LjI0MDogaWNtcF9zZXE9MyB0dGw9MTAx
-IHRpbWU9MTYuNyBtcw0KICAgID4gICAgICAgICA2NCBieXRlcyBmcm9tIDE3Mi4yMTcuNC4yNDA6
-IGljbXBfc2VxPTQgdHRsPTEwMSB0aW1lPTE2LjcgbXMNCiAgICA+DQogICAgPiAgICAgV2hhdCBk
-cml2ZXIgaXMgdXNlZCBhdCB0aGUgcmVjZWl2aW5nIHNpZGUgPw0KICAgID4gICAgICAgPj4+Pj4+
-SSBhbSB1c2luZyBFTkEgZHJpdmVyIHZlcnNpb24gdmVyc2lvbjogMi4yLjEwZyBvbiB0aGUgcmVj
-ZWl2ZXIgd2l0aCBzY2F0dGVyIGdhdGhlcmluZyBlbmFibGVkLg0KICAgID4NCiAgICA+ICAgICAg
-ICAgIyBldGh0b29sIC1rIGV0aDAgfCBncmVwIHNjYXR0ZXItZ2F0aGVyDQogICAgPiAgICAgICAg
-IHNjYXR0ZXItZ2F0aGVyOiBvbg0KICAgID4gICAgICAgICAgICAgICAgIHR4LXNjYXR0ZXItZ2F0
-aGVyOiBvbg0KICAgID4gICAgICAgICAgICAgICAgIHR4LXNjYXR0ZXItZ2F0aGVyLWZyYWdsaXN0
-OiBvZmYgW2ZpeGVkXQ0KDQogICAgVGhpcyBldGh0b29sIG91dHB1dCByZWZlcnMgdG8gVFggc2Nh
-dHRlciBnYXRoZXIsIHdoaWNoIGlzIG5vdCByZWxldmFudA0KICAgIGZvciB0aGlzIGJ1Zy4NCg0K
-ICAgIEkgc2VlIEVOQSBkcml2ZXIgbWlnaHQgdXNlIDE2IEtCIHBlciBpbmNvbWluZyBwYWNrZXQg
-KGlmIEVOQV9QQUdFX1NJWkUgaXMgMTYgS0IpDQoNCiAgICBTaW5jZSBJIGNhbiBub3QgcmVwcm9k
-dWNlIHRoaXMgcHJvYmxlbSB3aXRoIGFub3RoZXIgTklDIG9uIHg4NiwgSQ0KICAgIHJlYWxseSB3
-b25kZXIgaWYgdGhpcyBpcyBub3QgYW4gaXNzdWUgd2l0aCBFTkEgZHJpdmVyIG9uIFBvd2VyUEMN
-CiAgICBwZXJoYXBzID8NCg0KCgoKQW1hem9uIFdlYiBTZXJ2aWNlcyBFTUVBIFNBUkwsIDM4IGF2
-ZW51ZSBKb2huIEYuIEtlbm5lZHksIEwtMTg1NSBMdXhlbWJvdXJnLCBSLkMuUy4gTHV4ZW1ib3Vy
-ZyBCMTg2Mjg0CgpBbWF6b24gV2ViIFNlcnZpY2VzIEVNRUEgU0FSTCwgSXJpc2ggQnJhbmNoLCBP
-bmUgQnVybGluZ3RvbiBQbGF6YSwgQnVybGluZ3RvbiBSb2FkLCBEdWJsaW4gNCwgSXJlbGFuZCwg
-YnJhbmNoIHJlZ2lzdHJhdGlvbiBudW1iZXIgOTA4NzA1CgoK
+On Mon, Dec 7, 2020 at 5:09 PM Mohamed Abuelfotoh, Hazem
+<abuehaze@amazon.com> wrote:
+>
+>     >Since I can not reproduce this problem with another NIC on x86, I
+>     >really wonder if this is not an issue with ENA driver on PowerPC
+>     >perhaps ?
+>
+>
+> I am able to reproduce it on x86 based EC2 instances using ENA  or  Xen n=
+etfront or Intel ixgbevf driver on the receiver so it's not specific to ENA=
+, we were able to easily reproduce it between 2 VMs running in virtual box =
+on the same physical host considering the environment requirements I mentio=
+ned in my first e-mail.
+>
+> What's the RTT between the sender & receiver in your reproduction? Are yo=
+u using bbr on the sender side?
 
+
+100ms RTT
+
+Which exact version of linux kernel are you using ?
+
+
+
+>
+> Thank you.
+>
+> Hazem
+>
+> =EF=BB=BFOn 07/12/2020, 15:26, "Eric Dumazet" <edumazet@google.com> wrote=
+:
+>
+>     CAUTION: This email originated from outside of the organization. Do n=
+ot click links or open attachments unless you can confirm the sender and kn=
+ow the content is safe.
+>
+>
+>
+>     On Sat, Dec 5, 2020 at 1:03 PM Mohamed Abuelfotoh, Hazem
+>     <abuehaze@amazon.com> wrote:
+>     >
+>     > Unfortunately few things are missing in this report.
+>     >
+>     >     What is the RTT between hosts in your test ?
+>     >      >>>>>RTT in my test is 162 msec, but I am able to reproduce it=
+ with lower RTTs for example I could see the issue downloading from google =
+  endpoint with RTT of 16.7 msec, as mentioned in my previous e-mail the is=
+sue is reproducible whenever RTT exceeded 12msec given that    the sender i=
+s using bbr.
+>     >
+>     >         RTT between hosts where I run the iperf test.
+>     >         # ping 54.199.163.187
+>     >         PING 54.199.163.187 (54.199.163.187) 56(84) bytes of data.
+>     >         64 bytes from 54.199.163.187: icmp_seq=3D1 ttl=3D33 time=3D=
+162 ms
+>     >         64 bytes from 54.199.163.187: icmp_seq=3D2 ttl=3D33 time=3D=
+162 ms
+>     >         64 bytes from 54.199.163.187: icmp_seq=3D3 ttl=3D33 time=3D=
+162 ms
+>     >         64 bytes from 54.199.163.187: icmp_seq=3D4 ttl=3D33 time=3D=
+162 ms
+>     >
+>     >         RTT between my EC2 instances and google endpoint.
+>     >         # ping 172.217.4.240
+>     >         PING 172.217.4.240 (172.217.4.240) 56(84) bytes of data.
+>     >         64 bytes from 172.217.4.240: icmp_seq=3D1 ttl=3D101 time=3D=
+16.7 ms
+>     >         64 bytes from 172.217.4.240: icmp_seq=3D2 ttl=3D101 time=3D=
+16.7 ms
+>     >         64 bytes from 172.217.4.240: icmp_seq=3D3 ttl=3D101 time=3D=
+16.7 ms
+>     >         64 bytes from 172.217.4.240: icmp_seq=3D4 ttl=3D101 time=3D=
+16.7 ms
+>     >
+>     >     What driver is used at the receiving side ?
+>     >       >>>>>>I am using ENA driver version version: 2.2.10g on the r=
+eceiver with scatter gathering enabled.
+>     >
+>     >         # ethtool -k eth0 | grep scatter-gather
+>     >         scatter-gather: on
+>     >                 tx-scatter-gather: on
+>     >                 tx-scatter-gather-fraglist: off [fixed]
+>
+>     This ethtool output refers to TX scatter gather, which is not relevan=
+t
+>     for this bug.
+>
+>     I see ENA driver might use 16 KB per incoming packet (if ENA_PAGE_SIZ=
+E is 16 KB)
+>
+>     Since I can not reproduce this problem with another NIC on x86, I
+>     really wonder if this is not an issue with ENA driver on PowerPC
+>     perhaps ?
+>
+>
+>
+>
+> Amazon Web Services EMEA SARL, 38 avenue John F. Kennedy, L-1855 Luxembou=
+rg, R.C.S. Luxembourg B186284
+>
+> Amazon Web Services EMEA SARL, Irish Branch, One Burlington Plaza, Burlin=
+gton Road, Dublin 4, Ireland, branch registration number 908705
+>
+>
