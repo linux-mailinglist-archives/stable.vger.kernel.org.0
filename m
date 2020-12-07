@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B56A2D1383
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 15:24:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59922D13A7
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 15:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgLGOYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 09:24:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S1727154AbgLGO15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 09:27:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725803AbgLGOYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Dec 2020 09:24:41 -0500
-Subject: patch "usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to" added to usb-testing
+        id S1727020AbgLGO15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Dec 2020 09:27:57 -0500
+Subject: patch "USB: dummy-hcd: Fix uninitialized array use in init()" added to usb-testing
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607351034;
-        bh=wO2+5+/UznH+aqisTjmhrv/MSX/YoqA7/Pt76MkH25k=;
+        s=korg; t=1607351231;
+        bh=S7d/obdW9zHWzInHftoUKcVT5D3ixt0IwKGxd1Oib1o=;
         h=To:From:Date:From;
-        b=JKOBzmPwcfJxxNn8nLjVqgepOU3QZBPmtPqxOABshSN2oA3c9/MdbI/zvEBKjkBRY
-         a5C7Bg0FI/krkEzQOFtme3sVIXTEkmEzNp7Ss4wJGMe2ZGP4L0dkx0FgsDqh4P46qj
-         42RRkUvDeI/gnIWBRY1vzrYefX8JW2sRdACrWmBY=
-To:     festevam@gmail.com, gregkh@linuxfoundation.org, peter.chen@nxp.com,
-        stable@vger.kernel.org
+        b=irjSHWyBD44Ou1bp/QEvXYNbLikPOJ0RoKlxRuVKWXDuDA4FTqbmSe2ya8S4LYkmG
+         sWITC4Z3DtgFTlBuYCqeCcL+Fzb0Y/6pONUrbz2yRcVzNKxL1vkpP1IxvlfU0ChTpU
+         1bYPQBLWRByaqPaDx57brRtk+59s4wU9esoluLKs=
+To:     minhquangbui99@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Dec 2020 15:24:57 +0100
-Message-ID: <160735109789206@kroah.com>
+Date:   Mon, 07 Dec 2020 15:28:21 +0100
+Message-ID: <160735130119229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to
+    USB: dummy-hcd: Fix uninitialized array use in init()
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -49,42 +49,43 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From c7721e15f434920145c376e8fe77e1c079fc3726 Mon Sep 17 00:00:00 2001
-From: Fabio Estevam <festevam@gmail.com>
-Date: Mon, 7 Dec 2020 10:09:09 +0800
-Subject: usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to
- imx6ul
+From e90cfa813da7a527785033a0b247594c2de93dd8 Mon Sep 17 00:00:00 2001
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+Date: Fri, 4 Dec 2020 06:24:49 +0000
+Subject: USB: dummy-hcd: Fix uninitialized array use in init()
 
-According to the i.MX6UL Errata document:
-https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
+This error path
 
-ERR007881 also affects i.MX6UL, so pass the
-CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
+	err_add_pdata:
+		for (i = 0; i < mod_data.num; i++)
+			kfree(dum[i]);
 
-Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201207020909.22483-2-peter.chen@kernel.org
+can be triggered when not all dum's elements are initialized.
+
+Fix this by initializing all dum's elements to NULL.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Link: https://lore.kernel.org/r/1607063090-3426-1-git-send-email-minhquangbui99@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/dummy_hcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
-index 25c65accf089..5e07a0a86d11 100644
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_usb_data = {
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index f6b407778179..ab5e978b5052 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2738,7 +2738,7 @@ static int __init init(void)
+ {
+ 	int	retval = -ENOMEM;
+ 	int	i;
+-	struct	dummy *dum[MAX_NUM_UDC];
++	struct	dummy *dum[MAX_NUM_UDC] = {};
  
- static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
- 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
--		CI_HDRC_TURN_VBUS_EARLY_ON,
-+		CI_HDRC_TURN_VBUS_EARLY_ON |
-+		CI_HDRC_DISABLE_DEVICE_STREAMING,
- };
- 
- static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+ 	if (usb_disabled())
+ 		return -ENODEV;
 -- 
 2.29.2
 
