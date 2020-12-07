@@ -2,171 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 212C92D1C07
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 22:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B99D2D1D3C
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 23:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726519AbgLGVZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 16:25:35 -0500
-Received: from mga04.intel.com ([192.55.52.120]:3683 "EHLO mga04.intel.com"
+        id S1727943AbgLGWVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 17:21:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725774AbgLGVZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Dec 2020 16:25:35 -0500
-IronPort-SDR: PzKWmiwReFtVwJ9TpbcPtlPF51IBLx4u465/Zu2YQBXQiUr+C2q21h3SizR51j9x8l/F4ByxiR
- G+UDCHEp9v+A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9828"; a="171207577"
-X-IronPort-AV: E=Sophos;i="5.78,400,1599548400"; 
-   d="scan'208";a="171207577"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2020 13:24:54 -0800
-IronPort-SDR: N/28dJUJNMCdJSszU2y/GklgeDWZuupTNFrDjIll6ESPmRcvHXN3YvNatn9tUolilbsIYqK7/b
- Xu1bc6jrBy0A==
-X-IronPort-AV: E=Sophos;i="5.78,400,1599548400"; 
-   d="scan'208";a="437100464"
-Received: from rchatre-mobl3.amr.corp.intel.com (HELO [10.209.61.193]) ([10.209.61.193])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2020 13:24:52 -0800
-Subject: Re: [PATCH 1/3] x86/resctrl: Move setting task's active CPU in a mask
- into helpers
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
-        kuo-lang.tseng@intel.com, shakeelb@google.com,
-        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
-        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <cover.1607036601.git.reinette.chatre@intel.com>
- <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
- <20201207182912.GF20489@zn.tnic>
-From:   Reinette Chatre <reinette.chatre@intel.com>
-Message-ID: <db6bea7e-b60b-2859-aa35-c3d2d5356eaa@intel.com>
-Date:   Mon, 7 Dec 2020 13:24:51 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        id S1726732AbgLGWVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Dec 2020 17:21:51 -0500
+X-Gm-Message-State: AOAM530Y4RPNG7ATFF7QlizZ8f8VkolG0qFPBQr26xnfY+Hvf1lKFAIq
+        oEHGMWCSw4PXD4wfhSanfkmjWZY/Wvze8RPGzQg=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607379670;
+        bh=sCcJWpX0VD2x5M0ltVav0fWl+0sJfwPhBIjWWJfpkN4=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bVTkd4MnyNNYU994HaUZmZE3ixj4WvbM/FYdDX/9BQfbbRUimJD8h5MacZdKQJ043
+         lCajon207vmafr0LKcu1QKPilFuaaRIFAS+Awf5U9qt+QoCXwwtJr20LRC8zT4U2bI
+         5yz5iIYrzZOu8pn1a/k5abgsfYzWk7RZyNutgdNydVQLDaKgdTTcDH4FxPoaFMsCvt
+         pfjfQsi1dEJ6MBqSXe51VUm7TfRrDIktlX8NFeVoVDe0hngzOcoKi7rwD3PYmZoQoc
+         r/K42iE84gtmFNBIOcL0QjWgKiAKC5ywmLT6TGsDj8ZXk0N4jlJaI6Uxyemg1lcjh5
+         DJ7z2eruLIKMw==
+X-Google-Smtp-Source: ABdhPJwYygf8qrTUBOO+Wa5ueaT8l0OO95kQFOnCCs59qFKZ8iFSeajVaUu5jMPZiOMxEtjWolWDy7+tP3Rb83ATiJQ=
+X-Received: by 2002:a9d:62c1:: with SMTP id z1mr14353388otk.108.1607379670012;
+ Mon, 07 Dec 2020 14:21:10 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201207182912.GF20489@zn.tnic>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <X8yoWHNzfl7vHVRA@kroah.com> <20201207172625.2888810-1-dann.frazier@canonical.com>
+ <CAMj1kXHdqaso9Vkm3KeKFntMBQeRTkY-fU1GW8K8rcxBbQbKBA@mail.gmail.com>
+ <CALdTtnv6VCBjvS-rtUTdhmLHkiJJrY+m4CLW4F8F89NEpZYF7A@mail.gmail.com>
+ <CAMj1kXFAn2bJgwpN+SkGQSzXVdssaZ0Sjpspn8n0QQn4MDk5CA@mail.gmail.com> <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
+In-Reply-To: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 7 Dec 2020 23:20:59 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXEPJZTwpM3kWUAsmJDdfsUpBJbuCiDLX9xgfvy4NPb4hQ@mail.gmail.com>
+Message-ID: <CAMj1kXEPJZTwpM3kWUAsmJDdfsUpBJbuCiDLX9xgfvy4NPb4hQ@mail.gmail.com>
+Subject: Re: [PATCH 4.4] Revert "crypto: arm64/sha - avoid non-standard inline
+ asm tricks"
+To:     dann frazier <dann.frazier@canonical.com>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Michael Schaller <misch@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthew Garrett <matthew.garrett@nebula.com>,
+        Jeremy Kerr <jk@ozlabs.org>,
+        linux-efi <linux-efi@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Borislav,
+On Mon, 7 Dec 2020 at 21:36, dann frazier <dann.frazier@canonical.com> wrote:
+>
+> On Mon, Dec 7, 2020 at 11:29 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> >
+> > On Mon, 7 Dec 2020 at 19:08, dann frazier <dann.frazier@canonical.com> wrote:
+> > >
+> > > On Mon, Dec 7, 2020 at 10:50 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > > >
+> > > > On Mon, 7 Dec 2020 at 18:26, dann frazier <dann.frazier@canonical.com> wrote:
+> > > > >
+> > > > > This reverts commit c042dd600f4e89b6e7bdffa00aea4d1d3c1e9686.
+> > > > >
+> > > > > This caused the build to emit ADR_PREL_PG_HI21 relocations in the sha{1,2}_ce
+> > > > > modules. This relocation type is not supported by the linux-4.4.y kernel
+> > > > > module loader when CONFIG_ARM64_ERRATUM_843419=y, which we have enabled, so
+> > > > > these modules now fail to load:
+> > > > >
+> > > > >   [   37.866250] module sha1_ce: unsupported RELA relocation: 275
+> > > > >
+> > > > > This issue does not exist with the backport to 4.9+. Bisection shows that
+> > > > > this is due to those kernels also having a backport of
+> > > > > commit 41c066f ("arm64: assembler: make adr_l work in modules under KASLR")
+> > > >
+> > > > Hi Dann,
+> > > >
+> > > > Would it be an option to backport 41c066f as well?
+> > >
+> > > Hi Ard,
+> > >
+> > > That was attempted before, but caused a build failure which would
+> > > still happen today:
+> > >   https://www.spinics.net/lists/stable/msg179709.html
+> > > Specifically, head.S still has a 3 argument usage of adr_l. I'm not
+> > > sure how to safely fix that up myself.
+> > >
+> >
+> > Given that the original reason for reverting the backport of 41c066f
+> > no longer holds (as there are other users of adr_l in v4.4 now), I
+> > think the best solution is to backport it again, but with the hunk
+> > below folded in. (This just replaces the macro invocation with its
+> > output when called with the 3 arguments in question, so the generated
+> > code is identical)
+> >
+> > --- a/arch/arm64/kernel/head.S
+> > +++ b/arch/arm64/kernel/head.S
+> > @@ -424,7 +424,8 @@ __mmap_switched:
+> >         str     xzr, [x6], #8                   // Clear BSS
+> >         b       1b
+> >  2:
+> > -       adr_l   sp, initial_sp, x4
+> > +       adrp    x4, initial_sp
+> > +       add     sp, x4, :lo12:initial_sp
+> >         str_l   x21, __fdt_pointer, x5          // Save FDT pointer
+> >         str_l   x24, memstart_addr, x6          // Save PHYS_OFFSET
+> >         mov     x29, #0
+>
+> Thanks Ard - that works. I'll follow-up with a backport patch.
+>
 
-Thank you very much for your review.
-
-On 12/7/2020 10:29 AM, Borislav Petkov wrote:
-> On Thu, Dec 03, 2020 at 03:25:48PM -0800, Reinette Chatre wrote:
->> From: Fenghua Yu <fenghua.yu@intel.com>
->>
->> The code of setting the CPU on which a task is running in a CPU mask is
->> moved into a couple of helpers.
-> 
-> Pls read section "2) Describe your changes" in
-> Documentation/process/submitting-patches.rst for more details.
-> 
-> More specifically:
-> 
-> "Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
-> instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
-> to do frotz", as if you are giving orders to the codebase to change
-> its behaviour."
-> 
->> The new helper task_on_cpu() will be reused shortly.
-> 
-> "reused shortly"? I don't think so.
-
-
-How about:
-"Move the setting of the CPU on which a task is running in a CPU mask 
-into a couple of helpers.
-
-There is no functional change. This is a preparatory change for the fix 
-in the following patch from where the Fixes tag is copied."
-
-> 
->>
->> Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
->> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
->> Reviewed-by: Tony Luck <tony.luck@intel.com>
->> Cc: stable@vger.kernel.org
-> 
-> Fixes?
-> 
-> I guess the same commit from the other two:
-> 
-> Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-> 
-> ?
-
-Correct. I will add it. The addition to the commit message above aims to 
-explain a Fixes tag to a patch with no functional changes.
-
-
->> ---
->>   arch/x86/kernel/cpu/resctrl/rdtgroup.c | 47 +++++++++++++++++++-------
->>   1 file changed, 34 insertions(+), 13 deletions(-)
->>
->> diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
->> index 6f4ca4bea625..68db7d2dec8f 100644
->> --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
->> +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
->> @@ -525,6 +525,38 @@ static void rdtgroup_remove(struct rdtgroup *rdtgrp)
->>   	kfree(rdtgrp);
->>   }
->>   
->> +#ifdef CONFIG_SMP
->> +/* Get the CPU if the task is on it. */
->> +static bool task_on_cpu(struct task_struct *t, int *cpu)
->> +{
->> +	/*
->> +	 * This is safe on x86 w/o barriers as the ordering of writing to
->> +	 * task_cpu() and t->on_cpu is reverse to the reading here. The
->> +	 * detection is inaccurate as tasks might move or schedule before
->> +	 * the smp function call takes place. In such a case the function
->> +	 * call is pointless, but there is no other side effect.
->> +	 */
->> +	if (t->on_cpu) {
->> +		*cpu = task_cpu(t);
-> 
-> Why have an I/O parameter when you can make it simply:
-> 
-> static int task_on_cpu(struct task_struct *t)
-> {
-> 	if (t->on_cpu)
-> 		return task_cpu(t);
-> 
-> 	return -1;
-> }
-> 
->> +
->> +		return true;
->> +	}
->> +
->> +	return false;
->> +}
->> +
->> +static void set_task_cpumask(struct task_struct *t, struct cpumask *mask)
->> +{
->> +	int cpu;
->> +
->> +	if (mask && task_on_cpu(t, &cpu))
->> +		cpumask_set_cpu(cpu, mask);
-> 
-> And that you can turn into:
-> 
-> 	if (!mask)
-> 		return;
-> 
-> 	cpu = task_on_cpu(t);
-> 	if (cpu < 0)
-> 		return;
-> 
-> 	cpumask_set_cpu(cpu, mask);
-> 
-> Readable and simple.
-> 
-> Hmm?
-> 
-
-Will do. Thank you very much.
-
-Reinette
+Excellent.
