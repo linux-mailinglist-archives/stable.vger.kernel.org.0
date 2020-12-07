@@ -2,104 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A452D17EF
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 18:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2372D17F6
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 18:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726048AbgLGRzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 12:55:17 -0500
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:46716 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726023AbgLGRzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 12:55:17 -0500
+        id S1725901AbgLGR4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 12:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44204 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725816AbgLGR4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 12:56:32 -0500
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B97E1C061793
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 09:55:52 -0800 (PST)
+Received: by mail-pg1-x541.google.com with SMTP id o5so9533933pgm.10
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 09:55:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1607363716; x=1638899716;
-  h=from:to:cc:date:message-id:references:in-reply-to:
-   content-id:mime-version:content-transfer-encoding:subject;
-  bh=DxhoOxY3Snlz0AlYX3OqaKrveIdDfacZacRO30hH30w=;
-  b=NwAg1hSVuvxIG20uGDchQ52jQe+AWWhwhxUooXrvl9BErrVCgoEQIee4
-   JNMXpnT/qv96NUJ5SuMX/yGJJfIeJft2JU6fQEtmmAH7BcW4J5j+nY13m
-   NE8IZwO4El7BXiPr6Ud7D/cGMS5aRt493jb3a0WbVSrhNnCRhRnrKs8k0
-   s=;
-X-IronPort-AV: E=Sophos;i="5.78,400,1599523200"; 
-   d="scan'208";a="71060851"
-Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation
- for high latency connections
-Thread-Topic: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation for
- high latency connections
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-859fe132.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 07 Dec 2020 17:54:35 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-2b-859fe132.us-west-2.amazon.com (Postfix) with ESMTPS id 21DCD226063;
-        Mon,  7 Dec 2020 17:54:34 +0000 (UTC)
-Received: from EX13D35UWB004.ant.amazon.com (10.43.161.230) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 17:54:33 +0000
-Received: from EX13D18EUA004.ant.amazon.com (10.43.165.164) by
- EX13D35UWB004.ant.amazon.com (10.43.161.230) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 17:54:32 +0000
-Received: from EX13D18EUA004.ant.amazon.com ([10.43.165.164]) by
- EX13D18EUA004.ant.amazon.com ([10.43.165.164]) with mapi id 15.00.1497.006;
- Mon, 7 Dec 2020 17:54:31 +0000
-From:   "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/VmFisjt6UGqmwTTXf3GTFuYTAxBMx/lKhpgg3iEckQ=;
+        b=SDkl+azn3j6wJQYmaW7uX1FAKZTrbAYcs3bEEK8W58m64eBXQGFSodepF4Vno7/s0U
+         qx43TSps/AVAygyg8CNyjB7Ysl0oub7lKLWdtFkc1ulfF/tDRVQlK0N6d0vyGtrgb9PT
+         VNaIvq2JFLKwPySsIzWaBuLtSJe/RB0m07BA0MeDOz5z6PT5a7xRvbWyn5LCz/ECZTgT
+         G4cW58zCHLwzpm9/Rt57K0LMnNdQnM4QKykvwSGS1CY7P/v1HYQ2e1FaHFezpmGgjWVT
+         8e5epbqobEbJUEBu8v8RXOeV9xQqhCyepIXwtCxE6I0DlAxgRlLlh79Q6b62J/0rrUsC
+         catw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/VmFisjt6UGqmwTTXf3GTFuYTAxBMx/lKhpgg3iEckQ=;
+        b=Ak+X4k/R4RezjzVUYnBYUtc/JfKHihWjeGTFduoRMN3rY5KRIiHn/8UuvT416fdBjT
+         UQrbaKhoLQwSdB8vzZTwhDXiNDFqpcRgpQnfIAiWG9GXa5neFZlQSKd4SSmRA0F6khWB
+         9YF0bvcGV/nQfQUxIHsPy+MeUDM8h7d77CWrViwRTiqywNovX+Ung5WQ2V1C/x1AS4cI
+         D6faEA5Nq7/C5ytQGkgCPgLCT3avniJ90Evg5hl7ZBW0VzOuSw8HF+3tsRR0E0lhel00
+         UFOvwrsQdbzvufADaCRnm/Y39gOHC1++dvkB77plBdB8HxUIk9Kem3u4Tnuhjt4dMmtv
+         10bg==
+X-Gm-Message-State: AOAM531UCYUpD21aLu7F59zX0WkG9YncNqXqqbgbPLLDCtWts+xFr/g4
+        HZG9Z9mrCZsWgYW5mNh1QZTn0g==
+X-Google-Smtp-Source: ABdhPJyhgMV4r8ALFI9/0TZ08Brv9RVOGMivqz8bi3q2HtDnWZIG+uHWQ2gge2KRqipIV8qSkJ00YQ==
+X-Received: by 2002:a63:4516:: with SMTP id s22mr19631724pga.45.1607363751999;
+        Mon, 07 Dec 2020 09:55:51 -0800 (PST)
+Received: from google.com (h208-100-161-3.bendor.broadband.dynamic.tds.net. [208.100.161.3])
+        by smtp.gmail.com with ESMTPSA id d20sm388733pjz.3.2020.12.07.09.55.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Dec 2020 09:55:51 -0800 (PST)
+Date:   Mon, 7 Dec 2020 09:55:48 -0800
+From:   Will McVicker <willmcvicker@google.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     Eric Dumazet <edumazet@google.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "ycheng@google.com" <ycheng@google.com>,
-        "ncardwell@google.com" <ncardwell@google.com>,
-        "weiwan@google.com" <weiwan@google.com>,
-        "Strohman, Andy" <astroh@amazon.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>
-Thread-Index: AQHWym1GjWRxI1tB2UKaX8lFVs4qcanoaEaAgANdNICAAAxqgIAAA6oAgAADYgCAABPjgIAAAlmA
-Date:   Mon, 7 Dec 2020 17:54:31 +0000
-Message-ID: <D78D31DF-F032-4EFB-BB79-31750797908D@amazon.com>
-References: <20201204180622.14285-1-abuehaze@amazon.com>
- <44E3AA29-F033-4B8E-A1BC-E38824B5B1E3@amazon.com>
- <CANn89iJgJQfOeNr9aZHb+_Vozgd9v4S87Kf4iV=mKhuPDGLkEg@mail.gmail.com>
- <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com>
- <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
- <781BA871-5D3D-4C89-9629-81345CC41C5C@amazon.com>
- <CANn89iK1G-YMWo07uByfUwrrK8QPvQPeFrRG1vJhB_OhJo7v2A@mail.gmail.com>
- <05E336BF-BAF7-432D-85B5-4B06CD02D34C@amazon.com>
- <X85qX19mo5XesW8b@kroah.com>
-In-Reply-To: <X85qX19mo5XesW8b@kroah.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-GB
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.164.78]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5226238BFAB94F4CBAAE16665DC56A53@amazon.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        security@kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Will Coster <willcoster@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v1] HID: make arrays usage and value to be the same
+Message-ID: <X85spIzp1/gRxvKr@google.com>
+References: <20201205004848.2541215-1-willmcvicker@google.com>
+ <X8tMDQTls/RcTSAy@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X8tMDQTls/RcTSAy@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PjUuNC4wLXJjNiBpcyBhIHZlcnkgb2xkIGFuZCBvZGQga2VybmVsIHRvIGJlIGRvaW5nIGFueXRo
-aW5nIHdpdGguICBBcmUNCj55b3Ugc3VyZSB5b3UgZG9uJ3QgbWVhbiAiNS4xMC1yYzYiIGhlcmU/
-DQoNCkkgd2FzIGFibGUgdG8gcmVwcm9kdWNlIGl0IG9uIHRoZSBsYXRlc3QgbWFpbmxpbmUga2Vy
-bmVsIGFzIHdlbGwgIHNvIGFueXRoaW5nIG5ld2VyIHRoYW4gNC4xOS44NSBpcyBqdXN0IGJyb2tl
-bi4NCg0KVGhhbmsgeW91Lg0KDQpIYXplbQ0KDQrvu79PbiAwNy8xMi8yMDIwLCAxNzo0NSwgIkdy
-ZWcgS0giIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4gd3JvdGU6DQoNCiAgICBDQVVUSU9O
-OiBUaGlzIGVtYWlsIG9yaWdpbmF0ZWQgZnJvbSBvdXRzaWRlIG9mIHRoZSBvcmdhbml6YXRpb24u
-IERvIG5vdCBjbGljayBsaW5rcyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5b3UgY2FuIGNv
-bmZpcm0gdGhlIHNlbmRlciBhbmQga25vdyB0aGUgY29udGVudCBpcyBzYWZlLg0KDQoNCg0KICAg
-IE9uIE1vbiwgRGVjIDA3LCAyMDIwIGF0IDA0OjM0OjU3UE0gKzAwMDAsIE1vaGFtZWQgQWJ1ZWxm
-b3RvaCwgSGF6ZW0gd3JvdGU6DQogICAgPiAxMDBtcyBSVFQNCiAgICA+DQogICAgPiA+V2hpY2gg
-ZXhhY3QgdmVyc2lvbiBvZiBsaW51eCBrZXJuZWwgYXJlIHlvdSB1c2luZyA/DQogICAgPiBPbiB0
-aGUgcmVjZWl2ZXIgc2lkZSBJIGNvdWxkIHNlZSB0aGUgaXNzdWUgd2l0aCBhbnkgbWFpbmxpbmUg
-a2VybmVsDQogICAgPiB2ZXJzaW9uID49NC4xOS44NiB3aGljaCBpcyB0aGUgZmlyc3Qga2VybmVs
-IHZlcnNpb24gdGhhdCBoYXMgcGF0Y2hlcw0KICAgID4gWzFdICYgWzJdIGluY2x1ZGVkLiAgT24g
-dGhlIHNlbmRlciBJIGFtIHVzaW5nIGtlcm5lbCA1LjQuMC1yYzYuDQoNCiAgICA1LjQuMC1yYzYg
-aXMgYSB2ZXJ5IG9sZCBhbmQgb2RkIGtlcm5lbCB0byBiZSBkb2luZyBhbnl0aGluZyB3aXRoLiAg
-QXJlDQogICAgeW91IHN1cmUgeW91IGRvbid0IG1lYW4gIjUuMTAtcmM2IiBoZXJlPw0KDQogICAg
-dGhhbmtzLA0KDQogICAgZ3JlZyBrLWgNCg0KCgoKQW1hem9uIFdlYiBTZXJ2aWNlcyBFTUVBIFNB
-UkwsIDM4IGF2ZW51ZSBKb2huIEYuIEtlbm5lZHksIEwtMTg1NSBMdXhlbWJvdXJnLCBSLkMuUy4g
-THV4ZW1ib3VyZyBCMTg2Mjg0CgpBbWF6b24gV2ViIFNlcnZpY2VzIEVNRUEgU0FSTCwgSXJpc2gg
-QnJhbmNoLCBPbmUgQnVybGluZ3RvbiBQbGF6YSwgQnVybGluZ3RvbiBSb2FkLCBEdWJsaW4gNCwg
-SXJlbGFuZCwgYnJhbmNoIHJlZ2lzdHJhdGlvbiBudW1iZXIgOTA4NzA1CgoK
+On Sat, Dec 05, 2020 at 09:59:57AM +0100, Greg KH wrote:
+> On Sat, Dec 05, 2020 at 12:48:48AM +0000, Will McVicker wrote:
+> > The HID subsystem allows an "HID report field" to have a different
+> > number of "values" and "usages" when it is allocated. When a field
+> > struct is created, the size of the usage array is guaranteed to be at
+> > least as large as the values array, but it may be larger. This leads to
+> > a potential out-of-bounds write in
+> > __hidinput_change_resolution_multipliers() and an out-of-bounds read in
+> > hidinput_count_leds().
+> > 
+> > To fix this, let's make sure that both the usage and value arrays are
+> > the same size.
+> > 
+> > Signed-off-by: Will McVicker <willmcvicker@google.com>
+> 
+> Any reason not to also add a cc: stable on this?
+No reason not to include stable. CC'd here.
 
+> 
+> And, has this always been the case, or was this caused by some specific
+> commit in the past?  If so, a "Fixes:" tag is always nice to included.
+I dug into the history and it's been like this for the past 10 years. So yeah
+pretty much always like this.
+
+> 
+> And finally, as you have a fix for this already, no need to cc:
+> security@k.o as there's nothing the people there can do about it now :)
+Is that short for security@kernel.org? If yes, then I did include them. If no,
+do you mind explaining?
+
+> 
+> thanks,
+> 
+> greg k-h
