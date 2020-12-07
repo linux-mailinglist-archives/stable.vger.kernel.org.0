@@ -2,148 +2,306 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5F52D09BC
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 05:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 253142D0A40
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 06:41:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728657AbgLGEdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Dec 2020 23:33:22 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:24483 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726489AbgLGEdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Dec 2020 23:33:21 -0500
-Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20201207043237epoutp01cfde2d4beeb58eb94911687166fbfcc5~OVPvlt9_X1262612626epoutp01i
-        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 04:32:37 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20201207043237epoutp01cfde2d4beeb58eb94911687166fbfcc5~OVPvlt9_X1262612626epoutp01i
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1607315557;
-        bh=Tide8Qzcd1wBEYRq2DlXDubvem7js4dUXECRaFokmXc=;
-        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-        b=XtdAxiwbZgdui4X79mt04WVggwG3I+WMz8qpvT3EgwvFvhk9pq+1LUWEWQ0Y1bk6p
-         kkcyMCeeYLhYzjMxE2/e9VCOHhMCn1e05BDX0834JczqkYtvB2MvC55KvBlxVNNsH6
-         iAFRhCUA4EUtbxDgz82zqlpWJIAt5wgSjEo2vluM=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas1p3.samsung.com (KnoxPortal) with ESMTP id
-        20201207043236epcas1p383bb508d91e04de0b81786c5f5e515c8~OVPufl6-w2791327913epcas1p36;
-        Mon,  7 Dec 2020 04:32:36 +0000 (GMT)
-Received: from epsmges1p4.samsung.com (unknown [182.195.40.166]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4Cq9QW5FjZz4x9Ps; Mon,  7 Dec
-        2020 04:32:35 +0000 (GMT)
-Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
-        epsmges1p4.samsung.com (Symantec Messaging Gateway) with SMTP id
-        B8.E8.10463.360BDCF5; Mon,  7 Dec 2020 13:32:35 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20201207043235epcas1p1446adf522518089bb229d3aaa91e3f55~OVPs_Nu-D1972719727epcas1p1C;
-        Mon,  7 Dec 2020 04:32:35 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20201207043235epsmtrp11ce9e709c29e6221a547d4c89bfc896c~OVPs9kkBX2580925809epsmtrp1P;
-        Mon,  7 Dec 2020 04:32:35 +0000 (GMT)
-X-AuditID: b6c32a38-f11ff700000028df-c3-5fcdb0630ea5
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        56.93.08745.260BDCF5; Mon,  7 Dec 2020 13:32:34 +0900 (KST)
-Received: from namjaejeon01 (unknown [10.88.104.63]) by epsmtip2.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20201207043234epsmtip2da9617598b3c34589b2e32954f381a4f~OVPsxKuWe1231112311epsmtip2N;
-        Mon,  7 Dec 2020 04:32:34 +0000 (GMT)
-From:   "Namjae Jeon" <namjae.jeon@samsung.com>
-To:     "'Artem Labazov'" <123321artyom@gmail.com>
-Cc:     <stable@vger.kernel.org>,
-        "'Sungjong Seo'" <sj1557.seo@samsung.com>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20201204133348.555024-1-123321artyom@gmail.com>
-Subject: RE: [PATCH v2] exfat: Avoid allocating upcase table using kcalloc()
-Date:   Mon, 7 Dec 2020 13:32:34 +0900
-Message-ID: <000301d6cc51$fc2b6d10$f4824730$@samsung.com>
+        id S1725802AbgLGFgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 00:36:25 -0500
+Received: from mx2.suse.de ([195.135.220.15]:59754 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725681AbgLGFgZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Dec 2020 00:36:25 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1607319337; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SlqEwKkshET0nQ8kpRs2olYJF5K/bt1gdgtQI5Gp+F4=;
+        b=nqYBqpXfgqRr+33q10Krux50tmOacjuAucpK22uUjYS0RL+dB6isCfmKuww+SPDYdXwD8C
+        0of14QowTzPaWvK2t210QzCVEpfAEcfqwTBEDab27UQyEVxF2WhSKaqmqybhiHBmsnmBs8
+        cEmS2KOsG7t94BJqwz/aN2wIPLrZ2zM=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 6B325AC9A;
+        Mon,  7 Dec 2020 05:35:37 +0000 (UTC)
+Subject: Re: [PATCH] Revert "xen: add helpers to allocate unpopulated memory"
+To:     =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
+        <marmarek@invisiblethingslab.com>, xen-devel@lists.xenproject.org
+Cc:     stable@vger.kernel.org,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Simon Leiner <simon@leiner.me>,
+        Yan Yankovskyi <yyankovskyi@gmail.com>,
+        Roger Pau Monne <roger.pau@citrix.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:DRM DRIVERS FOR XEN" <dri-devel@lists.freedesktop.org>
+References: <20201206172242.1249689-1-marmarek@invisiblethingslab.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <e04a91c2-3e2e-7052-14fc-9915f9cf6589@suse.com>
+Date:   Mon, 7 Dec 2020 06:35:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQJLXyJfxD6HCJurO6uIAS3PJP5HfAKOOt2OAQ3muqmo5QRQEA==
-Content-Language: ko
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmphk+LIzCtJLcpLzFFi42LZdlhTTzd5w9l4g7srVCw23fzGarFn70kW
-        i8u75rBZbPl3hNViwcZHjA6sHjtn3WX36NuyitHj8ya5AOaoHJuM1MSU1CKF1Lzk/JTMvHRb
-        Je/geOd4UzMDQ11DSwtzJYW8xNxUWyUXnwBdt8wcoJVKCmWJOaVAoYDE4mIlfTubovzSklSF
-        jPziElul1IKUnAJDgwK94sTc4tK8dL3k/FwrQwMDI1OgyoScjAvnjrAWnOGumD/pM2MD4yXO
-        LkZODgkBE4l1/fPZuhi5OIQEdjBK/Fi+mwXC+cQoceb+XGYI5zOjxNv509lgWs6074Nq2cUo
-        sf7xHEYI5yWjxK7bv9hBqtgEdCX+/dkP1iEioCdxYucOsFHMAl2MEv+mzmYFSXAK2EpMnn4e
-        rEFYwEdi0982RhCbRUBFYuKcDqAaDg5eAUuJrjUCIGFeAUGJkzOfsIDYzALyEtvfzmGGuEhB
-        4ufTZawQu5wkHm+bwQxRIyIxu7MNbK+EwF92idmHLkO94CJxftFtVghbWOLV8S3sELaUxMv+
-        NnaQvRIC1RIf90PN72CUePHdFsI2lri5fgPYacwCmhLrd+lDhBUldv6eywixlk/i3dceVogp
-        vBIdbUIQJaoSfZcOM0HY0hJd7R/YJzAqzULy2Cwkj81C8sAshGULGFlWMYqlFhTnpqcWGxaY
-        IEf2JkZwctSy2ME49+0HvUOMTByMhxglOJiVRHjVpM7GC/GmJFZWpRblxxeV5qQWH2I0BYb0
-        RGYp0eR8YHrOK4k3NDUyNja2MDEzNzM1VhLn/aPdES8kkJ5YkpqdmlqQWgTTx8TBKdXA5HD5
-        +snUExO8BXSyEraoJp7+ErG23v3QUSclnf17n/5aH77ikQfviTm1Qo0ZMZYfahkdN0R8WiuW
-        vOaoUV1CvUCTQVPtxZbcdf+D11ssuXhUg2vR7MhUzmQ28U+ciru+XxEQ6hfxdHDY3P6zcYqJ
-        zSeOmH0ii72F587fqybWp/dF/rM/i6fRgattD3+F8pm/jdCa9/PFJY13QRsVveuqf87Ie273
-        5/GpQwUqd3eIM62sy3p77PrPH6/lLxxo72m0apsXEeDKpHVrwrv5HFu8L8cX3DxRYX9y5yLf
-        4vzL+7bHH7xZHPxGdmed5NWUjT4hi3fVVHNMXX9ATcB6TcOJzKXTJyrsON0berBl3aRjHkos
-        xRmJhlrMRcWJAOerPCMXBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrNLMWRmVeSWpSXmKPExsWy7bCSvG7ShrPxBhsv2lhsuvmN1WLP3pMs
-        Fpd3zWGz2PLvCKvFgo2PGB1YPXbOusvu0bdlFaPH501yAcxRXDYpqTmZZalF+nYJXBkXzh1h
-        LTjDXTF/0mfGBsZLnF2MnBwSAiYSZ9r3sYHYQgI7GCXOrXOBiEtLHDtxhrmLkQPIFpY4fLi4
-        i5ELqOQ5o8SZ//dYQGrYBHQl/v3ZD9YrIqAncWLnDmaQImaBPkaJu7O2QA3dwyjReVgAxOYU
-        sJWYPP08O4gtLOAjselvGyOIzSKgIjFxTgcryDJeAUuJrjVg5bwCghInZz5hAQkzA81v2whW
-        zSwgL7H97RxmiDMVJH4+XcYKcYKTxONtM5ghakQkZne2MU9gFJ6FZNIshEmzkEyahaRjASPL
-        KkbJ1ILi3PTcYsMCo7zUcr3ixNzi0rx0veT83E2M4PjQ0trBuGfVB71DjEwcjIcYJTiYlUR4
-        1aTOxgvxpiRWVqUW5ccXleakFh9ilOZgURLnvdB1Ml5IID2xJDU7NbUgtQgmy8TBKdXAtIJ9
-        3se8KJ/J/i///9OdXHkmKtp01R2hxOr2OLPHigmR7VGda4/qyuo+uLP9xJqH5kdkZE48PKeg
-        k3DF8/Z55tk1r+dyb5fK6s8ViX32s5Nf9AF3mMNXDfMTB+/G2XNP3Ju54OOvV+4aHns/JX1Q
-        DCiJWRu6YIH4sQeTeQ5HvlcMDXwoGvI2m1+L/ezn3S9+L/u6dmLBdtUwj2MN0z78rjV55TvB
-        w8zSrMHEpHb3nlmntribLbHyNBGuLjyidfWhbwpD/cxN/Gd/3g41/G2cKCi346qO288bMa+v
-        +u/xKwq9tGChI9PDMyeOakYWtMj/zJs9xa2zcmNf5Ex2xfhzSXmXLorsjVG76XGoubnokhJL
-        cUaioRZzUXEiAB22hbb+AgAA
-X-CMS-MailID: 20201207043235epcas1p1446adf522518089bb229d3aaa91e3f55
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20201204133512epcas1p4381b107d0fc72d92920d336df9683a22
-References: <001101d6c867$ca8c5730$5fa50590$@samsung.com>
-        <CGME20201204133512epcas1p4381b107d0fc72d92920d336df9683a22@epcas1p4.samsung.com>
-        <20201204133348.555024-1-123321artyom@gmail.com>
+In-Reply-To: <20201206172242.1249689-1-marmarek@invisiblethingslab.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="6ekrWC7Imvf7QM0ISrUV82GBc9sxpxUVx"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> The table for Unicode upcase conversion requires an order-5 allocation, which may fail on a highly-
-> fragmented system:
-> 
->  pool-udisksd: page allocation failure: order:5, mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO),
-> nodemask=(null),cpuset=/,mems_allowed=0
->  CPU: 4 PID: 3756880 Comm: pool-udisksd Tainted: G     U            5.8.10-200.fc32.x86_64 #1
->  Hardware name: Dell Inc. XPS 13 9360/0PVG6D, BIOS 2.13.0 11/14/2019  Call Trace:
->   dump_stack+0x6b/0x88
->   warn_alloc.cold+0x75/0xd9
->   ? _cond_resched+0x16/0x40
->   ? __alloc_pages_direct_compact+0x144/0x150
->   __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
->   ? __schedule+0x28a/0x840
->   ? __wait_on_bit_lock+0x92/0xa0
->   __alloc_pages_nodemask+0x2df/0x320
->   kmalloc_order+0x1b/0x80
->   kmalloc_order_trace+0x1d/0xa0
->   exfat_create_upcase_table+0x115/0x390 [exfat]
->   exfat_fill_super+0x3ef/0x7f0 [exfat]
->   ? sget_fc+0x1d0/0x240
->   ? exfat_init_fs_context+0x120/0x120 [exfat]
->   get_tree_bdev+0x15c/0x250
->   vfs_get_tree+0x25/0xb0
->   do_mount+0x7c3/0xaf0
->   ? copy_mount_options+0xab/0x180
->   __x64_sys_mount+0x8e/0xd0
->   do_syscall_64+0x4d/0x90
->   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> Make the driver use vzalloc() to eliminate the issue.
-> 
-> Cc: stable@vger.kernel.org # v5.7+
-> Signed-off-by: Artem Labazov <123321artyom@gmail.com>
-> ---
-> v2: replace vmalloc with vzalloc to avoid uninitialized memory access
-Applied.
-Thanks for your work!
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--6ekrWC7Imvf7QM0ISrUV82GBc9sxpxUVx
+Content-Type: multipart/mixed; boundary="eZcwrVuZPjphx6y9vxccT9GtWokI6VlsT";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?=
+ <marmarek@invisiblethingslab.com>, xen-devel@lists.xenproject.org
+Cc: stable@vger.kernel.org,
+ Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+ David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, Simon Leiner <simon@leiner.me>,
+ Yan Yankovskyi <yyankovskyi@gmail.com>,
+ Roger Pau Monne <roger.pau@citrix.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVERS FOR XEN" <dri-devel@lists.freedesktop.org>
+Message-ID: <e04a91c2-3e2e-7052-14fc-9915f9cf6589@suse.com>
+Subject: Re: [PATCH] Revert "xen: add helpers to allocate unpopulated memory"
+References: <20201206172242.1249689-1-marmarek@invisiblethingslab.com>
+In-Reply-To: <20201206172242.1249689-1-marmarek@invisiblethingslab.com>
 
+--eZcwrVuZPjphx6y9vxccT9GtWokI6VlsT
+Content-Type: multipart/mixed;
+ boundary="------------162D6435A12428CB18F39909"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------162D6435A12428CB18F39909
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 06.12.20 18:22, Marek Marczykowski-G=C3=B3recki wrote:
+> This reverts commit 9e2369c06c8a181478039258a4598c1ddd2cadfa.
+>=20
+> On a Xen PV dom0, with NVME disk, this makes the dom0 crash when starti=
+ng
+> a domain. This looks like some bad interaction between xen-blkback and
+
+xen-scsiback has the same use pattern.
+
+> NVME driver, both using ZONE_DEVICE. Since the author is on leave now,
+> revert the change until proper solution is developed.
+>=20
+> The specific crash message is:
+>=20
+>      general protection fault, probably for non-canonical address 0xdea=
+d000000000100: 0000 [#1] SMP NOPTI
+>      CPU: 1 PID: 134 Comm: kworker/u12:2 Not tainted 5.9.9-1.qubes.x86_=
+64 #1
+>      Hardware name: LENOVO 20M9CTO1WW/20M9CTO1WW, BIOS N2CET50W (1.33 )=
+ 01/15/2020
+>      Workqueue: dm-thin do_worker [dm_thin_pool]
+>      RIP: e030:nvme_map_data+0x300/0x3a0 [nvme]
+>      Code: b8 fe ff ff e9 a8 fe ff ff 4c 8b 56 68 8b 5e 70 8b 76 74 49 =
+8b 02 48 c1 e8 33 83 e0 07 83 f8 04 0f 85 f2 fe ff ff 49 8b 42 08 <83> b8=
+ d0 00 00 00 04 0f 85 e1 fe ff ff e9 38 fd ff ff 8b 55 70 be
+>      RSP: e02b:ffffc900010e7ad8 EFLAGS: 00010246
+>      RAX: dead000000000100 RBX: 0000000000001000 RCX: ffff8881a58f5000
+>      RDX: 0000000000001000 RSI: 0000000000000000 RDI: ffff8881a679e000
+>      RBP: ffff8881a5ef4c80 R08: ffff8881a5ef4c80 R09: 0000000000000002
+>      R10: ffffea0003dfff40 R11: 0000000000000008 R12: ffff8881a679e000
+>      R13: ffffc900010e7b20 R14: ffff8881a70b5980 R15: ffff8881a679e000
+>      FS:  0000000000000000(0000) GS:ffff8881b5440000(0000) knlGS:000000=
+0000000000
+>      CS:  e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+>      CR2: 0000000001d64408 CR3: 00000001aa2c0000 CR4: 0000000000050660
+>      Call Trace:
+>       nvme_queue_rq+0xa7/0x1a0 [nvme]
+>       __blk_mq_try_issue_directly+0x11d/0x1e0
+>       ? add_wait_queue_exclusive+0x70/0x70
+>       blk_mq_try_issue_directly+0x35/0xc0l[
+>       blk_mq_submit_bio+0x58f/0x660
+>       __submit_bio_noacct+0x300/0x330
+>       process_shared_bio+0x126/0x1b0 [dm_thin_pool]
+>       process_cell+0x226/0x280 [dm_thin_pool]
+>       process_thin_deferred_cells+0x185/0x320 [dm_thin_pool]
+>       process_deferred_bios+0xa4/0x2a0 [dm_thin_pool]UX
+>       do_worker+0xcc/0x130 [dm_thin_pool]
+>       process_one_work+0x1b4/0x370
+>       worker_thread+0x4c/0x310
+>       ? process_one_work+0x370/0x370
+>       kthread+0x11b/0x140
+>       ? __kthread_bind_mask+0x60/0x60<
+>       ret_from_fork+0x22/0x30
+>      Modules linked in: loop snd_seq_dummy snd_hrtimer nf_tables nfnetl=
+ink vfat fat snd_sof_pci snd_sof_intel_byt snd_sof_intel_ipc snd_sof_inte=
+l_hda_common snd_soc_hdac_hda snd_sof_xtensa_dsp snd_sof_intel_hda snd_so=
+f snd_soc_skl snd_soc_sst_
+>      ipc snd_soc_sst_dsp snd_hda_ext_core snd_soc_acpi_intel_match snd_=
+soc_acpi snd_soc_core snd_compress ac97_bus snd_pcm_dmaengine elan_i2c sn=
+d_hda_codec_hdmi mei_hdcp iTCO_wdt intel_powerclamp intel_pmc_bxt ee1004 =
+intel_rapl_msr iTCO_vendor
+>      _support joydev pcspkr intel_wmi_thunderbolt wmi_bmof thunderbolt =
+ucsi_acpi idma64 typec_ucsi snd_hda_codec_realtek typec snd_hda_codec_gen=
+eric snd_hda_intel snd_intel_dspcfg snd_hda_codec thinkpad_acpi snd_hda_c=
+ore ledtrig_audio int3403_
+>      thermal snd_hwdep snd_seq snd_seq_device snd_pcm iwlwifi snd_timer=
+ processor_thermal_device mei_me cfg80211 intel_rapl_common snd e1000e me=
+i int3400_thermal int340x_thermal_zone i2c_i801 acpi_thermal_rel soundcor=
+e intel_soc_dts_iosf i2c_s
+>      mbus rfkill intel_pch_thermal xenfs
+>       ip_tables dm_thin_pool dm_persistent_data dm_bio_prison dm_crypt =
+nouveau rtsx_pci_sdmmc mmc_core mxm_wmi crct10dif_pclmul ttm crc32_pclmul=
+ crc32c_intel i915 ghash_clmulni_intel i2c_algo_bit serio_raw nvme drm_km=
+s_helper cec xhci_pci nvme
+>      _core rtsx_pci xhci_pci_renesas drm xhci_hcd wmi video pinctrl_can=
+nonlake pinctrl_intel xen_privcmd xen_pciback xen_blkback xen_gntalloc xe=
+n_gntdev xen_evtchn uinput
+>      ---[ end trace f8d47e4aa6724df4 ]---
+>      RIP: e030:nvme_map_data+0x300/0x3a0 [nvme]
+>      Code: b8 fe ff ff e9 a8 fe ff ff 4c 8b 56 68 8b 5e 70 8b 76 74 49 =
+8b 02 48 c1 e8 33 83 e0 07 83 f8 04 0f 85 f2 fe ff ff 49 8b 42 08 <83> b8=
+ d0 00 00 00 04 0f 85 e1 fe ff ff e9 38 fd ff ff 8b 55 70 be
+>      RSP: e02b:ffffc900010e7ad8 EFLAGS: 00010246
+>      RAX: dead000000000100 RBX: 0000000000001000 RCX: ffff8881a58f5000
+>      RDX: 0000000000001000 RSI: 0000000000000000 RDI: ffff8881a679e000
+>      RBP: ffff8881a5ef4c80 R08: ffff8881a5ef4c80 R09: 0000000000000002
+>      R10: ffffea0003dfff40 R11: 0000000000000008 R12: ffff8881a679e000
+>      R13: ffffc900010e7b20 R14: ffff8881a70b5980 R15: ffff8881a679e000
+>      FS:  0000000000000000(0000) GS:ffff8881b5440000(0000) knlGS:000000=
+0000000000
+>      CS:  e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+>      CR2: 0000000001d64408 CR3: 00000001aa2c0000 CR4: 0000000000050660
+>      Kernel panic - not syncing: Fatal exception
+>      Kernel Offset: disabled
+>=20
+> Discussion at https://lore.kernel.org/xen-devel/20201205082839.ts3ju6yt=
+a46cgwjn@Air-de-Roger/T
+>=20
+> Cc: stable@vger.kernel.org #v5.9+
+> (for 5.9 it's easier to revert the original commit directly)
+> Signed-off-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblething=
+slab.com>
+
+Acked-by: Juergen Gross <jgross@suse.com>
+
+
+Juergen
+
+--------------162D6435A12428CB18F39909
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------162D6435A12428CB18F39909--
+
+--eZcwrVuZPjphx6y9vxccT9GtWokI6VlsT--
+
+--6ekrWC7Imvf7QM0ISrUV82GBc9sxpxUVx
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/NvycFAwAAAAAACgkQsN6d1ii/Ey+X
+DAf/Ug6PNIYgDFG7iWJnhxhdd9LQ1RRJqgiZKsTVO8zvyU3Bt113hUMmM3CnYFrcGEdP1jS4pu2r
+9vuhfJpOAHpnwezPBJEBjlF0MlQzuxPTSUgVdOOwkjaTJU4lElMJ83DA41IZ5Iw7U0lm9W1mhs6p
+hYVD5AV+m9h1WUtkKRt5ph0RTItPkbrIkOZOToKkPjKbtnyWuw9T/1NL1sKSObjX6axqyryiaW8R
+Hki59QtT/AKoyNJWQETeOcrOiy8E+tR9JZI4q4E7xsXLuyztnXHUobdKJwyib/64yyjey5Dz2bf0
+2uxCzz3vqy2OcDOzL2SWKFxZYvXhFHGGdIazbcW6Kw==
+=xfxw
+-----END PGP SIGNATURE-----
+
+--6ekrWC7Imvf7QM0ISrUV82GBc9sxpxUVx--
