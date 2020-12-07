@@ -2,100 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC682D188D
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 19:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF272D1898
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 19:36:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726157AbgLGSaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 13:30:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726063AbgLGSaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Dec 2020 13:30:21 -0500
-X-Gm-Message-State: AOAM532tsoxq/R48QyWIAeb+uB75LYCnyRle5GglVjtDS3STvx9k2r6k
-        ArxEsm2/maRQ3nfgo0M3cr60ch1+bKfwjy+2tio=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607365781;
-        bh=MA7FgPccgZL6WwM+Y4wFov9Rd/yPPPscsW59iho9K4o=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ZCayfsEmXXIHj7XGPY35pWqBOXVmXQ0S17a0eR9EXCL21m2Ej2DIa9I3EO0sP6o+Z
-         Iw4VX+jQ7Btei9WCGN3Uwg97kA6zJdCEfxWOAu6mDX8AVbSDsdHJUF3QpmX+CXaX4Q
-         LUDB79jGo18+XhKxGJtdnby3W/LOg8jCghSa64SNfoCbRjyx5/06MFCWxUJU7IOIYq
-         hLWJRwN9tUQStAdjH+P9jZaY1XKLeLiL0FAOSR6w4nhNTKXVSacYf9hxl+M1Rn4D5+
-         pFg/e1RdtyuHcDKtl96RIAW/eknOGxJt8XRvDXrqf0AdtTDobv0e32imISOP7E95KY
-         yjfWzWt1aU5fA==
-X-Google-Smtp-Source: ABdhPJwU5+W121tEZT1/y66641Bv1Jk4VBbYCIZc9Q7sWrEOvmEva2bmQ1JQLCQHwtvq9sF0ct1+3NOhPVWV8ssBVFg=
-X-Received: by 2002:aca:b809:: with SMTP id i9mr112937oif.174.1607365780166;
- Mon, 07 Dec 2020 10:29:40 -0800 (PST)
+        id S1725852AbgLGSfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 13:35:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725774AbgLGSfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 13:35:45 -0500
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E10D5C061749;
+        Mon,  7 Dec 2020 10:35:04 -0800 (PST)
+Received: by mail-wm1-x344.google.com with SMTP id x22so136228wmc.5;
+        Mon, 07 Dec 2020 10:35:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=/Z9lhLCbqim12y0oyf9t8xB8QwPHbNuf0ibPEkCv34Q=;
+        b=KewT2AVaP7+nJNdtAh01lczfDEjYBSryYaqyWsrB6FmiVl0zN6jsg8tmQ45LM0pCMt
+         qY7mpYjR6DGdWnrVfdMkJGoU1XWodOcd3joq5hNeg0fy1y+Zq7v9pU4xxyXB+JXjUCzk
+         68kJLHQMmYo5/60rUyCLd4Df+N39gHFMLclc7qpZh6lSrOUYpHA7ExokrmPuRIETES2G
+         VBs1GvvutuyOUDFxpH6wEP1pxS5/7vYbuEBE0CjR9TWfuxDuJuLYtW3nrrTvF03WAu2f
+         exBB7q9JFzJKrfvHvxH/apa9tGZNSP3Z7sjgDOJspVY9DMVByQQMpRPoSDyxZGA2+y3l
+         7MDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=/Z9lhLCbqim12y0oyf9t8xB8QwPHbNuf0ibPEkCv34Q=;
+        b=msPvOk3X/t9mN1A5qhmyI23vKT10UAMvBCejTUWDTvKsgT/lKyqpv0/zruNsHLO5b3
+         9fR5f78nwLoEWIB4QJuWqiD5u6jI9XWZdKuHoCef/DoBZ8hhDyL5aVIDyEAdS38Rs18f
+         FplIBnGS5xjF8DF7XIX4LYDnSHxuYjMaItzk+ciSuBMli3Wk6GuggREh23I89IzlX4jq
+         J2XZ9a/9hueRBHWpVHpZ7T7/QoPSJXqJdH3Swq/zCkyVApMd0qp+w4ukXIzjq5aTM5Zg
+         wwVKn/S8A0IPrw8rtPaCcndyWq9S3Ngrk8qKSGh8m9HQetnapR1MF3YaIGa+0ALQSJpP
+         jzhg==
+X-Gm-Message-State: AOAM530o/SQw4cBqYLD7Qv4XNez62AFgW2KNLUIqFuElgi0d2mjxIxpq
+        6tLdaK8rbMQX9vq4qDgSDdGvvRh9q0OAhg==
+X-Google-Smtp-Source: ABdhPJwumYrBLIoQHxgdphKEhshbuJO6JHyBRU3ddB+2L5EExdb/46lOq8XXZHOt+TYkhlOpYDa1KQ==
+X-Received: by 2002:a1c:7dd8:: with SMTP id y207mr110324wmc.181.1607366102841;
+        Mon, 07 Dec 2020 10:35:02 -0800 (PST)
+Received: from [192.168.8.107] ([185.69.145.78])
+        by smtp.gmail.com with ESMTPSA id b14sm16447438wrx.35.2020.12.07.10.35.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Dec 2020 10:35:02 -0800 (PST)
+Subject: Re: [PATCH 5.10 2/5] io_uring: fix racy IOPOLL completions
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <cover.1607293068.git.asml.silence@gmail.com>
+ <3a8d4b11f6cbb28c5067fd77ba35c2995f4658be.1607293068.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Message-ID: <217e7f26-ef7f-672a-777b-9e9346faed9e@gmail.com>
+Date:   Mon, 7 Dec 2020 18:31:47 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-References: <X8yoWHNzfl7vHVRA@kroah.com> <20201207172625.2888810-1-dann.frazier@canonical.com>
- <CAMj1kXHdqaso9Vkm3KeKFntMBQeRTkY-fU1GW8K8rcxBbQbKBA@mail.gmail.com> <CALdTtnv6VCBjvS-rtUTdhmLHkiJJrY+m4CLW4F8F89NEpZYF7A@mail.gmail.com>
-In-Reply-To: <CALdTtnv6VCBjvS-rtUTdhmLHkiJJrY+m4CLW4F8F89NEpZYF7A@mail.gmail.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 7 Dec 2020 19:29:29 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFAn2bJgwpN+SkGQSzXVdssaZ0Sjpspn8n0QQn4MDk5CA@mail.gmail.com>
-Message-ID: <CAMj1kXFAn2bJgwpN+SkGQSzXVdssaZ0Sjpspn8n0QQn4MDk5CA@mail.gmail.com>
-Subject: Re: [PATCH 4.4] Revert "crypto: arm64/sha - avoid non-standard inline
- asm tricks"
-To:     dann frazier <dann.frazier@canonical.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Michael Schaller <misch@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthew Garrett <matthew.garrett@nebula.com>,
-        Jeremy Kerr <jk@ozlabs.org>,
-        linux-efi <linux-efi@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <3a8d4b11f6cbb28c5067fd77ba35c2995f4658be.1607293068.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 7 Dec 2020 at 19:08, dann frazier <dann.frazier@canonical.com> wrote:
->
-> On Mon, Dec 7, 2020 at 10:50 AM Ard Biesheuvel <ardb@kernel.org> wrote:
-> >
-> > On Mon, 7 Dec 2020 at 18:26, dann frazier <dann.frazier@canonical.com> wrote:
-> > >
-> > > This reverts commit c042dd600f4e89b6e7bdffa00aea4d1d3c1e9686.
-> > >
-> > > This caused the build to emit ADR_PREL_PG_HI21 relocations in the sha{1,2}_ce
-> > > modules. This relocation type is not supported by the linux-4.4.y kernel
-> > > module loader when CONFIG_ARM64_ERRATUM_843419=y, which we have enabled, so
-> > > these modules now fail to load:
-> > >
-> > >   [   37.866250] module sha1_ce: unsupported RELA relocation: 275
-> > >
-> > > This issue does not exist with the backport to 4.9+. Bisection shows that
-> > > this is due to those kernels also having a backport of
-> > > commit 41c066f ("arm64: assembler: make adr_l work in modules under KASLR")
-> >
-> > Hi Dann,
-> >
-> > Would it be an option to backport 41c066f as well?
->
-> Hi Ard,
->
-> That was attempted before, but caused a build failure which would
-> still happen today:
->   https://www.spinics.net/lists/stable/msg179709.html
-> Specifically, head.S still has a 3 argument usage of adr_l. I'm not
-> sure how to safely fix that up myself.
->
+On 06/12/2020 22:22, Pavel Begunkov wrote:
+> IOPOLL allows buffer remove/provide requests, but they doesn't
+> synchronise by rules of IOPOLL, namely it have to hold uring_lock.
+> 
+> Cc: <stable@vger.kernel.org> # 5.7+
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+>  fs/io_uring.c | 23 ++++++++++++++++++-----
+>  1 file changed, 18 insertions(+), 5 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index c895a306f919..4fac02ea5f4c 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -3948,11 +3948,17 @@ static int io_remove_buffers(struct io_kiocb *req, bool force_nonblock,
+>  	head = idr_find(&ctx->io_buffer_idr, p->bgid);
+>  	if (head)
+>  		ret = __io_remove_buffers(ctx, head, p->bgid, p->nbufs);
+> -
+> -	io_ring_submit_lock(ctx, !force_nonblock);
 
-Given that the original reason for reverting the backport of 41c066f
-no longer holds (as there are other users of adr_l in v4.4 now), I
-think the best solution is to backport it again, but with the hunk
-below folded in. (This just replaces the macro invocation with its
-output when called with the 3 arguments in question, so the generated
-code is identical)
+Here should be unlock(), not a second lock(). I didn't notice
+first, but the patch fixes it. maybe for 5.10?
 
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -424,7 +424,8 @@ __mmap_switched:
-        str     xzr, [x6], #8                   // Clear BSS
-        b       1b
- 2:
--       adr_l   sp, initial_sp, x4
-+       adrp    x4, initial_sp
-+       add     sp, x4, :lo12:initial_sp
-        str_l   x21, __fdt_pointer, x5          // Save FDT pointer
-        str_l   x24, memstart_addr, x6          // Save PHYS_OFFSET
-        mov     x29, #0
+>  	if (ret < 0)
+>  		req_set_fail_links(req);
+> -	__io_req_complete(req, ret, 0, cs);
+> +
+> +	/* need to hold the lock to complete IOPOLL requests */
+> +	if (ctx->flags & IORING_SETUP_IOPOLL) {
+> +		__io_req_complete(req, ret, 0, cs);
+> +		io_ring_submit_unlock(ctx, !force_nonblock);
+> +	} else {
+> +		io_ring_submit_unlock(ctx, !force_nonblock);
+> +		__io_req_complete(req, ret, 0, cs);
+> +	}
+>  	return 0;
+>  }
+
+
+-- 
+Pavel Begunkov
