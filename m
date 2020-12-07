@@ -2,151 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F42A2D1889
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 19:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC682D188D
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 19:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725774AbgLGS35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 13:29:57 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:43648 "EHLO mail.skyhub.de"
+        id S1726157AbgLGSaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 13:30:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725823AbgLGS35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Dec 2020 13:29:57 -0500
-Received: from zn.tnic (p200300ec2f0a380064629ff712875f88.dip0.t-ipconnect.de [IPv6:2003:ec:2f0a:3800:6462:9ff7:1287:5f88])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 37ACB1EC0266;
-        Mon,  7 Dec 2020 19:29:16 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1607365756;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=UcgJt3nxSKpwchL/iP2ux1Mxz2gg4VyE+PHYmJH7Ers=;
-        b=TINAG4raZW9HXC9+zvnMHq3Hd/A/VIdV6GeOubaoSo9HZGEjZT4pf1/XZlQ5kEWK8sGRp1
-        W69ROu759QdWgoz3ZQDlVyYh/YF2ePApgEt9vm5MZbMIzXFFWkcDLVlDWDWgLlEAupu2kj
-        oyMgjaAzIj8YfJkU9ubfRco9h4ieyXs=
-Date:   Mon, 7 Dec 2020 19:29:12 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
-        kuo-lang.tseng@intel.com, shakeelb@google.com,
-        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
-        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] x86/resctrl: Move setting task's active CPU in a
- mask into helpers
-Message-ID: <20201207182912.GF20489@zn.tnic>
-References: <cover.1607036601.git.reinette.chatre@intel.com>
- <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
+        id S1726063AbgLGSaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Dec 2020 13:30:21 -0500
+X-Gm-Message-State: AOAM532tsoxq/R48QyWIAeb+uB75LYCnyRle5GglVjtDS3STvx9k2r6k
+        ArxEsm2/maRQ3nfgo0M3cr60ch1+bKfwjy+2tio=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607365781;
+        bh=MA7FgPccgZL6WwM+Y4wFov9Rd/yPPPscsW59iho9K4o=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=ZCayfsEmXXIHj7XGPY35pWqBOXVmXQ0S17a0eR9EXCL21m2Ej2DIa9I3EO0sP6o+Z
+         Iw4VX+jQ7Btei9WCGN3Uwg97kA6zJdCEfxWOAu6mDX8AVbSDsdHJUF3QpmX+CXaX4Q
+         LUDB79jGo18+XhKxGJtdnby3W/LOg8jCghSa64SNfoCbRjyx5/06MFCWxUJU7IOIYq
+         hLWJRwN9tUQStAdjH+P9jZaY1XKLeLiL0FAOSR6w4nhNTKXVSacYf9hxl+M1Rn4D5+
+         pFg/e1RdtyuHcDKtl96RIAW/eknOGxJt8XRvDXrqf0AdtTDobv0e32imISOP7E95KY
+         yjfWzWt1aU5fA==
+X-Google-Smtp-Source: ABdhPJwU5+W121tEZT1/y66641Bv1Jk4VBbYCIZc9Q7sWrEOvmEva2bmQ1JQLCQHwtvq9sF0ct1+3NOhPVWV8ssBVFg=
+X-Received: by 2002:aca:b809:: with SMTP id i9mr112937oif.174.1607365780166;
+ Mon, 07 Dec 2020 10:29:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
+References: <X8yoWHNzfl7vHVRA@kroah.com> <20201207172625.2888810-1-dann.frazier@canonical.com>
+ <CAMj1kXHdqaso9Vkm3KeKFntMBQeRTkY-fU1GW8K8rcxBbQbKBA@mail.gmail.com> <CALdTtnv6VCBjvS-rtUTdhmLHkiJJrY+m4CLW4F8F89NEpZYF7A@mail.gmail.com>
+In-Reply-To: <CALdTtnv6VCBjvS-rtUTdhmLHkiJJrY+m4CLW4F8F89NEpZYF7A@mail.gmail.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 7 Dec 2020 19:29:29 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXFAn2bJgwpN+SkGQSzXVdssaZ0Sjpspn8n0QQn4MDk5CA@mail.gmail.com>
+Message-ID: <CAMj1kXFAn2bJgwpN+SkGQSzXVdssaZ0Sjpspn8n0QQn4MDk5CA@mail.gmail.com>
+Subject: Re: [PATCH 4.4] Revert "crypto: arm64/sha - avoid non-standard inline
+ asm tricks"
+To:     dann frazier <dann.frazier@canonical.com>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Michael Schaller <misch@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthew Garrett <matthew.garrett@nebula.com>,
+        Jeremy Kerr <jk@ozlabs.org>,
+        linux-efi <linux-efi@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 03, 2020 at 03:25:48PM -0800, Reinette Chatre wrote:
-> From: Fenghua Yu <fenghua.yu@intel.com>
-> 
-> The code of setting the CPU on which a task is running in a CPU mask is
-> moved into a couple of helpers.
+On Mon, 7 Dec 2020 at 19:08, dann frazier <dann.frazier@canonical.com> wrote:
+>
+> On Mon, Dec 7, 2020 at 10:50 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> >
+> > On Mon, 7 Dec 2020 at 18:26, dann frazier <dann.frazier@canonical.com> wrote:
+> > >
+> > > This reverts commit c042dd600f4e89b6e7bdffa00aea4d1d3c1e9686.
+> > >
+> > > This caused the build to emit ADR_PREL_PG_HI21 relocations in the sha{1,2}_ce
+> > > modules. This relocation type is not supported by the linux-4.4.y kernel
+> > > module loader when CONFIG_ARM64_ERRATUM_843419=y, which we have enabled, so
+> > > these modules now fail to load:
+> > >
+> > >   [   37.866250] module sha1_ce: unsupported RELA relocation: 275
+> > >
+> > > This issue does not exist with the backport to 4.9+. Bisection shows that
+> > > this is due to those kernels also having a backport of
+> > > commit 41c066f ("arm64: assembler: make adr_l work in modules under KASLR")
+> >
+> > Hi Dann,
+> >
+> > Would it be an option to backport 41c066f as well?
+>
+> Hi Ard,
+>
+> That was attempted before, but caused a build failure which would
+> still happen today:
+>   https://www.spinics.net/lists/stable/msg179709.html
+> Specifically, head.S still has a 3 argument usage of adr_l. I'm not
+> sure how to safely fix that up myself.
+>
 
-Pls read section "2) Describe your changes" in
-Documentation/process/submitting-patches.rst for more details.
+Given that the original reason for reverting the backport of 41c066f
+no longer holds (as there are other users of adr_l in v4.4 now), I
+think the best solution is to backport it again, but with the hunk
+below folded in. (This just replaces the macro invocation with its
+output when called with the 3 arguments in question, so the generated
+code is identical)
 
-More specifically:
-
-"Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
-instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
-to do frotz", as if you are giving orders to the codebase to change
-its behaviour."
-
-> The new helper task_on_cpu() will be reused shortly.
-
-"reused shortly"? I don't think so.
-
-> 
-> Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-> Reviewed-by: Tony Luck <tony.luck@intel.com>
-> Cc: stable@vger.kernel.org
-
-Fixes?
-
-I guess the same commit from the other two:
-
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-
-?
-
-> ---
->  arch/x86/kernel/cpu/resctrl/rdtgroup.c | 47 +++++++++++++++++++-------
->  1 file changed, 34 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> index 6f4ca4bea625..68db7d2dec8f 100644
-> --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> @@ -525,6 +525,38 @@ static void rdtgroup_remove(struct rdtgroup *rdtgrp)
->  	kfree(rdtgrp);
->  }
->  
-> +#ifdef CONFIG_SMP
-> +/* Get the CPU if the task is on it. */
-> +static bool task_on_cpu(struct task_struct *t, int *cpu)
-> +{
-> +	/*
-> +	 * This is safe on x86 w/o barriers as the ordering of writing to
-> +	 * task_cpu() and t->on_cpu is reverse to the reading here. The
-> +	 * detection is inaccurate as tasks might move or schedule before
-> +	 * the smp function call takes place. In such a case the function
-> +	 * call is pointless, but there is no other side effect.
-> +	 */
-> +	if (t->on_cpu) {
-> +		*cpu = task_cpu(t);
-
-Why have an I/O parameter when you can make it simply:
-
-static int task_on_cpu(struct task_struct *t)
-{
-	if (t->on_cpu)
-		return task_cpu(t);
-
-	return -1;
-}
-
-> +
-> +		return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
-> +static void set_task_cpumask(struct task_struct *t, struct cpumask *mask)
-> +{
-> +	int cpu;
-> +
-> +	if (mask && task_on_cpu(t, &cpu))
-> +		cpumask_set_cpu(cpu, mask);
-
-And that you can turn into:
-
-	if (!mask)
-		return;
-
-	cpu = task_on_cpu(t);
-	if (cpu < 0)
-		return;
-
-	cpumask_set_cpu(cpu, mask);
-
-Readable and simple.
-
-Hmm?
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -424,7 +424,8 @@ __mmap_switched:
+        str     xzr, [x6], #8                   // Clear BSS
+        b       1b
+ 2:
+-       adr_l   sp, initial_sp, x4
++       adrp    x4, initial_sp
++       add     sp, x4, :lo12:initial_sp
+        str_l   x21, __fdt_pointer, x5          // Save FDT pointer
+        str_l   x24, memstart_addr, x6          // Save PHYS_OFFSET
+        mov     x29, #0
