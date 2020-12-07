@@ -2,117 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B71772D0FAC
-	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 12:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA142D12FB
+	for <lists+stable@lfdr.de>; Mon,  7 Dec 2020 15:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726883AbgLGLrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 06:47:48 -0500
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:4564 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726874AbgLGLrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 06:47:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1607341668; x=1638877668;
+        id S1726387AbgLGOBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 09:01:46 -0500
+Received: from esa1.microchip.iphmx.com ([68.232.147.91]:12148 "EHLO
+        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726168AbgLGOBq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 09:01:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1607349705; x=1638885705;
   h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=DT8dfGvHCH2RcZ5XMyxNuf8g5vxxb2qMyJp3K1JoGJg=;
-  b=o6Ucx1C/WbtLHxBaCKtQfqSPNPQA9CioGsYJZ69uG3mCFVXpPDIOSAPY
-   VsXBuHrfEr8SVJQc+2GI/vrh8NHY3fMD3+Tsy3hu/qfnil13QRTMU3784
-   cykhbpUH4HaQ3JNYu1I0iJjF+/ZlilzQZsiv4l2aOR4u5WgCZbST/owFw
-   I=;
-X-IronPort-AV: E=Sophos;i="5.78,399,1599523200"; 
-   d="scan'208";a="67686016"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-42f764a0.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 07 Dec 2020 11:47:00 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1e-42f764a0.us-east-1.amazon.com (Postfix) with ESMTPS id E815AC1E3E;
-        Mon,  7 Dec 2020 11:46:58 +0000 (UTC)
-Received: from EX13D35UWC003.ant.amazon.com (10.43.162.130) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 11:46:58 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
- EX13D35UWC003.ant.amazon.com (10.43.162.130) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 7 Dec 2020 11:46:58 +0000
-Received: from dev-dsk-abuehaze-1c-926c8132.eu-west-1.amazon.com
- (10.15.10.116) by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP
- Server id 15.0.1497.2 via Frontend Transport; Mon, 7 Dec 2020 11:46:57 +0000
-Received: by dev-dsk-abuehaze-1c-926c8132.eu-west-1.amazon.com (Postfix, from userid 5005603)
-        id 67F518846F; Mon,  7 Dec 2020 11:46:57 +0000 (UTC)
-From:   Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
-To:     <netdev@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <edumazet@google.com>,
-        <ycheng@google.com>, <ncardwell@google.com>, <weiwan@google.com>,
-        <astroh@amazon.com>, <benh@amazon.com>,
-        Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
-Subject: [PATCH net] tcp: fix receive buffer autotuning to trigger for any valid advertised MSS
-Date:   Mon, 7 Dec 2020 11:46:25 +0000
-Message-ID: <20201207114625.9079-1-abuehaze@amazon.com>
-X-Mailer: git-send-email 2.16.6
-In-Reply-To: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
-References: <CADVnQymC1fLFhb=0_rXNSp2NsNncMMRv77aY=5pYxgmicwowgA@mail.gmail.com>
+   references:mime-version:content-transfer-encoding;
+  bh=Nzjzi0BHIpaEs5LQPZKGd7A9lTZUVGUv43h4mqHMor4=;
+  b=xhzn8UbHFnEdNlG6qULdWHIUWRQbRQuVe82eQnJl2X6g8bzEQfuWVfdN
+   GrKE+lQUBxSM2hYypfvbP62ZjqaHXn1plhGfvmR9PcNrdE0hIh+u/tomp
+   7KJS+iuq0IkMvVyi/7oB2d/cy7KBCFoqb2GIWz6YrxprzD/6Fj4d3nNpw
+   zd4YAnkjJzVRjHGq3hFfBcFTiPvjnYmGfPpAAULjIw+mWLuJIRm+Q7yOo
+   uiS5YxQaOF37jrkaqLXUVgncFL8c3mQ7viwO9iUY1avQCLV+dYlFcw5Be
+   7WbzxZbPzjMDsPGGmfBeiJ5lqTae72d3LQ27lC6oIVXcWrCMmjO5ov4Vd
+   w==;
+IronPort-SDR: 5VFUzwtlK/hoT0qJ1iIRCWO42O3/d/CDb6e5rPBDt02KXJqe+RYM/UFYE0I1TPho5qv5inTLkg
+ qQNMWDQJs6Pb8B8EWhppoTpDszFlAxA8FhH/4UZcrBiTgWJ+5vNoW3MQfqQaq/68suIvZnS1/Y
+ I7DXUBZ5VIJv44Rrgwniz2kagNuOcW3ssxapUf8piEm+KV3wOa+J9eXvuykvHxT0PHvvaHYfRX
+ bkAUfb3JCasBeWNT8T1q4YYKGB9K69xQ42aBJZsmSkQrqH0oAs/M8iAhMJV/V852eHuGBkHYCx
+ sk0=
+X-IronPort-AV: E=Sophos;i="5.78,399,1599548400"; 
+   d="scan'208";a="106511666"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Dec 2020 07:00:39 -0700
+Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Mon, 7 Dec 2020 07:00:39 -0700
+Received: from atudor-ThinkPad-T470p.amer.actel.com (10.10.115.15) by
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
+ 15.1.1979.3 via Frontend Transport; Mon, 7 Dec 2020 07:00:36 -0700
+From:   Tudor Ambarus <tudor.ambarus@microchip.com>
+To:     <broonie@kernel.org>, <linux-spi@vger.kernel.org>
+CC:     <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
+        <ludovic.desroches@microchip.com>, <bugalski.piotr@gmail.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Tudor Ambarus" <tudor.ambarus@microchip.com>,
+        <stable@vger.kernel.org>, Tom Burkart <tom@aussec.com>
+Subject: [PATCH 1/4] spi: atmel-quadspi: Fix AHB memory accesses
+Date:   Mon, 7 Dec 2020 15:59:56 +0200
+Message-ID: <20201207135959.154124-2-tudor.ambarus@microchip.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201207135959.154124-1-tudor.ambarus@microchip.com>
+References: <20201207135959.154124-1-tudor.ambarus@microchip.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-    Previously receiver buffer auto-tuning starts after receiving
-    one advertised window amount of data.After the initial
-    receiver buffer was raised by
-    commit a337531b942b ("tcp: up initial rmem to 128KB
-    and SYN rwin to around 64KB"),the receiver buffer may
-    take too long for TCP autotuning to start raising
-    the receiver buffer size.
-    commit 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
-    tried to decrease the threshold at which TCP auto-tuning starts
-    but it's doesn't work well in some environments
-    where the receiver has large MTU (9001) especially with high RTT
-    connections as in these environments rcvq_space.space will be the same
-    as rcv_wnd so TCP autotuning will never start because
-    sender can't send more than rcv_wnd size in one round trip.
-    To address this issue this patch is decreasing the initial
-    rcvq_space.space so TCP autotuning kicks in whenever the sender is
-    able to send more than 5360 bytes in one round trip regardless the
-    receiver's configured MTU.
+Following error was seen when mounting a 16MByte ubifs:
+UBIFS error (ubi0:0 pid 1893): check_lpt_type.constprop.6: invalid type (15) in LPT node type
 
-    Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
-    Fixes: 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
+QSPI_IFR.TFRTYP was not set correctly. When data transfer is enabled
+and one wants to access the serial memory through AHB in order to:
+ - read in the serial memory, but not a memory data, for example
+   a JEDEC-ID, QSPI_IFR.TFRTYP must be written to '0' (both sama5d2
+   and sam9x60).
+ - read in the serial memory, and particularly a memory data,
+   TFRTYP must be written to '1' (both sama5d2 and sam9x60).
+ - write in the serial memory, but not a memory data, for example
+   writing the configuration or the QSPI_SR, TFRTYP must be written
+   to '2' for sama5d2 and to '0' for sam9x60.
+ - write in the serial memory in particular to program a memory data,
+   TFRTYP must be written to '3' for sama5d2 and to '1' for sam9x60.
 
-Signed-off-by: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
+Fix the setting of the QSPI_IFR.TFRTYP field.
+
+Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
+Cc: <stable@vger.kernel.org> # v5.0+
+Reported-by: Tom Burkart <tom@aussec.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 ---
- net/ipv4/tcp_input.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/atmel-quadspi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 389d1b340248..f0ffac9e937b 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -504,13 +504,14 @@ static void tcp_grow_window(struct sock *sk, const struct sk_buff *skb)
- static void tcp_init_buffer_space(struct sock *sk)
- {
- 	int tcp_app_win = sock_net(sk)->ipv4.sysctl_tcp_app_win;
-+	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	int maxwin;
+diff --git a/drivers/spi/atmel-quadspi.c b/drivers/spi/atmel-quadspi.c
+index b44521d4a245..ad913212426e 100644
+--- a/drivers/spi/atmel-quadspi.c
++++ b/drivers/spi/atmel-quadspi.c
+@@ -365,10 +365,14 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
+ 	if (dummy_cycles)
+ 		ifr |= QSPI_IFR_NBDUM(dummy_cycles);
  
- 	if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
- 		tcp_sndbuf_expand(sk);
+-	/* Set data enable */
+-	if (op->data.nbytes)
++	/* Set data enable and data transfer type. */
++	if (op->data.nbytes) {
+ 		ifr |= QSPI_IFR_DATAEN;
  
--	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
-+	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * icsk->icsk_ack.rcv_mss);
- 	tcp_mstamp_refresh(tp);
- 	tp->rcvq_space.time = tp->tcp_mstamp;
- 	tp->rcvq_space.seq = tp->copied_seq;
++		if (op->addr.nbytes)
++			ifr |= QSPI_IFR_TFRTYP_MEM;
++	}
++
+ 	/*
+ 	 * If the QSPI controller is set in regular SPI mode, set it in
+ 	 * Serial Memory Mode (SMM).
+@@ -393,7 +397,7 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
+ 			atmel_qspi_write(icr, aq, QSPI_WICR);
+ 		atmel_qspi_write(ifr, aq, QSPI_IFR);
+ 	} else {
+-		if (op->data.dir == SPI_MEM_DATA_OUT)
++		if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_OUT)
+ 			ifr |= QSPI_IFR_SAMA5D2_WRITE_TRSFR;
+ 
+ 		/* Set QSPI Instruction Frame registers */
 -- 
-2.16.6
-
-
-
-
-Amazon Web Services EMEA SARL, 38 avenue John F. Kennedy, L-1855 Luxembourg, R.C.S. Luxembourg B186284
-
-Amazon Web Services EMEA SARL, Irish Branch, One Burlington Plaza, Burlington Road, Dublin 4, Ireland, branch registration number 908705
-
-
+2.25.1
 
