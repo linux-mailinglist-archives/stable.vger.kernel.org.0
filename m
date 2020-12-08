@@ -2,84 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4362D267A
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 09:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 720632D26FD
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728356AbgLHImQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 03:42:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49698 "EHLO mail.kernel.org"
+        id S1728774AbgLHJFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 04:05:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728078AbgLHImQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 03:42:16 -0500
-Subject: patch "USB: add RESET_RESUME quirk for Snapscan 1212" added to usb-next
+        id S1728192AbgLHJFp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 04:05:45 -0500
+Date:   Tue, 8 Dec 2020 10:06:06 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607416890;
-        bh=ELrYeSkTU4+X5NEszurV5D0penMJ6lvSIRDAJMeUmGw=;
-        h=To:From:Date:From;
-        b=0OnylfwvsU/HeH0IWeJ7q4mPeRPo5jcQ9JOpXxyRDWyQ7iVWKFVuyze3ecsaXqi98
-         XTCj8PxmASBtmOjmbZ3KIPRvgDVP6VilKLqC5afH1nV+Sgvk4OMUvKAshdinsPqSem
-         yYesYLUpWspuzjJ5WOZk88L9pQVMNFGwY/NUmC8g=
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Dec 2020 09:42:16 +0100
-Message-ID: <1607416936167246@kroah.com>
+        s=korg; t=1607418298;
+        bh=Mxm4tMc0lHI8bH/rVnSlJy9zQmdRnBcybnvarWYeXXg=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yE8rQ4cCeTYmHpAZV1twhXooXpSNffV/wzJ4rqpRmIfBkKkORQmkjmFsObfxuoaVO
+         biU1+JtbWqp9niROIfCYuRWDjP/hR7mARtp+xKRM+VMwQMJXiGLuA3k522da1ZiDWP
+         o5Nlgv8cOrjJYPp/embz6olO9XR5icUZKAOkGSu0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Brian King <brking@linux.vnet.ibm.com>,
+        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>, Lijun Pan <ljp@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH 4.19 11/32] ibmvnic: notify peers when failover and
+ migration happen
+Message-ID: <X89B/ob8dDZpHHee@kroah.com>
+References: <20201206111555.787862631@linuxfoundation.org>
+ <20201206111556.317195640@linuxfoundation.org>
+ <20201206170708.GA4901@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201206170708.GA4901@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Dec 06, 2020 at 06:07:08PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Lijun Pan <ljp@linux.ibm.com>
+> > 
+> > [ Upstream commit 98025bce3a6200a0c4637272a33b5913928ba5b8 ]
+> > 
+> > Commit 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
+> > excluded the failover case for notify call because it said
+> > netdev_notify_peers() can cause network traffic to stall or halt.
+> > Current testing does not show network traffic stall
+> > or halt because of the notify call for failover event.
+> > netdev_notify_peers may be used when a device wants to inform the
+> > rest of the network about some sort of a reconfiguration
+> > such as failover or migration.
+> > 
+> > It is unnecessary to call that in other events like
+> > FATAL, NON_FATAL, CHANGE_PARAM, and TIMEOUT resets
+> > since in those scenarios the hardware does not change.
+> > If the driver must do a hard reset, it is necessary to notify peers.
+> 
+> Something went wrong here.
+> 
+> > @@ -1877,8 +1877,9 @@ static int do_reset(struct ibmvnic_adapt
+> >  	for (i = 0; i < adapter->req_rx_queues; i++)
+> >  		napi_schedule(&adapter->napi[i]);
+> >  
+> > -	if (adapter->reset_reason != VNIC_RESET_FAILOVER &&
+> > -	    adapter->reset_reason != VNIC_RESET_CHANGE_PARAM) {
+> > +	if ((adapter->reset_reason != VNIC_RESET_FAILOVER &&
+> > +	     adapter->reset_reason != VNIC_RESET_CHANGE_PARAM) ||
+> > +	     adapter->reset_reason == VNIC_RESET_MOBILITY) {
+> 
+> This condition does not make sense... part after || is redundant.
+> 
+> Mainline changed != in FAILOVER test to ==, so it does not have same
+> problem.
 
-This is a note to let you know that I've just added the patch titled
+Odd, ok, I'll just go drop this patch from the queue, thanks.
 
-    USB: add RESET_RESUME quirk for Snapscan 1212
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 08a02f954b0def3ada8ed6d4b2c7bcb67e885e9c Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Mon, 7 Dec 2020 14:03:23 +0100
-Subject: USB: add RESET_RESUME quirk for Snapscan 1212
-
-I got reports that some models of this old scanner need
-this when using runtime PM.
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201207130323.23857-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index fad31ccd1fa8..1b4eb7046b07 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -342,6 +342,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x06a3, 0x0006), .driver_info =
- 			USB_QUIRK_CONFIG_INTF_STRINGS },
- 
-+	/* Agfa SNAPSCAN 1212U */
-+	{ USB_DEVICE(0x06bd, 0x0001), .driver_info = USB_QUIRK_RESET_RESUME },
-+
- 	/* Guillemot Webcam Hercules Dualpix Exchange (2nd ID) */
- 	{ USB_DEVICE(0x06f8, 0x0804), .driver_info = USB_QUIRK_RESET_RESUME },
- 
--- 
-2.29.2
-
-
+greg k-h
