@@ -2,82 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 720632D26FD
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 843182D277C
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728774AbgLHJFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 04:05:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
+        id S1727708AbgLHJZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 04:25:21 -0500
+Received: from mga05.intel.com ([192.55.52.43]:48064 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728192AbgLHJFp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 04:05:45 -0500
-Date:   Tue, 8 Dec 2020 10:06:06 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607418298;
-        bh=Mxm4tMc0lHI8bH/rVnSlJy9zQmdRnBcybnvarWYeXXg=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yE8rQ4cCeTYmHpAZV1twhXooXpSNffV/wzJ4rqpRmIfBkKkORQmkjmFsObfxuoaVO
-         biU1+JtbWqp9niROIfCYuRWDjP/hR7mARtp+xKRM+VMwQMJXiGLuA3k522da1ZiDWP
-         o5Nlgv8cOrjJYPp/embz6olO9XR5icUZKAOkGSu0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Brian King <brking@linux.vnet.ibm.com>,
-        Pradeep Satyanarayana <pradeeps@linux.vnet.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>, Lijun Pan <ljp@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH 4.19 11/32] ibmvnic: notify peers when failover and
- migration happen
-Message-ID: <X89B/ob8dDZpHHee@kroah.com>
-References: <20201206111555.787862631@linuxfoundation.org>
- <20201206111556.317195640@linuxfoundation.org>
- <20201206170708.GA4901@duo.ucw.cz>
+        id S1728636AbgLHJZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 04:25:21 -0500
+IronPort-SDR: 7Ig3T/V7u08zSOBFmiISwMexS10bkbFsbfke1RJ2OrRuMvVgRO9EpnOj6Dr1A9QK0Zc6g5jqyc
+ F3iqc7rIqWRA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9828"; a="258568797"
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="258568797"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 01:24:36 -0800
+IronPort-SDR: fIQfc9WYHC05Fws7CFW5MRw21s7WPSybQeeKvAUub45CX7807k8NWZBeFolymUwMxUqBRs5sA5
+ EEIvm7YIHMMA==
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="407549040"
+Received: from genxfsim-desktop.iind.intel.com (HELO intel.com) ([10.223.74.178])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 01:24:34 -0800
+Date:   Tue, 8 Dec 2020 14:41:07 +0530
+From:   Anshuman Gupta <anshuman.gupta@intel.com>
+To:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        imre.deak@intel.com
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [RFC 2/2] drm/i915/display: Protect pipe_update against dc3co
+ exit
+Message-ID: <20201208091104.GJ30377@intel.com>
+References: <20201130091646.25576-1-anshuman.gupta@intel.com>
+ <20201130091646.25576-3-anshuman.gupta@intel.com>
+ <20201130152832.GB2348711@ideak-desk.fi.intel.com>
+ <20201204081003.GC30377@intel.com>
+ <X8pbBsHVRVV4cNfJ@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201206170708.GA4901@duo.ucw.cz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <X8pbBsHVRVV4cNfJ@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 06, 2020 at 06:07:08PM +0100, Pavel Machek wrote:
-> Hi!
+On 2020-12-04 at 17:51:34 +0200, Ville Syrjälä wrote:
+> On Fri, Dec 04, 2020 at 01:40:03PM +0530, Anshuman Gupta wrote:
+> > On 2020-11-30 at 17:28:32 +0200, Imre Deak wrote:
+> > > On Mon, Nov 30, 2020 at 02:46:46PM +0530, Anshuman Gupta wrote:
+> > > > At usual case DC3CO exit happen automatically by DMC f/w whenever
+> > > > PSR2 clears idle. This happens smoothly by DMC f/w to work with flips.
+> > > > But there are certain scenario where DC3CO  Disallowed by driver
+> > > > asynchronous with flips. In such scenario display engine could
+> > > > be already in DC3CO state and driver has disallowed it,
+> > > > It initiates DC3CO exit sequence in DMC f/w which requires a
+> > > > dc3co exit delay of 200us in driver.
+> > > > It requires to protect intel_pipe_update_{update_end} with
+> > > > dc3co exit delay.
+> > > > 
+> > > > Cc: Imre Deak <imre.deak@intel.com>
+> > > > Cc: <stable@vger.kernel.org>
+> > > > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
+> > > 
+> > > To make sure that it doesn't hide the root cause (or affects unrelated
+> > > platforms), I'd only add locking around DC3co changes with a new lock,
+> > > using lock/unlock helpers in intel_display_power.c called from
+> > > intel_pipe_update_start/end.
+> > > 
+> > > Also please submit this patch separately, w/o the optimization in patch
+> > > 1/2, so we know that this change fixes the problem.
+> > This patch doesn't seems to fix the issue.
+> > Looks like there is some other set of display register updates before
+> > completing the dc3co exit delay beyond intel_pipe_update_start/end causing this issue.
 > 
-> > From: Lijun Pan <ljp@linux.ibm.com>
-> > 
-> > [ Upstream commit 98025bce3a6200a0c4637272a33b5913928ba5b8 ]
-> > 
-> > Commit 61d3e1d9bc2a ("ibmvnic: Remove netdev notify for failover resets")
-> > excluded the failover case for notify call because it said
-> > netdev_notify_peers() can cause network traffic to stall or halt.
-> > Current testing does not show network traffic stall
-> > or halt because of the notify call for failover event.
-> > netdev_notify_peers may be used when a device wants to inform the
-> > rest of the network about some sort of a reconfiguration
-> > such as failover or migration.
-> > 
-> > It is unnecessary to call that in other events like
-> > FATAL, NON_FATAL, CHANGE_PARAM, and TIMEOUT resets
-> > since in those scenarios the hardware does not change.
-> > If the driver must do a hard reset, it is necessary to notify peers.
+> Not really sure I understand the DC3CO issue here, nor how grabbing a
+> mutex across the update could help.
 > 
-> Something went wrong here.
+> But anyways, maybe we should just:
+> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+> index 2e2dd746921f..96276f0feddc 100644
+> --- a/drivers/gpu/drm/i915/display/intel_display.c
+> +++ b/drivers/gpu/drm/i915/display/intel_display.c
+> @@ -16268,8 +16268,7 @@ static void intel_atomic_commit_tail(struct intel_atomic_state *state)
+>  
+>  	drm_atomic_helper_wait_for_dependencies(&state->base);
+>  
+> -	if (state->modeset)
+> -		wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_MODESET);
+> +	wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_MODESET);
+>  
+>  	for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
+>  					    new_crtc_state, i) {
+> @@ -16415,8 +16414,8 @@ static void intel_atomic_commit_tail(struct intel_atomic_state *state)
+>  		 * the culprit.
+>  		 */
+>  		intel_uncore_arm_unclaimed_mmio_detection(&dev_priv->uncore);
+> -		intel_display_power_put(dev_priv, POWER_DOMAIN_MODESET, wakeref);
+>  	}
+> +	intel_display_power_put(dev_priv, POWER_DOMAIN_MODESET, wakeref);
+>  	intel_runtime_pm_put(&dev_priv->runtime_pm, state->wakeref);
+>  
+>  	/*
 > 
-> > @@ -1877,8 +1877,9 @@ static int do_reset(struct ibmvnic_adapt
-> >  	for (i = 0; i < adapter->req_rx_queues; i++)
-> >  		napi_schedule(&adapter->napi[i]);
-> >  
-> > -	if (adapter->reset_reason != VNIC_RESET_FAILOVER &&
-> > -	    adapter->reset_reason != VNIC_RESET_CHANGE_PARAM) {
-> > +	if ((adapter->reset_reason != VNIC_RESET_FAILOVER &&
-> > +	     adapter->reset_reason != VNIC_RESET_CHANGE_PARAM) ||
-> > +	     adapter->reset_reason == VNIC_RESET_MOBILITY) {
+> To get the DMC out of equation entirely for all plane updates?
+Hi Ville / Imre ,
+Above suggested chnages is not helping to fix the display glitches.
+Could you please provide your inputs to debug the possible root cause considering the patch https://patchwork.freedesktop.org/patch/405585/?series=84394&rev=2
+fixes the glitch.
+Thanks,
+Anshuman Gupta.
+ 
 > 
-> This condition does not make sense... part after || is redundant.
-> 
-> Mainline changed != in FAILOVER test to ==, so it does not have same
-> problem.
-
-Odd, ok, I'll just go drop this patch from the queue, thanks.
-
-greg k-h
+> -- 
+> Ville Syrjälä
+> Intel
