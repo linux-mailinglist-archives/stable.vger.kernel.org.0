@@ -2,203 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 388F72D2FBA
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 17:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3572D2FC8
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 17:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729667AbgLHQbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 11:31:39 -0500
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:52919 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728602AbgLHQbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 11:31:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1607445097; x=1638981097;
-  h=from:to:cc:date:message-id:references:in-reply-to:
-   content-id:mime-version:content-transfer-encoding:subject;
-  bh=Y5bpVgZacRGpU6ZFB42gfUfS5kPt5wVA2edkP9+sBmg=;
-  b=mv6JAaxCc58WYxF9vWumloAfmziMEZ2Lgp281Ina/OV6QFdT4aEmunVy
-   NNuXg/lTmwRQHsS4fAFhgF9NJyLjuJNtK2qXft7B6N8s5pAZ0h1cqLYZI
-   S4gFydl81r+QeRQDSWmTn6V1uVXktDcQ4p8UMJHviHWqKoeQRfOPgHjGL
-   k=;
-X-IronPort-AV: E=Sophos;i="5.78,402,1599523200"; 
-   d="scan'208";a="102628876"
-Subject: Re: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation
- for high latency connections
-Thread-Topic: [PATCH net-next] tcp: optimise receiver buffer autotuning initialisation for
- high latency connections
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 08 Dec 2020 16:30:50 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com (Postfix) with ESMTPS id 9CF8FA1DA2;
-        Tue,  8 Dec 2020 16:30:48 +0000 (UTC)
-Received: from EX13D35UWB002.ant.amazon.com (10.43.161.154) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 8 Dec 2020 16:30:48 +0000
-Received: from EX13D18EUA004.ant.amazon.com (10.43.165.164) by
- EX13D35UWB002.ant.amazon.com (10.43.161.154) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 8 Dec 2020 16:30:47 +0000
-Received: from EX13D18EUA004.ant.amazon.com ([10.43.165.164]) by
- EX13D18EUA004.ant.amazon.com ([10.43.165.164]) with mapi id 15.00.1497.006;
- Tue, 8 Dec 2020 16:30:46 +0000
-From:   "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>
-To:     Eric Dumazet <edumazet@google.com>
-CC:     Neal Cardwell <ncardwell@google.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "ycheng@google.com" <ycheng@google.com>,
-        "weiwan@google.com" <weiwan@google.com>,
-        "Strohman, Andy" <astroh@amazon.com>,
-        "Herrenschmidt, Benjamin" <benh@amazon.com>
-Thread-Index: AQHWym1GjWRxI1tB2UKaX8lFVs4qcanoaEaAgANdNICAAAxqgIAAA6oAgAADDACAAAwCgIAAAweAgAGBuoCAAAC9gA==
-Date:   Tue, 8 Dec 2020 16:30:45 +0000
-Message-ID: <10868573-9303-49FE-BC8E-EDD8544FFB50@amazon.com>
-References: <20201204180622.14285-1-abuehaze@amazon.com>
- <44E3AA29-F033-4B8E-A1BC-E38824B5B1E3@amazon.com>
- <CANn89iJgJQfOeNr9aZHb+_Vozgd9v4S87Kf4iV=mKhuPDGLkEg@mail.gmail.com>
- <3F02FF08-EDA6-4DFD-8D93-479A5B05E25A@amazon.com>
- <CANn89iL_5QFGQLzxxLyqfNMGiV2wF4CbkY==x5Sh5vqKOTgFtw@mail.gmail.com>
- <781BA871-5D3D-4C89-9629-81345CC41C5C@amazon.com>
- <CANn89iK1G-YMWo07uByfUwrrK8QPvQPeFrRG1vJhB_OhJo7v2A@mail.gmail.com>
- <CADVnQymROUn6jQdPKxNr_Uc3KMqjX4t0M6=HC6rDxmZzZVv0=Q@mail.gmail.com>
- <170D5DF4-443F-47F6-B645-A8762E17A475@amazon.com>
- <CANn89iK_dheHnVjbtg=QkgF=Ng8dYMGfL2RR_3NRv8gwfbgaAQ@mail.gmail.com>
- <40735F4F-7BEC-4342-A9B1-A8780727C94A@amazon.com>
-In-Reply-To: <40735F4F-7BEC-4342-A9B1-A8780727C94A@amazon.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-GB
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.165.102]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <B59DE68851DAFA439C1785575535126C@amazon.com>
+        id S1728679AbgLHQfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 11:35:52 -0500
+Received: from mga12.intel.com ([192.55.52.136]:4687 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726703AbgLHQfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 11:35:52 -0500
+IronPort-SDR: Crc814HfJWqm4bu2z1giovo3oJmSXYhNKYdvMoscH5dRYPtQhhVr3lyzVegFJZAx0XJ/3bMpcU
+ 7t/E+8oyEU/A==
+X-IronPort-AV: E=McAfee;i="6000,8403,9829"; a="153160512"
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="153160512"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 08:35:11 -0800
+IronPort-SDR: LIn0azVBF/cQ5ac8xtFl/G6n0pLIRNxckAz+813KWPFNoYsmUGuofo5I/OVG5zVI/+K4cxPt6V
+ sTHDAlLMw9IA==
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="437440577"
+Received: from mparames-mobl.amr.corp.intel.com (HELO [10.209.5.123]) ([10.209.5.123])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 08:35:10 -0800
+Subject: Re: [PATCH 1/3] x86/resctrl: Move setting task's active CPU in a mask
+ into helpers
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
+        kuo-lang.tseng@intel.com, shakeelb@google.com,
+        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
+        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <cover.1607036601.git.reinette.chatre@intel.com>
+ <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
+ <20201207182912.GF20489@zn.tnic>
+ <db6bea7e-b60b-2859-aa35-c3d2d5356eaa@intel.com>
+ <20201208094907.GB27920@zn.tnic>
+From:   Reinette Chatre <reinette.chatre@intel.com>
+Message-ID: <fa4bb98e-0084-1c45-8999-352f1274b238@intel.com>
+Date:   Tue, 8 Dec 2020 08:35:09 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+In-Reply-To: <20201208094907.GB27920@zn.tnic>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RmVlbCBmcmVlIHRvIGlnbm9yZSB0aGlzIG1lc3NhZ2UgIGFzIEkgc2VudCBpdCBiZWZvcmUgc2Vl
-aW5nICB5b3VyIG5ld2x5IHN1Ym1pdHRlZCBwYXRjaCAoDQoNClRoYW5rIHlvdS4NCg0KSGF6ZW0N
-Cg0KDQoNCu+7v09uIDA4LzEyLzIwMjAsIDE2OjI4LCAiTW9oYW1lZCBBYnVlbGZvdG9oLCBIYXpl
-bSIgPGFidWVoYXplQGFtYXpvbi5jb20+IHdyb3RlOg0KDQogICAgICAgID5QbGVhc2UgdHJ5IGFn
-YWluLCB3aXRoIGEgZml4ZWQgdGNwX3JtZW1bMV0gb24gcmVjZWl2ZXIsIHRha2luZyBpbnRvDQog
-ICAgICAgID5hY2NvdW50IGJpZ2dlciBtZW1vcnkgcmVxdWlyZW1lbnQgZm9yIE1UVSA5MDAwDQoN
-CiAgICAgICAgPlJhdGlvbmFsZSA6IFRDUCBzaG91bGQgYmUgcmVhZHkgdG8gcmVjZWl2ZSAxMCBm
-dWxsIGZyYW1lcyBiZWZvcmUNCiAgICAgICAgPmF1dG90dW5pbmcgdGFrZXMgcGxhY2UgKHRoZXNl
-IDEwIE1TUyBhcmUgdHlwaWNhbGx5IGluIGEgc2luZ2xlIEdSTw0KICAgICAgID4gcGFja2V0KQ0K
-DQogICAgICAgID5BdCA5MDAwIE1UVSwgb25lIGZyYW1lIHR5cGljYWxseSBjb25zdW1lcyAxMktC
-IChvciAxNktCIG9uIHNvbWUgYXJjaGVzL2RyaXZlcnMpDQoNCiAgICAgICA+VENQIHVzZXMgYSA1
-MCUgZmFjdG9yIHJ1bGUsIGFjY291bnRpbmcgMTgwMDAgYnl0ZXMgb2Yga2VybmVsIG1lbW9yeSBw
-ZXIgTVNTLg0KDQogICAgICAgIC0+DQoNCiAgICAgICAgPmVjaG8gIjQwOTYgMTgwMDAwIDE1NzI4
-NjQwIiA+L3Byb2Mvc3lzL25ldC9pcHY0L3RjcF9ybWVtDQoNCg0KDQogICAgPmRpZmYgLS1naXQg
-YS9uZXQvaXB2NC90Y3BfaW5wdXQuYyBiL25ldC9pcHY0L3RjcF9pbnB1dC5jDQogICAgPmluZGV4
-IDllOGE2YzFhYTAxOTBjYzI0OGIzYjk5YjA3M2E0YzZlNDU4ODRjZjUuLjgxYjVkOTM3NTg2MGFl
-NTgzZTA4MDQ1ZmIyNWIwODljNDU2YzYwYWINCiAgICA+MTAwNjQ0DQogICAgPi0tLSBhL25ldC9p
-cHY0L3RjcF9pbnB1dC5jDQogICAgPisrKyBiL25ldC9pcHY0L3RjcF9pbnB1dC5jDQogICAgPkBA
-IC01MzQsNiArNTM0LDcgQEAgc3RhdGljIHZvaWQgdGNwX2luaXRfYnVmZmVyX3NwYWNlKHN0cnVj
-dCBzb2NrICpzaykNCiAgICA+DQogICAgPiAgICAgICAgdHAtPnJjdl9zc3RocmVzaCA9IG1pbih0
-cC0+cmN2X3NzdGhyZXNoLCB0cC0+d2luZG93X2NsYW1wKTsNCiAgICA+ICAgICAgIHRwLT5zbmRf
-Y3duZF9zdGFtcCA9IHRjcF9qaWZmaWVzMzI7DQogICAgPisgICAgICAgdHAtPnJjdnFfc3BhY2Uu
-c3BhY2UgPSBtaW4odHAtPnJjdl9zc3RocmVzaCwgdHAtPnJjdnFfc3BhY2Uuc3BhY2UpOw0KICAg
-ID59DQoNCiAgICBZZXMgdGhpcyB3b3JrZWQgYW5kIGl0IGxvb2tzIGxpa2UgZWNobyAiNDA5NiAx
-NDAwMDAgMTU3Mjg2NDAiID4vcHJvYy9zeXMvbmV0L2lwdjQvdGNwX3JtZW0gaXMgYWN0dWFsbHkg
-ZW5vdWdoIHRvIHRyaWdnZXIgVENQIGF1dG90dW5pbmcsIGlmIHRoZSBjdXJyZW50IGRlZmF1bHQg
-dGNwX3JtZW1bMV0gZG9lc24ndCB3b3JrIHdlbGwgd2l0aCA5MDAwIE1UVSBJIGFtIGN1cmlvdXMg
-dG8ga25vdyAgaWYgdGhlcmUgaXMgc3BlY2lmaWMgcmVhc29uIGJlaGluZCBoYXZpbmcgMTMxMDcy
-IHNwZWNpZmljYWxseSAgIGFzICB0Y3Bfcm1lbVsxXT9JIHRoaW5rIHRoZSBudW1iZXIgaXRzZWxm
-IGhhcyB0byBiZSBkaXZpc2libGUgYnkgcGFnZSBzaXplICg0SykgYW5kIDE2S0IgZ2l2ZW4gd2hh
-dCB5b3Ugc2FpZCB0aGF0IGVhY2ggSnVtYm8gZnJhbWUgcGFja2V0IG1heSBjb25zdW1lIHVwIHRv
-IDE2S0IuDQoNCiAgICBpZiB0aGUgcGF0Y2ggSSBwcm9wb3NlZCB3b3VsZCBiZSByaXNreSBmb3Ig
-dXNlcnMgd2hvIGhhdmUgTVRVIG9mIDE1MDAgYmVjYXVzZSBvZiBpdHMgaGlnaGVyIG1lbW9yeSBm
-b290cHJpbnQgaW4gbXkgb3BpbmlvbiB3ZSBzaG91bGQgIGdldCB0aGUgcGF0Y2ggeW91IHByb3Bv
-c2VkIG1lcmdlZCBpbnN0ZWFkIG9mIGFza2luZyB0aGUgQWRtaW5zIGRvaW5nIHRoZSBtYW51YWwg
-d29yay4NCg0KICAgIFRoYW5rIHlvdS4NCg0KICAgIEhhemVtDQoNCiAgICBPbiAwNy8xMi8yMDIw
-LCAxNzoyOCwgIkVyaWMgRHVtYXpldCIgPGVkdW1hemV0QGdvb2dsZS5jb20+IHdyb3RlOg0KDQog
-ICAgICAgIENBVVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgdGhl
-IG9yZ2FuaXphdGlvbi4gRG8gbm90IGNsaWNrIGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5s
-ZXNzIHlvdSBjYW4gY29uZmlybSB0aGUgc2VuZGVyIGFuZCBrbm93IHRoZSBjb250ZW50IGlzIHNh
-ZmUuDQoNCg0KDQogICAgICAgIE9uIE1vbiwgRGVjIDcsIDIwMjAgYXQgNjoxNyBQTSBNb2hhbWVk
-IEFidWVsZm90b2gsIEhhemVtDQogICAgICAgIDxhYnVlaGF6ZUBhbWF6b24uY29tPiB3cm90ZToN
-CiAgICAgICAgPg0KICAgICAgICA+ICAgICA+VGhhbmtzIGZvciB0ZXN0aW5nIHRoaXMsIEVyaWMu
-IFdvdWxkIHlvdSBiZSBhYmxlIHRvIHNoYXJlIHRoZSBNVFUNCiAgICAgICAgPiAgICAgPmNvbmZp
-ZyBjb21tYW5kcyB5b3UgdXNlZCwgYW5kIHRoZSB0Y3BkdW1wIHRyYWNlcyB5b3UgZ2V0PyBJJ20N
-CiAgICAgICAgPiAgICAgPnN1cnByaXNlZCB0aGF0IHJlY2VpdmUgYnVmZmVyIGF1dG90dW5pbmcg
-d291bGQgd29yayBmb3IgYWR2bXNzIG9mDQogICAgICAgID4gICAgID5hcm91bmQgNjUwMCBvciBo
-aWdoZXIuDQogICAgICAgID4NCiAgICAgICAgPiBQYWNrZXQgY2FwdHVyZSBiZWZvcmUgYXBwbHlp
-bmcgdGhlIHByb3Bvc2VkIHBhdGNoDQogICAgICAgID4NCiAgICAgICAgPiBodHRwczovL3RjcGF1
-dG90dW5pbmdwY2Fwcy5zMy5ldS13ZXN0LTEuYW1hem9uYXdzLmNvbS9zZW5kZXItYmJyLWJhZC11
-bnBhdGNoZWQucGNhcD9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVk
-ZW50aWFsPUFLSUFKTk1QNVpaM0k0RkFRR0FRJTJGMjAyMDEyMDclMkZldS13ZXN0LTElMkZzMyUy
-RmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjAxMjA3VDE3MDEyM1omWC1BbXotRXhwaXJlcz02
-MDQ4MDAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JlgtQW16LVNpZ25hdHVyZT1hNTk5YTBlMGU2
-NjMyYTk1N2U1NjE5MDA3YmE1Y2U0ZjYzYzhlODUzNWVhMjQ0NzBiNzA5M2ZlZjQ0MGE4MzAwDQog
-ICAgICAgID4NCiAgICAgICAgPiBQYWNrZXQgY2FwdHVyZSBhZnRlciBhcHBseWluZyB0aGUgcHJv
-cG9zZWQgcGF0Y2gNCiAgICAgICAgPg0KICAgICAgICA+IGh0dHBzOi8vdGNwYXV0b3R1bmluZ3Bj
-YXBzLnMzLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tL3NlbmRlci1iYnItZ29vZC1wYXRjaGVkLnBj
-YXA/WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lB
-Sk5NUDVaWjNJNEZBUUdBUSUyRjIwMjAxMjA3JTJGZXUtd2VzdC0xJTJGczMlMkZhd3M0X3JlcXVl
-c3QmWC1BbXotRGF0ZT0yMDIwMTIwN1QxNjU4MzFaJlgtQW16LUV4cGlyZXM9NjA0ODAwJlgtQW16
-LVNpZ25lZEhlYWRlcnM9aG9zdCZYLUFtei1TaWduYXR1cmU9ZjE4ZWM3MjQ2MTA3NTkwZThhYzM1
-YzI0MzIyYWY2OTllNGMyYTczZDE3NDA2N2M1MWNmNmIwYTA2YmJiY2E3Nw0KICAgICAgICA+DQog
-ICAgICAgID4ga2VybmVsIHZlcnNpb24gJiBNVFUgYW5kIGNvbmZpZ3VyYXRpb24gIGZyb20gbXkg
-cmVjZWl2ZXIgJiBzZW5kZXIgaXMgYXR0YWNoZWQgdG8gdGhpcyBlLW1haWwsIHBsZWFzZSBiZSBh
-d2FyZSB0aGF0IEVDMiBpcyBkb2luZyBNU1MgY2xhbXBpbmcgc28geW91IG5lZWQgdG8gY29uZmln
-dXJlIE1UVSBhcyAxNTAwIG9uIHRoZSBzZW5kZXIgc2lkZSBpZiB5b3UgZG9u4oCZdCBoYXZlIGFu
-eSBNU1MgY2xhbXBpbmcgYmV0d2VlbiBzZW5kZXIgJiByZWNlaXZlci4NCiAgICAgICAgPg0KICAg
-ICAgICA+IFRoYW5rIHlvdS4NCiAgICAgICAgPg0KICAgICAgICA+IEhhemVtDQoNCiAgICAgICAg
-UGxlYXNlIHRyeSBhZ2Fpbiwgd2l0aCBhIGZpeGVkIHRjcF9ybWVtWzFdIG9uIHJlY2VpdmVyLCB0
-YWtpbmcgaW50bw0KICAgICAgICBhY2NvdW50IGJpZ2dlciBtZW1vcnkgcmVxdWlyZW1lbnQgZm9y
-IE1UVSA5MDAwDQoNCiAgICAgICAgUmF0aW9uYWxlIDogVENQIHNob3VsZCBiZSByZWFkeSB0byBy
-ZWNlaXZlIDEwIGZ1bGwgZnJhbWVzIGJlZm9yZQ0KICAgICAgICBhdXRvdHVuaW5nIHRha2VzIHBs
-YWNlICh0aGVzZSAxMCBNU1MgYXJlIHR5cGljYWxseSBpbiBhIHNpbmdsZSBHUk8NCiAgICAgICAg
-cGFja2V0KQ0KDQogICAgICAgIEF0IDkwMDAgTVRVLCBvbmUgZnJhbWUgdHlwaWNhbGx5IGNvbnN1
-bWVzIDEyS0IgKG9yIDE2S0Igb24gc29tZSBhcmNoZXMvZHJpdmVycykNCg0KICAgICAgICBUQ1Ag
-dXNlcyBhIDUwJSBmYWN0b3IgcnVsZSwgYWNjb3VudGluZyAxODAwMCBieXRlcyBvZiBrZXJuZWwg
-bWVtb3J5IHBlciBNU1MuDQoNCiAgICAgICAgLT4NCg0KICAgICAgICBlY2hvICI0MDk2IDE4MDAw
-MCAxNTcyODY0MCIgPi9wcm9jL3N5cy9uZXQvaXB2NC90Y3Bfcm1lbQ0KDQoNCg0KICAgICAgICA+
-DQogICAgICAgID4NCiAgICAgICAgPiBPbiAwNy8xMi8yMDIwLCAxNjozNCwgIk5lYWwgQ2FyZHdl
-bGwiIDxuY2FyZHdlbGxAZ29vZ2xlLmNvbT4gd3JvdGU6DQogICAgICAgID4NCiAgICAgICAgPiAg
-ICAgQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiB0aGUgb3Jn
-YW5pemF0aW9uLiBEbyBub3QgY2xpY2sgbGlua3Mgb3Igb3BlbiBhdHRhY2htZW50cyB1bmxlc3Mg
-eW91IGNhbiBjb25maXJtIHRoZSBzZW5kZXIgYW5kIGtub3cgdGhlIGNvbnRlbnQgaXMgc2FmZS4N
-CiAgICAgICAgPg0KICAgICAgICA+DQogICAgICAgID4NCiAgICAgICAgPiAgICAgT24gTW9uLCBE
-ZWMgNywgMjAyMCBhdCAxMToyMyBBTSBFcmljIER1bWF6ZXQgPGVkdW1hemV0QGdvb2dsZS5jb20+
-IHdyb3RlOg0KICAgICAgICA+ICAgICA+DQogICAgICAgID4gICAgID4gT24gTW9uLCBEZWMgNywg
-MjAyMCBhdCA1OjA5IFBNIE1vaGFtZWQgQWJ1ZWxmb3RvaCwgSGF6ZW0NCiAgICAgICAgPiAgICAg
-PiA8YWJ1ZWhhemVAYW1hem9uLmNvbT4gd3JvdGU6DQogICAgICAgID4gICAgID4gPg0KICAgICAg
-ICA+ICAgICA+ID4gICAgID5TaW5jZSBJIGNhbiBub3QgcmVwcm9kdWNlIHRoaXMgcHJvYmxlbSB3
-aXRoIGFub3RoZXIgTklDIG9uIHg4NiwgSQ0KICAgICAgICA+ICAgICA+ID4gICAgID5yZWFsbHkg
-d29uZGVyIGlmIHRoaXMgaXMgbm90IGFuIGlzc3VlIHdpdGggRU5BIGRyaXZlciBvbiBQb3dlclBD
-DQogICAgICAgID4gICAgID4gPiAgICAgPnBlcmhhcHMgPw0KICAgICAgICA+ICAgICA+ID4NCiAg
-ICAgICAgPiAgICAgPiA+DQogICAgICAgID4gICAgID4gPiBJIGFtIGFibGUgdG8gcmVwcm9kdWNl
-IGl0IG9uIHg4NiBiYXNlZCBFQzIgaW5zdGFuY2VzIHVzaW5nIEVOQSAgb3IgIFhlbiBuZXRmcm9u
-dCBvciBJbnRlbCBpeGdiZXZmIGRyaXZlciBvbiB0aGUgcmVjZWl2ZXIgc28gaXQncyBub3Qgc3Bl
-Y2lmaWMgdG8gRU5BLCB3ZSB3ZXJlIGFibGUgdG8gZWFzaWx5IHJlcHJvZHVjZSBpdCBiZXR3ZWVu
-IDIgVk1zIHJ1bm5pbmcgaW4gdmlydHVhbCBib3ggb24gdGhlIHNhbWUgcGh5c2ljYWwgaG9zdCBj
-b25zaWRlcmluZyB0aGUgZW52aXJvbm1lbnQgcmVxdWlyZW1lbnRzIEkgbWVudGlvbmVkIGluIG15
-IGZpcnN0IGUtbWFpbC4NCiAgICAgICAgPiAgICAgPiA+DQogICAgICAgID4gICAgID4gPiBXaGF0
-J3MgdGhlIFJUVCBiZXR3ZWVuIHRoZSBzZW5kZXIgJiByZWNlaXZlciBpbiB5b3VyIHJlcHJvZHVj
-dGlvbj8gQXJlIHlvdSB1c2luZyBiYnIgb24gdGhlIHNlbmRlciBzaWRlPw0KICAgICAgICA+ICAg
-ICA+DQogICAgICAgID4gICAgID4NCiAgICAgICAgPiAgICAgPiAxMDBtcyBSVFQNCiAgICAgICAg
-PiAgICAgPg0KICAgICAgICA+ICAgICA+IFdoaWNoIGV4YWN0IHZlcnNpb24gb2YgbGludXgga2Vy
-bmVsIGFyZSB5b3UgdXNpbmcgPw0KICAgICAgICA+DQogICAgICAgID4gICAgIFRoYW5rcyBmb3Ig
-dGVzdGluZyB0aGlzLCBFcmljLiBXb3VsZCB5b3UgYmUgYWJsZSB0byBzaGFyZSB0aGUgTVRVDQog
-ICAgICAgID4gICAgIGNvbmZpZyBjb21tYW5kcyB5b3UgdXNlZCwgYW5kIHRoZSB0Y3BkdW1wIHRy
-YWNlcyB5b3UgZ2V0PyBJJ20NCiAgICAgICAgPiAgICAgc3VycHJpc2VkIHRoYXQgcmVjZWl2ZSBi
-dWZmZXIgYXV0b3R1bmluZyB3b3VsZCB3b3JrIGZvciBhZHZtc3Mgb2YNCiAgICAgICAgPiAgICAg
-YXJvdW5kIDY1MDAgb3IgaGlnaGVyLg0KICAgICAgICA+DQogICAgICAgID4gICAgIHRoYW5rcywN
-CiAgICAgICAgPiAgICAgbmVhbA0KICAgICAgICA+DQogICAgICAgID4NCiAgICAgICAgPg0KICAg
-ICAgICA+DQogICAgICAgID4gQW1hem9uIFdlYiBTZXJ2aWNlcyBFTUVBIFNBUkwsIDM4IGF2ZW51
-ZSBKb2huIEYuIEtlbm5lZHksIEwtMTg1NSBMdXhlbWJvdXJnLCBSLkMuUy4gTHV4ZW1ib3VyZyBC
-MTg2Mjg0DQogICAgICAgID4NCiAgICAgICAgPiBBbWF6b24gV2ViIFNlcnZpY2VzIEVNRUEgU0FS
-TCwgSXJpc2ggQnJhbmNoLCBPbmUgQnVybGluZ3RvbiBQbGF6YSwgQnVybGluZ3RvbiBSb2FkLCBE
-dWJsaW4gNCwgSXJlbGFuZCwgYnJhbmNoIHJlZ2lzdHJhdGlvbiBudW1iZXIgOTA4NzA1DQogICAg
-ICAgID4NCiAgICAgICAgPg0KDQoNCgoKCkFtYXpvbiBXZWIgU2VydmljZXMgRU1FQSBTQVJMLCAz
-OCBhdmVudWUgSm9obiBGLiBLZW5uZWR5LCBMLTE4NTUgTHV4ZW1ib3VyZywgUi5DLlMuIEx1eGVt
-Ym91cmcgQjE4NjI4NAoKQW1hem9uIFdlYiBTZXJ2aWNlcyBFTUVBIFNBUkwsIElyaXNoIEJyYW5j
-aCwgT25lIEJ1cmxpbmd0b24gUGxhemEsIEJ1cmxpbmd0b24gUm9hZCwgRHVibGluIDQsIElyZWxh
-bmQsIGJyYW5jaCByZWdpc3RyYXRpb24gbnVtYmVyIDkwODcwNQoKCg==
+Hi Borislav,
+
+On 12/8/2020 1:49 AM, Borislav Petkov wrote:
+> On Mon, Dec 07, 2020 at 01:24:51PM -0800, Reinette Chatre wrote:
+>> How about:
+>> "Move the setting of the CPU on which a task is running in a CPU mask into a
+>> couple of helpers.
+>>
+>> There is no functional change. This is a preparatory change for the fix in
+>> the following patch from where the Fixes tag is copied."
+> 
+> Almost. Just not call it a "following patch" because once this is
+> applied, the following one might be a different one depending on the
+> ordering a git command has requested. So a "later patch" would be
+> probably better.
+
+Indeed, will do. Thank you.
+
+> 
+>> Correct. I will add it. The addition to the commit message above aims to
+>> explain a Fixes tag to a patch with no functional changes.
+> 
+> Yes but you need to tell the stable people somehow that this one is a
+> prerequisite and that they should pick it up too.
+
+Right. Thanks for guiding here.
+
+> 
+> Unless you can reorg your code this way that you don't need patch 1...
+
+I think that the current organization, with patch 1 containing the 
+preparatory work without functional changes, makes the fix in patch 2 
+easier to review. I thus plan to keep the code organization as is while 
+surely following your suggestion on how to support the stable team.
+
+Thank you very much
+
+Reinette
 
