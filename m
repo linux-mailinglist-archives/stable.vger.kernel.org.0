@@ -2,76 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E33B42D2462
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 08:34:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D42FE2D24ED
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 08:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbgLHHdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 02:33:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57834 "EHLO
+        id S1726601AbgLHHus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 02:50:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbgLHHdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 02:33:24 -0500
-Received: from bmailout3.hostsharing.net (bmailout3.hostsharing.net [IPv6:2a01:4f8:150:2161:1:b009:f23e:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E404C061749
-        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 23:32:44 -0800 (PST)
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
-        by bmailout3.hostsharing.net (Postfix) with ESMTPS id CC329100FBFEF;
-        Tue,  8 Dec 2020 08:32:40 +0100 (CET)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-        id 87B9B1F5C; Tue,  8 Dec 2020 08:32:41 +0100 (CET)
-Date:   Tue, 8 Dec 2020 08:32:41 +0100
-From:   Lukas Wunner <lukas@wunner.de>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19-stable 4/5] spi: bcm2835aux: Fix use-after-free on
- unbind
-Message-ID: <20201208073241.GA29998@wunner.de>
-References: <70e63c9a7ed172e15b9d1fe82d44603ea9c76288.1607257456.git.lukas@wunner.de>
- <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
- <20201208004901.GB587492@ubuntu-m3-large-x86>
+        with ESMTP id S1726590AbgLHHus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 02:50:48 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B58C061749
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 23:50:07 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id q16so16544842edv.10
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 23:50:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=tessares-net.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fOQLy+eUSJxjrr4kN6GZwIjc7QErW79tP61SaQUg2Q8=;
+        b=D5EALbChqgbFo4A+nfUAfzSkkaB2AtQtou39anrW2PtrhYoGcmEt8+1c7fIUI8PzLd
+         DnnpfDWd+CcpCec6WME1NSCaSVCwecLq+aHInLRzSB/mjLZEYXP+3ONnksouiQa7aZxF
+         EfpScSe0W1w487f31fMGEta5QReNWP33RGo9Pi2sOchgzfJhwzJ6+6W99SZuVWdtl0/F
+         Oo6SQClIGfNWy3sS4dJCSVSxz4lPnRw+p8ViBykCb5IF1wtRpqc8YWPcC0kd4y8N4YOh
+         9MMDtX4hJoSc/RkGKkSguz80ne5d3lTN9QP85REMu9vrWf5cEu/be16w0fUgyebJQP8X
+         3MhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fOQLy+eUSJxjrr4kN6GZwIjc7QErW79tP61SaQUg2Q8=;
+        b=RCRxjrppAVR5ycPWNfPNLBaoKlqERqCOQclCx95gxZQy7rNhJLMIiXzhI+Np3K2WPP
+         Folc2+G6Pp+tI0+5FAZjPbk5fNYKOuFeJFjoe7uWbyXObR5n4pdP61VzOV5z2yy43cYk
+         AOriDUoYUaK4idCuA2DHROBX3bN5TcekrLmK9ezZEw6N77HVi1xSSOMXVUBYRl4fpxgH
+         Ildn7HA0gDXw2nQc50WyDL7W1dthcnijcK33OdiP/WtuBxfiQmiM5FOQDQnZI7e7vpEQ
+         3e0YPORAwJoEljta4bKwnm+fPDBCKoe2vXZdbjB7an6OL3yKKxExJDNXXbjO2EHnb8X1
+         eclA==
+X-Gm-Message-State: AOAM532oyZlIAf1o2s0eXaGasnrGtlT15Pi3nZD5z01gI6Xet7F6Ai+A
+        UTT5mkO6k2Au3AQ6ODPeN6+jTjjXaH408H6HeJSktA==
+X-Google-Smtp-Source: ABdhPJxoMbhHkSM7LS2dCFmI9//DZsMN09CBHiuY7vllq3z7zwRpYK3CPWd3hlZltyHyPFz8suG8pnGVwP+ANXUDkG8=
+X-Received: by 2002:a05:6402:48d:: with SMTP id k13mr23280219edv.92.1607413806399;
+ Mon, 07 Dec 2020 23:50:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201208004901.GB587492@ubuntu-m3-large-x86>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20201204182846.27110-1-kamal@canonical.com> <20201207224238.GA28646@ascalon>
+In-Reply-To: <20201207224238.GA28646@ascalon>
+From:   David Verbeiren <david.verbeiren@tessares.net>
+Date:   Tue, 8 Dec 2020 08:49:50 +0100
+Message-ID: <CAHzPrnGAYe6YwObkLfvc4+FLXe2ANE9Aq+snUOm2re5NyysLzA@mail.gmail.com>
+Subject: Re: [5.4.y] selftests/bpf build broken by "bpf: Zero-fill..."
+To:     Kamal Mostafa <kamal@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 05:49:01PM -0700, Nathan Chancellor wrote:
-> On Sun, Dec 06, 2020 at 01:31:03PM +0100, Lukas Wunner wrote:
-> > [ Upstream commit e13ee6cc4781edaf8c7321bee19217e3702ed481 ]
-> > 
-> > bcm2835aux_spi_remove() accesses the driver's private data after calling
-> > spi_unregister_master() even though that function releases the last
-> > reference on the spi_master and thereby frees the private data.
-> > 
-> > Fix by switching over to the new devm_spi_alloc_master() helper which
-> > keeps the private data accessible until the driver has unbound.
-> > 
-> > Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
-> > Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> > Cc: <stable@vger.kernel.org> # v4.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-> > Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
-> > Cc: <stable@vger.kernel.org> # v4.4+
-> > Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
-> > Signed-off-by: Mark Brown <broonie@kernel.org>
-> 
-> Please ensure that commit d853b3406903 ("spi: bcm2835aux: Restore err
-> assignment in bcm2835aux_spi_probe") is picked up with this patch in all
-> of the stable trees that it is applied to.
+Hi Kamal, Sasha,
 
-That shouldn't be necessary as I've made sure that the backports to
-4.19 and earlier do not exhibit the issue fixed by d853b3406903.
+On Mon, Dec 7, 2020 at 11:42 PM Kamal Mostafa <kamal@canonical.com> wrote:
+>
+> On Fri, Dec 04, 2020 at 10:28:46AM -0800, Kamal Mostafa wrote:
+> > Hi Sasha-
+> >
+> > This v5.4.78 commit breaks the tools/testing/selftests/bpf build:
+> >
+> > [linux-5.4.y] c602ad2b52dc bpf: Zero-fill re-used per-cpu map element
+> >
+> > Like this:
+> >
+> >       prog_tests/map_init.c:5:10: fatal error: test_map_init.skel.h: No such file or directory
+> >           5 | #include "test_map_init.skel.h"
+> >
+> > Because tools/testing/selftests/bpf/Makefile in v5.4 does not have the
+> > "skeleton header generation" stuff (circa v5.6).
+> >
+> > Reverting c602ad2b52dc from linux-5.4.y fixes it.
+>
+> Another option would be to just drop the selftest from linux-5.4.y,
+> but keep the beneficial change to kernel/bpf/hashtab.c.
+>
+> (We're leaning towards that approach for Ubuntu).
+>
+>  -Kamal
 
-However, nobody is perfect, so if I've missed anything, please let
-me know.
+An alternative could be to use the initial version of the selftest I had
+proposed before learning about the skeleton approach.
 
-Thanks!
+You can find it here:
+https://lore.kernel.org/bpf/20201029111730.6881-1-david.verbeiren@tessares.net/
 
-Lukas
+I also think it would be good to keep the fix of course.
+
+-David
