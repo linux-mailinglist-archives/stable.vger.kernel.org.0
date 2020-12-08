@@ -2,58 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447492D27F7
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731C02D281D
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:51:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729065AbgLHJmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 04:42:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
+        id S1727945AbgLHJtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 04:49:52 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:60852 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729048AbgLHJmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 04:42:43 -0500
-Date:   Tue, 8 Dec 2020 10:43:11 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607420522;
-        bh=w1nf9aRZwPuZBafKpjL531MngAbXEyNSYpf7tVShm2Y=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BGH7fQQwxFG/YBy7QGfmKJ8BT9aCjvoWMVU3bdoX4VGN5kRa4or5O1yrS6ezU1/cP
-         Bld+Kba7MacDJqKW3vVCf0867r+bB/6nZqY04uvo57lybaQ3OKP0gyJ/PZc2966Z3u
-         3LubaJYdiMsVthFMiFfYQYclrHtx4W0q1PdF80H0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.9 00/46] 5.9.13-rc1 review
-Message-ID: <X89Kr+aTg1o0KEfp@kroah.com>
-References: <20201206111556.455533723@linuxfoundation.org>
- <20201207155532.GD43600@roeck-us.net>
+        id S1727612AbgLHJtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 04:49:52 -0500
+Received: from zn.tnic (p200300ec2f0f0800de4a64cb7778f3c5.dip0.t-ipconnect.de [IPv6:2003:ec:2f0f:800:de4a:64cb:7778:f3c5])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 206B41EC026D;
+        Tue,  8 Dec 2020 10:49:11 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1607420951;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=nHwrzM8sBYNzv3ZS/BVe63dW+mG8m9RUPLrJK5+MKCc=;
+        b=V4UeYHj/eosomKIA9BRFUbVJfw6zHLgZzMrF7YI5efUMT6fFPsA7WJ+GaTTxd1v5FuWVM8
+        anEiGoNi/O3FPInZWnkmxzB2yeYwXYuH7SI7HamwIaCZSfvEW7OnwEP5P9x9J7ISuanBCM
+        HKJFqjKTLP/83HQIS9uvXCiHr2NkjSc=
+Date:   Tue, 8 Dec 2020 10:49:07 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
+        kuo-lang.tseng@intel.com, shakeelb@google.com,
+        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
+        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] x86/resctrl: Move setting task's active CPU in a
+ mask into helpers
+Message-ID: <20201208094907.GB27920@zn.tnic>
+References: <cover.1607036601.git.reinette.chatre@intel.com>
+ <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
+ <20201207182912.GF20489@zn.tnic>
+ <db6bea7e-b60b-2859-aa35-c3d2d5356eaa@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201207155532.GD43600@roeck-us.net>
+In-Reply-To: <db6bea7e-b60b-2859-aa35-c3d2d5356eaa@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 07:55:32AM -0800, Guenter Roeck wrote:
-> On Sun, Dec 06, 2020 at 12:17:08PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.9.13 release.
-> > There are 46 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
-> > Anything received after that time might be too late.
-> > 
+On Mon, Dec 07, 2020 at 01:24:51PM -0800, Reinette Chatre wrote:
+> How about:
+> "Move the setting of the CPU on which a task is running in a CPU mask into a
+> couple of helpers.
 > 
-> Build results:
-> 	total: 154 pass: 154 fail: 0
-> Qemu test results:
-> 	total: 426 pass: 426 fail: 0
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> There is no functional change. This is a preparatory change for the fix in
+> the following patch from where the Fixes tag is copied."
 
-Thanks for testing them all and letting me know.
+Almost. Just not call it a "following patch" because once this is
+applied, the following one might be a different one depending on the
+ordering a git command has requested. So a "later patch" would be
+probably better.
 
-greg k-h
+> Correct. I will add it. The addition to the commit message above aims to
+> explain a Fixes tag to a patch with no functional changes.
+
+Yes but you need to tell the stable people somehow that this one is a
+prerequisite and that they should pick it up too.
+
+Unless you can reorg your code this way that you don't need patch 1...
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
