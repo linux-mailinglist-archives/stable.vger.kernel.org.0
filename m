@@ -2,129 +2,301 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88FB62D36FE
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 00:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B17292D373C
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 00:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731747AbgLHXjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 18:39:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731735AbgLHXjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 18:39:15 -0500
-Date:   Tue, 08 Dec 2020 15:38:27 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1607470708;
-        bh=wTtOPQY6s8v55z0XQGMjoVRNudIHavg2ch7Fx81AHmY=;
-        h=From:To:Subject:From;
-        b=q5ED1PZtfDmGiwqqLAyvXYV4CPOGuU2wmpfolRWpMuQrGSU2V0kLc81BtlDee20Y2
-         dg5ic2uKscgNOttBl1KtZKLL+vpxhrfLvbfso1Lj2LaIlBjotxkNMp0wOm9i2WFFSY
-         1roddvbAbIxR8oW+whF5OUZYtC0ABTsqmuW4B+K8=
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, mike.kravetz@oracle.com,
-        borntraeger@de.ibm.com, gerald.schaefer@linux.ibm.com
-Subject:  +
- mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages.patch added to -mm
- tree
-Message-ID: <20201208233827.2yXQC%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1730611AbgLHXzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 18:55:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730680AbgLHXzu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 18:55:50 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1F3C0617A6
+        for <stable@vger.kernel.org>; Tue,  8 Dec 2020 15:54:56 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id t37so7933pga.7
+        for <stable@vger.kernel.org>; Tue, 08 Dec 2020 15:54:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Uotg0rK6WqUnJOtSrJxvOQq7sh86r63KATxN03B+BDY=;
+        b=l2y+yqBvMiThOoPCw77M42Nxwl5BwhKqj2mt6yywlfCwlygbL6pFEbb6jkU5Gy+p0e
+         BFfvlgaLTqkqMRakaQlLZLibgN2bZ5iw9P2kKtEqRaSsbFHw0RqMnKV2BGskOo2R3f1Y
+         vPmVf1BHCNj1MEyo4OPQIv6Xbq2Av9fPkeojnzaICZJgcrOw5sOPkARmqg9qqlZ+jNSe
+         7feQo1NAezFqB5Ra6wG6et6lZJnyfoDdxOKnekjZN63eUo0kI8Ta25ytFW+YAZiLQWO5
+         D08Mz//fksRHDIh0HPhvxz1ZXpiVwwwjs2yTNRGJHSAamfRDc5ZA7eKJo5CRBiJvkI8s
+         RcOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Uotg0rK6WqUnJOtSrJxvOQq7sh86r63KATxN03B+BDY=;
+        b=MvMVqFWTZSSU7QO01OEtey/Zp5GXCCSFNg4kviBPVfwpLRnDBV0a/5YLDzXWWvkFMk
+         PGKqJrLu+KpCoYbI+y1ic5V24CK6tuOaDZigobeyt09t7dYX5RPmbEgb2F5rgXBufQqj
+         ADR1bu/UY5yS2z22n9DWz3FhZxmHmaxyL3T6+CEGGmTyiwUy2p3CNsin+LvYcdWYI7fJ
+         qAU+hhpL7j86d8omm9ekiaZI1YUs59rNtYqpnTnjdvvGDwtKnusHrjvhk8q3gk32Ze36
+         Vjdltg5SCXoAECruMvb8uNNx7xhaYxzMR/KtK4KeFeEQZCni218suD6lYxx9lETfUZQm
+         IRcQ==
+X-Gm-Message-State: AOAM532svmaSJR9xG5BFJYabwBGbYBoV+bdh0hwMeD1LMalO/o+bYLyF
+        PrdqrK1POa6ak2Bw/p+Niu3LxEM5xsN7pQ==
+X-Google-Smtp-Source: ABdhPJxekY1GQzLnuKrK48o2a7IzrKcuq1mOQlUpwfFamzMgIBrqPUotw5wv4M4wkEAEXk8tZn6ncw==
+X-Received: by 2002:a17:90a:7f81:: with SMTP id m1mr153117pjl.169.1607471695927;
+        Tue, 08 Dec 2020 15:54:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c133sm308722pfb.8.2020.12.08.15.54.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Dec 2020 15:54:55 -0800 (PST)
+Message-ID: <5fd0124f.1c69fb81.8504c.0e0b@mx.google.com>
+Date:   Tue, 08 Dec 2020 15:54:55 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.247
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.9.y baseline: 136 runs, 6 regressions (v4.9.247)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y baseline: 136 runs, 6 regressions (v4.9.247)
 
-The patch titled
-     Subject: mm/hugetlb: clear compound_nr before freeing gigantic pages
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages.patch
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
 
-------------------------------------------------------
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: mm/hugetlb: clear compound_nr before freeing gigantic pages
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
 
-Commit 1378a5ee451a ("mm: store compound_nr as well as compound_order")
-added compound_nr counter to first tail struct page, overlaying with
-page->mapping.  The overlay itself is fine, but while freeing gigantic
-hugepages via free_contig_range(), a "bad page" check will trigger for
-non-NULL page->mapping on the first tail page:
+r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-[  276.681603] BUG: Bad page state in process bash  pfn:380001
-[  276.681614] page:00000000c35f0856 refcount:0 mapcount:0 mapping:00000000126b68aa index:0x0 pfn:0x380001
-[  276.681620] aops:0x0
-[  276.681622] flags: 0x3ffff00000000000()
-[  276.681626] raw: 3ffff00000000000 0000000000000100 0000000000000122 0000000100000000
-[  276.681628] raw: 0000000000000000 0000000000000000 ffffffff00000000 0000000000000000
-[  276.681630] page dumped because: non-NULL mapping
-[  276.681632] Modules linked in:
-[  276.681637] CPU: 6 PID: 616 Comm: bash Not tainted 5.10.0-rc7-next-20201208 #1
-[  276.681639] Hardware name: IBM 3906 M03 703 (LPAR)
-[  276.681641] Call Trace:
-[  276.681648]  [<0000000458c252b6>] show_stack+0x6e/0xe8
-[  276.681652]  [<000000045971cf60>] dump_stack+0x90/0xc8
-[  276.681656]  [<0000000458e8b186>] bad_page+0xd6/0x130
-[  276.681658]  [<0000000458e8cdea>] free_pcppages_bulk+0x26a/0x800
-[  276.681661]  [<0000000458e8e67e>] free_unref_page+0x6e/0x90
-[  276.681663]  [<0000000458e8ea6c>] free_contig_range+0x94/0xe8
-[  276.681666]  [<0000000458ea5e54>] update_and_free_page+0x1c4/0x2c8
-[  276.681669]  [<0000000458ea784e>] free_pool_huge_page+0x11e/0x138
-[  276.681671]  [<0000000458ea8530>] set_max_huge_pages+0x228/0x300
-[  276.681673]  [<0000000458ea86c0>] nr_hugepages_store_common+0xb8/0x130
-[  276.681678]  [<0000000458fd5b6a>] kernfs_fop_write+0xd2/0x218
-[  276.681681]  [<0000000458ef9da0>] vfs_write+0xb0/0x2b8
-[  276.681684]  [<0000000458efa15c>] ksys_write+0xac/0xe0
-[  276.681687]  [<000000045972c5ca>] system_call+0xe6/0x288
-[  276.681730] Disabling lock debugging due to kernel taint
 
-This is because only the compound_order is cleared in
-destroy_compound_gigantic_page(), and compound_nr is set to 1U << order ==
-1 for order 0 in set_compound_order(page, 0).
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.247/plan/baseline/
 
-Fix this by explicitly clearing compound_nr for first tail page after
-calling set_compound_order(page, 0).
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.247
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5d55c2adbefeb2d49d16891ed8ca8d03789fd31b =
 
-Link: https://lkml.kernel.org/r/20201208182813.66391-2-gerald.schaefer@linux.ibm.com
-Fixes: 1378a5ee451a ("mm: store compound_nr as well as compound_order")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc; Heiko Carstens <hca@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/mm/hugetlb.c~mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages
-+++ a/mm/hugetlb.c
-@@ -1216,6 +1216,7 @@ static void destroy_compound_gigantic_pa
- 	}
- 
- 	set_compound_order(page, 0);
-+	page[1].compound_nr = 0;
- 	__ClearPageHead(page);
- }
- 
-_
+Test Regressions
+---------------- =
 
-Patches currently in -mm which might be from gerald.schaefer@linux.ibm.com are
 
-mm-hugetlb-clear-compound_nr-before-freeing-gigantic-pages.patch
 
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc756b5fe3bc33029c94cd2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc756b5fe3bc33029c94=
+cd3
+        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc759aa18520a56c1c94cf2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc759aa18520a56c1c94=
+cf3
+        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc75b1c63eabb3639c94ccc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc75b1c63eabb3639c94=
+ccd
+        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc7641e5764e9f80fc94ccf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc7641e5764e9f80fc94=
+cd0
+        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc7b1f8cc2fe1a9e8c94d3b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilep=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilep=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc7b1f8cc2fe1a9e8c94=
+d3c
+        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fc753adf54fc62834c94cc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fc753adf54fc62834c94=
+cc9
+        failing since 14 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
