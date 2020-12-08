@@ -2,92 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E802D1F5A
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 01:50:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6AD2D1FBF
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 02:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726216AbgLHAtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 19:49:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728311AbgLHAto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 19:49:44 -0500
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF46C061793
-        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 16:49:04 -0800 (PST)
-Received: by mail-qv1-xf42.google.com with SMTP id n9so7547187qvp.5
-        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 16:49:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Lt1Fm9+tAxicQ8gVonKBaJW6G2HnCPxFeAoxndgf4W4=;
-        b=J9lCxE/AIvfwNlr6b+PTJK3bpnBQ+ibe8zIWlFNBH66DYi3rICpDqojjMJGXhVCP6c
-         cIEmfrVaZui1RGcfosI03/83/KLj6wz66v3MZovGqRVYhoZ111yMK5ilexOOlgoKJNtB
-         X3HILMED2ZuW1nJ9v7GLR3kila553xt75m/1s4IBqtQdXM5xJoUjDS7ly5PsmKvoD6oq
-         vAVS5/2Pzk5155+4F3swrR00h0NEmMsVIMcV8WOnAYEfMQijynDjeWQz2HE8lfzPgxEt
-         fIzBC5Y1+YqBoCpEc4RND0TBbqETRSss1bMln/r0hmdiS6l+Tm2TSFSQqXYxHdRTWanM
-         z8ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Lt1Fm9+tAxicQ8gVonKBaJW6G2HnCPxFeAoxndgf4W4=;
-        b=HWZnL5Y6ABrFT/FPamSKxeWCwuxzb7hDfIiKq7WD7neiNFdNi8VQ8FMy2P6zFH6pzV
-         JLhkMGYliR+3l2j515iCdwNrB8SbqvU3ta1sfUInVvwiCOfnvjciY8JsYkX02zFKfS+Q
-         Jp4oSg80rEaQg/I9T6aXB8+nIXq+mBP4G+hodtHrATWQ/ic/2h3sIGAz+fzhsSlHAB2I
-         NWGYgY+Dx8R9cjZ22bf4NKHGfXnvGUL4JIw2fN0/0uKMLB/eEESCSGkzM5amR+N+aAFh
-         cESSVAjc2Mf505e9ebrUAme79SH/dyFbfJXfjBPzeVhnInCLACNu4Fj3/6XeUO/Rqi7h
-         HI7Q==
-X-Gm-Message-State: AOAM532WIe5MUFOtVAqW6nCWjvryhhYSFZX9QAyDD83n9lir+VGxQg+/
-        darDLttTqLMrZRdqnoXzab4=
-X-Google-Smtp-Source: ABdhPJyMIFMjTiqY9RAbnO84OgxpyUmbbJbLUGjnXIVa4eW6yVpRwecvuKDklF0hvXGplA5MWf2yTQ==
-X-Received: by 2002:a05:6214:602:: with SMTP id z2mr10806186qvw.40.1607388543856;
-        Mon, 07 Dec 2020 16:49:03 -0800 (PST)
-Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
-        by smtp.gmail.com with ESMTPSA id y192sm14013936qkb.12.2020.12.07.16.49.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Dec 2020 16:49:03 -0800 (PST)
-Date:   Mon, 7 Dec 2020 17:49:01 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Lukas Wunner <lukas@wunner.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19-stable 4/5] spi: bcm2835aux: Fix use-after-free on
- unbind
-Message-ID: <20201208004901.GB587492@ubuntu-m3-large-x86>
-References: <70e63c9a7ed172e15b9d1fe82d44603ea9c76288.1607257456.git.lukas@wunner.de>
- <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
+        id S1726209AbgLHBLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 20:11:31 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:53245 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725877AbgLHBLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 20:11:30 -0500
+Received: from 2.general.dannf.us.vpn ([10.172.65.1] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <dann.frazier@canonical.com>)
+        id 1kmRWh-0005Ox-52; Tue, 08 Dec 2020 01:10:47 +0000
+From:   dann frazier <dann.frazier@canonical.com>
+To:     stable@vger.kernel.org, Michael Schaller <misch@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Matthew Garrett <matthew.garrett@nebula.com>,
+        Jeremy Kerr <jk@ozlabs.org>, linux-efi@vger.kernel.org
+Subject: [PATCH 4.4] arm64: assembler: make adr_l work in modules under KASLR
+Date:   Mon,  7 Dec 2020 18:10:34 -0700
+Message-Id: <20201208011034.3015079-1-dann.frazier@canonical.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
+References: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 06, 2020 at 01:31:03PM +0100, Lukas Wunner wrote:
-> [ Upstream commit e13ee6cc4781edaf8c7321bee19217e3702ed481 ]
-> 
-> bcm2835aux_spi_remove() accesses the driver's private data after calling
-> spi_unregister_master() even though that function releases the last
-> reference on the spi_master and thereby frees the private data.
-> 
-> Fix by switching over to the new devm_spi_alloc_master() helper which
-> keeps the private data accessible until the driver has unbound.
-> 
-> Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
-> Signed-off-by: Lukas Wunner <lukas@wunner.de>
-> Cc: <stable@vger.kernel.org> # v4.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-> Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
-> Cc: <stable@vger.kernel.org> # v4.4+
-> Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
-> Signed-off-by: Mark Brown <broonie@kernel.org>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-Please ensure that commit d853b3406903 ("spi: bcm2835aux: Restore err
-assignment in bcm2835aux_spi_probe") is picked up with this patch in all
-of the stable trees that it is applied to.
+commit 41c066f2c4d436c535616fe182331766c57838f0 upstream
 
-Cheers,
-Nathan
+When CONFIG_RANDOMIZE_MODULE_REGION_FULL=y, the offset between loaded
+modules and the core kernel may exceed 4 GB, putting symbols exported
+by the core kernel out of the reach of the ordinary adrp/add instruction
+pairs used to generate relative symbol references. So make the adr_l
+macro emit a movz/movk sequence instead when executing in module context.
+
+While at it, remove the pointless special case for the stack pointer.
+
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ dannf: backported to v4.4 by replacing the 3-arg adr_l macro in head.S
+  with it's output, as this commit drops the 3-arg variant ]
+Fixes: c042dd600f4e ("crypto: arm64/sha - avoid non-standard inline asm tricks")
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
+---
+ arch/arm64/include/asm/assembler.h | 36 +++++++++++++++++++++++++++---------
+ arch/arm64/kernel/head.S           |  3 ++-
+ 2 files changed, 29 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+index f68abb1..7c28791 100644
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -148,22 +148,25 @@ lr	.req	x30		// link register
+ 
+ /*
+  * Pseudo-ops for PC-relative adr/ldr/str <reg>, <symbol> where
+- * <symbol> is within the range +/- 4 GB of the PC.
++ * <symbol> is within the range +/- 4 GB of the PC when running
++ * in core kernel context. In module context, a movz/movk sequence
++ * is used, since modules may be loaded far away from the kernel
++ * when KASLR is in effect.
+  */
+ 	/*
+ 	 * @dst: destination register (64 bit wide)
+ 	 * @sym: name of the symbol
+-	 * @tmp: optional scratch register to be used if <dst> == sp, which
+-	 *       is not allowed in an adrp instruction
+ 	 */
+-	.macro	adr_l, dst, sym, tmp=
+-	.ifb	\tmp
++	.macro	adr_l, dst, sym
++#ifndef MODULE
+ 	adrp	\dst, \sym
+ 	add	\dst, \dst, :lo12:\sym
+-	.else
+-	adrp	\tmp, \sym
+-	add	\dst, \tmp, :lo12:\sym
+-	.endif
++#else
++	movz	\dst, #:abs_g3:\sym
++	movk	\dst, #:abs_g2_nc:\sym
++	movk	\dst, #:abs_g1_nc:\sym
++	movk	\dst, #:abs_g0_nc:\sym
++#endif
+ 	.endm
+ 
+ 	/*
+@@ -174,6 +177,7 @@ lr	.req	x30		// link register
+ 	 *       the address
+ 	 */
+ 	.macro	ldr_l, dst, sym, tmp=
++#ifndef MODULE
+ 	.ifb	\tmp
+ 	adrp	\dst, \sym
+ 	ldr	\dst, [\dst, :lo12:\sym]
+@@ -181,6 +185,15 @@ lr	.req	x30		// link register
+ 	adrp	\tmp, \sym
+ 	ldr	\dst, [\tmp, :lo12:\sym]
+ 	.endif
++#else
++	.ifb	\tmp
++	adr_l	\dst, \sym
++	ldr	\dst, [\dst]
++	.else
++	adr_l	\tmp, \sym
++	ldr	\dst, [\tmp]
++	.endif
++#endif
+ 	.endm
+ 
+ 	/*
+@@ -190,8 +203,13 @@ lr	.req	x30		// link register
+ 	 *       while <src> needs to be preserved.
+ 	 */
+ 	.macro	str_l, src, sym, tmp
++#ifndef MODULE
+ 	adrp	\tmp, \sym
+ 	str	\src, [\tmp, :lo12:\sym]
++#else
++	adr_l	\tmp, \sym
++	str	\src, [\tmp]
++#endif
+ 	.endm
+ 
+ /*
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 6299a8a..504bcc3 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -424,7 +424,8 @@ __mmap_switched:
+ 	str	xzr, [x6], #8			// Clear BSS
+ 	b	1b
+ 2:
+-	adr_l	sp, initial_sp, x4
++	adrp	x4, initial_sp
++	add	sp, x4, :lo12:initial_sp
+ 	str_l	x21, __fdt_pointer, x5		// Save FDT pointer
+ 	str_l	x24, memstart_addr, x6		// Save PHYS_OFFSET
+ 	mov	x29, #0
+-- 
+2.7.4
+
