@@ -2,58 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6407F2D2773
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:25:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B602D27A9
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbgLHJYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 04:24:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39564 "EHLO mail.kernel.org"
+        id S1728192AbgLHJbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 04:31:07 -0500
+Received: from mga06.intel.com ([134.134.136.31]:9877 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726703AbgLHJYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 04:24:30 -0500
-Date:   Tue, 8 Dec 2020 10:24:58 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607419430;
-        bh=mZVy2pRIiyr7mLTIx6XBmnVNxKXAmuJ8ic/WhcvBWe0=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TLQa13cbNAMva21QmYWyu1U3mjEHlZk4HGf5buD5E+aD1kkvFaVhIWSe6tRoAXGXC
-         MPyiVypgpOcjmCr9/uARUPvNkz6FiOscSb5dDkiAuyMoCeEhWNmpTQocEXlRyImpXA
-         kYGhbRP6FAwusHlDBcpRU34Nk3wHwnF79gfa+hoU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/32] 4.19.162-rc1 review
-Message-ID: <X89GaniY7R8LhjTO@kroah.com>
-References: <20201206111555.787862631@linuxfoundation.org>
- <20201207083042.GA26438@amd>
+        id S1727647AbgLHJbH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 04:31:07 -0500
+IronPort-SDR: 7cJc4MpzznhSIZrEuyPD8IhYzBdaDQtitaYSUcqbVl7sVkE8CL288QjBzvuuWoUJMDDILv9b/6
+ STPqQBqtjYaw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9828"; a="235460689"
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="235460689"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 01:28:04 -0800
+IronPort-SDR: oPaoZGDOzrTnZkayFGkNfnOVN5EKyxMuEaANrejIGzvPvJyyEaLT+2K4T2EV43zZIeSJkyr2JS
+ 0igSbsO4w4oQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
+   d="scan'208";a="552165902"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by orsmga005.jf.intel.com with ESMTP; 08 Dec 2020 01:28:02 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 3/5] xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
+Date:   Tue,  8 Dec 2020 11:29:10 +0200
+Message-Id: <20201208092912.1773650-4-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201208092912.1773650-1-mathias.nyman@linux.intel.com>
+References: <20201208092912.1773650-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201207083042.GA26438@amd>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 09:30:42AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > This is the start of the stable review cycle for the 4.19.162 release.
-> > There are 32 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
-> > Anything received after that time might be too late.
-> 
-> CIP testing did not find any problems here:
-> 
-> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-4.19.y
-> 
-> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-Thanks for testing this one and letting me know.
+The xHCI controller on Alpine Ridge LP keeps the whole Thunderbolt
+controller awake if the host controller is not allowed to sleep.
+This is the case even if no USB devices are connected to the host.
 
-greg k-h
+Add the Intel Alpine Ridge LP product-id to the list of product-ids
+for which we allow runtime PM by default.
+
+Fixes: 2815ef7fe4d4 ("xhci-pci: allow host runtime PM as default for Intel Alpine and Titan Ridge")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index bf89172c43ca..5f94d7edeb37 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -47,6 +47,7 @@
+ #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI	0x15b5
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI	0x15b6
++#define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI	0x15c1
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI	0x15db
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI	0x15d4
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
+@@ -232,6 +233,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
+-- 
+2.25.1
+
