@@ -2,223 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2852D2139
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 03:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AA72D2365
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 06:57:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727697AbgLHC7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 21:59:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53960 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726292AbgLHC7M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 21:59:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607396265;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gGQr3v6Nk16K2k5/uYho3hvGD3gQs3qkjS8EzdAbUeI=;
-        b=fe1JTmCvI18lWED+wql5mPE561rczn7aFeLzO7Nsl9x8iALMLs85/tbQSXq6YAORvrlfKU
-        E3FVzXGit63Zqe2iX4lKDIzgtBhPy+wrOSyENKyXUe0xVhBqdA9tz8ShDkTVloydIgnFn7
-        SrQ7WgQ2533nBqkXg3yK5EbneGaQfrk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-166-qVs5fXu3MAGV8FC4rJl5Pw-1; Mon, 07 Dec 2020 21:57:43 -0500
-X-MC-Unique: qVs5fXu3MAGV8FC4rJl5Pw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B3CE010054FF;
-        Tue,  8 Dec 2020 02:57:41 +0000 (UTC)
-Received: from mail (ovpn-112-148.rdu2.redhat.com [10.10.112.148])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1D6F847;
-        Tue,  8 Dec 2020 02:57:38 +0000 (UTC)
-Date:   Mon, 7 Dec 2020 21:57:37 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Mike Rapoport <rppt@linux.ibm.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com, cai@lca.pw,
-        david@redhat.com, mgorman@suse.de, mhocko@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
-Subject: Re: +
- mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
- added to -mm tree
-Message-ID: <X87rodZBmvJCyjBi@redhat.com>
-References: <20201206005401.qKuAVgOXr%akpm@linux-foundation.org>
- <20201206064849.GW123287@linux.ibm.com>
- <X80xQ6mvSwJZ0RvC@redhat.com>
- <20201207165037.GH1112728@linux.ibm.com>
+        id S1726066AbgLHF53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 00:57:29 -0500
+Received: from mailout3.samsung.com ([203.254.224.33]:35681 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726456AbgLHF53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 00:57:29 -0500
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20201208055645epoutp03c01eee5834cc1e85063d6600e852e349~OqCfA5QIl0707307073epoutp03O
+        for <stable@vger.kernel.org>; Tue,  8 Dec 2020 05:56:45 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20201208055645epoutp03c01eee5834cc1e85063d6600e852e349~OqCfA5QIl0707307073epoutp03O
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1607407005;
+        bh=rsTbIIaLQR8rxKChGFAebQUI8U0NU4zTklX8KiGdDKo=;
+        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+        b=dzjDz/Z6NO2Qpcwx7D39nkrlpnQkFqEceXRLQjhgKemGRtc1eUyLswoBrDfQLHLQq
+         n42XHIxcXl4/iabXiEHQwOKCmQ3Q1pjloTfwpLrwSasjv2UbhoeH8GRkrVBOyvhOVX
+         VkEKir11wo8PKnE3Iqrr3U3ynIH55T8Ibr/8FqpQ=
+Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20201208055644epcas5p21f63a4791903718c81d0896467ac4742~OqCeTLPG51547615476epcas5p28;
+        Tue,  8 Dec 2020 05:56:44 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        23.5D.50652.C951FCF5; Tue,  8 Dec 2020 14:56:44 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20201208055644epcas5p1df3f99bc365eb99992f9f3f2dac6f359~OqCdyUXUg0827208272epcas5p1H;
+        Tue,  8 Dec 2020 05:56:44 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20201208055644epsmtrp1c4638dbbb03509ae6b574f8054cae4a1~OqCdxNgRY3137731377epsmtrp1K;
+        Tue,  8 Dec 2020 05:56:44 +0000 (GMT)
+X-AuditID: b6c32a4a-6c9ff7000000c5dc-a6-5fcf159c6e93
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        A0.91.08745.C951FCF5; Tue,  8 Dec 2020 14:56:44 +0900 (KST)
+Received: from pankajdubey02 (unknown [107.122.12.6]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20201208055642epsmtip17c7980d6b1f36f1614c6a3d5c3934b52~OqCcKf0F41256012560epsmtip1r;
+        Tue,  8 Dec 2020 05:56:42 +0000 (GMT)
+From:   "Pankaj Dubey" <pankaj.dubey@samsung.com>
+To:     "'Krzysztof Kozlowski'" <krzk@kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-samsung-soc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Cc:     "'Sylwester Nawrocki'" <snawrocki@kernel.org>,
+        "'Marek Szyprowski'" <m.szyprowski@samsung.com>,
+        "'Bartlomiej Zolnierkiewicz'" <b.zolnierkie@samsung.com>,
+        "'Arnd Bergmann'" <arnd@arndb.de>,
+        "'Chanwoo Choi'" <cw00.choi@samsung.com>,
+        "'Alim Akhtar'" <alim.akhtar@samsung.com>, <stable@vger.kernel.org>
+In-Reply-To: <20201207190517.262051-2-krzk@kernel.org>
+Subject: RE: [PATCH v2 1/4] soc: samsung: exynos-asv: don't defer early on
+ not-supported SoCs
+Date:   Tue, 8 Dec 2020 11:26:17 +0530
+Message-ID: <000701d6cd26$e82ad1e0$b88075a0$@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201207165037.GH1112728@linux.ibm.com>
-User-Agent: Mutt/2.0.2 (2020-11-20)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQI3Sc44zrAFnNObXiIFTUqq/KcsYAIOJYs6AiA8chmpCkUPMA==
+Content-Language: en-us
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrKKsWRmVeSWpSXmKPExsWy7bCmpu4c0fPxBvcfGVk8mLeNzeLvpGPs
+        FhtnrGe1uP7lOavF+fMb2C02Pb7GanF51xw2ixnn9zFZrD1yl92i/elLZosFGx8xOnB7/P41
+        idFj06pONo/NS+o9+rasYvT4vEkugDWKyyYlNSezLLVI3y6BK+N00znWgh6hiim3frI3MLbz
+        dzFyckgImEhcn7aXqYuRi0NIYDejxO/pz5ghnE+MEiv6j0NlPjNKLL/+nhmmZcm526wQiV2M
+        Et9mz2aDcF4xSpz5/J8NpIpNQF/i3I95YFUiAvMYJTYd+sQO4jALbGOSmD3lODtIFaeAmcSx
+        v78YQWxhgXiJpmVLWLoYOThYBFQk7jzKAgnzClhKfP3xnQnCFpQ4OfMJC4jNLCAvsf3tHKiT
+        FCR+Pl3GCmKLCDhJXJi2ih2iRlzi5dEjYHslBLZwSEy/co4FosFFYve/CUwQtrDEq+Nb2CFs
+        KYmX/W1Qdr7Ej8WTmCGaWxglJh+fywqRsJc4cGUO2KHMApoS63fpQyzjk+j9/YQJJCwhwCvR
+        0SYEUa0m8f35Gag7ZSQeNi+FWushsW3ZSsYJjIqzkLw2C8lrs5C8MAth2QJGllWMkqkFxbnp
+        qcWmBUZ5qeV6xYm5xaV56XrJ+bmbGMEpS8trB+PDBx/0DjEycTAeYpTgYFYS4VWTOhsvxJuS
+        WFmVWpQfX1Sak1p8iFGag0VJnFfpx5k4IYH0xJLU7NTUgtQimCwTB6dUA1NfwersKAvbhDT/
+        NWvL+9s/SvG7G5e9eua1JrKYZ99hL2tOg9ryp8/qmJ/yLDurfS0qyyuXxdnTK/DjqZTwaRFy
+        G9pzl+Tu+Hzu2c7k66265zg7AydvLpc4c8StfoXPzRIbJ8fOXfMn7F9SlVQ00ySj3vT//3CL
+        XeIzW3s+M4aduLOVp2bHl9SDP+Ysmshf1RGyp71EvjcuelvJ/WbXI9d2tcXuu3WF9ecO5SOn
+        vVcdMLLvnr+EeYHZu5qpZg9/prLEcQb9uDDnShPr4R8exqeYy7Y2n1n8pkRvEU9vUtblLIGf
+        5Uz8Yjv2T97T3bNTMCTtW5/HvaDXN9dGTe81vqDWff9SpfN10fsx8z63ySmxFGckGmoxFxUn
+        AgAt87KmyAMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprMIsWRmVeSWpSXmKPExsWy7bCSnO4c0fPxBucaBSwezNvGZvF30jF2
+        i40z1rNaXP/ynNXi/PkN7BabHl9jtbi8aw6bxYzz+5gs1h65y27R/vQls8WCjY8YHbg9fv+a
+        xOixaVUnm8fmJfUefVtWMXp83iQXwBrFZZOSmpNZllqkb5fAlXG66RxrQY9QxZRbP9kbGNv5
+        uxg5OSQETCSWnLvNCmILCexglFi4qBgiLiMxefUKVghbWGLlv+fsXYxcQDUvGCWmz/3CApJg
+        E9CXOPdjHliRiMACRontP8NBbGaBXUwSs6f7QTRsZJTYNf8lM0iCU8BM4tjfX4wgtrBArMTf
+        aZuAbA4OFgEViTuPskDCvAKWEl9/fGeCsAUlTs58wgJSwiygJ9G2kRFivLzE9rdzmCFuU5D4
+        +XQZ1AlOEhemrWKHqBGXeHn0CPsERuFZSCbNQpg0C8mkWUg6FjCyrGKUTC0ozk3PLTYsMMpL
+        LdcrTswtLs1L10vOz93ECI43La0djHtWfdA7xMjEwXiIUYKDWUmEV03qbLwQb0piZVVqUX58
+        UWlOavEhRmkOFiVx3gtdJ+OFBNITS1KzU1MLUotgskwcnFINTCfa6ueeLA713cop+Z3ZPvyi
+        w4NCZoa131OWPEuU3jdVmslX5lnemRyeqKj4b4Ldt/f94sjbuUQzSJ4hJrCtcGmOUtamL8KK
+        y/SeyK20/lqrWfng61HvwqY+9gmTbGMOpjAsFHO7cMK0cM6l65ezQjdFpzK4Vb+6Xfe4OXuD
+        /434kDtC1i1ndjhVae+QMXHO/LiB79yOku8MGrt2l/mqRFxvMeMrXMnzQ3j+9rhtM3aeCn4U
+        L3t9Q/E+1mXOOyZt+mfCFnK9hm3d1tP6p1U22HsyP52wcNbTG3nHJvypjn0epqC7UeuUU/GH
+        +mPXd7U0J00Rsq2pzIpbMukR52wzF7dpEQzXn93fe05Bb+WLM0osxRmJhlrMRcWJAFw+iUQm
+        AwAA
+X-CMS-MailID: 20201208055644epcas5p1df3f99bc365eb99992f9f3f2dac6f359
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+X-CMS-RootMailID: 20201207190537epcas5p24ffb1c540a4491c9da4b74d37d2e706e
+References: <20201207190517.262051-1-krzk@kernel.org>
+        <CGME20201207190537epcas5p24ffb1c540a4491c9da4b74d37d2e706e@epcas5p2.samsung.com>
+        <20201207190517.262051-2-krzk@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 06:50:37PM +0200, Mike Rapoport wrote:
-> On Sun, Dec 06, 2020 at 02:30:11PM -0500, Andrea Arcangeli wrote:
-> > On Sun, Dec 06, 2020 at 08:48:49AM +0200, Mike Rapoport wrote:
-> > > I don't see why we need all this complexity when a simple fixup was
-> > > enough.
-> > 
-> > Note the memblock bug crashed my systems:
-> > 
-> > 	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
-> > 
-> > Please note how zone_spans_pfn expands:
-> > 
-> > static inline bool zone_spans_pfn(const struct zone *zone, unsigned long pfn)
-> > {
-> > 	return zone->zone_start_pfn <= pfn && pfn < zone_end_pfn(zone);
-> > }
-> > 
-> > For pfn_to_page(0), the zone_start_pfn is 1 for DMA zone. pfn is 0.
+
+
+> -----Original Message-----
+> From: Krzysztof Kozlowski <krzk@kernel.org>
+> Sent: Tuesday, December 8, 2020 12:35 AM
+> To: Krzysztof Kozlowski <krzk@kernel.org>; linux-arm-
+> kernel@lists.infradead.org; linux-samsung-soc@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Cc: Sylwester Nawrocki <snawrocki@kernel.org>; Marek Szyprowski
+> <m.szyprowski@samsung.com>; Bartlomiej Zolnierkiewicz
+> <b.zolnierkie@samsung.com>; Arnd Bergmann <arnd@arndb.de>; Chanwoo
+> Choi <cw00.choi@samsung.com>; Alim Akhtar <alim.akhtar@samsung.com>;
+> Pankaj Dubey <pankaj.dubey@samsung.com>; stable@vger.kernel.org
+> Subject: [PATCH v2 1/4] soc: samsung: exynos-asv: don't defer early on
+not-
+> supported SoCs
 > 
-> I don't know why you keep calling it "memblock bug" as pfn 0 was not
-> part of DMA zone at least for ten years.
+> From: Marek Szyprowski <m.szyprowski@samsung.com>
 > 
-> If you backport this VM_BUG_ON_PAGE() to 2.6.36 that has no memblock on
-> x86 it will happily trigger there.
-
-I guess it wasn't considered a bug until your patch that was meant to
-enforce this invariant for all pfn_valid was merged in -mm?
-
-> The problem, as I see it, in, hmm, questionable semantics for
-> !E820_TYPE_RAM ranges on x86.
+> Check if the SoC is really supported before gathering the needed
+resources.
+> This fixes endless deferred probe on some SoCs other than
+> Exynos5422 (like Exynos5410).
 > 
-> I keep asking this simple question again and again and I still have no
-> clear "yes" or "no" answer:
+> Fixes: 5ea428595cc5 ("soc: samsung: Add Exynos Adaptive Supply Voltage
+> driver")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  drivers/soc/samsung/exynos-asv.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
-> 	Is PFN 0 on x86 memory?
-
-The pfn is the same regardless if it's RAM or non RAM, so I don't
-think it makes any difference in this respect if it's RAM or not.
-
-> Let's step back for a second and instead of blaming memblock in lack of
-> enforcement for .memory and .reserved to overlap and talking about how
-> memblock core was not robust enough we'll get to the point where we have
-> clear defintions of what e820 ranges represent.
-
-I don't see why we should go back into the direction that the caller
-needs improvement like in commit
-124049decbb121ec32742c94fb5d9d6bed8f24d8 and to try to massage the raw
-e820 data before giving it to the linux common code.
-
-Even if you wanted to enforce overlap at all times (not possible
-because of the direct mapping issue) you could do it simply by calling
-memblock_add first thing in memblock_reserve (if it wasn't already
-fully overlapping) without the need to add an explicit memblock_add in
-the caller.
-
-> > > > +	/*
-> > > > +	 * memblock.reserved isn't enforced to overlap with
-> > > > +	 * memblock.memory so initialize the struct pages for
-> > > > +	 * memblock.reserved too in case it wasn't overlapping.
-> > > > +	 *
-> > > > +	 * If any struct page associated with a memblock.reserved
-> > > > +	 * range isn't overlapping with a zone range, it'll be left
-> > > > +	 * uninitialized, ideally with PagePoison, and it'll be a more
-> > > > +	 * easily detectable error.
-> > > > +	 */
-> > > > +	for_each_res_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
-> > > > +		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
-> > > > +		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
-> > > > +
-> > > > +		if (end_pfn > start_pfn)
-> > > > +			pgcnt += init_unavailable_range(start_pfn, end_pfn,
-> > > > +							zone, nid);
-> > > > +	}
-> > > 
-> > > This means we are going iterate over all memory allocated before
-> > > free_area_ini() from memblock extra time. One time here and another time
-> > > in reserve_bootmem_region().
-> > > And this can be substantial for CMA and alloc_large_system_hash().
-> > 
-> > The above loops over memory.reserved only.
+> diff --git a/drivers/soc/samsung/exynos-asv.c
+> b/drivers/soc/samsung/exynos-asv.c
+> index 8abf4dfaa5c5..f653e3533f0f 100644
+> --- a/drivers/soc/samsung/exynos-asv.c
+> +++ b/drivers/soc/samsung/exynos-asv.c
+> @@ -119,11 +119,6 @@ static int exynos_asv_probe(struct platform_device
+> *pdev)
+>  	u32 product_id = 0;
+>  	int ret, i;
 > 
-> Right, this loops over memory.reserved which happens to include CMA and
-> the memory allocated in alloc_large_system_hash(). This can be a lot.
-> And memmap_init() runs before threads are available so this cannot be
-> parallelized.
-> The deferred memmap initialization starts much later than this.
-
-Can you convert the memblock.memory and memblock.reserved to an
-interval tree? interval tree shall work perfectly since the switch to
-long mode, no need of dynamic RAM allocations for its inner
-working. There's no need to keep memblock a O(N) list.
-
-Such change would benefit the code even if we remove the loop over
-memblock.reserved.
-
-> > > > @@ -7126,7 +7155,13 @@ unsigned long __init node_map_pfn_alignm
-> > > >   */
-> > > >  unsigned long __init find_min_pfn_with_active_regions(void)
-> > > >  {
-> > > > -	return PHYS_PFN(memblock_start_of_DRAM());
-> > > > +	/*
-> > > > +	 * reserved regions must be included so that their page
-> > > > +	 * structure can be part of a zone and obtain a valid zoneid
-> > > > +	 * before __SetPageReserved().
-> > > > +	 */
-> > > > +	return min(PHYS_PFN(memblock_start_of_DRAM()),
-> > > > +		   PHYS_PFN(memblock.reserved.regions[0].base));
-> > > 
-> > > So this implies that reserved memory starts before memory. Don't you
-> > > find this weird?
-> > 
-> > The above is a more complex way to write the below, which will make it
-> > more clear there's never overlap:
-> > 
-> > 		if (entry->type == E820_TYPE_SOFT_RESERVED)
-> > 			memblock_reserve(entry->addr, entry->size);
-> > 		else if (entry->type == E820_TYPE_RAM || entry->type == E820_TYPE_RESERVED_KERN)
-> > 			memblock_add(entry->addr, entry->size);
+> -	cpu_dev = get_cpu_device(0);
+> -	ret = dev_pm_opp_get_opp_count(cpu_dev);
+> -	if (ret < 0)
+> -		return -EPROBE_DEFER;
+> -
+>  	asv = devm_kzalloc(&pdev->dev, sizeof(*asv), GFP_KERNEL);
+>  	if (!asv)
+>  		return -ENOMEM;
+> @@ -144,6 +139,11 @@ static int exynos_asv_probe(struct platform_device
+> *pdev)
+>  		return -ENODEV;
+>  	}
 > 
-> So what about E820_TYPE_ACPI or E820_TYPE_NVS?
-> How should they be treated?
-> 
-> It happend that we memblock_reserve() the first page, but what if the
-> BIOS marks pfn 1 as E820_TYPE_ACPI? It's neither in .memory nor in
-> .reserved. Does it belong to zone 0 and node 0?
-> 
-> Or, if, say, node 1 starts at 4G and the BIOS claimed several first pages
-> of node 1 as type 20?
-> What should we do then?
+> +	cpu_dev = get_cpu_device(0);
+> +	ret = dev_pm_opp_get_opp_count(cpu_dev);
+> +	if (ret < 0)
+> +		return -EPROBE_DEFER;
+> +
+>  	ret = of_property_read_u32(pdev->dev.of_node, "samsung,asv-
+> bin",
+>  				   &asv->of_bin);
+>  	if (ret < 0)
+> --
+> 2.25.1
 
-I see we still have dependencies on the caller to send down good data,
-which would be ideal to remove.
-
-I guess before worrying of pfn 1 not being added to memblock.reserved,
-I'd worry about pfn 0 itself not being added to memblock.reserved.
-
-My above worry about pfn 0 not being added to memblock.reserved
-doesn't change that:
-
-- we still need to enlarge the DMA zone, even if pfn 0 is not added to
-  memblock.reserved, if we want to really enforce the invariant that
-  you can go to the start of the pageblock and pass the invariant on
-  the first pfn, if any pfn in the first pageblock is in
-  memblock.memory. So we also need to round down the start of the zone by
-  the pageblock size. And adjust all range walks accordingly.
-
-- Even after the rounddown, we still have to initialize the reserved
-  ranges with pfn_valid or reserve_bootmem_region won't work at all if
-  they don't happen to covered by the rounddown described above.
-
-Still with the complex patch applied, if something goes wrong
-DEBUG_VM=y will make it reproducible, with the simple fix we return in
-non-reproducible land.
-
-So I agree there's room for improvement and I believe the rounddown to
-the start of the pageblock is needed for those zones that have no
-adjacent region.
-
-The important thing is that uninitialized pages are now left with
-PagePoison now, at least with DEBUG_VM=y. And when a zoneid is
-assigned to a page, that page is really is part of the zone. Both were
-false before, so things already improved in that direction :).
-
-Thanks,
-Andrea
+Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
 
