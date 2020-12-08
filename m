@@ -2,80 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9439F2D27B0
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6715F2D27F1
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 10:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728710AbgLHJbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 04:31:11 -0500
-Received: from mga06.intel.com ([134.134.136.31]:9885 "EHLO mga06.intel.com"
+        id S1728987AbgLHJmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 04:42:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727745AbgLHJbK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 04:31:10 -0500
-IronPort-SDR: ParJaAwdKAH4TQOijb1YOiGowubC6P9+zAgYbHgjPDzJNg2hYB2FVmfaPYr7ztIcLYGWKaCa1u
- l9G4YqC2JXGg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9828"; a="235460694"
-X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
-   d="scan'208";a="235460694"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2020 01:28:07 -0800
-IronPort-SDR: LPAtSp8n01TZ0SQxsUNIICc9+Z+1evzMwfxRR7PtH5KdJhlb64yQX/X8/R2f1FQZ2KzJetFY6v
- GA+dLTQ8Cukg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,402,1599548400"; 
-   d="scan'208";a="552165913"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga005.jf.intel.com with ESMTP; 08 Dec 2020 01:28:05 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>, Li Jun <jun.li@nxp.com>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5/5] xhci: Give USB2 ports time to enter U3 in bus suspend
-Date:   Tue,  8 Dec 2020 11:29:12 +0200
-Message-Id: <20201208092912.1773650-6-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201208092912.1773650-1-mathias.nyman@linux.intel.com>
-References: <20201208092912.1773650-1-mathias.nyman@linux.intel.com>
+        id S1728813AbgLHJmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 04:42:23 -0500
+Date:   Tue, 8 Dec 2020 10:42:51 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607420503;
+        bh=OPRdtXo+b3fj0Tly5SZe2L9SsKslAawkKaxtdea4VmQ=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VxPt11EmjME54Y3knWT0FywaT4ox9CyA43xmhiu0siuFmvKxQH/pubclg4YHAYMUp
+         VlyNXg71zAjSxDgIH2152GVb0RJteL1w7BOTMwdRbduxak1+pmDlGZTM/EgIwWEUw2
+         LlcdShyTSqoYXPpKYo6F5OUE1QvWGp5h5JYbH85w=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux-stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.9 00/46] 5.9.13-rc1 review
+Message-ID: <X89KmwbnuWvh7Eus@kroah.com>
+References: <20201206111556.455533723@linuxfoundation.org>
+ <CA+G9fYt6AO+iz42u=9PKW2UwXcU_FLr35YfsKEEMsbf2gdaqqA@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYt6AO+iz42u=9PKW2UwXcU_FLr35YfsKEEMsbf2gdaqqA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+On Mon, Dec 07, 2020 at 12:47:38PM +0530, Naresh Kamboju wrote:
+> On Sun, 6 Dec 2020 at 17:14, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.9.13 release.
+> > There are 46 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Tue, 08 Dec 2020 11:15:42 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.13-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-If a USB2 device wakeup is not enabled/supported the link state may
-still be in U0 in xhci_bus_suspend(), where it's then manually put
-to suspended U3 state.
+Thanks for testing all of these and letting me know.
 
-Just as with selective suspend the device needs time to enter U3
-suspend before continuing with further suspend operations
-(e.g. system suspend), otherwise we may enter system suspend with link
-state in U0.
-
-[commit message rewording -Mathias]
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci-hub.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index c799ca5361d4..74c497fd3476 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1712,6 +1712,10 @@ int xhci_bus_suspend(struct usb_hcd *hcd)
- 	hcd->state = HC_STATE_SUSPENDED;
- 	bus_state->next_statechange = jiffies + msecs_to_jiffies(10);
- 	spin_unlock_irqrestore(&xhci->lock, flags);
-+
-+	if (bus_state->bus_suspended)
-+		usleep_range(5000, 10000);
-+
- 	return 0;
- }
- 
--- 
-2.25.1
-
+greg k-h
