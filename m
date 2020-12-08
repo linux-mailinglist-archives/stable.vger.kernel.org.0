@@ -2,128 +2,715 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED99D2D294D
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 11:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F782D2953
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 11:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728935AbgLHK5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 05:57:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51360 "EHLO mail.kernel.org"
+        id S1729054AbgLHK5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 05:57:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726226AbgLHK5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Dec 2020 05:57:38 -0500
+        id S1729003AbgLHK5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 05:57:50 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.14.211
-Date:   Tue,  8 Dec 2020 11:58:03 +0100
-Message-Id: <1607425084252181@kroah.com>
+Subject: Re: Linux 4.14.211
+Date:   Tue,  8 Dec 2020 11:58:04 +0100
+Message-Id: <1607425084215152@kroah.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <1607425084252181@kroah.com>
+References: <1607425084252181@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.14.211 kernel.
-
-All users of the 4.14 kernel series must upgrade.
-
-The updated 4.14.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/devicetree/bindings/net/nfc/nxp-nci.txt |    2 
- Documentation/devicetree/bindings/net/nfc/pn544.txt   |    2 
- Makefile                                              |    2 
- drivers/infiniband/hw/i40iw/i40iw_main.c              |    5 -
- drivers/infiniband/hw/i40iw/i40iw_verbs.c             |   36 ++--------
- drivers/input/joystick/xpad.c                         |    2 
- drivers/input/serio/i8042-x86ia64io.h                 |    4 +
- drivers/net/bonding/bond_main.c                       |   61 ++++++++++++------
- drivers/net/bonding/bond_sysfs_slave.c                |   18 -----
- drivers/net/ethernet/chelsio/cxgb3/sge.c              |    1 
- drivers/net/ethernet/ibm/ibmvnic.c                    |   22 +++++-
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c   |   21 +++++-
- drivers/net/ethernet/pasemi/pasemi_mac.c              |    8 +-
- drivers/net/tun.c                                     |   14 +++-
- drivers/net/usb/ipheth.c                              |    2 
- include/net/bonding.h                                 |    8 ++
- net/bridge/br_netfilter_hooks.c                       |    7 +-
- net/core/skbuff.c                                     |    2 
- net/ipv4/route.c                                      |    7 +-
- net/ipv4/tcp_cong.c                                   |    5 +
- net/iucv/af_iucv.c                                    |    4 -
- net/rose/rose_loopback.c                              |   17 +++--
- net/x25/af_x25.c                                      |    6 +
- sound/usb/mixer_us16x08.c                             |    2 
- 24 files changed, 160 insertions(+), 98 deletions(-)
-
-Alexander Duyck (1):
-      tcp: Set INET_ECN_xmit configuration in tcp_reinit_congestion_control
-
-Anmol Karn (1):
-      rose: Fix Null pointer dereference in rose_send_frame()
-
-Antoine Tenart (1):
-      netfilter: bridge: reset skb->pkt_type after NF_INET_POST_ROUTING traversal
-
-Dan Carpenter (1):
-      net/x25: prevent a couple of overflows
-
-Eran Ben Elisha (1):
-      net/mlx5: Fix wrong address reclaim when command interface is down
-
-Greg Kroah-Hartman (1):
-      Linux 4.14.211
-
-Guillaume Nault (1):
-      ipv4: Fix tos mask in inet_rtm_getroute()
-
-Hector Martin (1):
-      ALSA: usb-audio: US16x08: fix value count for level meters
-
-Jamie Iles (1):
-      bonding: wait for sysfs kobject destruction before freeing struct slave
-
-Jens Axboe (1):
-      tun: honor IOCB_NOWAIT flag
-
-Julian Wiedmann (1):
-      net/af_iucv: set correct sk_protocol for child sockets
-
-Krzysztof Kozlowski (1):
-      dt-bindings: net: correct interrupt flags in examples
-
-Po-Hsu Lin (1):
-      Input: i8042 - add ByteSpeed touchpad to noloop table
-
-Sanjay Govind (1):
-      Input: xpad - support Ardwiino Controllers
-
-Shiraz Saleem (1):
-      RDMA/i40iw: Address an mmap handler exploit in i40iw
-
-Thomas Falcon (2):
-      ibmvnic: Ensure that SCRQ entry reads are correctly ordered
-      ibmvnic: Fix TX completion error handling
-
-Willem de Bruijn (1):
-      sock: set sk_err to ee_errno on dequeue from errq
-
-Yves-Alexis Perez (1):
-      usbnet: ipheth: fix connectivity with iOS 14
-
-Zhang Changzhong (2):
-      cxgb3: fix error return code in t3_sge_alloc_qset()
-      net: pasemi: fix error return code in pasemi_mac_open()
-
+diff --git a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
+index 92486733df71..8ebc5200032a 100644
+--- a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
++++ b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
+@@ -26,7 +26,7 @@ Example (for ARM-based BeagleBone with NPC100 NFC controller on I2C2):
+ 		clock-frequency = <100000>;
+ 
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <29 GPIO_ACTIVE_HIGH>;
++		interrupts = <29 IRQ_TYPE_LEVEL_HIGH>;
+ 
+ 		enable-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+diff --git a/Documentation/devicetree/bindings/net/nfc/pn544.txt b/Documentation/devicetree/bindings/net/nfc/pn544.txt
+index 538a86f7b2b0..982d4dd4eba3 100644
+--- a/Documentation/devicetree/bindings/net/nfc/pn544.txt
++++ b/Documentation/devicetree/bindings/net/nfc/pn544.txt
+@@ -26,7 +26,7 @@ Example (for ARM-based BeagleBone with PN544 on I2C2):
+ 		clock-frequency = <400000>;
+ 
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <17 GPIO_ACTIVE_HIGH>;
++		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+ 
+ 		enable-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+diff --git a/Makefile b/Makefile
+index fa6ea54e2604..31c2f8973a5d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 14
+-SUBLEVEL = 210
++SUBLEVEL = 211
+ EXTRAVERSION =
+ NAME = Petit Gorille
+ 
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_main.c b/drivers/infiniband/hw/i40iw/i40iw_main.c
+index 27590ae21881..f41ac2875702 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -54,10 +54,6 @@
+ #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
+ 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
+ 
+-static int push_mode;
+-module_param(push_mode, int, 0644);
+-MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
+-
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
+@@ -1564,7 +1560,6 @@ static enum i40iw_status_code i40iw_setup_init_state(struct i40iw_handler *hdl,
+ 	if (status)
+ 		goto exit;
+ 	iwdev->obj_next = iwdev->obj_mem;
+-	iwdev->push_mode = push_mode;
+ 
+ 	init_waitqueue_head(&iwdev->vchnl_waitq);
+ 	init_waitqueue_head(&dev->vf_reqs);
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_verbs.c b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+index 57bfe4808247..cc943b4b7474 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -199,38 +199,16 @@ static int i40iw_dealloc_ucontext(struct ib_ucontext *context)
+  */
+ static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
+ {
+-	struct i40iw_ucontext *ucontext;
+-	u64 db_addr_offset;
+-	u64 push_offset;
+-
+-	ucontext = to_ucontext(context);
+-	if (ucontext->iwdev->sc_dev.is_pf) {
+-		db_addr_offset = I40IW_DB_ADDR_OFFSET;
+-		push_offset = I40IW_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
+-	} else {
+-		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
+-		push_offset = I40IW_VF_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
+-	}
++	struct i40iw_ucontext *ucontext = to_ucontext(context);
++	u64 dbaddr;
+ 
+-	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
++	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
+ 
+-	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		vma->vm_private_data = ucontext;
+-	} else {
+-		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
+-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		else
+-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+-	}
++	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
+ 
+-	if (io_remap_pfn_range(vma, vma->vm_start,
+-			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
+-			       PAGE_SIZE, vma->vm_page_prot))
++	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
++			       pgprot_noncached(vma->vm_page_prot)))
+ 		return -EAGAIN;
+ 
+ 	return 0;
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 54a6691d7d87..637f1347cd13 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -258,6 +258,7 @@ static const struct xpad_device {
+ 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
++	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0303, "Mortal Kombat Klassic FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -435,6 +436,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
+ 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
++	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 51bd2ebaa342..adb8b23a6393 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -223,6 +223,10 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
+ 		},
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
++		},
+ 	},
+ 	{ }
+ };
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 6aaf1196d9a5..1250983616ef 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1253,7 +1253,39 @@ static void bond_upper_dev_unlink(struct bonding *bond, struct slave *slave)
+ 	rtmsg_ifinfo(RTM_NEWLINK, slave->dev, IFF_SLAVE, GFP_KERNEL);
+ }
+ 
+-static struct slave *bond_alloc_slave(struct bonding *bond)
++static void slave_kobj_release(struct kobject *kobj)
++{
++	struct slave *slave = to_slave(kobj);
++	struct bonding *bond = bond_get_bond_by_slave(slave);
++
++	cancel_delayed_work_sync(&slave->notify_work);
++	if (BOND_MODE(bond) == BOND_MODE_8023AD)
++		kfree(SLAVE_AD_INFO(slave));
++
++	kfree(slave);
++}
++
++static struct kobj_type slave_ktype = {
++	.release = slave_kobj_release,
++#ifdef CONFIG_SYSFS
++	.sysfs_ops = &slave_sysfs_ops,
++#endif
++};
++
++static int bond_kobj_init(struct slave *slave)
++{
++	int err;
++
++	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
++				   &(slave->dev->dev.kobj), "bonding_slave");
++	if (err)
++		kobject_put(&slave->kobj);
++
++	return err;
++}
++
++static struct slave *bond_alloc_slave(struct bonding *bond,
++				      struct net_device *slave_dev)
+ {
+ 	struct slave *slave = NULL;
+ 
+@@ -1261,11 +1293,17 @@ static struct slave *bond_alloc_slave(struct bonding *bond)
+ 	if (!slave)
+ 		return NULL;
+ 
++	slave->bond = bond;
++	slave->dev = slave_dev;
++
++	if (bond_kobj_init(slave))
++		return NULL;
++
+ 	if (BOND_MODE(bond) == BOND_MODE_8023AD) {
+ 		SLAVE_AD_INFO(slave) = kzalloc(sizeof(struct ad_slave_info),
+ 					       GFP_KERNEL);
+ 		if (!SLAVE_AD_INFO(slave)) {
+-			kfree(slave);
++			kobject_put(&slave->kobj);
+ 			return NULL;
+ 		}
+ 	}
+@@ -1274,17 +1312,6 @@ static struct slave *bond_alloc_slave(struct bonding *bond)
+ 	return slave;
+ }
+ 
+-static void bond_free_slave(struct slave *slave)
+-{
+-	struct bonding *bond = bond_get_bond_by_slave(slave);
+-
+-	cancel_delayed_work_sync(&slave->notify_work);
+-	if (BOND_MODE(bond) == BOND_MODE_8023AD)
+-		kfree(SLAVE_AD_INFO(slave));
+-
+-	kfree(slave);
+-}
+-
+ static void bond_fill_ifbond(struct bonding *bond, struct ifbond *info)
+ {
+ 	info->bond_mode = BOND_MODE(bond);
+@@ -1464,14 +1491,12 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
+ 	    bond->dev->addr_assign_type == NET_ADDR_RANDOM)
+ 		bond_set_dev_addr(bond->dev, slave_dev);
+ 
+-	new_slave = bond_alloc_slave(bond);
++	new_slave = bond_alloc_slave(bond, slave_dev);
+ 	if (!new_slave) {
+ 		res = -ENOMEM;
+ 		goto err_undo_flags;
+ 	}
+ 
+-	new_slave->bond = bond;
+-	new_slave->dev = slave_dev;
+ 	/* Set the new_slave's queue_id to be zero.  Queue ID mapping
+ 	 * is set via sysfs or module option if desired.
+ 	 */
+@@ -1802,7 +1827,7 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev)
+ 	dev_set_mtu(slave_dev, new_slave->original_mtu);
+ 
+ err_free:
+-	bond_free_slave(new_slave);
++	kobject_put(&new_slave->kobj);
+ 
+ err_undo_flags:
+ 	/* Enslave of first slave has failed and we need to fix master's mac */
+@@ -1990,7 +2015,7 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 	if (!netif_is_bond_master(slave_dev))
+ 		slave_dev->priv_flags &= ~IFF_BONDING;
+ 
+-	bond_free_slave(slave);
++	kobject_put(&slave->kobj);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
+index 3f756fa2f603..68bbac4715c3 100644
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -125,7 +125,6 @@ static const struct slave_attribute *slave_attrs[] = {
+ };
+ 
+ #define to_slave_attr(_at) container_of(_at, struct slave_attribute, attr)
+-#define to_slave(obj)	container_of(obj, struct slave, kobj)
+ 
+ static ssize_t slave_show(struct kobject *kobj,
+ 			  struct attribute *attr, char *buf)
+@@ -136,28 +135,15 @@ static ssize_t slave_show(struct kobject *kobj,
+ 	return slave_attr->show(slave, buf);
+ }
+ 
+-static const struct sysfs_ops slave_sysfs_ops = {
++const struct sysfs_ops slave_sysfs_ops = {
+ 	.show = slave_show,
+ };
+ 
+-static struct kobj_type slave_ktype = {
+-#ifdef CONFIG_SYSFS
+-	.sysfs_ops = &slave_sysfs_ops,
+-#endif
+-};
+-
+ int bond_sysfs_slave_add(struct slave *slave)
+ {
+ 	const struct slave_attribute **a;
+ 	int err;
+ 
+-	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
+-				   &(slave->dev->dev.kobj), "bonding_slave");
+-	if (err) {
+-		kobject_put(&slave->kobj);
+-		return err;
+-	}
+-
+ 	for (a = slave_attrs; *a; ++a) {
+ 		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
+ 		if (err) {
+@@ -175,6 +161,4 @@ void bond_sysfs_slave_del(struct slave *slave)
+ 
+ 	for (a = slave_attrs; *a; ++a)
+ 		sysfs_remove_file(&slave->kobj, &((*a)->attr));
+-
+-	kobject_put(&slave->kobj);
+ }
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/sge.c b/drivers/net/ethernet/chelsio/cxgb3/sge.c
+index e2d342647b19..454fee4ea9e6 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/sge.c
+@@ -3111,6 +3111,7 @@ int t3_sge_alloc_qset(struct adapter *adapter, unsigned int id, int nports,
+ 			  GFP_KERNEL | __GFP_COMP);
+ 	if (!avail) {
+ 		CH_ALERT(adapter, "free list queue 0 initialization failed\n");
++		ret = -ENOMEM;
+ 		goto err;
+ 	}
+ 	if (avail < q->fl[0].size)
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 9a524b0e3e7b..058b4d0c5a71 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1658,6 +1658,12 @@ static int ibmvnic_poll(struct napi_struct *napi, int budget)
+ 
+ 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
+ 			break;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
+ 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
+ 		rx_buff =
+ 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
+@@ -2177,13 +2183,18 @@ static int ibmvnic_complete_tx(struct ibmvnic_adapter *adapter,
+ 	while (pending_scrq(adapter, scrq)) {
+ 		unsigned int pool = scrq->pool_index;
+ 
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
++
+ 		next = ibmvnic_next_scrq(adapter, scrq);
+ 		for (i = 0; i < next->tx_comp.num_comps; i++) {
+-			if (next->tx_comp.rcs[i]) {
++			if (next->tx_comp.rcs[i])
+ 				dev_err(dev, "tx error %x\n",
+ 					next->tx_comp.rcs[i]);
+-				continue;
+-			}
+ 			index = be32_to_cpu(next->tx_comp.correlators[i]);
+ 			txbuff = &adapter->tx_pool[pool].tx_buff[index];
+ 
+@@ -2530,6 +2541,11 @@ static union sub_crq *ibmvnic_next_scrq(struct ibmvnic_adapter *adapter,
+ 	}
+ 	spin_unlock_irqrestore(&scrq->lock, flags);
+ 
++	/* Ensure that the entire buffer descriptor has been
++	 * loaded before reading its contents
++	 */
++	dma_rmb();
++
+ 	return entry;
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+index e36d3e3675f9..9c3653e06886 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
+@@ -331,6 +331,24 @@ static int give_pages(struct mlx5_core_dev *dev, u16 func_id, int npages,
+ 	return err;
+ }
+ 
++static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
++				     u32 npages)
++{
++	u32 pages_set = 0;
++	unsigned int n;
++
++	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
++		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
++				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
++		pages_set++;
++
++		if (!--npages)
++			break;
++	}
++
++	return pages_set;
++}
++
+ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 			     u32 *in, int in_size, u32 *out, int out_size)
+ {
+@@ -354,8 +372,7 @@ static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
+ 		if (fwp->func_id != func_id)
+ 			continue;
+ 
+-		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
+-		i++;
++		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
+ 	}
+ 
+ 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
+diff --git a/drivers/net/ethernet/pasemi/pasemi_mac.c b/drivers/net/ethernet/pasemi/pasemi_mac.c
+index c9b4ac9d3330..6ccdce21ca9b 100644
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1089,16 +1089,20 @@ static int pasemi_mac_open(struct net_device *dev)
+ 
+ 	mac->tx = pasemi_mac_setup_tx_resources(dev);
+ 
+-	if (!mac->tx)
++	if (!mac->tx) {
++		ret = -ENOMEM;
+ 		goto out_tx_ring;
++	}
+ 
+ 	/* We might already have allocated rings in case mtu was changed
+ 	 * before interface was brought up.
+ 	 */
+ 	if (dev->mtu > 1500 && !mac->num_cs) {
+ 		pasemi_mac_setup_csrings(mac);
+-		if (!mac->num_cs)
++		if (!mac->num_cs) {
++			ret = -ENOMEM;
+ 			goto out_tx_ring;
++		}
+ 	}
+ 
+ 	/* Zero out rmon counters */
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index ba34f61d70de..abf9c9952b79 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1601,12 +1601,15 @@ static ssize_t tun_chr_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	struct tun_struct *tun = tun_get(file);
+ 	struct tun_file *tfile = file->private_data;
+ 	ssize_t result;
++	int noblock = 0;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+ 
+-	result = tun_get_user(tun, tfile, NULL, from,
+-			      file->f_flags & O_NONBLOCK, false);
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
++
++	result = tun_get_user(tun, tfile, NULL, from, noblock, false);
+ 
+ 	tun_put(tun);
+ 	return result;
+@@ -1789,10 +1792,15 @@ static ssize_t tun_chr_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	struct tun_file *tfile = file->private_data;
+ 	struct tun_struct *tun = __tun_get(tfile);
+ 	ssize_t len = iov_iter_count(to), ret;
++	int noblock = 0;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+-	ret = tun_do_read(tun, tfile, to, file->f_flags & O_NONBLOCK, NULL);
++
++	if ((file->f_flags & O_NONBLOCK) || (iocb->ki_flags & IOCB_NOWAIT))
++		noblock = 1;
++
++	ret = tun_do_read(tun, tfile, to, noblock, NULL);
+ 	ret = min_t(ssize_t, ret, len);
+ 	if (ret > 0)
+ 		iocb->ki_pos = ret;
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index 3d71f1716390..8e2eb2061354 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -70,7 +70,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
+ 
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
+ 
+diff --git a/include/net/bonding.h b/include/net/bonding.h
+index b0f20bc0fd4a..59597e22aeff 100644
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
+@@ -170,6 +170,11 @@ struct slave {
+ 	struct rtnl_link_stats64 slave_stats;
+ };
+ 
++static inline struct slave *to_slave(struct kobject *kobj)
++{
++	return container_of(kobj, struct slave, kobj);
++}
++
+ struct bond_up_slave {
+ 	unsigned int	count;
+ 	struct rcu_head rcu;
+@@ -716,6 +721,9 @@ extern struct bond_parm_tbl ad_select_tbl[];
+ /* exported from bond_netlink.c */
+ extern struct rtnl_link_ops bond_link_ops;
+ 
++/* exported from bond_sysfs_slave.c */
++extern const struct sysfs_ops slave_sysfs_ops;
++
+ static inline void bond_tx_drop(struct net_device *dev, struct sk_buff *skb)
+ {
+ 	atomic_long_inc(&dev->tx_dropped);
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 6feab2279143..8155c3d811a1 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -716,6 +716,11 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
+ 	mtu_reserved = nf_bridge_mtu_reduction(skb);
+ 	mtu = skb->dev->mtu;
+ 
++	if (nf_bridge->pkt_otherhost) {
++		skb->pkt_type = PACKET_OTHERHOST;
++		nf_bridge->pkt_otherhost = false;
++	}
++
+ 	if (nf_bridge->frag_max_size && nf_bridge->frag_max_size < mtu)
+ 		mtu = nf_bridge->frag_max_size;
+ 
+@@ -809,8 +814,6 @@ static unsigned int br_nf_post_routing(void *priv,
+ 	else
+ 		return NF_ACCEPT;
+ 
+-	/* We assume any code from br_dev_queue_push_xmit onwards doesn't care
+-	 * about the value of skb->pkt_type. */
+ 	if (skb->pkt_type == PACKET_OTHERHOST) {
+ 		skb->pkt_type = PACKET_HOST;
+ 		nf_bridge->pkt_otherhost = true;
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 807edf1dbaf8..c4f412526dfe 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4239,7 +4239,7 @@ struct sk_buff *sock_dequeue_err_skb(struct sock *sk)
+ 	if (skb && (skb_next = skb_peek(q))) {
+ 		icmp_next = is_icmp_err_skb(skb_next);
+ 		if (icmp_next)
+-			sk->sk_err = SKB_EXT_ERR(skb_next)->ee.ee_origin;
++			sk->sk_err = SKB_EXT_ERR(skb_next)->ee.ee_errno;
+ 	}
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ 
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 87854642e0b6..be7383d139c1 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2788,7 +2788,7 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
+ 	memset(&fl4, 0, sizeof(fl4));
+ 	fl4.daddr = dst;
+ 	fl4.saddr = src;
+-	fl4.flowi4_tos = rtm->rtm_tos;
++	fl4.flowi4_tos = rtm->rtm_tos & IPTOS_RT_MASK;
+ 	fl4.flowi4_oif = tb[RTA_OIF] ? nla_get_u32(tb[RTA_OIF]) : 0;
+ 	fl4.flowi4_mark = mark;
+ 	fl4.flowi4_uid = uid;
+@@ -2807,8 +2807,9 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
+ 		skb->protocol	= htons(ETH_P_IP);
+ 		skb->dev	= dev;
+ 		skb->mark	= mark;
+-		err = ip_route_input_rcu(skb, dst, src, rtm->rtm_tos,
+-					 dev, &res);
++		err = ip_route_input_rcu(skb, dst, src,
++					 rtm->rtm_tos & IPTOS_RT_MASK, dev,
++					 &res);
+ 
+ 		rt = skb_rtable(skb);
+ 		if (err == 0 && rt->dst.error)
+diff --git a/net/ipv4/tcp_cong.c b/net/ipv4/tcp_cong.c
+index 755151e95f49..b193dcebbf7e 100644
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -199,6 +199,11 @@ static void tcp_reinit_congestion_control(struct sock *sk,
+ 	icsk->icsk_ca_setsockopt = 1;
+ 	memset(icsk->icsk_ca_priv, 0, sizeof(icsk->icsk_ca_priv));
+ 
++	if (ca->flags & TCP_CONG_NEEDS_ECN)
++		INET_ECN_xmit(sk);
++	else
++		INET_ECN_dontxmit(sk);
++
+ 	if (!((1 << sk->sk_state) & (TCPF_CLOSE | TCPF_LISTEN)))
+ 		tcp_init_congestion_control(sk);
+ }
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 91235769c1b7..07e397a5edc6 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -1763,7 +1763,7 @@ static int iucv_callback_connreq(struct iucv_path *path,
+ 	}
+ 
+ 	/* Create the new socket */
+-	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
++	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
+ 	if (!nsk) {
+ 		err = pr_iucv->path_sever(path, user_data);
+ 		iucv_path_free(path);
+@@ -1973,7 +1973,7 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 	}
+ 
+-	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
++	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
+ 	bh_lock_sock(sk);
+ 	if ((sk->sk_state != IUCV_LISTEN) ||
+ 	    sk_acceptq_is_full(sk) ||
+diff --git a/net/rose/rose_loopback.c b/net/rose/rose_loopback.c
+index 094a6621f8e8..c318e5c9f6df 100644
+--- a/net/rose/rose_loopback.c
++++ b/net/rose/rose_loopback.c
+@@ -99,10 +99,19 @@ static void rose_loopback_timer(struct timer_list *unused)
+ 		}
+ 
+ 		if (frametype == ROSE_CALL_REQUEST) {
+-			if ((dev = rose_dev_get(dest)) != NULL) {
+-				if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0)
+-					kfree_skb(skb);
+-			} else {
++			if (!rose_loopback_neigh->dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			dev = rose_dev_get(dest);
++			if (!dev) {
++				kfree_skb(skb);
++				continue;
++			}
++
++			if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0) {
++				dev_put(dev);
+ 				kfree_skb(skb);
+ 			}
+ 		} else {
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index c030d3599a79..987e5f8cafbe 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -679,7 +679,8 @@ static int x25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	int len, i, rc = 0;
+ 
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25) {
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -773,7 +774,8 @@ static int x25_connect(struct socket *sock, struct sockaddr *uaddr,
+ 
+ 	rc = -EINVAL;
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25)
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
+ 		goto out;
+ 
+ 	rc = -ENETUNREACH;
+diff --git a/sound/usb/mixer_us16x08.c b/sound/usb/mixer_us16x08.c
+index 26ed23b18b77..7db3032e723a 100644
+--- a/sound/usb/mixer_us16x08.c
++++ b/sound/usb/mixer_us16x08.c
+@@ -617,7 +617,7 @@ static int snd_us16x08_eq_put(struct snd_kcontrol *kcontrol,
+ static int snd_us16x08_meter_info(struct snd_kcontrol *kcontrol,
+ 	struct snd_ctl_elem_info *uinfo)
+ {
+-	uinfo->count = 1;
++	uinfo->count = 34;
+ 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+ 	uinfo->value.integer.max = 0x7FFF;
+ 	uinfo->value.integer.min = 0;
