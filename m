@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D42FE2D24ED
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 08:50:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF432D2676
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 09:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726601AbgLHHus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 02:50:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726590AbgLHHus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 02:50:48 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B58C061749
-        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 23:50:07 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id q16so16544842edv.10
-        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 23:50:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fOQLy+eUSJxjrr4kN6GZwIjc7QErW79tP61SaQUg2Q8=;
-        b=D5EALbChqgbFo4A+nfUAfzSkkaB2AtQtou39anrW2PtrhYoGcmEt8+1c7fIUI8PzLd
-         DnnpfDWd+CcpCec6WME1NSCaSVCwecLq+aHInLRzSB/mjLZEYXP+3ONnksouiQa7aZxF
-         EfpScSe0W1w487f31fMGEta5QReNWP33RGo9Pi2sOchgzfJhwzJ6+6W99SZuVWdtl0/F
-         Oo6SQClIGfNWy3sS4dJCSVSxz4lPnRw+p8ViBykCb5IF1wtRpqc8YWPcC0kd4y8N4YOh
-         9MMDtX4hJoSc/RkGKkSguz80ne5d3lTN9QP85REMu9vrWf5cEu/be16w0fUgyebJQP8X
-         3MhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fOQLy+eUSJxjrr4kN6GZwIjc7QErW79tP61SaQUg2Q8=;
-        b=RCRxjrppAVR5ycPWNfPNLBaoKlqERqCOQclCx95gxZQy7rNhJLMIiXzhI+Np3K2WPP
-         Folc2+G6Pp+tI0+5FAZjPbk5fNYKOuFeJFjoe7uWbyXObR5n4pdP61VzOV5z2yy43cYk
-         AOriDUoYUaK4idCuA2DHROBX3bN5TcekrLmK9ezZEw6N77HVi1xSSOMXVUBYRl4fpxgH
-         Ildn7HA0gDXw2nQc50WyDL7W1dthcnijcK33OdiP/WtuBxfiQmiM5FOQDQnZI7e7vpEQ
-         3e0YPORAwJoEljta4bKwnm+fPDBCKoe2vXZdbjB7an6OL3yKKxExJDNXXbjO2EHnb8X1
-         eclA==
-X-Gm-Message-State: AOAM532oyZlIAf1o2s0eXaGasnrGtlT15Pi3nZD5z01gI6Xet7F6Ai+A
-        UTT5mkO6k2Au3AQ6ODPeN6+jTjjXaH408H6HeJSktA==
-X-Google-Smtp-Source: ABdhPJxoMbhHkSM7LS2dCFmI9//DZsMN09CBHiuY7vllq3z7zwRpYK3CPWd3hlZltyHyPFz8suG8pnGVwP+ANXUDkG8=
-X-Received: by 2002:a05:6402:48d:: with SMTP id k13mr23280219edv.92.1607413806399;
- Mon, 07 Dec 2020 23:50:06 -0800 (PST)
-MIME-Version: 1.0
-References: <20201204182846.27110-1-kamal@canonical.com> <20201207224238.GA28646@ascalon>
-In-Reply-To: <20201207224238.GA28646@ascalon>
-From:   David Verbeiren <david.verbeiren@tessares.net>
-Date:   Tue, 8 Dec 2020 08:49:50 +0100
-Message-ID: <CAHzPrnGAYe6YwObkLfvc4+FLXe2ANE9Aq+snUOm2re5NyysLzA@mail.gmail.com>
-Subject: Re: [5.4.y] selftests/bpf build broken by "bpf: Zero-fill..."
-To:     Kamal Mostafa <kamal@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1728357AbgLHIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 03:41:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49498 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726340AbgLHIl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Dec 2020 03:41:59 -0500
+Subject: patch "usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to" added to usb-next
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607416873;
+        bh=6+TceUpZqmfu6TK/c7ZFdruBnymtgd4zuRfccFlfhdM=;
+        h=To:From:Date:From;
+        b=uaOmE8KgyDF86coBrp0LVG9bJ9njxdCem04UFiwMM2v20OezJYN+jU2zEJEN8Z0L2
+         DhodqGygYhpOQ1ZthGD6zlI9iCR5btmV0PbOy6QAgxkiPyEXPNPIWeTLKpclr2whX2
+         ME9n7JK5tbv/1TUzGhyQjgfKJnjIwipFyNH/cQP4=
+To:     festevam@gmail.com, gregkh@linuxfoundation.org, peter.chen@nxp.com,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Dec 2020 09:42:13 +0100
+Message-ID: <160741693315283@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Kamal, Sasha,
 
-On Mon, Dec 7, 2020 at 11:42 PM Kamal Mostafa <kamal@canonical.com> wrote:
->
-> On Fri, Dec 04, 2020 at 10:28:46AM -0800, Kamal Mostafa wrote:
-> > Hi Sasha-
-> >
-> > This v5.4.78 commit breaks the tools/testing/selftests/bpf build:
-> >
-> > [linux-5.4.y] c602ad2b52dc bpf: Zero-fill re-used per-cpu map element
-> >
-> > Like this:
-> >
-> >       prog_tests/map_init.c:5:10: fatal error: test_map_init.skel.h: No such file or directory
-> >           5 | #include "test_map_init.skel.h"
-> >
-> > Because tools/testing/selftests/bpf/Makefile in v5.4 does not have the
-> > "skeleton header generation" stuff (circa v5.6).
-> >
-> > Reverting c602ad2b52dc from linux-5.4.y fixes it.
->
-> Another option would be to just drop the selftest from linux-5.4.y,
-> but keep the beneficial change to kernel/bpf/hashtab.c.
->
-> (We're leaning towards that approach for Ubuntu).
->
->  -Kamal
+This is a note to let you know that I've just added the patch titled
 
-An alternative could be to use the initial version of the selftest I had
-proposed before learning about the skeleton approach.
+    usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to
 
-You can find it here:
-https://lore.kernel.org/bpf/20201029111730.6881-1-david.verbeiren@tessares.net/
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-I also think it would be good to keep the fix of course.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
--David
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From c7721e15f434920145c376e8fe77e1c079fc3726 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <festevam@gmail.com>
+Date: Mon, 7 Dec 2020 10:09:09 +0800
+Subject: usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to
+ imx6ul
+
+According to the i.MX6UL Errata document:
+https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
+
+ERR007881 also affects i.MX6UL, so pass the
+CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
+
+Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20201207020909.22483-2-peter.chen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/chipidea/ci_hdrc_imx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 25c65accf089..5e07a0a86d11 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_usb_data = {
+ 
+ static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
+ 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
+-		CI_HDRC_TURN_VBUS_EARLY_ON,
++		CI_HDRC_TURN_VBUS_EARLY_ON |
++		CI_HDRC_DISABLE_DEVICE_STREAMING,
+ };
+ 
+ static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+-- 
+2.29.2
+
+
