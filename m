@@ -2,154 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6AD2D1FBF
-	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 02:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B6F2D1FDA
+	for <lists+stable@lfdr.de>; Tue,  8 Dec 2020 02:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726209AbgLHBLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Dec 2020 20:11:31 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:53245 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725877AbgLHBLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 20:11:30 -0500
-Received: from 2.general.dannf.us.vpn ([10.172.65.1] helo=localhost)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <dann.frazier@canonical.com>)
-        id 1kmRWh-0005Ox-52; Tue, 08 Dec 2020 01:10:47 +0000
-From:   dann frazier <dann.frazier@canonical.com>
-To:     stable@vger.kernel.org, Michael Schaller <misch@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Matthew Garrett <matthew.garrett@nebula.com>,
-        Jeremy Kerr <jk@ozlabs.org>, linux-efi@vger.kernel.org
-Subject: [PATCH 4.4] arm64: assembler: make adr_l work in modules under KASLR
-Date:   Mon,  7 Dec 2020 18:10:34 -0700
-Message-Id: <20201208011034.3015079-1-dann.frazier@canonical.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
-References: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
+        id S1725877AbgLHBSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Dec 2020 20:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725814AbgLHBSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Dec 2020 20:18:15 -0500
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EEB6C061749
+        for <stable@vger.kernel.org>; Mon,  7 Dec 2020 17:17:29 -0800 (PST)
+Received: by mail-qt1-x834.google.com with SMTP id h19so8701891qtq.13
+        for <stable@vger.kernel.org>; Mon, 07 Dec 2020 17:17:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=QmtqbTOBa74nAbKL5CCzuuYShPRkSj67GTU2YPCU7EQ=;
+        b=hDKZD5P4VVAQoEKlRPiDkVRyAAa4kU2jusk2rBN3lliDKz6MIZN7ZTM3x2iEU6PAOt
+         w4A6S/JK4R177dRvRT/EsnFQce0Fvh0R7Bx7qm8Z8O8uFv+drhsshuvZVRXMogLAm+uK
+         x+NmuFJ2FfwnwF/0KU8KDX1aNR93/21PqEu522cM/LOrRlMacWSDpoOcDxPgBMAIxs1w
+         6am6E2yrYcodA7EpEnh0cVN/sId06mrYWtVYJkfJj4i0VL8fuahXcCbas06eacd4TuKY
+         e2h6ngVWoI+fC2Ztf3Iwuz/B8iBnIbCIBvlVSHpADKLLygj61i/piTd9BWWxXPLjO2dn
+         EZJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=QmtqbTOBa74nAbKL5CCzuuYShPRkSj67GTU2YPCU7EQ=;
+        b=bLvjP/b+tiZhOg58oFNKm00Ln6n1l9opYWf2T3fQEyoM58oxb4/KbrlYuqq8vSLQQY
+         nWthL/Y4f7T2ZS0U7qk6cLYln3LvQ111lvUuewYFnWqTMsG9kEpKxF0rimSCbjH0cPlS
+         z6DqeDOIdeSPVKeOdnnQ9c2IoMhGeXN7ro7WFsV/kPvT0IEjaiLU4Z9rqTvplQiEz4HF
+         bOjYTijACamjQWwe2d6Pr4QYH4yQWYnHN1MAtstrxNSRIrMSxsGmcESCpJo68Vq3N7hR
+         dDmzXUodFzvEvfE2MD9NR8q/AzR8jcZ3eAJ4ps3ZdT8U1DuDEl1Pf80gOxNBIhAMf/E9
+         a/8A==
+X-Gm-Message-State: AOAM531tdu3DJY+WQKvuFuSPongS+CLoWYQybFTdzQ7k2cxwhuSm2ZjV
+        8aUqcVAiIifcfCvkuvkNkQVND1AQyQp+Aau2WPU=
+X-Google-Smtp-Source: ABdhPJwSWDvSifqUWPuN2+HKKuXmpNz2jlljQ1zRX1WW1AmsU49W6ZmZfoLGSavRm/FkFWGlzFaBsl+JS3xK3gU+TlA=
+X-Received: by 2002:aed:38a1:: with SMTP id k30mr26703031qte.360.1607390248289;
+ Mon, 07 Dec 2020 17:17:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:aed:3baa:0:0:0:0:0 with HTTP; Mon, 7 Dec 2020 17:17:27 -0800 (PST)
+Reply-To: hs8qfc11@gmail.com
+From:   "Dr. Idris Desmond" <idrisdesmond11@gmail.com>
+Date:   Tue, 8 Dec 2020 02:17:27 +0100
+Message-ID: <CALR4jF4M4R2nsbe1B=EyWicunndcvSWeUE-gEwCjOG4gHUSmfg@mail.gmail.com>
+Subject: Good Morning,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-
-commit 41c066f2c4d436c535616fe182331766c57838f0 upstream
-
-When CONFIG_RANDOMIZE_MODULE_REGION_FULL=y, the offset between loaded
-modules and the core kernel may exceed 4 GB, putting symbols exported
-by the core kernel out of the reach of the ordinary adrp/add instruction
-pairs used to generate relative symbol references. So make the adr_l
-macro emit a movz/movk sequence instead when executing in module context.
-
-While at it, remove the pointless special case for the stack pointer.
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ dannf: backported to v4.4 by replacing the 3-arg adr_l macro in head.S
-  with it's output, as this commit drops the 3-arg variant ]
-Fixes: c042dd600f4e ("crypto: arm64/sha - avoid non-standard inline asm tricks")
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
----
- arch/arm64/include/asm/assembler.h | 36 +++++++++++++++++++++++++++---------
- arch/arm64/kernel/head.S           |  3 ++-
- 2 files changed, 29 insertions(+), 10 deletions(-)
-
-diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-index f68abb1..7c28791 100644
---- a/arch/arm64/include/asm/assembler.h
-+++ b/arch/arm64/include/asm/assembler.h
-@@ -148,22 +148,25 @@ lr	.req	x30		// link register
- 
- /*
-  * Pseudo-ops for PC-relative adr/ldr/str <reg>, <symbol> where
-- * <symbol> is within the range +/- 4 GB of the PC.
-+ * <symbol> is within the range +/- 4 GB of the PC when running
-+ * in core kernel context. In module context, a movz/movk sequence
-+ * is used, since modules may be loaded far away from the kernel
-+ * when KASLR is in effect.
-  */
- 	/*
- 	 * @dst: destination register (64 bit wide)
- 	 * @sym: name of the symbol
--	 * @tmp: optional scratch register to be used if <dst> == sp, which
--	 *       is not allowed in an adrp instruction
- 	 */
--	.macro	adr_l, dst, sym, tmp=
--	.ifb	\tmp
-+	.macro	adr_l, dst, sym
-+#ifndef MODULE
- 	adrp	\dst, \sym
- 	add	\dst, \dst, :lo12:\sym
--	.else
--	adrp	\tmp, \sym
--	add	\dst, \tmp, :lo12:\sym
--	.endif
-+#else
-+	movz	\dst, #:abs_g3:\sym
-+	movk	\dst, #:abs_g2_nc:\sym
-+	movk	\dst, #:abs_g1_nc:\sym
-+	movk	\dst, #:abs_g0_nc:\sym
-+#endif
- 	.endm
- 
- 	/*
-@@ -174,6 +177,7 @@ lr	.req	x30		// link register
- 	 *       the address
- 	 */
- 	.macro	ldr_l, dst, sym, tmp=
-+#ifndef MODULE
- 	.ifb	\tmp
- 	adrp	\dst, \sym
- 	ldr	\dst, [\dst, :lo12:\sym]
-@@ -181,6 +185,15 @@ lr	.req	x30		// link register
- 	adrp	\tmp, \sym
- 	ldr	\dst, [\tmp, :lo12:\sym]
- 	.endif
-+#else
-+	.ifb	\tmp
-+	adr_l	\dst, \sym
-+	ldr	\dst, [\dst]
-+	.else
-+	adr_l	\tmp, \sym
-+	ldr	\dst, [\tmp]
-+	.endif
-+#endif
- 	.endm
- 
- 	/*
-@@ -190,8 +203,13 @@ lr	.req	x30		// link register
- 	 *       while <src> needs to be preserved.
- 	 */
- 	.macro	str_l, src, sym, tmp
-+#ifndef MODULE
- 	adrp	\tmp, \sym
- 	str	\src, [\tmp, :lo12:\sym]
-+#else
-+	adr_l	\tmp, \sym
-+	str	\src, [\tmp]
-+#endif
- 	.endm
- 
- /*
-diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
-index 6299a8a..504bcc3 100644
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -424,7 +424,8 @@ __mmap_switched:
- 	str	xzr, [x6], #8			// Clear BSS
- 	b	1b
- 2:
--	adr_l	sp, initial_sp, x4
-+	adrp	x4, initial_sp
-+	add	sp, x4, :lo12:initial_sp
- 	str_l	x21, __fdt_pointer, x5		// Save FDT pointer
- 	str_l	x24, memstart_addr, x6		// Save PHYS_OFFSET
- 	mov	x29, #0
 -- 
-2.7.4
+I'm Dr. Idris Desmond, did you Receive the (FUND), that was paid to
+you? please, do not hesitate to Let me know with your full name:.. for
+immediate verification notice,
 
+Thanks,
+
+Dr. Idris Desmond,
+Foreign Remittance Director
+
+Sincerely Yours, Respectfully,
+
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
