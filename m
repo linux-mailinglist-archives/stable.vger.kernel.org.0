@@ -2,67 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B57B72D4E74
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 00:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 305162D4E75
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 00:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgLIXDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 18:03:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S2388227AbgLIXDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 18:03:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726707AbgLIXC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 18:02:58 -0500
-Date:   Wed, 09 Dec 2020 15:02:15 -0800
+        id S2388226AbgLIXDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 18:03:16 -0500
+Date:   Wed, 09 Dec 2020 15:02:33 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1607554937;
-        bh=HXLVpslXNzeKA/8x51/rqCE7y+Di/qtBF2ldrA0mJAI=;
+        s=korg; t=1607554954;
+        bh=MVoEn+ODNXusrRdO6oAlqAqLvSFm930N9xUt+gBd8HI=;
         h=From:To:Subject:From;
-        b=c9GicvS/OTiT+BlYVF/YIREhtAMDOWGvKL/8PRc7f4WG0I3N3EpWXIDDavanqsRR3
-         nM1qpeSO4KGb/ehuOSynXtlCyrNEliJg9eXPiASoU2/sq6GKAoLhOf3FZbpCjnRasr
-         wned7O53I5X94ZgPsJ4SS8NeiE36tWdOmGvzG3KQ=
+        b=dYFcKaZtypyE74ChSp/yYapX0vNOmV3K01oPlbcNXf3t5ZKCgSrJSSHgIWhLOLxYr
+         pltGrRjrahxDqatUak84IPn7lCuCkLoWcjt26DVyMh6HMKgsiDY+QWR1sNl8Zbm8mf
+         ww9DpKyabN0DjT8JjS+4BmMMrYwFFzjhE/gdrG7k=
 From:   akpm@linux-foundation.org
 To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
-        rppt@linux.ibm.com, mhocko@kernel.org, mgorman@suse.de,
-        david@redhat.com, cai@lca.pw, bhe@redhat.com, aarcange@redhat.com
+        mhocko@kernel.org, mgorman@suse.de, david@redhat.com, cai@lca.pw,
+        bhe@redhat.com, aarcange@redhat.com, rppt@linux.ibm.com
 Subject:  [to-be-updated]
- =?us-ascii?Q?mm-initialize-struct-pages-in-reserved-regions-outside-of-t?=
- =?us-ascii?Q?he-zone-ranges.patch?= removed from -mm tree
-Message-ID: <20201209230215.uF4T7%akpm@linux-foundation.org>
+ mm-refactor-initialization-of-stuct-page-for-holes-in-memory-layout.patch
+ removed from -mm tree
+Message-ID: <20201209230233.fGD8z%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
+     Subject: mm/pagealloc.c: refactor initialization of struct page for holes in memory layout
 has been removed from the -mm tree.  Its filename was
-     mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
+     mm-refactor-initialization-of-stuct-page-for-holes-in-memory-layout.patch
 
 This patch was dropped because an updated version will be merged
 
 ------------------------------------------------------
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: mm: initialize struct pages in reserved regions outside of the zone ranges
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: mm/pagealloc.c: refactor initialization of struct page for holes in memory layout
 
-Without this change, the pfn 0 isn't in any zone spanned range, and it's
-also not in any memory.memblock range, so the struct page of pfn 0 wasn't
-initialized and the PagePoison remained set when reserve_bootmem_region
-called __SetPageReserved, inducing a silent boot failure with DEBUG_VM
-(and correctly so, because the crash signaled the nodeid/nid of pfn 0
-would be again wrong).
+There could be struct pages that are not backed by actual physical memory.
+This can happen when the actual memory bank is not a multiple of
+SECTION_SIZE or when an architecture does not register memory holes
+reserved by the firmware as memblock.memory.
 
-There's no enforcement that all memblock.reserved ranges must overlap
-memblock.memory ranges, so the memblock.reserved ranges also require an
-explicit initialization and the zones ranges need to be extended to
-include all memblock.reserved ranges with struct pages too or they'll be
-left uninitialized with PagePoison as it happened to pfn 0.
+Such pages are currently initialized using init_unavailable_mem() function
+that iterated through PFNs in holes in memblock.memory and if there is a
+struct page corresponding to a PFN, the fields if this page are set to
+default values and it is marked as Reserved.
 
-Link: https://lkml.kernel.org/r/20201205013238.21663-2-aarcange@redhat.com
+init_unavailable_mem() does not take into account zone and node the page
+belongs to and sets both zone and node links in struct page to zero.
+
+On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+instance in a configuration below:
+
+	# grep -A1 E820 /proc/iomem
+	7a17b000-7a216fff : Unknown E820 type
+	7a217000-7bffffff : System RAM
+
+unset zone link in struct page will trigger
+
+	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
+
+because there are pages in both ZONE_DMA32 and ZONE_DMA (unset zone link
+in struct page) in the same pageblock.
+
+Interleave initialization of pages that correspond to holes with the
+initialization of memory map, so that zone and node information will be
+properly set on such pages.
+
+Link: https://lkml.kernel.org/r/20201201181502.2340-1-rppt@kernel.org
 Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 Cc: Baoquan He <bhe@redhat.com>
 Cc: David Hildenbrand <david@redhat.com>
 Cc: Mel Gorman <mgorman@suse.de>
@@ -73,194 +89,228 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/memblock.h |   17 ++++++++---
- mm/debug.c               |    3 +
- mm/memblock.c            |    4 +-
- mm/page_alloc.c          |   57 +++++++++++++++++++++++++++++--------
- 4 files changed, 63 insertions(+), 18 deletions(-)
+ mm/page_alloc.c |  151 +++++++++++++++++++---------------------------
+ 1 file changed, 64 insertions(+), 87 deletions(-)
 
---- a/include/linux/memblock.h~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/include/linux/memblock.h
-@@ -251,7 +251,8 @@ static inline bool memblock_is_nomap(str
- int memblock_search_pfn_nid(unsigned long pfn, unsigned long *start_pfn,
- 			    unsigned long  *end_pfn);
- void __next_mem_pfn_range(int *idx, int nid, unsigned long *out_start_pfn,
--			  unsigned long *out_end_pfn, int *out_nid);
-+			  unsigned long *out_end_pfn, int *out_nid,
-+			  struct memblock_type *type);
- 
- /**
-  * for_each_mem_pfn_range - early memory pfn range iterator
-@@ -263,9 +264,17 @@ void __next_mem_pfn_range(int *idx, int
-  *
-  * Walks over configured memory ranges.
-  */
--#define for_each_mem_pfn_range(i, nid, p_start, p_end, p_nid)		\
--	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid); \
--	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid))
-+#define for_each_mem_pfn_range(i, nid, p_start, p_end, p_nid)		  \
-+	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.memory);		  \
-+	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.memory))
-+
-+#define for_each_res_pfn_range(i, nid, p_start, p_end, p_nid)		  \
-+	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.reserved);		  \
-+	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid, \
-+					  &memblock.reserved))
- 
- #ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
- void __next_mem_pfn_range_in_zone(u64 *idx, struct zone *zone,
---- a/mm/debug.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/mm/debug.c
-@@ -64,7 +64,8 @@ void __dump_page(struct page *page, cons
- 	 * dump_page() when detected.
- 	 */
- 	if (page_poisoned) {
--		pr_warn("page:%px is uninitialized and poisoned", page);
-+		pr_warn("page:%px pfn:%ld is uninitialized and poisoned",
-+			page, page_to_pfn(page));
- 		goto hex_only;
- 	}
- 
---- a/mm/memblock.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
-+++ a/mm/memblock.c
-@@ -1198,9 +1198,9 @@ void __init_memblock __next_mem_range_re
-  */
- void __init_memblock __next_mem_pfn_range(int *idx, int nid,
- 				unsigned long *out_start_pfn,
--				unsigned long *out_end_pfn, int *out_nid)
-+				unsigned long *out_end_pfn, int *out_nid,
-+				struct memblock_type *type)
- {
--	struct memblock_type *type = &memblock.memory;
- 	struct memblock_region *r;
- 	int r_nid;
- 
---- a/mm/page_alloc.c~mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges
+--- a/mm/page_alloc.c~mm-refactor-initialization-of-stuct-page-for-holes-in-memory-layout
 +++ a/mm/page_alloc.c
-@@ -1458,6 +1458,7 @@ static void __meminit init_reserved_page
- {
- 	pg_data_t *pgdat;
- 	int nid, zid;
-+	bool found = false;
- 
- 	if (!early_page_uninitialised(pfn))
- 		return;
-@@ -1468,10 +1469,15 @@ static void __meminit init_reserved_page
- 	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
- 		struct zone *zone = &pgdat->node_zones[zid];
- 
--		if (pfn >= zone->zone_start_pfn && pfn < zone_end_pfn(zone))
-+		if (pfn >= zone->zone_start_pfn && pfn < zone_end_pfn(zone)) {
-+			found = true;
- 			break;
-+		}
+@@ -6185,24 +6185,84 @@ static void __meminit zone_init_free_lis
  	}
--	__init_single_page(pfn_to_page(pfn), pfn, zid, nid);
-+	if (likely(found))
-+		__init_single_page(pfn_to_page(pfn), pfn, zid, nid);
-+	else
-+		WARN_ON_ONCE(1);
  }
- #else
- static inline void init_reserved_page(unsigned long pfn)
-@@ -6227,7 +6233,7 @@ void __init __weak memmap_init(unsigned
- 			       unsigned long zone,
- 			       unsigned long range_start_pfn)
+ 
+-void __meminit __weak memmap_init(unsigned long size, int nid,
+-				  unsigned long zone,
+-				  unsigned long range_start_pfn)
++#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
++/*
++ * Only struct pages that are backed by physical memory available to the
++ * kernel are zeroed and initialized by memmap_init_zone().
++ * But, there are some struct pages that are either reserved by firmware or
++ * do not correspond to physical page frames becuase the actual memory bank
++ * is not a multiple of SECTION_SIZE.
++ * Fields of those struct pages may be accessed (for example page_to_pfn()
++ * on some configuration accesses page flags) so we must explicitly
++ * initialize those struct pages.
++ */
++static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn,
++					 int zone, int node)
  {
--	unsigned long start_pfn, end_pfn, next_pfn = 0;
-+	unsigned long start_pfn, end_pfn, prev_pfn = 0;
+-	unsigned long start_pfn, end_pfn;
++	unsigned long pfn;
++	u64 pgcnt = 0;
++
++	for (pfn = spfn; pfn < epfn; pfn++) {
++		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
++			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
++				+ pageblock_nr_pages - 1;
++			continue;
++		}
++		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
++		__SetPageReserved(pfn_to_page(pfn));
++		pgcnt++;
++	}
++
++	return pgcnt;
++}
++#else
++static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
++					 int zone, int node)
++{
++	return 0;
++}
++#endif
++
++void __init __weak memmap_init(unsigned long size, int nid,
++			       unsigned long zone,
++			       unsigned long range_start_pfn)
++{
++	unsigned long start_pfn, end_pfn, next_pfn = 0;
  	unsigned long range_end_pfn = range_start_pfn + size;
- 	u64 pgcnt = 0;
++	u64 pgcnt = 0;
  	int i;
-@@ -6235,7 +6241,7 @@ void __init __weak memmap_init(unsigned
+ 
  	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
  		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
  		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
--		next_pfn = clamp(next_pfn, range_start_pfn, range_end_pfn);
-+		prev_pfn = clamp(prev_pfn, range_start_pfn, range_end_pfn);
++		next_pfn = clamp(next_pfn, range_start_pfn, range_end_pfn);
  
  		if (end_pfn > start_pfn) {
  			size = end_pfn - start_pfn;
-@@ -6243,10 +6249,10 @@ void __init __weak memmap_init(unsigned
+ 			memmap_init_zone(size, nid, zone, start_pfn,
  					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
  		}
- 
--		if (next_pfn < start_pfn)
--			pgcnt += init_unavailable_range(next_pfn, start_pfn,
-+		if (prev_pfn < start_pfn)
-+			pgcnt += init_unavailable_range(prev_pfn, start_pfn,
- 							zone, nid);
--		next_pfn = end_pfn;
-+		prev_pfn = end_pfn;
- 	}
- 
- 	/*
-@@ -6256,12 +6262,31 @@ void __init __weak memmap_init(unsigned
- 	 * considered initialized. Make sure that memmap has a well defined
- 	 * state.
- 	 */
--	if (next_pfn < range_end_pfn)
--		pgcnt += init_unavailable_range(next_pfn, range_end_pfn,
-+	if (prev_pfn < range_end_pfn)
-+		pgcnt += init_unavailable_range(prev_pfn, range_end_pfn,
- 						zone, nid);
- 
-+	/*
-+	 * memblock.reserved isn't enforced to overlap with
-+	 * memblock.memory so initialize the struct pages for
-+	 * memblock.reserved too in case it wasn't overlapping.
-+	 *
-+	 * If any struct page associated with a memblock.reserved
-+	 * range isn't overlapping with a zone range, it'll be left
-+	 * uninitialized, ideally with PagePoison, and it'll be a more
-+	 * easily detectable error.
-+	 */
-+	for_each_res_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
-+		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
-+		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
 +
-+		if (end_pfn > start_pfn)
-+			pgcnt += init_unavailable_range(start_pfn, end_pfn,
++		if (next_pfn < start_pfn)
++			pgcnt += init_unavailable_range(next_pfn, start_pfn,
 +							zone, nid);
-+	}
-+
- 	if (pgcnt)
--		pr_info("%s: Zeroed struct page in unavailable ranges: %lld\n",
-+		pr_info("%s: pages in unavailable ranges: %lld\n",
- 			zone_names[zone], pgcnt);
- }
- 
-@@ -6499,6 +6524,10 @@ void __init get_pfn_range_for_nid(unsign
- 		*start_pfn = min(*start_pfn, this_start_pfn);
- 		*end_pfn = max(*end_pfn, this_end_pfn);
++		next_pfn = end_pfn;
  	}
-+	for_each_res_pfn_range(i, nid, &this_start_pfn, &this_end_pfn, NULL) {
-+		*start_pfn = min(*start_pfn, this_start_pfn);
-+		*end_pfn = max(*end_pfn, this_end_pfn);
-+	}
- 
- 	if (*start_pfn == -1UL)
- 		*start_pfn = 0;
-@@ -7126,7 +7155,13 @@ unsigned long __init node_map_pfn_alignm
-  */
- unsigned long __init find_min_pfn_with_active_regions(void)
- {
--	return PHYS_PFN(memblock_start_of_DRAM());
++
 +	/*
-+	 * reserved regions must be included so that their page
-+	 * structure can be part of a zone and obtain a valid zoneid
-+	 * before __SetPageReserved().
++	 * Early sections always have a fully populated memmap for the whole
++	 * section - see pfn_valid(). If the last section has holes at the
++	 * end and that section is marked "online", the memmap will be
++	 * considered initialized. Make sure that memmap has a well defined
++	 * state.
 +	 */
-+	return min(PHYS_PFN(memblock_start_of_DRAM()),
-+		   PHYS_PFN(memblock.reserved.regions[0].base));
++	if (next_pfn < range_end_pfn)
++		pgcnt += init_unavailable_range(next_pfn, range_end_pfn,
++						zone, nid);
++
++	if (pgcnt)
++		pr_info("%s: Zeroed struct page in unavailable ranges: %lld\n",
++			zone_names[zone], pgcnt);
  }
  
+ static int zone_batchsize(struct zone *zone)
+@@ -6995,88 +7055,6 @@ void __init free_area_init_memoryless_no
+ 	free_area_init_node(nid);
+ }
+ 
+-#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+-/*
+- * Initialize all valid struct pages in the range [spfn, epfn) and mark them
+- * PageReserved(). Return the number of struct pages that were initialized.
+- */
+-static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn)
+-{
+-	unsigned long pfn;
+-	u64 pgcnt = 0;
+-
+-	for (pfn = spfn; pfn < epfn; pfn++) {
+-		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+-			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
+-				+ pageblock_nr_pages - 1;
+-			continue;
+-		}
+-		/*
+-		 * Use a fake node/zone (0) for now. Some of these pages
+-		 * (in memblock.reserved but not in memblock.memory) will
+-		 * get re-initialized via reserve_bootmem_region() later.
+-		 */
+-		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
+-		__SetPageReserved(pfn_to_page(pfn));
+-		pgcnt++;
+-	}
+-
+-	return pgcnt;
+-}
+-
+-/*
+- * Only struct pages that are backed by physical memory are zeroed and
+- * initialized by going through __init_single_page(). But, there are some
+- * struct pages which are reserved in memblock allocator and their fields
+- * may be accessed (for example page_to_pfn() on some configuration accesses
+- * flags). We must explicitly initialize those struct pages.
+- *
+- * This function also addresses a similar issue where struct pages are left
+- * uninitialized because the physical address range is not covered by
+- * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=, or when the highest physical
+- * address (max_pfn) does not end on a section boundary.
+- */
+-static void __init init_unavailable_mem(void)
+-{
+-	phys_addr_t start, end;
+-	u64 i, pgcnt;
+-	phys_addr_t next = 0;
+-
+-	/*
+-	 * Loop through unavailable ranges not covered by memblock.memory.
+-	 */
+-	pgcnt = 0;
+-	for_each_mem_range(i, &start, &end) {
+-		if (next < start)
+-			pgcnt += init_unavailable_range(PFN_DOWN(next),
+-							PFN_UP(start));
+-		next = end;
+-	}
+-
+-	/*
+-	 * Early sections always have a fully populated memmap for the whole
+-	 * section - see pfn_valid(). If the last section has holes at the
+-	 * end and that section is marked "online", the memmap will be
+-	 * considered initialized. Make sure that memmap has a well defined
+-	 * state.
+-	 */
+-	pgcnt += init_unavailable_range(PFN_DOWN(next),
+-					round_up(max_pfn, PAGES_PER_SECTION));
+-
+-	/*
+-	 * Struct pages that do not have backing memory. This could be because
+-	 * firmware is using some of this memory, or for some other reasons.
+-	 */
+-	if (pgcnt)
+-		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+-}
+-#else
+-static inline void __init init_unavailable_mem(void)
+-{
+-}
+-#endif /* !CONFIG_FLAT_NODE_MEM_MAP */
+-
+ #if MAX_NUMNODES > 1
  /*
+  * Figure out the number of possible node ids.
+@@ -7500,7 +7478,6 @@ void __init free_area_init(unsigned long
+ 	/* Initialise every node */
+ 	mminit_verify_pageflags_layout();
+ 	setup_nr_node_ids();
+-	init_unavailable_mem();
+ 	for_each_online_node(nid) {
+ 		pg_data_t *pgdat = NODE_DATA(nid);
+ 		free_area_init_node(nid);
 _
 
-Patches currently in -mm which might be from aarcange@redhat.com are
+Patches currently in -mm which might be from rppt@linux.ibm.com are
 
+alpha-switch-from-discontigmem-to-sparsemem.patch
+ia64-remove-custom-__early_pfn_to_nid.patch
+ia64-remove-ifdef-config_zone_dma32-statements.patch
+ia64-discontig-paging_init-remove-local-max_pfn-calculation.patch
+ia64-split-virtual-map-initialization-out-of-paging_init.patch
+ia64-forbid-using-virtual_mem_map-with-flatmem.patch
+ia64-make-sparsemem-default-and-disable-discontigmem.patch
+arm-remove-config_arch_has_holes_memorymodel.patch
+arm-arm64-move-free_unused_memmap-to-generic-mm.patch
+arc-use-flatmem-with-freeing-of-unused-memory-map-instead-of-discontigmem.patch
+m68k-mm-make-node-data-and-node-setup-depend-on-config_discontigmem.patch
+m68k-mm-enable-use-of-generic-memory_modelh-for-discontigmem.patch
+m68k-deprecate-discontigmem.patch
+mm-introduce-debug_pagealloc_mapunmap_pages-helpers.patch
+pm-hibernate-make-direct-map-manipulations-more-explicit.patch
+arch-mm-restore-dependency-of-__kernel_map_pages-on-debug_pagealloc.patch
+arch-mm-make-kernel_page_present-always-available.patch
+mm-memblock-enforce-overlap-of-memorymemblock-and-memoryreserved.patch
+mm-fix-initialization-of-struct-page-for-holes-in-memory-layout.patch
+mm-add-definition-of-pmd_page_order.patch
+mmap-make-mlock_future_check-global.patch
+set_memory-allow-set_direct_map__noflush-for-multiple-pages.patch
+set_memory-allow-querying-whether-set_direct_map_-is-actually-enabled.patch
+mm-introduce-memfd_secret-system-call-to-create-secret-memory-areas.patch
+secretmem-use-pmd-size-pages-to-amortize-direct-map-fragmentation.patch
+secretmem-add-memcg-accounting.patch
+pm-hibernate-disable-when-there-are-active-secretmem-users.patch
+arch-mm-wire-up-memfd_secret-system-call-were-relevant.patch
+secretmem-test-add-basic-selftest-for-memfd_secret2.patch
 
