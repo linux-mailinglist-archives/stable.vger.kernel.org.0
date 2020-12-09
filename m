@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBBC2D45D8
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:53:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D972D45D3
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729814AbgLIPwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:52:35 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:44397 "EHLO
+        id S1729711AbgLIPwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:52:09 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55519 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729726AbgLIPwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:52:30 -0500
+        by vger.kernel.org with ESMTP id S1728561AbgLIPwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:52:08 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4811C1943329;
-        Wed,  9 Dec 2020 02:46:09 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 02:46:09 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 492281943399;
+        Wed,  9 Dec 2020 02:46:11 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 02:46:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=S1bKM5
-        aRKIt4bRX6k+o3JaBDi4Xt+LtQu1MlW8bXrs0=; b=TLwbRqSKYDx1RS2de34BU/
-        htbZ2x8KWOCWszAGDCejDtF51eWA6hUjbPnqE8jokFKq1o5Ql/6bSGqaXxAgdurU
-        oiKYtWUlBlAEIFckTicQ3a++fmXqRyrkrYiVs66Mp2g+c3dW0iQj9nEAiv01D7HY
-        xLl4BICjFRkf+ugrYuCKTPAH3k8LXN5STqJY/haiX3dz6O66RFoo+ACfkcuXH/N4
-        VAwWZjDEA27Sm/JvUYoeGH4VxIwL/8i6wzxZxEC4Y+47oFZR7T0AR98e2O6SxdNt
-        aPQ42ZBxmWij3DsqsI3JnkQ6YjKGqwD6NA0Z5qb9Kka/urj0cjU1AHvRAy4kgh5g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WJ8ERS
+        eo2zpAFbIhgIVWMNTDqF4QFeM2ZtIUXKhL5rQ=; b=S1Y4YGq2r+u1Q1m2SoOxd5
+        9ScgPmB+X+BeEiSJwVx89LvdMFSR4ItfJQKt2Jc2Y4gNn2RddpoYl5QgL07zxzdy
+        DStOQllfeYzcRkeDNUU0S1blz9mVz0rm/9qNuIBuZkQsVQfwXRdw6H16RSMsVfzi
+        LMYXw6HTiR+0taL+M6KWpd3y+m6mHTZGATK3nAqDzkzNDShbSLdRDudlwxRd8ruF
+        XThLErTCJDJBGwSjkEFKq5TfuKM0hm8O9Oj/Z6mAStJ91rMT29gmMuHMTiAdeibE
+        uUEFOOd4CwGr/YT1ONIzAy7Mz4NRmRhdDi+J4tvL3V6cw+j3UUBgxAEKja6aSTyw
         ==
-X-ME-Sender: <xms:wIDQX6YtnC36nR3USUwFgBezmGFPxB-zVaoF1CjAvqFNhrVqLQXGwQ>
-    <xme:wIDQX9avgA02jfByg4Lf6LF12OobK48zgo7se9LObTgLAaJjmKNjm1XZfQVUTYpDn
-    Ern5L0XWPgz9A>
+X-ME-Sender: <xms:w4DQXyQT3Eg9vWNIaIfXmkpTDIEjlJx3QhEJ3ByrehY6B5BA_eUSWg>
+    <xme:w4DQX3yaDOTzbx_ByD7fOnVa0j5GtVCNeO4IyvjwoasfZo-k2Ep4qjhm_XVjE1c0j
+    o9HInWHK-P5sg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddutdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddutdcutefuodetgg
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
     peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:wIDQX096bQL-ukSpjZF86D5NZO8W6-iW--KjrxO4A7u6OarWOLru2w>
-    <xmx:wIDQX8p5N-wG9uJfCwVSx8phYJNvJqEaD2SWtWylfN-awO0AGkCvkQ>
-    <xmx:wIDQX1obhhkcnSfJQ1OqaGuBZLw5u3SPg7K6O9gNdv7iBop5ovfsJw>
-    <xmx:wYDQX2A0VBM_Dn7g_kXIDrToMXMd7VteNiTLm-M9KRvOP5yygJdCbg>
+X-ME-Proxy: <xmx:w4DQX_2G2VW4zr07Lfx4NdBxRCGLJrYiGHACertzWd8D0YbR3dbUtg>
+    <xmx:w4DQX-AzBRkBZs81yzg1EvEIWkAVL_q7Vv8R0FFDWi4bBKy9GD8QdA>
+    <xmx:w4DQX7galqLB-t3GxnqsJ82VKUMlaMIvbMm3Wp-Dq4VhycnJAGV0ig>
+    <xmx:w4DQXzbbmi-ojuOYEDsr8AkTn2M_migNFO0_c6MMsqbfw2AyalXwKA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 917FA24005B;
-        Wed,  9 Dec 2020 02:46:08 -0500 (EST)
-Subject: FAILED: patch "[PATCH] speakup: Reject setting the speakup line discipline outside" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D1DC51080059;
+        Wed,  9 Dec 2020 02:46:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] speakup: Reject setting the speakup line discipline outside" failed to apply to 4.19-stable tree
 To:     samuel.thibault@ens-lyon.org, gregkh@linuxfoundation.org,
         qinshisong1205@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 08:47:26 +0100
-Message-ID: <160750004672214@kroah.com>
+Date:   Wed, 09 Dec 2020 08:47:27 +0100
+Message-ID: <1607500047254236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
