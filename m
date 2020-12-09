@@ -2,301 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B17292D373C
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 00:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9652D376B
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 01:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730611AbgLHXzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Dec 2020 18:55:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43252 "EHLO
+        id S1730421AbgLIANC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Dec 2020 19:13:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730680AbgLHXzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 18:55:50 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1F3C0617A6
-        for <stable@vger.kernel.org>; Tue,  8 Dec 2020 15:54:56 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id t37so7933pga.7
-        for <stable@vger.kernel.org>; Tue, 08 Dec 2020 15:54:56 -0800 (PST)
+        with ESMTP id S1730241AbgLIANC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Dec 2020 19:13:02 -0500
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860A6C0613CF
+        for <stable@vger.kernel.org>; Tue,  8 Dec 2020 16:12:16 -0800 (PST)
+Received: by mail-pg1-x535.google.com with SMTP id v29so22675pgk.12
+        for <stable@vger.kernel.org>; Tue, 08 Dec 2020 16:12:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Uotg0rK6WqUnJOtSrJxvOQq7sh86r63KATxN03B+BDY=;
-        b=l2y+yqBvMiThOoPCw77M42Nxwl5BwhKqj2mt6yywlfCwlygbL6pFEbb6jkU5Gy+p0e
-         BFfvlgaLTqkqMRakaQlLZLibgN2bZ5iw9P2kKtEqRaSsbFHw0RqMnKV2BGskOo2R3f1Y
-         vPmVf1BHCNj1MEyo4OPQIv6Xbq2Av9fPkeojnzaICZJgcrOw5sOPkARmqg9qqlZ+jNSe
-         7feQo1NAezFqB5Ra6wG6et6lZJnyfoDdxOKnekjZN63eUo0kI8Ta25ytFW+YAZiLQWO5
-         D08Mz//fksRHDIh0HPhvxz1ZXpiVwwwjs2yTNRGJHSAamfRDc5ZA7eKJo5CRBiJvkI8s
-         RcOg==
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=3nKLFa8UfqviH+D7Xovpvn0xgKFhcHjy+Jh/lNndHZ0=;
+        b=pokfDLHV/WTrlbcg4icOIlqyfUlltjxK3UoZXe6snWfG5wRbWw4Nfu2jkwrRnI5dIq
+         kBjThcSYJKQvS21O3a6vYYQPDpIaGp8BcANZSvCNKVODjn9K60Tggd55ej1z0z7HDOSJ
+         GKP9g5cJDVsm5VGiKeCc3EYMjjPqaXTRvpik4igfIOExMISNy+sbvfgKC6fNbmUeIhMK
+         YDM6u2ocL4UE8xiVwdoGMXzvFSY2RhiDri17ttRFcmHHtIFpBlGJdzjLzwa8dIGLJuWi
+         wxs20zZXFwRtNWwAri7H5tz3wJhQiGakUg79ucaAYqpatPEbJZF14RDNA3dojGNLqsio
+         8O1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Uotg0rK6WqUnJOtSrJxvOQq7sh86r63KATxN03B+BDY=;
-        b=MvMVqFWTZSSU7QO01OEtey/Zp5GXCCSFNg4kviBPVfwpLRnDBV0a/5YLDzXWWvkFMk
-         PGKqJrLu+KpCoYbI+y1ic5V24CK6tuOaDZigobeyt09t7dYX5RPmbEgb2F5rgXBufQqj
-         ADR1bu/UY5yS2z22n9DWz3FhZxmHmaxyL3T6+CEGGmTyiwUy2p3CNsin+LvYcdWYI7fJ
-         qAU+hhpL7j86d8omm9ekiaZI1YUs59rNtYqpnTnjdvvGDwtKnusHrjvhk8q3gk32Ze36
-         Vjdltg5SCXoAECruMvb8uNNx7xhaYxzMR/KtK4KeFeEQZCni218suD6lYxx9lETfUZQm
-         IRcQ==
-X-Gm-Message-State: AOAM532svmaSJR9xG5BFJYabwBGbYBoV+bdh0hwMeD1LMalO/o+bYLyF
-        PrdqrK1POa6ak2Bw/p+Niu3LxEM5xsN7pQ==
-X-Google-Smtp-Source: ABdhPJxekY1GQzLnuKrK48o2a7IzrKcuq1mOQlUpwfFamzMgIBrqPUotw5wv4M4wkEAEXk8tZn6ncw==
-X-Received: by 2002:a17:90a:7f81:: with SMTP id m1mr153117pjl.169.1607471695927;
-        Tue, 08 Dec 2020 15:54:55 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c133sm308722pfb.8.2020.12.08.15.54.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Dec 2020 15:54:55 -0800 (PST)
-Message-ID: <5fd0124f.1c69fb81.8504c.0e0b@mx.google.com>
-Date:   Tue, 08 Dec 2020 15:54:55 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=3nKLFa8UfqviH+D7Xovpvn0xgKFhcHjy+Jh/lNndHZ0=;
+        b=ORKyLhx8WPGt8JD/6QgpvlilYkQOQKQTR+V+yPSb2sosWSDaCenllbU+bIiMoV0pP0
+         S5sZppzgSyOkraeiEXGNPfXDRs5zt6KSEjPqCFu/GtF1nD9aGI3KCQpVtd6D1ubfkEle
+         k4zCZ3py4YJJaTWR1s7OFO2m2QpDFOHVsSWM7UaMGS7kDULVOMLJ4x4s+3yfwkTNJ5Su
+         yZKd933eDy4mbC+5J8iNeHdecrmunQqltdwU4+HD3VWKzR3f0ZkCPD+wZoQDtiB6NPzF
+         wGisexRSrksKN1eOFKtKz3w7KAe4ViwVB1q+tmFq3MXNomIwh/cwBUOBxzvm0qOF3Rwm
+         54/Q==
+X-Gm-Message-State: AOAM532MxIm2hAmm+63oWgJScpVH0VJWwDO2TjdhD1kMmiDIxFwDd1SS
+        ejek2zuu5B1gex102QswvOhXgh67LJ/pVaveQsP09Q==
+X-Google-Smtp-Source: ABdhPJz0U27AkuiKowk/eM7aWfvizPEAlKroaqYKVDQSeOQaGTDS11rc3w0dwgN17gcsX68kZ65c3MBcmtpUchi5BnE=
+X-Received: by 2002:a62:1896:0:b029:197:491c:be38 with SMTP id
+ 144-20020a6218960000b0290197491cbe38mr385794pfy.15.1607472735704; Tue, 08 Dec
+ 2020 16:12:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.247
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 136 runs, 6 regressions (v4.9.247)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 8 Dec 2020 16:12:02 -0800
+Message-ID: <CAKwvOdkK1LgLC4ChptzUTC45WvE9-Sn0OqtgF7-odNSw8xLTYA@mail.gmail.com>
+Subject: 5.4 and 4.19 fix for LLVM_IAS/clang-12
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+Cc:     stable <stable@vger.kernel.org>, Jian Cai <jiancai@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: multipart/mixed; boundary="00000000000066748c05b5fce9ed"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 136 runs, 6 regressions (v4.9.247)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.247/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.247
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5d55c2adbefeb2d49d16891ed8ca8d03789fd31b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc756b5fe3bc33029c94cd2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc756b5fe3bc33029c94=
-cd3
-        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc759aa18520a56c1c94cf2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc759aa18520a56c1c94=
-cf3
-        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc75b1c63eabb3639c94ccc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc75b1c63eabb3639c94=
-ccd
-        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc7641e5764e9f80fc94ccf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc7641e5764e9f80fc94=
-cd0
-        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc7b1f8cc2fe1a9e8c94d3b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilep=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilep=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc7b1f8cc2fe1a9e8c94=
-d3c
-        failing since 17 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fc753adf54fc62834c94cc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.247=
-/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fc753adf54fc62834c94=
-cc9
-        failing since 14 days (last pass: v4.9.243-17-g9c24315b745a0, first=
- fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
+--00000000000066748c05b5fce9ed
+Content-Type: text/plain; charset="UTF-8"
+
+Dear stable kernel maintainers,
+Please consider accepting the following backport to 5.4 and 4.19 of
+commit 4d6ffa27b8e5 ("x86/lib: Change .weak to SYM_FUNC_START_WEAK for
+arch/x86/lib/mem*_64.S"), attached.
+
+The patch to 5.4 had a conflict due to 5.4 missing upstream commit
+e9b9d020c487 ("x86/asm: Annotate aliases") which first landed in
+v5.5-rc1.
+
+The patch to 4.19 had a conflict due to 4.19 missing the above commit
+and ffedeeb780dc ("linkage: Introduce new macros for assembler
+symbols") which also first landed in v5.5-rc1 but was backported to
+linux-5.4.y as commit 840d8c9b3e5f ("linkage: Introduce new macros for
+assembler symbols") which shipped in v5.4.76.
+
+This patch fixes a build error from clang's assembler when building
+with Clang-12, which now errors when symbols are redeclared with
+different bindings.  We're using clang's assembler in Android and
+ChromeOS for 4.19+.
+
+Jiri, would you mind reviewing the 4.19 patch (or both)?  It simply
+open codes what the upstream macros would expand to; this can be and
+was observed from running:
+$ make ... arch/x86/lib/memmove_64.s
+(ie. lowercase s, to invoke the C preprocessor on the uppercase .S file)
+
+See also: https://github.com/ClangBuiltLinux/linux/issues/1190.
+-- 
+Thanks,
+~Nick Desaulniers
+
+--00000000000066748c05b5fce9ed
+Content-Type: text/plain; charset="US-ASCII"; name="4d6ffa27b8e5.5.4.patch.txt"
+Content-Disposition: attachment; filename="4d6ffa27b8e5.5.4.patch.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kigne6ia0>
+X-Attachment-Id: f_kigne6ia0
+
+RnJvbSBmZWNkZGIwYWI0YWI1OGI2OWUyOWNiOTM2YjA1MzM2NTc0Y2IwMjlmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBGYW5ncnVpIFNvbmcgPG1hc2tyYXlAZ29vZ2xlLmNvbT4KRGF0
+ZTogTW9uLCAyIE5vdiAyMDIwIDE3OjIzOjU4IC0wODAwClN1YmplY3Q6IFtQQVRDSF0geDg2L2xp
+YjogQ2hhbmdlIC53ZWFrIHRvIFNZTV9GVU5DX1NUQVJUX1dFQUsgZm9yCiBhcmNoL3g4Ni9saWIv
+bWVtKl82NC5TCgpjb21taXQgNGQ2ZmZhMjdiOGU1MTE2YzBhYmIzMTg3OTBmZDAxZDRlMTJkNzVl
+NiB1cHN0cmVhbS4KCkNvbW1pdAoKICAzOTNmMjAzZjVmZDUgKCJ4ODZfNjQ6IGthc2FuOiBhZGQg
+aW50ZXJjZXB0b3JzIGZvciBtZW1zZXQvbWVtbW92ZS9tZW1jcHkgZnVuY3Rpb25zIikKCmFkZGVk
+IC53ZWFrIGRpcmVjdGl2ZXMgdG8gYXJjaC94ODYvbGliL21lbSpfNjQuUyBpbnN0ZWFkIG9mIGNo
+YW5naW5nIHRoZQpleGlzdGluZyBFTlRSWSBtYWNyb3MgdG8gV0VBSy4gVGhpcyBjYW4gbGVhZCB0
+byB0aGUgYXNzZW1ibHkgc25pcHBldAoKICAud2VhayBtZW1jcHkKICAuLi4KICAuZ2xvYmwgbWVt
+Y3B5Cgp3aGljaCB3aWxsIHByb2R1Y2UgYSBTVEJfV0VBSyBtZW1jcHkgd2l0aCBHTlUgYXMgYnV0
+IFNUQl9HTE9CQUwgbWVtY3B5CndpdGggTExWTSdzIGludGVncmF0ZWQgYXNzZW1ibGVyIGJlZm9y
+ZSBMTFZNIDEyLiBMTFZNIDEyIChzaW5jZQpodHRwczovL3Jldmlld3MubGx2bS5vcmcvRDkwMTA4
+KSB3aWxsIGVycm9yIG9uIHN1Y2ggYW4gb3ZlcnJpZGRlbiBzeW1ib2wKYmluZGluZy4KCkNvbW1p
+dAoKICBlZjFlMDMxNTJjYjAgKCJ4ODYvYXNtOiBNYWtlIHNvbWUgZnVuY3Rpb25zIGxvY2FsIikK
+CmNoYW5nZWQgRU5UUlkgaW4gYXJjaC94ODYvbGliL21lbWNweV82NC5TIHRvIFNZTV9GVU5DX1NU
+QVJUX0xPQ0FMLCB3aGljaAp3YXMgaW5lZmZlY3RpdmUgZHVlIHRvIHRoZSBwcmVjZWRpbmcgLndl
+YWsgZGlyZWN0aXZlLgoKVXNlIHRoZSBhcHByb3ByaWF0ZSBTWU1fRlVOQ19TVEFSVF9XRUFLIGlu
+c3RlYWQuCgpGaXhlczogMzkzZjIwM2Y1ZmQ1ICgieDg2XzY0OiBrYXNhbjogYWRkIGludGVyY2Vw
+dG9ycyBmb3IgbWVtc2V0L21lbW1vdmUvbWVtY3B5IGZ1bmN0aW9ucyIpCkZpeGVzOiBlZjFlMDMx
+NTJjYjAgKCJ4ODYvYXNtOiBNYWtlIHNvbWUgZnVuY3Rpb25zIGxvY2FsIikKUmVwb3J0ZWQtYnk6
+IFNhbWkgVG9sdmFuZW4gPHNhbWl0b2x2YW5lbkBnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5OiBG
+YW5ncnVpIFNvbmcgPG1hc2tyYXlAZ29vZ2xlLmNvbT4KU2lnbmVkLW9mZi1ieTogQm9yaXNsYXYg
+UGV0a292IDxicEBzdXNlLmRlPgpSZXZpZXdlZC1ieTogTmljayBEZXNhdWxuaWVycyA8bmRlc2F1
+bG5pZXJzQGdvb2dsZS5jb20+ClRlc3RlZC1ieTogTmF0aGFuIENoYW5jZWxsb3IgPG5hdGVjaGFu
+Y2VsbG9yQGdtYWlsLmNvbT4KVGVzdGVkLWJ5OiBOaWNrIERlc2F1bG5pZXJzIDxuZGVzYXVsbmll
+cnNAZ29vZ2xlLmNvbT4KQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPgpMaW5rOiBodHRwczov
+L2xrbWwua2VybmVsLm9yZy9yLzIwMjAxMTAzMDEyMzU4LjE2ODY4Mi0xLW1hc2tyYXlAZ29vZ2xl
+LmNvbQpbbmQ6IGJhY2twb3J0IGR1ZSB0byBtaXNzaW5nIGNvbW1pdCBlOWI5ZDAyMGM0ODcgKCJ4
+ODYvYXNtOiBBbm5vdGF0ZSBhbGlhc2VzIildClNpZ25lZC1vZmYtYnk6IE5pY2sgRGVzYXVsbmll
+cnMgPG5kZXNhdWxuaWVyc0Bnb29nbGUuY29tPgotLS0KIGFyY2gveDg2L2xpYi9tZW1jcHlfNjQu
+UyAgfCA2ICsrLS0tLQogYXJjaC94ODYvbGliL21lbW1vdmVfNjQuUyB8IDYgKystLS0tCiBhcmNo
+L3g4Ni9saWIvbWVtc2V0XzY0LlMgIHwgNiArKy0tLS0KIDMgZmlsZXMgY2hhbmdlZCwgNiBpbnNl
+cnRpb25zKCspLCAxMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9saWIvbWVt
+Y3B5XzY0LlMgYi9hcmNoL3g4Ni9saWIvbWVtY3B5XzY0LlMKaW5kZXggOTI3NDg2NjBiYTUxLi4y
+OWYxZWVjZmZkZmQgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2xpYi9tZW1jcHlfNjQuUworKysgYi9h
+cmNoL3g4Ni9saWIvbWVtY3B5XzY0LlMKQEAgLTE1LDggKzE1LDYgQEAKICAqIHRvIGEgam1wIHRv
+IG1lbWNweV9lcm1zIHdoaWNoIGRvZXMgdGhlIFJFUDsgTU9WU0IgbWVtIGNvcHkuCiAgKi8KIAot
+LndlYWsgbWVtY3B5Ci0KIC8qCiAgKiBtZW1jcHkgLSBDb3B5IGEgbWVtb3J5IGJsb2NrLgogICoK
+QEAgLTI4LDggKzI2LDggQEAKICAqIE91dHB1dDoKICAqIHJheCBvcmlnaW5hbCBkZXN0aW5hdGlv
+bgogICovCi1FTlRSWShfX21lbWNweSkKLUVOVFJZKG1lbWNweSkKK1NZTV9GVU5DX1NUQVJUX0FM
+SUFTKF9fbWVtY3B5KQorU1lNX0ZVTkNfU1RBUlRfV0VBSyhtZW1jcHkpCiAJQUxURVJOQVRJVkVf
+MiAiam1wIG1lbWNweV9vcmlnIiwgIiIsIFg4Nl9GRUFUVVJFX1JFUF9HT09ELCBcCiAJCSAgICAg
+ICJqbXAgbWVtY3B5X2VybXMiLCBYODZfRkVBVFVSRV9FUk1TCiAKZGlmZiAtLWdpdCBhL2FyY2gv
+eDg2L2xpYi9tZW1tb3ZlXzY0LlMgYi9hcmNoL3g4Ni9saWIvbWVtbW92ZV82NC5TCmluZGV4IGJi
+ZWM2OWQ4MjIzYi4uZjhkZWVmYjVhOTk0IDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9saWIvbWVtbW92
+ZV82NC5TCisrKyBiL2FyY2gveDg2L2xpYi9tZW1tb3ZlXzY0LlMKQEAgLTI0LDEwICsyNCw4IEBA
+CiAgKiBPdXRwdXQ6CiAgKiByYXg6IGRlc3QKICAqLwotLndlYWsgbWVtbW92ZQotCi1FTlRSWSht
+ZW1tb3ZlKQotRU5UUlkoX19tZW1tb3ZlKQorU1lNX0ZVTkNfU1RBUlRfV0VBSyhtZW1tb3ZlKQor
+U1lNX0ZVTkNfU1RBUlQoX19tZW1tb3ZlKQogCiAJLyogSGFuZGxlIG1vcmUgMzIgYnl0ZXMgaW4g
+bG9vcCAqLwogCW1vdiAlcmRpLCAlcmF4CmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9saWIvbWVtc2V0
+XzY0LlMgYi9hcmNoL3g4Ni9saWIvbWVtc2V0XzY0LlMKaW5kZXggOWJjODYxYzcxZTc1Li42NTgz
+N2Y3ZWViMzIgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2xpYi9tZW1zZXRfNjQuUworKysgYi9hcmNo
+L3g4Ni9saWIvbWVtc2V0XzY0LlMKQEAgLTYsOCArNiw2IEBACiAjaW5jbHVkZSA8YXNtL2FsdGVy
+bmF0aXZlLWFzbS5oPgogI2luY2x1ZGUgPGFzbS9leHBvcnQuaD4KIAotLndlYWsgbWVtc2V0Ci0K
+IC8qCiAgKiBJU08gQyBtZW1zZXQgLSBzZXQgYSBtZW1vcnkgYmxvY2sgdG8gYSBieXRlIHZhbHVl
+LiBUaGlzIGZ1bmN0aW9uIHVzZXMgZmFzdAogICogc3RyaW5nIHRvIGdldCBiZXR0ZXIgcGVyZm9y
+bWFuY2UgdGhhbiB0aGUgb3JpZ2luYWwgZnVuY3Rpb24uIFRoZSBjb2RlIGlzCkBAIC0xOSw4ICsx
+Nyw4IEBACiAgKgogICogcmF4ICAgb3JpZ2luYWwgZGVzdGluYXRpb24KICAqLwotRU5UUlkobWVt
+c2V0KQotRU5UUlkoX19tZW1zZXQpCitTWU1fRlVOQ19TVEFSVF9XRUFLKG1lbXNldCkKK1NZTV9G
+VU5DX1NUQVJUKF9fbWVtc2V0KQogCS8qCiAJICogU29tZSBDUFVzIHN1cHBvcnQgZW5oYW5jZWQg
+UkVQIE1PVlNCL1NUT1NCIGZlYXR1cmUuIEl0IGlzIHJlY29tbWVuZGVkCiAJICogdG8gdXNlIGl0
+IHdoZW4gcG9zc2libGUuIElmIG5vdCBhdmFpbGFibGUsIHVzZSBmYXN0IHN0cmluZyBpbnN0cnVj
+dGlvbnMuCi0tIAoyLjI5LjIuNTc2LmdhM2ZjNDQ2ZDg0LWdvb2cKCg==
+--00000000000066748c05b5fce9ed
+Content-Type: text/plain; charset="US-ASCII"; name="4d6ffa27b8e5.4.19.patch.txt"
+Content-Disposition: attachment; filename="4d6ffa27b8e5.4.19.patch.txt"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kigne6j31>
+X-Attachment-Id: f_kigne6j31
+
+RnJvbSBmMzA2NDdjYjQxZGVlNmEyMTk2MDliM2Y3ZjU1NTJiYTU3NmU0ODA3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBGYW5ncnVpIFNvbmcgPG1hc2tyYXlAZ29vZ2xlLmNvbT4KRGF0
+ZTogTW9uLCAyIE5vdiAyMDIwIDE3OjIzOjU4IC0wODAwClN1YmplY3Q6IFtQQVRDSF0geDg2L2xp
+YjogQ2hhbmdlIC53ZWFrIHRvIFNZTV9GVU5DX1NUQVJUX1dFQUsgZm9yCiBhcmNoL3g4Ni9saWIv
+bWVtKl82NC5TCgpjb21taXQgNGQ2ZmZhMjdiOGU1MTE2YzBhYmIzMTg3OTBmZDAxZDRlMTJkNzVl
+NiB1cHN0cmVhbS4KCkNvbW1pdAoKICAzOTNmMjAzZjVmZDUgKCJ4ODZfNjQ6IGthc2FuOiBhZGQg
+aW50ZXJjZXB0b3JzIGZvciBtZW1zZXQvbWVtbW92ZS9tZW1jcHkgZnVuY3Rpb25zIikKCmFkZGVk
+IC53ZWFrIGRpcmVjdGl2ZXMgdG8gYXJjaC94ODYvbGliL21lbSpfNjQuUyBpbnN0ZWFkIG9mIGNo
+YW5naW5nIHRoZQpleGlzdGluZyBFTlRSWSBtYWNyb3MgdG8gV0VBSy4gVGhpcyBjYW4gbGVhZCB0
+byB0aGUgYXNzZW1ibHkgc25pcHBldAoKICAud2VhayBtZW1jcHkKICAuLi4KICAuZ2xvYmwgbWVt
+Y3B5Cgp3aGljaCB3aWxsIHByb2R1Y2UgYSBTVEJfV0VBSyBtZW1jcHkgd2l0aCBHTlUgYXMgYnV0
+IFNUQl9HTE9CQUwgbWVtY3B5CndpdGggTExWTSdzIGludGVncmF0ZWQgYXNzZW1ibGVyIGJlZm9y
+ZSBMTFZNIDEyLiBMTFZNIDEyIChzaW5jZQpodHRwczovL3Jldmlld3MubGx2bS5vcmcvRDkwMTA4
+KSB3aWxsIGVycm9yIG9uIHN1Y2ggYW4gb3ZlcnJpZGRlbiBzeW1ib2wKYmluZGluZy4KCkNvbW1p
+dAoKICBlZjFlMDMxNTJjYjAgKCJ4ODYvYXNtOiBNYWtlIHNvbWUgZnVuY3Rpb25zIGxvY2FsIikK
+CmNoYW5nZWQgRU5UUlkgaW4gYXJjaC94ODYvbGliL21lbWNweV82NC5TIHRvIFNZTV9GVU5DX1NU
+QVJUX0xPQ0FMLCB3aGljaAp3YXMgaW5lZmZlY3RpdmUgZHVlIHRvIHRoZSBwcmVjZWRpbmcgLndl
+YWsgZGlyZWN0aXZlLgoKVXNlIHRoZSBhcHByb3ByaWF0ZSBTWU1fRlVOQ19TVEFSVF9XRUFLIGlu
+c3RlYWQuCgpGaXhlczogMzkzZjIwM2Y1ZmQ1ICgieDg2XzY0OiBrYXNhbjogYWRkIGludGVyY2Vw
+dG9ycyBmb3IgbWVtc2V0L21lbW1vdmUvbWVtY3B5IGZ1bmN0aW9ucyIpCkZpeGVzOiBlZjFlMDMx
+NTJjYjAgKCJ4ODYvYXNtOiBNYWtlIHNvbWUgZnVuY3Rpb25zIGxvY2FsIikKUmVwb3J0ZWQtYnk6
+IFNhbWkgVG9sdmFuZW4gPHNhbWl0b2x2YW5lbkBnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5OiBG
+YW5ncnVpIFNvbmcgPG1hc2tyYXlAZ29vZ2xlLmNvbT4KU2lnbmVkLW9mZi1ieTogQm9yaXNsYXYg
+UGV0a292IDxicEBzdXNlLmRlPgpSZXZpZXdlZC1ieTogTmljayBEZXNhdWxuaWVycyA8bmRlc2F1
+bG5pZXJzQGdvb2dsZS5jb20+ClRlc3RlZC1ieTogTmF0aGFuIENoYW5jZWxsb3IgPG5hdGVjaGFu
+Y2VsbG9yQGdtYWlsLmNvbT4KVGVzdGVkLWJ5OiBOaWNrIERlc2F1bG5pZXJzIDxuZGVzYXVsbmll
+cnNAZ29vZ2xlLmNvbT4KQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPgpMaW5rOiBodHRwczov
+L2xrbWwua2VybmVsLm9yZy9yLzIwMjAxMTAzMDEyMzU4LjE2ODY4Mi0xLW1hc2tyYXlAZ29vZ2xl
+LmNvbQpbbmQ6IGJhY2twb3J0IGR1ZSB0byBtaXNzaW5nCiAgY29tbWl0IGU5YjlkMDIwYzQ4NyAo
+Ing4Ni9hc206IEFubm90YXRlIGFsaWFzZXMiKQogIGNvbW1pdCBmZmVkZWViNzgwZGMgKCJsaW5r
+YWdlOiBJbnRyb2R1Y2UgbmV3IG1hY3JvcyBmb3IgYXNzZW1ibGVyIHN5bWJvbHMiKV0KU2lnbmVk
+LW9mZi1ieTogTmljayBEZXNhdWxuaWVycyA8bmRlc2F1bG5pZXJzQGdvb2dsZS5jb20+Ci0tLQog
+YXJjaC94ODYvbGliL21lbWNweV82NC5TICB8IDEwICsrKysrKy0tLS0KIGFyY2gveDg2L2xpYi9t
+ZW1tb3ZlXzY0LlMgfCAgOCArKysrKy0tLQogYXJjaC94ODYvbGliL21lbXNldF82NC5TICB8IDEw
+ICsrKysrKy0tLS0KIDMgZmlsZXMgY2hhbmdlZCwgMTcgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYvbGliL21lbWNweV82NC5TIGIvYXJjaC94ODYv
+bGliL21lbWNweV82NC5TCmluZGV4IDlkMDU1NzIzNzBlZC4uNWU5ZmVjOTA1MmFlIDEwMDY0NAot
+LS0gYS9hcmNoL3g4Ni9saWIvbWVtY3B5XzY0LlMKKysrIGIvYXJjaC94ODYvbGliL21lbWNweV82
+NC5TCkBAIC0xNCw4ICsxNCw2IEBACiAgKiB0byBhIGptcCB0byBtZW1jcHlfZXJtcyB3aGljaCBk
+b2VzIHRoZSBSRVA7IE1PVlNCIG1lbSBjb3B5LgogICovCiAKLS53ZWFrIG1lbWNweQotCiAvKgog
+ICogbWVtY3B5IC0gQ29weSBhIG1lbW9yeSBibG9jay4KICAqCkBAIC0yNyw4ICsyNSwxMiBAQAog
+ICogT3V0cHV0OgogICogcmF4IG9yaWdpbmFsIGRlc3RpbmF0aW9uCiAgKi8KLUVOVFJZKF9fbWVt
+Y3B5KQotRU5UUlkobWVtY3B5KQorLmdsb2JsIF9fbWVtY3B5CisucDJhbGlnbiA0LCAweDkwCitf
+X21lbWNweToKKy53ZWFrIG1lbWNweQorLnAyYWxpZ24gNCwgMHg5MAorbWVtY3B5OgogCUFMVEVS
+TkFUSVZFXzIgImptcCBtZW1jcHlfb3JpZyIsICIiLCBYODZfRkVBVFVSRV9SRVBfR09PRCwgXAog
+CQkgICAgICAiam1wIG1lbWNweV9lcm1zIiwgWDg2X0ZFQVRVUkVfRVJNUwogCmRpZmYgLS1naXQg
+YS9hcmNoL3g4Ni9saWIvbWVtbW92ZV82NC5TIGIvYXJjaC94ODYvbGliL21lbW1vdmVfNjQuUwpp
+bmRleCBiYmVjNjlkODIyM2IuLjAwYzFmNGZlM2MwMiAxMDA2NDQKLS0tIGEvYXJjaC94ODYvbGli
+L21lbW1vdmVfNjQuUworKysgYi9hcmNoL3g4Ni9saWIvbWVtbW92ZV82NC5TCkBAIC0yNSw5ICsy
+NSwxMSBAQAogICogcmF4OiBkZXN0CiAgKi8KIC53ZWFrIG1lbW1vdmUKLQotRU5UUlkobWVtbW92
+ZSkKLUVOVFJZKF9fbWVtbW92ZSkKKy5wMmFsaWduIDQsIDB4OTAKK21lbW1vdmU6CisuZ2xvYmwg
+X19tZW1tb3ZlCisucDJhbGlnbiA0LCAweDkwCitfX21lbW1vdmU6CiAKIAkvKiBIYW5kbGUgbW9y
+ZSAzMiBieXRlcyBpbiBsb29wICovCiAJbW92ICVyZGksICVyYXgKZGlmZiAtLWdpdCBhL2FyY2gv
+eDg2L2xpYi9tZW1zZXRfNjQuUyBiL2FyY2gveDg2L2xpYi9tZW1zZXRfNjQuUwppbmRleCA5YmM4
+NjFjNzFlNzUuLjExNjc1MGJiNTU1ZCAxMDA2NDQKLS0tIGEvYXJjaC94ODYvbGliL21lbXNldF82
+NC5TCisrKyBiL2FyY2gveDg2L2xpYi9tZW1zZXRfNjQuUwpAQCAtNiw4ICs2LDYgQEAKICNpbmNs
+dWRlIDxhc20vYWx0ZXJuYXRpdmUtYXNtLmg+CiAjaW5jbHVkZSA8YXNtL2V4cG9ydC5oPgogCi0u
+d2VhayBtZW1zZXQKLQogLyoKICAqIElTTyBDIG1lbXNldCAtIHNldCBhIG1lbW9yeSBibG9jayB0
+byBhIGJ5dGUgdmFsdWUuIFRoaXMgZnVuY3Rpb24gdXNlcyBmYXN0CiAgKiBzdHJpbmcgdG8gZ2V0
+IGJldHRlciBwZXJmb3JtYW5jZSB0aGFuIHRoZSBvcmlnaW5hbCBmdW5jdGlvbi4gVGhlIGNvZGUg
+aXMKQEAgLTE5LDggKzE3LDEyIEBACiAgKgogICogcmF4ICAgb3JpZ2luYWwgZGVzdGluYXRpb24K
+ICAqLwotRU5UUlkobWVtc2V0KQotRU5UUlkoX19tZW1zZXQpCisud2VhayBtZW1zZXQKKy5wMmFs
+aWduIDQsIDB4OTAKK21lbXNldDoKKy5nbG9ibCBfX21lbXNldAorLnAyYWxpZ24gNCwgMHg5MAor
+X19tZW1zZXQ6CiAJLyoKIAkgKiBTb21lIENQVXMgc3VwcG9ydCBlbmhhbmNlZCBSRVAgTU9WU0Iv
+U1RPU0IgZmVhdHVyZS4gSXQgaXMgcmVjb21tZW5kZWQKIAkgKiB0byB1c2UgaXQgd2hlbiBwb3Nz
+aWJsZS4gSWYgbm90IGF2YWlsYWJsZSwgdXNlIGZhc3Qgc3RyaW5nIGluc3RydWN0aW9ucy4KLS0g
+CjIuMjkuMi41NzYuZ2EzZmM0NDZkODQtZ29vZwoK
+--00000000000066748c05b5fce9ed--
