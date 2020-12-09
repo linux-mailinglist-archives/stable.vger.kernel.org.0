@@ -2,164 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE332D3D55
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 09:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2772D3D9C
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 09:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbgLIIaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 03:30:14 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42350 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726571AbgLIIaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 03:30:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607502520;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TY8/pWIgcIz+C6jRI22Ls6KSQPYFbL8dVJN418r6j6I=;
-        b=MjpHsnYT85AizTEtTNlMCKnXGEbd3guX0uKx8J2b55ngGIThD5sp33pTAbtzkXzTrz9nNM
-        gxJusA9LtWAX+QLbSM7PzXiCq6tWrl6Rqm57skVawSs4D1oG8zZbkVJt0wds1/DK7mCZfN
-        ytvdDyxXtWAQ1nrPidLx+QAeXlORtRA=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-358-u2yPRzpsMNmPahxKxeiaNw-1; Wed, 09 Dec 2020 03:28:38 -0500
-X-MC-Unique: u2yPRzpsMNmPahxKxeiaNw-1
-Received: by mail-wr1-f69.google.com with SMTP id q18so353866wrc.20
-        for <stable@vger.kernel.org>; Wed, 09 Dec 2020 00:28:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=TY8/pWIgcIz+C6jRI22Ls6KSQPYFbL8dVJN418r6j6I=;
-        b=SP5ycjuVKIVT6hq+duRQqNVhc0xvgRoH2l1rwSbuUE8HA0aituyBsiV7PSvAvzUoH0
-         UirLLDAF3jNkIO80yhN1bnDTtiwIFoHMRduDnAN6VzD3Cfe8rUgBBxlQut4IA42/yMyL
-         aupITKOQKQuqH4iEAd1RhtkfJuu64bJHJUxyZvmMkhJ2tBMap0i7l6nG7XU3qOV68Uho
-         Hc4gBGV/iXC35XFlROBCmFPtLdQu2zJZ3OTiFT0nDqKaOCOX4vl1D1qS6T4hV8f5l5u+
-         FiibK27zt90H9BYQIpijlPLLLwv7GZQxQLhtD7dGiQ8l3+YdPzGYoP5NTu2x7LGkUgdX
-         CUxA==
-X-Gm-Message-State: AOAM533675VL5ovMm0EkcFxPOHeRtZy80MmYmHbH2TVP0PAuB97oUlLy
-        9flePj+Qmn+5V2FpE76a358KqsUixgFQy+1J6JkZxmGfacoE7BdeETsk3so/sMOE2cvF5vcRHcI
-        Z5EQZ92nu4kx59Gat
-X-Received: by 2002:adf:ecd0:: with SMTP id s16mr1258059wro.415.1607502517428;
-        Wed, 09 Dec 2020 00:28:37 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxH6Do+31Svbm6gZcmCgYjugWGzqIMTR6tBXYz8WhylY3W/V+37vUvxCwZh+NfQ/MkOY6D7Mg==
-X-Received: by 2002:adf:ecd0:: with SMTP id s16mr1258052wro.415.1607502517272;
-        Wed, 09 Dec 2020 00:28:37 -0800 (PST)
-Received: from redhat.com (bzq-79-176-44-197.red.bezeqint.net. [79.176.44.197])
-        by smtp.gmail.com with ESMTPSA id u6sm2188084wrm.90.2020.12.09.00.28.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Dec 2020 00:28:36 -0800 (PST)
-Date:   Wed, 9 Dec 2020 03:28:33 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Mathias Crombez <mathias.crombez@faurecia.com>
-Subject: Re: [PATCH RESEND v2] virtio-input: add multi-touch support
-Message-ID: <20201209030635-mutt-send-email-mst@kernel.org>
-References: <20201208210150.20001-1-vasyl.vavrychuk@opensynergy.com>
+        id S1726278AbgLIIig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 03:38:36 -0500
+Received: from bmailout2.hostsharing.net ([83.223.78.240]:44365 "EHLO
+        bmailout2.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726855AbgLIIid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 03:38:33 -0500
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
+        by bmailout2.hostsharing.net (Postfix) with ESMTPS id 10CD22800BB94;
+        Wed,  9 Dec 2020 09:37:30 +0100 (CET)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id AB41A10DB; Wed,  9 Dec 2020 09:37:47 +0100 (CET)
+Date:   Wed, 9 Dec 2020 09:37:47 +0100
+From:   Lukas Wunner <lukas@wunner.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19-stable 4/5] spi: bcm2835aux: Fix use-after-free on
+ unbind
+Message-ID: <20201209083747.GA7377@wunner.de>
+References: <70e63c9a7ed172e15b9d1fe82d44603ea9c76288.1607257456.git.lukas@wunner.de>
+ <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
+ <20201208004901.GB587492@ubuntu-m3-large-x86>
+ <20201208073241.GA29998@wunner.de>
+ <20201208134739.GJ643756@sasha-vm>
+ <20201208171145.GA3241@wunner.de>
+ <20201208211745.GL643756@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201208210150.20001-1-vasyl.vavrychuk@opensynergy.com>
+In-Reply-To: <20201208211745.GL643756@sasha-vm>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 08, 2020 at 11:01:50PM +0200, Vasyl Vavrychuk wrote:
-> From: Mathias Crombez <mathias.crombez@faurecia.com>
-> Cc: stable@vger.kernel.org
+On Tue, Dec 08, 2020 at 04:17:45PM -0500, Sasha Levin wrote:
+> On Tue, Dec 08, 2020 at 06:11:45PM +0100, Lukas Wunner wrote:
+> > On Tue, Dec 08, 2020 at 08:47:39AM -0500, Sasha Levin wrote:
+> > > Could we instead have the backports exhibit the issue (like they did
+> > > upstream) and then take d853b3406903 on top?
+> > 
+> > The upstream commit e13ee6cc4781 did not apply cleanly to 4.19 and earlier,
+> > several adjustments were required.  Could I have made it so that the fixup
+> > d853b3406903 would have still been required?  Probably, but it seems a
+> > little silly to submit a known-bad patch.
+[...]
+> 2. It'll make auditing later easier. What will happen now is that after
+> this patch is merges, we'll trigger a warning saying that there's a fix
+> upstream for one of these patches, and we'll end up wasting the time (of
+> probably a few folks) figuring this out.
 
-I don't believe this is appropriate for stable, looks like
-a new feature to me.
+Would it be possible to amend the tooling such that multiple
+"[ Upstream commit ... ]" lines are supported at the top of
+the commit message, signifying that the backport patch
+subsumes all cited upstream commits?
 
+Could the extra work for stable maintainers be avoided that way?
 
-> 
-> Without multi-touch slots allocated, ABS_MT_SLOT events will be lost by
-> input_handle_abs_event.
-> 
-> Signed-off-by: Mathias Crombez <mathias.crombez@faurecia.com>
-> Signed-off-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-> Tested-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-> ---
-> v2: fix patch corrupted by corporate email server
-> 
->  drivers/virtio/Kconfig        | 11 +++++++++++
->  drivers/virtio/virtio_input.c |  8 ++++++++
->  2 files changed, 19 insertions(+)
-> 
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index 7b41130d3f35..2cfd5b01d96d 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -111,6 +111,17 @@ config VIRTIO_INPUT
->  
->  	 If unsure, say M.
->  
-> +config VIRTIO_INPUT_MULTITOUCH_SLOTS
-> +	depends on VIRTIO_INPUT
-> +	int "Number of multitouch slots"
-> +	range 0 64
-> +	default 10
-> +	help
-> +	 Define the number of multitouch slots used. Default to 10.
-> +	 This parameter is unused if there is no multitouch capability.
-> +
-> +	 0 will disable the feature.
-> +
-
-Most people won't be using this config so the defaults matter. So why 10? 10 fingers?
-
-And where does 64 come from?
+I imagine there might be more cases where a "clean" backport is
+not possible, requiring multiple upstream patches to be combined.
 
 
->  config VIRTIO_MMIO
->  	tristate "Platform bus driver for memory mapped virtio devices"
->  	depends on HAS_IOMEM && HAS_DMA
-> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-> index f1f6208edcf5..13f3d90e6c30 100644
-> --- a/drivers/virtio/virtio_input.c
-> +++ b/drivers/virtio/virtio_input.c
-> @@ -7,6 +7,7 @@
->  
->  #include <uapi/linux/virtio_ids.h>
->  #include <uapi/linux/virtio_input.h>
-> +#include <linux/input/mt.h>
->  
->  struct virtio_input {
->  	struct virtio_device       *vdev;
-> @@ -205,6 +206,7 @@ static int virtinput_probe(struct virtio_device *vdev)
->  	unsigned long flags;
->  	size_t size;
->  	int abs, err;
-> +	bool is_mt = false;
->  
->  	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
->  		return -ENODEV;
-> @@ -287,9 +289,15 @@ static int virtinput_probe(struct virtio_device *vdev)
->  		for (abs = 0; abs < ABS_CNT; abs++) {
->  			if (!test_bit(abs, vi->idev->absbit))
->  				continue;
-> +			if (input_is_mt_value(abs))
-> +				is_mt = true;
->  			virtinput_cfg_abs(vi, abs);
->  		}
->  	}
-> +	if (is_mt)
-> +		input_mt_init_slots(vi->idev,
-> +				    CONFIG_VIRTIO_INPUT_MULTITOUCH_SLOTS,
-> +				    INPUT_MT_DIRECT);
+> Note I'm not asking to submit a broken patch, but I'm asking to submit a
+> minimal backport followed by the upstream fix to that upstream bug :)
 
+Then please apply the series sans bcm2835aux patch and I'll follow up
+with a two-patch series specifically for that driver.
 
-Do we need the number in config space maybe? And maybe with a feature
-bit so host can find out whether guest supports MT?
+Alternatively, please consider whether multiple "[ Upstream commit ... ]"
+lines would be a viable solution and if it is, add a line as follows
+when applying the bcm2835aux patch:
 
->  
->  	virtio_device_ready(vdev);
->  	vi->ready = true;
-> -- 
-> 2.23.0
+[ Upstream commit d853b3406903a7dc5b14eb5bada3e8cd677f66a2 ]
 
+Thanks,
+
+Lukas
