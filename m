@@ -2,101 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE402D44C7
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 15:52:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB552D44D4
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 15:53:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733119AbgLIOuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 09:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51014 "EHLO mail.kernel.org"
+        id S1732325AbgLIOxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 09:53:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733107AbgLIOuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 09:50:09 -0500
-Subject: patch "staging: comedi: mf6x4: Fix AI end-of-conversion detection" added to staging-testing
+        id S1732059AbgLIOxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 09:53:50 -0500
+Date:   Wed, 9 Dec 2020 15:54:26 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607525316;
-        bh=Ps+qkCI3ceEyvYdw7FTJvaM0IdYtLEB7XB07DZ165xk=;
-        h=To:From:Date:From;
-        b=ALnJ3huB96qd3o2Doo3zuZKWS/pnGC5ScPT1gv40p0d65nJk6YTE08ACJFRxVzCTZ
-         v7ELRgg2ihp4ubmDFpAIqwrQvxuFoXcyTsXG9DkYa7m0+jNxuj3kVuoa6SyN9lDFeS
-         KgFw8kkCEX5AHJa9fiRSXFCXgoMS2PQmmRg1werI=
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org, lisovy@gmail.com,
+        s=korg; t=1607525590;
+        bh=IIfUJorqMDpBd82MCjqYNcMz9MwC1uE5ZYVW7orcYZA=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FGSaiilLUwmBIk0rZNRQHTyvh3Pq8cwIuv2+x4lySFPBlsw3nnB7ukYH/xx7IV+TR
+         0pkv/O+hcpRqgLNnRWN0H0yWRrVM7Xb35jv6dSEGIJjRMCkOylEP9OGdvaskR07AFk
+         mQDkK6kzaS8alz1L4U4JDzZ3a5GUrsAhnIvogNCM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jim Cromie <jim.cromie@gmail.com>
+Cc:     Jason Baron <jbaron@akamai.com>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 15:49:44 +0100
-Message-ID: <160752538413863@kroah.com>
+Subject: Re: [PATCH] dyndbg: fix use before null check
+Message-ID: <X9DlIkNg2mVf20Bo@kroah.com>
+References: <20201123184334.1777186-1-jim.cromie@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201123184334.1777186-1-jim.cromie@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 23, 2020 at 11:43:34AM -0700, Jim Cromie wrote:
+> commit a2d375eda771 ("dyndbg: refine export, rename to dynamic_debug_exec_queries()")
+> 
+> Above commit copies a string before checking for null pointer, fix
+> this, and add a pr_err.  Also trim comment, and add return val info.
 
-This is a note to let you know that I've just added the patch titled
+The way you list the above commit is very odd, and hard to read and
+understand.  How about something like:
 
-    staging: comedi: mf6x4: Fix AI end-of-conversion detection
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the staging-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
+	In commit a2d375eda771 ("dyndbg: refine export, rename to
+	dynamic_debug_exec_queries()"), a string is copied before
+	checking....
 
 
-From 56c90457ebfe9422496aac6ef3d3f0f0ea8b2ec2 Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Mon, 7 Dec 2020 14:58:06 +0000
-Subject: staging: comedi: mf6x4: Fix AI end-of-conversion detection
+Also, when you say "also" in a patch, that is a HUGE flag that the
+commit needs to be broken up into multiple patches.  Put the bugfix
+first, and then fix up the comment later, if it is not being changed for
+this fix.
 
-I have had reports from two different people that attempts to read the
-analog input channels of the MF624 board fail with an `ETIMEDOUT` error.
+Also:
 
-After triggering the conversion, the code calls `comedi_timeout()` with
-`mf6x4_ai_eoc()` as the callback function to check if the conversion is
-complete.  The callback returns 0 if complete or `-EBUSY` if not yet
-complete.  `comedi_timeout()` returns `-ETIMEDOUT` if it has not
-completed within a timeout period which is propagated as an error to the
-user application.
+> Fixes: a2d375eda771
 
-The existing code considers the conversion to be complete when the EOLC
-bit is high.  However, according to the user manuals for the MF624 and
-MF634 boards, this test is incorrect because EOLC is an active low
-signal that goes high when the conversion is triggered, and goes low
-when the conversion is complete.  Fix the problem by inverting the test
-of the EOLC bit state.
-
-Fixes: 04b565021a83 ("comedi: Humusoft MF634 and MF624 DAQ cards driver")
-Cc: <stable@vger.kernel.org> # v4.4+
-Cc: Rostislav Lisovy <lisovy@gmail.com>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20201207145806.4046-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/comedi/drivers/mf6x4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/staging/comedi/drivers/mf6x4.c b/drivers/staging/comedi/drivers/mf6x4.c
-index ea430237efa7..9da8dd748078 100644
---- a/drivers/staging/comedi/drivers/mf6x4.c
-+++ b/drivers/staging/comedi/drivers/mf6x4.c
-@@ -112,8 +112,9 @@ static int mf6x4_ai_eoc(struct comedi_device *dev,
- 	struct mf6x4_private *devpriv = dev->private;
- 	unsigned int status;
- 
-+	/* EOLC goes low at end of conversion. */
- 	status = ioread32(devpriv->gpioc_reg);
--	if (status & MF6X4_GPIOC_EOLC)
-+	if ((status & MF6X4_GPIOC_EOLC) == 0)
- 		return 0;
- 	return -EBUSY;
- }
--- 
-2.29.2
+You need the full information here, please write:
+	Fixes: a2d375eda771 ("dyndbg: refine export, rename to dynamic_debug_exec_queries()")
 
 
+Can you fix all of that up and resend?
+
+thanks,
+
+greg k-h
