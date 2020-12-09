@@ -2,101 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FADA2D4952
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 19:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 421632D49AC
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 20:01:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732952AbgLISqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 13:46:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728997AbgLISqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 13:46:01 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C2AC0617A6;
-        Wed,  9 Dec 2020 10:44:42 -0800 (PST)
-Date:   Wed, 09 Dec 2020 18:44:40 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607539480;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BfFS48eStY2H5Vt9t6udqjhiUv/iHMkqEmQUhUIAAN8=;
-        b=SSZ8jbvN6Du9k3LxH5fGP/aXMyP8lp+mEJfdfDL03CiblFYTQsBjOclKD7EF9tUbcFQ3/E
-        Z8ts4eVrLS4bLo3Wd3tAVrWBCs/+sRRCVoE3BVJWU/lRIZJlU0BIYaQg+eU6YfL7FBSXFN
-        g/W0pvOb9lwqwTzTAbg8fvw7udUjMPVvyeF8HhLE2CY0w5prk4JIOg42xuSy4Y29vsUkT5
-        4hG0p9xgliVOLAYfW1fPkw4mGstoVtQe1cTCFTKfL87TwfvhN2euzV0hYT2mIU4QQRAOm9
-        pZzV3mOqjPOACpJTY3gulTwO4VSPgQsAvnslN6nyq7ezIBO25kD/WkVutNH4/A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607539480;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BfFS48eStY2H5Vt9t6udqjhiUv/iHMkqEmQUhUIAAN8=;
-        b=xtueNYlVOjVeDNeTpA7qcvtJpeRWTnhlaoXAjMPtCi5AIQnyiErLLIDOS3h2apzmdqnSHX
-        Sr0x84nydnrKcQCA==
-From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/core] perf/x86/intel: Fix rtm_abort_event encoding on Ice Lake
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20201125213720.15692-1-kan.liang@linux.intel.com>
-References: <20201125213720.15692-1-kan.liang@linux.intel.com>
+        id S2387426AbgLITAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 14:00:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50416 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729345AbgLITAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 14:00:06 -0500
+Subject: patch "USB: UAS: introduce a quirk to set no_write_same" added to usb-testing
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607540365;
+        bh=nfHCLiiRe1f0qNBa13nF77KMPFJwUHSE50mQ0xWIkRA=;
+        h=To:From:Date:From;
+        b=jIpzP3pAZY54NPcDSucsOiZxb5LdWC7UgXMgTrM2lDiPQJu479GWJMSUEMpVqicnl
+         CK/mn9TbokXXANsGIKeKodk9fetckEJ0S+83l5idbQ0tKipEHi6nXWJNrhb6pwRZlx
+         RmOEH1Ncb9KsSRXRuszbUlvEYDmWcbqRDaiI+IT4=
+To:     oneukum@suse.com, david.partridge@perdrix.co.uk,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 09 Dec 2020 20:00:42 +0100
+Message-ID: <1607540442190155@kroah.com>
 MIME-Version: 1.0
-Message-ID: <160753948006.3364.10518320542900897323.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/core branch of tip:
 
-Commit-ID:     46b72e1bf4fc571da0c29c6fb3e5b2a2107a4c26
-Gitweb:        https://git.kernel.org/tip/46b72e1bf4fc571da0c29c6fb3e5b2a2107a4c26
-Author:        Kan Liang <kan.liang@linux.intel.com>
-AuthorDate:    Wed, 25 Nov 2020 13:37:19 -08:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Wed, 09 Dec 2020 17:08:57 +01:00
+This is a note to let you know that I've just added the patch titled
 
-perf/x86/intel: Fix rtm_abort_event encoding on Ice Lake
+    USB: UAS: introduce a quirk to set no_write_same
 
-According to the event list from icelake_core_v1.09.json, the encoding
-of the RTM_RETIRED.ABORTED event on Ice Lake should be,
-    "EventCode": "0xc9",
-    "UMask": "0x04",
-    "EventName": "RTM_RETIRED.ABORTED",
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-Correct the wrong encoding.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201125213720.15692-1-kan.liang@linux.intel.com
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 8010622c86ca5bb44bc98492f5968726fc7c7a21 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Wed, 9 Dec 2020 16:26:39 +0100
+Subject: USB: UAS: introduce a quirk to set no_write_same
+
+UAS does not share the pessimistic assumption storage is making that
+devices cannot deal with WRITE_SAME.  A few devices supported by UAS,
+are reported to not deal well with WRITE_SAME. Those need a quirk.
+
+Add it to the device that needs it.
+
+Reported-by: David C. Partridge <david.partridge@perdrix.co.uk>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201209152639.9195-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt | 1 +
+ drivers/usb/storage/uas.c                       | 3 +++
+ drivers/usb/storage/unusual_uas.h               | 7 +++++--
+ drivers/usb/storage/usb.c                       | 3 +++
+ include/linux/usb_usual.h                       | 2 ++
+ 5 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 546cc89..6c0d18f 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -5466,7 +5466,7 @@ __init int intel_pmu_init(void)
- 		mem_attr = icl_events_attrs;
- 		td_attr = icl_td_events_attrs;
- 		tsx_attr = icl_tsx_events_attrs;
--		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xca, .umask=0x02);
-+		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xc9, .umask=0x04);
- 		x86_pmu.lbr_pt_coexist = true;
- 		intel_pmu_pebs_data_source_skl(pmem);
- 		x86_pmu.update_topdown_event = icl_update_topdown_event;
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 44fde25bb221..f6a1513dfb76 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5663,6 +5663,7 @@
+ 					device);
+ 				j = NO_REPORT_LUNS (don't use report luns
+ 					command, uas only);
++				k = NO_SAME (do not use WRITE_SAME, uas only)
+ 				l = NOT_LOCKABLE (don't try to lock and
+ 					unlock ejectable media, not on uas);
+ 				m = MAX_SECTORS_64 (don't transfer more
+diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
+index 56422c4b4ff3..bef89c6bd1d7 100644
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -868,6 +868,9 @@ static int uas_slave_configure(struct scsi_device *sdev)
+ 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
+ 		sdev->no_read_capacity_16 = 1;
+ 
++	/* Some disks cannot handle WRITE_SAME */
++	if (devinfo->flags & US_FL_NO_SAME)
++		sdev->no_write_same = 1;
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index 711ab240058c..870e9cf3d5dc 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -35,12 +35,15 @@ UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_OPCODES),
+ 
+-/* Reported-by: Julian Groß <julian.g@posteo.de> */
++/*
++ *  Initially Reported-by: Julian Groß <julian.g@posteo.de>
++ *  Further reports David C. Partridge <david.partridge@perdrix.co.uk>
++ */
+ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
+ 		"LaCie",
+ 		"2Big Quadra USB3",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_NO_REPORT_OPCODES),
++		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+ 
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+diff --git a/drivers/usb/storage/usb.c b/drivers/usb/storage/usb.c
+index 94a64729dc27..90aa9c12ffac 100644
+--- a/drivers/usb/storage/usb.c
++++ b/drivers/usb/storage/usb.c
+@@ -541,6 +541,9 @@ void usb_stor_adjust_quirks(struct usb_device *udev, unsigned long *fflags)
+ 		case 'j':
+ 			f |= US_FL_NO_REPORT_LUNS;
+ 			break;
++		case 'k':
++			f |= US_FL_NO_SAME;
++			break;
+ 		case 'l':
+ 			f |= US_FL_NOT_LOCKABLE;
+ 			break;
+diff --git a/include/linux/usb_usual.h b/include/linux/usb_usual.h
+index 4a19ac3f24d0..6b03fdd69d27 100644
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -84,6 +84,8 @@
+ 		/* Cannot handle REPORT_LUNS */			\
+ 	US_FLAG(ALWAYS_SYNC, 0x20000000)			\
+ 		/* lies about caching, so always sync */	\
++	US_FLAG(NO_SAME, 0x40000000)				\
++		/* Cannot handle WRITE_SAME */			\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
+-- 
+2.29.2
+
+
