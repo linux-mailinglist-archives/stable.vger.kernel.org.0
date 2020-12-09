@@ -2,268 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AD02D4CDD
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 22:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 780102D4D18
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 22:47:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727369AbgLIVbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 16:31:01 -0500
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:49734 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388183AbgLIVbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 16:31:00 -0500
-Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0B9LThMY003366;
-        Wed, 9 Dec 2020 13:30:09 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=facebook; bh=QkW2vcLingYHK3rQD+3RBcJfh3nu5wcRx12YMaDgSnI=;
- b=STZT5PM83SalXzfoj+6kGJyDAxmOn6g6icK9Wln5wm+i1tEVGDfea338vthg1tYFAUKQ
- MjjnYlgGZjtilnhLFdckh4MLVgKarZXAs3p7EWdJgPwkF8SFLPr6EZwrtnvVLTEDRftL
- sRGLUcBFiHfOKWv+QUNgmwvWRY/a0CgXDDc= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 35b68s844q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Wed, 09 Dec 2020 13:30:09 -0800
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (100.104.31.183)
- by o365-in.thefacebook.com (100.104.36.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Wed, 9 Dec 2020 13:30:08 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ew12s1FXEfMmC766dhq+f+7ymx8uJ1xJ0l+R3SERqfjTsxL0/M42UGo1OZgvXavap/aVyKeIfOKu4919BEeZcuq3AK6c6m5scsKV3kOXCRsLqbZc4D45pgpcimoJ9KYSYQu2487MeZO/EG/QPZ6ZQysuc1eefcKuIJOgfz3uU1YE/GzlSLjPpnkOR4GKeDBGvS9d89luFOyIDgSSDoBOOHjy3PV2w2ji/9YQMVcoBZkbcNr93Rht3//+YN3By6mJfOVd/GZPyL56tWjRb4BYSk1qwAjddPRIOzGhk44WEvFlo9D4jm0wBtSC/PMjXgU7nJe6fb8cI+lbwyP81ELfmA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QkW2vcLingYHK3rQD+3RBcJfh3nu5wcRx12YMaDgSnI=;
- b=dqjB6urgpwH8Mxq9a+snKysegPEgaruzdEPqVMZtBeEf8t7iMXmw08/iFpk1qB++oGGdBi5IiDfYxSSIAo7Il5CAusMp1Bx59E1CcNRHVTSn1rPm5MumnN6a29BgpI8RDzwU7lrga4tWMDryXQVRm7t0/Ap1OKyGHyiBpQHP6wVJP7Vp3Y5ghETAUSeqYkFK3OkRAOPQhnwAtdrr7bBrtMfnoO0ss4TytyabT43Am1BFWoutfoTwr4lRtUXVuXKmsYAJ0tkN7t3fzGf/s0gIQ5oSFmmwtwMgaBYBi68L5VTZMsSvLO9xPnzhPT+s6kR9JcE1N7xrE8wWtlwnGbk6gQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
- s=selector2-fb-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QkW2vcLingYHK3rQD+3RBcJfh3nu5wcRx12YMaDgSnI=;
- b=CnxYi5BLpQAdTjR4Xolt3hAoqeFH48O3r4CuRUU7PuipkBlBldeziwaydM92M/iWb6XyEetpUUUes7JP4IzLamD4J98tl2T6Tf50rPjovOPh2yWkqR3nn0CG4VdPqazx1ohRJNuSdj9FPWl9P6sYX+bIrqA59PU7IsHIlc+Mh+8=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=fb.com;
-Received: from BYAPR15MB4136.namprd15.prod.outlook.com (2603:10b6:a03:96::24)
- by BYAPR15MB4135.namprd15.prod.outlook.com (2603:10b6:a03:a0::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3632.17; Wed, 9 Dec
- 2020 21:30:07 +0000
-Received: from BYAPR15MB4136.namprd15.prod.outlook.com
- ([fe80::3925:e1f9:4c6a:9396]) by BYAPR15MB4136.namprd15.prod.outlook.com
- ([fe80::3925:e1f9:4c6a:9396%6]) with mapi id 15.20.3632.024; Wed, 9 Dec 2020
- 21:30:07 +0000
-Date:   Wed, 9 Dec 2020 13:30:04 -0800
-From:   Roman Gushchin <guro@fb.com>
-To:     <stable@vger.kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <akpm@linux-foundation.org>,
-        <hannes@cmpxchg.org>, <mhocko@kernel.org>, <shakeelb@google.com>,
-        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>
-Subject: Re: FAILED: patch "[PATCH] mm: memcg/slab: fix obj_cgroup_charge()
- return value handling" failed to apply to 5.9-stable tree
-Message-ID: <20201209213004.GA2470631@carbon.dhcp.thefacebook.com>
-References: <1607504747243177@kroah.com>
+        id S2387784AbgLIVrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 16:47:01 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32996 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1733021AbgLIVrB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 16:47:01 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0B9LWI8h093076;
+        Wed, 9 Dec 2020 16:42:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=IjhstqwRkpEzjfk3T1WiEhmfDvCaQp/3SbJIeXVt4Gc=;
+ b=kPcuwcEc1b2FaXN/mowfi9pEfFVm0wllOC+1ZSVWfhRRIydSPSSKjJr7lE2PrPaC0oRY
+ oWmL3/YNA5firwOMl0wpw6cMfaWK5f18lYHkI1K/9ZJd8T5bvPzRDAbKrsa558lO/qNJ
+ cnNP5rRWPOME17kE49SeAYUeZLbIxaLONPI2LSk0lF4i/Qgb45LO5ycFOHM4nc3m3B3y
+ 5PRFnzQlByqhuoJc61TBVZX/pC39vgcrYys4WDSHAyaOhWsS9+453M06EoZiRyPTI5zS
+ W7KmqspJhL2kDGnn90/QGdbS+Jbkb9U91vENn9DZYpyAu7c8/9mWQ31hH2JM8NXkhV3i iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ayxndbb4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Dec 2020 16:42:39 -0500
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0B9LWlU1094812;
+        Wed, 9 Dec 2020 16:42:39 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ayxndbaj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Dec 2020 16:42:39 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0B9LXFDL017337;
+        Wed, 9 Dec 2020 21:42:37 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3581fhn36s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Dec 2020 21:42:36 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0B9LgYur34275682
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Dec 2020 21:42:34 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A4A7FAE051;
+        Wed,  9 Dec 2020 21:42:34 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 70E60AE04D;
+        Wed,  9 Dec 2020 21:42:33 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.168.186])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  9 Dec 2020 21:42:33 +0000 (GMT)
+Date:   Wed, 9 Dec 2020 23:42:31 +0200
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     Andrea Arcangeli <aarcange@redhat.com>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com, cai@lca.pw,
+        david@redhat.com, mgorman@suse.de, mhocko@kernel.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, vbabka@suse.cz
+Subject: Re: +
+ mm-initialize-struct-pages-in-reserved-regions-outside-of-the-zone-ranges.patch
+ added to -mm tree
+Message-ID: <20201209214231.GC8939@linux.ibm.com>
+References: <20201206005401.qKuAVgOXr%akpm@linux-foundation.org>
+ <20201206064849.GW123287@linux.ibm.com>
+ <X80xQ6mvSwJZ0RvC@redhat.com>
+ <20201207165037.GH1112728@linux.ibm.com>
+ <X87rodZBmvJCyjBi@redhat.com>
+ <20201208214614.GD1164013@linux.ibm.com>
+ <X9AIq3bwYXtrpFvx@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1607504747243177@kroah.com>
-X-Originating-IP: [2620:10d:c090:400::5:c1d3]
-X-ClientProxiedBy: SJ0PR13CA0066.namprd13.prod.outlook.com
- (2603:10b6:a03:2c4::11) To BYAPR15MB4136.namprd15.prod.outlook.com
- (2603:10b6:a03:96::24)
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from carbon.dhcp.thefacebook.com (2620:10d:c090:400::5:c1d3) by SJ0PR13CA0066.namprd13.prod.outlook.com (2603:10b6:a03:2c4::11) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3654.5 via Frontend Transport; Wed, 9 Dec 2020 21:30:06 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 715675f4-7406-463f-fe34-08d89c89998d
-X-MS-TrafficTypeDiagnostic: BYAPR15MB4135:
-X-Microsoft-Antispam-PRVS: <BYAPR15MB4135856668365896E0C5F6B0BECC0@BYAPR15MB4135.namprd15.prod.outlook.com>
-X-FB-Source: Internal
-X-MS-Oob-TLC-OOBClassifiers: OLM:826;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QMkdrMKKFdZuLHSUgHchChaUGqxtUgV321q0IbrVcmE0f1tMZWmCaS7+yO/Si1nNaBIMkmbBOFV0/6h/N6LG1Pq+/eXx2Y95M32J/R1CxmD+k9ircfp4u0T+3HZXfRUmQB9Nnr76YyqiN85x4/wrTgPVQDOWlzKUqAyNlNmvt7yi8FXkaTsbMNywm3c60Dwi3r13GTFaiXBKFxBJuvIS3Hg+xKjmqC71urzD7/O+kByXB6n9vooGZ3jcH2tN1wsMRprqJlMd3s457aPLcB2YAgYjsnHCdNzb3cQTvvmwxZkYUKexeffjpQufBqnGQC8S2UcM0fxBSgFo33bH9QprufuGJ5St34R+naFYdN8UF2HUsqi3QV4SL29DnOmxyBDtJuymXWeHFEY/w3qjkZD3SA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR15MB4136.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(366004)(376002)(136003)(66476007)(16526019)(66556008)(53546011)(8936002)(9686003)(7696005)(33656002)(66946007)(52116002)(508600001)(6506007)(6916009)(5660300002)(8676002)(2906002)(186003)(55016002)(86362001)(4326008)(1076003)(966005)(83380400001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?hpD/vWQME5uyWACzf+fiERU0MI6cilEsuQtQ0N78TBQx+1hZBB/6+Vfy7lkE?=
- =?us-ascii?Q?k+uTkaELERaox0km3807SxJ19u3c70I6aE9Zzk1NCORIAmCHluYGBvcRdi8P?=
- =?us-ascii?Q?4leHoBG74AFFyiLlUoZAUifa8vqqjwXoXMPzANjaHMUltJvvMb9dZYo+WSHW?=
- =?us-ascii?Q?A/iPqSlfwqkSm8dXCDjLZ2XXY18Go/0x7Tmnw17DkdPQ51kE0hHjXv0RhyaQ?=
- =?us-ascii?Q?B1I+eXMkJF0bWSsOwC4OgBunnPxUuSm7ddYma2UE9aJlAldgAKvaPIHLwyqj?=
- =?us-ascii?Q?WUAvSGeCUt8gDVbn+BEu6AlrwGUeZdv6cX7SfupGboESXYrIvayiK8xath7a?=
- =?us-ascii?Q?FNPlhMPCRTtrdMTuVBoVbisD1ezcWsdBZepGAB4tRU2IWy/zsdIgo/PclBTO?=
- =?us-ascii?Q?EnJq++BSOC66J3JOOxErsER8orIgmV+Xv2bOdNyZZWuZuFd1oE5kpVjbPkbs?=
- =?us-ascii?Q?Kf0hzLObaBtl5SoKk41EjSMLEs3loeoAVZ4xONW4EhkFN4XTikcFv0/noaQB?=
- =?us-ascii?Q?/4wZ/MYkxKkN74hs6I2FEApPqPMAIkN6KrnTw523vuBBLjY4FwlPC6184VKn?=
- =?us-ascii?Q?gWFImneHCSi5AJiPtWf4LawGYEZC35Zrg3s4oIUCXVhlyQPtp5PvW8dFo/6t?=
- =?us-ascii?Q?lttdIO71j53L9KjPq3iEJBM1pBIH8SLZuUmk6J939wxINExGAWOICA1Pp1YV?=
- =?us-ascii?Q?jF5b+gL8NtOYWirjaMJ/0Xm0Wa8nhHY9LS9ra7Xva41JBYK6ze/xL9EzI9AS?=
- =?us-ascii?Q?LtT5y575OmlKpknxoLd5lzQpcJzE5TartfKDAhEkgmBE97spry186hBnSY6C?=
- =?us-ascii?Q?gNm1O1peggq5WtJ1dYiJ4MvLaRGDzBJ8FQoqvNK1ZNXMEOHPaO2HRORgdPSf?=
- =?us-ascii?Q?8pmnCFUF3w1Ey0AyJfVouH4nUh81VVx3BgjUHi4QGB9E1PWIilc7BB8qKHRA?=
- =?us-ascii?Q?u7RxsIC9FhZBd0RpQCSZlNuVrcrloICVtIVCJt7haM01FnDaUYIPp11ACXkE?=
- =?us-ascii?Q?6QCTQrky9YyB0KcNAPfkOpKsMg=3D=3D?=
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR15MB4136.namprd15.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Dec 2020 21:30:07.2118
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-Network-Message-Id: 715675f4-7406-463f-fe34-08d89c89998d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: V7nlJ0jP/UOQ1eOsaX4ZQ//8aWdBaXrOj+sAeKDC9L+SURNHucbLKqhyvEpg2oak
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB4135
-X-OriginatorOrg: fb.com
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+In-Reply-To: <X9AIq3bwYXtrpFvx@redhat.com>
+X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-09_18:2020-12-09,2020-12-09 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
- bulkscore=0 mlxlogscore=999 malwarescore=0 adultscore=0 spamscore=0
- phishscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1015 impostorscore=0
- suspectscore=10 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012090149
-X-FB-Internal: deliver
+ definitions=2020-12-09_16:2020-12-09,2020-12-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ mlxscore=0 spamscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
+ adultscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012090147
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 09, 2020 at 10:05:47AM +0100, Greg Kroah-Hartman wrote:
+On Tue, Dec 08, 2020 at 06:13:47PM -0500, Andrea Arcangeli wrote:
+> On Tue, Dec 08, 2020 at 11:46:14PM +0200, Mike Rapoport wrote:
+>
+> > Sorry, I was not clear. The penalty here is not the traversal of
+> > memblock.reserved array. The penalty is for redundant initialization of
+> > struct page for ranges memblock.reserved describes.
 > 
-> The patch below does not apply to the 5.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> But that's the fix... How can you avoid removing the PagePoison for
+> all pfn_valid in memblock.reserved, when the crash of
+> https://lore.kernel.org/lkml/20201201181502.2340-1-rppt@kernel.org is
+> in __SetPageReserved of reserve_bootmem_region?
 
-Hi Greg!
+With your fix the pages in the memblock.reserved that intersects
+with memblock.memory will be initialized twice: first time in
+for_each_mem_pfn_range() and the second time in for_each_res_pfn_range()
 
-Please, find the backport below.
+> > For instance, the if user specified hugetlb_cma=nnG loop over
+> > memblock.reserved will cause redundant initialization pass over the
+> > pages in this nnG.
+> 
+> And if that didn't happen, then I'm left wondering if
+> free_low_memory_core_early would crash again with specified
+> hugetlb_cma=nnG, not just in pfn 0 anymore even with the simple fix
+> applied.
+> 
+> Where does PagePoison get removed from the CMA range, or is somehow
+> __SetPageReserved not called with the simple fix applied on the CMA
+> reserved range?
 
-Thanks!
+CMA range would be in both memblock.memory and memblock.reserved. So the
+pages for it will be initialized in for_each_mem_pfn_range().
 
---------------------------------------------------------------------------------
+> > Regardless of particular implementation, the generic code cannot detect
+> > physical memory layout, this is up to architecture to detect what memory
+> > banks are populated and provide this information to the generic code.
+> > 
+> > So we'll always have what you call "dependencies on the caller" here.
+> > The good thing is that we can fix "the caller" when we find it's wrong.
+> 
+> The caller that massages the e820 bios table, is still
+> software. Software can go from arch code to common code. There's no
+> asm or arch dependency in there.
+> 
+> The caller in my view needs to know what e820 is and send down the raw
+> info... it's a 1:1 API translation, the caller massaging of the data
+> can all go in the callee and benefit all callers.
 
-From 838b473ad8fdba90afb2ec8220eb100bf73675d6 Mon Sep 17 00:00:00 2001
-From: Roman Gushchin <guro@fb.com>
-Date: Sat, 5 Dec 2020 22:14:45 -0800
-Subject: [PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling
+Well, the translation between e820 and memblock could been 1:1, but it
+is not. I think e820 in more broadly x86 memory initialization could
+benifit from more straightforward translation to memblock. For instance,
+I don't see why the pfn 0 should be marked as reserved in both e820 and
+memblock and why some of the e820 reserved areas never make it to
+memblock.reserved.
 
-Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
-for all allocations") introduced a regression into the handling of the
-obj_cgroup_charge() return value.  If a non-zero value is returned
-(indicating of exceeding one of memory.max limits), the allocation
-should fail, instead of falling back to non-accounted mode.
+> The benefit is once the callee does all validation, then all archs
+> that do a mistake will be told and boot will not fail and it'll be
+> more likely to boot stable even in presence of inconsistent hardware
+> tables.
 
-To make the code more readable, move memcg_slab_pre_alloc_hook() and
-memcg_slab_post_alloc_hook() calling conditions into bodies of these
-hooks.
+That's true. Having the generic code more robust will benifit everybody.
 
-Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201127161828.GD840171@carbon.dhcp.thefacebook.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-(cherry picked from commit becaba65f62f88e553ec92ed98370e9d2b18e629)
----
- mm/slab.h | 42 +++++++++++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 17 deletions(-)
+> > > I guess before worrying of pfn 1 not being added to memblock.reserved,
+> > > I'd worry about pfn 0 itself not being added to memblock.reserved.
+> > 
+> > My point was that with a bit different e820 table we may again hit a
+> > corner case that we didn't anticipate.
+> > 
+> > pfn 0 is in memblock.reserved by a coincidence and not by design and using
+> > memblock.reserved to detect zone/node boundaries is not reliable.
+> >
+> > Moreover, if you look for usage of for_each_mem_pfn_range() in
+> > page_alloc.c, it's looks very much that it is presumed to iterate over
+> > *all* physical memory, including mysterious pfn 0.
+> 
+> All the complex patch does it that it guarantees all the reserved
+> pages can get a "right" zoneid.
+> 
+> Then we certainly should consider rounding it down by the pageblock in
+> case pfn 0 isn't reserved.
+> 
+> In fact if you add all memblock.reserved ranges to memblock.memory,
+> you'll obtain exactly the same result in the zone_start_pfn as with
+> the complex patch in the zone_start_pfn calculation and the exact same
+> issue of PagePoison being left on pfn 0 will happen if pfn 0 isn't
+> added to memblock.memory with { memblock_add; memblock_reserved }.
+>  
+> > > Still with the complex patch applied, if something goes wrong
+> > > DEBUG_VM=y will make it reproducible, with the simple fix we return in
+> > > non-reproducible land.
+> > 
+> > I still think that the complex patch is going in the wrong direction.
+> > We cannot rely on memblock.reserved to calculate zones and nodes span.
+> > 
+> > This:
+> > 
+> > +       /*
+> > +        * reserved regions must be included so that their page
+> > +        * structure can be part of a zone and obtain a valid zoneid
+> > +        * before __SetPageReserved().
+> > +        */
+> > +       return min(PHYS_PFN(memblock_start_of_DRAM()),
+> > +                  PHYS_PFN(memblock.reserved.regions[0].base));
+> > 
+> > is definitely a hack that worked because "the caller" has this:
+> > 
+> > 	/*
+> > 	 * Make sure page 0 is always reserved because on systems with
+> > 	 * L1TF its contents can be leaked to user processes.
+> > 	 */
+> > 	memblock_reserve(0, PAGE_SIZE);
+> > 
+> > So, what would have happen if L1TF was not yet disclosed? ;-)
+> 
+> It's actually fine thing to delete the above memblock_reserve(0,
+> PAGE_SIZE) for all testing so we can move into the remaining issues.
 
-diff --git a/mm/slab.h b/mm/slab.h
-index 6dd4b702888a..70aa1b5903fc 100644
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -275,25 +275,35 @@ static inline size_t obj_full_size(struct kmem_cache *s)
- 	return s->size + sizeof(struct obj_cgroup *);
- }
- 
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+/*
-+ * Returns false if the allocation should fail.
-+ */
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
- {
- 	struct obj_cgroup *objcg;
- 
-+	if (!memcg_kmem_enabled())
-+		return true;
-+
-+	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
-+		return true;
-+
- 	if (memcg_kmem_bypass())
--		return NULL;
-+		return true;
- 
- 	objcg = get_obj_cgroup_from_current();
- 	if (!objcg)
--		return NULL;
-+		return true;
- 
- 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
- 		obj_cgroup_put(objcg);
--		return NULL;
-+		return false;
- 	}
- 
--	return objcg;
-+	*objcgp = objcg;
-+	return true;
- }
- 
- static inline void mod_objcg_state(struct obj_cgroup *objcg,
-@@ -319,7 +329,7 @@ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
- 	unsigned long off;
- 	size_t i;
- 
--	if (!objcg)
-+	if (!memcg_kmem_enabled() || !objcg)
- 		return;
- 
- 	flags &= ~__GFP_ACCOUNT;
-@@ -404,11 +414,11 @@ static inline void memcg_free_page_obj_cgroups(struct page *page)
- {
- }
- 
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
- {
--	return NULL;
-+	return true;
- }
- 
- static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
-@@ -512,9 +522,8 @@ static inline struct kmem_cache *slab_pre_alloc_hook(struct kmem_cache *s,
- 	if (should_failslab(s, flags))
- 		return NULL;
- 
--	if (memcg_kmem_enabled() &&
--	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
--		*objcgp = memcg_slab_pre_alloc_hook(s, size, flags);
-+	if (!memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
-+		return NULL;
- 
- 	return s;
- }
-@@ -533,8 +542,7 @@ static inline void slab_post_alloc_hook(struct kmem_cache *s,
- 					 s->flags, flags);
- 	}
- 
--	if (memcg_kmem_enabled())
--		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
-+	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
- }
- 
- #ifndef CONFIG_SLOB
+There are few more places in arch/x86/kernel/setup.c that
+memblock_reserve() one or several pages from address 0 :-)
+
+> The end result of the "hack" is precisely what you obtain if you add
+> all memblock.reserved to memblock.memory, except it doesn't require to
+> add memblock.reserved to memblock.memory.
+
+I still do not agree that there can be minimum between
+memblock_start_of_DRAM() and anything else. I think it's semantically
+wrong.
+
+And I really dislike addition of memblock.reserved traversals, mostly
+because of the areas that actually overlap.
+
+However, I do agree that adding non-overlaping part of memblock.reserved
+to memblock.memory will make the generic code more robust. I just don't
+want to do this implicitly by calling memblock_add() from
+memblock_reserve(). I think the cleaner way is to join them just before
+free_area_init() starts zone/node size detection.
+
+> Thanks,
+> Andrea
+> 
+
 -- 
-2.26.2
-
+Sincerely yours,
+Mike.
