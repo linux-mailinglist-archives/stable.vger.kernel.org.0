@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAADD2D40B3
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D682D40B4
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbgLILIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 06:08:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33594 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730323AbgLILIF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 06:08:05 -0500
-Received: from hera.aquilenet.fr (hera.aquilenet.fr [IPv6:2a0c:e300::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59191C061794
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 03:07:25 -0800 (PST)
+        id S1730248AbgLILIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 06:08:22 -0500
+Received: from hera.aquilenet.fr ([185.233.100.1]:44162 "EHLO
+        hera.aquilenet.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729887AbgLILIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 06:08:22 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by hera.aquilenet.fr (Postfix) with ESMTP id 2937D14B6
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:24 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTP id 2E0C814B6
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:41 +0100 (CET)
 X-Virus-Scanned: Debian amavisd-new at aquilenet.fr
 Received: from hera.aquilenet.fr ([127.0.0.1])
         by localhost (hera.aquilenet.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id GUmjYZ8eakBL for <stable@vger.kernel.org>;
-        Wed,  9 Dec 2020 12:07:23 +0100 (CET)
+        with ESMTP id ZWxhkZ6SPYIS for <stable@vger.kernel.org>;
+        Wed,  9 Dec 2020 12:07:40 +0100 (CET)
 Received: from function.youpi.perso.aquilenet.fr (unknown [IPv6:2a01:cb19:956:1b00:9eb6:d0ff:fe88:c3c7])
-        by hera.aquilenet.fr (Postfix) with ESMTPSA id E76BC14B0
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:22 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTPSA id 5CAD214B0
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:40 +0100 (CET)
 Received: from samy by function.youpi.perso.aquilenet.fr with local (Exim 4.94)
         (envelope-from <samuel.thibault@ens-lyon.org>)
-        id 1kmxJa-0064u9-Cs
-        for stable@vger.kernel.org; Wed, 09 Dec 2020 12:07:22 +0100
-Date:   Wed, 9 Dec 2020 12:07:22 +0100
+        id 1kmxJr-0064wA-Re
+        for stable@vger.kernel.org; Wed, 09 Dec 2020 12:07:39 +0100
+Date:   Wed, 9 Dec 2020 12:07:39 +0100
 From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH for 4.14] speakup: Reject setting the speakup line discipline
+Subject: [PATCH for 4.19] speakup: Reject setting the speakup line discipline
  outside of speakup
-Message-ID: <20201209110722.7jpp7bk7p54hudnd@function>
+Message-ID: <20201209110739.oqod456w7ktq3fgn@function>
 Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
         stable@vger.kernel.org
 MIME-Version: 1.0
@@ -67,7 +64,7 @@ diff --git a/drivers/staging/speakup/spk_ttyio.c b/drivers/staging/speakup/spk_t
 index 669392f31d4e..6284aff434a1 100644
 --- a/drivers/staging/speakup/spk_ttyio.c
 +++ b/drivers/staging/speakup/spk_ttyio.c
-@@ -47,28 +47,20 @@ static int spk_ttyio_ldisc_open(struct tty_struct *tty)
+@@ -47,27 +47,20 @@ static int spk_ttyio_ldisc_open(struct tty_struct *tty)
  {
  	struct spk_ldisc_data *ldisc_data;
  
@@ -89,7 +86,6 @@ index 669392f31d4e..6284aff434a1 100644
 -	if (!ldisc_data) {
 -		speakup_tty = NULL;
 -		mutex_unlock(&speakup_tty_mutex);
--		pr_err("speakup: Failed to allocate ldisc_data.\n");
 +	if (!ldisc_data)
  		return -ENOMEM;
 -	}
