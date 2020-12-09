@@ -2,65 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0239C2D45DF
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09BF2D4600
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgLIPxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:53:31 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:43427 "EHLO
+        id S1731363AbgLIPyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:51 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:40683 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731237AbgLIPx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:29 -0500
+        by vger.kernel.org with ESMTP id S1731334AbgLIPyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:50 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 98B931943940;
-        Wed,  9 Dec 2020 03:37:27 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:37:27 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 88BAE1943975;
+        Wed,  9 Dec 2020 03:38:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:38:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=E1Tfpl
-        LhLMk1KClrfNgZIAvxU9MxHccr5FmnOtjh0+c=; b=O6ZABBs851W5nnSxeyESFd
-        c8LB/YwiZwJgfZuxeTeMo9RU4IPLckERtI0R5/e2yqQVW3M7p54NDxozSHM/GZKV
-        b+e6TiUWrqhevO3Itoo37Zll9MFBo8H+EgYq2YCc+7rfTVrjDzFhxH0iicOuLtwd
-        e6YMUAM55sNjiDRQGtbO/e32VC4pP2w0EBhnIGFsCMrQzMtfv7Oj3sdtYxk1kSER
-        NE6Cdswuyyx0BDOOHI/mcDIKF4h4sLBUldUH5aBV2qrLhaIj1YAU2/vv5+TgqJzh
-        KITX8it/TbLAdq0LLrSbuc0V2+G/Xw8VUTYJfG2OF0Z3fESh0uq8WQ97c9SH5eCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2515Cf
+        sdFrm6vIdLivlTVGIF7yKUUFcuFQtr+am/tzM=; b=o/+M3mFcnCwOUHcjvA35GW
+        Gu5apee3C5RGEuvXbKfrF+lLrBSFu22w1eh6Ho2WqaBhpoOGWqQfLqMHFZA+RFID
+        4TYI4blTq1sbAzwrXJLG28iVZI2zAF9cu3BBRhSTsfFqy4LkkKFU+pu8ojlnyiNJ
+        TBTqM20EaZnXuKbCYBp10TDn1SF5LaEekC4x05HFiQ9aqzuXwHMdgavA5VHzu73L
+        gy/oP8ZcAG9vxg2w5rt8OBymbRZRrEY+1XOaGPvo8R5fIVQdomo6SpzgQofNsitD
+        SP2PRZhQgY4hOyPZEQ3iXuuLfUjiBlAZ6tr6trBJonWl5J1xoGyUfFgD7mwvsy2Q
         ==
-X-ME-Sender: <xms:x4zQX7w6BruOMXNnG2_k_rrFk2qq8dViVCKg5z2qGAw8qaxYNdGIyQ>
-    <xme:x4zQXzQGsq9piXEJuMj8NotwNzyDFA0dQ2r3YWL9Nbq4Hv4Ieidr5s5E7oDKb8Kee
-    -TYmKafHCvsjw>
+X-ME-Sender: <xms:Do3QXzpNdepzho7GLje-7anJsQZPWvR8nRic22PKkXIFYCTJiUn27w>
+    <xme:Do3QX9oZwvzD1qeXOM2rhH_uSC5QDAmIRsoOQvR9J67lu_tnyFUdk_Fb2LVEyoaWf
+    kM9fNlnhJ0gDA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:x4zQX1W0r4eM1cT2ZylKCx8TrKSEpZL7vEL5WTjVsyGslMOjHNeQ6w>
-    <xmx:x4zQX1iSE9sGVEeRzcvGWkR_I7lR9UWXuh02LaDPAcR8NPXVN1V4Gw>
-    <xmx:x4zQX9AjNFIHPpsZdZD4UmXkY7yLsbPdYLeJlkyNdV4CYWmgsZB5-g>
-    <xmx:x4zQX66QeU9rKgsI8eJjlQFER7-LK6xP551i718sFASieXr6kRoFmA>
+    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejhe
+    efgeevhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
+    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurf
+    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:Do3QXwM2N9o9g7inlEjALmjK-Anf0nfu3YFghs_k3c_W0sbZPEvhDQ>
+    <xmx:Do3QX24dsC0d4vAP0uDQpn6yciTnSzk--3O15IaReimeZ_DCHJ0ANg>
+    <xmx:Do3QXy4gGXC0QMJZsRmNAAmQr1AMOwhAHlxI0L_wQollhHY4oZbKhg>
+    <xmx:EI3QXyHFqgPNZShFuo0dPsHaXuT4AqexzbYLeXv_BEUZ_a-EOzNJZg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 43803240066;
-        Wed,  9 Dec 2020 03:37:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amdgpu/pm/smu11: Fix fan set speed bug" failed to apply to 5.9-stable tree
-To:     Arunpravin.PaneerSelvam@amd.com, alexander.deucher@amd.com,
-        kenneth.feng@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 38CD81080057;
+        Wed,  9 Dec 2020 03:38:38 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Program mocs:63 for cache eviction on gen9" failed to apply to 4.4-stable tree
+To:     chris@chris-wilson.co.uk, jason@jlekstrand.net,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 09:38:45 +0100
-Message-ID: <160750312520892@kroah.com>
+Date:   Wed, 09 Dec 2020 09:39:56 +0100
+Message-ID: <1607503196222197@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,36 +72,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From acab02c1af43d3a9051524579b1c3dcfbfa5479d Mon Sep 17 00:00:00 2001
-From: Arunpravin <Arunpravin.PaneerSelvam@amd.com>
-Date: Fri, 27 Nov 2020 21:40:24 +0530
-Subject: [PATCH] drm/amdgpu/pm/smu11: Fix fan set speed bug
+From 777a7717d60ccdc9b84f35074f848d3f746fc3bf Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Thu, 26 Nov 2020 14:08:41 +0000
+Subject: [PATCH] drm/i915/gt: Program mocs:63 for cache eviction on gen9
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Fix fan set speed calculation.
+Ville noticed that the last mocs entry is used unconditionally by the HW
+when it performs cache evictions, and noted that while the value is not
+meant to be writable by the driver, we should program it to a reasonable
+value nevertheless.
 
-Suggested-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Arunpravin <Arunpravin.PaneerSelvam@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+As it turns out, we can change the value of mocs:63 and the value we
+were programming into it would cause hard hangs in conjunction with
+atomic operations.
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-index 2380759ddf48..6db96fa1df09 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-@@ -1164,7 +1164,12 @@ int smu_v11_0_set_fan_speed_rpm(struct smu_context *smu,
- 	if (ret)
- 		return ret;
- 
--	crystal_clock_freq = amdgpu_asic_get_xclk(adev);
-+	/*
-+	 * crystal_clock_freq div by 4 is required since the fan control
-+	 * module refers to 25MHz
-+	 */
+v2: Add details from bspec about how it is used by HW
+
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2707
+Fixes: 3bbaba0ceaa2 ("drm/i915: Added Programming of the MOCS")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jason Ekstrand <jason@jlekstrand.net>
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201126140841.1982-1-chris@chris-wilson.co.uk
+(cherry picked from commit 977933b5da7c16f39295c4c1d4259a58ece65dbe)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_mocs.c b/drivers/gpu/drm/i915/gt/intel_mocs.c
+index 313e51e7d4f7..4f74706967fd 100644
+--- a/drivers/gpu/drm/i915/gt/intel_mocs.c
++++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
+@@ -131,7 +131,19 @@ static const struct drm_i915_mocs_entry skl_mocs_table[] = {
+ 	GEN9_MOCS_ENTRIES,
+ 	MOCS_ENTRY(I915_MOCS_CACHED,
+ 		   LE_3_WB | LE_TC_2_LLC_ELLC | LE_LRUM(3),
+-		   L3_3_WB)
++		   L3_3_WB),
 +
-+	crystal_clock_freq = amdgpu_asic_get_xclk(adev) / 4;
- 	tach_period = 60 * crystal_clock_freq * 10000 / (8 * speed);
- 	WREG32_SOC15(THM, 0, mmCG_TACH_CTRL,
- 		     REG_SET_FIELD(RREG32_SOC15(THM, 0, mmCG_TACH_CTRL),
++	/*
++	 * mocs:63
++	 * - used by the L3 for all of its evictions.
++	 *   Thus it is expected to allow LLC cacheability to enable coherent
++	 *   flows to be maintained.
++	 * - used to force L3 uncachable cycles.
++	 *   Thus it is expected to make the surface L3 uncacheable.
++	 */
++	MOCS_ENTRY(63,
++		   LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
++		   L3_1_UC)
+ };
+ 
+ /* NOTE: the LE_TGT_CACHE is not used on Broxton */
 
