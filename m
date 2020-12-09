@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA60B2D45F0
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C711E2D4602
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730669AbgLIPyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:54:11 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:38715 "EHLO
+        id S1731376AbgLIPyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:51 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:46427 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730862AbgLIPyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:08 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 29AF31943970;
-        Wed,  9 Dec 2020 03:38:44 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 09 Dec 2020 03:38:44 -0500
+        by vger.kernel.org with ESMTP id S1727806AbgLIPyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:50 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 137941943980;
+        Wed,  9 Dec 2020 03:39:22 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:39:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EUojzX
-        2JuxZfLqscX+Bik1unth2mSufPQ1Dfw5E8eOQ=; b=rcb8S1QniAmUdVrOinx1Mr
-        tg1PzoDXtr0ryJc2mdYFD8qkmO1zBiuUF0pT8vMt5Kn9s4MSmKBEtSkw8+lZs/2Q
-        ilBWZMdz6Y9hd0hkPQTo+9/AGVlOoAajDKXB4sEuYIfnK1c7xdWIyUL5N9F2AA9p
-        d3NgRgp1pA0/5LiONPbFk5Sj1bhOzpCkDM7lJkeq3JPAnGaL41osV1iMtPTI19EK
-        YhhRVBGLTPe+wDCLNKSt+uRQPwuRlJY/Ds8rtDvlTpoHcDZ2RBx6F8mmElF/pGIA
-        th28OlReBuR9854HYv5KJduGi57ZnY1tUKHfh5OTJQ+/2jiAJ3a4Ql7KpdnJRJuA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1dlQ1D
+        U0C/1OaDnxUyhIxqq+3BBcHA68s0mRqtRC5j0=; b=TDDdoqhQDBacMotNjiA9y7
+        wCIeYyPyEGZ9S891jkQ6alQXKgJwgzC04xVirYXUWylrA4KwToUrxfGlBEVGYI6T
+        jgleHYA98cnMlGPMHLbkdFxb9fuPI39hNOrNXrNkL+IHYPT4pZOHlDipitxVWYBa
+        hPtLYwDt8OM3KVCn8g0iThSVHvNi9T38zVEDubvtE5jNDDt4ixBsmCqvvGGNmUFp
+        2LXl88lIjd2IyzdlXCV5utnH9JtBA/0HtsdGB6Bf3hlXGsEQipsS4EEPmylSAkm7
+        GL4a40H5unKfHQ/NphBa5NJvjI8uqjmkSF6WR/cD+/Bbn3vF0WcN2vvzD9eF0iGQ
         ==
-X-ME-Sender: <xms:E43QX2Rnpj8NcdemNgHj_GE32ep990nl4mL-nIJDgaK7dQNmxs7ayA>
-    <xme:E43QX9xIEB_BvlUlS_gOz4Wo96MCq9R82JyezaOJDnoYKqjdjBBxuL4sWA01TONW0
-    UTcyN7jp8tYhA>
+X-ME-Sender: <xms:OY3QX9U4l1vccGOENHP1sSMTraEgkgi1BKkxcfCrL1FHPldCxogF2w>
+    <xme:OY3QX9msxD6O-cEDtTeqx7Wu_EjUfKtv-m8x437_wLtd0yigxMGZf0B7aWj-vzr0-
+    q2seJ2qvrRTvA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpedvffegjeejiedtieffjeeijeffgfehvdeiudejhe
-    efgeevhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:E43QX9MuqjZL0Fv2X0XsfrRzcUEsnlgOIsdnuxSFfOZrUKrcQULlsw>
-    <xmx:E43QX0N3MPIIOvq_Dtg7nz0Xr5ogwsZMbK1q93vtLFQ7b6PTZ0iZpQ>
-    <xmx:E43QX3TmN3cP7m_bhwrlZJfxqQ0IkZzvloJ79L-SYNQxWClTVD3cLA>
-    <xmx:FI3QX6_ywvjiLKPQdpqwE8Th4GQ0_-7L87vqbqcEUlGvBZqzhbL90w>
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:OY3QX5bmdOpenDdC0mv14-YzNFniVh8mmt821FggBzKk9mSsVjN4sg>
+    <xmx:OY3QXwVeHMa4OOWlpE-XTEAXQvoikGFzEje0Nj4IOd5wwM4bRst87w>
+    <xmx:OY3QX3lKbBXNxLC8FcZrSBQX78uBWJOnJYWWmcndTso8b4G2KjrHlQ>
+    <xmx:Oo3QX1jx8Q0iSYxzK_hTyfsGY9fK9iOuzMML_3NJNBByzQq5uvNHqw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B9F13240066;
-        Wed,  9 Dec 2020 03:38:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Program mocs:63 for cache eviction on gen9" failed to apply to 4.19-stable tree
-To:     chris@chris-wilson.co.uk, jason@jlekstrand.net,
-        rodrigo.vivi@intel.com, stable@vger.kernel.org,
-        ville.syrjala@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3AF011080059;
+        Wed,  9 Dec 2020 03:39:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] block: use gcd() to fix chunk_sectors limit stacking" failed to apply to 5.9-stable tree
+To:     snitzer@redhat.com, axboe@kernel.dk, bjohnsto@redhat.com,
+        jdorminy@redhat.com, martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 09:39:58 +0100
-Message-ID: <16075031988955@kroah.com>
+Date:   Wed, 09 Dec 2020 09:40:39 +0100
+Message-ID: <160750323938143@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,60 +71,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 777a7717d60ccdc9b84f35074f848d3f746fc3bf Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 26 Nov 2020 14:08:41 +0000
-Subject: [PATCH] drm/i915/gt: Program mocs:63 for cache eviction on gen9
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 7e7986f9d3ba69a7375a41080a1f8c8012cb0923 Mon Sep 17 00:00:00 2001
+From: Mike Snitzer <snitzer@redhat.com>
+Date: Tue, 1 Dec 2020 11:07:09 -0500
+Subject: [PATCH] block: use gcd() to fix chunk_sectors limit stacking
 
-Ville noticed that the last mocs entry is used unconditionally by the HW
-when it performs cache evictions, and noted that while the value is not
-meant to be writable by the driver, we should program it to a reasonable
-value nevertheless.
+commit 22ada802ede8 ("block: use lcm_not_zero() when stacking
+chunk_sectors") broke chunk_sectors limit stacking. chunk_sectors must
+reflect the most limited of all devices in the IO stack.
 
-As it turns out, we can change the value of mocs:63 and the value we
-were programming into it would cause hard hangs in conjunction with
-atomic operations.
+Otherwise malformed IO may result. E.g.: prior to this fix,
+->chunk_sectors = lcm_not_zero(8, 128) would result in
+blk_max_size_offset() splitting IO at 128 sectors rather than the
+required more restrictive 8 sectors.
 
-v2: Add details from bspec about how it is used by HW
+And since commit 07d098e6bbad ("block: allow 'chunk_sectors' to be
+non-power-of-2") care must be taken to properly stack chunk_sectors to
+be compatible with the possibility that a non-power-of-2 chunk_sectors
+may be stacked. This is why gcd() is used instead of reverting back
+to using min_not_zero().
 
-Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2707
-Fixes: 3bbaba0ceaa2 ("drm/i915: Added Programming of the MOCS")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Jason Ekstrand <jason@jlekstrand.net>
-Cc: <stable@vger.kernel.org> # v4.3+
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201126140841.1982-1-chris@chris-wilson.co.uk
-(cherry picked from commit 977933b5da7c16f39295c4c1d4259a58ece65dbe)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 22ada802ede8 ("block: use lcm_not_zero() when stacking chunk_sectors")
+Fixes: 07d098e6bbad ("block: allow 'chunk_sectors' to be non-power-of-2")
+Reported-by: John Dorminy <jdorminy@redhat.com>
+Reported-by: Bruce Johnston <bjohnsto@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reviewed-by: John Dorminy <jdorminy@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_mocs.c b/drivers/gpu/drm/i915/gt/intel_mocs.c
-index 313e51e7d4f7..4f74706967fd 100644
---- a/drivers/gpu/drm/i915/gt/intel_mocs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
-@@ -131,7 +131,19 @@ static const struct drm_i915_mocs_entry skl_mocs_table[] = {
- 	GEN9_MOCS_ENTRIES,
- 	MOCS_ENTRY(I915_MOCS_CACHED,
- 		   LE_3_WB | LE_TC_2_LLC_ELLC | LE_LRUM(3),
--		   L3_3_WB)
-+		   L3_3_WB),
-+
-+	/*
-+	 * mocs:63
-+	 * - used by the L3 for all of its evictions.
-+	 *   Thus it is expected to allow LLC cacheability to enable coherent
-+	 *   flows to be maintained.
-+	 * - used to force L3 uncachable cycles.
-+	 *   Thus it is expected to make the surface L3 uncacheable.
-+	 */
-+	MOCS_ENTRY(63,
-+		   LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
-+		   L3_1_UC)
- };
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index 9741d1d83e98..659cdb8a07fe 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -547,7 +547,10 @@ int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
  
- /* NOTE: the LE_TGT_CACHE is not used on Broxton */
+ 	t->io_min = max(t->io_min, b->io_min);
+ 	t->io_opt = lcm_not_zero(t->io_opt, b->io_opt);
+-	t->chunk_sectors = lcm_not_zero(t->chunk_sectors, b->chunk_sectors);
++
++	/* Set non-power-of-2 compatible chunk_sectors boundary */
++	if (b->chunk_sectors)
++		t->chunk_sectors = gcd(t->chunk_sectors, b->chunk_sectors);
+ 
+ 	/* Physical block size a multiple of the logical block size? */
+ 	if (t->physical_block_size & (t->logical_block_size - 1)) {
 
