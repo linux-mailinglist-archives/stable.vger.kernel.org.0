@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F16982D3FDA
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 11:29:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF2C2D4010
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 11:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729884AbgLIK2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 05:28:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55636 "EHLO
+        id S1729990AbgLIKf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 05:35:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbgLIK2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 05:28:04 -0500
-X-Greylist: delayed 60 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Dec 2020 02:27:24 PST
+        with ESMTP id S1730178AbgLIKfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 05:35:47 -0500
 Received: from hera.aquilenet.fr (hera.aquilenet.fr [IPv6:2a0c:e300::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F3CC0613CF
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 02:27:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB40C0613CF
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 02:35:05 -0800 (PST)
 Received: from localhost (localhost [127.0.0.1])
-        by hera.aquilenet.fr (Postfix) with ESMTP id 6814D14C1
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 11:26:42 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTP id 7588814BF
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 11:26:21 +0100 (CET)
 X-Virus-Scanned: Debian amavisd-new at aquilenet.fr
 Received: from hera.aquilenet.fr ([127.0.0.1])
         by localhost (hera.aquilenet.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id l4DoY6IpLcnl for <stable@vger.kernel.org>;
-        Wed,  9 Dec 2020 11:26:41 +0100 (CET)
+        with ESMTP id dXoMA3Ns8tbf for <stable@vger.kernel.org>;
+        Wed,  9 Dec 2020 11:26:20 +0100 (CET)
 Received: from function.youpi.perso.aquilenet.fr (unknown [IPv6:2a01:cb19:956:1b00:9eb6:d0ff:fe88:c3c7])
-        by hera.aquilenet.fr (Postfix) with ESMTPSA id 70FFE14B0
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 11:26:41 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTPSA id 5E59914B0
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 11:26:20 +0100 (CET)
 Received: from samy by function.youpi.perso.aquilenet.fr with local (Exim 4.94)
         (envelope-from <samuel.thibault@ens-lyon.org>)
-        id 1kmwgC-005zrr-Us
-        for stable@vger.kernel.org; Wed, 09 Dec 2020 11:26:40 +0100
-Date:   Wed, 9 Dec 2020 11:26:40 +0100
+        id 1kmwfr-005yxC-Es
+        for stable@vger.kernel.org; Wed, 09 Dec 2020 11:26:19 +0100
+Date:   Wed, 9 Dec 2020 11:26:19 +0100
 From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH for 4.19] speakup: Reject setting the speakup line discipline
+Subject: [PATCH for 5.4] speakup: Reject setting the speakup line discipline
  outside of speakup
-Message-ID: <20201209102640.yn7mdn52sm7bfbgm@function>
+Message-ID: <20201209102619.janfpaydkljacf7r@function>
 Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
         stable@vger.kernel.org
 MIME-Version: 1.0
@@ -76,7 +75,7 @@ index 669392f31d4e..6284aff434a1 100644
 +		/* Somebody tried to use this line discipline outside speakup */
 +		return -ENODEV;
 +
- 	if (tty->ops->write == NULL)
+ 	if (!tty->ops->write)
  		return -EOPNOTSUPP;
  
 -	mutex_lock(&speakup_tty_mutex);
@@ -94,7 +93,7 @@ index 669392f31d4e..6284aff434a1 100644
  		return -ENOMEM;
 -	}
  
- 	sema_init(&ldisc_data->sem,  0);
+ 	init_completion(&ldisc_data->completion);
  	ldisc_data->buf_free = true;
 -	speakup_tty->disc_data = ldisc_data;
 -	mutex_unlock(&speakup_tty_mutex);
