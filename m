@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 525932D4346
+	by mail.lfdr.de (Postfix) with ESMTP id C8BD52D4347
 	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 14:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732347AbgLINb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 08:31:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42438 "EHLO mail.kernel.org"
+        id S1732352AbgLINcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 08:32:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732040AbgLINb7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 08:31:59 -0500
-Subject: patch "xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP" added to usb-testing
+        id S1732040AbgLINcC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 08:32:02 -0500
+Subject: patch "xhci: Give USB2 ports time to enter U3 in bus suspend" added to usb-testing
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607520678;
-        bh=8gnHBXmRV2s4sfQePYnYFo0/20X6heABInyvAgokHnc=;
+        s=korg; t=1607520681;
+        bh=dADRuK+aZgaswmRPkaKqPBRjwei0DFgM0e4B34LW1j8=;
         h=To:From:Date:From;
-        b=rzUyPNVEP7REVDg12/ZJUZbCNz+QMw28vpJtBBHF0JmrWuctLbSy9C0WhonY5bz2T
-         OkqQiaba3HizUmuaJjj3P6S9FsOgYrPKqHqMDXZffn9hQIO7MLqN01/ywHx/UcE3U6
-         M8vR9xMew563rqQQXCh+8SytO61Q4Z1btKcSyrlo=
-To:     hdegoede@redhat.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, mika.westerberg@linux.intel.com,
-        stable@vger.kernel.org
+        b=bWexI4oRzOSIw8OBhLWudiExo7ecYJypJjyZYJT7I1UXaGHtNDDC2DNcoLzPKLJqK
+         O30xxM/DwNq+TGm64YrhHBC19hRCegg19lozwGSvDOkiPoURFILxggrBnykRReDGLx
+         ydkyFC6TQN/QRn0/csgxWbCN6x/Us58sGXMYGvVs=
+To:     jun.li@nxp.com, gregkh@linuxfoundation.org,
+        mathias.nyman@linux.intel.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 14:32:12 +0100
-Message-ID: <16075207325186@kroah.com>
+Date:   Wed, 09 Dec 2020 14:32:13 +0100
+Message-ID: <1607520733136231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
+    xhci: Give USB2 ports time to enter U3 in bus suspend
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -50,49 +49,46 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From c4d1ca05b8e68a4b5a3c4455cb6ec25b3df6d9dd Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Tue, 8 Dec 2020 11:29:10 +0200
-Subject: xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
+From c1373f10479b624fb6dba0805d673e860f1b421d Mon Sep 17 00:00:00 2001
+From: Li Jun <jun.li@nxp.com>
+Date: Tue, 8 Dec 2020 11:29:12 +0200
+Subject: xhci: Give USB2 ports time to enter U3 in bus suspend
 
-The xHCI controller on Alpine Ridge LP keeps the whole Thunderbolt
-controller awake if the host controller is not allowed to sleep.
-This is the case even if no USB devices are connected to the host.
+If a USB2 device wakeup is not enabled/supported the link state may
+still be in U0 in xhci_bus_suspend(), where it's then manually put
+to suspended U3 state.
 
-Add the Intel Alpine Ridge LP product-id to the list of product-ids
-for which we allow runtime PM by default.
+Just as with selective suspend the device needs time to enter U3
+suspend before continuing with further suspend operations
+(e.g. system suspend), otherwise we may enter system suspend with link
+state in U0.
 
-Fixes: 2815ef7fe4d4 ("xhci-pci: allow host runtime PM as default for Intel Alpine and Titan Ridge")
+[commit message rewording -Mathias]
+
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20201208092912.1773650-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20201208092912.1773650-6-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-hub.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index bf89172c43ca..5f94d7edeb37 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -47,6 +47,7 @@
- #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
- #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI	0x15b5
- #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI	0x15b6
-+#define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI	0x15c1
- #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI	0x15db
- #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI	0x15d4
- #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
-@@ -232,6 +233,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
- 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index c799ca5361d4..74c497fd3476 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1712,6 +1712,10 @@ int xhci_bus_suspend(struct usb_hcd *hcd)
+ 	hcd->state = HC_STATE_SUSPENDED;
+ 	bus_state->next_statechange = jiffies + msecs_to_jiffies(10);
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
++
++	if (bus_state->bus_suspended)
++		usleep_range(5000, 10000);
++
+ 	return 0;
+ }
+ 
 -- 
 2.29.2
 
