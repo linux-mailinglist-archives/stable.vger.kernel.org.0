@@ -2,343 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 531A52D4E98
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 00:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B16C2D4EE1
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 00:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbgLIXQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 18:16:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727641AbgLIXQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 18:16:09 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18BAC0613CF
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 15:15:28 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id w6so2231698pfu.1
-        for <stable@vger.kernel.org>; Wed, 09 Dec 2020 15:15:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6sGj2KYyxqm1YFTpq8dkwFWELA4kDO6txYjQ/gPJA88=;
-        b=068sxWsM9g9BZ/JgV5anetChheORIoN4j7xkPAK3lpgGkwaGoaK9go1IcvmHm3/UVt
-         tyCbYAl/wcOK9BY0jns2uJTBnMd/rU1rY+U++0NP9NX1s7ku5MnyradSr4rl/2EqQb7l
-         SfaAFY24m1kbVjpgAZ4pqrjmsP2c1NZPSzqYe6t530/wWDIvdp0icCU9lgfgNOFabsFJ
-         qkrGzAb9D6KMCavD06jAVQTyO52RFV4TunQwqUCFLYIVdsboto/uHcjoESV/KKl2tGgT
-         VrtSr34mA0UYav8WbQUgOE47U2fIz658xN7k33mFcwCgYyxwix64GkZhmVhQ1voYjY6u
-         Zh0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6sGj2KYyxqm1YFTpq8dkwFWELA4kDO6txYjQ/gPJA88=;
-        b=i/ieuDZiZ8IPOkPVItelASTIfoybSoSQFMHDeL58mAb6BurYzGT4LUNlCUhdigoBX5
-         7pmy87B/D4tT3soSvN2VS35+TyX5AI3J/VE9YIdK8uXO+rb2jjc2nQ/Zc1pf0CvGJt08
-         axMBujEp4yw1HglmQsjNDB/O6JA7x6MR/zsdSksfibe5PF3vC9SfrSrsHPoZzjFkkYa5
-         hwZD8BSR/1CNGwxxnj4K+f7E9aimvwBbsc5cTdO6mluGJidOKns17R5VNxEgpKfRhtkJ
-         DGB2U82l5THEeqn7JQshQdDpN5M368MRq8P6ejQ66tmlTTCVVqxZOLVi/ECAR54Z7sb/
-         2RtA==
-X-Gm-Message-State: AOAM533obu5fI5b4lYvR4NoyNiHcsbO5uXRQ6yEaEkki9e8D7OHeS4fh
-        eAmSXeOmR1BuNj4qsDYyqEyTtf2pieMAhQ==
-X-Google-Smtp-Source: ABdhPJzHjyenFsayiDf6vRMGIai1wZSX07gXhWhWbWUKVBqc43EmgohchqCXVezjcoqpiLOyzR01/w==
-X-Received: by 2002:a17:90a:fe8:: with SMTP id 95mr4260800pjz.114.1607555728190;
-        Wed, 09 Dec 2020 15:15:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p9sm3925767pfq.136.2020.12.09.15.15.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Dec 2020 15:15:27 -0800 (PST)
-Message-ID: <5fd15a8f.1c69fb81.1c25e.745e@mx.google.com>
-Date:   Wed, 09 Dec 2020 15:15:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.82-39-g91f8eb162536
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 189 runs,
- 7 regressions (v5.4.82-39-g91f8eb162536)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1731748AbgLIXnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 18:43:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60972 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731087AbgLIXni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 18:43:38 -0500
+Date:   Wed, 09 Dec 2020 15:42:56 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1607557377;
+        bh=ztAjnrNJps1DQm0Vfbb0W4mYztb0ZWCWFsB3Ei9sduI=;
+        h=From:To:Subject:From;
+        b=g1k3jtEazY8Cxz8HsjBlpLdqfIQtbNZa5m5aMe4E/L6/5pexrIqnzKNieW9ceXsCQ
+         HGf9PlxF/Z12cX0Rjv8n0Ls9bcmEYt6YgItxkC7YU0CFRInnbz+wzBNO7mt6MbrPGB
+         hGCNLKlxZde+buxQMYHgxIe2LOcU43e31H6li4T4=
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, efault@gmx.de,
+        bigeasy@linutronix.de, vitaly.wool@konsulko.com
+Subject:  + z3fold-simplify-freeing-slots.patch added to -mm tree
+Message-ID: <20201209234256.ENL_d%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 189 runs, 7 regressions (v5.4.82-39-g91f8eb16=
-2536)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: z3fold: simplify freeing slots
+has been added to the -mm tree.  Its filename is
+     z3fold-simplify-freeing-slots.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/z3fold-simplify-freeing-slots.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/z3fold-simplify-freeing-slots.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Vitaly Wool <vitaly.wool@konsulko.com>
+Subject: z3fold: simplify freeing slots
+
+Patch series "z3fold: stability / rt fixes".
+
+Address z3fold stability issues under stress load, primarily in the
+reclaim and free aspects.  Besides, it fixes the locking problems that
+were only seen in real-time kernel configuration.
+
+
+This patch (of 3):
+
+There used to be two places in the code where slots could be freed, namely
+when freeing the last allocated handle from the slots and when releasing
+the z3fold header these slots aree linked to.  The logic to decide on
+whether to free certain slots was complicated and error prone in both
+functions and it led to failures in RT case.
+
+To fix that, make free_handle() the single point of freeing slots.
+
+Link: https://lkml.kernel.org/r/20201209145151.18994-1-vitaly.wool@konsulko.com
+Link: https://lkml.kernel.org/r/20201209145151.18994-2-vitaly.wool@konsulko.com
+Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
+Tested-by: Mike Galbraith <efault@gmx.de>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/z3fold.c |   55 +++++++++++---------------------------------------
+ 1 file changed, 13 insertions(+), 42 deletions(-)
+
+--- a/mm/z3fold.c~z3fold-simplify-freeing-slots
++++ a/mm/z3fold.c
+@@ -90,7 +90,7 @@ struct z3fold_buddy_slots {
+ 	 * be enough slots to hold all possible variants
+ 	 */
+ 	unsigned long slot[BUDDY_MASK + 1];
+-	unsigned long pool; /* back link + flags */
++	unsigned long pool; /* back link */
+ 	rwlock_t lock;
+ };
+ #define HANDLE_FLAG_MASK	(0x03)
+@@ -182,13 +182,6 @@ enum z3fold_page_flags {
+ };
+ 
+ /*
+- * handle flags, go under HANDLE_FLAG_MASK
+- */
+-enum z3fold_handle_flags {
+-	HANDLES_ORPHANED = 0,
+-};
+-
+-/*
+  * Forward declarations
+  */
+ static struct z3fold_header *__z3fold_alloc(struct z3fold_pool *, size_t, bool);
+@@ -303,10 +296,9 @@ static inline void put_z3fold_header(str
+ 		z3fold_page_unlock(zhdr);
+ }
+ 
+-static inline void free_handle(unsigned long handle)
++static inline void free_handle(unsigned long handle, struct z3fold_header *zhdr)
+ {
+ 	struct z3fold_buddy_slots *slots;
+-	struct z3fold_header *zhdr;
+ 	int i;
+ 	bool is_free;
+ 
+@@ -316,22 +308,13 @@ static inline void free_handle(unsigned
+ 	if (WARN_ON(*(unsigned long *)handle == 0))
+ 		return;
+ 
+-	zhdr = handle_to_z3fold_header(handle);
+ 	slots = handle_to_slots(handle);
+ 	write_lock(&slots->lock);
+ 	*(unsigned long *)handle = 0;
+-	if (zhdr->slots == slots) {
+-		write_unlock(&slots->lock);
+-		return; /* simple case, nothing else to do */
+-	}
++	if (zhdr->slots != slots)
++		zhdr->foreign_handles--;
+ 
+-	/* we are freeing a foreign handle if we are here */
+-	zhdr->foreign_handles--;
+ 	is_free = true;
+-	if (!test_bit(HANDLES_ORPHANED, &slots->pool)) {
+-		write_unlock(&slots->lock);
+-		return;
+-	}
+ 	for (i = 0; i <= BUDDY_MASK; i++) {
+ 		if (slots->slot[i]) {
+ 			is_free = false;
+@@ -343,6 +326,8 @@ static inline void free_handle(unsigned
+ 	if (is_free) {
+ 		struct z3fold_pool *pool = slots_to_pool(slots);
+ 
++		if (zhdr->slots == slots)
++			zhdr->slots = NULL;
+ 		kmem_cache_free(pool->c_handle, slots);
+ 	}
+ }
+@@ -525,8 +510,6 @@ static void __release_z3fold_page(struct
+ {
+ 	struct page *page = virt_to_page(zhdr);
+ 	struct z3fold_pool *pool = zhdr_to_pool(zhdr);
+-	bool is_free = true;
+-	int i;
+ 
+ 	WARN_ON(!list_empty(&zhdr->buddy));
+ 	set_bit(PAGE_STALE, &page->private);
+@@ -536,21 +519,6 @@ static void __release_z3fold_page(struct
+ 		list_del_init(&page->lru);
+ 	spin_unlock(&pool->lock);
+ 
+-	/* If there are no foreign handles, free the handles array */
+-	read_lock(&zhdr->slots->lock);
+-	for (i = 0; i <= BUDDY_MASK; i++) {
+-		if (zhdr->slots->slot[i]) {
+-			is_free = false;
+-			break;
+-		}
+-	}
+-	if (!is_free)
+-		set_bit(HANDLES_ORPHANED, &zhdr->slots->pool);
+-	read_unlock(&zhdr->slots->lock);
+-
+-	if (is_free)
+-		kmem_cache_free(pool->c_handle, zhdr->slots);
+-
+ 	if (locked)
+ 		z3fold_page_unlock(zhdr);
+ 
+@@ -973,6 +941,9 @@ lookup:
+ 		}
+ 	}
+ 
++	if (zhdr && !zhdr->slots)
++		zhdr->slots = alloc_slots(pool,
++					can_sleep ? GFP_NOIO : GFP_ATOMIC);
+ 	return zhdr;
+ }
+ 
+@@ -1270,7 +1241,7 @@ static void z3fold_free(struct z3fold_po
+ 	}
+ 
+ 	if (!page_claimed)
+-		free_handle(handle);
++		free_handle(handle, zhdr);
+ 	if (kref_put(&zhdr->refcount, release_z3fold_page_locked_list)) {
+ 		atomic64_dec(&pool->pages_nr);
+ 		return;
+@@ -1429,19 +1400,19 @@ static int z3fold_reclaim_page(struct z3
+ 			ret = pool->ops->evict(pool, middle_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(middle_handle);
++			free_handle(middle_handle, zhdr);
+ 		}
+ 		if (first_handle) {
+ 			ret = pool->ops->evict(pool, first_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(first_handle);
++			free_handle(first_handle, zhdr);
+ 		}
+ 		if (last_handle) {
+ 			ret = pool->ops->evict(pool, last_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(last_handle);
++			free_handle(last_handle, zhdr);
+ 		}
+ next:
+ 		if (test_bit(PAGE_HEADLESS, &page->private)) {
+_
+
+Patches currently in -mm which might be from vitaly.wool@konsulko.com are
+
+z3fold-simplify-freeing-slots.patch
+z3fold-stricter-locking-and-more-careful-reclaim.patch
+z3fold-remove-preempt-disabled-sections-for-rt.patch
 
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-rk3288-rock2-square  | arm   | lab-collabora   | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.82-39-g91f8eb162536/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.82-39-g91f8eb162536
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      91f8eb1625364b4af8331f7d3516ad593780e112 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd126f4284f6ea8e9c94cd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
--a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
--a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd126f4284f6ea8e9c94=
-cd5
-        failing since 19 days (last pass: v5.4.78-5-g843222460ebea, first f=
-ail: v5.4.78-13-g81acf0f7c6ec) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd125d53a14c9f899c94cca
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd125d53a14c9f899c94=
-ccb
-        failing since 26 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd126114af99efcb2c94cca
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd126114af99efcb2c94=
-ccb
-        failing since 26 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd125d34096697ceac94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd125d44096697ceac94=
-cc4
-        failing since 26 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd12584975f9f39b7c94cba
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd12584975f9f39b7c94=
-cbb
-        failing since 26 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd14b6528a761b4dac94ce0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd14b6528a761b4dac94=
-ce1
-        failing since 26 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-rk3288-rock2-square  | arm   | lab-collabora   | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd12950d242fa1432c94cd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-r=
-ock2-square.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.82-39=
--g91f8eb162536/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-r=
-ock2-square.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd12950d242fa1432c94=
-cd1
-        new failure (last pass: v5.4.82-39-ge908be9861d9) =
-
- =20
