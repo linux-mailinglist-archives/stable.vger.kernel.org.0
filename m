@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0AC2D462B
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 388D62D45FA
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730469AbgLIP5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:57:08 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58095 "EHLO
+        id S1729855AbgLIPyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:33 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:60883 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730441AbgLIPxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
+        by vger.kernel.org with ESMTP id S1731296AbgLIPya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:30 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2DC0D19439D8;
-        Wed,  9 Dec 2020 04:04:31 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:04:31 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 55B981943533;
+        Wed,  9 Dec 2020 04:05:48 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:05:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nll7Zi
-        FrgJhKmzVyn2NCJzE0jeKHq6VsmqRHH0CcZEQ=; b=VIQ26TVuervX21uisLIa3H
-        tqZfx06FrRR/ypAdRp5KJkI7DKqDvOdVq47ycYWkvYxJVAlxRrjuxtCQV62UZgr1
-        VYts9K8wUCrIbNKYapKCz3DxJwhduEfrJEsBOdnGhMK/khSDuMBzjXPVJNADGkrE
-        jPZV31V32VSLFwd+ou+YafY45GpVZOa9rs5cp4R0RaeEeUDsvVInH5y02k3LqgTm
-        EZ7nfSGu2++TR6XOMeSbtpw2RbF2BNKJe85Gc9adM2Bg9ojz12oZT6FIT1MsYuT+
-        64ckF/mSuvfkTrXCT9Qbp6WaMckEd3EYtyxCJA2kZctdudFIsDMTC9K6ADoEZ3bw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=M37voV
+        nofpwhmZQvTqs0GULbURy9CWNd0Oo1pbZpXGE=; b=RxGLrZSnvBIf2RIYJeCpnp
+        CYWry7r9unEVo5qthvbUNInU7y/PrAsSj4cUxR4KXlwTwzeSo6vS2Er2U6UjeGt4
+        pa9V4ERuiCuw4ebbaJzIMxtvJ24xR+wE/EjnHaQJ54If3RjlhlCxbuNO4i37xX1e
+        UaKRC3Mat6dcMfqNJ2ZDNDm6Q26Lks+EWnscZ4cchgIxrNUZDOJ0Grv/86p2Zb15
+        sgow0HjETNA2xnW4Af7XzN/WdbfM3f+TS1xB34pJvAkJHzUQh1h1Vo8i1h6m0p1v
+        HjKWDhZxu7xtXq1/ODBmvd96ri7BcBqYu8I/xEwL/WNXKvuRlpCh9+tHZsExYQyw
         ==
-X-ME-Sender: <xms:HZPQX80du6nHkyyDSUwBZ4733Wy9tBZH6eWWg_mixfZvfwjK1bg3fA>
-    <xme:HZPQX3H6Y-j4VARyVS676jvoSApNRuMxP-TkFBDX8YNUVS-9dbgj3_kW4x7hrWTG0
-    ZCs5rN6Qsozbg>
+X-ME-Sender: <xms:apPQX7P0mGL_HD3NffWL4bEw3y3Xl1XnRlaS_vHYP4zqKsAyh3KfMg>
+    <xme:apPQX18e833STjQEN1SDJXHqJI1o0DULn9ewmeZOOPJDhCyWMIOwH0sV4jZLjaXvT
+    y0hKL0EcVJUPQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkecutefuodetggdotefrodftvfcurf
     hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
     ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
     cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
-    ucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekgeefle
-    egieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:HZPQX06AH5sAMjoxhYxwoxeay2UTk95lZmCAZOntOuP7A0dYsBe3cA>
-    <xmx:HZPQX10he4rhhWAX3y3mfm-l_nYe6AVJSuR4JvxV0i43kwzI9Y1Y-A>
-    <xmx:HZPQX_GGZjoTcxKp-w_Jhcdf8xtNxAEN8qEA19KxWFZrcCS4X1G1bA>
-    <xmx:H5PQXzheWUIKHpq3AothP5lYxqM8eGFG6hIo03BhPnDtnLWhnJKbEw>
+    ucggtffrrghtthgvrhhnpedtgffftddugedufeetjeefkeehtddvieevgffgudejieefff
+    ffgeekfeejueffteenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgihhthhhusgdr
+    tghomhenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:apPQX6SgwWa0VaPUEB0rhMLHD_1TR3Uks6N8rh-yP7jAJsKI5VXT7A>
+    <xmx:apPQX_sp2EpxX3rmTi8lYdF7lgzw8oDAnCuwx4QsQ0m8jGt4pkukMA>
+    <xmx:apPQXzcmaa3iW3zpOIFfdFORKmSAhhggKMAoA4Ay7hwl2vdwEWmqpQ>
+    <xmx:bJPQX7TsSOchsOhHPukayY-gYAruS2ChAcaLu71Qnwls7_-TiZs-Yw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D8A691080059;
-        Wed,  9 Dec 2020 04:04:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling" failed to apply to 5.9-stable tree
-To:     guro@fb.com, akpm@linux-foundation.org, hannes@cmpxchg.org,
-        mhocko@kernel.org, shakeelb@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7AEBF24005A;
+        Wed,  9 Dec 2020 04:05:46 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/zsmalloc.c: drop ZSMALLOC_PGTABLE_MAPPING" failed to apply to 5.4-stable tree
+To:     minchan@kernel.org, akpm@linux-foundation.org,
+        harish@linux.ibm.com, hch@infradead.org,
+        sergey.senozhatsky@gmail.com, stable@vger.kernel.org,
+        tony@atomide.com, torvalds@linux-foundation.org, urezki@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 10:05:47 +0100
-Message-ID: <1607504747243177@kroah.com>
+Date:   Wed, 09 Dec 2020 10:07:04 +0100
+Message-ID: <160750482424034@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,119 +73,188 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From becaba65f62f88e553ec92ed98370e9d2b18e629 Mon Sep 17 00:00:00 2001
-From: Roman Gushchin <guro@fb.com>
-Date: Sat, 5 Dec 2020 22:14:45 -0800
-Subject: [PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling
+From e91d8d78237de8d7120c320b3645b7100848f24d Mon Sep 17 00:00:00 2001
+From: Minchan Kim <minchan@kernel.org>
+Date: Sat, 5 Dec 2020 22:14:51 -0800
+Subject: [PATCH] mm/zsmalloc.c: drop ZSMALLOC_PGTABLE_MAPPING
 
-Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
-for all allocations") introduced a regression into the handling of the
-obj_cgroup_charge() return value.  If a non-zero value is returned
-(indicating of exceeding one of memory.max limits), the allocation
-should fail, instead of falling back to non-accounted mode.
+While I was doing zram testing, I found sometimes decompression failed
+since the compression buffer was corrupted.  With investigation, I found
+below commit calls cond_resched unconditionally so it could make a
+problem in atomic context if the task is reschedule.
 
-To make the code more readable, move memcg_slab_pre_alloc_hook() and
-memcg_slab_post_alloc_hook() calling conditions into bodies of these
-hooks.
+  BUG: sleeping function called from invalid context at mm/vmalloc.c:108
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 946, name: memhog
+  3 locks held by memhog/946:
+   #0: ffff9d01d4b193e8 (&mm->mmap_lock#2){++++}-{4:4}, at: __mm_populate+0x103/0x160
+   #1: ffffffffa3d53de0 (fs_reclaim){+.+.}-{0:0}, at: __alloc_pages_slowpath.constprop.0+0xa98/0x1160
+   #2: ffff9d01d56b8110 (&zspage->lock){.+.+}-{3:3}, at: zs_map_object+0x8e/0x1f0
+  CPU: 0 PID: 946 Comm: memhog Not tainted 5.9.3-00011-gc5bfc0287345-dirty #316
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+  Call Trace:
+    unmap_kernel_range_noflush+0x2eb/0x350
+    unmap_kernel_range+0x14/0x30
+    zs_unmap_object+0xd5/0xe0
+    zram_bvec_rw.isra.0+0x38c/0x8e0
+    zram_rw_page+0x90/0x101
+    bdev_write_page+0x92/0xe0
+    __swap_writepage+0x94/0x4a0
+    pageout+0xe3/0x3a0
+    shrink_page_list+0xb94/0xd60
+    shrink_inactive_list+0x158/0x460
 
-Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-Signed-off-by: Roman Gushchin <guro@fb.com>
+We can fix this by removing the ZSMALLOC_PGTABLE_MAPPING feature (which
+contains the offending calling code) from zsmalloc.
+
+Even though this option showed some amount improvement(e.g., 30%) in
+some arm32 platforms, it has been headache to maintain since it have
+abused APIs[1](e.g., unmap_kernel_range in atomic context).
+
+Since we are approaching to deprecate 32bit machines and already made
+the config option available for only builtin build since v5.8, lastly it
+has been not default option in zsmalloc, it's time to drop the option
+for better maintenance.
+
+[1] http://lore.kernel.org/linux-mm/20201105170249.387069-1-minchan@kernel.org
+
+Fixes: e47110e90584 ("mm/vunmap: add cond_resched() in vunmap_pmd_range")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Harish Sriram <harish@linux.ibm.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201127161828.GD840171@carbon.dhcp.thefacebook.com
+Link: https://lkml.kernel.org/r/20201117202916.GA3856507@google.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/slab.h b/mm/slab.h
-index 6d7c6a5056ba..f9977d6613d6 100644
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -274,22 +274,32 @@ static inline size_t obj_full_size(struct kmem_cache *s)
- 	return s->size + sizeof(struct obj_cgroup *);
+diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
+index 34793aabdb65..58df9fd79a76 100644
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -81,7 +81,6 @@ CONFIG_PARTITION_ADVANCED=y
+ CONFIG_BINFMT_MISC=y
+ CONFIG_CMA=y
+ CONFIG_ZSMALLOC=m
+-CONFIG_ZSMALLOC_PGTABLE_MAPPING=y
+ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
+index 0fdbf653b173..4807ca4d52e0 100644
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -20,7 +20,6 @@
+  * zsmalloc mapping modes
+  *
+  * NOTE: These only make a difference when a mapped object spans pages.
+- * They also have no effect when ZSMALLOC_PGTABLE_MAPPING is selected.
+  */
+ enum zs_mapmode {
+ 	ZS_MM_RW, /* normal read-write mapping */
+diff --git a/mm/Kconfig b/mm/Kconfig
+index d42423f884a7..390165ffbb0f 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -707,19 +707,6 @@ config ZSMALLOC
+ 	  returned by an alloc().  This handle must be mapped in order to
+ 	  access the allocated space.
+ 
+-config ZSMALLOC_PGTABLE_MAPPING
+-	bool "Use page table mapping to access object in zsmalloc"
+-	depends on ZSMALLOC=y
+-	help
+-	  By default, zsmalloc uses a copy-based object mapping method to
+-	  access allocations that span two pages. However, if a particular
+-	  architecture (ex, ARM) performs VM mapping faster than copying,
+-	  then you should select this. This causes zsmalloc to use page table
+-	  mapping rather than copying for object mapping.
+-
+-	  You can check speed with zsmalloc benchmark:
+-	  https://github.com/spartacus06/zsmapbench
+-
+ config ZSMALLOC_STAT
+ 	bool "Export zsmalloc statistics"
+ 	depends on ZSMALLOC
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 918c7b019b3d..cdfaaadea8ff 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -293,11 +293,7 @@ struct zspage {
+ };
+ 
+ struct mapping_area {
+-#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
+-	struct vm_struct *vm; /* vm area for mapping object that span pages */
+-#else
+ 	char *vm_buf; /* copy buffer for objects that span pages */
+-#endif
+ 	char *vm_addr; /* address of kmap_atomic()'ed pages */
+ 	enum zs_mapmode vm_mm; /* mapping mode */
+ };
+@@ -1113,54 +1109,6 @@ static struct zspage *find_get_zspage(struct size_class *class)
+ 	return zspage;
  }
  
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+/*
-+ * Returns false if the allocation should fail.
-+ */
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
+-#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
+-static inline int __zs_cpu_up(struct mapping_area *area)
+-{
+-	/*
+-	 * Make sure we don't leak memory if a cpu UP notification
+-	 * and zs_init() race and both call zs_cpu_up() on the same cpu
+-	 */
+-	if (area->vm)
+-		return 0;
+-	area->vm = get_vm_area(PAGE_SIZE * 2, 0);
+-	if (!area->vm)
+-		return -ENOMEM;
+-
+-	/*
+-	 * Populate ptes in advance to avoid pte allocation with GFP_KERNEL
+-	 * in non-preemtible context of zs_map_object.
+-	 */
+-	return apply_to_page_range(&init_mm, (unsigned long)area->vm->addr,
+-			PAGE_SIZE * 2, NULL, NULL);
+-}
+-
+-static inline void __zs_cpu_down(struct mapping_area *area)
+-{
+-	if (area->vm)
+-		free_vm_area(area->vm);
+-	area->vm = NULL;
+-}
+-
+-static inline void *__zs_map_object(struct mapping_area *area,
+-				struct page *pages[2], int off, int size)
+-{
+-	unsigned long addr = (unsigned long)area->vm->addr;
+-
+-	BUG_ON(map_kernel_range(addr, PAGE_SIZE * 2, PAGE_KERNEL, pages) < 0);
+-	area->vm_addr = area->vm->addr;
+-	return area->vm_addr + off;
+-}
+-
+-static inline void __zs_unmap_object(struct mapping_area *area,
+-				struct page *pages[2], int off, int size)
+-{
+-	unsigned long addr = (unsigned long)area->vm_addr;
+-
+-	unmap_kernel_range(addr, PAGE_SIZE * 2);
+-}
+-
+-#else /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
+-
+ static inline int __zs_cpu_up(struct mapping_area *area)
  {
- 	struct obj_cgroup *objcg;
- 
-+	if (!memcg_kmem_enabled())
-+		return true;
-+
-+	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
-+		return true;
-+
- 	objcg = get_obj_cgroup_from_current();
- 	if (!objcg)
--		return NULL;
-+		return true;
- 
- 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
- 		obj_cgroup_put(objcg);
--		return NULL;
-+		return false;
- 	}
- 
--	return objcg;
-+	*objcgp = objcg;
-+	return true;
+ 	/*
+@@ -1241,8 +1189,6 @@ static void __zs_unmap_object(struct mapping_area *area,
+ 	pagefault_enable();
  }
  
- static inline void mod_objcg_state(struct obj_cgroup *objcg,
-@@ -315,7 +325,7 @@ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
- 	unsigned long off;
- 	size_t i;
- 
--	if (!objcg)
-+	if (!memcg_kmem_enabled() || !objcg)
- 		return;
- 
- 	flags &= ~__GFP_ACCOUNT;
-@@ -400,11 +410,11 @@ static inline void memcg_free_page_obj_cgroups(struct page *page)
+-#endif /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
+-
+ static int zs_cpu_prepare(unsigned int cpu)
  {
- }
- 
--static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
--							   size_t objects,
--							   gfp_t flags)
-+static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
-+					     struct obj_cgroup **objcgp,
-+					     size_t objects, gfp_t flags)
- {
--	return NULL;
-+	return true;
- }
- 
- static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
-@@ -508,9 +518,8 @@ static inline struct kmem_cache *slab_pre_alloc_hook(struct kmem_cache *s,
- 	if (should_failslab(s, flags))
- 		return NULL;
- 
--	if (memcg_kmem_enabled() &&
--	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
--		*objcgp = memcg_slab_pre_alloc_hook(s, size, flags);
-+	if (!memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
-+		return NULL;
- 
- 	return s;
- }
-@@ -529,8 +538,7 @@ static inline void slab_post_alloc_hook(struct kmem_cache *s,
- 					 s->flags, flags);
- 	}
- 
--	if (memcg_kmem_enabled())
--		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
-+	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
- }
- 
- #ifndef CONFIG_SLOB
+ 	struct mapping_area *area;
 
