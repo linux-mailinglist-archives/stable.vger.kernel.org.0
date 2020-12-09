@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 666A22D45EC
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7355C2D45FF
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730954AbgLIPyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:54:06 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:32907 "EHLO
+        id S1731346AbgLIPyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:50 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:43271 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730388AbgLIPxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
+        by vger.kernel.org with ESMTP id S1731296AbgLIPyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:50 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5797719438FE;
-        Wed,  9 Dec 2020 02:48:00 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 02:48:00 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0963C194399C;
+        Wed,  9 Dec 2020 03:30:17 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:30:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uwDESx
-        K8hGrfSkz8Omgvq+A9HMicFTm8LGz46pwUHog=; b=cDQzlVpz2U5zlZNvhsMCDs
-        SdXdIHnWcK6ZxRLi9eGiDLFZbwXLPuZRMgbycRzF77c21Ysdb38bCRqyYCFn8Wt1
-        zfa+vbE+mZadTwy2HwOUr7oF2V8LMQVMfr9DskzfpTYlGPTUZqr2Cxq+3mpINEwF
-        6M3bGZvvSkD0ZnL59yM3inksGlavaSTe9DuQSeAbB6dfj59PrbQk1o0EmBfPZx5Z
-        M8JpUF0Iy+XfKeouqX8ydzD4ieyeMn1hIYRb2jUTVTKmwWqxFqDbIGmeHuWIFHK2
-        tCT9SIk2yWF8QQdeSQrdr2I4u6l0YjebUlplANJTFgAoi0Egjsx2kyEh6iiMCzqw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TBAawh
+        hEPzi7/wqn7CL2mYv87VU2OXiqd2mLglTSyFQ=; b=COmL+RDoedXAqS6vHQVhmR
+        OOk0nryWBNM0zcxJNx7aVHr/gqg6EmLhbuy4LP9sRH1sIGcSmO8Glma/aLCuU5ft
+        XHUzbAHT403eMDH8FtwU6bianXmimzjeFC4V5ofpyODptDDQJydFDo/MihlDjmMk
+        u6N5uhKM5sQ5LfMJYy/Pjx6K7v9sU4hH1SJ/4MEx+ju0CJrFBgEJ7zwQsUieZ7Yy
+        5yyjem7i7K1+RLxqRB//t+RxvL1IlNRskg5Y6f0bHwrZzbMGLfXNbiYVnfJhQnzi
+        b/obdRS8+QLTS+3QOAcL8sKRIhbrsl94mk8MS8JTGYci4F8NnLjhl7dMhGScfFZg
         ==
-X-ME-Sender: <xms:MIHQX4csXKwCaFmuThe0cbW0kJhDdj_mRPnuKLag0JH_h5jvoQkT2g>
-    <xme:MIHQX6Nbqpk74_DY_QabK8XIBoHPraT9wDP4rYmJwWPAhTVzeBjNp0IG3ZLPfy8dW
-    1bZzVdLhZkQDw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedgudduudcutefuodetggdotefrod
+X-ME-Sender: <xms:GIvQX-xt18YS8BwW5jESKpo3D09yr7iTBCVMHBGErGQ3-uYxJQ6GyQ>
+    <xme:GIvQXzsLTeGNv8YjKkqbuG5VO8N6X0HZsB_CR-uf2gP42Yn1ogQQU3FYwyFQ_Sf9G
+    H3c_RRlWz1ZWA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:MIHQX5jOgUcN5YDZZ_PofN7Yqfsf1SxbPEx1Zf6b5ICdlig0d4R2CA>
-    <xmx:MIHQX9_y5JqYXxbaXdy_W_B2WxfPVD0sm3S-kp9a6w0VJH_VcBPrBA>
-    <xmx:MIHQX0uHhylBStCR-gAENB8gX8MTZxHJOg3SXpjdJ9FIMQZ85J-fag>
-    <xmx:MIHQX60mUUM7r80Vse69cZhqy0C4xLc1Y-cGmtB5FBz9TX7UXt0reA>
+    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefgge
+    dvuedufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:GIvQX_4X3_jj2m_aoQI07OgfOigCvs4BtwO0dcOMcJ6Y-rPEzyR5wg>
+    <xmx:GIvQX6R-nlCV8JGH2WlEUcfpykbZKuZ68Z7ZfRqmjzZNjvhT671KZA>
+    <xmx:GIvQX2oqoMs0q8ZHBBB8lwxqNyHArIaXpwf03SA8mSNZS-JGd8ZWsA>
+    <xmx:GYvQX9FIYaP6XgmHJDvyfIrSpriFM__C_tv09YOA2V2l8pXl-H3lqg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 033BE1080059;
-        Wed,  9 Dec 2020 02:47:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Fixed Dell AIO wrong sound tone" failed to apply to 4.19-stable tree
-To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id EAB12240067;
+        Wed,  9 Dec 2020 03:30:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] i2c: imx: Fix reset of I2SR_IAL flag" failed to apply to 5.4-stable tree
+To:     ceggers@arri.de, o.rempel@pengutronix.de,
+        u.kleine-koenig@pengutronix.de, wsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 08:49:10 +0100
-Message-ID: <160750015013768@kroah.com>
+Date:   Wed, 09 Dec 2020 09:31:33 +0100
+Message-ID: <1607502693116181@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,128 +71,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 92666d45adcfd4a4a70580ff9f732309e16131f9 Mon Sep 17 00:00:00 2001
-From: Kailang Yang <kailang@realtek.com>
-Date: Thu, 19 Nov 2020 17:04:21 +0800
-Subject: [PATCH] ALSA: hda/realtek - Fixed Dell AIO wrong sound tone
+From 384a9565f70a876c2e78e58c5ca0bbf0547e4f6d Mon Sep 17 00:00:00 2001
+From: Christian Eggers <ceggers@arri.de>
+Date: Fri, 9 Oct 2020 13:03:18 +0200
+Subject: [PATCH] i2c: imx: Fix reset of I2SR_IAL flag
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-This platform only had one audio jack.
-If it plugged speaker then replug with speaker or headset, the sound
-tone will change to abnormal.
-Headset Mic also can't record when this issue was happen.
+According to the "VFxxx Controller Reference Manual" (and the comment
+block starting at line 97), Vybrid requires writing a one for clearing
+an interrupt flag. Syncing the method for clearing I2SR_IIF in
+i2c_imx_isr().
 
-[ Added a short comment about the COEF by tiwai ]
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/593c777dcfef4546aa050e105b8e53b5@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 739dbaf54517..b90cd4c65b58 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -119,6 +119,7 @@ struct alc_spec {
- 	unsigned int no_shutup_pins:1;
- 	unsigned int ultra_low_power:1;
- 	unsigned int has_hs_key:1;
-+	unsigned int no_internal_mic_pin:1;
- 
- 	/* for PLL fix */
- 	hda_nid_t pll_nid;
-@@ -4523,6 +4524,7 @@ static const struct coef_fw alc225_pre_hsmode[] = {
- 
- static void alc_headset_mode_unplugged(struct hda_codec *codec)
- {
-+	struct alc_spec *spec = codec->spec;
- 	static const struct coef_fw coef0255[] = {
- 		WRITE_COEF(0x1b, 0x0c0b), /* LDO and MISC control */
- 		WRITE_COEF(0x45, 0xd089), /* UAJ function set to menual mode */
-@@ -4597,6 +4599,11 @@ static void alc_headset_mode_unplugged(struct hda_codec *codec)
- 		{}
- 	};
- 
-+	if (spec->no_internal_mic_pin) {
-+		alc_update_coef_idx(codec, 0x45, 0xf<<12 | 1<<10, 5<<12);
-+		return;
-+	}
-+
- 	switch (codec->core.vendor_id) {
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
-@@ -5163,6 +5170,11 @@ static void alc_determine_headset_type(struct hda_codec *codec)
- 		{}
- 	};
- 
-+	if (spec->no_internal_mic_pin) {
-+		alc_update_coef_idx(codec, 0x45, 0xf<<12 | 1<<10, 5<<12);
-+		return;
-+	}
-+
- 	switch (codec->core.vendor_id) {
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
-@@ -6121,6 +6133,23 @@ static void alc274_fixup_hp_headset_mic(struct hda_codec *codec,
- 	}
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c98529c76348..39e98d216016 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -412,6 +412,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
  }
  
-+static void alc_fixup_no_int_mic(struct hda_codec *codec,
-+				    const struct hda_fixup *fix, int action)
++static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
 +{
-+	struct alc_spec *spec = codec->spec;
++	unsigned int temp;
 +
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		/* Mic RING SLEEVE swap for combo jack */
-+		alc_update_coef_idx(codec, 0x45, 0xf<<12 | 1<<10, 5<<12);
-+		spec->no_internal_mic_pin = true;
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		alc_combo_jack_hp_jd_restart(codec);
-+		break;
-+	}
++	/*
++	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
++	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
++	 * toggled. This is required because i.MX needs W0C and Vybrid uses W1C.
++	 */
++	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
++	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
 +}
 +
- /* for hda_fixup_thinkpad_acpi() */
- #include "thinkpad_helper.c"
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+@@ -424,8 +437,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
  
-@@ -6320,6 +6349,7 @@ enum {
- 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 	ALC287_FIXUP_HP_GPIO_LED,
- 	ALC256_FIXUP_HP_HEADSET_MIC,
-+	ALC236_FIXUP_DELL_AIO_HEADSET_MIC,
- };
+ 		/* check for arbitration lost */
+ 		if (temp & I2SR_IAL) {
+-			temp &= ~I2SR_IAL;
+-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7738,6 +7768,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc274_fixup_hp_headset_mic,
- 	},
-+	[ALC236_FIXUP_DELL_AIO_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc_fixup_no_int_mic,
-+		.chained = true,
-+		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7815,6 +7851,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x097d, "Dell Precision", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x098d, "Dell Precision", ALC233_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x09bf, "Dell Precision", ALC233_FIXUP_ASUS_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
-@@ -8353,6 +8391,8 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
- 		{0x19, 0x02a11020},
- 		{0x1a, 0x02a11030},
- 		{0x21, 0x0221101f}),
-+	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC,
-+		{0x21, 0x02211010}),
- 	SND_HDA_PIN_QUIRK(0x10ec0236, 0x103c, "HP", ALC256_FIXUP_HP_HEADSET_MIC,
- 		{0x14, 0x90170110},
- 		{0x19, 0x02a11020},
+@@ -469,7 +481,7 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		 */
+ 		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+ 		i2c_imx->i2csr = regval;
+-		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+ 	} else {
+ 		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+ 	}
+@@ -623,9 +635,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	if (temp & I2SR_IIF) {
+ 		/* save status register */
+ 		i2c_imx->i2csr = temp;
+-		temp &= ~I2SR_IIF;
+-		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+-		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+ 		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
 
