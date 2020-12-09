@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A172D4622
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 917B52D462A
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731424AbgLIPyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:54:51 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:41047 "EHLO
+        id S1730084AbgLIP5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:57:07 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:43427 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728826AbgLIPyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:51 -0500
+        by vger.kernel.org with ESMTP id S1730469AbgLIPxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 12FD7194399D;
-        Wed,  9 Dec 2020 03:42:33 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:42:33 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3C0BA194398D;
+        Wed,  9 Dec 2020 03:46:51 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 03:46:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Voc4Oo
-        ITFyMRDbyjjKyDwRCzAWb46iPvavHbUBXzi58=; b=YdtMf5Xie4Py+gWHkNKCLl
-        +faitDCGePhb6B/IY36t0prgtC6qkeb6GaebOChTIEFqMwEZGapt1x+hJnHcFh1n
-        moJjtX2Y0CvdPF7kdOl+FnFnEQcF5UG+F1czcOo7Q1pN7wHzxnKluRM5fuC7zzBS
-        hAzY5RnWDUUAACYiaw/GqEEdd522E65SVDJVbX5COn8ThJF6R2otvO1iIIpfm5ya
-        erkhfiPwsbAD+Zfd9FfRjRuLOEbZ0p4dt/gDjzhLcbTXLFWnYaRxkus24G6UTrc1
-        N7C6YbVzkBdln/qG9REfChC8nezHUuqmJWbavtic3atL5yQRiLJMqU/tPcs+z76g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=czAydi
+        oFML3F5AsmTSWqDfZ7/1+X1qB6het3mK9q8ug=; b=A/HkSXSIvpotxWdIkEm3YV
+        0zRnXvPTjqJxIq6jq3M5YLXvIOTdCt7HUu+h6DlMvoUvFxNgzbp3s0Or2rcBfd8o
+        d/XWcQibaAY7c0BBJv83vwubWuiToz0DeAs+DvnBMRoaPbZuUYLWCOApLYRU6dyJ
+        FnP0AropbYYai941fBZZtFYTKklf7f4mKof25NAeZWPyI/56SEV7Wtz75zvORxHm
+        QtkNIDGOLgaFqdkU4Ye6CCW3zzynAy6Wazq5lZuIVv3/7OKtaSHytG2lszPEV1OF
+        5/If5M98YpV2UKgpY9YniApVmh+L0z8SehAUjsEIHld30KfLWLxw51WtUQfefJdQ
         ==
-X-ME-Sender: <xms:-I3QXzgL7IxGmcTL68bNxYw2oKs1LaoPy142Uq8wW9r-PxrYJFmg8w>
-    <xme:-I3QXwAzK0KgRDdLfWz7SM-yujWI38xpFWr_oTA02I-okacIXHRAOFXhbN2TeWFUf
-    O2PyASUNtHAaw>
+X-ME-Sender: <xms:-Y7QX0cnBMSEv-aK5fQxsBmzcgrNkjfxn58J1lR1-EtVKkXHdIDtqA>
+    <xme:-Y7QX2OfeEB0NlzwvMCLmW_fDIUWqmYTqPpScxNsYOf84TPgqG2MlGuUI4Lvq0vgD
+    nRfo9Ef163p5g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:-I3QXzEPl_dce7m_5Z8JSVgBlkGQ4gl7KyW8g7M5Er7pZUuFE0FvWA>
-    <xmx:-I3QXwTqBufHGJbP7ekJOWqVM2z7bK6s-uNrkxpmhDb3xFXsayA0AQ>
-    <xmx:-I3QXwwAJQTnouljdHVzYLvoOsuiXJl-aXUHrZQHIvoOcqcBlUox5A>
-    <xmx:-Y3QX89OGeJ4al0crFKqF3pnOpwh1MkAmDjwGYzEXnHpOEovwdjAZw>
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:-Y7QX1gnM5NhA9cD2QInTd3C7LM-3VC5HoYgY81KJZbzLEvmiIMsWg>
+    <xmx:-Y7QX588JHyYaWFkxbhsefLWaWvqF7RoeN-pc6HpinJDm8qvLc37Sg>
+    <xmx:-Y7QXwtuvGo_rSjGzkkYyuSSa8jsYFsi9bASkvbZwmgxerCp9YBptA>
+    <xmx:-47QX9WcpCEAUdXgh23vJseJqmPdhENL6TGjPd5mHLzV59NkX1Gd6g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B81CB240064;
-        Wed,  9 Dec 2020 03:42:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] dm: fix IO splitting" failed to apply to 5.9-stable tree
-To:     snitzer@redhat.com, axboe@kernel.dk, bjohnsto@redhat.com,
-        jdorminy@redhat.com, ktkhai@virtuozzo.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6DC3F1080059;
+        Wed,  9 Dec 2020 03:46:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/insn-eval: Use new for_each_insn_prefix() macro to loop" failed to apply to 5.9-stable tree
+To:     mhiramat@kernel.org, bp@suse.de, keescook@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 09:43:49 +0100
-Message-ID: <160750342912147@kroah.com>
+Date:   Wed, 09 Dec 2020 09:48:07 +0100
+Message-ID: <1607503687153242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,141 +70,68 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3ee16db390b42b8a21f2ad2ea2518f3469c6e532 Mon Sep 17 00:00:00 2001
-From: Mike Snitzer <snitzer@redhat.com>
-Date: Mon, 30 Nov 2020 10:57:43 -0500
-Subject: [PATCH] dm: fix IO splitting
+From 12cb908a11b2544b5f53e9af856e6b6a90ed5533 Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Thu, 3 Dec 2020 13:50:50 +0900
+Subject: [PATCH] x86/insn-eval: Use new for_each_insn_prefix() macro to loop
+ over prefixes bytes
 
-Commit 882ec4e609c1 ("dm table: stack 'chunk_sectors' limit to account
-for target-specific splitting") caused a couple regressions:
-1) Using lcm_not_zero() when stacking chunk_sectors was a bug because
-   chunk_sectors must reflect the most limited of all devices in the
-   IO stack.
-2) DM targets that set max_io_len but that do _not_ provide an
-   .iterate_devices method no longer had there IO split properly.
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
 
-And commit 5091cdec56fa ("dm: change max_io_len() to use
-blk_max_size_offset()") also caused a regression where DM no longer
-supported varied (per target) IO splitting. The implication being the
-potential for severely reduced performance for IO stacks that use a DM
-target like dm-cache to hide performance limitations of a slower
-device (e.g. one that requires 4K IO splitting).
+  insn.prefixes.bytes[i] != 0 and i < 4
 
-Coming full circle: Fix all these issues by discontinuing stacking
-chunk_sectors up using ti->max_io_len in dm_calculate_queue_limits(),
-add optional chunk_sectors override argument to blk_max_size_offset()
-and update DM's max_io_len() to pass ti->max_io_len to its
-blk_max_size_offset() call.
+instead of using insn.prefixes.nbytes. Use the new
+for_each_insn_prefix() macro which does it correctly.
 
-Passing in an optional chunk_sectors override to blk_max_size_offset()
-allows for code reuse of block's centralized calculation for max IO
-size based on provided offset and split boundary.
+Debugged by Kees Cook <keescook@chromium.org>.
 
-Fixes: 882ec4e609c1 ("dm table: stack 'chunk_sectors' limit to account for target-specific splitting")
-Fixes: 5091cdec56fa ("dm: change max_io_len() to use blk_max_size_offset()")
+ [ bp: Massage commit message. ]
+
+Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Reported-by: John Dorminy <jdorminy@redhat.com>
-Reported-by: Bruce Johnston <bjohnsto@redhat.com>
-Reported-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Reviewed-by: John Dorminy <jdorminy@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index bcf5e4580603..97b7c2821565 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -144,7 +144,7 @@ static struct bio *blk_bio_write_same_split(struct request_queue *q,
- static inline unsigned get_max_io_size(struct request_queue *q,
- 				       struct bio *bio)
- {
--	unsigned sectors = blk_max_size_offset(q, bio->bi_iter.bi_sector);
-+	unsigned sectors = blk_max_size_offset(q, bio->bi_iter.bi_sector, 0);
- 	unsigned max_sectors = sectors;
- 	unsigned pbs = queue_physical_block_size(q) >> SECTOR_SHIFT;
- 	unsigned lbs = queue_logical_block_size(q) >> SECTOR_SHIFT;
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 2073ee8d18f4..7eeb7c4169c9 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -18,7 +18,6 @@
- #include <linux/mutex.h>
- #include <linux/delay.h>
- #include <linux/atomic.h>
--#include <linux/lcm.h>
- #include <linux/blk-mq.h>
- #include <linux/mount.h>
- #include <linux/dax.h>
-@@ -1449,10 +1448,6 @@ int dm_calculate_queue_limits(struct dm_table *table,
- 			zone_sectors = ti_limits.chunk_sectors;
- 		}
- 
--		/* Stack chunk_sectors if target-specific splitting is required */
--		if (ti->max_io_len)
--			ti_limits.chunk_sectors = lcm_not_zero(ti->max_io_len,
--							       ti_limits.chunk_sectors);
- 		/* Set I/O hints portion of queue limits */
- 		if (ti->type->io_hints)
- 			ti->type->io_hints(ti, &ti_limits);
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 98866e725f25..f7eb3d2964f3 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1039,15 +1039,18 @@ static sector_t max_io_len(struct dm_target *ti, sector_t sector)
- 	sector_t max_len;
- 
- 	/*
--	 * Does the target need to split even further?
--	 * - q->limits.chunk_sectors reflects ti->max_io_len so
--	 *   blk_max_size_offset() provides required splitting.
--	 * - blk_max_size_offset() also respects q->limits.max_sectors
-+	 * Does the target need to split IO even further?
-+	 * - varied (per target) IO splitting is a tenet of DM; this
-+	 *   explains why stacked chunk_sectors based splitting via
-+	 *   blk_max_size_offset() isn't possible here. So pass in
-+	 *   ti->max_io_len to override stacked chunk_sectors.
- 	 */
--	max_len = blk_max_size_offset(ti->table->md->queue,
--				      target_offset);
--	if (len > max_len)
--		len = max_len;
-+	if (ti->max_io_len) {
-+		max_len = blk_max_size_offset(ti->table->md->queue,
-+					      target_offset, ti->max_io_len);
-+		if (len > max_len)
-+			len = max_len;
-+	}
- 
- 	return len;
- }
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 639cae2c158b..24ae504cf77d 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1073,11 +1073,12 @@ static inline unsigned int blk_queue_get_max_sectors(struct request_queue *q,
-  * file system requests.
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 58f7fb95c7f4..4229950a5d78 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -63,13 +63,12 @@ static bool is_string_insn(struct insn *insn)
   */
- static inline unsigned int blk_max_size_offset(struct request_queue *q,
--					       sector_t offset)
-+					       sector_t offset,
-+					       unsigned int chunk_sectors)
+ bool insn_has_rep_prefix(struct insn *insn)
  {
--	unsigned int chunk_sectors = q->limits.chunk_sectors;
++	insn_byte_t p;
+ 	int i;
+ 
+ 	insn_get_prefixes(insn);
+ 
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		insn_byte_t p = insn->prefixes.bytes[i];
 -
--	if (!chunk_sectors)
-+	if (!chunk_sectors && q->limits.chunk_sectors)
-+		chunk_sectors = q->limits.chunk_sectors;
-+	else
- 		return q->limits.max_sectors;
++	for_each_insn_prefix(insn, i, p) {
+ 		if (p == 0xf2 || p == 0xf3)
+ 			return true;
+ 	}
+@@ -95,14 +94,15 @@ static int get_seg_reg_override_idx(struct insn *insn)
+ {
+ 	int idx = INAT_SEG_REG_DEFAULT;
+ 	int num_overrides = 0, i;
++	insn_byte_t p;
  
- 	if (likely(is_power_of_2(chunk_sectors)))
-@@ -1101,7 +1102,7 @@ static inline unsigned int blk_rq_get_max_sectors(struct request *rq,
- 	    req_op(rq) == REQ_OP_SECURE_ERASE)
- 		return blk_queue_get_max_sectors(q, req_op(rq));
+ 	insn_get_prefixes(insn);
  
--	return min(blk_max_size_offset(q, offset),
-+	return min(blk_max_size_offset(q, offset, 0),
- 			blk_queue_get_max_sectors(q, req_op(rq)));
- }
+ 	/* Look for any segment override prefixes. */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
++	for_each_insn_prefix(insn, i, p) {
+ 		insn_attr_t attr;
  
+-		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
++		attr = inat_get_opcode_attribute(p);
+ 		switch (attr) {
+ 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
+ 			idx = INAT_SEG_REG_CS;
 
