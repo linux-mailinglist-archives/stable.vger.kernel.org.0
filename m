@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F052D4629
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A332D4607
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730664AbgLIP5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:57:01 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:40683 "EHLO
+        id S1727389AbgLIPyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:52 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:38715 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730084AbgLIPxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
+        by vger.kernel.org with ESMTP id S1731291AbgLIPyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2CAB719439D1;
-        Wed,  9 Dec 2020 04:03:52 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:03:52 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7C22419439D7;
+        Wed,  9 Dec 2020 04:03:53 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:03:53 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=htU0tb
-        NrN47Eq8sSWK7pG5ug+1qrnd6FRneVp8uw5V4=; b=nnmBTUY/MjrelI1DhF91lf
-        yiXN9IgJdggeGVPgi+J/MSPLdQ9gueRZZt8gubYc/cGsLUWM2uQnMkr0UgCI7/aH
-        9L9/kV2f+m/7absbuytotrgKpVwIaJsU/SZ3m808/P/wzwl9k4BXEPUUDNfImGSl
-        ajxn8Gx2N4grLz0RvPY4o3+bqvXY0PYRyNs7TpXVLOu8/mhdhmPXZmldJDYZDcVY
-        VRJjLuyYz5sJiNCZQxpFi3dVfI0XZrqE4Mmq5EeGjXioDnNatfSGaNctMz7Kaxf7
-        4aojHDeAiQ4y+1USXIDJXzYgl4YxlpK/evRkTxI4HThcHYnZE1fA+8RJ9r7nAiVA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=87HNsj
+        qQSmKaY4GweLWrmcW9PgDXisj5lecmDb5cbu4=; b=o6MvNLawxN9ETUSBYFQ6fX
+        7RkCoe2aYJby/VRp+KbpLmkmh9Ehogf6PTqzG/qKekdiu7A8CNAkUVuAy2Q+vR6J
+        RDqblau0PLg8ihzYprtAfAZcYj6HbrItYEYObntNUwmTZbUpbCLe0642rusBlfjJ
+        P8UpzY7IPCsOe52Xo7KMEmcCBD535ckNeSTh8Ge5RoHiXsd8Q0gvyPU1mFRJzmZG
+        Ukoh4UfPe7zUSd6fj0O01VKI+REAj0TAKcVjnVGRhUSCWXLLjk/zZXkVQ9+Md6G+
+        BFncTcoluj91ShyR+qL2UwEikRR6ODfQPa8BqqjO0syGoo/Klp2IPC5gafi+cCHg
         ==
-X-ME-Sender: <xms:95LQXyCXeDMDTue7w1I0wCYsVCpdOYvqlPog1z1eqiFZoS0moo5SoQ>
-    <xme:95LQX8g0lZu-fo0QTUW4YvpDHbhXBaxsTYuftXDlBL9ZYG00xZT1O0gwRExv7-_P1
-    QpLmwFwyLqOrw>
+X-ME-Sender: <xms:-ZLQX9jor9mgyPVQcmfOOI5ex84JwQ-zrLHsB7Y-8TD9cqjUSiTwVg>
+    <xme:-ZLQXyBQLvrzgcCRrjrefM1pKKj6TsRduAwTTOxxQYumBJX_gnSy793x7qk3tT44w
+    Xbw_K9OLxTacg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkecutefuodetggdotefrodftvfcurf
     hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
     ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
     cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
     ucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffedtgedvje
     euvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilh
     hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:95LQX1mBs1vk5PuDSkkaMhmwceTEIScL_KV3XzjSfkKOZ07BvVH96A>
-    <xmx:95LQXwx1kwLRFpXh863sgh-GkV-qHBw7nftAis6Z27CvWtkd7Qxb2Q>
-    <xmx:95LQX3RiRR9GbdNFTqrZAWpa3J99wWJG84dUbYHbhedZm9LwIiFUpA>
-    <xmx:-JLQX1OB7gFSt7cIwemoWPjRRQuGR3TSH-mBKU3aMUKQL0bSUIlOhA>
+X-ME-Proxy: <xmx:-ZLQX9E1lbbdHq2bs694mAJxQoqpuDdtByrQjhctejuMV0T7vwqF_Q>
+    <xmx:-ZLQXyQccevkc-l1MhNUPWAFS6GDRV7wQ3GUt-oFRaB7P8wTUNOaGw>
+    <xmx:-ZLQX6wX5UMVvUHwruOHbggXLGJjpIrqy8AIyyNVe3d3XZFplVXROg>
+    <xmx:-ZLQX0uMA4R-emvWlTuG1mfy8ipO5PJQg7fBwEt7t8MHyf7_Om94-g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2F1E41080057;
-        Wed,  9 Dec 2020 04:03:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Kbuild: do not emit debug info for assembly with LLVM_IAS=1" failed to apply to 5.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 22ECB24005A;
+        Wed,  9 Dec 2020 04:03:53 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Kbuild: do not emit debug info for assembly with LLVM_IAS=1" failed to apply to 5.4-stable tree
 To:     ndesaulniers@google.com, dima@golovin.in, masahiroy@kernel.org,
         maskray@google.com, natechancellor@gmail.com,
         sedat.dilek@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 10:04:20 +0100
-Message-ID: <160750466017491@kroah.com>
+Date:   Wed, 09 Dec 2020 10:04:21 +0100
+Message-ID: <160750466162135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
