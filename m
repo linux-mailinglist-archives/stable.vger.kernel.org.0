@@ -2,68 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C26C2D4085
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4E72D409B
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:06:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730248AbgLILBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 06:01:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730217AbgLILBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 06:01:14 -0500
-Date:   Wed, 9 Dec 2020 12:01:51 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607511634;
-        bh=WWnHgxoLW2MH6iA9QG/UVeTB42+Fb4FGIoIsrat/bWg=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z5/M5WhVtPxcm6TU6GooGPDC5E0xzJeNYqb+GxEtdSleGqWn8MsZCgbVOCP/NDwfp
-         BhAg/DU18ft3mQtuM4hKqupRAmurPys2sWGiYA8YghzhlIGx3YJAsagzYTghf58rjn
-         De/Vz74/KTnaEaSOwgMNnOxqtCDBAy3V23VthZFY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     dann frazier <dann.frazier@canonical.com>
-Cc:     stable@vger.kernel.org, Michael Schaller <misch@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Matthew Garrett <matthew.garrett@nebula.com>,
-        Jeremy Kerr <jk@ozlabs.org>, linux-efi@vger.kernel.org
-Subject: Re: [PATCH 4.4] arm64: assembler: make adr_l work in modules under
- KASLR
-Message-ID: <X9Cun9A/dx7apRvd@kroah.com>
-References: <CALdTtnuT7fVJ17C2nq8kks_rFRGtDySx61tWpt8b+roajyi7vg@mail.gmail.com>
- <20201208011034.3015079-1-dann.frazier@canonical.com>
+        id S1730278AbgLILEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 06:04:07 -0500
+Received: from hera.aquilenet.fr ([185.233.100.1]:44076 "EHLO
+        hera.aquilenet.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730161AbgLILEH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 06:04:07 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by hera.aquilenet.fr (Postfix) with ESMTP id 2AE6614B0;
+        Wed,  9 Dec 2020 12:03:26 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at aquilenet.fr
+Received: from hera.aquilenet.fr ([127.0.0.1])
+        by localhost (hera.aquilenet.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id XNUmJQcNtsuE; Wed,  9 Dec 2020 12:03:25 +0100 (CET)
+Received: from function.youpi.perso.aquilenet.fr (unknown [IPv6:2a01:cb19:956:1b00:9eb6:d0ff:fe88:c3c7])
+        by hera.aquilenet.fr (Postfix) with ESMTPSA id 7E06FCF5;
+        Wed,  9 Dec 2020 12:03:25 +0100 (CET)
+Received: from samy by function.youpi.perso.aquilenet.fr with local (Exim 4.94)
+        (envelope-from <samuel.thibault@ens-lyon.org>)
+        id 1kmxFk-0064m8-I0; Wed, 09 Dec 2020 12:03:24 +0100
+Date:   Wed, 9 Dec 2020 12:03:24 +0100
+From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH for 4.19] speakup: Reject setting the speakup line
+ discipline outside of speakup
+Message-ID: <20201209110324.lnx7jmnm456jovim@function>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Greg KH <greg@kroah.com>, stable@vger.kernel.org
+References: <20201209102640.yn7mdn52sm7bfbgm@function>
+ <X9Cs/hMXQ4grRDql@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20201208011034.3015079-1-dann.frazier@canonical.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <X9Cs/hMXQ4grRDql@kroah.com>
+Organization: I am not organized
+User-Agent: NeoMutt/20170609 (1.8.3)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 06:10:34PM -0700, dann frazier wrote:
-> From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Greg KH, le mer. 09 déc. 2020 11:54:54 +0100, a ecrit:
+> This, and the 4.14.y backport, fail to apply:
 > 
-> commit 41c066f2c4d436c535616fe182331766c57838f0 upstream
+> patching file drivers/staging/speakup/spk_ttyio.c
+> Hunk #1 FAILED at 47.
+> Hunk #2 succeeded at 187 (offset -4 lines).
+> 1 out of 2 hunks FAILED -- rejects in file drivers/staging/speakup/spk_ttyio.c
 > 
-> When CONFIG_RANDOMIZE_MODULE_REGION_FULL=y, the offset between loaded
-> modules and the core kernel may exceed 4 GB, putting symbols exported
-> by the core kernel out of the reach of the ordinary adrp/add instruction
-> pairs used to generate relative symbol references. So make the adr_l
-> macro emit a movz/movk sequence instead when executing in module context.
-> 
-> While at it, remove the pointless special case for the stack pointer.
-> 
-> Acked-by: Mark Rutland <mark.rutland@arm.com>
-> Acked-by: Will Deacon <will.deacon@arm.com>
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> [ dannf: backported to v4.4 by replacing the 3-arg adr_l macro in head.S
->   with it's output, as this commit drops the 3-arg variant ]
-> Fixes: c042dd600f4e ("crypto: arm64/sha - avoid non-standard inline asm tricks")
-> Signed-off-by: dann frazier <dann.frazier@canonical.com>
-> ---
->  arch/arm64/include/asm/assembler.h | 36 +++++++++++++++++++++++++++---------
->  arch/arm64/kernel/head.S           |  3 ++-
->  2 files changed, 29 insertions(+), 10 deletions(-)
+> What tree(s) did you make the patch against?
 
-Now queued up, thanks!
+I used 4.19.162 and 4.14.211 tarballs. But now I realize that I used
+patch -l, without it there are small whitespace differences. Can you
+apply them with -l, or should I fix the whitespacing?
 
-greg k-h
+Samuel
