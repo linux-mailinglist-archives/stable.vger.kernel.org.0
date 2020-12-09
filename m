@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A332D4607
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0AC2D462B
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbgLIPyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:54:52 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:38715 "EHLO
+        id S1730469AbgLIP5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:57:08 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58095 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731291AbgLIPyw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:52 -0500
+        by vger.kernel.org with ESMTP id S1730441AbgLIPxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7C22419439D7;
-        Wed,  9 Dec 2020 04:03:53 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:03:53 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2DC0D19439D8;
+        Wed,  9 Dec 2020 04:04:31 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:04:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=87HNsj
-        qQSmKaY4GweLWrmcW9PgDXisj5lecmDb5cbu4=; b=o6MvNLawxN9ETUSBYFQ6fX
-        7RkCoe2aYJby/VRp+KbpLmkmh9Ehogf6PTqzG/qKekdiu7A8CNAkUVuAy2Q+vR6J
-        RDqblau0PLg8ihzYprtAfAZcYj6HbrItYEYObntNUwmTZbUpbCLe0642rusBlfjJ
-        P8UpzY7IPCsOe52Xo7KMEmcCBD535ckNeSTh8Ge5RoHiXsd8Q0gvyPU1mFRJzmZG
-        Ukoh4UfPe7zUSd6fj0O01VKI+REAj0TAKcVjnVGRhUSCWXLLjk/zZXkVQ9+Md6G+
-        BFncTcoluj91ShyR+qL2UwEikRR6ODfQPa8BqqjO0syGoo/Klp2IPC5gafi+cCHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nll7Zi
+        FrgJhKmzVyn2NCJzE0jeKHq6VsmqRHH0CcZEQ=; b=VIQ26TVuervX21uisLIa3H
+        tqZfx06FrRR/ypAdRp5KJkI7DKqDvOdVq47ycYWkvYxJVAlxRrjuxtCQV62UZgr1
+        VYts9K8wUCrIbNKYapKCz3DxJwhduEfrJEsBOdnGhMK/khSDuMBzjXPVJNADGkrE
+        jPZV31V32VSLFwd+ou+YafY45GpVZOa9rs5cp4R0RaeEeUDsvVInH5y02k3LqgTm
+        EZ7nfSGu2++TR6XOMeSbtpw2RbF2BNKJe85Gc9adM2Bg9ojz12oZT6FIT1MsYuT+
+        64ckF/mSuvfkTrXCT9Qbp6WaMckEd3EYtyxCJA2kZctdudFIsDMTC9K6ADoEZ3bw
         ==
-X-ME-Sender: <xms:-ZLQX9jor9mgyPVQcmfOOI5ex84JwQ-zrLHsB7Y-8TD9cqjUSiTwVg>
-    <xme:-ZLQXyBQLvrzgcCRrjrefM1pKKj6TsRduAwTTOxxQYumBJX_gnSy793x7qk3tT44w
-    Xbw_K9OLxTacg>
+X-ME-Sender: <xms:HZPQX80du6nHkyyDSUwBZ4733Wy9tBZH6eWWg_mixfZvfwjK1bg3fA>
+    <xme:HZPQX3H6Y-j4VARyVS676jvoSApNRuMxP-TkFBDX8YNUVS-9dbgj3_kW4x7hrWTG0
+    ZCs5rN6Qsozbg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkecutefuodetggdotefrodftvfcurf
     hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
     ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
     cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
-    ucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffedtgedvje
-    euvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilh
+    ucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekgeefle
+    egieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
     hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:-ZLQX9E1lbbdHq2bs694mAJxQoqpuDdtByrQjhctejuMV0T7vwqF_Q>
-    <xmx:-ZLQXyQccevkc-l1MhNUPWAFS6GDRV7wQ3GUt-oFRaB7P8wTUNOaGw>
-    <xmx:-ZLQX6wX5UMVvUHwruOHbggXLGJjpIrqy8AIyyNVe3d3XZFplVXROg>
-    <xmx:-ZLQX0uMA4R-emvWlTuG1mfy8ipO5PJQg7fBwEt7t8MHyf7_Om94-g>
+X-ME-Proxy: <xmx:HZPQX06AH5sAMjoxhYxwoxeay2UTk95lZmCAZOntOuP7A0dYsBe3cA>
+    <xmx:HZPQX10he4rhhWAX3y3mfm-l_nYe6AVJSuR4JvxV0i43kwzI9Y1Y-A>
+    <xmx:HZPQX_GGZjoTcxKp-w_Jhcdf8xtNxAEN8qEA19KxWFZrcCS4X1G1bA>
+    <xmx:H5PQXzheWUIKHpq3AothP5lYxqM8eGFG6hIo03BhPnDtnLWhnJKbEw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 22ECB24005A;
-        Wed,  9 Dec 2020 04:03:53 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Kbuild: do not emit debug info for assembly with LLVM_IAS=1" failed to apply to 5.4-stable tree
-To:     ndesaulniers@google.com, dima@golovin.in, masahiroy@kernel.org,
-        maskray@google.com, natechancellor@gmail.com,
-        sedat.dilek@gmail.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D8A691080059;
+        Wed,  9 Dec 2020 04:04:28 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling" failed to apply to 5.9-stable tree
+To:     guro@fb.com, akpm@linux-foundation.org, hannes@cmpxchg.org,
+        mhocko@kernel.org, shakeelb@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 10:04:21 +0100
-Message-ID: <160750466162135@kroah.com>
+Date:   Wed, 09 Dec 2020 10:05:47 +0100
+Message-ID: <1607504747243177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,46 +72,119 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b8a9092330da2030496ff357272f342eb970d51b Mon Sep 17 00:00:00 2001
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Mon, 9 Nov 2020 10:35:28 -0800
-Subject: [PATCH] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
+From becaba65f62f88e553ec92ed98370e9d2b18e629 Mon Sep 17 00:00:00 2001
+From: Roman Gushchin <guro@fb.com>
+Date: Sat, 5 Dec 2020 22:14:45 -0800
+Subject: [PATCH] mm: memcg/slab: fix obj_cgroup_charge() return value handling
 
-Clang's integrated assembler produces the warning for assembly files:
+Commit 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches
+for all allocations") introduced a regression into the handling of the
+obj_cgroup_charge() return value.  If a non-zero value is returned
+(indicating of exceeding one of memory.max limits), the allocation
+should fail, instead of falling back to non-accounted mode.
 
-warning: DWARF2 only supports one section per compilation unit
+To make the code more readable, move memcg_slab_pre_alloc_hook() and
+memcg_slab_post_alloc_hook() calling conditions into bodies of these
+hooks.
 
-If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
-assembly sources (it is still emitted for C sources).  This will be
-re-enabled for newer DWARF versions in a follow up patch.
-
-Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
-LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
-
+Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
 Cc: <stable@vger.kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/716
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Dmitry Golovin <dima@golovin.in>
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lkml.kernel.org/r/20201127161828.GD840171@carbon.dhcp.thefacebook.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/Makefile b/Makefile
-index 87d659d3c8de..ae1592c1f5d6 100644
---- a/Makefile
-+++ b/Makefile
-@@ -828,7 +828,9 @@ else
- DEBUG_CFLAGS	+= -g
- endif
+diff --git a/mm/slab.h b/mm/slab.h
+index 6d7c6a5056ba..f9977d6613d6 100644
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -274,22 +274,32 @@ static inline size_t obj_full_size(struct kmem_cache *s)
+ 	return s->size + sizeof(struct obj_cgroup *);
+ }
  
-+ifneq ($(LLVM_IAS),1)
- KBUILD_AFLAGS	+= -Wa,-gdwarf-2
-+endif
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++/*
++ * Returns false if the allocation should fail.
++ */
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+ 	struct obj_cgroup *objcg;
  
- ifdef CONFIG_DEBUG_INFO_DWARF4
- DEBUG_CFLAGS	+= -gdwarf-4
++	if (!memcg_kmem_enabled())
++		return true;
++
++	if (!(flags & __GFP_ACCOUNT) && !(s->flags & SLAB_ACCOUNT))
++		return true;
++
+ 	objcg = get_obj_cgroup_from_current();
+ 	if (!objcg)
+-		return NULL;
++		return true;
+ 
+ 	if (obj_cgroup_charge(objcg, flags, objects * obj_full_size(s))) {
+ 		obj_cgroup_put(objcg);
+-		return NULL;
++		return false;
+ 	}
+ 
+-	return objcg;
++	*objcgp = objcg;
++	return true;
+ }
+ 
+ static inline void mod_objcg_state(struct obj_cgroup *objcg,
+@@ -315,7 +325,7 @@ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
+ 	unsigned long off;
+ 	size_t i;
+ 
+-	if (!objcg)
++	if (!memcg_kmem_enabled() || !objcg)
+ 		return;
+ 
+ 	flags &= ~__GFP_ACCOUNT;
+@@ -400,11 +410,11 @@ static inline void memcg_free_page_obj_cgroups(struct page *page)
+ {
+ }
+ 
+-static inline struct obj_cgroup *memcg_slab_pre_alloc_hook(struct kmem_cache *s,
+-							   size_t objects,
+-							   gfp_t flags)
++static inline bool memcg_slab_pre_alloc_hook(struct kmem_cache *s,
++					     struct obj_cgroup **objcgp,
++					     size_t objects, gfp_t flags)
+ {
+-	return NULL;
++	return true;
+ }
+ 
+ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
+@@ -508,9 +518,8 @@ static inline struct kmem_cache *slab_pre_alloc_hook(struct kmem_cache *s,
+ 	if (should_failslab(s, flags))
+ 		return NULL;
+ 
+-	if (memcg_kmem_enabled() &&
+-	    ((flags & __GFP_ACCOUNT) || (s->flags & SLAB_ACCOUNT)))
+-		*objcgp = memcg_slab_pre_alloc_hook(s, size, flags);
++	if (!memcg_slab_pre_alloc_hook(s, objcgp, size, flags))
++		return NULL;
+ 
+ 	return s;
+ }
+@@ -529,8 +538,7 @@ static inline void slab_post_alloc_hook(struct kmem_cache *s,
+ 					 s->flags, flags);
+ 	}
+ 
+-	if (memcg_kmem_enabled())
+-		memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
++	memcg_slab_post_alloc_hook(s, objcg, flags, size, p);
+ }
+ 
+ #ifndef CONFIG_SLOB
 
