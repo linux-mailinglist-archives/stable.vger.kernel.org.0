@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D3E2D460B
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 666A22D45EC
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731866AbgLIPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:55:19 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34335 "EHLO
+        id S1730954AbgLIPyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:06 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:32907 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731464AbgLIPzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:55:12 -0500
+        by vger.kernel.org with ESMTP id S1730388AbgLIPxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:53:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A1A1519438E5;
-        Wed,  9 Dec 2020 02:47:52 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 02:47:52 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5797719438FE;
+        Wed,  9 Dec 2020 02:48:00 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 02:48:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=512VeC
-        so1IWSCUIC7TTu2ejJjkZHjbsOGkyjPz9uJLA=; b=jH80FE9Djvos9D3zDhQRzr
-        BlAej0iQWmrFUz+X2aZgdxusST7k4VXpZ0qK9IZ21ExTJqmtT3N3ynP2llQCTtHH
-        uJh1ygRTVb/aqYw/+jkoVp0NDIxi5DJTt1yyGrX7+Ps7ACUcbJBkJskEDDyGh2WJ
-        jxmbwv0sJpbDs4ZCqMPXWXwog26yBmJUwdeajipEpu9yFhkps96Y078yl/ponIHM
-        IGeL8sNHjurDagg/lBmMyjbbQj8eSi99h6JsydxxUCp0ZDivpkmFvU7o8E76fCGE
-        CDX6VcK62E1Xb6vSx/m022iVHLtUkcWJzsWWcRa+X1ffYsiPnRKW5LQp4nh+o/5Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uwDESx
+        K8hGrfSkz8Omgvq+A9HMicFTm8LGz46pwUHog=; b=cDQzlVpz2U5zlZNvhsMCDs
+        SdXdIHnWcK6ZxRLi9eGiDLFZbwXLPuZRMgbycRzF77c21Ysdb38bCRqyYCFn8Wt1
+        zfa+vbE+mZadTwy2HwOUr7oF2V8LMQVMfr9DskzfpTYlGPTUZqr2Cxq+3mpINEwF
+        6M3bGZvvSkD0ZnL59yM3inksGlavaSTe9DuQSeAbB6dfj59PrbQk1o0EmBfPZx5Z
+        M8JpUF0Iy+XfKeouqX8ydzD4ieyeMn1hIYRb2jUTVTKmwWqxFqDbIGmeHuWIFHK2
+        tCT9SIk2yWF8QQdeSQrdr2I4u6l0YjebUlplANJTFgAoi0Egjsx2kyEh6iiMCzqw
         ==
-X-ME-Sender: <xms:J4HQX_ZP6G1AaNM-QR7RzJW4w2LzuWUDwhkTaJ346Dn3BDN-P0GA2Q>
-    <xme:J4HQX-Yrf9aQT45Up5WuON_poImN916lwPujMmjulINw8J8PomTvRaK-Kbt_UqilV
-    lEE3tzjFLobRw>
+X-ME-Sender: <xms:MIHQX4csXKwCaFmuThe0cbW0kJhDdj_mRPnuKLag0JH_h5jvoQkT2g>
+    <xme:MIHQX6Nbqpk74_DY_QabK8XIBoHPraT9wDP4rYmJwWPAhTVzeBjNp0IG3ZLPfy8dW
+    1bZzVdLhZkQDw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejjedgudduudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:J4HQXx-t_njL0ypH2uZZrVDs2IXAyS6B2qK87JQdUINJzRnRwuyuKw>
-    <xmx:J4HQX1r8cBM1j75rR_dS0K834tYFOx9TGiCKfsPyeZ2Y4RMc4drY2g>
-    <xmx:J4HQX6oSELWp2fhyNHm3aiNLS7u9wWsQcpd3l1P8b2f8UTkNbLQCsg>
-    <xmx:KIHQXxSvIjWOM9QLtL3gMDIM-ZZQE4YxhHcXdlswp9cqyvify13ncQ>
+X-ME-Proxy: <xmx:MIHQX5jOgUcN5YDZZ_PofN7Yqfsf1SxbPEx1Zf6b5ICdlig0d4R2CA>
+    <xmx:MIHQX9_y5JqYXxbaXdy_W_B2WxfPVD0sm3S-kp9a6w0VJH_VcBPrBA>
+    <xmx:MIHQX0uHhylBStCR-gAENB8gX8MTZxHJOg3SXpjdJ9FIMQZ85J-fag>
+    <xmx:MIHQX60mUUM7r80Vse69cZhqy0C4xLc1Y-cGmtB5FBz9TX7UXt0reA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AF5CD24005E;
-        Wed,  9 Dec 2020 02:47:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Fixed Dell AIO wrong sound tone" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 033BE1080059;
+        Wed,  9 Dec 2020 02:47:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Fixed Dell AIO wrong sound tone" failed to apply to 4.19-stable tree
 To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 08:49:09 +0100
-Message-ID: <160750014913248@kroah.com>
+Date:   Wed, 09 Dec 2020 08:49:10 +0100
+Message-ID: <160750015013768@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
