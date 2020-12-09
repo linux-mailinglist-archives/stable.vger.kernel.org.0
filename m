@@ -2,162 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2994A2D472C
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 17:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BC352D475A
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 18:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731241AbgLIQwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 11:52:10 -0500
-Received: from foss.arm.com ([217.140.110.172]:37546 "EHLO foss.arm.com"
+        id S1730902AbgLIRAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 12:00:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729345AbgLIQwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 11:52:05 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 538871FB;
-        Wed,  9 Dec 2020 08:51:19 -0800 (PST)
-Received: from [192.168.2.21] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2F70D3F68F;
-        Wed,  9 Dec 2020 08:51:17 -0800 (PST)
-Subject: Re: [PATCH 2/3] x86/resctrl: Update PQR_ASSOC MSR synchronously when
- moving task to resource group
-To:     Reinette Chatre <reinette.chatre@intel.com>, fenghua.yu@intel.com
-Cc:     tglx@linutronix.de, bp@alien8.de, tony.luck@intel.com,
-        kuo-lang.tseng@intel.com, shakeelb@google.com,
-        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
-        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <cover.1607036601.git.reinette.chatre@intel.com>
- <c8eebc438e057e4bc2ce00256664b7bb0561b323.1607036601.git.reinette.chatre@intel.com>
-From:   James Morse <james.morse@arm.com>
-Message-ID: <97610014-12a8-c389-e7e6-f655caf61d0d@arm.com>
-Date:   Wed, 9 Dec 2020 16:51:15 +0000
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1732098AbgLIQ7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 11:59:39 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16DD523C43;
+        Wed,  9 Dec 2020 16:58:59 +0000 (UTC)
+Date:   Wed, 9 Dec 2020 11:58:57 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracing: Fix userstacktrace option for
+ instances" failed to apply to 5.4-stable tree
+Message-ID: <20201209115857.19aca347@gandalf.local.home>
+In-Reply-To: <160750307485180@kroah.com>
+References: <160750307485180@kroah.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <c8eebc438e057e4bc2ce00256664b7bb0561b323.1607036601.git.reinette.chatre@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Reinette, Fenghua,
 
-Subject nit: I think 'use IPI instead of task_work() to update PQR_ASSOC_MSR' conveys the
-guts of this change more quickly!
+This should be the fix for 5.4.
 
-On 03/12/2020 23:25, Reinette Chatre wrote:
-> From: Fenghua Yu <fenghua.yu@intel.com>
-> 
-> Currently when moving a task to a resource group the PQR_ASSOC MSR
-> is updated with the new closid and rmid in an added task callback.
-> If the task is running the work is run as soon as possible. If the
-> task is not running the work is executed later
-
-> in the kernel exit path when the kernel returns to the task again.
-
-kernel exit makes me thing of user-space... is it enough to just say:
-"by __switch_to() when task is next run"?
+-- Steve
 
 
-> Updating the PQR_ASSOC MSR as soon as possible on the CPU a moved task
-> is running is the right thing to do. Queueing work for a task that is
-> not running is unnecessary (the PQR_ASSOC MSR is already updated when the
-> task is scheduled in) and causing system resource waste with the way in
-> which it is implemented: Work to update the PQR_ASSOC register is queued
-> every time the user writes a task id to the "tasks" file, even if the task
-> already belongs to the resource group. This could result in multiple pending
-> work items associated with a single task even if they are all identical and
-> even though only a single update with most recent values is needed.
-> Specifically, even if a task is moved between different resource groups
-> while it is sleeping then it is only the last move that is relevant but
-> yet a work item is queued during each move.
-> This unnecessary queueing of work items could result in significant system
-> resource waste, especially on tasks sleeping for a long time. For example,
-> as demonstrated by Shakeel Butt in [1] writing the same task id to the
-> "tasks" file can quickly consume significant memory. The same problem
-> (wasted system resources) occurs when moving a task between different
-> resource groups.
-> 
-> As pointed out by Valentin Schneider in [2] there is an additional issue with
-> the way in which the queueing of work is done in that the task_struct update
-> is currently done after the work is queued, resulting in a race with the
-> register update possibly done before the data needed by the update is available.
-> 
-> To solve these issues, the PQR_ASSOC MSR is updated in a synchronous way
-> right after the new closid and rmid are ready during the task movement,
-> only if the task is running. If a moved task is not running nothing is
-> done since the PQR_ASSOC MSR will be updated next time the task is scheduled.
-> This is the same way used to update the register when tasks are moved as
-> part of resource group removal.
+>From bcee5278958802b40ee8b26679155a6d9231783e Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Fri, 4 Dec 2020 16:36:16 -0500
+Subject: [PATCH] tracing: Fix userstacktrace option for instances
 
-(as t->on_cpu is already used...)
+When the instances were able to use their own options, the userstacktrace
+option was left hardcoded for the top level. This made the instance
+userstacktrace option bascially into a nop, and will confuse users that set
+it, but nothing happens (I was confused when it happened to me!)
 
-Reviewed-by: James Morse <james.morse@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: 16270145ce6b ("tracing: Add trace options for core options to instances")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-
-> diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> index 68db7d2dec8f..9d62f1fadcc3 100644
-> --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-> @@ -525,6 +525,16 @@ static void rdtgroup_remove(struct rdtgroup *rdtgrp)
-
-
-> +static void update_task_closid_rmid(struct task_struct *t)
->  {
-> +	int cpu;
->  
-> +	if (task_on_cpu(t, &cpu))
-> +		smp_call_function_single(cpu, _update_task_closid_rmid, t, 1);
-
-
-I think:
-|	if (task_curr(t))
-|		smp_call_function_single(task_cpu(t), _update_task_closid_rmid, t, 1);
-
-here would make for an easier backport as it doesn't depend on the previous patch.
-
-
-> +}
-
-[...]
-
->  static int __rdtgroup_move_task(struct task_struct *tsk,
->  				struct rdtgroup *rdtgrp)
->  {
-
-> +	if (rdtgrp->type == RDTCTRL_GROUP) {
-> +		tsk->closid = rdtgrp->closid;
-> +		tsk->rmid = rdtgrp->mon.rmid;
-> +	} else if (rdtgrp->type == RDTMON_GROUP) {
-
-[...]
-
-> +	} else {
-
-> +		rdt_last_cmd_puts("Invalid resource group type\n");
-> +		return -EINVAL;
-
-Wouldn't this be a kernel bug?
-I'd have thought there would be a WARN_ON_ONCE() here to make it clear this isn't
-user-space's fault!
-
-
->  	}
-> -	return ret;
-> +
-> +	/*
-> +	 * By now, the task's closid and rmid are set. If the task is current
-> +	 * on a CPU, the PQR_ASSOC MSR needs to be updated to make the resource
-> +	 * group go into effect. If the task is not current, the MSR will be
-> +	 * updated when the task is scheduled in.
-> +	 */
-> +	update_task_closid_rmid(tsk);
-> +
-> +	return 0;
->  }
-
-
-Thanks,
-
-James
+Index: linux-test.git/kernel/trace/trace.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/trace.c
++++ linux-test.git/kernel/trace/trace.c
+@@ -160,7 +160,8 @@ static union trace_eval_map_item *trace_
+ #endif /* CONFIG_TRACE_EVAL_MAP_FILE */
+ 
+ static int tracing_set_tracer(struct trace_array *tr, const char *buf);
+-static void ftrace_trace_userstack(struct ring_buffer *buffer,
++static void ftrace_trace_userstack(struct trace_array *tr,
++				   struct ring_buffer *buffer,
+ 				   unsigned long flags, int pc);
+ 
+ #define MAX_TRACER_SIZE		100
+@@ -2621,7 +2622,7 @@ void trace_buffer_unlock_commit_regs(str
+ 	 * two. They are not that meaningful.
+ 	 */
+ 	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : STACK_SKIP, pc, regs);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
+ }
+ 
+ /*
+@@ -2936,13 +2937,14 @@ EXPORT_SYMBOL_GPL(trace_dump_stack);
+ static DEFINE_PER_CPU(int, user_stack_count);
+ 
+ static void
+-ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags, int pc)
++ftrace_trace_userstack(struct trace_array *tr,
++		       struct ring_buffer *buffer, unsigned long flags, int pc)
+ {
+ 	struct trace_event_call *call = &event_user_stack;
+ 	struct ring_buffer_event *event;
+ 	struct userstack_entry *entry;
+ 
+-	if (!(global_trace.trace_flags & TRACE_ITER_USERSTACKTRACE))
++	if (!(tr->trace_flags & TRACE_ITER_USERSTACKTRACE))
+ 		return;
+ 
+ 	/*
+@@ -2981,7 +2983,8 @@ ftrace_trace_userstack(struct ring_buffe
+ 	preempt_enable();
+ }
+ #else /* CONFIG_USER_STACKTRACE_SUPPORT */
+-static void ftrace_trace_userstack(struct ring_buffer *buffer,
++static void ftrace_trace_userstack(struct trace_array *tr,
++				   struct ring_buffer *buffer,
+ 				   unsigned long flags, int pc)
+ {
+ }
