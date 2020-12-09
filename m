@@ -2,203 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C87EB2D4487
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 15:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C272D44AA
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 15:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733019AbgLIOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 09:40:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44308 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731477AbgLIOkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 09:40:52 -0500
-Subject: patch "binder: add flag to clear buffer on txn complete" added to char-misc-testing
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607524811;
-        bh=oYZgylYM5HMFOSmmAcZYYC7m2Wev64im088axmnRK2s=;
-        h=To:From:Date:From;
-        b=13jyMZbkjaFCVlwz0zHoXGfFMMu5uFJUKYZ+mpsPl1c4KNH9cM+EWehLM7RdmzErS
-         VmWXJO2n7ygvI10Mm8rVFGGZESs45DKqUYnmDL3N4AwAK+OakcJR4a0/mxYBN0De+p
-         hfqTCf3Btexz0MGvTmBI5NrrY4ZGIsBEMIjLQ6+o=
-To:     tkjos@google.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 15:41:28 +0100
-Message-ID: <1607524888187110@kroah.com>
+        id S1733189AbgLIOqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 09:46:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733191AbgLIOqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 09:46:43 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B296DC0613CF
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 06:46:02 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id h7so806560pjk.1
+        for <stable@vger.kernel.org>; Wed, 09 Dec 2020 06:46:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uQNthrJt0engSxAORExc/89EyYgck51IJRqnyXancJU=;
+        b=oFv/VTaJVubIwTKAfMlIKoAjaHZVg3vsZWW1StsxL8pNRBjFIdb0i9Lvh4dxvl8D69
+         3IM0sSB0Yg/G04MSKv7UgKJQVp04pI0CZNfd4pRvBexhxgRW2IcspIEB4gWfvb0f9bTB
+         KKv1fYIzy02YXgfDCFohVHyRugCGijkkyDZ50OLkAFPohmW0A9LlMcKuP2UkYvlVfwMs
+         8Gox2D8I66RmDmM6ub16zrBp5OEAz4HohMQ16PUUX0hY4MaEFoRMkhP7/YBOke/E+IU1
+         uyP6lz5RlEZTM4DUFdpFAci1yzMwkdNjW8N1hfQktOBYCTbopQJgcGmfSAtQxCGGAX5S
+         t9+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uQNthrJt0engSxAORExc/89EyYgck51IJRqnyXancJU=;
+        b=R5lpkvf2HEubUmvBDvH6Xq1CVL9BzqYbuqwmwA1Oj5aurjDqsx5WNTLBppyk6jBNOy
+         1nur1ygNSH/wjs9clBiShwGI0s7tTRMZPAZaPmdclXgk8jNUfIKNwNT7gIDpMCznkQjJ
+         DZjk5bJcc7kSs5D+VxCA3KfNL3MJgSjJJG3eqzwnpeMPtBc9i6AWxJpwfMUsHEPfsxM8
+         gQ7ggp9luO6ca/7DRfozSttDxVtEnMdcyFRv/Qfu6gzo4IZmEml5UCE9eOjCuqyasd8b
+         QOMcnprKNX31CuJZeHZTDLs1vAVkp4gCMg5AMVkUc0B4rhzQgxGzDbFjZPceVBWooEUR
+         M2rQ==
+X-Gm-Message-State: AOAM530WcCuI/tgcu3DGxcfHN+WfxF3YMFa1GBG4XcVn/QhyDgHN6iyJ
+        jHEYOtArzUHTSMX1cxMMojm61VC/436sUA==
+X-Google-Smtp-Source: ABdhPJx+JGnfUojN64pAYjTE9z9Cb+Bm2nUS+/WmOLFACvZmLOs60TOQLiJSi8Jj7jTzsE1yYZV8yg==
+X-Received: by 2002:a17:902:6b:b029:da:725b:fcea with SMTP id 98-20020a170902006bb02900da725bfceamr2516605pla.16.1607525161652;
+        Wed, 09 Dec 2020 06:46:01 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y129sm2902301pfb.3.2020.12.09.06.46.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Dec 2020 06:46:01 -0800 (PST)
+Message-ID: <5fd0e329.1c69fb81.f819e.5398@mx.google.com>
+Date:   Wed, 09 Dec 2020 06:46:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.211-18-g5fff4d03d49d
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 114 runs,
+ 5 regressions (v4.14.211-18-g5fff4d03d49d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 114 runs, 5 regressions (v4.14.211-18-g5fff4=
+d03d49d)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    binder: add flag to clear buffer on txn complete
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre | gcc-8    | defconfig   =
+        | 1          =
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+meson-gxm-q200             | arm64 | lab-baylibre | gcc-8    | defconfig   =
+        | 1          =
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+qemu_arm-versatilepb       | arm   | lab-baylibre | gcc-8    | versatile_de=
+fconfig | 1          =
 
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
+qemu_arm-versatilepb       | arm   | lab-broonie  | gcc-8    | versatile_de=
+fconfig | 1          =
 
-If you have any questions about this process, please let me know.
-
-
-From 0f966cba95c78029f491b433ea95ff38f414a761 Mon Sep 17 00:00:00 2001
-From: Todd Kjos <tkjos@google.com>
-Date: Fri, 20 Nov 2020 15:37:43 -0800
-Subject: binder: add flag to clear buffer on txn complete
-
-Add a per-transaction flag to indicate that the buffer
-must be cleared when the transaction is complete to
-prevent copies of sensitive data from being preserved
-in memory.
-
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20201120233743.3617529-1-tkjos@google.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder.c            |  1 +
- drivers/android/binder_alloc.c      | 48 +++++++++++++++++++++++++++++
- drivers/android/binder_alloc.h      |  4 ++-
- include/uapi/linux/android/binder.h |  1 +
- 4 files changed, 53 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 20b08f52e788..1338209f9f86 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2756,6 +2756,7 @@ static void binder_transaction(struct binder_proc *proc,
- 	t->buffer->debug_id = t->debug_id;
- 	t->buffer->transaction = t;
- 	t->buffer->target_node = target_node;
-+	t->buffer->clear_on_free = !!(t->flags & TF_CLEAR_BUF);
- 	trace_binder_transaction_alloc_buf(t->buffer);
- 
- 	if (binder_alloc_copy_user_to_buffer(
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 2f846b7ae8b8..7caf74ad2405 100644
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -696,6 +696,8 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
- 	binder_insert_free_buffer(alloc, buffer);
- }
- 
-+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
-+				   struct binder_buffer *buffer);
- /**
-  * binder_alloc_free_buf() - free a binder buffer
-  * @alloc:	binder_alloc for this proc
-@@ -706,6 +708,18 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
- void binder_alloc_free_buf(struct binder_alloc *alloc,
- 			    struct binder_buffer *buffer)
- {
-+	/*
-+	 * We could eliminate the call to binder_alloc_clear_buf()
-+	 * from binder_alloc_deferred_release() by moving this to
-+	 * binder_alloc_free_buf_locked(). However, that could
-+	 * increase contention for the alloc mutex if clear_on_free
-+	 * is used frequently for large buffers. The mutex is not
-+	 * needed for correctness here.
-+	 */
-+	if (buffer->clear_on_free) {
-+		binder_alloc_clear_buf(alloc, buffer);
-+		buffer->clear_on_free = false;
-+	}
- 	mutex_lock(&alloc->mutex);
- 	binder_free_buf_locked(alloc, buffer);
- 	mutex_unlock(&alloc->mutex);
-@@ -802,6 +816,10 @@ void binder_alloc_deferred_release(struct binder_alloc *alloc)
- 		/* Transaction should already have been freed */
- 		BUG_ON(buffer->transaction);
- 
-+		if (buffer->clear_on_free) {
-+			binder_alloc_clear_buf(alloc, buffer);
-+			buffer->clear_on_free = false;
-+		}
- 		binder_free_buf_locked(alloc, buffer);
- 		buffers++;
- 	}
-@@ -1135,6 +1153,36 @@ static struct page *binder_alloc_get_page(struct binder_alloc *alloc,
- 	return lru_page->page_ptr;
- }
- 
-+/**
-+ * binder_alloc_clear_buf() - zero out buffer
-+ * @alloc: binder_alloc for this proc
-+ * @buffer: binder buffer to be cleared
-+ *
-+ * memset the given buffer to 0
-+ */
-+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
-+				   struct binder_buffer *buffer)
-+{
-+	size_t bytes = binder_alloc_buffer_size(alloc, buffer);
-+	binder_size_t buffer_offset = 0;
-+
-+	while (bytes) {
-+		unsigned long size;
-+		struct page *page;
-+		pgoff_t pgoff;
-+		void *kptr;
-+
-+		page = binder_alloc_get_page(alloc, buffer,
-+					     buffer_offset, &pgoff);
-+		size = min_t(size_t, bytes, PAGE_SIZE - pgoff);
-+		kptr = kmap(page) + pgoff;
-+		memset(kptr, 0, size);
-+		kunmap(page);
-+		bytes -= size;
-+		buffer_offset += size;
-+	}
-+}
-+
- /**
-  * binder_alloc_copy_user_to_buffer() - copy src user to tgt user
-  * @alloc: binder_alloc for this proc
-diff --git a/drivers/android/binder_alloc.h b/drivers/android/binder_alloc.h
-index 55d8b4106766..6e8e001381af 100644
---- a/drivers/android/binder_alloc.h
-+++ b/drivers/android/binder_alloc.h
-@@ -23,6 +23,7 @@ struct binder_transaction;
-  * @entry:              entry alloc->buffers
-  * @rb_node:            node for allocated_buffers/free_buffers rb trees
-  * @free:               %true if buffer is free
-+ * @clear_on_free:      %true if buffer must be zeroed after use
-  * @allow_user_free:    %true if user is allowed to free buffer
-  * @async_transaction:  %true if buffer is in use for an async txn
-  * @debug_id:           unique ID for debugging
-@@ -41,9 +42,10 @@ struct binder_buffer {
- 	struct rb_node rb_node; /* free entry by size or allocated entry */
- 				/* by address */
- 	unsigned free:1;
-+	unsigned clear_on_free:1;
- 	unsigned allow_user_free:1;
- 	unsigned async_transaction:1;
--	unsigned debug_id:29;
-+	unsigned debug_id:28;
- 
- 	struct binder_transaction *transaction;
- 
-diff --git a/include/uapi/linux/android/binder.h b/include/uapi/linux/android/binder.h
-index f1ce2c4c077e..ec84ad106568 100644
---- a/include/uapi/linux/android/binder.h
-+++ b/include/uapi/linux/android/binder.h
-@@ -248,6 +248,7 @@ enum transaction_flags {
- 	TF_ROOT_OBJECT	= 0x04,	/* contents are the component's root object */
- 	TF_STATUS_CODE	= 0x08,	/* contents are a 32-bit status code */
- 	TF_ACCEPT_FDS	= 0x10,	/* allow replies with file descriptors */
-+	TF_CLEAR_BUF	= 0x20,	/* clear buffer on txn complete */
- };
- 
- struct binder_transaction_data {
--- 
-2.29.2
+qemu_arm-versatilepb       | arm   | lab-cip      | gcc-8    | versatile_de=
+fconfig | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.211-18-g5fff4d03d49d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.211-18-g5fff4d03d49d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5fff4d03d49d9b4c718de482273d08204a45c1f5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre | gcc-8    | defconfig   =
+        | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fd0af39b7b96094b4c94cc6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
+5x-khadas-vim.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
+5x-khadas-vim.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fd0af39b7b96094b4c94=
+cc7
+        failing since 0 day (last pass: v4.14.210-25-gfd5af7f51219, first f=
+ail: v4.14.211-18-g19a45ebf43bb) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+meson-gxm-q200             | arm64 | lab-baylibre | gcc-8    | defconfig   =
+        | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fd0af04f4799f9dc6c94cd4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fd0af04f4799f9dc6c94=
+cd5
+        failing since 0 day (last pass: v4.14.210-20-gc32b9f7cbda7, first f=
+ail: v4.14.210-20-g5ea7913395d3) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+qemu_arm-versatilepb       | arm   | lab-baylibre | gcc-8    | versatile_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fd0b0169628561f5dc94cd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fd0b0169628561f5dc94=
+cd2
+        failing since 25 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+qemu_arm-versatilepb       | arm   | lab-broonie  | gcc-8    | versatile_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fd0b17dfa24d413b2c94cca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fd0b17dfa24d413b2c94=
+ccb
+        failing since 25 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+        | regressions
+---------------------------+-------+--------------+----------+-------------=
+--------+------------
+qemu_arm-versatilepb       | arm   | lab-cip      | gcc-8    | versatile_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fd0b01f9628561f5dc94ce8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.211=
+-18-g5fff4d03d49d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fd0b01f9628561f5dc94=
+ce9
+        failing since 25 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
