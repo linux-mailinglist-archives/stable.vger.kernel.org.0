@@ -2,50 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9922D3B9A
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 07:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 446EF2D3BCC
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 08:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727765AbgLIGmF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 9 Dec 2020 01:42:05 -0500
-Received: from vps-ad94741f.vps.ovh.ca ([51.79.157.202]:63822 "EHLO visi.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726672AbgLIGmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 01:42:05 -0500
-X-Greylist: delayed 954 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Dec 2020 01:42:04 EST
-Received: from [31.161.230.241] (account juliangath@visi.com HELO User)
-  by visi.com (CommuniGate Pro SMTP 6.1.9 _community_)
-  with ESMTPA id 165773; Wed, 09 Dec 2020 05:13:09 -0800
-Reply-To: <jalghafri3@gmail.com>
-From:   "MR JABER AL-GHAFR" <raywandyg@gmail.com>
-Subject: INVESTMENT
-Date:   Wed, 9 Dec 2020 07:25:04 +0100
+        id S1728344AbgLIG7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 01:59:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50768 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728341AbgLIG7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 01:59:47 -0500
+Date:   Wed, 9 Dec 2020 08:00:23 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607497146;
+        bh=7nHAfEfm1CHzNsPGKp3jAJdYE9lEuX3kGqfC8DN3i6Y=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tX5SqM7jTd3o0VwpPnIVa4ks4vrh+DmP+v93i7jDs7l23Skviu3SYkXdUt0r3PbtY
+         jtytAbivnLDoPINhdIJp0t1DZ3Iz2y1LpKXo4vMKXL7BploHALocbcEg2DOG7zXdfQ
+         XuXqwLHt7V2zQ/EScEVReNez9riBz13/mHQfyS9Y=
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     Coiby Xu <coiby.xu@gmail.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Helmut Stult <helmut.stult@schinfo.de>,
+        Baq Domalaq <domalak@gmail.com>,
+        Pedro Ribeiro <pedrib@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4] HID: i2c-hid: add polling mode based on connected
+ GPIO chip's pin status
+Message-ID: <X9B2B6KuzbP8Is+W@kroah.com>
+References: <20201125141022.321643-1-coiby.xu@gmail.com>
+ <X75zL12q+FF6KBHi@kroah.com>
+ <B3Hx1v5x_ZWS8XSi8-0vZov1KLuINEHyS5yDUGBaoBN4d9wTi9OlCoFX1h6sqYG8dCZr_OKcKeImWX9eyKh8X4X3ZMdAUQ-KVwmG5e9LJeI=@protonmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1081
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
-X-Antivirus: AVG (VPS 201207-4, 07/12/2020), Outbound message
-X-Antivirus-Status: Clean
-Message-ID: <auto-000000165773@visi.com>
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <B3Hx1v5x_ZWS8XSi8-0vZov1KLuINEHyS5yDUGBaoBN4d9wTi9OlCoFX1h6sqYG8dCZr_OKcKeImWX9eyKh8X4X3ZMdAUQ-KVwmG5e9LJeI=@protonmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day
-I am JABER AL-GHAFRI, Pleasant greetings to you as i seek your indulgence to introduce to you the desire of my principal�s wish, to make huge financial investment in your home country on areas of oil and gas, real estate, tourism and hotel, manufacturing and production company, agriculture, fishing, Mining & Trading of natural resources such as crude oil, coal, graphite, coke, refinery, energy, hospital etc.
+On Tue, Dec 08, 2020 at 09:59:20PM +0000, Barnabás Pőcze wrote:
+> 2020. november 25., szerda 16:07 keltezéssel, Greg KH írta:
+> 
+> > [...]
+> > > +static u8 polling_mode;
+> > > +module_param(polling_mode, byte, 0444);
+> > > +MODULE_PARM_DESC(polling_mode, "How to poll (default=0) - 0 disabled; 1 based on GPIO pin's status");
+> >
+> > Module parameters are for the 1990's, they are global and horrible to
+> > try to work with. You should provide something on a per-device basis,
+> > as what happens if your system requires different things here for
+> > different devices? You set this for all devices :(
+> > [...]
+> 
+> Hi
+> 
+> do you think something like what the usbcore has would be better?
+> A module parameter like "quirks=<vendor-id>:<product-id>:<flags>[,<vendor-id>:<product-id>:<flags>]*"?
 
-He needs a capable, trustworthy and understanding business partner, who can confidently handle and manage his investment funds with utmost care of secrecy without traces or link to him as he is politically exposed at the moment in his country. He has a huge available financial portfolio.
+Not really, that's just for debugging, and asking users to test
+something, not for a final solution to anything.
 
-Please, I will provide more details about the transaction if you are sure you can handle classified information and also let me know your entitlement for the solicited role
-I shall be expecting your quick reply. E-mail jalghafri3@gmail.com
-Best Regards,
-JABER AL-GHAFRI
+thanks,
 
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
+greg k-h
