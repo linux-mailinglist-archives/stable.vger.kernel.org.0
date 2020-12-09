@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24832D4624
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBCD2D45F8
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731689AbgLIPzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:55:21 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:33371 "EHLO
+        id S1731241AbgLIPya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:54:30 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34329 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731532AbgLIPzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:55:12 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id ADE131940F75;
-        Wed,  9 Dec 2020 04:11:09 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 09 Dec 2020 04:11:09 -0500
+        by vger.kernel.org with ESMTP id S1730862AbgLIPy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:28 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E6835194312C;
+        Wed,  9 Dec 2020 04:11:24 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:11:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4VJkuc
-        XLiGuRONfRqSwoeFpy6M3MH18FCJgM2VgV8xs=; b=U6GdIe03+dS46rWff8BxKo
-        U0djGw5XPe7Spl5dLS1oxfQbV1JHrX/GIcsIWYne5xGLkpecuRJkdZ9d8kL9ADNh
-        0x/uC62Obd1DYuEPKZaOWwVHxQF7y9J6NBaCZjcjnpkwb8mMpNWUlJdGdhmN1bj+
-        TND801v3K18NJlXM0keURoAWwGNME1+NHqvKJGKN+3YUYMXU/QARSDGGnU56AYIq
-        pZZmX1hAVkTVPi5b39xxlesjN+W22dITXchZvikNfrEoGzwjKMY9L09VcYonsCxA
-        qh1jsUOJDhFU70sGEKdpsv2SL6QClKhfo5AWA6A+iYeFvEW6kE3WCB04tMZyVKhg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XjOyaA
+        PbG3EocS204AKjeakogrb7MimcPMQFsHeha2I=; b=XLS4Vm6JIY/sQhbCMfrM3T
+        cUM9+sWZ9vO59sVg21qopBnJYoTGWAEuBR5fJoTeyc/8MLE7ulOqYJo75QAjZ0QN
+        kRZoNCE6Usl99JQsb6eqW+OhfsIMkX8A5d/igvR5iOr4NQ1d+j+Ao2BtEn52Ju3E
+        3SRkUCZJB+jEibbX/j+SykdLmVWrUWAdQ2Flmde97nCwRQ6hCePX3rUQSNHDzkht
+        2woUrlRKBmaHQ50BJD8g8Axnj5Bi1vJQ8Qczbmx6c2R46MpWzfGn6PHNGCLByxSb
+        n9gv0YzUnveMstLcxZPRTH5qiN+D3OnbjM3w17pV41I89PGmpoO61GPOND8Bqu3g
         ==
-X-ME-Sender: <xms:rZTQXwp7StG92uoQZ7z_7VwE8OLnS-g0lZEB2zozuTPQRuQ5mtTdaQ>
-    <xme:rZTQX0M7vQvMe8g0BgLUPU9jvgPnaNu6oMWoMRGqpJ1O737zlxVKrbOvB7jrNFtSC
-    8h-Uj7x-83UXA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkedgtddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:vJTQX3FJ0B5KgsOpXdorSgzge5gpqOvRhgjLT1sJESzG45JZsbJggw>
+    <xme:vJTQX0XnzDqW_2gdpeHiu8T5L-j-hRBPC_X7MmWJuPLWkEU5senwOlRt-vbshaThe
+    CBdHwNK71bSqg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkedgtdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkedgtddvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:rZTQX7rbQ03gvmiH_RgO-tC88MQkpJOUDA3ajgLat6f9aA_YeQF08A>
-    <xmx:rZTQX5d-egDC4L723MXmkBSX_Ks8AXMrmEuGvngduVtYGyuUlgvMww>
-    <xmx:rZTQXxTwZDm1OZ_ABxpLwNQn3niUXHqZsNz77bKPJLLkc_uBRPnoEw>
-    <xmx:rZTQX6YDsQ5KwbBKIQ7Tz-zH7m-klgRQQ9CBtHkZ-yF6cqkPG8tcxw>
+X-ME-Proxy: <xmx:vJTQX5LOAiKHT9pTmJO8rXaFMuGUrRKX4M5saAogS18bbi1bdCkkEg>
+    <xmx:vJTQX1GMRFAKV1xwWhzxywpm5O3K3loP8u8qOSEFIl1hn4WnM-ENVA>
+    <xmx:vJTQX9VIMJgmgKLnDm2DBrq8LggyfgnSw2eoQbEyRU9UUeLxJYDc2g>
+    <xmx:vJTQX6i7CSrHVFw_tn-AFgcEAoxoRiJTOGWuH-eEWyxtcxA4PUmO9w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5AD151080057;
-        Wed,  9 Dec 2020 04:11:09 -0500 (EST)
-Subject: FAILED: patch "[PATCH] genirq/irqdomain: Add an irq_create_mapping_affinity()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E1FF224005C;
+        Wed,  9 Dec 2020 04:11:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc/pseries: Pass MSI affinity to irq_create_mapping()" failed to apply to 4.14-stable tree
 To:     lvivier@redhat.com, groug@kaod.org, mpe@ellerman.id.au,
         tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 10:12:27 +0100
-Message-ID: <160750514712173@kroah.com>
+Date:   Wed, 09 Dec 2020 10:12:42 +0100
+Message-ID: <1607505162205185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,103 +71,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bb4c6910c8b41623104c2e64a30615682689a54d Mon Sep 17 00:00:00 2001
+From 9ea69a55b3b9a71cded9726af591949c1138f235 Mon Sep 17 00:00:00 2001
 From: Laurent Vivier <lvivier@redhat.com>
-Date: Thu, 26 Nov 2020 09:28:51 +0100
-Subject: [PATCH] genirq/irqdomain: Add an irq_create_mapping_affinity()
- function
+Date: Thu, 26 Nov 2020 09:28:52 +0100
+Subject: [PATCH] powerpc/pseries: Pass MSI affinity to irq_create_mapping()
 
-There is currently no way to convey the affinity of an interrupt
-via irq_create_mapping(), which creates issues for devices that
-expect that affinity to be managed by the kernel.
+With virtio multiqueue, normally each queue IRQ is mapped to a CPU.
 
-In order to sort this out, rename irq_create_mapping() to
-irq_create_mapping_affinity() with an additional affinity parameter that
-can be passed down to irq_domain_alloc_descs().
+Commit 0d9f0a52c8b9f ("virtio_scsi: use virtio IRQ affinity") exposed
+an existing shortcoming of the arch code by moving virtio_scsi to
+the automatic IRQ affinity assignment.
 
-irq_create_mapping() is re-implemented as a wrapper around
-irq_create_mapping_affinity().
+The affinity is correctly computed in msi_desc but this is not applied
+to the system IRQs.
 
-No functional change.
+It appears the affinity is correctly passed to rtas_setup_msi_irqs() but
+lost at this point and never passed to irq_domain_alloc_descs()
+(see commit 06ee6d571f0e ("genirq: Add affinity hint to irq allocation"))
+because irq_create_mapping() doesn't take an affinity parameter.
+
+Use the new irq_create_mapping_affinity() function, which allows to forward
+the affinity setting from rtas_setup_msi_irqs() to irq_domain_alloc_descs().
+
+With this change, the virtqueues are correctly dispatched between the CPUs
+on pseries.
 
 Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
 Signed-off-by: Laurent Vivier <lvivier@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Greg Kurz <groug@kaod.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126082852.1178497-2-lvivier@redhat.com
+Link: https://lore.kernel.org/r/20201126082852.1178497-3-lvivier@redhat.com
 
-diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
-index 71535e87109f..ea5a337e0f8b 100644
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -384,11 +384,19 @@ extern void irq_domain_associate_many(struct irq_domain *domain,
- extern void irq_domain_disassociate(struct irq_domain *domain,
- 				    unsigned int irq);
+diff --git a/arch/powerpc/platforms/pseries/msi.c b/arch/powerpc/platforms/pseries/msi.c
+index 133f6adcb39c..b3ac2455faad 100644
+--- a/arch/powerpc/platforms/pseries/msi.c
++++ b/arch/powerpc/platforms/pseries/msi.c
+@@ -458,7 +458,8 @@ static int rtas_setup_msi_irqs(struct pci_dev *pdev, int nvec_in, int type)
+ 			return hwirq;
+ 		}
  
--extern unsigned int irq_create_mapping(struct irq_domain *host,
--				       irq_hw_number_t hwirq);
-+extern unsigned int irq_create_mapping_affinity(struct irq_domain *host,
-+				      irq_hw_number_t hwirq,
-+				      const struct irq_affinity_desc *affinity);
- extern unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec);
- extern void irq_dispose_mapping(unsigned int virq);
+-		virq = irq_create_mapping(NULL, hwirq);
++		virq = irq_create_mapping_affinity(NULL, hwirq,
++						   entry->affinity);
  
-+static inline unsigned int irq_create_mapping(struct irq_domain *host,
-+					      irq_hw_number_t hwirq)
-+{
-+	return irq_create_mapping_affinity(host, hwirq, NULL);
-+}
-+
-+
- /**
-  * irq_linear_revmap() - Find a linux irq from a hw irq number.
-  * @domain: domain owning this hardware interrupt
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index cf8b374b892d..e4ca69608f3b 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -624,17 +624,19 @@ unsigned int irq_create_direct_mapping(struct irq_domain *domain)
- EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
- 
- /**
-- * irq_create_mapping() - Map a hardware interrupt into linux irq space
-+ * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
-  * @domain: domain owning this hardware interrupt or NULL for default domain
-  * @hwirq: hardware irq number in that domain space
-+ * @affinity: irq affinity
-  *
-  * Only one mapping per hardware interrupt is permitted. Returns a linux
-  * irq number.
-  * If the sense/trigger is to be specified, set_irq_type() should be called
-  * on the number returned from that call.
-  */
--unsigned int irq_create_mapping(struct irq_domain *domain,
--				irq_hw_number_t hwirq)
-+unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
-+				       irq_hw_number_t hwirq,
-+				       const struct irq_affinity_desc *affinity)
- {
- 	struct device_node *of_node;
- 	int virq;
-@@ -660,7 +662,8 @@ unsigned int irq_create_mapping(struct irq_domain *domain,
- 	}
- 
- 	/* Allocate a virtual interrupt number */
--	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node), NULL);
-+	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
-+				      affinity);
- 	if (virq <= 0) {
- 		pr_debug("-> virq allocation failed\n");
- 		return 0;
-@@ -676,7 +679,7 @@ unsigned int irq_create_mapping(struct irq_domain *domain,
- 
- 	return virq;
- }
--EXPORT_SYMBOL_GPL(irq_create_mapping);
-+EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
- 
- /**
-  * irq_create_strict_mappings() - Map a range of hw irqs to fixed linux irqs
+ 		if (!virq) {
+ 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
 
