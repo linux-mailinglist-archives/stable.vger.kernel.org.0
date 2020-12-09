@@ -2,56 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B2B2D40AF
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:09:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAADD2D40B3
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 12:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730244AbgLILHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 06:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33498 "EHLO
+        id S1730473AbgLILIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 06:08:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730071AbgLILHa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 06:07:30 -0500
+        with ESMTP id S1730323AbgLILIF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 06:08:05 -0500
 Received: from hera.aquilenet.fr (hera.aquilenet.fr [IPv6:2a0c:e300::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2BB5C0613CF
-        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 03:06:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59191C061794
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 03:07:25 -0800 (PST)
 Received: from localhost (localhost [127.0.0.1])
-        by hera.aquilenet.fr (Postfix) with ESMTP id 86DAB14B6;
-        Wed,  9 Dec 2020 12:06:48 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTP id 2937D14B6
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:24 +0100 (CET)
 X-Virus-Scanned: Debian amavisd-new at aquilenet.fr
 Received: from hera.aquilenet.fr ([127.0.0.1])
         by localhost (hera.aquilenet.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id PArvwQak0pJN; Wed,  9 Dec 2020 12:06:48 +0100 (CET)
+        with ESMTP id GUmjYZ8eakBL for <stable@vger.kernel.org>;
+        Wed,  9 Dec 2020 12:07:23 +0100 (CET)
 Received: from function.youpi.perso.aquilenet.fr (unknown [IPv6:2a01:cb19:956:1b00:9eb6:d0ff:fe88:c3c7])
-        by hera.aquilenet.fr (Postfix) with ESMTPSA id DF58C14B0;
-        Wed,  9 Dec 2020 12:06:47 +0100 (CET)
+        by hera.aquilenet.fr (Postfix) with ESMTPSA id E76BC14B0
+        for <stable@vger.kernel.org>; Wed,  9 Dec 2020 12:07:22 +0100 (CET)
 Received: from samy by function.youpi.perso.aquilenet.fr with local (Exim 4.94)
         (envelope-from <samuel.thibault@ens-lyon.org>)
-        id 1kmxJ1-0064tb-6c; Wed, 09 Dec 2020 12:06:47 +0100
-Date:   Wed, 9 Dec 2020 12:06:47 +0100
+        id 1kmxJa-0064u9-Cs
+        for stable@vger.kernel.org; Wed, 09 Dec 2020 12:07:22 +0100
+Date:   Wed, 9 Dec 2020 12:07:22 +0100
 From:   Samuel Thibault <samuel.thibault@ens-lyon.org>
-To:     Greg KH <greg@kroah.com>, stable@vger.kernel.org
-Subject: Re: [PATCH for 4.19] speakup: Reject setting the speakup line
- discipline outside of speakup
-Message-ID: <20201209110647.3uuxkwjejesprnv7@function>
+To:     stable@vger.kernel.org
+Subject: [PATCH for 4.14] speakup: Reject setting the speakup line discipline
+ outside of speakup
+Message-ID: <20201209110722.7jpp7bk7p54hudnd@function>
 Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Greg KH <greg@kroah.com>, stable@vger.kernel.org
-References: <20201209102640.yn7mdn52sm7bfbgm@function>
- <X9Cs/hMXQ4grRDql@kroah.com>
- <20201209110324.lnx7jmnm456jovim@function>
+        stable@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201209110324.lnx7jmnm456jovim@function>
-Organization: I am not organized
 User-Agent: NeoMutt/20170609 (1.8.3)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Samuel Thibault, le mer. 09 déc. 2020 12:03:24 +0100, a ecrit:
-> Can you apply them with -l, or should I fix the whitespacing?
+[backport of 5.10 commit f0992098cadb4c9c6a00703b66cafe604e178fea]
 
-Don't bother, I found the difference, will post fixed patches.
+Speakup exposing a line discipline allows userland to try to use it,
+while it is deemed to be useless, and thus uselessly exposes potential
+bugs. One of them is simply that in such a case if the line sends data,
+spk_ttyio_receive_buf2 is called and crashes since spk_ttyio_synth
+is NULL.
 
-Samuel
+This change restricts the use of the speakup line discipline to
+speakup drivers, thus avoiding such kind of issues altogether.
+
+Cc: stable@vger.kernel.org
+Reported-by: Shisong Qin <qinshisong1205@gmail.com>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Tested-by: Shisong Qin <qinshisong1205@gmail.com>
+Link: https://lore.kernel.org/r/20201129193523.hm3f6n5xrn6fiyyc@function
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/staging/speakup/spk_ttyio.c b/drivers/staging/speakup/spk_ttyio.c
+index 669392f31d4e..6284aff434a1 100644
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -47,28 +47,20 @@ static int spk_ttyio_ldisc_open(struct tty_struct *tty)
+ {
+ 	struct spk_ldisc_data *ldisc_data;
+ 
++	if (tty != speakup_tty)
++		/* Somebody tried to use this line discipline outside speakup */
++		return -ENODEV;
++
+ 	if (tty->ops->write == NULL)
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&speakup_tty_mutex);
+-	if (speakup_tty) {
+-		mutex_unlock(&speakup_tty_mutex);
+-		return -EBUSY;
+-	}
+-	speakup_tty = tty;
+-
+ 	ldisc_data = kmalloc(sizeof(struct spk_ldisc_data), GFP_KERNEL);
+-	if (!ldisc_data) {
+-		speakup_tty = NULL;
+-		mutex_unlock(&speakup_tty_mutex);
+-		pr_err("speakup: Failed to allocate ldisc_data.\n");
++	if (!ldisc_data)
+ 		return -ENOMEM;
+-	}
+ 
+ 	sema_init(&ldisc_data->sem, 0);
+ 	ldisc_data->buf_free = true;
+-	speakup_tty->disc_data = ldisc_data;
+-	mutex_unlock(&speakup_tty_mutex);
++	tty->disc_data = ldisc_data;
+ 
+ 	return 0;
+ }
+@@ -191,9 +184,25 @@ static int spk_ttyio_initialise_ldisc(struct spk_synth *synth)
+ 
+ 	tty_unlock(tty);
+ 
++	mutex_lock(&speakup_tty_mutex);
++	speakup_tty = tty;
+ 	ret = tty_set_ldisc(tty, N_SPEAKUP);
+ 	if (ret)
+-		pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++		speakup_tty = NULL;
++	mutex_unlock(&speakup_tty_mutex);
++
++	if (!ret)
++		/* Success */
++		return 0;
++
++	pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++
++	tty_lock(tty);
++	if (tty->ops->close)
++		tty->ops->close(tty, NULL);
++	tty_unlock(tty);
++
++	tty_kclose(tty);
+ 
+ 	return ret;
+ }
+
+
+
