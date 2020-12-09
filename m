@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BC92D47BC
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 18:19:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 501342D47BE
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 18:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbgLIRTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 12:19:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36104 "EHLO mail.kernel.org"
+        id S1728369AbgLIRUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 12:20:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730084AbgLIRTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 12:19:45 -0500
+        id S1726805AbgLIRUU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 12:20:20 -0500
 Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D838423A33;
-        Wed,  9 Dec 2020 17:19:04 +0000 (UTC)
-Date:   Wed, 9 Dec 2020 12:19:03 -0500
+        by mail.kernel.org (Postfix) with ESMTPSA id 96AAF23BC7;
+        Wed,  9 Dec 2020 17:19:39 +0000 (UTC)
+Date:   Wed, 9 Dec 2020 12:19:38 -0500
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     <gregkh@linuxfoundation.org>
 Cc:     <stable@vger.kernel.org>
 Subject: Re: FAILED: patch "[PATCH] tracing: Fix userstacktrace option for
- instances" failed to apply to 4.9-stable tree
-Message-ID: <20201209121903.584f4fa8@gandalf.local.home>
-In-Reply-To: <1607503072217108@kroah.com>
-References: <1607503072217108@kroah.com>
+ instances" failed to apply to 4.4-stable tree
+Message-ID: <20201209121938.50430114@gandalf.local.home>
+In-Reply-To: <16075030712612@kroah.com>
+References: <16075030712612@kroah.com>
 X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This should be the fix for 4.9.
+This should be the fix for 4.4.
 
 -- Steve
 
@@ -56,16 +56,25 @@ Index: linux-test.git/kernel/trace/trace.c
 ===================================================================
 --- linux-test.git.orig/kernel/trace/trace.c
 +++ linux-test.git/kernel/trace/trace.c
-@@ -2134,7 +2134,7 @@ void trace_buffer_unlock_commit_regs(str
+@@ -1706,7 +1706,7 @@ void trace_buffer_unlock_commit(struct t
+ 	__buffer_unlock_commit(buffer, event);
+ 
+ 	ftrace_trace_stack(tr, buffer, flags, 6, pc, NULL);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
+ }
+ EXPORT_SYMBOL_GPL(trace_buffer_unlock_commit);
+ 
+@@ -1768,7 +1768,7 @@ void trace_buffer_unlock_commit_regs(str
  	 * two. They are that meaningful.
  	 */
  	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : 4, pc, regs);
 -	ftrace_trace_userstack(buffer, flags, pc);
 +	ftrace_trace_userstack(tr, buffer, flags, pc);
  }
+ EXPORT_SYMBOL_GPL(trace_buffer_unlock_commit_regs);
  
- void
-@@ -2299,14 +2299,15 @@ void trace_dump_stack(int skip)
+@@ -1941,14 +1941,15 @@ void trace_dump_stack(int skip)
  static DEFINE_PER_CPU(int, user_stack_count);
  
  void
@@ -87,7 +96,7 @@ Index: linux-test.git/kernel/trace/trace.h
 ===================================================================
 --- linux-test.git.orig/kernel/trace/trace.h
 +++ linux-test.git/kernel/trace/trace.h
-@@ -689,13 +689,15 @@ void update_max_tr_single(struct trace_a
+@@ -656,13 +656,15 @@ void update_max_tr_single(struct trace_a
  #endif /* CONFIG_TRACER_MAX_TRACE */
  
  #ifdef CONFIG_STACKTRACE
