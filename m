@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F98B2D45FC
-	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CFB2D4626
+	for <lists+stable@lfdr.de>; Wed,  9 Dec 2020 16:59:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731342AbgLIPyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 10:54:44 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55771 "EHLO
+        id S1729833AbgLIP45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 10:56:57 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:56433 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731260AbgLIPye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:54:34 -0500
+        by vger.kernel.org with ESMTP id S1731477AbgLIPzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 10:55:12 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 04BC619433CC;
-        Wed,  9 Dec 2020 04:12:39 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 17FCC19401F0;
+        Wed,  9 Dec 2020 04:32:53 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:12:39 -0500
+  by compute4.internal (MEProxy); Wed, 09 Dec 2020 04:32:53 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OXZzs5
-        Ws6aPUcrwa0fzdl8hJ4HYkMcqyhXKhHR2btZ0=; b=EitZDfxNKX8JItSLa6Ns8t
-        lVxnsa9Z/4AbIDiqIEfIWC7ZkPB1vzV1GSM65Qq/YGQ7m3it2LStYRhkn5acvCfj
-        cr8dqmb0LmhoaWw16gE/aKfIHZpP4o6aMiQTf37EcODvJCV1T7cIiwzyaC7QcQlt
-        X6kszSZ1FAbvmkuGoam/L6pt23Ul1cw/VVxgijlsFeoN5uBC5bP3px+mPz24wSkL
-        bdcPekfIyeueHUJqNyjtIFJF92nTffO8dBszF6OnfU3RcnVgZCNbNj6IgPoi2DSd
-        co/hQ8Cn5x3N3y8NnEIPNulb10RpIvUzKd98PtvoyB2qWnzwuRg8o3Svlq6DCLSg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=DG9S5V
+        MTbJbTEe8nY3WOrzcGzYQTxNBo0kfg0fTpda4=; b=OzgFD2Gr1P590qLHFXd/Gj
+        Mios78InSDA4BrydOPOvUmYU/Bw/5BKbaYK2ncKMfwntmZsuGzJH4hJpcwvDFRKi
+        Wn8flTLjEuFcNn8cLXbp7bEpsXP/yw7dSjmfO534FLHyaRw4OHB0EjbaW4//7W+7
+        exLo5E+G6bnBbJF+nX8urYLgbJujRZtC7jLUBcOrurx7s4GXOe6dkc2SncXYVRE3
+        F2FWY3S4LkSLTW6N+BFyg+eDOQ4Aw1KSS9zaCdzMqQseXcX09BRNi5cbZBeRMgY7
+        dnS2UUSlUgypyOuy/HO277agFscP0JydfdVmHNeHjKLSJNiOZ6X4F/otC3NtcnLg
         ==
-X-ME-Sender: <xms:BpXQXz67Olwae-nZdRHy131euCeTt43gaBbauX1RpGftP3HKyShWiA>
-    <xme:BpXQX46JWbJqPoT9W6If7IW32HTlk_DSF79LHulpYQ2iMYBMReJ78TLc1rMKNMczX
-    lSB1_aWDt1JJw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkedgtddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:xJnQX5hSxMiQsC-2gMWlc81mlfC7vEwJAh03jeLBFydnhJVMaMA7vw>
+    <xme:xJnQX-DW4Rkp_aQ-Dx63zAMhsdhwSnTI9ttDTrUiMFV_uUhhql4GcLppeEnfinGIz
+    OVyGUsOCfhKGg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudejkedgtdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:BpXQX6d9_UsNJJaNi08xovwS0_Xr77h1xDLQ2l2UMkCQuWxabxJUvQ>
-    <xmx:BpXQX0L2qQbQbXCWGTlU4hYepn1L0vlcqCrL0GdDJ4Pd3eEk4nKi4A>
-    <xmx:BpXQX3LquAb32tS2s11E93NOvkET2cdQZQql4DSIDGAeHEeonAmiPg>
-    <xmx:B5XQX-UTuCR0md3c4CMM1hf_XQjJ6wuP1IvriPXo32LcWKyc1wL3PA>
+X-ME-Proxy: <xmx:xJnQX5EVFjqvhQaNfYCqPe8yqDFbvSLIVver37pf4q9v0ZJnjgqjgg>
+    <xmx:xJnQX-TgVnegwWGxEdrGhoX0ivyl812o8snOl_brmEhBWzCoDLiVsA>
+    <xmx:xJnQX2xdfiSbK4idVlKCKs1AxPeGwVsqjOHwDfvO5DpYet2ipmql3w>
+    <xmx:xZnQXx8st4ETfEJIvZD97n_HeezbY5anb7UUDfZ60b8uFpOlysYmxQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8720F108005F;
-        Wed,  9 Dec 2020 04:12:38 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc/pseries: Pass MSI affinity to irq_create_mapping()" failed to apply to 4.19-stable tree
-To:     lvivier@redhat.com, groug@kaod.org, mpe@ellerman.id.au,
-        tglx@linutronix.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3ECDA1080063;
+        Wed,  9 Dec 2020 04:32:52 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/uprobes: Do not use prefixes.nbytes when looping over" failed to apply to 4.14-stable tree
+To:     mhiramat@kernel.org, bp@suse.de, keescook@chromium.org,
+        srikar@linux.vnet.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Dec 2020 10:13:56 +0100
-Message-ID: <160750523681135@kroah.com>
+Date:   Wed, 09 Dec 2020 10:34:09 +0100
+Message-ID: <160750644919092@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,51 +71,123 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ea69a55b3b9a71cded9726af591949c1138f235 Mon Sep 17 00:00:00 2001
-From: Laurent Vivier <lvivier@redhat.com>
-Date: Thu, 26 Nov 2020 09:28:52 +0100
-Subject: [PATCH] powerpc/pseries: Pass MSI affinity to irq_create_mapping()
+From 4e9a5ae8df5b3365183150f6df49e49dece80d8c Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Thu, 3 Dec 2020 13:50:37 +0900
+Subject: [PATCH] x86/uprobes: Do not use prefixes.nbytes when looping over
+ prefixes.bytes
 
-With virtio multiqueue, normally each queue IRQ is mapped to a CPU.
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
 
-Commit 0d9f0a52c8b9f ("virtio_scsi: use virtio IRQ affinity") exposed
-an existing shortcoming of the arch code by moving virtio_scsi to
-the automatic IRQ affinity assignment.
+  insn.prefixes.bytes[i] != 0 and i < 4
 
-The affinity is correctly computed in msi_desc but this is not applied
-to the system IRQs.
+instead of using insn.prefixes.nbytes.
 
-It appears the affinity is correctly passed to rtas_setup_msi_irqs() but
-lost at this point and never passed to irq_domain_alloc_descs()
-(see commit 06ee6d571f0e ("genirq: Add affinity hint to irq allocation"))
-because irq_create_mapping() doesn't take an affinity parameter.
+Introduce a for_each_insn_prefix() macro for this purpose. Debugged by
+Kees Cook <keescook@chromium.org>.
 
-Use the new irq_create_mapping_affinity() function, which allows to forward
-the affinity setting from rtas_setup_msi_irqs() to irq_domain_alloc_descs().
+ [ bp: Massage commit message, sync with the respective header in tools/
+   and drop "we". ]
 
-With this change, the virtqueues are correctly dispatched between the CPUs
-on pseries.
-
-Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 2b1444983508 ("uprobes, mm, x86: Add the ability to install and remove uprobes breakpoints")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126082852.1178497-3-lvivier@redhat.com
+Link: https://lkml.kernel.org/r/160697103739.3146288.7437620795200799020.stgit@devnote2
 
-diff --git a/arch/powerpc/platforms/pseries/msi.c b/arch/powerpc/platforms/pseries/msi.c
-index 133f6adcb39c..b3ac2455faad 100644
---- a/arch/powerpc/platforms/pseries/msi.c
-+++ b/arch/powerpc/platforms/pseries/msi.c
-@@ -458,7 +458,8 @@ static int rtas_setup_msi_irqs(struct pci_dev *pdev, int nvec_in, int type)
- 			return hwirq;
- 		}
+diff --git a/arch/x86/include/asm/insn.h b/arch/x86/include/asm/insn.h
+index 5c1ae3eff9d4..a8c3d284fa46 100644
+--- a/arch/x86/include/asm/insn.h
++++ b/arch/x86/include/asm/insn.h
+@@ -201,6 +201,21 @@ static inline int insn_offset_immediate(struct insn *insn)
+ 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ }
  
--		virq = irq_create_mapping(NULL, hwirq);
-+		virq = irq_create_mapping_affinity(NULL, hwirq,
-+						   entry->affinity);
++/**
++ * for_each_insn_prefix() -- Iterate prefixes in the instruction
++ * @insn: Pointer to struct insn.
++ * @idx:  Index storage.
++ * @prefix: Prefix byte.
++ *
++ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
++ * and the index is stored in @idx (note that this @idx is just for a cursor,
++ * do not change it.)
++ * Since prefixes.nbytes can be bigger than 4 if some prefixes
++ * are repeated, it cannot be used for looping over the prefixes.
++ */
++#define for_each_insn_prefix(insn, idx, prefix)	\
++	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
++
+ #define POP_SS_OPCODE 0x1f
+ #define MOV_SREG_OPCODE 0x8e
  
- 		if (!virq) {
- 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index 3fdaa042823d..138bdb1fd136 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -255,12 +255,13 @@ static volatile u32 good_2byte_insns[256 / 32] = {
+ 
+ static bool is_prefix_bad(struct insn *insn)
+ {
++	insn_byte_t p;
+ 	int i;
+ 
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
++	for_each_insn_prefix(insn, i, p) {
+ 		insn_attr_t attr;
+ 
+-		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
++		attr = inat_get_opcode_attribute(p);
+ 		switch (attr) {
+ 		case INAT_MAKE_PREFIX(INAT_PFX_ES):
+ 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
+@@ -715,6 +716,7 @@ static const struct uprobe_xol_ops push_xol_ops = {
+ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ {
+ 	u8 opc1 = OPCODE1(insn);
++	insn_byte_t p;
+ 	int i;
+ 
+ 	switch (opc1) {
+@@ -746,8 +748,8 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ 	 * Intel and AMD behavior differ in 64-bit mode: Intel ignores 66 prefix.
+ 	 * No one uses these insns, reject any branch insns with such prefix.
+ 	 */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		if (insn->prefixes.bytes[i] == 0x66)
++	for_each_insn_prefix(insn, i, p) {
++		if (p == 0x66)
+ 			return -ENOTSUPP;
+ 	}
+ 
+diff --git a/tools/arch/x86/include/asm/insn.h b/tools/arch/x86/include/asm/insn.h
+index 568854b14d0a..52c6262e6bfd 100644
+--- a/tools/arch/x86/include/asm/insn.h
++++ b/tools/arch/x86/include/asm/insn.h
+@@ -201,6 +201,21 @@ static inline int insn_offset_immediate(struct insn *insn)
+ 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ }
+ 
++/**
++ * for_each_insn_prefix() -- Iterate prefixes in the instruction
++ * @insn: Pointer to struct insn.
++ * @idx:  Index storage.
++ * @prefix: Prefix byte.
++ *
++ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
++ * and the index is stored in @idx (note that this @idx is just for a cursor,
++ * do not change it.)
++ * Since prefixes.nbytes can be bigger than 4 if some prefixes
++ * are repeated, it cannot be used for looping over the prefixes.
++ */
++#define for_each_insn_prefix(insn, idx, prefix)	\
++	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
++
+ #define POP_SS_OPCODE 0x1f
+ #define MOV_SREG_OPCODE 0x8e
+ 
 
