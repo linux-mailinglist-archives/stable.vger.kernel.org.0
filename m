@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B8D2D6538
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C1E2D655F
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390723AbgLJShX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:37:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41404 "EHLO mail.kernel.org"
+        id S2390576AbgLJOcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:32:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390547AbgLJOcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:32:55 -0500
+        id S2389280AbgLJOcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:32:33 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
         Jann Horn <jannh@google.com>, Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 4.19 10/39] tty: Fix ->pgrp locking in tiocspgrp()
+Subject: [PATCH 4.14 12/31] tty: Fix ->pgrp locking in tiocspgrp()
 Date:   Thu, 10 Dec 2020 15:26:49 +0100
-Message-Id: <20201210142602.801013772@linuxfoundation.org>
+Message-Id: <20201210142602.704815107@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
+References: <20201210142602.099683598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,7 +56,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/tty/tty_jobctrl.c
 +++ b/drivers/tty/tty_jobctrl.c
-@@ -494,10 +494,10 @@ static int tiocspgrp(struct tty_struct *
+@@ -493,10 +493,10 @@ static int tiocspgrp(struct tty_struct *
  	if (session_of_pgrp(pgrp) != task_session(current))
  		goto out_unlock;
  	retval = 0;
