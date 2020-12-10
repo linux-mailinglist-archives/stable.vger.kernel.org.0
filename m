@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B6F2D608D
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC5A2D6094
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391886AbgLJPxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 10:53:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S2390581AbgLJOin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:38:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391181AbgLJOi7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:38:59 -0500
+        id S2391163AbgLJOig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:38:36 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.9 44/75] dm writecache: fix the maximum number of arguments
-Date:   Thu, 10 Dec 2020 15:27:09 +0100
-Message-Id: <20201210142608.238061318@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.9 45/75] powerpc/64s/powernv: Fix memory corruption when saving SLB entries on MCE
+Date:   Thu, 10 Dec 2020 15:27:10 +0100
+Message-Id: <20201210142608.286098079@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
 References: <20201210142606.074509102@linuxfoundation.org>
@@ -31,34 +32,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 67aa3ec3dbc43d6e34401d9b2a40040ff7bb57af upstream.
+commit a1ee28117077c3bf24e5ab6324c835eaab629c45 upstream.
 
-Advance the maximum number of arguments to 16.
-This fixes issue where certain operations, combined with table
-configured args, exceed 10 arguments.
+This can be hit by an HPT guest running on an HPT host and bring down
+the host, so it's quite important to fix.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Fixes: 48debafe4f2f ("dm: add writecache target")
-Cc: stable@vger.kernel.org # v4.18+
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 7290f3b3d3e6 ("powerpc/64s/powernv: machine check dump SLB contents")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201128070728.825934-2-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-writecache.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/setup.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -2041,7 +2041,7 @@ static int writecache_ctr(struct dm_targ
- 	struct wc_memory_superblock s;
+--- a/arch/powerpc/platforms/powernv/setup.c
++++ b/arch/powerpc/platforms/powernv/setup.c
+@@ -186,11 +186,16 @@ static void __init pnv_init(void)
+ 		add_preferred_console("hvc", 0, NULL);
  
- 	static struct dm_arg _args[] = {
--		{0, 10, "Invalid number of feature args"},
-+		{0, 16, "Invalid number of feature args"},
- 	};
+ 	if (!radix_enabled()) {
++		size_t size = sizeof(struct slb_entry) * mmu_slb_size;
+ 		int i;
  
- 	as.argc = argc;
+ 		/* Allocate per cpu area to save old slb contents during MCE */
+-		for_each_possible_cpu(i)
+-			paca_ptrs[i]->mce_faulty_slbs = memblock_alloc_node(mmu_slb_size, __alignof__(*paca_ptrs[i]->mce_faulty_slbs), cpu_to_node(i));
++		for_each_possible_cpu(i) {
++			paca_ptrs[i]->mce_faulty_slbs =
++					memblock_alloc_node(size,
++						__alignof__(struct slb_entry),
++						cpu_to_node(i));
++		}
+ 	}
+ }
+ 
 
 
