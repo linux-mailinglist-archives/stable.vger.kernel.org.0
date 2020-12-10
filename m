@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D19712D5DB6
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAE22D5D94
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390120AbgLJO2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S2390062AbgLJO11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:27:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389943AbgLJO2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:28:22 -0500
+        id S1731801AbgLJO1X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:27:23 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Raju Rangoju <rajur@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 07/39] cxgb3: fix error return code in t3_sge_alloc_qset()
-Date:   Thu, 10 Dec 2020 15:26:18 +0100
-Message-Id: <20201210142601.253402693@linuxfoundation.org>
+        stable@vger.kernel.org, Sanjay Govind <sanjay.govind9@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 10/39] Input: xpad - support Ardwiino Controllers
+Date:   Thu, 10 Dec 2020 15:26:21 +0100
+Message-Id: <20201210142601.398947491@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -33,33 +31,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Sanjay Govind <sanjay.govind9@gmail.com>
 
-[ Upstream commit ff9924897f8bfed82e61894b373ab9d2dfea5b10 ]
+commit 2aab1561439032be2e98811dd0ddbeb5b2ae4c61 upstream.
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+This commit adds support for Ardwiino Controllers
 
-Fixes: b1fb1f280d09 ("cxgb3 - Fix dma mapping error path")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Raju Rangoju <rajur@chelsio.com>
-Link: https://lore.kernel.org/r/1606902965-1646-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+Link: https://lore.kernel.org/r/20201201071922.131666-1-sanjay.govind9@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/chelsio/cxgb3/sge.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/chelsio/cxgb3/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/sge.c
-@@ -3111,6 +3111,7 @@ int t3_sge_alloc_qset(struct adapter *ad
- 			  GFP_KERNEL | __GFP_COMP);
- 	if (!avail) {
- 		CH_ALERT(adapter, "free list queue 0 initialization failed\n");
-+		ret = -ENOMEM;
- 		goto err;
- 	}
- 	if (avail < q->fl[0].size)
+---
+ drivers/input/joystick/xpad.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -258,6 +258,7 @@ static const struct xpad_device {
+ 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
++	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0303, "Mortal Kombat Klassic FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -435,6 +436,7 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
+ 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
++	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
 
 
