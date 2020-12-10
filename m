@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF44E2D5DD2
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:32:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C820A2D5DE3
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733026AbgLJOcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:32:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
+        id S2390789AbgLJOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390547AbgLJOcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:32:16 -0500
+        id S2389519AbgLJOdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Giacinto Cifelli <gciofono@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 10/31] USB: serial: option: add support for Thales Cinterion EXS82
+Subject: [PATCH 4.19 08/39] USB: serial: option: add support for Thales Cinterion EXS82
 Date:   Thu, 10 Dec 2020 15:26:47 +0100
-Message-Id: <20201210142602.610843532@linuxfoundation.org>
+Message-Id: <20201210142602.702487162@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -332,7 +332,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -422,6 +422,7 @@ static void option_instat_callback(struc
+@@ -419,6 +419,7 @@ static void option_instat_callback(struc
  #define CINTERION_PRODUCT_PH8			0x0053
  #define CINTERION_PRODUCT_AHXX			0x0055
  #define CINTERION_PRODUCT_PLXX			0x0060
@@ -340,7 +340,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define CINTERION_PRODUCT_PH8_2RMNET		0x0082
  #define CINTERION_PRODUCT_PH8_AUDIO		0x0083
  #define CINTERION_PRODUCT_AHXX_2RMNET		0x0084
-@@ -1905,6 +1906,7 @@ static const struct usb_device_id option
+@@ -1902,6 +1903,7 @@ static const struct usb_device_id option
  	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_AHXX_AUDIO, 0xff) },
  	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_CLS8, 0xff),
  	  .driver_info = RSVD(0) | RSVD(4) },
