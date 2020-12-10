@@ -2,26 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 621A82D5E17
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1492D5E02
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391212AbgLJOj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:39:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47006 "EHLO mail.kernel.org"
+        id S2391007AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391217AbgLJOjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:39:19 -0500
+        id S1727337AbgLJOgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:18 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.9 50/75] dm: remove invalid sparse __acquires and __releases annotations
-Date:   Thu, 10 Dec 2020 15:27:15 +0100
-Message-Id: <20201210142608.530707638@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 41/54] tracing: Fix userstacktrace option for instances
+Date:   Thu, 10 Dec 2020 15:27:18 +0100
+Message-Id: <20201210142604.055294717@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -30,40 +31,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit bde3808bc8c2741ad3d804f84720409aee0c2972 upstream.
+commit bcee5278958802b40ee8b26679155a6d9231783e upstream.
 
-Fixes sparse warnings:
-drivers/md/dm.c:508:12: warning: context imbalance in 'dm_prepare_ioctl' - wrong count at exit
-drivers/md/dm.c:543:13: warning: context imbalance in 'dm_unprepare_ioctl' - wrong count at exit
+When the instances were able to use their own options, the userstacktrace
+option was left hardcoded for the top level. This made the instance
+userstacktrace option bascially into a nop, and will confuse users that set
+it, but nothing happens (I was confused when it happened to me!)
 
-Fixes: 971888c46993f ("dm: hold DM table for duration of ioctl rather than use blkdev_get")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 16270145ce6b ("tracing: Add trace options for core options to instances")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    2 --
- 1 file changed, 2 deletions(-)
+ kernel/trace/trace.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -524,7 +524,6 @@ out:
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -160,7 +160,8 @@ static union trace_eval_map_item *trace_
+ #endif /* CONFIG_TRACE_EVAL_MAP_FILE */
  
- static int dm_prepare_ioctl(struct mapped_device *md, int *srcu_idx,
- 			    struct block_device **bdev)
--	__acquires(md->io_barrier)
- {
- 	struct dm_target *tgt;
- 	struct dm_table *map;
-@@ -558,7 +557,6 @@ retry:
+ static int tracing_set_tracer(struct trace_array *tr, const char *buf);
+-static void ftrace_trace_userstack(struct ring_buffer *buffer,
++static void ftrace_trace_userstack(struct trace_array *tr,
++				   struct ring_buffer *buffer,
+ 				   unsigned long flags, int pc);
+ 
+ #define MAX_TRACER_SIZE		100
+@@ -2621,7 +2622,7 @@ void trace_buffer_unlock_commit_regs(str
+ 	 * two. They are not that meaningful.
+ 	 */
+ 	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : STACK_SKIP, pc, regs);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
  }
  
- static void dm_unprepare_ioctl(struct mapped_device *md, int srcu_idx)
--	__releases(md->io_barrier)
+ /*
+@@ -2936,13 +2937,14 @@ EXPORT_SYMBOL_GPL(trace_dump_stack);
+ static DEFINE_PER_CPU(int, user_stack_count);
+ 
+ static void
+-ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags, int pc)
++ftrace_trace_userstack(struct trace_array *tr,
++		       struct ring_buffer *buffer, unsigned long flags, int pc)
  {
- 	dm_put_live_table(md, srcu_idx);
+ 	struct trace_event_call *call = &event_user_stack;
+ 	struct ring_buffer_event *event;
+ 	struct userstack_entry *entry;
+ 
+-	if (!(global_trace.trace_flags & TRACE_ITER_USERSTACKTRACE))
++	if (!(tr->trace_flags & TRACE_ITER_USERSTACKTRACE))
+ 		return;
+ 
+ 	/*
+@@ -2981,7 +2983,8 @@ ftrace_trace_userstack(struct ring_buffe
+ 	preempt_enable();
+ }
+ #else /* CONFIG_USER_STACKTRACE_SUPPORT */
+-static void ftrace_trace_userstack(struct ring_buffer *buffer,
++static void ftrace_trace_userstack(struct trace_array *tr,
++				   struct ring_buffer *buffer,
+ 				   unsigned long flags, int pc)
+ {
  }
 
 
