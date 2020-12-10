@@ -2,27 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1492D5E02
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 678342D5DE4
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391007AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:36:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43700 "EHLO mail.kernel.org"
+        id S2389900AbgLJOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbgLJOgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:18 -0500
+        id S2390777AbgLJOdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:52 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 41/54] tracing: Fix userstacktrace option for instances
+        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 39/39] x86/insn-eval: Use new for_each_insn_prefix() macro to loop over prefixes bytes
 Date:   Thu, 10 Dec 2020 15:27:18 +0100
-Message-Id: <20201210142604.055294717@linuxfoundation.org>
+Message-Id: <20201210142604.214845768@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
-References: <20201210142602.037095225@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,71 +34,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit bcee5278958802b40ee8b26679155a6d9231783e upstream.
+commit 12cb908a11b2544b5f53e9af856e6b6a90ed5533 upstream
 
-When the instances were able to use their own options, the userstacktrace
-option was left hardcoded for the top level. This made the instance
-userstacktrace option bascially into a nop, and will confuse users that set
-it, but nothing happens (I was confused when it happened to me!)
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
 
+  insn.prefixes.bytes[i] != 0 and i < 4
+
+instead of using insn.prefixes.nbytes. Use the new
+for_each_insn_prefix() macro which does it correctly.
+
+Debugged by Kees Cook <keescook@chromium.org>.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: 16270145ce6b ("tracing: Add trace options for core options to instances")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/trace/trace.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/lib/insn-eval.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -160,7 +160,8 @@ static union trace_eval_map_item *trace_
- #endif /* CONFIG_TRACE_EVAL_MAP_FILE */
- 
- static int tracing_set_tracer(struct trace_array *tr, const char *buf);
--static void ftrace_trace_userstack(struct ring_buffer *buffer,
-+static void ftrace_trace_userstack(struct trace_array *tr,
-+				   struct ring_buffer *buffer,
- 				   unsigned long flags, int pc);
- 
- #define MAX_TRACER_SIZE		100
-@@ -2621,7 +2622,7 @@ void trace_buffer_unlock_commit_regs(str
- 	 * two. They are not that meaningful.
- 	 */
- 	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : STACK_SKIP, pc, regs);
--	ftrace_trace_userstack(buffer, flags, pc);
-+	ftrace_trace_userstack(tr, buffer, flags, pc);
- }
- 
- /*
-@@ -2936,13 +2937,14 @@ EXPORT_SYMBOL_GPL(trace_dump_stack);
- static DEFINE_PER_CPU(int, user_stack_count);
- 
- static void
--ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags, int pc)
-+ftrace_trace_userstack(struct trace_array *tr,
-+		       struct ring_buffer *buffer, unsigned long flags, int pc)
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -70,14 +70,15 @@ static int get_seg_reg_override_idx(stru
  {
- 	struct trace_event_call *call = &event_user_stack;
- 	struct ring_buffer_event *event;
- 	struct userstack_entry *entry;
+ 	int idx = INAT_SEG_REG_DEFAULT;
+ 	int num_overrides = 0, i;
++	insn_byte_t p;
  
--	if (!(global_trace.trace_flags & TRACE_ITER_USERSTACKTRACE))
-+	if (!(tr->trace_flags & TRACE_ITER_USERSTACKTRACE))
- 		return;
+ 	insn_get_prefixes(insn);
  
- 	/*
-@@ -2981,7 +2983,8 @@ ftrace_trace_userstack(struct ring_buffe
- 	preempt_enable();
- }
- #else /* CONFIG_USER_STACKTRACE_SUPPORT */
--static void ftrace_trace_userstack(struct ring_buffer *buffer,
-+static void ftrace_trace_userstack(struct trace_array *tr,
-+				   struct ring_buffer *buffer,
- 				   unsigned long flags, int pc)
- {
- }
+ 	/* Look for any segment override prefixes. */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
++	for_each_insn_prefix(insn, i, p) {
+ 		insn_attr_t attr;
+ 
+-		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
++		attr = inat_get_opcode_attribute(p);
+ 		switch (attr) {
+ 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
+ 			idx = INAT_SEG_REG_CS;
 
 
