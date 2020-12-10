@@ -2,114 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7942D5446
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 08:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C92652D544F
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 08:04:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387723AbgLJG7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 01:59:31 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:52187 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387710AbgLJG7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 01:59:31 -0500
-Received: from mail-lf1-f70.google.com ([209.85.167.70])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <po-hsu.lin@canonical.com>)
-        id 1knFua-0008JW-Tc
-        for stable@vger.kernel.org; Thu, 10 Dec 2020 06:58:49 +0000
-Received: by mail-lf1-f70.google.com with SMTP id x186so1676838lff.7
-        for <stable@vger.kernel.org>; Wed, 09 Dec 2020 22:58:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=L3A0R6apZIlQ4MauaRQv2JjDtm7Zsbt8WUqDJ99fqIs=;
-        b=dS5R84+vpeDjH0ASCWuy72D/3tfTq1J0X8MkG0bcZkMAzpvBf9CSAx6TaQroANmE6p
-         xw1uTNLfYnPSiKF0/tXmALDu8GCquitC1K5XJRpmHP9gKmU/AL85/5QkStME1veLic7o
-         M0sA+ADO7EaNcqKVonxSwMwZLwl1Ets+COC69AcV2kRklxqGtKXonOKwEq6j7X01nNlZ
-         V6/6nEOegXI8sByUcf9Krm6bDN1mVHT17GJNf7mL+DavUXEOY5rFz3yINMgZ2hZ8KQ7C
-         pQoOqH21IJiimpszJ5szegBQ8zdaXEgA8vTN/xQ3hvzeLUv/cPhEtCro0FdqGl0ttzuR
-         joyg==
-X-Gm-Message-State: AOAM530Tgo9l2CM3W7rw/2o7sKLkEdmb/bkaH1/oiIlmnRzw4ufewzEg
-        wNKORF4LbQfnKn9O+s+9ulWim3jwkUDKY2k1EzTJ5a8DJmjfC30s5EIq251kvP/iYOgw883CKfy
-        wZ+RdgbYLBGe67i0QvosboHyBXMDcB5VHZeRnemrZV80pOQjX
-X-Received: by 2002:ac2:4f88:: with SMTP id z8mr2361698lfs.447.1607583528347;
-        Wed, 09 Dec 2020 22:58:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy5A/SlOYhsOI2nAgwQ6lA2KuEngLOcJCfAoIOQD4hakMkFb/V+mpw6qvi8YWHLyuAkJv+TagdmYkT340JypSs=
-X-Received: by 2002:ac2:4f88:: with SMTP id z8mr2361691lfs.447.1607583528101;
- Wed, 09 Dec 2020 22:58:48 -0800 (PST)
-MIME-Version: 1.0
-References: <20201210061415.35591-1-po-hsu.lin@canonical.com>
- <20201210061415.35591-2-po-hsu.lin@canonical.com> <X9HCfmaRyU3DBTCM@google.com>
-In-Reply-To: <X9HCfmaRyU3DBTCM@google.com>
-From:   Po-Hsu Lin <po-hsu.lin@canonical.com>
-Date:   Thu, 10 Dec 2020 14:58:37 +0800
-Message-ID: <CAMy_GT88Yez9diOcfYeDE0zMPK9QydQQp_h+OjrWOS5LKKCeRQ@mail.gmail.com>
-Subject: Re: [X/B/F/G/H/Unstable][SRU][PATCH 1/1] Input: i8042 - add ByteSpeed
- touchpad to noloop table
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Kernel team list <kernel-team@lists.ubuntu.com>,
+        id S2387755AbgLJHCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 02:02:38 -0500
+Received: from bmailout2.hostsharing.net ([83.223.78.240]:48449 "EHLO
+        bmailout2.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726526AbgLJHC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 02:02:26 -0500
+Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
+        by bmailout2.hostsharing.net (Postfix) with ESMTPS id B2882280001A4;
+        Thu, 10 Dec 2020 08:01:24 +0100 (CET)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 064305BEE; Thu, 10 Dec 2020 08:01:42 +0100 (CET)
+Date:   Thu, 10 Dec 2020 08:01:42 +0100
+From:   Lukas Wunner <lukas@wunner.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 4.19-stable 4/5] spi: bcm2835aux: Fix use-after-free on
+ unbind
+Message-ID: <20201210070142.GA20930@wunner.de>
+References: <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
+ <20201208004901.GB587492@ubuntu-m3-large-x86>
+ <20201208073241.GA29998@wunner.de>
+ <20201208134739.GJ643756@sasha-vm>
+ <20201208171145.GA3241@wunner.de>
+ <20201208211745.GL643756@sasha-vm>
+ <20201209083747.GA7377@wunner.de>
+ <X9Cat0z0YBZkXlvv@kroah.com>
+ <20201209093818.GA3082@wunner.de>
+ <X9Ccm7X1id8Jj9SH@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X9Ccm7X1id8Jj9SH@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 2:39 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Po-Hsu,
->
-> On Thu, Dec 10, 2020 at 02:14:15PM +0800, Po-Hsu Lin wrote:
-> > BugLink: https://bugs.launchpad.net/bugs/1906128
-> >
-> > It looks like the C15B laptop got another vendor: ByteSpeed LLC.
-> >
-> > Avoid AUX loopback on this touchpad as well, thus input subsystem will
-> > be able to recognize a Synaptics touchpad in the AUX port.
-> >
-> > BugLink: https://bugs.launchpad.net/bugs/1906128
-> > Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-> > Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > (cherry picked from commit a48491c65b513e5cdc3e7a886a4db915f848a5f5)
-> > Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
->
-> Why are you forwarding this again?
+On Wed, Dec 09, 2020 at 10:44:59AM +0100, Greg KH wrote:
+> On Wed, Dec 09, 2020 at 10:38:18AM +0100, Lukas Wunner wrote:
+> > On Wed, Dec 09, 2020 at 10:36:55AM +0100, Greg KH wrote:
+> > > On Wed, Dec 09, 2020 at 09:37:47AM +0100, Lukas Wunner wrote:
+> > > > Then please apply the series sans bcm2835aux patch and I'll follow up
+> > > > with a two-patch series specifically for that driver.
+> > > 
+> > > Can you just resend the whole series so we know we got it correct?
+> > 
+> > The other patches in the series do not depend on the bcm2835aux patch,
+> > so you can apply them independently.
+> 
+> Ok, so I need to drop this patch from all of the other series you sent
+> out?  You can see how this is getting messy from my side :)
 
-Oops,
-I forgot to add the --suppress-cc flag when sending this out to the
-Ubuntu kernel mailing list.
-Sorry for the noise.
+Is this workflow description still up-to-date?
 
-Regards
+http://kroah.com/log/blog/2019/08/14/patch-workflow-with-mutt-2019/
 
->
-> > ---
-> >  drivers/input/serio/i8042-x86ia64io.h | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> >
-> > diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> > index 82ff446..1f45010 100644
-> > --- a/drivers/input/serio/i8042-x86ia64io.h
-> > +++ b/drivers/input/serio/i8042-x86ia64io.h
-> > @@ -223,6 +223,10 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
-> >                       DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
-> >                       DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
-> >               },
-> > +             .matches = {
-> > +                     DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
-> > +                     DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
-> > +             },
-> >       },
-> >       { }
-> >  };
-> > --
-> > 2.7.4
-> >
->
-> Thanks.
->
-> --
-> Dmitry
+So you just select all patches in Mutt sans the bcm2835aux one
+and apply them?
+
+No I don't see how this is getting messy.
+
+Thanks,
+
+Lukas
