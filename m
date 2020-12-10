@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D36532D5DDF
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3609F2D5E1B
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390741AbgLJOd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41646 "EHLO mail.kernel.org"
+        id S2391277AbgLJOkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:40:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390735AbgLJOdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:20 -0500
+        id S2391262AbgLJOj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:39:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 18/39] i2c: imx: Dont generate STOP condition if arbitration has been lost
-Date:   Thu, 10 Dec 2020 15:26:57 +0100
-Message-Id: <20201210142603.178899844@linuxfoundation.org>
+        stable@vger.kernel.org, Boyuan Zhang <boyuan.zhang@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 35/75] drm/amdgpu/vcn3.0: stall DPG when WPTR/RPTR reset
+Date:   Thu, 10 Dec 2020 15:27:00 +0100
+Message-Id: <20201210142607.790023229@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,69 +32,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Boyuan Zhang <boyuan.zhang@amd.com>
 
-commit 61e6fe59ede155881a622f5901551b1cc8748f6a upstream.
+commit ac2db9488cf21de0be7899c1e5963e5ac0ff351f upstream.
 
-If arbitration is lost, the master automatically changes to slave mode.
-I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+Port from VCN2.5
+Add vcn dpg harware synchronization to fix race condition
+issue between vcn driver and hardware.
 
-So calling i2c_imx_bus_busy() is not required and would busy-wait until
-timeout.
-
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
-                           # the 3rd argument from the calls to
-                           # i2c_imx_bus_busy().
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Boyuan Zhang <boyuan.zhang@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.9.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -557,6 +557,8 @@ static void i2c_imx_stop(struct imx_i2c_
- 		/* Stop I2C transaction */
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		if (i2c_imx->dma)
- 			temp &= ~I2CR_DMAEN;
-@@ -722,9 +724,12 @@ static int i2c_imx_dma_read(struct imx_i
- 		 */
- 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		i2c_imx_bus_busy(i2c_imx, 0);
-+		if (!i2c_imx->stopped)
-+			i2c_imx_bus_busy(i2c_imx, 0);
- 	} else {
- 		/*
- 		 * For i2c master receiver repeat restart operation like:
-@@ -847,9 +852,12 @@ static int i2c_imx_read(struct imx_i2c_s
- 				dev_dbg(&i2c_imx->adapter.dev,
- 					"<%s> clear MSTA\n", __func__);
- 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+				if (!(temp & I2CR_MSTA))
-+					i2c_imx->stopped =  1;
- 				temp &= ~(I2CR_MSTA | I2CR_MTX);
- 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--				i2c_imx_bus_busy(i2c_imx, 0);
-+				if (!i2c_imx->stopped)
-+					i2c_imx_bus_busy(i2c_imx, 0);
- 			} else {
- 				/*
- 				 * For i2c master receiver repeat restart operation like:
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+@@ -1011,6 +1011,11 @@ static int vcn_v3_0_start_dpg_mode(struc
+ 	tmp = REG_SET_FIELD(tmp, UVD_RBC_RB_CNTL, RB_RPTR_WR_EN, 1);
+ 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_CNTL, tmp);
+ 
++	/* Stall DPG before WPTR/RPTR reset */
++	WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
++		UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
++		~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
++
+ 	/* set the write pointer delay */
+ 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR_CNTL, 0);
+ 
+@@ -1033,6 +1038,10 @@ static int vcn_v3_0_start_dpg_mode(struc
+ 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR,
+ 		lower_32_bits(ring->wptr));
+ 
++	/* Unstall DPG */
++	WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
++		0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
++
+ 	return 0;
+ }
+ 
+@@ -1556,8 +1565,14 @@ static int vcn_v3_0_pause_dpg_mode(struc
+ 					UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK,
+ 					UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK);
+ 
++				/* Stall DPG before WPTR/RPTR reset */
++				WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
++					UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
++					~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
++
+ 				/* Restore */
+ 				ring = &adev->vcn.inst[inst_idx].ring_enc[0];
++				ring->wptr = 0;
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_LO, ring->gpu_addr);
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_HI, upper_32_bits(ring->gpu_addr));
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_SIZE, ring->ring_size / 4);
+@@ -1565,6 +1580,7 @@ static int vcn_v3_0_pause_dpg_mode(struc
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_WPTR, lower_32_bits(ring->wptr));
+ 
+ 				ring = &adev->vcn.inst[inst_idx].ring_enc[1];
++				ring->wptr = 0;
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_LO2, ring->gpu_addr);
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_HI2, upper_32_bits(ring->gpu_addr));
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_SIZE2, ring->ring_size / 4);
+@@ -1574,6 +1590,10 @@ static int vcn_v3_0_pause_dpg_mode(struc
+ 				WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR,
+ 					RREG32_SOC15(VCN, inst_idx, mmUVD_SCRATCH2) & 0x7FFFFFFF);
+ 
++				/* Unstall DPG */
++				WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
++					0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
++
+ 				SOC15_WAIT_ON_RREG(VCN, inst_idx, mmUVD_POWER_STATUS,
+ 					UVD_PGFSM_CONFIG__UVDM_UVDU_PWR_ON, UVD_POWER_STATUS__UVD_POWER_STATUS_MASK);
+ 			}
 
 
