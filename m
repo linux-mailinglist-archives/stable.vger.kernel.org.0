@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3572D65AA
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDCC2D6510
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390503AbgLJObf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:31:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39236 "EHLO mail.kernel.org"
+        id S2390767AbgLJOdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389158AbgLJObc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:31:32 -0500
+        id S1731632AbgLJOdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:39 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
@@ -18,12 +18,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
         Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
         Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.14 05/31] usb: gadget: f_fs: Use local copy of descriptors for userspace copy
+Subject: [PATCH 4.19 03/39] usb: gadget: f_fs: Use local copy of descriptors for userspace copy
 Date:   Thu, 10 Dec 2020 15:26:42 +0100
-Message-Id: <20201210142602.361301351@linuxfoundation.org>
+Message-Id: <20201210142602.458518859@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,7 +55,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/gadget/function/f_fs.c
 +++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1244,7 +1244,7 @@ static long ffs_epfile_ioctl(struct file
+@@ -1243,7 +1243,7 @@ static long ffs_epfile_ioctl(struct file
  	case FUNCTIONFS_ENDPOINT_DESC:
  	{
  		int desc_idx;
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		switch (epfile->ffs->gadget->speed) {
  		case USB_SPEED_SUPER:
-@@ -1256,10 +1256,12 @@ static long ffs_epfile_ioctl(struct file
+@@ -1255,10 +1255,12 @@ static long ffs_epfile_ioctl(struct file
  		default:
  			desc_idx = 0;
  		}
@@ -73,8 +73,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +		memcpy(&desc1, desc, desc->bLength);
  
  		spin_unlock_irq(&epfile->ffs->eps_lock);
--		ret = copy_to_user((void *)value, desc, desc->bLength);
-+		ret = copy_to_user((void *)value, &desc1, desc1.bLength);
+-		ret = copy_to_user((void __user *)value, desc, desc->bLength);
++		ret = copy_to_user((void __user *)value, &desc1, desc1.bLength);
  		if (ret)
  			ret = -EFAULT;
  		return ret;
