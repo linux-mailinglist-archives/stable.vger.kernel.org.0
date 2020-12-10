@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19DB82D669A
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138572D6692
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390204AbgLJTeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
+        id S2390259AbgLJTdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:33:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726263AbgLJO3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:31 -0500
+        id S2390204AbgLJO3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:34 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Di Zhu <zhudi21@huawei.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.9 16/45] RDMA/i40iw: Address an mmap handler exploit in i40iw
-Date:   Thu, 10 Dec 2020 15:26:30 +0100
-Message-Id: <20201210142603.165233619@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 17/45] btrfs: sysfs: init devices outside of the chunk_mutex
+Date:   Thu, 10 Dec 2020 15:26:31 +0100
+Message-Id: <20201210142603.212306354@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -33,106 +33,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shiraz Saleem <shiraz.saleem@intel.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
+commit ca10845a56856fff4de3804c85e6424d0f6d0cde upstream
 
-i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
-vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
-without any validation. This is vulnerable to an mmap exploit as described
-in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
+While running btrfs/061, btrfs/073, btrfs/078, or btrfs/178 we hit the
+following lockdep splat:
 
-The push feature is disabled in the driver currently and therefore no push
-mmaps are issued from user-space. The feature does not work as expected in
-the x722 product.
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc3+ #4 Not tainted
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff96ecc22ef4a0 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
 
-Remove the push module parameter and all VMA attribute manipulations for
-this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
-mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
-to a single page.
+  but task is already holding lock:
+  ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
 
-Cc: <stable@kernel.org>
-Fixes: d37498417947 ("i40iw: add files for iwarp interface")
-Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
-Reported-by: Di Zhu <zhudi21@huawei.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  which lock already depends on the new lock.
 
+  the existing dependency chain (in reverse order) is:
 
+  -> #3 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc+0x37/0x270
+	 alloc_inode+0x82/0xb0
+	 iget_locked+0x10d/0x2c0
+	 kernfs_get_inode+0x1b/0x130
+	 kernfs_get_tree+0x136/0x240
+	 sysfs_get_tree+0x16/0x40
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #2 (kernfs_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 kernfs_add_one+0x23/0x150
+	 kernfs_create_link+0x63/0xa0
+	 sysfs_do_create_link_sd+0x5e/0xd0
+	 btrfs_sysfs_add_devices_dir+0x81/0x130
+	 btrfs_init_new_device+0x67f/0x1250
+	 btrfs_ioctl+0x1ef/0x2e20
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_insert_empty_items+0x64/0xb0
+	 btrfs_insert_delayed_items+0x90/0x4f0
+	 btrfs_commit_inode_delayed_items+0x93/0x140
+	 btrfs_log_inode+0x5de/0x2020
+	 btrfs_log_inode_parent+0x429/0xc90
+	 btrfs_log_new_name+0x95/0x9b
+	 btrfs_rename2+0xbb9/0x1800
+	 vfs_rename+0x64f/0x9f0
+	 do_renameat2+0x320/0x4e0
+	 __x64_sys_rename+0x1f/0x30
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x119c/0x1fc0
+	 lock_acquire+0xa7/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &delayed_node->mutex --> kernfs_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(kernfs_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffff8dd74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffff8dd65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff96ed2ade30e0 (&type->s_umount_key#36){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 0 PID: 100 Comm: kswapd0 Not tainted 5.9.0-rc3+ #4
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x8b/0xb8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x119c/0x1fc0
+   lock_acquire+0xa7/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa7/0x3d0
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x41/0x50
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This happens because we are holding the chunk_mutex at the time of
+adding in a new device.  However we only need to hold the
+device_list_mutex, as we're going to iterate over the fs_devices
+devices.  Move the sysfs init stuff outside of the chunk_mutex to get
+rid of this lockdep splat.
+
+CC: stable@vger.kernel.org # 4.4.x: f3cd2c58110dad14e: btrfs: sysfs, rename device_link add/remove functions
+CC: stable@vger.kernel.org # 4.4.x
+Reported-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_main.c  |    5 ----
- drivers/infiniband/hw/i40iw/i40iw_verbs.c |   36 +++++-------------------------
- 2 files changed, 7 insertions(+), 34 deletions(-)
+ fs/btrfs/volumes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/i40iw/i40iw_main.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
-@@ -54,10 +54,6 @@
- #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
- 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 7391634520ab2..6afaacb791a13 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2431,9 +2431,6 @@ int btrfs_init_new_device(struct btrfs_root *root, char *device_path)
+ 	btrfs_set_super_num_devices(root->fs_info->super_copy,
+ 				    tmp + 1);
  
--static int push_mode;
--module_param(push_mode, int, 0644);
--MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
+-	/* add sysfs device entry */
+-	btrfs_sysfs_add_device_link(root->fs_info->fs_devices, device);
 -
- static int debug;
- module_param(debug, int, 0644);
- MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
-@@ -1524,7 +1520,6 @@ static enum i40iw_status_code i40iw_setu
- 	if (status)
- 		goto exit;
- 	iwdev->obj_next = iwdev->obj_mem;
--	iwdev->push_mode = push_mode;
+ 	/*
+ 	 * we've got more storage, clear any full flags on the space
+ 	 * infos
+@@ -2441,6 +2438,10 @@ int btrfs_init_new_device(struct btrfs_root *root, char *device_path)
+ 	btrfs_clear_space_info_full(root->fs_info);
  
- 	init_waitqueue_head(&iwdev->vchnl_waitq);
- 	init_waitqueue_head(&dev->vf_reqs);
---- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
-@@ -208,38 +208,16 @@ static int i40iw_dealloc_ucontext(struct
-  */
- static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
- {
--	struct i40iw_ucontext *ucontext;
--	u64 db_addr_offset;
--	u64 push_offset;
-+	struct i40iw_ucontext *ucontext = to_ucontext(context);
-+	u64 dbaddr;
+ 	unlock_chunks(root);
++
++	/* add sysfs device entry */
++	btrfs_sysfs_add_device_link(root->fs_info->fs_devices, device);
++
+ 	mutex_unlock(&root->fs_info->fs_devices->device_list_mutex);
  
--	ucontext = to_ucontext(context);
--	if (ucontext->iwdev->sc_dev.is_pf) {
--		db_addr_offset = I40IW_DB_ADDR_OFFSET;
--		push_offset = I40IW_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
--	} else {
--		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
--		push_offset = I40IW_VF_PUSH_OFFSET;
--		if (vma->vm_pgoff)
--			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
--	}
-+	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
-+		return -EINVAL;
- 
--	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
-+	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
- 
--	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
--		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--		vma->vm_private_data = ucontext;
--	} else {
--		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
--			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--		else
--			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
--	}
--
--	if (io_remap_pfn_range(vma, vma->vm_start,
--			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
--			       PAGE_SIZE, vma->vm_page_prot))
-+	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
-+			       pgprot_noncached(vma->vm_page_prot)))
- 		return -EAGAIN;
- 
- 	return 0;
+ 	if (seeding_dev) {
+-- 
+2.27.0
+
 
 
