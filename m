@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566D22D5DBD
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 476AC2D5DBB
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390203AbgLJO3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:29:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
+        id S2390183AbgLJO24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732758AbgLJO3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:04 -0500
+        id S2390174AbgLJO2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:28:48 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.4 28/39] i2c: imx: Check for I2SR_IAL after every byte
-Date:   Thu, 10 Dec 2020 15:26:39 +0100
-Message-Id: <20201210142602.279443256@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.4 34/39] tracing: Fix userstacktrace option for instances
+Date:   Thu, 10 Dec 2020 15:26:45 +0100
+Message-Id: <20201210142602.565193935@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -33,46 +31,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 1de67a3dee7a279ebe4d892b359fe3696938ec15 upstream.
+commit bcee5278958802b40ee8b26679155a6d9231783e upstream.
 
-Arbitration Lost (IAL) can happen after every single byte transfer. If
-arbitration is lost, the I2C hardware will autonomously switch from
-master mode to slave. If a transfer is not aborted in this state,
-consecutive transfers will not be executed by the hardware and will
-timeout.
+When the instances were able to use their own options, the userstacktrace
+option was left hardcoded for the top level. This made the instance
+userstacktrace option bascially into a nop, and will confuse users that set
+it, but nothing happens (I was confused when it happened to me!)
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 16270145ce6b ("tracing: Add trace options for core options to instances")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/trace/trace.c |    9 +++++----
+ kernel/trace/trace.h |    6 ++++--
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -472,6 +472,16 @@ static int i2c_imx_trx_complete(struct i
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
- 		return -ETIMEDOUT;
- 	}
-+
-+	/* check for arbitration lost */
-+	if (i2c_imx->i2csr & I2SR_IAL) {
-+		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
-+		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-+
-+		i2c_imx->i2csr = 0;
-+		return -EAGAIN;
-+	}
-+
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
- 	i2c_imx->i2csr = 0;
- 	return 0;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1706,7 +1706,7 @@ void trace_buffer_unlock_commit(struct t
+ 	__buffer_unlock_commit(buffer, event);
+ 
+ 	ftrace_trace_stack(tr, buffer, flags, 6, pc, NULL);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
+ }
+ EXPORT_SYMBOL_GPL(trace_buffer_unlock_commit);
+ 
+@@ -1768,7 +1768,7 @@ void trace_buffer_unlock_commit_regs(str
+ 	 * two. They are that meaningful.
+ 	 */
+ 	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : 4, pc, regs);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
+ }
+ EXPORT_SYMBOL_GPL(trace_buffer_unlock_commit_regs);
+ 
+@@ -1941,14 +1941,15 @@ void trace_dump_stack(int skip)
+ static DEFINE_PER_CPU(int, user_stack_count);
+ 
+ void
+-ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags, int pc)
++ftrace_trace_userstack(struct trace_array *tr,
++		       struct ring_buffer *buffer, unsigned long flags, int pc)
+ {
+ 	struct trace_event_call *call = &event_user_stack;
+ 	struct ring_buffer_event *event;
+ 	struct userstack_entry *entry;
+ 	struct stack_trace trace;
+ 
+-	if (!(global_trace.trace_flags & TRACE_ITER_USERSTACKTRACE))
++	if (!(tr->trace_flags & TRACE_ITER_USERSTACKTRACE))
+ 		return;
+ 
+ 	/*
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -656,13 +656,15 @@ void update_max_tr_single(struct trace_a
+ #endif /* CONFIG_TRACER_MAX_TRACE */
+ 
+ #ifdef CONFIG_STACKTRACE
+-void ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags,
++void ftrace_trace_userstack(struct trace_array *tr,
++			    struct ring_buffer *buffer, unsigned long flags,
+ 			    int pc);
+ 
+ void __trace_stack(struct trace_array *tr, unsigned long flags, int skip,
+ 		   int pc);
+ #else
+-static inline void ftrace_trace_userstack(struct ring_buffer *buffer,
++static inline void ftrace_trace_userstack(struct trace_array *tr,
++					  struct ring_buffer *buffer,
+ 					  unsigned long flags, int pc)
+ {
+ }
 
 
