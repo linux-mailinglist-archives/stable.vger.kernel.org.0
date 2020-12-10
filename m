@@ -2,269 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DFB2D6AFC
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 00:37:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FE82D6B94
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 00:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388204AbgLJWbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 17:31:15 -0500
-Received: from mail-oi1-f173.google.com ([209.85.167.173]:35624 "EHLO
-        mail-oi1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405121AbgLJWY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 17:24:57 -0500
-Received: by mail-oi1-f173.google.com with SMTP id s2so7590751oij.2
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 14:24:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AsXpq73TurOiMjNQS5YGPB4GOjuRJVAdAsO5KjHejoo=;
-        b=HDLuPi+1aleyCgc60v6HTHhICaIzHYtIWg3YjGIBJnPm0I0uYOPqXOwLdCCZf5HJfD
-         N+L8LtbgLAWfF79ZTlaP76Ka7lL2Otc6An974OPiLDVM2xwvzJTifPteMxv0RQezVqvc
-         QxwGA9UBcvucs+JDoeFSpj+3EiDW70SYZLXsBPh7j4hxa8RtFi6P02cst88HGHaTlrvH
-         J3ebB4bVnKh2qkp9AwqeKLRu+3R4zlRp6eFYJCO5f0uJGKstoQ2P5y/6l2tWUWIiPHfv
-         HbNVvB697gfrXyMeEsrembmtM2TgKO9iF5YJh9orKkoIwmgK3QoPqy/kfpd2I1idR36W
-         VjzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AsXpq73TurOiMjNQS5YGPB4GOjuRJVAdAsO5KjHejoo=;
-        b=GoY8XKtXcQujwEaWx4xvCMTQY0DY2VEzoJ/BQuT8hYTbd5S8WGf/yHkxYYqdU+WxwE
-         XmmfZhBq6r716sOgMMbYyWr5z4WLGmv1Cu9tzzI/S1P18PSG4fVsI13FBKeX3h7OC1gt
-         3nCX0grPKwpRu6hzrH3l7CAj0oMcwwJjshWNOUyH6r22Ns960dWFzqNP9tpDCEK5Ahio
-         j1jC0r+1sAULEzNqwRkMeJgAZYOFqnrCleHYImjujHJ3aQkOKxuDgOcpq0UWtUZ9SrBV
-         u+GZhrAxZ/QnG11Kn5kucdzFBlateP+Lpecu9UxW8cY4l7SpuLAhMGVVPvVmIl+EuyKi
-         o37Q==
-X-Gm-Message-State: AOAM5315ErBmfdnUUndJEHQq9GcHPErpFy/QJwX58UdO7qKLNuDG3EQc
-        TnzXEwhHmZZIKprVd59HMifrMwaEylL/iQ==
-X-Google-Smtp-Source: ABdhPJyXrpcbe9cwPCNGXjNb67MGg4TmT1LcJsOJtOXY1qlpC1Bj4Uq2dy2ZBsLvO5db6qi0RECFZg==
-X-Received: by 2002:a17:90b:3682:: with SMTP id mj2mr9684935pjb.27.1607637008552;
-        Thu, 10 Dec 2020 13:50:08 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 123sm7300270pgh.21.2020.12.10.13.50.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Dec 2020 13:50:07 -0800 (PST)
-Message-ID: <5fd2980f.1c69fb81.8a64c.db47@mx.google.com>
-Date:   Thu, 10 Dec 2020 13:50:07 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S2387485AbgLJXJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 18:09:44 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:58836 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388045AbgLJWbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 17:31:17 -0500
+Date:   Thu, 10 Dec 2020 22:04:33 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1607637874;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VGmPq1i3ayrpyyrVWVoevEjU3QrxYsIort8NEoox4yg=;
+        b=hqCVMUfmuuticgtDymRG8jxVgKfcFBzIB8pH+l/OI50m/5MRXQLvICVL5XRnShD1fdU7zS
+        uJ2GN/5zKHWIkchNoD1WGnOItSOiUg5KRJkU/eKqkA7yPkxvjEdqmw2mUb8klHvfwutPgX
+        PxuxC+UDyZTvbi8Lvmg8wx3Za1npgvVOUw2FbsBKWQXcA3IAtTxnf3xUPNzuQlxz7Em99G
+        pCsZ+/QdH1xpbvWOIL0OhbaOeo/eE6OMdHBxPK+a9MOLpXyFe6EYV8M8BD9WRLEgRy8AEG
+        IxTXXg6uMXttBc0ctbRWxHTdWpdDUd329F2cgyOpHEm2eQtL7IKG2NjhvZrEaw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1607637874;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VGmPq1i3ayrpyyrVWVoevEjU3QrxYsIort8NEoox4yg=;
+        b=Prvbtp9FjBqAtnFs1a+QKMk96kMxUa+7ebchJTMKBOD4BZ2ODJR7oe5dOa363J9JgvnJbH
+        4SvbeE4WVTaLGSCA==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/apic/vector: Fix ordering in vector assignment
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        "Shung-Hsi Yu" <shung-hsi.yu@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <87ft4djtyp.fsf@nanos.tec.linutronix.de>
+References: <87ft4djtyp.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.82-55-gfc1de0dc4276c
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 177 runs,
- 5 regressions (v5.4.82-55-gfc1de0dc4276c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <160763787305.3364.11404170583920698033.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 177 runs, 5 regressions (v5.4.82-55-gfc1de0=
-dc4276c)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     190113b4c6531c8e09b31d5235f9b5175cbb0f72
+Gitweb:        https://git.kernel.org/tip/190113b4c6531c8e09b31d5235f9b5175cbb0f72
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 21:18:22 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 10 Dec 2020 23:00:54 +01:00
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+x86/apic/vector: Fix ordering in vector assignment
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+Prarit reported that depending on the affinity setting the
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+ ' irq $N: Affinity broken due to vector space exhaustion.'
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+message is showing up in dmesg, but the vector space on the CPUs in the
+affinity mask is definitely not exhausted.
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Shung-Hsi provided traces and analysis which pinpoints the problem:
 
+The ordering of trying to assign an interrupt vector in
+assign_irq_vector_any_locked() is simply wrong if the interrupt data has a
+valid node assigned. It does:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.82-55-gfc1de0dc4276c/plan/baseline/
+ 1) Try the intersection of affinity mask and node mask
+ 2) Try the node mask
+ 3) Try the full affinity mask
+ 4) Try the full online mask
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.82-55-gfc1de0dc4276c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fc1de0dc4276cf610646922e65df5ad81151ac1e =
+Obviously #2 and #3 are in the wrong order as the requested affinity
+mask has to take precedence.
 
+In the observed cases #1 failed because the affinity mask did not contain
+CPUs from node 0. That made it allocate a vector from node 0, thereby
+breaking affinity and emitting the misleading message.
 
+Revert the order of #2 and #3 so the full affinity mask without the node
+intersection is tried before actually affinity is broken.
 
-Test Regressions
----------------- =
+If no node is assigned then only the full affinity mask and if that fails
+the full online mask is tried.
 
+Fixes: d6ffc6ac83b1 ("x86/vector: Respect affinity mask in irq descriptor")
+Reported-by: Prarit Bhargava <prarit@redhat.com>
+Reported-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87ft4djtyp.fsf@nanos.tec.linutronix.de
 
+---
+ arch/x86/kernel/apic/vector.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd262db0cbffadfbfc94cf0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd262db0cbffadfbfc94=
-cf1
-        failing since 20 days (last pass: v5.4.77-152-ga3746663c3479, first=
- fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd2636e792ddabc85c94cbf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd2636e792ddabc85c94=
-cc0
-        failing since 26 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd2639c3df0c783bac94cbc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd2639c3df0c783bac94=
-cbd
-        failing since 26 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd26373717f7ab11dc94cc6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd26373717f7ab11dc94=
-cc7
-        failing since 26 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd263287e334021e0c94cd5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.82-=
-55-gfc1de0dc4276c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd263287e334021e0c94=
-cd6
-        failing since 26 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =20
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index 1eac536..758bbf2 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -273,20 +273,24 @@ static int assign_irq_vector_any_locked(struct irq_data *irqd)
+ 	const struct cpumask *affmsk = irq_data_get_affinity_mask(irqd);
+ 	int node = irq_data_get_node(irqd);
+ 
+-	if (node == NUMA_NO_NODE)
+-		goto all;
+-	/* Try the intersection of @affmsk and node mask */
+-	cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
+-	if (!assign_vector_locked(irqd, vector_searchmask))
+-		return 0;
+-	/* Try the node mask */
+-	if (!assign_vector_locked(irqd, cpumask_of_node(node)))
+-		return 0;
+-all:
++	if (node != NUMA_NO_NODE) {
++		/* Try the intersection of @affmsk and node mask */
++		cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
++		if (!assign_vector_locked(irqd, vector_searchmask))
++			return 0;
++	}
++
+ 	/* Try the full affinity mask */
+ 	cpumask_and(vector_searchmask, affmsk, cpu_online_mask);
+ 	if (!assign_vector_locked(irqd, vector_searchmask))
+ 		return 0;
++
++	if (node != NUMA_NO_NODE) {
++		/* Try the node mask */
++		if (!assign_vector_locked(irqd, cpumask_of_node(node)))
++			return 0;
++	}
++
+ 	/* Try the full online mask */
+ 	return assign_vector_locked(irqd, cpu_online_mask);
+ }
