@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8952D652C
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC762D6586
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393149AbgLJSfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:35:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S2390744AbgLJSuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 13:50:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389176AbgLJOdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:21 -0500
+        id S2389254AbgLJOb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:31:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 19/39] scsi: mpt3sas: Fix ioctl timeout
+        stable@vger.kernel.org, Shisong Qin <qinshisong1205@gmail.com>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH 4.14 21/31] speakup: Reject setting the speakup line discipline outside of speakup
 Date:   Thu, 10 Dec 2020 15:26:58 +0100
-Message-Id: <20201210142603.229611427@linuxfoundation.org>
+Message-Id: <20201210142603.152343956@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
+References: <20201210142602.099683598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,42 +31,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit 42f687038bcc34aa919e0e4c29b04e4cda3f6a79 upstream.
+commit f0992098cadb4c9c6a00703b66cafe604e178fea upstream.
 
-Commit c1a6c5ac4278 ("scsi: mpt3sas: For NVME device, issue a protocol
-level reset") modified the ioctl path 'timeout' variable type to u8 from
-unsigned long, limiting the maximum timeout value that the driver can
-support to 255 seconds.
+Speakup exposing a line discipline allows userland to try to use it,
+while it is deemed to be useless, and thus uselessly exposes potential
+bugs. One of them is simply that in such a case if the line sends data,
+spk_ttyio_receive_buf2 is called and crashes since spk_ttyio_synth
+is NULL.
 
-If the management application is requesting a higher value the resulting
-timeout will be zero. The operation times out immediately and the ioctl
-request fails.
+This change restricts the use of the speakup line discipline to
+speakup drivers, thus avoiding such kind of issues altogether.
 
-Change datatype back to unsigned long.
-
-Link: https://lore.kernel.org/r/20201125094838.4340-1-suganath-prabu.subramani@broadcom.com
-Fixes: c1a6c5ac4278 ("scsi: mpt3sas: For NVME device, issue a protocol level reset")
-Cc: <stable@vger.kernel.org> #v4.18+
-Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org
+Reported-by: Shisong Qin <qinshisong1205@gmail.com>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Tested-by: Shisong Qin <qinshisong1205@gmail.com>
+Link: https://lore.kernel.org/r/20201129193523.hm3f6n5xrn6fiyyc@function
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/speakup/spk_ttyio.c |   38 +++++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 15 deletions(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -654,7 +654,7 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPT
- 	struct _pcie_device *pcie_device = NULL;
- 	u32 ioc_state;
- 	u16 smid;
--	u8 timeout;
-+	unsigned long timeout;
- 	u8 issue_reset;
- 	u32 sz, sz_arg;
- 	void *psge;
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -46,28 +46,20 @@ static int spk_ttyio_ldisc_open(struct t
+ {
+ 	struct spk_ldisc_data *ldisc_data;
+ 
++	if (tty != speakup_tty)
++		/* Somebody tried to use this line discipline outside speakup */
++		return -ENODEV;
++
+ 	if (tty->ops->write == NULL)
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&speakup_tty_mutex);
+-	if (speakup_tty) {
+-		mutex_unlock(&speakup_tty_mutex);
+-		return -EBUSY;
+-	}
+-	speakup_tty = tty;
+-
+ 	ldisc_data = kmalloc(sizeof(struct spk_ldisc_data), GFP_KERNEL);
+-	if (!ldisc_data) {
+-		speakup_tty = NULL;
+-		mutex_unlock(&speakup_tty_mutex);
+-		pr_err("speakup: Failed to allocate ldisc_data.\n");
++	if (!ldisc_data)
+ 		return -ENOMEM;
+-	}
+ 
+ 	sema_init(&ldisc_data->sem, 0);
+ 	ldisc_data->buf_free = true;
+-	speakup_tty->disc_data = ldisc_data;
+-	mutex_unlock(&speakup_tty_mutex);
++	tty->disc_data = ldisc_data;
+ 
+ 	return 0;
+ }
+@@ -184,9 +176,25 @@ static int spk_ttyio_initialise_ldisc(st
+ 
+ 	tty_unlock(tty);
+ 
++	mutex_lock(&speakup_tty_mutex);
++	speakup_tty = tty;
+ 	ret = tty_set_ldisc(tty, N_SPEAKUP);
+ 	if (ret)
+-		pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++		speakup_tty = NULL;
++	mutex_unlock(&speakup_tty_mutex);
++
++	if (!ret)
++		/* Success */
++		return 0;
++
++	pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++
++	tty_lock(tty);
++	if (tty->ops->close)
++		tty->ops->close(tty, NULL);
++	tty_unlock(tty);
++
++	tty_kclose(tty);
+ 
+ 	return ret;
+ }
 
 
