@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 542112D5DDE
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 091112D5DC6
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390556AbgLJOdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
+        id S2390294AbgLJOal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:30:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732919AbgLJOdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:11 -0500
+        id S1733026AbgLJOaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:30:39 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 15/39] ALSA: hda/generic: Add option to enforce preferred_dacs pairs
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Mark Brown <broonie@kernel.org>, Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.9 40/45] spi: bcm2835: Release the DMA channel if probe fails after dma_init
 Date:   Thu, 10 Dec 2020 15:26:54 +0100
-Message-Id: <20201210142603.037114540@linuxfoundation.org>
+Message-Id: <20201210142604.326645697@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142602.361598591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -30,70 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-commit 242d990c158d5b1dabd166516e21992baef5f26a upstream.
+[ Upstream commit 666224b43b4bd4612ce3b758c038f9bc5c5e3fcb ]
 
-The generic parser accepts the preferred_dacs[] pairs as a hint for
-assigning a DAC to each pin, but this hint doesn't work always
-effectively.  Currently it's merely a secondary choice after the trial
-with the path index failed.  This made sometimes it difficult to
-assign DACs without mimicking the connection list and/or the badness
-table.
+The DMA channel was not released if either devm_request_irq() or
+devm_spi_register_controller() failed.
 
-This patch adds a new flag, obey_preferred_dacs, that changes the
-behavior of the parser.  As its name stands, the parser obeys the
-given preferred_dacs[] pairs by skipping the path index matching and
-giving a high penalty if no DAC is assigned by the pairs.  This mode
-will help for assigning the fixed DACs forcibly from the codec
-driver.
-
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201127141104.11041-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20191212135550.4634-3-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to 4.19-stable]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/pci/hda/hda_generic.c |   12 ++++++++----
- sound/pci/hda/hda_generic.h |    1 +
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/spi/spi-bcm2835.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -1376,16 +1376,20 @@ static int try_assign_dacs(struct hda_co
- 		struct nid_path *path;
- 		hda_nid_t pin = pins[i];
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -787,18 +787,19 @@ static int bcm2835_spi_probe(struct plat
+ 			       dev_name(&pdev->dev), master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not request IRQ: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
  
--		path = snd_hda_get_path_from_idx(codec, path_idx[i]);
--		if (path) {
--			badness += assign_out_path_ctls(codec, path);
--			continue;
-+		if (!spec->obey_preferred_dacs) {
-+			path = snd_hda_get_path_from_idx(codec, path_idx[i]);
-+			if (path) {
-+				badness += assign_out_path_ctls(codec, path);
-+				continue;
-+			}
- 		}
+ 	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
  
- 		dacs[i] = get_preferred_dac(codec, pin);
- 		if (dacs[i]) {
- 			if (is_dac_already_used(codec, dacs[i]))
- 				badness += bad->shared_primary;
-+		} else if (spec->obey_preferred_dacs) {
-+			badness += BAD_NO_PRIMARY_DAC;
- 		}
+ 	return 0;
  
- 		if (!dacs[i])
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -240,6 +240,7 @@ struct hda_gen_spec {
- 	unsigned int power_down_unused:1; /* power down unused widgets */
- 	unsigned int dac_min_mute:1; /* minimal = mute for DACs */
- 	unsigned int suppress_vmaster:1; /* don't create vmaster kctls */
-+	unsigned int obey_preferred_dacs:1; /* obey preferred_dacs assignment */
- 
- 	/* other internal flags */
- 	unsigned int no_analog:1; /* digital I/O only */
+-out_clk_disable:
++out_dma_release:
++	bcm2835_dma_release(master);
+ 	clk_disable_unprepare(bs->clk);
+ 	return err;
+ }
 
 
