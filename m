@@ -2,31 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3867D2D668B
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:33:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A23F52D66AC
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390323AbgLJTcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
+        id S2393378AbgLJThH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:37:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732596AbgLJO3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:45 -0500
+        id S2390180AbgLJO2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:28:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 20/45] vlan: consolidate VLAN parsing code and limit max parsing depth
-Date:   Thu, 10 Dec 2020 15:26:34 +0100
-Message-Id: <20201210142603.364043007@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 24/39] ALSA: hda/generic: Add option to enforce preferred_dacs pairs
+Date:   Thu, 10 Dec 2020 15:26:35 +0100
+Message-Id: <20201210142602.091969017@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
+In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
+References: <20201210142600.887734129@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -35,119 +30,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 469aceddfa3ed16e17ee30533fae45e90f62efd8 ]
+commit 242d990c158d5b1dabd166516e21992baef5f26a upstream.
 
-Toshiaki pointed out that we now have two very similar functions to extract
-the L3 protocol number in the presence of VLAN tags. And Daniel pointed out
-that the unbounded parsing loop makes it possible for maliciously crafted
-packets to loop through potentially hundreds of tags.
+The generic parser accepts the preferred_dacs[] pairs as a hint for
+assigning a DAC to each pin, but this hint doesn't work always
+effectively.  Currently it's merely a secondary choice after the trial
+with the path index failed.  This made sometimes it difficult to
+assign DACs without mimicking the connection list and/or the badness
+table.
 
-Fix both of these issues by consolidating the two parsing functions and
-limiting the VLAN tag parsing to a max depth of 8 tags. As part of this,
-switch over __vlan_get_protocol() to use skb_header_pointer() instead of
-pskb_may_pull(), to avoid the possible side effects of the latter and keep
-the skb pointer 'const' through all the parsing functions.
+This patch adds a new flag, obey_preferred_dacs, that changes the
+behavior of the parser.  As its name stands, the parser obeys the
+given preferred_dacs[] pairs by skipping the path index matching and
+giving a high penalty if no DAC is assigned by the pairs.  This mode
+will help for assigning the fixed DACs forcibly from the codec
+driver.
 
-v2:
-- Use limit of 8 tags instead of 32 (matching XMIT_RECURSION_LIMIT)
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201127141104.11041-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Fixes: d7bf2ebebc2b ("sched: consistently handle layer3 header accesses in the presence of VLANs")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/if_vlan.h | 29 ++++++++++++++++++++++-------
- include/net/inet_ecn.h  |  1 +
- 2 files changed, 23 insertions(+), 7 deletions(-)
+ sound/pci/hda/hda_generic.c |   12 ++++++++----
+ sound/pci/hda/hda_generic.h |    1 +
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/if_vlan.h b/include/linux/if_vlan.h
-index 7e39719e27cbc..27edc7f2de31b 100644
---- a/include/linux/if_vlan.h
-+++ b/include/linux/if_vlan.h
-@@ -30,6 +30,8 @@
- #define VLAN_ETH_DATA_LEN	1500	/* Max. octets in payload	 */
- #define VLAN_ETH_FRAME_LEN	1518	/* Max. octets in frame sans FCS */
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -1344,16 +1344,20 @@ static int try_assign_dacs(struct hda_co
+ 		struct nid_path *path;
+ 		hda_nid_t pin = pins[i];
  
-+#define VLAN_MAX_DEPTH	8		/* Max. number of nested VLAN tags parsed */
-+
- /*
-  * 	struct vlan_hdr - vlan header
-  * 	@h_vlan_TCI: priority and VLAN ID
-@@ -495,10 +497,10 @@ static inline int vlan_get_tag(const struct sk_buff *skb, u16 *vlan_tci)
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
-+static inline __be16 __vlan_get_protocol(const struct sk_buff *skb, __be16 type,
- 					 int *depth)
- {
--	unsigned int vlan_depth = skb->mac_len;
-+	unsigned int vlan_depth = skb->mac_len, parse_depth = VLAN_MAX_DEPTH;
- 
- 	/* if type is 802.1Q/AD then the header should already be
- 	 * present at mac_len - VLAN_HLEN (if mac_len > 0), or at
-@@ -513,13 +515,12 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
- 			vlan_depth = ETH_HLEN;
+-		path = snd_hda_get_path_from_idx(codec, path_idx[i]);
+-		if (path) {
+-			badness += assign_out_path_ctls(codec, path);
+-			continue;
++		if (!spec->obey_preferred_dacs) {
++			path = snd_hda_get_path_from_idx(codec, path_idx[i]);
++			if (path) {
++				badness += assign_out_path_ctls(codec, path);
++				continue;
++			}
  		}
- 		do {
--			struct vlan_hdr *vh;
-+			struct vlan_hdr vhdr, *vh;
  
--			if (unlikely(!pskb_may_pull(skb,
--						    vlan_depth + VLAN_HLEN)))
-+			vh = skb_header_pointer(skb, vlan_depth, sizeof(vhdr), &vhdr);
-+			if (unlikely(!vh || !--parse_depth))
- 				return 0;
+ 		dacs[i] = get_preferred_dac(codec, pin);
+ 		if (dacs[i]) {
+ 			if (is_dac_already_used(codec, dacs[i]))
+ 				badness += bad->shared_primary;
++		} else if (spec->obey_preferred_dacs) {
++			badness += BAD_NO_PRIMARY_DAC;
+ 		}
  
--			vh = (struct vlan_hdr *)(skb->data + vlan_depth);
- 			type = vh->h_vlan_encapsulated_proto;
- 			vlan_depth += VLAN_HLEN;
- 		} while (eth_type_vlan(type));
-@@ -538,11 +539,25 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 vlan_get_protocol(struct sk_buff *skb)
-+static inline __be16 vlan_get_protocol(const struct sk_buff *skb)
- {
- 	return __vlan_get_protocol(skb, skb->protocol, NULL);
- }
+ 		if (!dacs[i])
+--- a/sound/pci/hda/hda_generic.h
++++ b/sound/pci/hda/hda_generic.h
+@@ -229,6 +229,7 @@ struct hda_gen_spec {
+ 	unsigned int add_jack_modes:1; /* add i/o jack mode enum ctls */
+ 	unsigned int power_down_unused:1; /* power down unused widgets */
+ 	unsigned int dac_min_mute:1; /* minimal = mute for DACs */
++	unsigned int obey_preferred_dacs:1; /* obey preferred_dacs assignment */
  
-+/* A getter for the SKB protocol field which will handle VLAN tags consistently
-+ * whether VLAN acceleration is enabled or not.
-+ */
-+static inline __be16 skb_protocol(const struct sk_buff *skb, bool skip_vlan)
-+{
-+	if (!skip_vlan)
-+		/* VLAN acceleration strips the VLAN header from the skb and
-+		 * moves it to skb->vlan_proto
-+		 */
-+		return skb_vlan_tag_present(skb) ? skb->vlan_proto : skb->protocol;
-+
-+	return vlan_get_protocol(skb);
-+}
-+
- static inline void vlan_set_encap_proto(struct sk_buff *skb,
- 					struct vlan_hdr *vhdr)
- {
-diff --git a/include/net/inet_ecn.h b/include/net/inet_ecn.h
-index dce2d586d9cec..245d999c0eac8 100644
---- a/include/net/inet_ecn.h
-+++ b/include/net/inet_ecn.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/ip.h>
- #include <linux/skbuff.h>
-+#include <linux/if_vlan.h>
- 
- #include <net/inet_sock.h>
- #include <net/dsfield.h>
--- 
-2.27.0
-
+ 	/* other internal flags */
+ 	unsigned int no_analog:1; /* digital I/O only */
 
 
