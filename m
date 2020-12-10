@@ -2,87 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB572D600F
+	by mail.lfdr.de (Postfix) with ESMTP id B30352D6010
 	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391315AbgLJOka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:40:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47724 "EHLO mail.kernel.org"
+        id S2391446AbgLJPk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 10:40:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391306AbgLJOk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:40:26 -0500
+        id S2391311AbgLJOka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:40:30 -0500
+Date:   Thu, 10 Dec 2020 15:38:44 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607611213;
+        bh=zsIJN6z8FTmy73+DOegLXEWt+5izYHdwXL7OlzZ6Ykg=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ns2Bkr0xFfOXEVbBHWZZkdl+LpBFo5CilV+23ufJ9hUv0gD5KyYkO6CnGKZ7R9EQu
+         UXV2bZZ8Gd5qvubQQ9hOxxO0zP2OCPbvQr8Ru4Bkz+HGGdQhVR1xGaiSz5rhj6eB5g
+         3a5ljOKQJ+oqiNQvCJ7E92Z5Sm8X878QMeA4tXAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.9 75/75] x86/insn-eval: Use new for_each_insn_prefix() macro to loop over prefixes bytes
-Date:   Thu, 10 Dec 2020 15:27:40 +0100
-Message-Id: <20201210142609.713112236@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
-User-Agent: quilt/0.66
+To:     Eric Dumazet <edumazet@google.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH 4.4 15/39] geneve: pull IP header before ECN decapsulation
+Message-ID: <X9Iy9EDh2gZgth+R@kroah.com>
+References: <20201210142600.887734129@linuxfoundation.org>
+ <20201210142601.652963609@linuxfoundation.org>
+ <CANn89iK=kMSkT771iL0dybnWisXr9FWW-bffa5KB+McBYrxx4g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANn89iK=kMSkT771iL0dybnWisXr9FWW-bffa5KB+McBYrxx4g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+On Thu, Dec 10, 2020 at 03:32:12PM +0100, Eric Dumazet wrote:
+> On Thu, Dec 10, 2020 at 3:26 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Eric Dumazet <edumazet@google.com>
+> >
+> > IP_ECN_decapsulate() and IP6_ECN_decapsulate() assume
+> > IP header is already pulled.
+> >
+> > geneve does not ensure this yet.
+> >
+> > Fixing this generically in IP_ECN_decapsulate() and
+> > IP6_ECN_decapsulate() is not possible, since callers
+> > pass a pointer that might be freed by pskb_may_pull()
+> >
+> > syzbot reported :
+> >
+> 
+> Note that we had to revert this patch, so you can either scratp this
+> backport, or make sure to backport the revert.
 
-commit 12cb908a11b2544b5f53e9af856e6b6a90ed5533 upstream
+I'll drop it thanks.  Odd I lost the upstream git id on this patch, let
+me check what went wrong...
 
-Since insn.prefixes.nbytes can be bigger than the size of
-insn.prefixes.bytes[] when a prefix is repeated, the proper check must
-be
-
-  insn.prefixes.bytes[i] != 0 and i < 4
-
-instead of using insn.prefixes.nbytes. Use the new
-for_each_insn_prefix() macro which does it correctly.
-
-Debugged by Kees Cook <keescook@chromium.org>.
-
- [ bp: Massage commit message. ]
-
-Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
-Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/lib/insn-eval.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -70,14 +70,15 @@ static int get_seg_reg_override_idx(stru
- {
- 	int idx = INAT_SEG_REG_DEFAULT;
- 	int num_overrides = 0, i;
-+	insn_byte_t p;
- 
- 	insn_get_prefixes(insn);
- 
- 	/* Look for any segment override prefixes. */
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
-+	for_each_insn_prefix(insn, i, p) {
- 		insn_attr_t attr;
- 
--		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
-+		attr = inat_get_opcode_attribute(p);
- 		switch (attr) {
- 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
- 			idx = INAT_SEG_REG_CS;
-
-
+greg k-h
