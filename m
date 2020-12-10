@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4AE2D669F
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BA42D667E
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390211AbgLJO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:29:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
+        id S2390226AbgLJO34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:29:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390206AbgLJO3R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:17 -0500
+        id S2390229AbgLJO3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:47 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        syzbot+a1c743815982d9496393@syzkaller.appspotmail.com,
-        Anmol Karn <anmol.karan123@gmail.com>
-Subject: [PATCH 4.9 02/45] rose: Fix Null pointer dereference in rose_send_frame()
-Date:   Thu, 10 Dec 2020 15:26:16 +0100
-Message-Id: <20201210142602.476353973@linuxfoundation.org>
+        stable@vger.kernel.org, Matti Vuorela <matti.vuorela@bitfactor.fi>,
+        Yves-Alexis Perez <corsac@corsac.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 03/45] usbnet: ipheth: fix connectivity with iOS 14
+Date:   Thu, 10 Dec 2020 15:26:17 +0100
+Message-Id: <20201210142602.528034081@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -32,64 +32,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anmol Karn <anmol.karan123@gmail.com>
+From: Yves-Alexis Perez <corsac@corsac.net>
 
-[ Upstream commit 3b3fd068c56e3fbea30090859216a368398e39bf ]
+[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
 
-rose_send_frame() dereferences `neigh->dev` when called from
-rose_transmit_clear_request(), and the first occurrence of the
-`neigh` is in rose_loopback_timer() as `rose_loopback_neigh`,
-and it is initialized in rose_add_loopback_neigh() as NULL.
-i.e when `rose_loopback_neigh` used in rose_loopback_timer()
-its `->dev` was still NULL and rose_loopback_timer() was calling
-rose_rx_call_request() without checking for NULL.
+Starting with iOS 14 released in September 2020, connectivity using the
+personal hotspot USB tethering function of iOS devices is broken.
 
-- net/rose/rose_link.c
-This bug seems to get triggered in this line:
+Communication between the host and the device (for example ICMP traffic
+or DNS resolution using the DNS service running in the device itself)
+works fine, but communication to endpoints further away doesn't work.
 
-rose_call = (ax25_address *)neigh->dev->dev_addr;
+Investigation on the matter shows that no UDP and ICMP traffic from the
+tethered host is reaching the Internet at all. For TCP traffic there are
+exchanges between tethered host and server but packets are modified in
+transit leading to impossible communication.
 
-Fix it by adding NULL checking for `rose_loopback_neigh->dev`
-in rose_loopback_timer().
+After some trials Matti Vuorela discovered that reducing the URB buffer
+size by two bytes restored the previous behavior. While a better
+solution might exist to fix the issue, since the protocol is not
+publicly documented and considering the small size of the fix, let's do
+that.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Reported-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
-Tested-by: syzbot+a1c743815982d9496393@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=9d2a7ca8c7f2e4b682c97578dfa3f236258300b3
-Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
-Link: https://lore.kernel.org/r/20201119191043.28813-1-anmol.karan123@gmail.com
+Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
+Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
+Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
+Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
+Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rose/rose_loopback.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/usb/ipheth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rose/rose_loopback.c
-+++ b/net/rose/rose_loopback.c
-@@ -99,10 +99,19 @@ static void rose_loopback_timer(unsigned
- 		}
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -70,7 +70,7 @@
+ #define IPHETH_USBINTF_SUBCLASS 253
+ #define IPHETH_USBINTF_PROTO    1
  
- 		if (frametype == ROSE_CALL_REQUEST) {
--			if ((dev = rose_dev_get(dest)) != NULL) {
--				if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0)
--					kfree_skb(skb);
--			} else {
-+			if (!rose_loopback_neigh->dev) {
-+				kfree_skb(skb);
-+				continue;
-+			}
-+
-+			dev = rose_dev_get(dest);
-+			if (!dev) {
-+				kfree_skb(skb);
-+				continue;
-+			}
-+
-+			if (rose_rx_call_request(skb, dev, rose_loopback_neigh, lci_o) == 0) {
-+				dev_put(dev);
- 				kfree_skb(skb);
- 			}
- 		} else {
+-#define IPHETH_BUF_SIZE         1516
++#define IPHETH_BUF_SIZE         1514
+ #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
+ #define IPHETH_TX_TIMEOUT       (5 * HZ)
+ 
 
 
