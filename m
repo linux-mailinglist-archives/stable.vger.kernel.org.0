@@ -2,368 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5C52D62B7
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 344F32D6219
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:38:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391010AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:36:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390997AbgLJOgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 09:36:22 -0500
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D92C0613D6
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 06:35:42 -0800 (PST)
-Received: by mail-qv1-xf42.google.com with SMTP id a13so2450229qvv.0
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 06:35:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=U24d37d8MZarY1ZSzRRRNEmZbTlCIw80zN9VJBAL4EI=;
-        b=NX4ki20WGiuiu1O+ep7MUXCNmQ7VO/NTruzI+JxceO1aMiitD7kiTmaXGl/En/6ell
-         b22w/r+T2oASAV4iz9A63ysO8GVMc9O7JUoTMam672CSpCNUWuRF/jR3fdIeSJFhN+aZ
-         2hll3a8kQaUCL+slZr1bcMIr3YvIusa33uLzvE2i+Igg117rUeUDHzYRXAVxmKSFlu5D
-         eNwh/v1Eq7gud7HRNDwp/jWylzAIgvNQMXFs7iNfvMmOapFnI21sVw7N6WZduqeFzLFQ
-         2+wqcEQpARfKUlBA9MrkWTNPTs4G6eVfJUvZU+FQs/xDYFwl8qhOZFFvTb9UOuBNy7gC
-         es4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=U24d37d8MZarY1ZSzRRRNEmZbTlCIw80zN9VJBAL4EI=;
-        b=nPqNSArdlnXRLr+Yq1a7g0ytDPF/JTe/TgXwSOpaz1q3PDj5TT7/BEMcHbaztqqNzk
-         Vo4iJCraLKseRSp10hRRY6tKm/+2IRHmeWL8noobT99Xo4+38jRSi3sL1i3zbGZGXtHP
-         sPpwE9qeLpuBWVONn5XJKVdW5MO98biY2KVzX9XQ3HacPYLtIB/M/MM80/vdRt7l+Nfw
-         KVDLm5E91Tsq81FBtumnHUS1TavvFAMmNSvgUEcisC5FeuWgHKj+ylF3xUer8KofuNOR
-         a+8ZlUz2hp6KXRUYkPhwvJA3t7qXSuNdkmAZRAKstHRH3/0r2w2S6aH/Buyx9SBhHCuY
-         4g8w==
-X-Gm-Message-State: AOAM5332zdqRvXIso8Blnez0J5qge2ozrKS/dTNb7BkkY/xZEw7yVDhc
-        pC8PpHE/XkfQdsDOY+Z7sW0UpUpDAWzZouW2VufXxQ==
-X-Google-Smtp-Source: ABdhPJzPVqGzCu4SNXHL8k5HiVS3d0On+CNH5FoB0aULH1VkkgojOgyELS529qevnxAQt0zSoO1DYvGcUCVrVugD+bo=
-X-Received: by 2002:a05:6214:14ae:: with SMTP id bo14mr9356245qvb.16.1607610941238;
- Thu, 10 Dec 2020 06:35:41 -0800 (PST)
+        id S2391158AbgLJQhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 11:37:39 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36718 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2391437AbgLJQha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 11:37:30 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BAGVsdw159735;
+        Thu, 10 Dec 2020 11:36:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=dN9R56n8LBKD49/etkZ6uo0OmmDcJTzzH+j1i4Pij/U=;
+ b=oZwcHl+RwOgQ+M4Czs2gngXHqxyHsKSDw5/EzvHMpZ0t+cOE02T+Q242Bt8eJG08rSy2
+ KQbjBXUHF5VEABqeA+0nehCiGqdx0Z5XUoiaMCcfZ3X6eYfCsSU2RsTwyKZ0TlvqOv8C
+ k3fuwaFc9jqyJ98Hy3aWiax15Y0v9XJ9kXc6XDeTg8yNVdyaLv0oEgvkWDtga5s2uWPz
+ ne+NqW0xxiJfINWKlAHgrv4pKlclHzfi9+SQe/P3rQm90hrZILm2jtX0+/7qfpSAHFsw
+ 8w2G1ZkJ84VaYsumJLCKZuCspZ9hmYGpsWdQA3Od3kxEeEaDsNxOYQNGiZC099VJx51w og== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35bpq99paj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Dec 2020 11:36:43 -0500
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BAGSL1Y024649;
+        Thu, 10 Dec 2020 16:36:42 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3581u8ru5a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Dec 2020 16:36:42 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BAGY9ee17760520
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Dec 2020 16:34:09 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F9704204C;
+        Thu, 10 Dec 2020 16:34:09 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDFF542047;
+        Thu, 10 Dec 2020 16:34:08 +0000 (GMT)
+Received: from [9.171.6.187] (unknown [9.171.6.187])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Dec 2020 16:34:08 +0000 (GMT)
+Subject: Re: [PATCH 5.4 21/54] s390/pci: fix CPU address in MSI for directed
+ IRQ
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org,
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20201210142602.037095225@linuxfoundation.org>
+ <20201210142603.083190701@linuxfoundation.org>
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+Message-ID: <805f753f-f431-a032-383c-65130ef0b153@linux.ibm.com>
+Date:   Thu, 10 Dec 2020 17:34:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
 MIME-Version: 1.0
-References: <20200620092047.GR1551@shell.armlinux.org.uk> <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
- <CAPv3WKdJKAEwCoj5z6NzP2xRFfT1HG+2o0wigt=Czi4bG7EQcg@mail.gmail.com>
- <CAPv3WKfEN22cKbM8=+qDANefQE67KQ1zwURrCqAsrbo1+gBCDA@mail.gmail.com>
- <20201102180326.GA2416734@kroah.com> <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
- <20201208133532.GH643756@sasha-vm> <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
- <X9CuTjdgD3tDKWwo@kroah.com>
-In-Reply-To: <X9CuTjdgD3tDKWwo@kroah.com>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Thu, 10 Dec 2020 15:35:29 +0100
-Message-ID: <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Jon Nettleton <jon@solid-run.com>,
-        Andrew Elwell <andrew.elwell@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201210142603.083190701@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-10_06:2020-12-09,2020-12-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=999 clxscore=1011 priorityscore=1501 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 spamscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012100102
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
-=C5=9Br., 9 gru 2020 o 11:59 Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> napisa=C5=82(a):
->
-> On Tue, Dec 08, 2020 at 04:02:50PM +0100, Marcin Wojtas wrote:
-> > Hi Sasha,
-> >
-> > wt., 8 gru 2020 o 14:35 Sasha Levin <sashal@kernel.org> napisa=C5=82(a)=
-:
-> > >
-> > > On Tue, Dec 08, 2020 at 01:03:38PM +0100, Marcin Wojtas wrote:
-> > > >Hi Greg,
-> > > >
-> > > >Apologies for delayed response:.
-> > > >
-> > > >
-> > > >pon., 2 lis 2020 o 19:02 Greg Kroah-Hartman
-> > > ><gregkh@linuxfoundation.org> napisa=C5=82(a):
-> > > >>
-> > > >> On Mon, Nov 02, 2020 at 06:38:54PM +0100, Marcin Wojtas wrote:
-> > > >> > Hi Greg and Sasha,
-> > > >> >
-> > > >> > pt., 9 pa=C5=BA 2020 o 05:43 Marcin Wojtas <mw@semihalf.com> nap=
-isa=C5=82(a):
-> > > >> > >
-> > > >> > > Hi,
-> > > >> > >
-> > > >> > > sob., 20 cze 2020 o 11:21 Russell King <rmk+kernel@armlinux.or=
-g.uk> napisa=C5=82(a):
-> > > >> > > >
-> > > >> > > > Add a helper to convert the struct phylink_config pointer pa=
-ssed in
-> > > >> > > > from phylink to the drivers internal struct mvpp2_port.
-> > > >> > > >
-> > > >> > > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > > >> > > > ---
-> > > >> > > >  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 29 ++++++++=
-+----------
-> > > >> > > >  1 file changed, 14 insertions(+), 15 deletions(-)
-> > > >> > > >
-> > > >> > > > diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c=
- b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > >> > > > index 7653277d03b7..313f5a60a605 100644
-> > > >> > > > --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > >> > > > +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > >> > > > @@ -4767,12 +4767,16 @@ static void mvpp2_port_copy_mac_addr=
-(struct net_device *dev, struct mvpp2 *priv,
-> > > >> > > >         eth_hw_addr_random(dev);
-> > > >> > > >  }
-> > > >> > > >
-> > > >> > > > +static struct mvpp2_port *mvpp2_phylink_to_port(struct phyl=
-ink_config *config)
-> > > >> > > > +{
-> > > >> > > > +       return container_of(config, struct mvpp2_port, phyli=
-nk_config);
-> > > >> > > > +}
-> > > >> > > > +
-> > > >> > > >  static void mvpp2_phylink_validate(struct phylink_config *c=
-onfig,
-> > > >> > > >                                    unsigned long *supported,
-> > > >> > > >                                    struct phylink_link_state=
- *state)
-> > > >> > > >  {
-> > > >> > > > -       struct mvpp2_port *port =3D container_of(config, str=
-uct mvpp2_port,
-> > > >> > > > -                                              phylink_confi=
-g);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >         __ETHTOOL_DECLARE_LINK_MODE_MASK(mask) =3D { 0, };
-> > > >> > > >
-> > > >> > > >         /* Invalid combinations */
-> > > >> > > > @@ -4913,8 +4917,7 @@ static void mvpp2_gmac_pcs_get_state(s=
-truct mvpp2_port *port,
-> > > >> > > >  static void mvpp2_phylink_mac_pcs_get_state(struct phylink_=
-config *config,
-> > > >> > > >                                             struct phylink_l=
-ink_state *state)
-> > > >> > > >  {
-> > > >> > > > -       struct mvpp2_port *port =3D container_of(config, str=
-uct mvpp2_port,
-> > > >> > > > -                                              phylink_confi=
-g);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >
-> > > >> > > >         if (port->priv->hw_version =3D=3D MVPP22 && port->go=
-p_id =3D=3D 0) {
-> > > >> > > >                 u32 mode =3D readl(port->base + MVPP22_XLG_C=
-TRL3_REG);
-> > > >> > > > @@ -4931,8 +4934,7 @@ static void mvpp2_phylink_mac_pcs_get_=
-state(struct phylink_config *config,
-> > > >> > > >
-> > > >> > > >  static void mvpp2_mac_an_restart(struct phylink_config *con=
-fig)
-> > > >> > > >  {
-> > > >> > > > -       struct mvpp2_port *port =3D container_of(config, str=
-uct mvpp2_port,
-> > > >> > > > -                                              phylink_confi=
-g);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >         u32 val =3D readl(port->base + MVPP2_GMAC_AUTONEG_CO=
-NFIG);
-> > > >> > > >
-> > > >> > > >         writel(val | MVPP2_GMAC_IN_BAND_RESTART_AN,
-> > > >> > > > @@ -5105,13 +5107,12 @@ static void mvpp2_gmac_config(struct=
- mvpp2_port *port, unsigned int mode,
-> > > >> > > >  static void mvpp2_mac_config(struct phylink_config *config,=
- unsigned int mode,
-> > > >> > > >                              const struct phylink_link_state=
- *state)
-> > > >> > > >  {
-> > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev);
-> > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >         bool change_interface =3D port->phy_interface !=3D s=
-tate->interface;
-> > > >> > > >
-> > > >> > > >         /* Check for invalid configuration */
-> > > >> > > >         if (mvpp2_is_xlg(state->interface) && port->gop_id !=
-=3D 0) {
-> > > >> > > > -               netdev_err(dev, "Invalid mode on %s\n", dev-=
->name);
-> > > >> > > > +               netdev_err(port->dev, "Invalid mode on %s\n"=
-, port->dev->name);
-> > > >> > > >                 return;
-> > > >> > > >         }
-> > > >> > > >
-> > > >> > > > @@ -5151,8 +5152,7 @@ static void mvpp2_mac_link_up(struct p=
-hylink_config *config,
-> > > >> > > >                               int speed, int duplex,
-> > > >> > > >                               bool tx_pause, bool rx_pause)
-> > > >> > > >  {
-> > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev);
-> > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >         u32 val;
-> > > >> > > >
-> > > >> > > >         if (mvpp2_is_xlg(interface)) {
-> > > >> > > > @@ -5199,14 +5199,13 @@ static void mvpp2_mac_link_up(struct=
- phylink_config *config,
-> > > >> > > >
-> > > >> > > >         mvpp2_egress_enable(port);
-> > > >> > > >         mvpp2_ingress_enable(port);
-> > > >> > > > -       netif_tx_wake_all_queues(dev);
-> > > >> > > > +       netif_tx_wake_all_queues(port->dev);
-> > > >> > > >  }
-> > > >> > > >
-> > > >> > > >  static void mvpp2_mac_link_down(struct phylink_config *conf=
-ig,
-> > > >> > > >                                 unsigned int mode, phy_inter=
-face_t interface)
-> > > >> > > >  {
-> > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev);
-> > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(co=
-nfig);
-> > > >> > > >         u32 val;
-> > > >> > > >
-> > > >> > > >         if (!phylink_autoneg_inband(mode)) {
-> > > >> > > > @@ -5223,7 +5222,7 @@ static void mvpp2_mac_link_down(struct=
- phylink_config *config,
-> > > >> > > >                 }
-> > > >> > > >         }
-> > > >> > > >
-> > > >> > > > -       netif_tx_stop_all_queues(dev);
-> > > >> > > > +       netif_tx_stop_all_queues(port->dev);
-> > > >> > > >         mvpp2_egress_disable(port);
-> > > >> > > >         mvpp2_ingress_disable(port);
-> > > >> > > >
-> > > >> > > > --
-> > > >> > > > 2.20.1
-> > > >> > > >
-> > > >> > >
-> > > >> > > This patch fixes a regression that was introduced in v5.3:
-> > > >> > > Commit 44cc27e43fa3 ("net: phylink: Add struct phylink_config =
-to PHYLINK API")
-> > > >> > >
-> > > >> > > Above results in a NULL pointer dereference when booting the
-> > > >> > > Armada7k8k/CN913x with ACPI between 5.3 and 5.8, which will be
-> > > >> > > problematic especially for the distros using LTSv5.4 and above=
- (the
-> > > >> > > issue was reported on Fedora 32).
-> > > >> > >
-> > > >> > > Please help with backporting to the stable v5.3+ branches (it =
-applies
-> > > >> > > smoothly on v5.4/v5.6/v5.8).
-> > > >> > >
-> > > >> >
-> > > >> > Any chances to backport this patch to relevant v5.3+ stable bran=
-ches?
-> > > >>
-> > > >> What patch?  What git commit id needs to be backported?
-> > > >>
-> > > >
-> > > >The actual patch is:
-> > > >Commit 6c2b49eb9671  ("net: mvpp2: add mvpp2_phylink_to_port() helpe=
-r").
-> > > >
-> > > >URL for reference:
-> > > >https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/c=
-ommit/drivers/net/ethernet/marvell/mvpp2?h=3Dv5.10-rc7&id=3D6c2b49eb96716e9=
-1f202756bfbd3f5fea3b2b172
-> > > >
-> > > >Do you think it would be possible to get it merged to v5.3+ stable b=
-ranches?
-> > >
-> > > Could you explain how that patch fixes anything? It reads like a
-> > > cleanup.
-> > >
-> >
-> > Indeed, I am aware of it, but I'm not sure about the best way to fix
-> > it. In fact the mentioned patch is an unintentional fix. Commit
-> > 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK
-> > API") reworked an argument list of mvpp2_mac_config() routine in a way
-> > that resulted in a NULL pointer dereference when booting the
-> > Armada7k8k/CN913x with ACPI between 5.3 and 5.8. Part of Russell's
-> > patch resolves this issue.
->
-> What part fixes the issue?  I can't see it...
->
-
-I re-checked in my setup and here's the smallest part of the original
-patch, that fixes previously described issue:
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index e98be8372780..9d71a4fe1750 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4767,6 +4767,11 @@ static void mvpp2_port_copy_mac_addr(struct
-net_device *dev, struct mvpp2 *priv,
-        eth_hw_addr_random(dev);
- }
-
-+static struct mvpp2_port *mvpp2_phylink_to_port(struct phylink_config *con=
-fig)
-+{
-+       return container_of(config, struct mvpp2_port, phylink_config);
-+}
-+
- static void mvpp2_phylink_validate(struct phylink_config *config,
-                                   unsigned long *supported,
-                                   struct phylink_link_state *state)
-@@ -5105,13 +5110,12 @@ static void mvpp2_gmac_config(struct
-mvpp2_port *port, unsigned int mode,
- static void mvpp2_mac_config(struct phylink_config *config, unsigned int m=
-ode,
-                             const struct phylink_link_state *state)
- {
--       struct net_device *dev =3D to_net_dev(config->dev);
--       struct mvpp2_port *port =3D netdev_priv(dev);
-+       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
-        bool change_interface =3D port->phy_interface !=3D state->interface=
-;
-
-        /* Check for invalid configuration */
-        if (mvpp2_is_xlg(state->interface) && port->gop_id !=3D 0) {
--               netdev_err(dev, "Invalid mode on %s\n", dev->name);
-+               netdev_err(port->dev, "Invalid mode on %s\n", port->dev->na=
-me);
-                return;
-        }
-
-@@ -5151,8 +5155,7 @@ static void mvpp2_mac_link_up(struct
-phylink_config *config,
-                              int speed, int duplex,
-                              bool tx_pause, bool rx_pause)
- {
--       struct net_device *dev =3D to_net_dev(config->dev);
--       struct mvpp2_port *port =3D netdev_priv(dev);
-+       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
-        u32 val;
-
-        if (mvpp2_is_xlg(interface)) {
-@@ -5199,7 +5202,7 @@ static void mvpp2_mac_link_up(struct
-phylink_config *config,
-
-        mvpp2_egress_enable(port);
-        mvpp2_ingress_enable(port);
--       netif_tx_wake_all_queues(dev);
-+       netif_tx_wake_all_queues(port->dev);
- }
-
- static void mvpp2_mac_link_down(struct phylink_config *config,
---=20
-
-Do you think there is a point of slicing the original patch or rather
-cherry-pick as-is?
+sorry to bother you but I missed that the smp_cpu_get_cpu_address()
+address used here was only added with the
+commit 42d211a1ae3b77 ("s390/cpuinfo: show processor physical address")
+which landed in v5.7-rc1. This would therefore break if ever called
+(luckily it would not be called on any shipped hardware) and
+also causes a missing declaration warning as reported by
+Naresh Kamboju thanks!
+Since this is as of now just a spec fix, as on all known hardware
+the Linux CPU Id always matches the CPU Address, I would
+recommend to simply revert the commit.
+Thanks in advance!
 
 Best regards,
-Marcin
+Niklas Schnelle
+
+On 12/10/20 3:26 PM, Greg Kroah-Hartman wrote:
+> From: Alexander Gordeev <agordeev@linux.ibm.com>
+> 
+> commit a2bd4097b3ec242f4de4924db463a9c94530e03a upstream.
+> 
+> The directed MSIs are delivered to CPUs whose address is
+> written to the MSI message address. The current code assumes
+> that a CPU logical number (as it is seen by the kernel)
+> is also the CPU address.
+> 
+> The above assumption is not correct, as the CPU address
+> is rather the value returned by STAP instruction. That
+> value does not necessarily match the kernel logical CPU
+> number.
+> 
+> Fixes: e979ce7bced2 ("s390/pci: provide support for CPU directed interrupts")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> ---
+>  arch/s390/pci/pci_irq.c |   14 +++++++++++---
+>  1 file changed, 11 insertions(+), 3 deletions(-)
+> 
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -103,9 +103,10 @@ static int zpci_set_irq_affinity(struct
+>  {
+>  	struct msi_desc *entry = irq_get_msi_desc(data->irq);
+>  	struct msi_msg msg = entry->msg;
+> +	int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
+>  
+>  	msg.address_lo &= 0xff0000ff;
+> -	msg.address_lo |= (cpumask_first(dest) << 8);
+> +	msg.address_lo |= (cpu_addr << 8);
+>  	pci_write_msi_msg(data->irq, &msg);
+>  
+>  	return IRQ_SET_MASK_OK;
+> @@ -238,6 +239,7 @@ int arch_setup_msi_irqs(struct pci_dev *
+>  	unsigned long bit;
+>  	struct msi_desc *msi;
+>  	struct msi_msg msg;
+> +	int cpu_addr;
+>  	int rc, irq;
+>  
+>  	zdev->aisb = -1UL;
+> @@ -287,9 +289,15 @@ int arch_setup_msi_irqs(struct pci_dev *
+>  					 handle_percpu_irq);
+>  		msg.data = hwirq - bit;
+>  		if (irq_delivery == DIRECTED) {
+> +			if (msi->affinity)
+> +				cpu = cpumask_first(&msi->affinity->mask);
+> +			else
+> +				cpu = 0;
+> +			cpu_addr = smp_cpu_get_cpu_address(cpu);
+> +
+>  			msg.address_lo = zdev->msi_addr & 0xff0000ff;
+> -			msg.address_lo |= msi->affinity ?
+> -				(cpumask_first(&msi->affinity->mask) << 8) : 0;
+> +			msg.address_lo |= (cpu_addr << 8);
+> +
+>  			for_each_possible_cpu(cpu) {
+>  				airq_iv_set_data(zpci_ibv[cpu], hwirq, irq);
+>  			}
+> 
+> 
