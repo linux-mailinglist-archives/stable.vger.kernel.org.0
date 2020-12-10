@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC5F2D5DF6
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 253692D5DF7
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389383AbgLJOfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
+        id S2390960AbgLJOfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:35:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729384AbgLJOfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:41 -0500
+        id S2390958AbgLJOfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:44 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kurz <groug@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 29/54] powerpc/pseries: Pass MSI affinity to irq_create_mapping()
-Date:   Thu, 10 Dec 2020 15:27:06 +0100
-Message-Id: <20201210142603.469047504@linuxfoundation.org>
+        stable@vger.kernel.org, Sergei Shtepa <sergei.shtepa@veeam.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 30/54] dm: fix bug with RCU locking in dm_blk_report_zones
+Date:   Thu, 10 Dec 2020 15:27:07 +0100
+Message-Id: <20201210142603.516070160@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -33,54 +31,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Sergei Shtepa <sergei.shtepa@veeam.com>
 
-commit 9ea69a55b3b9a71cded9726af591949c1138f235 upstream.
+commit 89478335718c98557f10470a9bc5c555b9261c4e upstream.
 
-With virtio multiqueue, normally each queue IRQ is mapped to a CPU.
+The dm_get_live_table() function makes RCU read lock so
+dm_put_live_table() must be called even if dm_table map is not found.
 
-Commit 0d9f0a52c8b9f ("virtio_scsi: use virtio IRQ affinity") exposed
-an existing shortcoming of the arch code by moving virtio_scsi to
-the automatic IRQ affinity assignment.
-
-The affinity is correctly computed in msi_desc but this is not applied
-to the system IRQs.
-
-It appears the affinity is correctly passed to rtas_setup_msi_irqs() but
-lost at this point and never passed to irq_domain_alloc_descs()
-(see commit 06ee6d571f0e ("genirq: Add affinity hint to irq allocation"))
-because irq_create_mapping() doesn't take an affinity parameter.
-
-Use the new irq_create_mapping_affinity() function, which allows to forward
-the affinity setting from rtas_setup_msi_irqs() to irq_domain_alloc_descs().
-
-With this change, the virtqueues are correctly dispatched between the CPUs
-on pseries.
-
-Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: e76239a3748c9 ("block: add a report_zones method")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126082852.1178497-3-lvivier@redhat.com
+Signed-off-by: Sergei Shtepa <sergei.shtepa@veeam.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/msi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/msi.c
-+++ b/arch/powerpc/platforms/pseries/msi.c
-@@ -458,7 +458,8 @@ again:
- 			return hwirq;
- 		}
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -455,8 +455,10 @@ static int dm_blk_report_zones(struct ge
+ 		return -EAGAIN;
  
--		virq = irq_create_mapping(NULL, hwirq);
-+		virq = irq_create_mapping_affinity(NULL, hwirq,
-+						   entry->affinity);
+ 	map = dm_get_live_table(md, &srcu_idx);
+-	if (!map)
+-		return -EIO;
++	if (!map) {
++		ret = -EIO;
++		goto out;
++	}
  
- 		if (!virq) {
- 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
+ 	tgt = dm_table_find_target(map, sector);
+ 	if (!tgt) {
 
 
