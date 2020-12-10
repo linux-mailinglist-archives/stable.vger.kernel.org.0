@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 800B92D55DB
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2953A2D55FA
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 10:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727941AbgLJI4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 03:56:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49504 "EHLO mail.kernel.org"
+        id S1732446AbgLJJAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 04:00:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727710AbgLJI4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 03:56:49 -0500
-Subject: patch "USB: UAS: introduce a quirk to set no_write_same" added to usb-next
+        id S1732364AbgLJJAI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 04:00:08 -0500
+Subject: patch "driver: core: Fix list corruption after device_del()" added to driver-core-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607590568;
-        bh=GnG+rlBxSDMPjOoDMkX5eKuTGHdjf+IWUiSSWc/ex7w=;
+        s=korg; t=1607590767;
+        bh=Mu23pQXgGruaPylWadHOlvDHzFCUVS/VM6gOSELbWdY=;
         h=To:From:Date:From;
-        b=EYAfMLuRt2TXFycOt1Gqjko+UKxpiT2s0xmW8ytOZBvJOYanJ+PugB0jbJcrKfe2O
-         H02IXSTUZkCz3XCfsAsbhNYRHQWTsg+fsaowsBo5zR4UPgC5ArFb/+u8by60zau7q7
-         QW4CspxPyu8qZX3oCOCAQimABbJ4we+eoa5WfuUo=
-To:     oneukum@suse.com, david.partridge@perdrix.co.uk,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=p22cOsTSNxXdps7fy7LLr/443+IWKEa7YZLdFj4y7zhOqgSysmB+XVkKHuanka8P9
+         If3QScFz/hMOeO5BtF7ZANO5fZJnt+R765yBZ/Fqoq8koDIL1qDBWRCu7e+aaHi43R
+         +jfnkyp0RDv7Spo0Mo2DUfzCVgM8Tw1pcNSkFauE=
+To:     tiwai@suse.de, gregkh@linuxfoundation.org,
+        rafael.j.wysocki@intel.com, saravanak@google.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 09:56:39 +0100
-Message-ID: <160759059910798@kroah.com>
+Date:   Thu, 10 Dec 2020 09:58:41 +0100
+Message-ID: <1607590721107116@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -34,11 +35,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: UAS: introduce a quirk to set no_write_same
+    driver: core: Fix list corruption after device_del()
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -49,105 +50,47 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 8010622c86ca5bb44bc98492f5968726fc7c7a21 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 9 Dec 2020 16:26:39 +0100
-Subject: USB: UAS: introduce a quirk to set no_write_same
+From 66482f640755b31cb94371ff6cef17400cda6db5 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Tue, 8 Dec 2020 20:03:26 +0100
+Subject: driver: core: Fix list corruption after device_del()
 
-UAS does not share the pessimistic assumption storage is making that
-devices cannot deal with WRITE_SAME.  A few devices supported by UAS,
-are reported to not deal well with WRITE_SAME. Those need a quirk.
+The device_links_purge() function (called from device_del()) tries to
+remove the links.needs_suppliers list entry, but it's using
+list_del(), hence it doesn't initialize after the removal.  This is OK
+for normal cases where device_del() is called via device_destroy().
+However, it's not guaranteed that the device object will be really
+deleted soon after device_del().  In a minor case like HD-audio codec
+reconfiguration that re-initializes the device after device_del(), it
+may lead to a crash by the corrupted list entry.
 
-Add it to the device that needs it.
+As a simple fix, replace list_del() with list_del_init() in order to
+make the list intact after the device_del() call.
 
-Reported-by: David C. Partridge <david.partridge@perdrix.co.uk>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209152639.9195-1-oneukum@suse.com
+Fixes: e2ae9bcc4aaa ("driver core: Add support for linking devices during device addition")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20201208190326.27531-1-tiwai@suse.de
+Cc: Saravana Kannan <saravanak@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt | 1 +
- drivers/usb/storage/uas.c                       | 3 +++
- drivers/usb/storage/unusual_uas.h               | 7 +++++--
- drivers/usb/storage/usb.c                       | 3 +++
- include/linux/usb_usual.h                       | 2 ++
- 5 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/base/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 44fde25bb221..f6a1513dfb76 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5663,6 +5663,7 @@
- 					device);
- 				j = NO_REPORT_LUNS (don't use report luns
- 					command, uas only);
-+				k = NO_SAME (do not use WRITE_SAME, uas only)
- 				l = NOT_LOCKABLE (don't try to lock and
- 					unlock ejectable media, not on uas);
- 				m = MAX_SECTORS_64 (don't transfer more
-diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
-index 56422c4b4ff3..bef89c6bd1d7 100644
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -868,6 +868,9 @@ static int uas_slave_configure(struct scsi_device *sdev)
- 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
- 		sdev->no_read_capacity_16 = 1;
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 1165a80f8010..ba5a3cac6571 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1384,7 +1384,7 @@ static void device_links_purge(struct device *dev)
+ 		return;
  
-+	/* Some disks cannot handle WRITE_SAME */
-+	if (devinfo->flags & US_FL_NO_SAME)
-+		sdev->no_write_same = 1;
+ 	mutex_lock(&wfs_lock);
+-	list_del(&dev->links.needs_suppliers);
++	list_del_init(&dev->links.needs_suppliers);
+ 	mutex_unlock(&wfs_lock);
+ 
  	/*
- 	 * Some disks return the total number of blocks in response
- 	 * to READ CAPACITY rather than the highest block number.
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index 711ab240058c..870e9cf3d5dc 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -35,12 +35,15 @@ UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES),
- 
--/* Reported-by: Julian Groß <julian.g@posteo.de> */
-+/*
-+ *  Initially Reported-by: Julian Groß <julian.g@posteo.de>
-+ *  Further reports David C. Partridge <david.partridge@perdrix.co.uk>
-+ */
- UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
- 		"LaCie",
- 		"2Big Quadra USB3",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
- 
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-diff --git a/drivers/usb/storage/usb.c b/drivers/usb/storage/usb.c
-index 94a64729dc27..90aa9c12ffac 100644
---- a/drivers/usb/storage/usb.c
-+++ b/drivers/usb/storage/usb.c
-@@ -541,6 +541,9 @@ void usb_stor_adjust_quirks(struct usb_device *udev, unsigned long *fflags)
- 		case 'j':
- 			f |= US_FL_NO_REPORT_LUNS;
- 			break;
-+		case 'k':
-+			f |= US_FL_NO_SAME;
-+			break;
- 		case 'l':
- 			f |= US_FL_NOT_LOCKABLE;
- 			break;
-diff --git a/include/linux/usb_usual.h b/include/linux/usb_usual.h
-index 4a19ac3f24d0..6b03fdd69d27 100644
---- a/include/linux/usb_usual.h
-+++ b/include/linux/usb_usual.h
-@@ -84,6 +84,8 @@
- 		/* Cannot handle REPORT_LUNS */			\
- 	US_FLAG(ALWAYS_SYNC, 0x20000000)			\
- 		/* lies about caching, so always sync */	\
-+	US_FLAG(NO_SAME, 0x40000000)				\
-+		/* Cannot handle WRITE_SAME */			\
- 
- #define US_FLAG(name, value)	US_FL_##name = value ,
- enum { US_DO_ALL_FLAGS };
 -- 
 2.29.2
 
