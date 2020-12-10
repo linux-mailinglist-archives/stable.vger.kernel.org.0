@@ -2,27 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3402C2D66A4
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3867D2D668B
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389063AbgLJTg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37288 "EHLO mail.kernel.org"
+        id S2390323AbgLJTcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:32:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733131AbgLJO3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:09 -0500
+        id S1732596AbgLJO3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:45 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>, Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 4.4 22/39] tty: Fix ->pgrp locking in tiocspgrp()
-Date:   Thu, 10 Dec 2020 15:26:33 +0100
-Message-Id: <20201210142601.998849411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Toshiaki Makita <toshiaki.makita1@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 20/45] vlan: consolidate VLAN parsing code and limit max parsing depth
+Date:   Thu, 10 Dec 2020 15:26:34 +0100
+Message-Id: <20201210142603.364043007@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
-References: <20201210142600.887734129@linuxfoundation.org>
+In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142602.361598591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,44 +35,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 54ffccbf053b5b6ca4f6e45094b942fab92a25fc upstream.
+[ Upstream commit 469aceddfa3ed16e17ee30533fae45e90f62efd8 ]
 
-tiocspgrp() takes two tty_struct pointers: One to the tty that userspace
-passed to ioctl() (`tty`) and one to the TTY being changed (`real_tty`).
-These pointers are different when ioctl() is called with a master fd.
+Toshiaki pointed out that we now have two very similar functions to extract
+the L3 protocol number in the presence of VLAN tags. And Daniel pointed out
+that the unbounded parsing loop makes it possible for maliciously crafted
+packets to loop through potentially hundreds of tags.
 
-To properly lock real_tty->pgrp, we must take real_tty->ctrl_lock.
+Fix both of these issues by consolidating the two parsing functions and
+limiting the VLAN tag parsing to a max depth of 8 tags. As part of this,
+switch over __vlan_get_protocol() to use skb_header_pointer() instead of
+pskb_may_pull(), to avoid the possible side effects of the latter and keep
+the skb pointer 'const' through all the parsing functions.
 
-This bug makes it possible for racing ioctl(TIOCSPGRP, ...) calls on
-both sides of a PTY pair to corrupt the refcount of `struct pid`,
-leading to use-after-free errors.
+v2:
+- Use limit of 8 tags instead of 32 (matching XMIT_RECURSION_LIMIT)
 
-Fixes: 47f86834bbd4 ("redo locking of tty->pgrp")
-CC: stable@kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Reported-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: d7bf2ebebc2b ("sched: consistently handle layer3 header accesses in the presence of VLANs")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/if_vlan.h | 29 ++++++++++++++++++++++-------
+ include/net/inet_ecn.h  |  1 +
+ 2 files changed, 23 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2618,10 +2618,10 @@ static int tiocspgrp(struct tty_struct *
- 	if (session_of_pgrp(pgrp) != task_session(current))
- 		goto out_unlock;
- 	retval = 0;
--	spin_lock_irq(&tty->ctrl_lock);
-+	spin_lock_irq(&real_tty->ctrl_lock);
- 	put_pid(real_tty->pgrp);
- 	real_tty->pgrp = get_pid(pgrp);
--	spin_unlock_irq(&tty->ctrl_lock);
-+	spin_unlock_irq(&real_tty->ctrl_lock);
- out_unlock:
- 	rcu_read_unlock();
- 	return retval;
+diff --git a/include/linux/if_vlan.h b/include/linux/if_vlan.h
+index 7e39719e27cbc..27edc7f2de31b 100644
+--- a/include/linux/if_vlan.h
++++ b/include/linux/if_vlan.h
+@@ -30,6 +30,8 @@
+ #define VLAN_ETH_DATA_LEN	1500	/* Max. octets in payload	 */
+ #define VLAN_ETH_FRAME_LEN	1518	/* Max. octets in frame sans FCS */
+ 
++#define VLAN_MAX_DEPTH	8		/* Max. number of nested VLAN tags parsed */
++
+ /*
+  * 	struct vlan_hdr - vlan header
+  * 	@h_vlan_TCI: priority and VLAN ID
+@@ -495,10 +497,10 @@ static inline int vlan_get_tag(const struct sk_buff *skb, u16 *vlan_tci)
+  * Returns the EtherType of the packet, regardless of whether it is
+  * vlan encapsulated (normal or hardware accelerated) or not.
+  */
+-static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
++static inline __be16 __vlan_get_protocol(const struct sk_buff *skb, __be16 type,
+ 					 int *depth)
+ {
+-	unsigned int vlan_depth = skb->mac_len;
++	unsigned int vlan_depth = skb->mac_len, parse_depth = VLAN_MAX_DEPTH;
+ 
+ 	/* if type is 802.1Q/AD then the header should already be
+ 	 * present at mac_len - VLAN_HLEN (if mac_len > 0), or at
+@@ -513,13 +515,12 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
+ 			vlan_depth = ETH_HLEN;
+ 		}
+ 		do {
+-			struct vlan_hdr *vh;
++			struct vlan_hdr vhdr, *vh;
+ 
+-			if (unlikely(!pskb_may_pull(skb,
+-						    vlan_depth + VLAN_HLEN)))
++			vh = skb_header_pointer(skb, vlan_depth, sizeof(vhdr), &vhdr);
++			if (unlikely(!vh || !--parse_depth))
+ 				return 0;
+ 
+-			vh = (struct vlan_hdr *)(skb->data + vlan_depth);
+ 			type = vh->h_vlan_encapsulated_proto;
+ 			vlan_depth += VLAN_HLEN;
+ 		} while (eth_type_vlan(type));
+@@ -538,11 +539,25 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
+  * Returns the EtherType of the packet, regardless of whether it is
+  * vlan encapsulated (normal or hardware accelerated) or not.
+  */
+-static inline __be16 vlan_get_protocol(struct sk_buff *skb)
++static inline __be16 vlan_get_protocol(const struct sk_buff *skb)
+ {
+ 	return __vlan_get_protocol(skb, skb->protocol, NULL);
+ }
+ 
++/* A getter for the SKB protocol field which will handle VLAN tags consistently
++ * whether VLAN acceleration is enabled or not.
++ */
++static inline __be16 skb_protocol(const struct sk_buff *skb, bool skip_vlan)
++{
++	if (!skip_vlan)
++		/* VLAN acceleration strips the VLAN header from the skb and
++		 * moves it to skb->vlan_proto
++		 */
++		return skb_vlan_tag_present(skb) ? skb->vlan_proto : skb->protocol;
++
++	return vlan_get_protocol(skb);
++}
++
+ static inline void vlan_set_encap_proto(struct sk_buff *skb,
+ 					struct vlan_hdr *vhdr)
+ {
+diff --git a/include/net/inet_ecn.h b/include/net/inet_ecn.h
+index dce2d586d9cec..245d999c0eac8 100644
+--- a/include/net/inet_ecn.h
++++ b/include/net/inet_ecn.h
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/ip.h>
+ #include <linux/skbuff.h>
++#include <linux/if_vlan.h>
+ 
+ #include <net/inet_sock.h>
+ #include <net/dsfield.h>
+-- 
+2.27.0
+
 
 
