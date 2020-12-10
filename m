@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D89F82D5FC8
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA152D5FC9
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391575AbgLJPbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 10:31:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
+        id S2391625AbgLJPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 10:32:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390792AbgLJPbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 10:31:44 -0500
+        id S2391789AbgLJPb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 10:31:57 -0500
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     stable@vger.kernel.org
@@ -24,10 +24,12 @@ Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Masami Hiramatsu <mhiramat@kernel.org>,
         Solar Designer <solar@openwall.com>, Eddy_Wu@trendmicro.com,
         Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 1/2] kprobes: Remove NMI context check
-Date:   Fri, 11 Dec 2020 00:30:58 +0900
-Message-Id: <160761425763.3585575.15837172081484340228.stgit@devnote2>
+Subject: [PATCH 2/2] kprobes: Tell lockdep about kprobe nesting
+Date:   Fri, 11 Dec 2020 00:31:09 +0900
+Message-Id: <160761426940.3585575.9968752396885952490.stgit@devnote2>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <160761425763.3585575.15837172081484340228.stgit@devnote2>
+References: <160761425763.3585575.15837172081484340228.stgit@devnote2>
 User-Agent: StGit/0.19
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -36,71 +38,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e03b4a084ea6b0a18b0e874baec439e69090c168 upstream.
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-The in_nmi() check in pre_handler_kretprobe() is meant to avoid
-recursion, and blindly assumes that anything NMI is recursive.
+commit 645f224e7ba2f4200bf163153d384ceb0de5462e upstream.
 
-However, since commit:
+Since the kprobe handlers have protection that prohibits other handlers from
+executing in other contexts (like if an NMI comes in while processing a
+kprobe, and executes the same kprobe, it will get fail with a "busy"
+return). Lockdep is unaware of this protection. Use lockdep's nesting api to
+differentiate between locks taken in INT3 context and other context to
+suppress the false warnings.
 
-  9b38cc704e84 ("kretprobe: Prevent triggering kretprobe from within kprobe_flush_task")
-
-there is a better way to detect and avoid actual recursion.
-
-By setting a dummy kprobe, any actual exceptions will terminate early
-(by trying to handle the dummy kprobe), and recursion will not happen.
-
-Employ this to avoid the kretprobe_table_lock() recursion, replacing
-the over-eager in_nmi() check.
+Link: https://lore.kernel.org/r/20201102160234.fa0ae70915ad9e2b21c08b85@kernel.org
 
 Cc: stable@vger.kernel.org # 5.9.x
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/159870615628.1229682.6087311596892125907.stgit@devnote2
+Cc: Peter Zijlstra <peterz@infradead.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- kernel/kprobes.c |   16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ kernel/kprobes.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index e995541d277d..b885d884603d 100644
+index b885d884603d..1b7fd1ab8ddc 100644
 --- a/kernel/kprobes.c
 +++ b/kernel/kprobes.c
-@@ -1359,7 +1359,8 @@ static void cleanup_rp_inst(struct kretprobe *rp)
- 	struct hlist_node *next;
- 	struct hlist_head *head;
+@@ -1250,7 +1250,13 @@ __acquires(hlist_lock)
  
--	/* No race here */
-+	/* To avoid recursive kretprobe by NMI, set kprobe busy here */
-+	kprobe_busy_begin();
- 	for (hash = 0; hash < KPROBE_TABLE_SIZE; hash++) {
- 		kretprobe_table_lock(hash, &flags);
- 		head = &kretprobe_inst_table[hash];
-@@ -1369,6 +1370,8 @@ static void cleanup_rp_inst(struct kretprobe *rp)
- 		}
- 		kretprobe_table_unlock(hash, &flags);
- 	}
-+	kprobe_busy_end();
-+
- 	free_rp_inst(rp);
+ 	*head = &kretprobe_inst_table[hash];
+ 	hlist_lock = kretprobe_table_lock_ptr(hash);
+-	raw_spin_lock_irqsave(hlist_lock, *flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 * Differentiate when it is taken in NMI context.
++	 */
++	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
  }
- NOKPROBE_SYMBOL(cleanup_rp_inst);
-@@ -1937,17 +1940,6 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
- 	unsigned long hash, flags = 0;
- 	struct kretprobe_instance *ri;
+ NOKPROBE_SYMBOL(kretprobe_hash_lock);
  
--	/*
--	 * To avoid deadlocks, prohibit return probing in NMI contexts,
--	 * just skip the probe and increase the (inexact) 'nmissed'
--	 * statistical counter, so that the user is informed that
--	 * something happened:
--	 */
--	if (unlikely(in_nmi())) {
--		rp->nmissed++;
--		return 0;
--	}
--
+@@ -1259,7 +1265,13 @@ static void kretprobe_table_lock(unsigned long hash,
+ __acquires(hlist_lock)
+ {
+ 	raw_spinlock_t *hlist_lock = kretprobe_table_lock_ptr(hash);
+-	raw_spin_lock_irqsave(hlist_lock, *flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 * Differentiate when it is taken in NMI context.
++	 */
++	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
+ }
+ NOKPROBE_SYMBOL(kretprobe_table_lock);
+ 
+@@ -1942,7 +1954,12 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
+ 
  	/* TODO: consider to only swap the RA after the last pre_handler fired */
  	hash = hash_ptr(current, KPROBE_HASH_BITS);
- 	raw_spin_lock_irqsave(&rp->lock, flags);
+-	raw_spin_lock_irqsave(&rp->lock, flags);
++	/*
++	 * Nested is a workaround that will soon not be needed.
++	 * There's other protections that make sure the same lock
++	 * is not taken on the same CPU that lockdep is unaware of.
++	 */
++	raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
+ 	if (!hlist_empty(&rp->free_instances)) {
+ 		ri = hlist_entry(rp->free_instances.first,
+ 				struct kretprobe_instance, hlist);
+@@ -1953,7 +1970,7 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
+ 		ri->task = current;
+ 
+ 		if (rp->entry_handler && rp->entry_handler(ri, regs)) {
+-			raw_spin_lock_irqsave(&rp->lock, flags);
++			raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
+ 			hlist_add_head(&ri->hlist, &rp->free_instances);
+ 			raw_spin_unlock_irqrestore(&rp->lock, flags);
+ 			return 0;
 
