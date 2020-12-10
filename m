@@ -2,31 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0165D2D6270
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 797082D6272
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:50:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391082AbgLJOh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:37:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44412 "EHLO mail.kernel.org"
+        id S2391087AbgLJOhd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:37:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391077AbgLJOhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:37:20 -0500
+        id S2391065AbgLJOhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:37:23 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 5.9 01/75] usb: gadget: f_fs: Use local copy of descriptors for userspace copy
-Date:   Thu, 10 Dec 2020 15:26:26 +0100
-Message-Id: <20201210142606.143549022@linuxfoundation.org>
+        stable@vger.kernel.org, Shisong Qin <qinshisong1205@gmail.com>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH 5.9 10/75] speakup: Reject setting the speakup line discipline outside of speakup
+Date:   Thu, 10 Dec 2020 15:26:35 +0100
+Message-Id: <20201210142606.578300722@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
 References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,51 +31,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit a4b98a7512f18534ce33a7e98e49115af59ffa00 upstream.
+commit f0992098cadb4c9c6a00703b66cafe604e178fea upstream.
 
-The function may be unbound causing the ffs_ep and its descriptors
-to be freed while userspace is in the middle of an ioctl requesting
-the same descriptors. Avoid dangling pointer reference by first
-making a local copy of desctiptors before releasing the spinlock.
+Speakup exposing a line discipline allows userland to try to use it,
+while it is deemed to be useless, and thus uselessly exposes potential
+bugs. One of them is simply that in such a case if the line sends data,
+spk_ttyio_receive_buf2 is called and crashes since spk_ttyio_synth
+is NULL.
 
-Fixes: c559a3534109 ("usb: gadget: f_fs: add ioctl returning ep descriptor")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201130203453.28154-1-jackp@codeaurora.org
+This change restricts the use of the speakup line discipline to
+speakup drivers, thus avoiding such kind of issues altogether.
+
+Cc: stable@vger.kernel.org
+Reported-by: Shisong Qin <qinshisong1205@gmail.com>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Tested-by: Shisong Qin <qinshisong1205@gmail.com>
+Link: https://lore.kernel.org/r/20201129193523.hm3f6n5xrn6fiyyc@function
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_fs.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/accessibility/speakup/spk_ttyio.c |   37 ++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1324,7 +1324,7 @@ static long ffs_epfile_ioctl(struct file
- 	case FUNCTIONFS_ENDPOINT_DESC:
- 	{
- 		int desc_idx;
--		struct usb_endpoint_descriptor *desc;
-+		struct usb_endpoint_descriptor desc1, *desc;
+--- a/drivers/accessibility/speakup/spk_ttyio.c
++++ b/drivers/accessibility/speakup/spk_ttyio.c
+@@ -47,27 +47,20 @@ static int spk_ttyio_ldisc_open(struct t
+ {
+ 	struct spk_ldisc_data *ldisc_data;
  
- 		switch (epfile->ffs->gadget->speed) {
- 		case USB_SPEED_SUPER:
-@@ -1336,10 +1336,12 @@ static long ffs_epfile_ioctl(struct file
- 		default:
- 			desc_idx = 0;
- 		}
++	if (tty != speakup_tty)
++		/* Somebody tried to use this line discipline outside speakup */
++		return -ENODEV;
 +
- 		desc = epfile->ep->descs[desc_idx];
-+		memcpy(&desc1, desc, desc->bLength);
+ 	if (!tty->ops->write)
+ 		return -EOPNOTSUPP;
  
- 		spin_unlock_irq(&epfile->ffs->eps_lock);
--		ret = copy_to_user((void __user *)value, desc, desc->bLength);
-+		ret = copy_to_user((void __user *)value, &desc1, desc1.bLength);
- 		if (ret)
- 			ret = -EFAULT;
- 		return ret;
+-	mutex_lock(&speakup_tty_mutex);
+-	if (speakup_tty) {
+-		mutex_unlock(&speakup_tty_mutex);
+-		return -EBUSY;
+-	}
+-	speakup_tty = tty;
+-
+ 	ldisc_data = kmalloc(sizeof(*ldisc_data), GFP_KERNEL);
+-	if (!ldisc_data) {
+-		speakup_tty = NULL;
+-		mutex_unlock(&speakup_tty_mutex);
++	if (!ldisc_data)
+ 		return -ENOMEM;
+-	}
+ 
+ 	init_completion(&ldisc_data->completion);
+ 	ldisc_data->buf_free = true;
+-	speakup_tty->disc_data = ldisc_data;
+-	mutex_unlock(&speakup_tty_mutex);
++	tty->disc_data = ldisc_data;
+ 
+ 	return 0;
+ }
+@@ -191,9 +184,25 @@ static int spk_ttyio_initialise_ldisc(st
+ 
+ 	tty_unlock(tty);
+ 
++	mutex_lock(&speakup_tty_mutex);
++	speakup_tty = tty;
+ 	ret = tty_set_ldisc(tty, N_SPEAKUP);
+ 	if (ret)
+-		pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++		speakup_tty = NULL;
++	mutex_unlock(&speakup_tty_mutex);
++
++	if (!ret)
++		/* Success */
++		return 0;
++
++	pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++
++	tty_lock(tty);
++	if (tty->ops->close)
++		tty->ops->close(tty, NULL);
++	tty_unlock(tty);
++
++	tty_kclose(tty);
+ 
+ 	return ret;
+ }
 
 
