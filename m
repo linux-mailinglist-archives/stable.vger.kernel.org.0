@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E443C2D660A
+	by mail.lfdr.de (Postfix) with ESMTP id 778402D6609
 	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390456AbgLJOay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:30:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S2390469AbgLJObA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:31:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390451AbgLJOar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:30:47 -0500
+        id S2388474AbgLJOau (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:30:50 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 4.9 42/45] gfs2: check for empty rgrp tree in gfs2_ri_update
-Date:   Thu, 10 Dec 2020 15:26:56 +0100
-Message-Id: <20201210142604.420347613@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.9 43/45] i2c: qup: Fix error return code in qup_i2c_bam_schedule_desc()
+Date:   Thu, 10 Dec 2020 15:26:57 +0100
+Message-Id: <20201210142604.460327484@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -33,37 +33,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 778721510e84209f78e31e2ccb296ae36d623f5e upstream.
+commit e9acf0298c664f825e6f1158f2a97341bf9e03ca upstream.
 
-If gfs2 tries to mount a (corrupt) file system that has no resource
-groups it still tries to set preferences on the first one, which causes
-a kernel null pointer dereference. This patch adds a check to function
-gfs2_ri_update so this condition is detected and reported back as an
-error.
+Fix to return the error code from qup_i2c_change_state()
+instaed of 0 in qup_i2c_bam_schedule_desc().
 
-Reported-by: syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: fbf9921f8b35d9b2 ("i2c: qup: Fix error handling")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/rgrp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-qup.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1000,6 +1000,10 @@ static int gfs2_ri_update(struct gfs2_in
- 	if (error < 0)
- 		return error;
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -810,7 +810,8 @@ static int qup_i2c_bam_do_xfer(struct qu
+ 	if (ret || qup->bus_err || qup->qup_err) {
+ 		reinit_completion(&qup->xfer);
  
-+	if (RB_EMPTY_ROOT(&sdp->sd_rindex_tree)) {
-+		fs_err(sdp, "no resource groups found in the file system.\n");
-+		return -ENOENT;
-+	}
- 	set_rgrp_preferences(sdp);
- 
- 	sdp->sd_rindex_uptodate = 1;
+-		if (qup_i2c_change_state(qup, QUP_RUN_STATE)) {
++		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
++		if (ret) {
+ 			dev_err(qup->dev, "change to run state timed out");
+ 			goto desc_err;
+ 		}
 
 
