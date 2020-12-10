@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC98E2D56E7
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 10:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E99D42D56F8
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 10:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732645AbgLJJVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 04:21:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34858 "EHLO mail.kernel.org"
+        id S1727120AbgLJJWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 04:22:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728246AbgLJJVF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 04:21:05 -0500
-Subject: patch "binder: add flag to clear buffer on txn complete" added to char-misc-next
+        id S1727979AbgLJJWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 04:22:52 -0500
+Subject: patch "serial_core: Check for port state when tty is in error state" added to tty-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607592024;
-        bh=T1cyx07AkRTCcuVV3SjgG6I41EW6aHx/kxB0b+kKdMA=;
+        s=korg; t=1607592131;
+        bh=v5HrVfp2sChvsjBRFcsIn5ds6bmHOwzRbC/AS00BqYg=;
         h=To:From:Date:From;
-        b=k3IxuAq84Ij3vcrRtGhHzE8YWddc3xw4x8nJu1EpRfWEqoRZXZlQlMa317WDv6avX
-         YHg7pAUJsOPHbPPxFiQg9H1IUP3aq4LZgPQVnQ3xQ4LPz2WNJj7LwJu7Y6umywdW3D
-         6dmLUOXIC15OWqPq2Baure+3NtO4AK4R/OdlC/4M=
-To:     tkjos@google.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=arPyBgbd0PcmYWrQjLtSwzwrIgXFiW20cr70+9zj6IFCNKec4I882xnbmsCdoVqrl
+         4g9YWKi/jN1nIHdnje5bGNG4Vhav71ANgM6WcuBOCQzzSvoJlFD3YAp7ZMPtX2YRqZ
+         gIV7N+2kTENJSvU+b0aMf/zuxYIGiyhGXyEr0uCA=
+To:     aik@ozlabs.ru, gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 09:59:00 +0100
-Message-ID: <16075907407346@kroah.com>
+Date:   Thu, 10 Dec 2020 09:59:51 +0100
+Message-ID: <160759079167171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,11 +33,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    binder: add flag to clear buffer on txn complete
+    serial_core: Check for port state when tty is in error state
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -49,155 +48,50 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 0f966cba95c78029f491b433ea95ff38f414a761 Mon Sep 17 00:00:00 2001
-From: Todd Kjos <tkjos@google.com>
-Date: Fri, 20 Nov 2020 15:37:43 -0800
-Subject: binder: add flag to clear buffer on txn complete
+From 2f70e49ed860020f5abae4f7015018ebc10e1f0e Mon Sep 17 00:00:00 2001
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
+Date: Thu, 3 Dec 2020 16:58:34 +1100
+Subject: serial_core: Check for port state when tty is in error state
 
-Add a per-transaction flag to indicate that the buffer
-must be cleared when the transaction is complete to
-prevent copies of sensitive data from being preserved
-in memory.
+At the moment opening a serial device node (such as /dev/ttyS3)
+succeeds even if there is no actual serial device behind it.
+Reading/writing/ioctls fail as expected because the uart port is not
+initialized (the type is PORT_UNKNOWN) and the TTY_IO_ERROR error state
+bit is set fot the tty.
 
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20201120233743.3617529-1-tkjos@google.com
+However setting line discipline does not have these checks
+8250_port.c (8250 is the default choice made by univ8250_console_init()).
+As the result of PORT_UNKNOWN, uart_port::iobase is NULL which
+a platform translates onto some address accessing which produces a crash
+like below.
+
+This adds tty_port_initialized() to uart_set_ldisc() to prevent the crash.
+
+Found by syzkaller.
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Link: https://lore.kernel.org/r/20201203055834.45838-1-aik@ozlabs.ru
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c            |  1 +
- drivers/android/binder_alloc.c      | 48 +++++++++++++++++++++++++++++
- drivers/android/binder_alloc.h      |  4 ++-
- include/uapi/linux/android/binder.h |  1 +
- 4 files changed, 53 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 20b08f52e788..1338209f9f86 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2756,6 +2756,7 @@ static void binder_transaction(struct binder_proc *proc,
- 	t->buffer->debug_id = t->debug_id;
- 	t->buffer->transaction = t;
- 	t->buffer->target_node = target_node;
-+	t->buffer->clear_on_free = !!(t->flags & TF_CLEAR_BUF);
- 	trace_binder_transaction_alloc_buf(t->buffer);
- 
- 	if (binder_alloc_copy_user_to_buffer(
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 2f846b7ae8b8..7caf74ad2405 100644
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -696,6 +696,8 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
- 	binder_insert_free_buffer(alloc, buffer);
- }
- 
-+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
-+				   struct binder_buffer *buffer);
- /**
-  * binder_alloc_free_buf() - free a binder buffer
-  * @alloc:	binder_alloc for this proc
-@@ -706,6 +708,18 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
- void binder_alloc_free_buf(struct binder_alloc *alloc,
- 			    struct binder_buffer *buffer)
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index f41cba10b86b..828f9ad1be49 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1467,6 +1467,10 @@ static void uart_set_ldisc(struct tty_struct *tty)
  {
-+	/*
-+	 * We could eliminate the call to binder_alloc_clear_buf()
-+	 * from binder_alloc_deferred_release() by moving this to
-+	 * binder_alloc_free_buf_locked(). However, that could
-+	 * increase contention for the alloc mutex if clear_on_free
-+	 * is used frequently for large buffers. The mutex is not
-+	 * needed for correctness here.
-+	 */
-+	if (buffer->clear_on_free) {
-+		binder_alloc_clear_buf(alloc, buffer);
-+		buffer->clear_on_free = false;
-+	}
- 	mutex_lock(&alloc->mutex);
- 	binder_free_buf_locked(alloc, buffer);
- 	mutex_unlock(&alloc->mutex);
-@@ -802,6 +816,10 @@ void binder_alloc_deferred_release(struct binder_alloc *alloc)
- 		/* Transaction should already have been freed */
- 		BUG_ON(buffer->transaction);
- 
-+		if (buffer->clear_on_free) {
-+			binder_alloc_clear_buf(alloc, buffer);
-+			buffer->clear_on_free = false;
-+		}
- 		binder_free_buf_locked(alloc, buffer);
- 		buffers++;
- 	}
-@@ -1135,6 +1153,36 @@ static struct page *binder_alloc_get_page(struct binder_alloc *alloc,
- 	return lru_page->page_ptr;
- }
- 
-+/**
-+ * binder_alloc_clear_buf() - zero out buffer
-+ * @alloc: binder_alloc for this proc
-+ * @buffer: binder buffer to be cleared
-+ *
-+ * memset the given buffer to 0
-+ */
-+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
-+				   struct binder_buffer *buffer)
-+{
-+	size_t bytes = binder_alloc_buffer_size(alloc, buffer);
-+	binder_size_t buffer_offset = 0;
+ 	struct uart_state *state = tty->driver_data;
+ 	struct uart_port *uport;
++	struct tty_port *port = &state->port;
 +
-+	while (bytes) {
-+		unsigned long size;
-+		struct page *page;
-+		pgoff_t pgoff;
-+		void *kptr;
-+
-+		page = binder_alloc_get_page(alloc, buffer,
-+					     buffer_offset, &pgoff);
-+		size = min_t(size_t, bytes, PAGE_SIZE - pgoff);
-+		kptr = kmap(page) + pgoff;
-+		memset(kptr, 0, size);
-+		kunmap(page);
-+		bytes -= size;
-+		buffer_offset += size;
-+	}
-+}
-+
- /**
-  * binder_alloc_copy_user_to_buffer() - copy src user to tgt user
-  * @alloc: binder_alloc for this proc
-diff --git a/drivers/android/binder_alloc.h b/drivers/android/binder_alloc.h
-index 55d8b4106766..6e8e001381af 100644
---- a/drivers/android/binder_alloc.h
-+++ b/drivers/android/binder_alloc.h
-@@ -23,6 +23,7 @@ struct binder_transaction;
-  * @entry:              entry alloc->buffers
-  * @rb_node:            node for allocated_buffers/free_buffers rb trees
-  * @free:               %true if buffer is free
-+ * @clear_on_free:      %true if buffer must be zeroed after use
-  * @allow_user_free:    %true if user is allowed to free buffer
-  * @async_transaction:  %true if buffer is in use for an async txn
-  * @debug_id:           unique ID for debugging
-@@ -41,9 +42,10 @@ struct binder_buffer {
- 	struct rb_node rb_node; /* free entry by size or allocated entry */
- 				/* by address */
- 	unsigned free:1;
-+	unsigned clear_on_free:1;
- 	unsigned allow_user_free:1;
- 	unsigned async_transaction:1;
--	unsigned debug_id:29;
-+	unsigned debug_id:28;
++	if (!tty_port_initialized(port))
++		return;
  
- 	struct binder_transaction *transaction;
- 
-diff --git a/include/uapi/linux/android/binder.h b/include/uapi/linux/android/binder.h
-index f1ce2c4c077e..ec84ad106568 100644
---- a/include/uapi/linux/android/binder.h
-+++ b/include/uapi/linux/android/binder.h
-@@ -248,6 +248,7 @@ enum transaction_flags {
- 	TF_ROOT_OBJECT	= 0x04,	/* contents are the component's root object */
- 	TF_STATUS_CODE	= 0x08,	/* contents are a 32-bit status code */
- 	TF_ACCEPT_FDS	= 0x10,	/* allow replies with file descriptors */
-+	TF_CLEAR_BUF	= 0x20,	/* clear buffer on txn complete */
- };
- 
- struct binder_transaction_data {
+ 	mutex_lock(&state->port.mutex);
+ 	uport = uart_port_check(state);
 -- 
 2.29.2
 
