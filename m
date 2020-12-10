@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC01F2D62DF
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30AE82D62E2
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392456AbgLJRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 12:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43616 "EHLO mail.kernel.org"
+        id S2388796AbgLJRBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 12:01:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390983AbgLJOgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:09 -0500
+        id S2390969AbgLJOf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 38/54] i2c: imx: Check for I2SR_IAL after every byte
-Date:   Thu, 10 Dec 2020 15:27:15 +0100
-Message-Id: <20201210142603.908115809@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+381d06e0c8eaacb8706f@syzkaller.appspotmail.com,
+        syzbot+d0ddd88c9a7432f041e6@syzkaller.appspotmail.com,
+        syzbot+76d62d3b8162883c7d11@syzkaller.appspotmail.com,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 43/54] can: af_can: can_rx_unregister(): remove WARN() statement from list operation sanity check
+Date:   Thu, 10 Dec 2020 15:27:20 +0100
+Message-Id: <20201210142604.148957704@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -33,46 +35,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 1de67a3dee7a279ebe4d892b359fe3696938ec15 upstream.
+commit d73ff9b7c4eacaba0fd956d14882bcae970f8307 upstream.
 
-Arbitration Lost (IAL) can happen after every single byte transfer. If
-arbitration is lost, the I2C hardware will autonomously switch from
-master mode to slave. If a transfer is not aborted in this state,
-consecutive transfers will not be executed by the hardware and will
-timeout.
+To detect potential bugs in CAN protocol implementations (double removal of
+receiver entries) a WARN() statement has been used if no matching list item was
+found for removal.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+The fault injection issued by syzkaller was able to create a situation where
+the closing of a socket runs simultaneously to the notifier call chain for
+removing the CAN network device in use.
+
+This case is very unlikely in real life but it doesn't break anything.
+Therefore we just replace the WARN() statement with pr_warn() to preserve the
+notification for the CAN protocol development.
+
+Reported-by: syzbot+381d06e0c8eaacb8706f@syzkaller.appspotmail.com
+Reported-by: syzbot+d0ddd88c9a7432f041e6@syzkaller.appspotmail.com
+Reported-by: syzbot+76d62d3b8162883c7d11@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Link: https://lore.kernel.org/r/20201126192140.14350-1-socketcan@hartkopp.net
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/can/af_can.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -470,6 +470,16 @@ static int i2c_imx_trx_complete(struct i
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
- 		return -ETIMEDOUT;
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -539,10 +539,13 @@ void can_rx_unregister(struct net *net,
+ 
+ 	/* Check for bugs in CAN protocol implementations using af_can.c:
+ 	 * 'rcv' will be NULL if no matching list item was found for removal.
++	 * As this case may potentially happen when closing a socket while
++	 * the notifier for removing the CAN netdev is running we just print
++	 * a warning here.
+ 	 */
+ 	if (!rcv) {
+-		WARN(1, "BUG: receive list entry not found for dev %s, id %03X, mask %03X\n",
+-		     DNAME(dev), can_id, mask);
++		pr_warn("can: receive list entry not found for dev %s, id %03X, mask %03X\n",
++			DNAME(dev), can_id, mask);
+ 		goto out;
  	}
-+
-+	/* check for arbitration lost */
-+	if (i2c_imx->i2csr & I2SR_IAL) {
-+		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
-+		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-+
-+		i2c_imx->i2csr = 0;
-+		return -EAGAIN;
-+	}
-+
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
- 	i2c_imx->i2csr = 0;
- 	return 0;
+ 
 
 
