@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B92B12D5DE9
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:35:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC5F2D5DF6
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390807AbgLJOeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:34:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42370 "EHLO mail.kernel.org"
+        id S2389383AbgLJOfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:35:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390800AbgLJOeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:34:20 -0500
+        id S1729384AbgLJOfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:41 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 26/39] i2c: imx: Check for I2SR_IAL after every byte
-Date:   Thu, 10 Dec 2020 15:27:05 +0100
-Message-Id: <20201210142603.562742819@linuxfoundation.org>
+        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kurz <groug@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 29/54] powerpc/pseries: Pass MSI affinity to irq_create_mapping()
+Date:   Thu, 10 Dec 2020 15:27:06 +0100
+Message-Id: <20201210142603.469047504@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,46 +33,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Laurent Vivier <lvivier@redhat.com>
 
-commit 1de67a3dee7a279ebe4d892b359fe3696938ec15 upstream.
+commit 9ea69a55b3b9a71cded9726af591949c1138f235 upstream.
 
-Arbitration Lost (IAL) can happen after every single byte transfer. If
-arbitration is lost, the I2C hardware will autonomously switch from
-master mode to slave. If a transfer is not aborted in this state,
-consecutive transfers will not be executed by the hardware and will
-timeout.
+With virtio multiqueue, normally each queue IRQ is mapped to a CPU.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Commit 0d9f0a52c8b9f ("virtio_scsi: use virtio IRQ affinity") exposed
+an existing shortcoming of the arch code by moving virtio_scsi to
+the automatic IRQ affinity assignment.
+
+The affinity is correctly computed in msi_desc but this is not applied
+to the system IRQs.
+
+It appears the affinity is correctly passed to rtas_setup_msi_irqs() but
+lost at this point and never passed to irq_domain_alloc_descs()
+(see commit 06ee6d571f0e ("genirq: Add affinity hint to irq allocation"))
+because irq_create_mapping() doesn't take an affinity parameter.
+
+Use the new irq_create_mapping_affinity() function, which allows to forward
+the affinity setting from rtas_setup_msi_irqs() to irq_domain_alloc_descs().
+
+With this change, the virtqueues are correctly dispatched between the CPUs
+on pseries.
+
+Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 Cc: stable@vger.kernel.org
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/r/20201126082852.1178497-3-lvivier@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/platforms/pseries/msi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -460,6 +460,16 @@ static int i2c_imx_trx_complete(struct i
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
- 		return -ETIMEDOUT;
- 	}
-+
-+	/* check for arbitration lost */
-+	if (i2c_imx->i2csr & I2SR_IAL) {
-+		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
-+		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-+
-+		i2c_imx->i2csr = 0;
-+		return -EAGAIN;
-+	}
-+
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
- 	i2c_imx->i2csr = 0;
- 	return 0;
+--- a/arch/powerpc/platforms/pseries/msi.c
++++ b/arch/powerpc/platforms/pseries/msi.c
+@@ -458,7 +458,8 @@ again:
+ 			return hwirq;
+ 		}
+ 
+-		virq = irq_create_mapping(NULL, hwirq);
++		virq = irq_create_mapping_affinity(NULL, hwirq,
++						   entry->affinity);
+ 
+ 		if (!virq) {
+ 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
 
 
