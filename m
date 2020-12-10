@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC36A2D5BB8
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 14:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7EA2D5BBB
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 14:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730352AbgLJN2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 08:28:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
+        id S1729847AbgLJN3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 08:29:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732028AbgLJN1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 08:27:52 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FF1C0613CF
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 05:27:12 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id r7so5467450wrc.5
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 05:27:12 -0800 (PST)
+        with ESMTP id S1726631AbgLJN3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 08:29:07 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9812DC0613D6
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 05:28:26 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id t16so5483351wra.3
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 05:28:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=4osJ18UtA8ajd/femdvNBGenLx3kgKDKVEO2CLs+lxc=;
-        b=hdm+QwYgG6P3mReipmla9PBQaMSUv3mHmsTtZ/Pu01xU8gR/zrcUND4aSS0ahBP4BR
-         f4a3Ce6UeWccxgiyFS6IsxhmHE9JBpZBziXyzYzl8wBmJddYTkR5YqSANSP8bv0ME3I8
-         /MJhI/VJ5uIp5xxmimwnrhr4f1SzhPAqcZv44sWHWp/Rmj161c+I0QfzZTQwir9EToS7
-         u4YFYo9hJCQu1DEBl45ncqR3TMnENgZ0QosTZdqMPE4hDqbFHOdsClDuTJxD2iRisnIn
-         zIsv9x3syNkso3aIJ807W/inwxapWcv7j+bNJ+w4sOItEIKBKFBwSD+KrV2bkipnl7rR
-         oN9A==
+        bh=hWNs2NwF97BFuQp7y8JsAXRv1DenSN9AlNUmwdO7OfM=;
+        b=gkkkz7BXpScVdyeB20eMRhasTYfzIhZfEqEJKT6wDmcMIbQkM7VK3DDOn6s0iCtlON
+         WlzqLEPe3rxDkigWR1heQwhlJOP+vh7vSkLF2mkd/rA0kUZCfiSBFxiiow44umSf/r/F
+         qhRW3smwxWmrKiuT2X1ZmnWVXQzpm/Z+ikOC/HNqx9uxnv+A658ZxRp2gvyI5ha/Xh0t
+         +zk9qtzAltpwzJStcgGyqRZFC1b/YO2HMlV8nkQ9Dpd7Bwj51Tn3NpCi1SFRjc45SIOE
+         btSijXBQ1tFY8Evz1xtJKRW+HnmGHklkRf/TBG3BJtOpwyPlliexyP+S1tsg+yNqbl7x
+         38Ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4osJ18UtA8ajd/femdvNBGenLx3kgKDKVEO2CLs+lxc=;
-        b=nPOanlCoSqDhFXKPuGag/N65GsG8tXLcm6tl4pNGlAcVVy3R+jMYKFoTWXbPGPFk5s
-         QrEk8UWJ+QHnj5IDnvWE+/y4KMU6Kc/cqVYLD7x5MRWFHSQv88qD8B5E2KqenWv6l5rP
-         SZF6EmUPowM0yG72lUjtua7tCQtwDs3/dSacKttTxcDYfTIVcJ0pwhX61NdyU+47hBag
-         jXQU5+epPKVeoxQIMbYph/Q1rjwre8PjWjYnFJJPjMnrLqG40ByEYEhY9G3CRVi1bJ8B
-         mx9ECcViDw6ub2zJ/HAoow6UfpthNw2In4K5lMQDT0tZt8ijAFfMdX+W4++RFIe/EvNR
-         /QeA==
-X-Gm-Message-State: AOAM531NjjJRyFfP5J4YdV62VMtgpZXPirtxBZIAPDGSDtDMDGWf5dWH
-        qyUT6Q+a4faODbUONDoqifM=
-X-Google-Smtp-Source: ABdhPJyRESZX28S0RKJSrdq+MihyfOT4JCTbjYc3w8fAcTtMIAUStEFmEfxXinjWLJgoiLXC143JFw==
-X-Received: by 2002:a05:6000:1d1:: with SMTP id t17mr8508764wrx.164.1607606830800;
-        Thu, 10 Dec 2020 05:27:10 -0800 (PST)
+        bh=hWNs2NwF97BFuQp7y8JsAXRv1DenSN9AlNUmwdO7OfM=;
+        b=U0Ffa6BL/ijiVNqWiG2w3cUCc4XMNRCQZjNOZMVNflvOg1shM6S5Nw+smMACkwP9VA
+         MckCiZQqbCcgI9F6YiIiSsl0Xw9O5HdhwEraoFVDuQ3nF6L+Isp1/clPNh/BEFG997z/
+         sxQbh6snrMtttNPb8fvDpBB2Q1ResDX1MrNAS/m6ivDYsbkLhHUVKZ71tuA2A1LXamz/
+         eVHKr4id2xwWisarYr7E26EEdN/ZA5/6oAY//fWIhRQVmQJ16qaHRyf/xQmO++8neAkp
+         B9QStlJMO2Bdznyhk2VQb3x/fqzoJNmWJIyigvx0tfCkfsPwPCNLIHBOED2Zf2hkM9lA
+         WLmg==
+X-Gm-Message-State: AOAM5304BDCore5ArIkKfDQRflvJzFXgGPiOuPtYnpMBN3LMA5EiHxIM
+        qD1wFEuelEtyv+s9dMDuxKk=
+X-Google-Smtp-Source: ABdhPJxJ+VaoszuaYpVSYyspyvrIiZlUy3Y4QZzLOGxsYND3G8rI5AIx7WuViM/4FIByARgxaeqYhQ==
+X-Received: by 2002:adf:b343:: with SMTP id k3mr8110381wrd.202.1607606905388;
+        Thu, 10 Dec 2020 05:28:25 -0800 (PST)
 Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id b73sm9862449wmb.0.2020.12.10.05.27.09
+        by smtp.gmail.com with ESMTPSA id n14sm9335306wrx.79.2020.12.10.05.28.24
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 10 Dec 2020 05:27:10 -0800 (PST)
-Date:   Thu, 10 Dec 2020 13:27:08 +0000
+        Thu, 10 Dec 2020 05:28:24 -0800 (PST)
+Date:   Thu, 10 Dec 2020 13:28:23 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     mhiramat@kernel.org, bp@suse.de, keescook@chromium.org,
         srikar@linux.vnet.ibm.com, stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] x86/uprobes: Do not use prefixes.nbytes
- when looping over" failed to apply to 4.14-stable tree
-Message-ID: <20201210132708.v4ixgqi2yfg4g4xm@debian>
-References: <160750644919092@kroah.com>
+ when looping over" failed to apply to 4.9-stable tree
+Message-ID: <20201210132823.yhvovcgp2q5fzkix@debian>
+References: <1607506451251211@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="sqifyruwii3f5ywn"
+Content-Type: multipart/mixed; boundary="aps7pattqsz2nhab"
 Content-Disposition: inline
-In-Reply-To: <160750644919092@kroah.com>
+In-Reply-To: <1607506451251211@kroah.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---sqifyruwii3f5ywn
+--aps7pattqsz2nhab
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Wed, Dec 09, 2020 at 10:34:09AM +0100, gregkh@linuxfoundation.org wrote:
+On Wed, Dec 09, 2020 at 10:34:11AM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -85,11 +85,11 @@ Here is the backport.
 Regards
 Sudip
 
---sqifyruwii3f5ywn
+--aps7pattqsz2nhab
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-x86-uprobes-Do-not-use-prefixes.nbytes-when-looping-.patch"
 
-From a5827defc6d1f74b0ea6824b27e4f90c4e4ae387 Mon Sep 17 00:00:00 2001
+From 7437b190bde2ba9d0190eb25e11d1a549e45cfb9 Mon Sep 17 00:00:00 2001
 From: Masami Hiramatsu <mhiramat@kernel.org>
 Date: Thu, 3 Dec 2020 13:50:37 +0900
 Subject: [PATCH] x86/uprobes: Do not use prefixes.nbytes when looping over prefixes.bytes
@@ -189,10 +189,10 @@ index 73391c1bd2a9..52bb7413f352 100644
  	}
  
 diff --git a/tools/objtool/arch/x86/include/asm/insn.h b/tools/objtool/arch/x86/include/asm/insn.h
-index c2c01f84df75..e9f21f836dfb 100644
+index b3e32b010ab1..b56241a44639 100644
 --- a/tools/objtool/arch/x86/include/asm/insn.h
 +++ b/tools/objtool/arch/x86/include/asm/insn.h
-@@ -208,6 +208,21 @@ static inline int insn_offset_immediate(struct insn *insn)
+@@ -208,4 +208,19 @@ static inline int insn_offset_immediate(struct insn *insn)
  	return insn_offset_displacement(insn) + insn->displacement.nbytes;
  }
  
@@ -211,11 +211,9 @@ index c2c01f84df75..e9f21f836dfb 100644
 +#define for_each_insn_prefix(insn, idx, prefix)        \
 +	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
 +
- #define POP_SS_OPCODE 0x1f
- #define MOV_SREG_OPCODE 0x8e
- 
+ #endif /* _ASM_X86_INSN_H */
 -- 
 2.11.0
 
 
---sqifyruwii3f5ywn--
+--aps7pattqsz2nhab--
