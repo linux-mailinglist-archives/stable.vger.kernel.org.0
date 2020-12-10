@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5EF42D66A8
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23EED2D66AD
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390321AbgLJThH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390459AbgLJThH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 10 Dec 2020 14:37:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37170 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390181AbgLJO2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390182AbgLJO2z (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 10 Dec 2020 09:28:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Luo Meng <luomeng12@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 38/39] Input: i8042 - fix error return code in i8042_setup_aux()
-Date:   Thu, 10 Dec 2020 15:26:49 +0100
-Message-Id: <20201210142602.756039862@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 39/39] x86/uprobes: Do not use prefixes.nbytes when looping over prefixes.bytes
+Date:   Thu, 10 Dec 2020 15:26:50 +0100
+Message-Id: <20201210142602.805518260@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -33,37 +35,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 855b69857830f8d918d715014f05e59a3f7491a0 upstream.
+commit 4e9a5ae8df5b3365183150f6df49e49dece80d8c upstream
 
-Fix to return a negative error code from the error handling case
-instead of 0 in function i8042_setup_aux(), as done elsewhere in this
-function.
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
 
-Fixes: f81134163fc7 ("Input: i8042 - use platform_driver_probe")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201123133420.4071187-1-luomeng12@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  insn.prefixes.bytes[i] != 0 and i < 4
+
+instead of using insn.prefixes.nbytes.
+
+Introduce a for_each_insn_prefix() macro for this purpose. Debugged by
+Kees Cook <keescook@chromium.org>.
+
+ [ bp: Massage commit message, sync with the respective header in tools/
+   and drop "we". ]
+
+Fixes: 2b1444983508 ("uprobes, mm, x86: Add the ability to install and remove uprobes breakpoints")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/160697103739.3146288.7437620795200799020.stgit@devnote2
+[sudip: adjust context, drop change of insn.h in tools]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/input/serio/i8042.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/insn.h |   15 +++++++++++++++
+ arch/x86/kernel/uprobes.c   |   10 ++++++----
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1456,7 +1456,8 @@ static int __init i8042_setup_aux(void)
- 	if (error)
- 		goto err_free_ports;
+--- a/arch/x86/include/asm/insn.h
++++ b/arch/x86/include/asm/insn.h
+@@ -198,6 +198,21 @@ static inline int insn_offset_immediate(
+ 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ }
  
--	if (aux_enable())
-+	error = aux_enable();
-+	if (error)
- 		goto err_free_irq;
++/**
++ * for_each_insn_prefix() -- Iterate prefixes in the instruction
++ * @insn: Pointer to struct insn.
++ * @idx:  Index storage.
++ * @prefix: Prefix byte.
++ *
++ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
++ * and the index is stored in @idx (note that this @idx is just for a cursor,
++ * do not change it.)
++ * Since prefixes.nbytes can be bigger than 4 if some prefixes
++ * are repeated, it cannot be used for looping over the prefixes.
++ */
++#define for_each_insn_prefix(insn, idx, prefix)	\
++	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
++
+ #define POP_SS_OPCODE 0x1f
+ #define MOV_SREG_OPCODE 0x8e
  
- 	i8042_aux_irq_registered = true;
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -268,10 +268,11 @@ static volatile u32 good_2byte_insns[256
+ 
+ static bool is_prefix_bad(struct insn *insn)
+ {
++	insn_byte_t p;
+ 	int i;
+ 
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		switch (insn->prefixes.bytes[i]) {
++	for_each_insn_prefix(insn, i, p) {
++		switch (p) {
+ 		case 0x26:	/* INAT_PFX_ES   */
+ 		case 0x2E:	/* INAT_PFX_CS   */
+ 		case 0x36:	/* INAT_PFX_DS   */
+@@ -711,6 +712,7 @@ static struct uprobe_xol_ops branch_xol_
+ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ {
+ 	u8 opc1 = OPCODE1(insn);
++	insn_byte_t p;
+ 	int i;
+ 
+ 	switch (opc1) {
+@@ -741,8 +743,8 @@ static int branch_setup_xol_ops(struct a
+ 	 * Intel and AMD behavior differ in 64-bit mode: Intel ignores 66 prefix.
+ 	 * No one uses these insns, reject any branch insns with such prefix.
+ 	 */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		if (insn->prefixes.bytes[i] == 0x66)
++	for_each_insn_prefix(insn, i, p) {
++		if (p == 0x66)
+ 			return -ENOTSUPP;
+ 	}
+ 
 
 
