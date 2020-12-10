@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98942D6549
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B022D651F
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390750AbgLJSlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:41:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41302 "EHLO mail.kernel.org"
+        id S2390750AbgLJOdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390652AbgLJOcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:32:53 -0500
+        id S1727367AbgLJOdZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
@@ -20,15 +20,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/39] pinctrl: baytrail: Replace WARN with dev_info_once when setting direct-irq pin to output
-Date:   Thu, 10 Dec 2020 15:26:40 +0100
-Message-Id: <20201210142602.354936591@linuxfoundation.org>
+Subject: [PATCH 4.19 02/39] pinctrl: baytrail: Fix pin being driven low for a while on gpiod_get(..., GPIOD_OUT_HIGH)
+Date:   Thu, 10 Dec 2020 15:26:41 +0100
+Message-Id: <20201210142602.406789914@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
 References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,58 +36,169 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-commit e2b74419e5cc7cfc58f3e785849f73f8fa0af5b3 upstream
+commit 156abe2961601d60a8c2a60c6dc8dd6ce7adcdaf upstream
 
-Suspending Goodix touchscreens requires changing the interrupt pin to
-output before sending them a power-down command. Followed by wiggling
-the interrupt pin to wake the device up, after which it is put back
-in input mode.
+The pins on the Bay Trail SoC have separate input-buffer and output-buffer
+enable bits and a read of the level bit of the value register will always
+return the value from the input-buffer.
 
-On Cherry Trail device the interrupt pin is listed as a GpioInt ACPI
-resource so we can do this without problems as long as we release the
-IRQ before changing the pin to output mode.
+The BIOS of a device may configure a pin in output-only mode, only enabling
+the output buffer, and write 1 to the level bit to drive the pin high.
+This 1 written to the level bit will be stored inside the data-latch of the
+output buffer.
 
-On Bay Trail devices with a Goodix touchscreen direct-irq mode is used
-in combination with listing the pin as a normal GpioIo resource. This
-works fine, but this triggers the WARN in byt_gpio_set_direction-s output
-path because direct-irq support is enabled on the pin.
+But a subsequent read of the value register will return 0 for the level bit
+because the input-buffer is disabled. This causes a read-modify-write as
+done by byt_gpio_set_direction() to write 0 to the level bit, driving the
+pin low!
 
-This commit replaces the WARN call with a dev_info_once call, fixing a
-bunch of WARN splats in dmesg on each suspend/resume cycle.
+Before this commit byt_gpio_direction_output() relied on
+pinctrl_gpio_direction_output() to set the direction, followed by a call
+to byt_gpio_set() to apply the selected value. This causes the pin to
+go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
+calls.
 
+Change byt_gpio_direction_output() to directly make the register
+modifications itself instead. Replacing the 2 subsequent writes to the
+value register with a single write.
+
+Note that the pinctrl code does not keep track internally of the direction,
+so not going through pinctrl_gpio_direction_output() is not an issue.
+
+This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
+already on at boot (no external monitor connected), then the i915 driver
+does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
+temporarily going low of that GPIO was causing the panel to reset itself
+after which it would not show an image until it was turned off and back on
+again (until a full modeset was done on it). This commit fixes this.
+
+This commit also updates the byt_gpio_direction_input() to use direct
+register accesses instead of going through pinctrl_gpio_direction_input(),
+to keep it consistent with byt_gpio_direction_output().
+
+Note for backporting, this commit depends on:
+commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
+when setting direct-irq pin to output")
+
+Cc: stable@vger.kernel.org
+Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[sudip: use byt_gpio and vg->pdev->dev for dev_info()]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-baytrail.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 67 +++++++++++++++++++-----
+ 1 file changed, 53 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index acb02a7aa9496..7d6685ae31d70 100644
+index 7d6685ae31d70..1b00a3f3b419c 100644
 --- a/drivers/pinctrl/intel/pinctrl-baytrail.c
 +++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -1026,15 +1026,15 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+@@ -1009,6 +1009,21 @@ static void byt_gpio_disable_free(struct pinctrl_dev *pctl_dev,
+ 	pm_runtime_put(&vg->pdev->dev);
+ }
+ 
++static void byt_gpio_direct_irq_check(struct byt_gpio *vg,
++				      unsigned int offset)
++{
++	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
++
++	/*
++	 * Before making any direction modifications, do a check if gpio is set
++	 * for direct IRQ. On Bay Trail, setting GPIO to output does not make
++	 * sense, so let's at least inform the caller before they shoot
++	 * themselves in the foot.
++	 */
++	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
++		dev_info_once(&vg->pdev->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++}
++
+ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 				  struct pinctrl_gpio_range *range,
+ 				  unsigned int offset,
+@@ -1016,7 +1031,6 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ {
+ 	struct byt_gpio *vg = pinctrl_dev_get_drvdata(pctl_dev);
+ 	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
+-	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
+ 	unsigned long flags;
+ 	u32 value;
+ 
+@@ -1026,14 +1040,8 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
  	value &= ~BYT_DIR_MASK;
  	if (input)
  		value |= BYT_OUTPUT_EN;
--	else
-+	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
- 		/*
- 		 * Before making any direction modifications, do a check if gpio
- 		 * is set for direct IRQ.  On baytrail, setting GPIO to output
--		 * does not make sense, so let's at least warn the caller before
-+		 * does not make sense, so let's at least inform the caller before
- 		 * they shoot themselves in the foot.
- 		 */
--		WARN(readl(conf_reg) & BYT_DIRECT_IRQ_EN,
--		     "Potential Error: Setting GPIO with direct_irq_en to output");
-+		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
-+
+-	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
+-		/*
+-		 * Before making any direction modifications, do a check if gpio
+-		 * is set for direct IRQ.  On baytrail, setting GPIO to output
+-		 * does not make sense, so let's at least inform the caller before
+-		 * they shoot themselves in the foot.
+-		 */
+-		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++	else
++		byt_gpio_direct_irq_check(vg, offset);
+ 
  	writel(value, val_reg);
  
- 	raw_spin_unlock_irqrestore(&byt_lock, flags);
+@@ -1374,19 +1382,50 @@ static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
+ 
+ static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+ {
+-	return pinctrl_gpio_direction_input(chip->base + offset);
++	struct byt_gpio *vg = gpiochip_get_data(chip);
++	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
++	unsigned long flags;
++	u32 reg;
++
++	raw_spin_lock_irqsave(&byt_lock, flags);
++
++	reg = readl(val_reg);
++	reg &= ~BYT_DIR_MASK;
++	reg |= BYT_OUTPUT_EN;
++	writel(reg, val_reg);
++
++	raw_spin_unlock_irqrestore(&byt_lock, flags);
++	return 0;
+ }
+ 
++/*
++ * Note despite the temptation this MUST NOT be converted into a call to
++ * pinctrl_gpio_direction_output() + byt_gpio_set() that does not work this
++ * MUST be done as a single BYT_VAL_REG register write.
++ * See the commit message of the commit adding this comment for details.
++ */
+ static int byt_gpio_direction_output(struct gpio_chip *chip,
+ 				     unsigned int offset, int value)
+ {
+-	int ret = pinctrl_gpio_direction_output(chip->base + offset);
++	struct byt_gpio *vg = gpiochip_get_data(chip);
++	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
++	unsigned long flags;
++	u32 reg;
+ 
+-	if (ret)
+-		return ret;
++	raw_spin_lock_irqsave(&byt_lock, flags);
+ 
+-	byt_gpio_set(chip, offset, value);
++	byt_gpio_direct_irq_check(vg, offset);
+ 
++	reg = readl(val_reg);
++	reg &= ~BYT_DIR_MASK;
++	if (value)
++		reg |= BYT_LEVEL;
++	else
++		reg &= ~BYT_LEVEL;
++
++	writel(reg, val_reg);
++
++	raw_spin_unlock_irqrestore(&byt_lock, flags);
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 
