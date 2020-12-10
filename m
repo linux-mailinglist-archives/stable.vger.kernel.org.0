@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 197CA2D5E04
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9ADC2D5DD0
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:32:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391058AbgLJOg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:36:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
+        id S2390291AbgLJOcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:32:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391054AbgLJOgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:53 -0500
+        id S1732568AbgLJOcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:32:09 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paulian Bogdan Marinca <paulian@marinca.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.4 23/54] thunderbolt: Fix use-after-free in remove_unplugged_switch()
-Date:   Thu, 10 Dec 2020 15:27:00 +0100
-Message-Id: <20201210142603.177413238@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Mark Brown <broonie@kernel.org>, Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.14 26/31] spi: bcm2835: Release the DMA channel if probe fails after dma_init
+Date:   Thu, 10 Dec 2020 15:27:03 +0100
+Message-Id: <20201210142603.407895709@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
-References: <20201210142602.037095225@linuxfoundation.org>
+In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
+References: <20201210142602.099683598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,70 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-commit 600c0849cf86b75d86352f59745226273290986a upstream.
+[ Upstream commit 666224b43b4bd4612ce3b758c038f9bc5c5e3fcb ]
 
-Paulian reported a crash that happens when a dock is unplugged during
-hibernation:
+The DMA channel was not released if either devm_request_irq() or
+devm_spi_register_controller() failed.
 
-[78436.228217] thunderbolt 0-1: device disconnected
-[78436.228365] BUG: kernel NULL pointer dereference, address: 00000000000001e0
-...
-[78436.228397] RIP: 0010:icm_free_unplugged_children+0x109/0x1a0
-...
-[78436.228432] Call Trace:
-[78436.228439]  icm_rescan_work+0x24/0x30
-[78436.228444]  process_one_work+0x1a3/0x3a0
-[78436.228449]  worker_thread+0x30/0x370
-[78436.228454]  ? process_one_work+0x3a0/0x3a0
-[78436.228457]  kthread+0x13d/0x160
-[78436.228461]  ? kthread_park+0x90/0x90
-[78436.228465]  ret_from_fork+0x1f/0x30
-
-This happens because remove_unplugged_switch() calls tb_switch_remove()
-that releases the memory pointed by sw so the following lines reference
-to a memory that might be released already.
-
-Fix this by saving pointer to the parent device before calling
-tb_switch_remove().
-
-Reported-by: Paulian Bogdan Marinca <paulian@marinca.net>
-Fixes: 4f7c2e0d8765 ("thunderbolt: Make sure device runtime resume completes before taking domain lock")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20191212135550.4634-3-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to 4.19-stable]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/thunderbolt/icm.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/spi/spi-bcm2835.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/thunderbolt/icm.c
-+++ b/drivers/thunderbolt/icm.c
-@@ -1919,7 +1919,9 @@ static int complete_rpm(struct device *d
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -787,18 +787,19 @@ static int bcm2835_spi_probe(struct plat
+ 			       dev_name(&pdev->dev), master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not request IRQ: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
  
- static void remove_unplugged_switch(struct tb_switch *sw)
- {
--	pm_runtime_get_sync(sw->dev.parent);
-+	struct device *parent = get_device(sw->dev.parent);
-+
-+	pm_runtime_get_sync(parent);
+ 	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
+ 	}
  
- 	/*
- 	 * Signal this and switches below for rpm_complete because
-@@ -1930,8 +1932,10 @@ static void remove_unplugged_switch(stru
- 	bus_for_each_dev(&tb_bus_type, &sw->dev, NULL, complete_rpm);
- 	tb_switch_remove(sw);
+ 	return 0;
  
--	pm_runtime_mark_last_busy(sw->dev.parent);
--	pm_runtime_put_autosuspend(sw->dev.parent);
-+	pm_runtime_mark_last_busy(parent);
-+	pm_runtime_put_autosuspend(parent);
-+
-+	put_device(parent);
+-out_clk_disable:
++out_dma_release:
++	bcm2835_dma_release(master);
+ 	clk_disable_unprepare(bs->clk);
+ 	return err;
  }
- 
- static void icm_free_unplugged_children(struct tb_switch *sw)
 
 
