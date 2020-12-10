@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E102D6566
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8417F2D6509
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727234AbgLJSq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:46:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
+        id S2388796AbgLJSa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 13:30:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390563AbgLJOc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:32:26 -0500
+        id S2388587AbgLJOeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:34:31 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 31/31] x86/uprobes: Do not use prefixes.nbytes when looping over prefixes.bytes
-Date:   Thu, 10 Dec 2020 15:27:08 +0100
-Message-Id: <20201210142603.650619956@linuxfoundation.org>
+Subject: [PATCH 4.19 30/39] spi: bcm-qspi: Fix use-after-free on unbind
+Date:   Thu, 10 Dec 2020 15:27:09 +0100
+Message-Id: <20201210142603.764923655@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -35,122 +34,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 4e9a5ae8df5b3365183150f6df49e49dece80d8c upstream
+commit 63c5395bb7a9777a33f0e7b5906f2c0170a23692 upstream
 
-Since insn.prefixes.nbytes can be bigger than the size of
-insn.prefixes.bytes[] when a prefix is repeated, the proper check must
-be
+bcm_qspi_remove() calls spi_unregister_master() even though
+bcm_qspi_probe() calls devm_spi_register_master().  The spi_master is
+therefore unregistered and freed twice on unbind.
 
-  insn.prefixes.bytes[i] != 0 and i < 4
+Moreover, since commit 0392727c261b ("spi: bcm-qspi: Handle clock probe
+deferral"), bcm_qspi_probe() leaks the spi_master allocation if the call
+to devm_clk_get_optional() fails.
 
-instead of using insn.prefixes.nbytes.
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound and also
+avoids the spi_master leak on probe.
 
-Introduce a for_each_insn_prefix() macro for this purpose. Debugged by
-Kees Cook <keescook@chromium.org>.
+While at it, fix an ordering issue in bcm_qspi_remove() wherein
+spi_unregister_master() is called after uninitializing the hardware,
+disabling the clock and freeing an IRQ data structure.  The correct
+order is to call spi_unregister_master() *before* those teardown steps
+because bus accesses may still be ongoing until that function returns.
 
- [ bp: Massage commit message, sync with the respective header in tools/
-   and drop "we". ]
-
-Fixes: 2b1444983508 ("uprobes, mm, x86: Add the ability to install and remove uprobes breakpoints")
-Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/160697103739.3146288.7437620795200799020.stgit@devnote2
-[sudip: adjust context, use old insn.h]
+Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.9+: 123456789abc: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/5e31a9a59fd1c0d0b795b2fe219f25e5ee855f9d.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/insn.h               |   15 +++++++++++++++
- arch/x86/kernel/uprobes.c                 |   10 ++++++----
- tools/objtool/arch/x86/include/asm/insn.h |   15 +++++++++++++++
- 3 files changed, 36 insertions(+), 4 deletions(-)
+ drivers/spi/spi-bcm-qspi.c |   34 ++++++++++++----------------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
 
---- a/arch/x86/include/asm/insn.h
-+++ b/arch/x86/include/asm/insn.h
-@@ -208,6 +208,21 @@ static inline int insn_offset_immediate(
- 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
- }
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -1223,7 +1223,7 @@ int bcm_qspi_probe(struct platform_devic
+ 	if (!of_match_node(bcm_qspi_of_match, dev->of_node))
+ 		return -ENODEV;
  
-+/**
-+ * for_each_insn_prefix() -- Iterate prefixes in the instruction
-+ * @insn: Pointer to struct insn.
-+ * @idx:  Index storage.
-+ * @prefix: Prefix byte.
-+ *
-+ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
-+ * and the index is stored in @idx (note that this @idx is just for a cursor,
-+ * do not change it.)
-+ * Since prefixes.nbytes can be bigger than 4 if some prefixes
-+ * are repeated, it cannot be used for looping over the prefixes.
-+ */
-+#define for_each_insn_prefix(insn, idx, prefix)	\
-+	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
-+
- #define POP_SS_OPCODE 0x1f
- #define MOV_SREG_OPCODE 0x8e
+-	master = spi_alloc_master(dev, sizeof(struct bcm_qspi));
++	master = devm_spi_alloc_master(dev, sizeof(struct bcm_qspi));
+ 	if (!master) {
+ 		dev_err(dev, "error allocating spi_master\n");
+ 		return -ENOMEM;
+@@ -1257,21 +1257,17 @@ int bcm_qspi_probe(struct platform_devic
  
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -268,10 +268,11 @@ static volatile u32 good_2byte_insns[256
- 
- static bool is_prefix_bad(struct insn *insn)
- {
-+	insn_byte_t p;
- 	int i;
- 
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
--		switch (insn->prefixes.bytes[i]) {
-+	for_each_insn_prefix(insn, i, p) {
-+		switch (p) {
- 		case 0x26:	/* INAT_PFX_ES   */
- 		case 0x2E:	/* INAT_PFX_CS   */
- 		case 0x36:	/* INAT_PFX_DS   */
-@@ -711,6 +712,7 @@ static const struct uprobe_xol_ops branc
- static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
- {
- 	u8 opc1 = OPCODE1(insn);
-+	insn_byte_t p;
- 	int i;
- 
- 	switch (opc1) {
-@@ -741,8 +743,8 @@ static int branch_setup_xol_ops(struct a
- 	 * Intel and AMD behavior differ in 64-bit mode: Intel ignores 66 prefix.
- 	 * No one uses these insns, reject any branch insns with such prefix.
- 	 */
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
--		if (insn->prefixes.bytes[i] == 0x66)
-+	for_each_insn_prefix(insn, i, p) {
-+		if (p == 0x66)
- 			return -ENOTSUPP;
+ 	if (res) {
+ 		qspi->base[MSPI]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[MSPI])) {
+-			ret = PTR_ERR(qspi->base[MSPI]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[MSPI]))
++			return PTR_ERR(qspi->base[MSPI]);
+ 	} else {
+-		goto qspi_resource_err;
++		return 0;
  	}
  
---- a/tools/objtool/arch/x86/include/asm/insn.h
-+++ b/tools/objtool/arch/x86/include/asm/insn.h
-@@ -208,6 +208,21 @@ static inline int insn_offset_immediate(
- 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "bspi");
+ 	if (res) {
+ 		qspi->base[BSPI]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[BSPI])) {
+-			ret = PTR_ERR(qspi->base[BSPI]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[BSPI]))
++			return PTR_ERR(qspi->base[BSPI]);
+ 		qspi->bspi_mode = true;
+ 	} else {
+ 		qspi->bspi_mode = false;
+@@ -1282,18 +1278,14 @@ int bcm_qspi_probe(struct platform_devic
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "cs_reg");
+ 	if (res) {
+ 		qspi->base[CHIP_SELECT]  = devm_ioremap_resource(dev, res);
+-		if (IS_ERR(qspi->base[CHIP_SELECT])) {
+-			ret = PTR_ERR(qspi->base[CHIP_SELECT]);
+-			goto qspi_resource_err;
+-		}
++		if (IS_ERR(qspi->base[CHIP_SELECT]))
++			return PTR_ERR(qspi->base[CHIP_SELECT]);
+ 	}
+ 
+ 	qspi->dev_ids = kcalloc(num_irqs, sizeof(struct bcm_qspi_dev_id),
+ 				GFP_KERNEL);
+-	if (!qspi->dev_ids) {
+-		ret = -ENOMEM;
+-		goto qspi_resource_err;
+-	}
++	if (!qspi->dev_ids)
++		return -ENOMEM;
+ 
+ 	for (val = 0; val < num_irqs; val++) {
+ 		irq = -1;
+@@ -1369,7 +1361,7 @@ int bcm_qspi_probe(struct platform_devic
+ 	qspi->xfer_mode.addrlen = -1;
+ 	qspi->xfer_mode.hp = -1;
+ 
+-	ret = devm_spi_register_master(&pdev->dev, master);
++	ret = spi_register_master(master);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can't register master\n");
+ 		goto qspi_reg_err;
+@@ -1382,8 +1374,6 @@ qspi_reg_err:
+ 	clk_disable_unprepare(qspi->clk);
+ qspi_probe_err:
+ 	kfree(qspi->dev_ids);
+-qspi_resource_err:
+-	spi_master_put(master);
+ 	return ret;
  }
+ /* probe function to be called by SoC specific platform driver probe */
+@@ -1393,10 +1383,10 @@ int bcm_qspi_remove(struct platform_devi
+ {
+ 	struct bcm_qspi *qspi = platform_get_drvdata(pdev);
  
-+/**
-+ * for_each_insn_prefix() -- Iterate prefixes in the instruction
-+ * @insn: Pointer to struct insn.
-+ * @idx:  Index storage.
-+ * @prefix: Prefix byte.
-+ *
-+ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
-+ * and the index is stored in @idx (note that this @idx is just for a cursor,
-+ * do not change it.)
-+ * Since prefixes.nbytes can be bigger than 4 if some prefixes
-+ * are repeated, it cannot be used for looping over the prefixes.
-+ */
-+#define for_each_insn_prefix(insn, idx, prefix)        \
-+	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
-+
- #define POP_SS_OPCODE 0x1f
- #define MOV_SREG_OPCODE 0x8e
++	spi_unregister_master(qspi->master);
+ 	bcm_qspi_hw_uninit(qspi);
+ 	clk_disable_unprepare(qspi->clk);
+ 	kfree(qspi->dev_ids);
+-	spi_unregister_master(qspi->master);
  
+ 	return 0;
+ }
 
 
