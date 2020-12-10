@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 237232D65C7
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A59032D6635
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:19:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390485AbgLJObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:31:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
+        id S2390284AbgLJTSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:18:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390478AbgLJObW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:31:22 -0500
+        id S2388934AbgLJOap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:30:45 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <qcai@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 18/31] mm/swapfile: do not sleep with a spin lock held
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 41/45] tracing: Fix userstacktrace option for instances
 Date:   Thu, 10 Dec 2020 15:26:55 +0100
-Message-Id: <20201210142603.001031407@linuxfoundation.org>
+Message-Id: <20201210142604.370513568@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142602.361598591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,53 +31,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <qcai@redhat.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit b11a76b37a5aa7b07c3e3eeeaae20b25475bddd3 upstream.
+commit bcee5278958802b40ee8b26679155a6d9231783e upstream.
 
-We can't call kvfree() with a spin lock held, so defer it.  Fixes a
-might_sleep() runtime warning.
+When the instances were able to use their own options, the userstacktrace
+option was left hardcoded for the top level. This made the instance
+userstacktrace option bascially into a nop, and will confuse users that set
+it, but nothing happens (I was confused when it happened to me!)
 
-Fixes: 873d7bcfd066 ("mm/swapfile.c: use kvzalloc for swap_info_struct allocation")
-Signed-off-by: Qian Cai <qcai@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201202151549.10350-1-qcai@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 16270145ce6b ("tracing: Add trace options for core options to instances")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/swapfile.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    7 ++++---
+ kernel/trace/trace.h |    6 ++++--
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -2828,6 +2828,7 @@ late_initcall(max_swapfiles_check);
- static struct swap_info_struct *alloc_swap_info(void)
- {
- 	struct swap_info_struct *p;
-+	struct swap_info_struct *defer = NULL;
- 	unsigned int type;
- 	int i;
- 	int size = sizeof(*p) + nr_node_ids * sizeof(struct plist_node);
-@@ -2857,7 +2858,7 @@ static struct swap_info_struct *alloc_sw
- 		smp_wmb();
- 		nr_swapfiles++;
- 	} else {
--		kvfree(p);
-+		defer = p;
- 		p = swap_info[type];
- 		/*
- 		 * Do not memset this entry: a racing procfs swap_next()
-@@ -2870,6 +2871,7 @@ static struct swap_info_struct *alloc_sw
- 		plist_node_init(&p->avail_lists[i], 0);
- 	p->flags = SWP_USED;
- 	spin_unlock(&swap_lock);
-+	kvfree(defer);
- 	spin_lock_init(&p->lock);
- 	spin_lock_init(&p->cont_lock);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2134,7 +2134,7 @@ void trace_buffer_unlock_commit_regs(str
+ 	 * two. They are that meaningful.
+ 	 */
+ 	ftrace_trace_stack(tr, buffer, flags, regs ? 0 : 4, pc, regs);
+-	ftrace_trace_userstack(buffer, flags, pc);
++	ftrace_trace_userstack(tr, buffer, flags, pc);
+ }
  
+ void
+@@ -2299,14 +2299,15 @@ void trace_dump_stack(int skip)
+ static DEFINE_PER_CPU(int, user_stack_count);
+ 
+ void
+-ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags, int pc)
++ftrace_trace_userstack(struct trace_array *tr,
++		       struct ring_buffer *buffer, unsigned long flags, int pc)
+ {
+ 	struct trace_event_call *call = &event_user_stack;
+ 	struct ring_buffer_event *event;
+ 	struct userstack_entry *entry;
+ 	struct stack_trace trace;
+ 
+-	if (!(global_trace.trace_flags & TRACE_ITER_USERSTACKTRACE))
++	if (!(tr->trace_flags & TRACE_ITER_USERSTACKTRACE))
+ 		return;
+ 
+ 	/*
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -689,13 +689,15 @@ void update_max_tr_single(struct trace_a
+ #endif /* CONFIG_TRACER_MAX_TRACE */
+ 
+ #ifdef CONFIG_STACKTRACE
+-void ftrace_trace_userstack(struct ring_buffer *buffer, unsigned long flags,
++void ftrace_trace_userstack(struct trace_array *tr,
++			    struct ring_buffer *buffer, unsigned long flags,
+ 			    int pc);
+ 
+ void __trace_stack(struct trace_array *tr, unsigned long flags, int skip,
+ 		   int pc);
+ #else
+-static inline void ftrace_trace_userstack(struct ring_buffer *buffer,
++static inline void ftrace_trace_userstack(struct trace_array *tr,
++					  struct ring_buffer *buffer,
+ 					  unsigned long flags, int pc)
+ {
+ }
 
 
