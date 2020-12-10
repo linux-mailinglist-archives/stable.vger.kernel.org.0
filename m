@@ -2,67 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E412D5581
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF642D55E0
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388052AbgLJIcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 03:32:08 -0500
-Received: from mail.persuitflow.com ([89.46.74.132]:48848 "EHLO
-        server1.mail.persuitflow.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726439AbgLJIcH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 03:32:07 -0500
-Received: by server1.mail.persuitflow.com (Postfix, from userid 1001)
-        id 7AAE8A5FA9; Thu, 10 Dec 2020 08:31:06 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=persuitflow.com;
-        s=mail; t=1607589080;
-        bh=LIG/EV9hZypKEB8e9JkxJFCirHVIBsQt3YrIS4TkXUA=;
-        h=Date:From:To:Subject:From;
-        b=Gn1WNlOyKaaf2XM5FncO6qKEj4owUcdR1G/DPokaITduBhbIeAcpKzxPrUGSUjc44
-         eisLnoaNesmiS1G86HXfE483zY9pcCGzaPbd66fSXvutAcZqy2m6z5eylZGZU03sU3
-         SxkUg8prW6pbhR89GFaZsaGX8Su8cji7uy7kFZ8yPXpWVcyQ0IlCvOM6vl8SJYmVa0
-         a0TFgWUafXb/b2g3o1mESvX5AVrfWOWKfT2iMg370/rfhWf2xUDJ2vjhCIA0BAUGDm
-         PsV5gMJmbm6oJO8agkMAAcuH9Rxs+rJAsmXkPLdxQAFV4LmPOpwCM+8yiy874OCNQ1
-         pdneol+AAVKmA==
-Received: by mail.persuitflow.com for <stable@vger.kernel.org>; Thu, 10 Dec 2020 08:30:40 GMT
-Message-ID: <20201210074501-0.1.1x.8y3u.0.qvl0l1wenj@persuitflow.com>
-Date:   Thu, 10 Dec 2020 08:30:40 GMT
-From:   "Raquel Carvalho" <raquel.carvalho@persuitflow.com>
-To:     <stable@vger.kernel.org>
-Subject: Desinfetante
-X-Mailer: mail.persuitflow.com
+        id S1728631AbgLJI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 03:56:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48956 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388373AbgLJIzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 03:55:37 -0500
+Subject: patch "staging: comedi: mf6x4: Fix AI end-of-conversion detection" added to staging-next
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607590496;
+        bh=6JINkBcoj+cM9Y9z2Qfe8XdvcPeAHprwGqz9T1xca6U=;
+        h=To:From:Date:From;
+        b=zezfpdGKlUDklUFZyjIDh3OKvVdS8cfDuRtTWOkVgSsQ0aE5SVnYGQu7iqLRqP4Vo
+         ojx1sZaEX82M6M4BdjMUaXTf94bObxPOpg75juKZ6dHh4+8YkrOx45wbclNJQaconf
+         uhW77meugmP6KJbbEFPwgCiryyS6uSWOSETWXVcA=
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org, lisovy@gmail.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 10 Dec 2020 09:56:00 +0100
+Message-ID: <1607590560243112@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bom Dia,
 
-A demanda por desinfetantes eficazes que permitam a elimina=C3=A7=C3=A3o =
-de microrganismos prejudiciais =C3=A9 continuamente alta em todo o mundo.
+This is a note to let you know that I've just added the patch titled
 
-Expandir a oferta com uma gama profissional de produtos com atividade vir=
-icida e bactericida permite aumentar a posi=C3=A7=C3=A3o competitiva da e=
-mpresa e construir novas redes de vendas.
+    staging: comedi: mf6x4: Fix AI end-of-conversion detection
 
-Diversificamos a linha de atacadistas e distribuidores com sabonetes, l=C3=
-=ADquidos e g=C3=A9is para desinfec=C3=A7=C3=A3o das m=C3=A3os e outros p=
-rodutos de limpeza, entre eles: g=C3=A9is de banho, shampoos e condiciona=
-dores de cabelo, al=C3=A9m de detergentes concentrados.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
-Nossos parceiros de neg=C3=B3cios est=C3=A3o aumentando sua participa=C3=A7=
-=C3=A3o no mercado externo devido =C3=A0 crescente satisfa=C3=A7=C3=A3o d=
-o cliente e oferta diversificada.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-O potencial de crescimento de nossas solu=C3=A7=C3=B5es resulta de pre=C3=
-=A7os acess=C3=ADveis, alto desempenho e versatilidade para se adaptar a =
-todos os tipos de pele.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-A extens=C3=A3o da gama de produtos proposta =C3=A9 um campo interessante=
- para a coopera=C3=A7=C3=A3o?
+If you have any questions about this process, please let me know.
 
 
-Cumprimentos,
-Raquel Carvalho
-Conselheiro do Cliente
+From 56c90457ebfe9422496aac6ef3d3f0f0ea8b2ec2 Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Mon, 7 Dec 2020 14:58:06 +0000
+Subject: staging: comedi: mf6x4: Fix AI end-of-conversion detection
+
+I have had reports from two different people that attempts to read the
+analog input channels of the MF624 board fail with an `ETIMEDOUT` error.
+
+After triggering the conversion, the code calls `comedi_timeout()` with
+`mf6x4_ai_eoc()` as the callback function to check if the conversion is
+complete.  The callback returns 0 if complete or `-EBUSY` if not yet
+complete.  `comedi_timeout()` returns `-ETIMEDOUT` if it has not
+completed within a timeout period which is propagated as an error to the
+user application.
+
+The existing code considers the conversion to be complete when the EOLC
+bit is high.  However, according to the user manuals for the MF624 and
+MF634 boards, this test is incorrect because EOLC is an active low
+signal that goes high when the conversion is triggered, and goes low
+when the conversion is complete.  Fix the problem by inverting the test
+of the EOLC bit state.
+
+Fixes: 04b565021a83 ("comedi: Humusoft MF634 and MF624 DAQ cards driver")
+Cc: <stable@vger.kernel.org> # v4.4+
+Cc: Rostislav Lisovy <lisovy@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20201207145806.4046-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/comedi/drivers/mf6x4.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/comedi/drivers/mf6x4.c b/drivers/staging/comedi/drivers/mf6x4.c
+index ea430237efa7..9da8dd748078 100644
+--- a/drivers/staging/comedi/drivers/mf6x4.c
++++ b/drivers/staging/comedi/drivers/mf6x4.c
+@@ -112,8 +112,9 @@ static int mf6x4_ai_eoc(struct comedi_device *dev,
+ 	struct mf6x4_private *devpriv = dev->private;
+ 	unsigned int status;
+ 
++	/* EOLC goes low at end of conversion. */
+ 	status = ioread32(devpriv->gpioc_reg);
+-	if (status & MF6X4_GPIOC_EOLC)
++	if ((status & MF6X4_GPIOC_EOLC) == 0)
+ 		return 0;
+ 	return -EBUSY;
+ }
+-- 
+2.29.2
+
+
