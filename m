@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C482D5DE2
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BE52D5E0C
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390787AbgLJOd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
+        id S2391126AbgLJOiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:38:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733022AbgLJOdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:49 -0500
+        id S2391122AbgLJOh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:37:56 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan-Niklas Burfeind <kernel@aiyionpri.me>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 05/39] USB: serial: ch341: add new Product ID for CH341A
-Date:   Thu, 10 Dec 2020 15:26:44 +0100
-Message-Id: <20201210142602.556428503@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.9 21/75] ftrace: Fix DYNAMIC_FTRACE_WITH_DIRECT_CALLS dependency
+Date:   Thu, 10 Dec 2020 15:26:46 +0100
+Message-Id: <20201210142607.100047313@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,35 +32,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan-Niklas Burfeind <kernel@aiyionpri.me>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 46ee4abb10a07bd8f8ce910ee6b4ae6a947d7f63 upstream.
+commit 49a962c075dfa41c78e34784772329bc8784d217 upstream.
 
-Add PID for CH340 that's found on a ch341 based Programmer made by keeyees.
-The specific device that contains the serial converter is described
-here: http://www.keeyees.com/a/Products/ej/36.html
+DYNAMIC_FTRACE_WITH_DIRECT_CALLS should depend on
+DYNAMIC_FTRACE_WITH_REGS since we need ftrace_regs_caller().
 
-The driver works flawlessly as soon as the new PID (0x5512) is added to
-it.
+Link: https://lkml.kernel.org/r/fc4b257ea8689a36f086d2389a9ed989496ca63a.1606412433.git.naveen.n.rao@linux.vnet.ibm.com
 
-Signed-off-by: Jan-Niklas Burfeind <kernel@aiyionpri.me>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 763e34e74bb7d5c ("ftrace: Add register_ftrace_direct()")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ch341.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -83,6 +83,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x4348, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7522) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
-+	{ USB_DEVICE(0x1a86, 0x5512) },
- 	{ USB_DEVICE(0x1a86, 0x5523) },
- 	{ },
- };
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -202,7 +202,7 @@ config DYNAMIC_FTRACE_WITH_REGS
+ 
+ config DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	def_bool y
+-	depends on DYNAMIC_FTRACE
++	depends on DYNAMIC_FTRACE_WITH_REGS
+ 	depends on HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 
+ config FUNCTION_PROFILER
 
 
