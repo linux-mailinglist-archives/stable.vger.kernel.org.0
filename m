@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CD82D5DC1
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0672D5E11
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390276AbgLJOaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:30:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38186 "EHLO mail.kernel.org"
+        id S2389430AbgLJOiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:38:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390269AbgLJOaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:30:16 -0500
+        id S2390071AbgLJOiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:38:21 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 32/45] ftrace: Fix updating FTRACE_FL_TRAMP
-Date:   Thu, 10 Dec 2020 15:26:46 +0100
-Message-Id: <20201210142603.939371096@linuxfoundation.org>
+        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.9 05/75] USB: serial: option: add Fibocom NL668 variants
+Date:   Thu, 10 Dec 2020 15:26:30 +0100
+Message-Id: <20201210142606.339754004@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,86 +31,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Vincent Palatin <vpalatin@chromium.org>
 
-commit 4c75b0ff4e4bf7a45b5aef9639799719c28d0073 upstream.
+commit 5e4d659b10fde14403adb2e215df4a3168fe8465 upstream.
 
-On powerpc, kprobe-direct.tc triggered FTRACE_WARN_ON() in
-ftrace_get_addr_new() followed by the below message:
-  Bad trampoline accounting at: 000000004222522f (wake_up_process+0xc/0x20) (f0000001)
+Update the USB serial option driver support for the Fibocom NL668 Cat.4
+LTE modules as there are actually several different variants.
+Got clarifications from Fibocom, there are distinct products:
+- VID:PID 1508:1001, NL668 for IOT (no MBIM interface)
+- VID:PID 2cb7:01a0, NL668-AM and NL652-EU are laptop M.2 cards (with
+  MBIM interfaces for Windows/Linux/Chrome OS), respectively for Americas
+  and Europe.
 
-The set of steps leading to this involved:
-- modprobe ftrace-direct-too
-- enable_probe
-- modprobe ftrace-direct
-- rmmod ftrace-direct <-- trigger
+usb-devices output for the laptop M.2 cards:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  4 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=01a0 Rev=03.18
+S:  Manufacturer=Fibocom Wireless Inc.
+S:  Product=Fibocom NL652-EU Modem
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-The problem turned out to be that we were not updating flags in the
-ftrace record properly. From the above message about the trampoline
-accounting being bad, it can be seen that the ftrace record still has
-FTRACE_FL_TRAMP set though ftrace-direct module is going away. This
-happens because we are checking if any ftrace_ops has the
-FTRACE_FL_TRAMP flag set _before_ updating the filter hash.
-
-The fix for this is to look for any _other_ ftrace_ops that also needs
-FTRACE_FL_TRAMP.
-
-Link: https://lkml.kernel.org/r/56c113aa9c3e10c19144a36d9684c7882bf09af5.1606412433.git.naveen.n.rao@linux.vnet.ibm.com
-
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
 Cc: stable@vger.kernel.org
-Fixes: a124692b698b0 ("ftrace: Enable trampoline when rec count returns back to one")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ftrace.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1634,6 +1634,8 @@ static bool test_rec_ops_needs_regs(stru
- static struct ftrace_ops *
- ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
- static struct ftrace_ops *
-+ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude);
-+static struct ftrace_ops *
- ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
- 
- static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
-@@ -1771,7 +1773,7 @@ static bool __ftrace_hash_rec_update(str
- 			 * to it.
- 			 */
- 			if (ftrace_rec_count(rec) == 1 &&
--			    ftrace_find_tramp_ops_any(rec))
-+			    ftrace_find_tramp_ops_any_other(rec, ops))
- 				rec->flags |= FTRACE_FL_TRAMP;
- 			else
- 				rec->flags &= ~FTRACE_FL_TRAMP;
-@@ -2193,6 +2195,24 @@ ftrace_find_tramp_ops_any(struct dyn_ftr
- 			continue;
- 
- 		if (hash_contains_ip(ip, op->func_hash))
-+			return op;
-+	} while_for_each_ftrace_op(op);
-+
-+	return NULL;
-+}
-+
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude)
-+{
-+	struct ftrace_ops *op;
-+	unsigned long ip = rec->ip;
-+
-+	do_for_each_ftrace_op(op, ftrace_ops_list) {
-+
-+		if (op == op_exclude || !op->trampoline)
-+			continue;
-+
-+		if (hash_contains_ip(ip, op->func_hash))
- 			return op;
- 	} while_for_each_ftrace_op(op);
- 
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2046,12 +2046,13 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+ 	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+-	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 */
++	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
+ 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
+ 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
 
 
