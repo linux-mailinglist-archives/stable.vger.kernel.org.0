@@ -2,25 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F012D6687
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F872D6681
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729176AbgLJTcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:32:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S2390244AbgLJOaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:30:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388428AbgLJO3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:53 -0500
+        id S2390235AbgLJO34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:56 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 05/45] netfilter: bridge: reset skb->pkt_type after NF_INET_POST_ROUTING traversal
-Date:   Thu, 10 Dec 2020 15:26:19 +0100
-Message-Id: <20201210142602.627793598@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/45] ibmvnic: Ensure that SCRQ entry reads are correctly ordered
+Date:   Thu, 10 Dec 2020 15:26:20 +0100
+Message-Id: <20201210142602.677822885@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -32,84 +31,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 44f64f23bae2f0fad25503bc7ab86cd08d04cd47 ]
+[ Upstream commit b71ec952234610b4f90ef17a2fdcb124d5320070 ]
 
-Netfilter changes PACKET_OTHERHOST to PACKET_HOST before invoking the
-hooks as, while it's an expected value for a bridge, routing expects
-PACKET_HOST. The change is undone later on after hook traversal. This
-can be seen with pairs of functions updating skb>pkt_type and then
-reverting it to its original value:
+Ensure that received Subordinate Command-Response Queue (SCRQ)
+entries are properly read in order by the driver. These queues
+are used in the ibmvnic device to process RX buffer and TX completion
+descriptors. dma_rmb barriers have been added after checking for a
+pending descriptor to ensure the correct descriptor entry is checked
+and after reading the SCRQ descriptor to ensure the entire
+descriptor is read before processing.
 
-For hook NF_INET_PRE_ROUTING:
-  setup_pre_routing / br_nf_pre_routing_finish
-
-For hook NF_INET_FORWARD:
-  br_nf_forward_ip / br_nf_forward_finish
-
-But the third case where netfilter does this, for hook
-NF_INET_POST_ROUTING, the packet type is changed in br_nf_post_routing
-but never reverted. A comment says:
-
-  /* We assume any code from br_dev_queue_push_xmit onwards doesn't care
-   * about the value of skb->pkt_type. */
-
-But when having a tunnel (say vxlan) attached to a bridge we have the
-following call trace:
-
-  br_nf_pre_routing
-  br_nf_pre_routing_ipv6
-     br_nf_pre_routing_finish
-  br_nf_forward_ip
-     br_nf_forward_finish
-  br_nf_post_routing           <- pkt_type is updated to PACKET_HOST
-     br_nf_dev_queue_xmit      <- but not reverted to its original value
-  vxlan_xmit
-     vxlan_xmit_one
-        skb_tunnel_check_pmtu  <- a check on pkt_type is performed
-
-In this specific case, this creates issues such as when an ICMPv6 PTB
-should be sent back. When CONFIG_BRIDGE_NETFILTER is enabled, the PTB
-isn't sent (as skb_tunnel_check_pmtu checks if pkt_type is PACKET_HOST
-and returns early).
-
-If the comment is right and no one cares about the value of
-skb->pkt_type after br_dev_queue_push_xmit (which isn't true), resetting
-it to its original value should be safe.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Link: https://lore.kernel.org/r/20201123174902.622102-1-atenart@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_netfilter_hooks.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -716,6 +716,11 @@ static int br_nf_dev_queue_xmit(struct n
- 	mtu_reserved = nf_bridge_mtu_reduction(skb);
- 	mtu = skb->dev->mtu;
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -985,6 +985,12 @@ restart_poll:
  
-+	if (nf_bridge->pkt_otherhost) {
-+		skb->pkt_type = PACKET_OTHERHOST;
-+		nf_bridge->pkt_otherhost = false;
-+	}
+ 		if (!pending_scrq(adapter, adapter->rx_scrq[scrq_num]))
+ 			break;
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
+ 		next = ibmvnic_next_scrq(adapter, adapter->rx_scrq[scrq_num]);
+ 		rx_buff =
+ 		    (struct ibmvnic_rx_buff *)be64_to_cpu(next->
+@@ -1373,6 +1379,13 @@ restart_loop:
+ 	while (pending_scrq(adapter, scrq)) {
+ 		unsigned int pool = scrq->pool_index;
+ 
++		/* The queue entry at the current index is peeked at above
++		 * to determine that there is a valid descriptor awaiting
++		 * processing. We want to be sure that the current slot
++		 * holds a valid descriptor before reading its contents.
++		 */
++		dma_rmb();
 +
- 	if (nf_bridge->frag_max_size && nf_bridge->frag_max_size < mtu)
- 		mtu = nf_bridge->frag_max_size;
+ 		next = ibmvnic_next_scrq(adapter, scrq);
+ 		for (i = 0; i < next->tx_comp.num_comps; i++) {
+ 			if (next->tx_comp.rcs[i]) {
+@@ -1707,6 +1720,11 @@ static union sub_crq *ibmvnic_next_scrq(
+ 	}
+ 	spin_unlock_irqrestore(&scrq->lock, flags);
  
-@@ -809,8 +814,6 @@ static unsigned int br_nf_post_routing(v
- 	else
- 		return NF_ACCEPT;
++	/* Ensure that the entire buffer descriptor has been
++	 * loaded before reading its contents
++	 */
++	dma_rmb();
++
+ 	return entry;
+ }
  
--	/* We assume any code from br_dev_queue_push_xmit onwards doesn't care
--	 * about the value of skb->pkt_type. */
- 	if (skb->pkt_type == PACKET_OTHERHOST) {
- 		skb->pkt_type = PACKET_HOST;
- 		nf_bridge->pkt_otherhost = true;
 
 
