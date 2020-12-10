@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA8D2D5DF5
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D36532D5DDF
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390955AbgLJOfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43004 "EHLO mail.kernel.org"
+        id S2390741AbgLJOd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729811AbgLJOfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:36 -0500
+        id S2390735AbgLJOdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:20 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 18/54] ftrace: Fix updating FTRACE_FL_TRAMP
-Date:   Thu, 10 Dec 2020 15:26:55 +0100
-Message-Id: <20201210142602.940778190@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 18/39] i2c: imx: Dont generate STOP condition if arbitration has been lost
+Date:   Thu, 10 Dec 2020 15:26:57 +0100
+Message-Id: <20201210142603.178899844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
-References: <20201210142602.037095225@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,86 +33,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 4c75b0ff4e4bf7a45b5aef9639799719c28d0073 upstream.
+commit 61e6fe59ede155881a622f5901551b1cc8748f6a upstream.
 
-On powerpc, kprobe-direct.tc triggered FTRACE_WARN_ON() in
-ftrace_get_addr_new() followed by the below message:
-  Bad trampoline accounting at: 000000004222522f (wake_up_process+0xc/0x20) (f0000001)
+If arbitration is lost, the master automatically changes to slave mode.
+I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
+by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
 
-The set of steps leading to this involved:
-- modprobe ftrace-direct-too
-- enable_probe
-- modprobe ftrace-direct
-- rmmod ftrace-direct <-- trigger
+So calling i2c_imx_bus_busy() is not required and would busy-wait until
+timeout.
 
-The problem turned out to be that we were not updating flags in the
-ftrace record properly. From the above message about the trampoline
-accounting being bad, it can be seen that the ftrace record still has
-FTRACE_FL_TRAMP set though ftrace-direct module is going away. This
-happens because we are checking if any ftrace_ops has the
-FTRACE_FL_TRAMP flag set _before_ updating the filter hash.
-
-The fix for this is to look for any _other_ ftrace_ops that also needs
-FTRACE_FL_TRAMP.
-
-Link: https://lkml.kernel.org/r/56c113aa9c3e10c19144a36d9684c7882bf09af5.1606412433.git.naveen.n.rao@linux.vnet.ibm.com
-
-Cc: stable@vger.kernel.org
-Fixes: a124692b698b0 ("ftrace: Enable trampoline when rec count returns back to one")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
+                           # the 3rd argument from the calls to
+                           # i2c_imx_bus_busy().
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ftrace.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-imx.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1626,6 +1626,8 @@ static bool test_rec_ops_needs_regs(stru
- static struct ftrace_ops *
- ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
- static struct ftrace_ops *
-+ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude);
-+static struct ftrace_ops *
- ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
- 
- static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
-@@ -1763,7 +1765,7 @@ static bool __ftrace_hash_rec_update(str
- 			 * to it.
- 			 */
- 			if (ftrace_rec_count(rec) == 1 &&
--			    ftrace_find_tramp_ops_any(rec))
-+			    ftrace_find_tramp_ops_any_other(rec, ops))
- 				rec->flags |= FTRACE_FL_TRAMP;
- 			else
- 				rec->flags &= ~FTRACE_FL_TRAMP;
-@@ -2185,6 +2187,24 @@ ftrace_find_tramp_ops_any(struct dyn_ftr
- 			continue;
- 
- 		if (hash_contains_ip(ip, op->func_hash))
-+			return op;
-+	} while_for_each_ftrace_op(op);
-+
-+	return NULL;
-+}
-+
-+static struct ftrace_ops *
-+ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude)
-+{
-+	struct ftrace_ops *op;
-+	unsigned long ip = rec->ip;
-+
-+	do_for_each_ftrace_op(op, ftrace_ops_list) {
-+
-+		if (op == op_exclude || !op->trampoline)
-+			continue;
-+
-+		if (hash_contains_ip(ip, op->func_hash))
- 			return op;
- 	} while_for_each_ftrace_op(op);
- 
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -557,6 +557,8 @@ static void i2c_imx_stop(struct imx_i2c_
+ 		/* Stop I2C transaction */
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		if (!(temp & I2CR_MSTA))
++			i2c_imx->stopped = 1;
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		if (i2c_imx->dma)
+ 			temp &= ~I2CR_DMAEN;
+@@ -722,9 +724,12 @@ static int i2c_imx_dma_read(struct imx_i
+ 		 */
+ 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		if (!(temp & I2CR_MSTA))
++			i2c_imx->stopped = 1;
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-		i2c_imx_bus_busy(i2c_imx, 0);
++		if (!i2c_imx->stopped)
++			i2c_imx_bus_busy(i2c_imx, 0);
+ 	} else {
+ 		/*
+ 		 * For i2c master receiver repeat restart operation like:
+@@ -847,9 +852,12 @@ static int i2c_imx_read(struct imx_i2c_s
+ 				dev_dbg(&i2c_imx->adapter.dev,
+ 					"<%s> clear MSTA\n", __func__);
+ 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++				if (!(temp & I2CR_MSTA))
++					i2c_imx->stopped =  1;
+ 				temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-				i2c_imx_bus_busy(i2c_imx, 0);
++				if (!i2c_imx->stopped)
++					i2c_imx_bus_busy(i2c_imx, 0);
+ 			} else {
+ 				/*
+ 				 * For i2c master receiver repeat restart operation like:
 
 
