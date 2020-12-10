@@ -2,112 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D212D5705
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 10:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB2F2D571B
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 10:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388545AbgLJJX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 04:23:28 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:35017 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732324AbgLJJXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 04:23:24 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id E09D27BC;
-        Thu, 10 Dec 2020 04:22:15 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 10 Dec 2020 04:22:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=1ZAlIqBRVgNBZXJUpDZOGOQfOjR
-        SNiGbqNk2pJT3YNw=; b=Isaz5TMNcW44OShJrlhd6WuizUfUOC1KUEJqkzdW+9w
-        Ymgkf8Fao9zHi9H5ZjSq+0Ir0OXWOa+ftU8sWhtx539/LJQuqnSSW7jwGojSQEtb
-        Rtypr6x8JsgoXCYc6aQ7E24gcFKf8++RVjZ4aBM2qB9+6xr+fSyTaV6GMBAMUv5S
-        IAwuunuiEtrEYtylTJ+Fr7nB+KpYuCuIPbYc/jmMkwdT/tCkWqSYDQ7SfRWSF8+b
-        pNzNTgH6SIbJImurxwcuhpoXzlQ+GOIdqx+K4i/5Z/dSIrJKE+1cTszTsqyJQrfK
-        ln8Mdfm3D8Og0mfhmBtBhei7eeZn7LcFfvGuH1yZKWg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1ZAlIq
-        BRVgNBZXJUpDZOGOQfOjRSNiGbqNk2pJT3YNw=; b=CKgjqRFVwhvY5TKmLrb6bO
-        C2U7o/SJSvKmhg//sYb+NlScuCI2A6+G1PqgydaGvjjfMCM6/ZtaHfcTbB1vVEYS
-        KC4yWvM4uwMNvafUJyOVbn60FQlFbkmO2oj+8w/P34yeE6cfuoGP9U0BZB0Un1P6
-        MMHOZgFmHWkxtJAuvYNMs7Lp2hvSOPsCNyCNOL5lVtp3vJJzpO9XuIFA3HJZ9O1B
-        UV8FWchJcLKpL7N4ASLjy+u+b6zGNHyzIAulNW0ajuLEkfm/OLypGf7kx3kcfMkF
-        FV1VlW8/W60SFoKEUF4ALMw/nn23qrT4EUm1HfyUjUKRxXS2s45Zz42JJUseEuPA
-        ==
-X-ME-Sender: <xms:x-jRX-TLMHePEwG4CvQz6MQrlQbAIu8xJIB44fmM-Ta8sfKugWSXxQ>
-    <xme:x-jRXzzEG42IsQ9OMWLD0qBhiVK3vo_8JRNvxrfkTxCRolYdYd6GhDsbzQpoE8kyU
-    Y426GiaLfLNWw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudektddgtddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:x-jRX73N0O2wIJdj4eNoWCWcrW4LlE8ROeZ0VEu_n9XT2kHwvHZcXQ>
-    <xmx:x-jRX6DT3q-WVNaXyEOChJeKyPs6C_PtRW7cg10Lb8MDUuEi2FUixw>
-    <xmx:x-jRX3ifxSc65-zXnkijhzQDQbLG3XPZLGWxgMUSVfKrwbE2YBOuQA>
-    <xmx:x-jRX6sjqC_TECvLg0yMKJ0KEcMFI-xwGUcLoxgXCkbY899hz6L0yA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 02C0F108005B;
-        Thu, 10 Dec 2020 04:22:14 -0500 (EST)
-Date:   Thu, 10 Dec 2020 10:04:22 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Hui Wang <hui.wang@canonical.com>
-Cc:     linux-acpi@vger.kernel.org, rafael.j.wysocki@intel.com,
-        lenb@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] ACPI / PNP: check the string length of pnp device id
- in matching_id
-Message-ID: <X9HklmczekRvwKTE@kroah.com>
-References: <20201210012539.5747-1-hui.wang@canonical.com>
+        id S1727424AbgLJJ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 04:28:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38930 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727006AbgLJJ2X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 04:28:23 -0500
+Date:   Thu, 10 Dec 2020 10:28:57 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607592463;
+        bh=ALsu4fv9LUiXbofV9loYFZ/nlLyNOedi/phCg2wg4rA=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S46lt3jyJFpy8iVMc0TVwN5okhxSQd+4Ux13XmKk/d5B/yn92N5eI0KVIjbVf5HFz
+         2QSeX0hHyxcHyDyN70FT7nVregU8s68f7/+oOdAUyF47RTV1AZdms65w1DhsfrxhIg
+         aoyjuWvVEvklkvZB41AN0L8YT815Zx3m56mLC7Xg=
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] mm: memblock: enforce overlap of memory.memblock
+ and memory.reserved
+Message-ID: <X9HqWd97rmIkOzLX@kroah.com>
+References: <20201209214304.6812-1-rppt@kernel.org>
+ <20201209214304.6812-2-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201210012539.5747-1-hui.wang@canonical.com>
+In-Reply-To: <20201209214304.6812-2-rppt@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 09:25:39AM +0800, Hui Wang wrote:
-> Recently we met a touchscreen problem on some Thinkpad machines, the
-> touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
-> work.
+On Wed, Dec 09, 2020 at 11:43:03PM +0200, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
 > 
-> An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
-> the current ACPI PNP matching rule, this device will be regarded as
-> a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
-> this PNP device is attached to the acpi device as the 1st
-> physical_node, this will make the i2c bus match fail when i2c bus
-> calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
-> driver.
+> memblock does not require that the reserved memory ranges will be a subset
+> of memblock.memory.
 > 
-> An ACPI PNP device's id has fixed format and its string length equals
-> 7, after adding this check in the matching_id, the touchscreen could
-> work.
+> As the result there maybe reserved pages that are not in the range of any
+> zone or node because zone and node boundaries are detected based on
+> memblock.memory and pages that only present in memblock.reserved are not
+> taken into account during zone/node size detection.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+> Make sure that all ranges in memblock.reserved are added to memblock.memory
+> before calculating node and zone boundaries.
+> 
+> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 > ---
->  drivers/acpi/acpi_pnp.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/acpi/acpi_pnp.c b/drivers/acpi/acpi_pnp.c
-> index 4ed755a963aa..5ce711b9b070 100644
-> --- a/drivers/acpi/acpi_pnp.c
-> +++ b/drivers/acpi/acpi_pnp.c
-> @@ -319,6 +319,10 @@ static bool matching_id(const char *idstr, const char *list_id)
->  {
->  	int i;
->  
-> +	/* a pnp device id has CCCdddd format (C character, d digit), strlen should be 7 */
-> +	if (strlen(idstr) != 7)
-> +		return false;
+>  include/linux/memblock.h |  1 +
+>  mm/memblock.c            | 24 ++++++++++++++++++++++++
+>  mm/page_alloc.c          |  7 +++++++
+>  3 files changed, 32 insertions(+)
 
-Shouldn't you verify that the format is correct as well?
 
-thanks,
+<formletter>
 
-greg k-h
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
