@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0D82D55D6
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F038A2D55DC
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388428AbgLJIz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 03:55:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
+        id S1727710AbgLJI4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 03:56:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388426AbgLJIzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 03:55:52 -0500
-Subject: patch "usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK" added to usb-next
+        id S2388426AbgLJIz6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 03:55:58 -0500
+Subject: patch "xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP" added to usb-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607590511;
-        bh=N0oGOCp5oV/W8k8NbRD/ehelw1aJzZ94YA8k0EKEGPk=;
+        s=korg; t=1607590517;
+        bh=vo5TjZD3JcFPde70yCKmHCgw3B1vZQ1MHjGVK5VB+RQ=;
         h=To:From:Date:From;
-        b=lHxZciq4zGNieBwNpH+d/ABRXiSPDLZ/Fm2FRy1uPL14UAjhc+r2i6V9BfWHWwBTA
-         d3+dWHsCjSWJ8y9QSMnz2jvX4R8FKPIjecrngYP0Nhisvoip68byvvm/l4psAce5+Y
-         E75F00665WLg02uFtczJEQPoBhGjSxou7uxq7ryI=
-To:     Tejas.Joglekar@synopsys.com, gregkh@linuxfoundation.org,
-        joglekar@synopsys.com, mathias.nyman@linux.intel.com,
+        b=UXwX/1pnGBbz1k0Ny+vuD0TA75KrzA3yuYejuIlBHlp1JzvoKs15R+V5kUT+dYHOI
+         Tt+HDSWv4zGTnbMws52x/So1Wmk9OuDaVHX/6yDBUkl6BOq3CjbO1wlWt+GeHgQ604
+         5Wdwb4g4ppjwYmpVX4JO1YqP5HJZuQUVRu5FIPYo=
+To:     hdegoede@redhat.com, gregkh@linuxfoundation.org,
+        mathias.nyman@linux.intel.com, mika.westerberg@linux.intel.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 09:56:26 +0100
-Message-ID: <160759058620108@kroah.com>
+Date:   Thu, 10 Dec 2020 09:56:28 +0100
+Message-ID: <160759058888231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK
+    xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -50,53 +50,49 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From bac1ec551434697ca3c5bb5d258811ba5446866a Mon Sep 17 00:00:00 2001
-From: Tejas Joglekar <Tejas.Joglekar@synopsys.com>
-Date: Tue, 8 Dec 2020 11:29:08 +0200
-Subject: usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK
+From c4d1ca05b8e68a4b5a3c4455cb6ec25b3df6d9dd Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Tue, 8 Dec 2020 11:29:10 +0200
+Subject: xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
 
-This commit uses the private data passed by parent device
-to set the quirk for Synopsys xHC. This patch fixes the
-SNPS xHC hang issue when the data is scattered across
-small buffers which does not make atleast MPS size for
-given TRB cache size of SNPS xHC.
+The xHCI controller on Alpine Ridge LP keeps the whole Thunderbolt
+controller awake if the host controller is not allowed to sleep.
+This is the case even if no USB devices are connected to the host.
 
-Signed-off-by: Tejas Joglekar <joglekar@synopsys.com>
+Add the Intel Alpine Ridge LP product-id to the list of product-ids
+for which we allow runtime PM by default.
+
+Fixes: 2815ef7fe4d4 ("xhci-pci: allow host runtime PM as default for Intel Alpine and Titan Ridge")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20201208092912.1773650-2-mathias.nyman@linux.intel.com
-Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201208092912.1773650-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-plat.c | 3 +++
- drivers/usb/host/xhci.h      | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/usb/host/xhci-pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index aa2d35f98200..4d34f6005381 100644
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -333,6 +333,9 @@ static int xhci_plat_probe(struct platform_device *pdev)
- 	if (priv && (priv->quirks & XHCI_SKIP_PHY_INIT))
- 		hcd->skip_phy_initialization = 1;
- 
-+	if (priv && (priv->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK))
-+		xhci->quirks |= XHCI_SG_TRB_CACHE_SIZE_QUIRK;
-+
- 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
- 	if (ret)
- 		goto disable_usb_phy;
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index ebb359ebb261..d90c0d5df3b3 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1878,6 +1878,7 @@ struct xhci_hcd {
- #define XHCI_RENESAS_FW_QUIRK	BIT_ULL(36)
- #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
- #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
-+#define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
- 
- 	unsigned int		num_active_eps;
- 	unsigned int		limit_active_eps;
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index bf89172c43ca..5f94d7edeb37 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -47,6 +47,7 @@
+ #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI	0x15b5
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI	0x15b6
++#define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI	0x15c1
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI	0x15db
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI	0x15d4
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
+@@ -232,6 +233,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
 -- 
 2.29.2
 
