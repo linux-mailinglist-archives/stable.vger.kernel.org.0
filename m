@@ -2,28 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5EAB2D62DD
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 290E12D62DE
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:02:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390976AbgLJOf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
+        id S2390984AbgLJOgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390970AbgLJOfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:52 -0500
+        id S2390978AbgLJOgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:03 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Paul Wise <pabs3@bonedaddy.net>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jakub Wilk <jwilk@jwilk.net>
-Subject: [PATCH 5.4 33/54] coredump: fix core_pattern parse error
-Date:   Thu, 10 Dec 2020 15:27:10 +0100
-Message-Id: <20201210142603.662932100@linuxfoundation.org>
+        stable@vger.kernel.org, Shisong Qin <qinshisong1205@gmail.com>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH 5.4 36/54] speakup: Reject setting the speakup line discipline outside of speakup
+Date:   Thu, 10 Dec 2020 15:27:13 +0100
+Message-Id: <20201210142603.809322847@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -35,47 +31,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit 2bf509d96d84c3336d08375e8af34d1b85ee71c8 upstream.
+commit f0992098cadb4c9c6a00703b66cafe604e178fea upstream.
 
-'format_corename()' will splite 'core_pattern' on spaces when it is in
-pipe mode, and take helper_argv[0] as the path to usermode executable.
-It works fine in most cases.
+Speakup exposing a line discipline allows userland to try to use it,
+while it is deemed to be useless, and thus uselessly exposes potential
+bugs. One of them is simply that in such a case if the line sends data,
+spk_ttyio_receive_buf2 is called and crashes since spk_ttyio_synth
+is NULL.
 
-However, if there is a space between '|' and '/file/path', such as
-'| /usr/lib/systemd/systemd-coredump %P %u %g', then helper_argv[0] will
-be parsed as '', and users will get a 'Core dump to | disabled'.
+This change restricts the use of the speakup line discipline to
+speakup drivers, thus avoiding such kind of issues altogether.
 
-It is not friendly to users, as the pattern above was valid previously.
-Fix this by ignoring the spaces between '|' and '/file/path'.
-
-Fixes: 315c69261dd3 ("coredump: split pipe command whitespace before expanding template")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Paul Wise <pabs3@bonedaddy.net>
-Cc: Jakub Wilk <jwilk@jwilk.net> [https://bugs.debian.org/924398]
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/5fb62870.1c69fb81.8ef5d.af76@mx.google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Shisong Qin <qinshisong1205@gmail.com>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Tested-by: Shisong Qin <qinshisong1205@gmail.com>
+Link: https://lore.kernel.org/r/20201129193523.hm3f6n5xrn6fiyyc@function
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- fs/coredump.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -224,7 +224,8 @@ static int format_corename(struct core_n
- 		 */
- 		if (ispipe) {
- 			if (isspace(*pat_ptr)) {
--				was_space = true;
-+				if (cn->used != 0)
-+					was_space = true;
- 				pat_ptr++;
- 				continue;
- 			} else if (was_space) {
+---
+ drivers/staging/speakup/spk_ttyio.c |   37 ++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
+
+--- a/drivers/staging/speakup/spk_ttyio.c
++++ b/drivers/staging/speakup/spk_ttyio.c
+@@ -47,27 +47,20 @@ static int spk_ttyio_ldisc_open(struct t
+ {
+ 	struct spk_ldisc_data *ldisc_data;
+ 
++	if (tty != speakup_tty)
++		/* Somebody tried to use this line discipline outside speakup */
++		return -ENODEV;
++
+ 	if (!tty->ops->write)
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&speakup_tty_mutex);
+-	if (speakup_tty) {
+-		mutex_unlock(&speakup_tty_mutex);
+-		return -EBUSY;
+-	}
+-	speakup_tty = tty;
+-
+ 	ldisc_data = kmalloc(sizeof(struct spk_ldisc_data), GFP_KERNEL);
+-	if (!ldisc_data) {
+-		speakup_tty = NULL;
+-		mutex_unlock(&speakup_tty_mutex);
++	if (!ldisc_data)
+ 		return -ENOMEM;
+-	}
+ 
+ 	init_completion(&ldisc_data->completion);
+ 	ldisc_data->buf_free = true;
+-	speakup_tty->disc_data = ldisc_data;
+-	mutex_unlock(&speakup_tty_mutex);
++	tty->disc_data = ldisc_data;
+ 
+ 	return 0;
+ }
+@@ -189,9 +182,25 @@ static int spk_ttyio_initialise_ldisc(st
+ 
+ 	tty_unlock(tty);
+ 
++	mutex_lock(&speakup_tty_mutex);
++	speakup_tty = tty;
+ 	ret = tty_set_ldisc(tty, N_SPEAKUP);
+ 	if (ret)
+-		pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++		speakup_tty = NULL;
++	mutex_unlock(&speakup_tty_mutex);
++
++	if (!ret)
++		/* Success */
++		return 0;
++
++	pr_err("speakup: Failed to set N_SPEAKUP on tty\n");
++
++	tty_lock(tty);
++	if (tty->ops->close)
++		tty->ops->close(tty, NULL);
++	tty_unlock(tty);
++
++	tty_kclose(tty);
+ 
+ 	return ret;
+ }
 
 
