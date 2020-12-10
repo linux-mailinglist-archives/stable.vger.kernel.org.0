@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 329722D5DF0
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B92B12D5DE9
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:35:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390880AbgLJOfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42534 "EHLO mail.kernel.org"
+        id S2390807AbgLJOeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:34:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390886AbgLJOfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:11 -0500
+        id S2390800AbgLJOeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:34:20 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 27/54] powerpc/64s/powernv: Fix memory corruption when saving SLB entries on MCE
-Date:   Thu, 10 Dec 2020 15:27:04 +0100
-Message-Id: <20201210142603.365405138@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 26/39] i2c: imx: Check for I2SR_IAL after every byte
+Date:   Thu, 10 Dec 2020 15:27:05 +0100
+Message-Id: <20201210142603.562742819@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
-References: <20201210142602.037095225@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,45 +33,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Christian Eggers <ceggers@arri.de>
 
-commit a1ee28117077c3bf24e5ab6324c835eaab629c45 upstream.
+commit 1de67a3dee7a279ebe4d892b359fe3696938ec15 upstream.
 
-This can be hit by an HPT guest running on an HPT host and bring down
-the host, so it's quite important to fix.
+Arbitration Lost (IAL) can happen after every single byte transfer. If
+arbitration is lost, the I2C hardware will autonomously switch from
+master mode to slave. If a transfer is not aborted in this state,
+consecutive transfers will not be executed by the hardware and will
+timeout.
 
-Fixes: 7290f3b3d3e6 ("powerpc/64s/powernv: machine check dump SLB contents")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201128070728.825934-2-npiggin@gmail.com
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/setup.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-imx.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/powerpc/platforms/powernv/setup.c
-+++ b/arch/powerpc/platforms/powernv/setup.c
-@@ -186,11 +186,16 @@ static void __init pnv_init(void)
- 		add_preferred_console("hvc", 0, NULL);
- 
- 	if (!radix_enabled()) {
-+		size_t size = sizeof(struct slb_entry) * mmu_slb_size;
- 		int i;
- 
- 		/* Allocate per cpu area to save old slb contents during MCE */
--		for_each_possible_cpu(i)
--			paca_ptrs[i]->mce_faulty_slbs = memblock_alloc_node(mmu_slb_size, __alignof__(*paca_ptrs[i]->mce_faulty_slbs), cpu_to_node(i));
-+		for_each_possible_cpu(i) {
-+			paca_ptrs[i]->mce_faulty_slbs =
-+					memblock_alloc_node(size,
-+						__alignof__(struct slb_entry),
-+						cpu_to_node(i));
-+		}
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -460,6 +460,16 @@ static int i2c_imx_trx_complete(struct i
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
  	}
- }
- 
++
++	/* check for arbitration lost */
++	if (i2c_imx->i2csr & I2SR_IAL) {
++		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
++
++		i2c_imx->i2csr = 0;
++		return -EAGAIN;
++	}
++
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+ 	i2c_imx->i2csr = 0;
+ 	return 0;
 
 
