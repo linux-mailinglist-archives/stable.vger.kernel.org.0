@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66B1D2D5E09
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8AFF2D5DC9
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391090AbgLJOhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S2389056AbgLJObU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:31:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391085AbgLJOhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:37:31 -0500
+        id S2388798AbgLJObK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:31:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 13/75] ALSA: hda/realtek: Enable headset of ASUS UX482EG & B9400CEA with ALC294
-Date:   Thu, 10 Dec 2020 15:26:38 +0100
-Message-Id: <20201210142606.726063210@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Jann Horn <jannh@google.com>, Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 4.9 28/45] tty: Fix ->pgrp locking in tiocspgrp()
+Date:   Thu, 10 Dec 2020 15:26:42 +0100
+Message-Id: <20201210142603.739750087@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142602.361598591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,34 +31,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jhp@endlessos.org>
+From: Jann Horn <jannh@google.com>
 
-commit eeacd80fcb29b769ea915cd06b7dd35e0bf0bc25 upstream.
+commit 54ffccbf053b5b6ca4f6e45094b942fab92a25fc upstream.
 
-Some laptops like ASUS UX482EG & B9400CEA's headset audio does not work
-until the quirk ALC294_FIXUP_ASUS_HPE is applied.
+tiocspgrp() takes two tty_struct pointers: One to the tty that userspace
+passed to ioctl() (`tty`) and one to the TTY being changed (`real_tty`).
+These pointers are different when ioctl() is called with a master fd.
 
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201124092024.179540-1-jhp@endlessos.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+To properly lock real_tty->pgrp, we must take real_tty->ctrl_lock.
+
+This bug makes it possible for racing ioctl(TIOCSPGRP, ...) calls on
+both sides of a PTY pair to corrupt the refcount of `struct pid`,
+leading to use-after-free errors.
+
+Fixes: 47f86834bbd4 ("redo locking of tty->pgrp")
+CC: stable@kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/tty_io.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8600,6 +8600,9 @@ static const struct snd_hda_pin_quirk al
- 	SND_HDA_PIN_QUIRK(0x10ec0293, 0x1028, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE,
- 		ALC292_STANDARD_PINS,
- 		{0x13, 0x90a60140}),
-+	SND_HDA_PIN_QUIRK(0x10ec0294, 0x1043, "ASUS", ALC294_FIXUP_ASUS_HPE,
-+		{0x17, 0x90170110},
-+		{0x21, 0x04211020}),
- 	SND_HDA_PIN_QUIRK(0x10ec0294, 0x1043, "ASUS", ALC294_FIXUP_ASUS_MIC,
- 		{0x14, 0x90170110},
- 		{0x1b, 0x90a70130},
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2645,10 +2645,10 @@ static int tiocspgrp(struct tty_struct *
+ 	if (session_of_pgrp(pgrp) != task_session(current))
+ 		goto out_unlock;
+ 	retval = 0;
+-	spin_lock_irq(&tty->ctrl_lock);
++	spin_lock_irq(&real_tty->ctrl_lock);
+ 	put_pid(real_tty->pgrp);
+ 	real_tty->pgrp = get_pid(pgrp);
+-	spin_unlock_irq(&tty->ctrl_lock);
++	spin_unlock_irq(&real_tty->ctrl_lock);
+ out_unlock:
+ 	rcu_read_unlock();
+ 	return retval;
 
 
