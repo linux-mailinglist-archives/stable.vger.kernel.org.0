@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0362D62A3
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C32E2D62CA
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392095AbgLJQyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 11:54:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43972 "EHLO mail.kernel.org"
+        id S2390778AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391042AbgLJOgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:52 -0500
+        id S2390987AbgLJOgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:14 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Luo Meng <luomeng12@huawei.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 47/54] ASoC: wm_adsp: fix error return code in wm_adsp_load()
-Date:   Thu, 10 Dec 2020 15:27:24 +0100
-Message-Id: <20201210142604.334613909@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 48/54] rtw88: debug: Fix uninitialized memory in debugfs code
+Date:   Thu, 10 Dec 2020 15:27:25 +0100
+Message-Id: <20201210142604.382672888@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -33,35 +31,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3fba05a2832f93b4d0cd4204f771fdae0d823114 upstream.
+commit 74a8c816fa8fa7862df870660e9821abb56649fe upstream.
 
-Fix to return a negative error code from the error handling case
-instead of 0 in function wm_adsp_load(), as done elsewhere in this
-function.
+This code does not ensure that the whole buffer is initialized and none
+of the callers check for errors so potentially none of the buffer is
+initialized.  Add a memset to eliminate this bug.
 
-Fixes: 170b1e123f38 ("ASoC: wm_adsp: Add support for new Halo core DSPs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Acked-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20201123133839.4073787-1-luomeng12@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e3037485c68e ("rtw88: new Realtek 802.11ac driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/X8ilOfVz3pf0T5ec@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/wm_adsp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtw88/debug.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1912,6 +1912,7 @@ static int wm_adsp_load(struct wm_adsp *
- 			mem = wm_adsp_find_region(dsp, type);
- 			if (!mem) {
- 				adsp_err(dsp, "No region of type: %x\n", type);
-+				ret = -EINVAL;
- 				goto out_fw;
- 			}
+--- a/drivers/net/wireless/realtek/rtw88/debug.c
++++ b/drivers/net/wireless/realtek/rtw88/debug.c
+@@ -146,6 +146,8 @@ static int rtw_debugfs_copy_from_user(ch
+ {
+ 	int tmp_len;
+ 
++	memset(tmp, 0, size);
++
+ 	if (count < num)
+ 		return -EFAULT;
  
 
 
