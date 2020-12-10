@@ -2,27 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607542D5DB4
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B282D5DBE
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390118AbgLJO2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36556 "EHLO mail.kernel.org"
+        id S2390209AbgLJO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:29:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390096AbgLJO2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:28:14 -0500
+        id S2390201AbgLJO3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:12 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 20/39] USB: serial: option: add Fibocom NL668 variants
-Date:   Thu, 10 Dec 2020 15:26:31 +0100
-Message-Id: <20201210142601.905452114@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 18/45] pinctrl: baytrail: Replace WARN with dev_info_once when setting direct-irq pin to output
+Date:   Thu, 10 Dec 2020 15:26:32 +0100
+Message-Id: <20201210142603.266345166@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
-References: <20201210142600.887734129@linuxfoundation.org>
+In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142602.361598591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,57 +34,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Palatin <vpalatin@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 5e4d659b10fde14403adb2e215df4a3168fe8465 upstream.
+commit e2b74419e5cc7cfc58f3e785849f73f8fa0af5b3 upstream
 
-Update the USB serial option driver support for the Fibocom NL668 Cat.4
-LTE modules as there are actually several different variants.
-Got clarifications from Fibocom, there are distinct products:
-- VID:PID 1508:1001, NL668 for IOT (no MBIM interface)
-- VID:PID 2cb7:01a0, NL668-AM and NL652-EU are laptop M.2 cards (with
-  MBIM interfaces for Windows/Linux/Chrome OS), respectively for Americas
-  and Europe.
+Suspending Goodix touchscreens requires changing the interrupt pin to
+output before sending them a power-down command. Followed by wiggling
+the interrupt pin to wake the device up, after which it is put back
+in input mode.
 
-usb-devices output for the laptop M.2 cards:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  4 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=01a0 Rev=03.18
-S:  Manufacturer=Fibocom Wireless Inc.
-S:  Product=Fibocom NL652-EU Modem
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+On Cherry Trail device the interrupt pin is listed as a GpioInt ACPI
+resource so we can do this without problems as long as we release the
+IRQ before changing the pin to output mode.
 
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Bay Trail devices with a Goodix touchscreen direct-irq mode is used
+in combination with listing the pin as a normal GpioIo resource. This
+works fine, but this triggers the WARN in byt_gpio_set_direction-s output
+path because direct-irq support is enabled on the pin.
 
+This commit replaces the WARN call with a dev_info_once call, fixing a
+bunch of WARN splats in dmesg on each suspend/resume cycle.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2031,12 +2031,13 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
--	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 */
-+	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
- 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
- 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 1e945aa77734b..23b3b3d541675 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -1034,15 +1034,15 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 	value &= ~BYT_DIR_MASK;
+ 	if (input)
+ 		value |= BYT_OUTPUT_EN;
+-	else
++	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
+ 		/*
+ 		 * Before making any direction modifications, do a check if gpio
+ 		 * is set for direct IRQ.  On baytrail, setting GPIO to output
+-		 * does not make sense, so let's at least warn the caller before
++		 * does not make sense, so let's at least inform the caller before
+ 		 * they shoot themselves in the foot.
+ 		 */
+-		WARN(readl(conf_reg) & BYT_DIRECT_IRQ_EN,
+-		     "Potential Error: Setting GPIO with direct_irq_en to output");
++		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++
+ 	writel(value, val_reg);
+ 
+ 	raw_spin_unlock_irqrestore(&byt_lock, flags);
+-- 
+2.27.0
+
 
 
