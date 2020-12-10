@@ -2,28 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D454A2D5DBC
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D4F2D5DB2
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:30:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390184AbgLJO3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36556 "EHLO mail.kernel.org"
+        id S2390107AbgLJO2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:28:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390179AbgLJO2w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:28:52 -0500
+        id S2390091AbgLJO2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:28:07 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 11/45] net/mlx5: Fix wrong address reclaim when command interface is down
-Date:   Thu, 10 Dec 2020 15:26:25 +0100
-Message-Id: <20201210142602.919855348@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 19/39] USB: serial: ch341: sort device-id entries
+Date:   Thu, 10 Dec 2020 15:26:30 +0100
+Message-Id: <20201210142601.854048376@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
+In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
+References: <20201210142600.887734129@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,62 +30,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@nvidia.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1d2bb5ad89f47d8ce8aedc70ef85059ab3870292 ]
+commit bf193bfc12dbc3754fc8a6e0e1e3702f1af2f772 upstream.
 
-When command interface is down, driver to reclaim all 4K page chucks that
-were hold by the Firmeware. Fix a bug for 64K page size systems, where
-driver repeatedly released only the first chunk of the page.
+Keep the device-id entries sorted to make it easier to add new ones in
+the right spot.
 
-Define helper function to fill 4K chunks for a given Firmware pages.
-Iterate over all unreleased Firmware pages and call the hepler per each.
-
-Fixes: 5adff6a08862 ("net/mlx5: Fix incorrect page count when in internal error")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c |   21 ++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-@@ -331,6 +331,24 @@ out_free:
- 	return err;
- }
+---
+ drivers/usb/serial/ch341.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -70,11 +70,11 @@
  
-+static u32 fwp_fill_manage_pages_out(struct fw_page *fwp, u32 *out, u32 index,
-+				     u32 npages)
-+{
-+	u32 pages_set = 0;
-+	unsigned int n;
-+
-+	for_each_clear_bit(n, &fwp->bitmask, MLX5_NUM_4K_IN_PAGE) {
-+		MLX5_ARRAY_SET64(manage_pages_out, out, pas, index + pages_set,
-+				 fwp->addr + (n * MLX5_ADAPTER_PAGE_SIZE));
-+		pages_set++;
-+
-+		if (!--npages)
-+			break;
-+	}
-+
-+	return pages_set;
-+}
-+
- static int reclaim_pages_cmd(struct mlx5_core_dev *dev,
- 			     u32 *in, int in_size, u32 *out, int out_size)
- {
-@@ -354,8 +372,7 @@ static int reclaim_pages_cmd(struct mlx5
- 		if (fwp->func_id != func_id)
- 			continue;
  
--		MLX5_ARRAY_SET64(manage_pages_out, out, pas, i, fwp->addr);
--		i++;
-+		i += fwp_fill_manage_pages_out(fwp, out, i, npages - i);
- 	}
- 
- 	MLX5_SET(manage_pages_out, out, output_num_entries, i);
+ static const struct usb_device_id id_table[] = {
+-	{ USB_DEVICE(0x4348, 0x5523) },
+-	{ USB_DEVICE(0x1a86, 0x7522) },
+-	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x1a86, 0x5512) },
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
++	{ USB_DEVICE(0x1a86, 0x7522) },
++	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 
 
