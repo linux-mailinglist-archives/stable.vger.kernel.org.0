@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A2C2D62D4
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E0E2D62BD
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731173AbgLJRAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 12:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43650 "EHLO mail.kernel.org"
+        id S2390993AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730417AbgLJOgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:12 -0500
+        id S2390988AbgLJOgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:14 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Mark Brown <broonie@kernel.org>, Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.4 39/54] spi: bcm2835: Release the DMA channel if probe fails after dma_init
-Date:   Thu, 10 Dec 2020 15:27:16 +0100
-Message-Id: <20201210142603.957582556@linuxfoundation.org>
+        stable@vger.kernel.org, Jerry Snitselaar <jsnitsel@redhat.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 40/54] iommu/amd: Set DTE[IntTabLen] to represent 512 IRTEs
+Date:   Thu, 10 Dec 2020 15:27:17 +0100
+Message-Id: <20201210142604.003592619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -32,51 +32,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 666224b43b4bd4612ce3b758c038f9bc5c5e3fcb ]
+commit 4165bf015ba9454f45beaad621d16c516d5c5afe upstream.
 
-The DMA channel was not released if either devm_request_irq() or
-devm_spi_register_controller() failed.
+According to the AMD IOMMU spec, the commit 73db2fc595f3
+("iommu/amd: Increase interrupt remapping table limit to 512 entries")
+also requires the interrupt table length (IntTabLen) to be set to 9
+(power of 2) in the device table mapping entry (DTE).
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20191212135550.4634-3-peter.ujfalusi@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[lukas: backport to 5.4-stable]
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Fixes: 73db2fc595f3 ("iommu/amd: Increase interrupt remapping table limit to 512 entries")
+Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Link: https://lore.kernel.org/r/20201207091920.3052-1-suravee.suthikulpanit@amd.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi-bcm2835.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1310,21 +1310,22 @@ static int bcm2835_spi_probe(struct plat
- 			       dev_name(&pdev->dev), ctlr);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not request IRQ: %d\n", err);
--		goto out_clk_disable;
-+		goto out_dma_release;
- 	}
+---
+ drivers/iommu/amd_iommu_types.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -254,7 +254,7 @@
+ #define DTE_IRQ_REMAP_INTCTL_MASK	(0x3ULL << 60)
+ #define DTE_IRQ_TABLE_LEN_MASK	(0xfULL << 1)
+ #define DTE_IRQ_REMAP_INTCTL    (2ULL << 60)
+-#define DTE_IRQ_TABLE_LEN       (8ULL << 1)
++#define DTE_IRQ_TABLE_LEN       (9ULL << 1)
+ #define DTE_IRQ_REMAP_ENABLE    1ULL
  
- 	err = spi_register_controller(ctlr);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not register SPI controller: %d\n",
- 			err);
--		goto out_clk_disable;
-+		goto out_dma_release;
- 	}
- 
- 	bcm2835_debugfs_create(bs, dev_name(&pdev->dev));
- 
- 	return 0;
- 
--out_clk_disable:
-+out_dma_release:
-+	bcm2835_dma_release(ctlr, bs);
- 	clk_disable_unprepare(bs->clk);
- 	return err;
- }
+ #define PAGE_MODE_NONE    0x00
 
 
