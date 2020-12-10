@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54BA42D667E
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:32:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 798F42D66CC
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:42:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390226AbgLJO34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:29:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37746 "EHLO mail.kernel.org"
+        id S2390194AbgLJTlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:41:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390229AbgLJO3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:47 -0500
+        id S2390172AbgLJO2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:28:47 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matti Vuorela <matti.vuorela@bitfactor.fi>,
-        Yves-Alexis Perez <corsac@corsac.net>,
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Martin Schiller <ms@dev.tdt.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 03/45] usbnet: ipheth: fix connectivity with iOS 14
+Subject: [PATCH 4.4 06/39] net/x25: prevent a couple of overflows
 Date:   Thu, 10 Dec 2020 15:26:17 +0100
-Message-Id: <20201210142602.528034081@linuxfoundation.org>
+Message-Id: <20201210142601.203768202@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
+In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
+References: <20201210142600.887734129@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,49 +33,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yves-Alexis Perez <corsac@corsac.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f33d9e2b48a34e1558b67a473a1fc1d6e793f93c ]
+[ Upstream commit 6ee50c8e262a0f0693dad264c3c99e30e6442a56 ]
 
-Starting with iOS 14 released in September 2020, connectivity using the
-personal hotspot USB tethering function of iOS devices is broken.
+The .x25_addr[] address comes from the user and is not necessarily
+NUL terminated.  This leads to a couple problems.  The first problem is
+that the strlen() in x25_bind() can read beyond the end of the buffer.
 
-Communication between the host and the device (for example ICMP traffic
-or DNS resolution using the DNS service running in the device itself)
-works fine, but communication to endpoints further away doesn't work.
+The second problem is more subtle and could result in memory corruption.
+The call tree is:
+  x25_connect()
+  --> x25_write_internal()
+      --> x25_addr_aton()
 
-Investigation on the matter shows that no UDP and ICMP traffic from the
-tethered host is reaching the Internet at all. For TCP traffic there are
-exchanges between tethered host and server but packets are modified in
-transit leading to impossible communication.
+The .x25_addr[] buffers are copied to the "addresses" buffer from
+x25_write_internal() so it will lead to stack corruption.
 
-After some trials Matti Vuorela discovered that reducing the URB buffer
-size by two bytes restored the previous behavior. While a better
-solution might exist to fix the issue, since the protocol is not
-publicly documented and considering the small size of the fix, let's do
-that.
+Verify that the strings are NUL terminated and return -EINVAL if they
+are not.
 
-Tested-by: Matti Vuorela <matti.vuorela@bitfactor.fi>
-Signed-off-by: Yves-Alexis Perez <corsac@corsac.net>
-Link: https://lore.kernel.org/linux-usb/CAAn0qaXmysJ9vx3ZEMkViv_B19ju-_ExN8Yn_uSefxpjS6g4Lw@mail.gmail.com/
-Link: https://github.com/libimobiledevice/libimobiledevice/issues/1038
-Link: https://lore.kernel.org/r/20201119172439.94988-1-corsac@corsac.net
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: a9288525d2ae ("X25: Dont let x25_bind use addresses containing characters")
+Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/X8ZeAKm8FnFpN//B@mwanda
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ipheth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/x25/af_x25.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -70,7 +70,7 @@
- #define IPHETH_USBINTF_SUBCLASS 253
- #define IPHETH_USBINTF_PROTO    1
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -679,7 +679,8 @@ static int x25_bind(struct socket *sock,
+ 	int len, i, rc = 0;
  
--#define IPHETH_BUF_SIZE         1516
-+#define IPHETH_BUF_SIZE         1514
- #define IPHETH_IP_ALIGN		2	/* padding at front of URB */
- #define IPHETH_TX_TIMEOUT       (5 * HZ)
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25) {
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN) {
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -773,7 +774,8 @@ static int x25_connect(struct socket *so
  
+ 	rc = -EINVAL;
+ 	if (addr_len != sizeof(struct sockaddr_x25) ||
+-	    addr->sx25_family != AF_X25)
++	    addr->sx25_family != AF_X25 ||
++	    strnlen(addr->sx25_addr.x25_addr, X25_ADDR_LEN) == X25_ADDR_LEN)
+ 		goto out;
+ 
+ 	rc = -ENETUNREACH;
 
 
