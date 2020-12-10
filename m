@@ -2,94 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 773612D69AE
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 22:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35CED2D69B0
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 22:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394020AbgLJVX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 16:23:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
+        id S2394023AbgLJVYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 16:24:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394022AbgLJVXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 16:23:54 -0500
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08CAC0613CF
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:13 -0800 (PST)
-Received: by mail-il1-x142.google.com with SMTP id 2so6745681ilg.9
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:13 -0800 (PST)
+        with ESMTP id S2394028AbgLJVYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 16:24:06 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76C4C0613D6
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:26 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id 11so5348571pfu.4
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=CYZd6jdoPPyIzqEniMfNIDK6f2ux98X4MNJ25wEjL2k=;
-        b=F4Sa/Llc5C0BPYjByDx0UfNlMRCv0iSri81JqmWfiJJX28oOul1egS+O6Vd5Lq5V+q
-         suyvtRO7xXPGSJ25AjMAjYOKhovWmw+mvqyI4RAEyDL7ArIT9LwF5k/R9mJRc3gZMDLi
-         nJp3hTCXE37lvhSVm0TRzQpja2g0yZTB082FI=
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:cc;
+        bh=6FBEBqC9O9xCIGCxCBvAdo9hn7EHmsB+dt3e8j6643g=;
+        b=jF1hXSGSHVgZg+YJC2KFshhFf/ZN7/NoKkPBz9D9Zlui3n2GoMics8NyJO8gpJFrFQ
+         4e0Sc5VXRlLhf/08sVGoWiAZ8RgqUSltJOOKBQt3m4RNsJEJ8FGrRTYWZoPkfuQ3/4VQ
+         8047hFWwNmi7ugQn7VV73PtUyXNffvlJo1teY+dj7G/qoV4e2Bxz8KEZPEgE8vaJscVh
+         1jlbEIKhFo84e2isSUeP8Da5k038FXyfvc9nx8382wQ6AB2+WlK4r+KwJBiiVpLgZATk
+         r3EKLYn+NYn7tr80pvoQlgbxDfYkv2/xcCV4VR0EKAWwDzJWGWg2EqKBMg8ys5DZs0tj
+         9NTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CYZd6jdoPPyIzqEniMfNIDK6f2ux98X4MNJ25wEjL2k=;
-        b=pTncB68Tj1O+yHMJqFwy01ch1qmUWHM2OtvLQJPerAGtYwbRgAs26rURWei3sdXVSt
-         j5Wr3wNUgtZ06OigEP4yKgeBYLtNpzmtsOA+/kvTrBzqI1rw8LyTsEvbncoYSDyb6EKa
-         NLMz0+5FxEFPPZoq01gyUDDqLhCW+NZAfT9v3mqRXfiZjv6HL8leuK98ZCsOhNo3k2Wp
-         OhqKL3DD/ve+utV5xS/zZsZGhAxhG6OAmPQ+eu+wjK9JjINhbF3DNmt+cwvulm6lKubv
-         HFm0g2Zi3fwv7LYsCqP7C5u36nmJD5hoN82w8qiv9mJbr35oVUJTEzI1yTujdBuWwRNp
-         qftA==
-X-Gm-Message-State: AOAM531JdhLZhbwfdVgjBBBpHhi6QPyN+vd05FGT7qv91M+jkpHy38fF
-        TiaxM9+FMBKQQ9m307+PYKEPNg==
-X-Google-Smtp-Source: ABdhPJx/hItjT7sjMoQbPSVjjKzdIAOLLhEAbRyTMvW7oNs5MytvZc6vVliujvIWZyMfJoASjxCxEw==
-X-Received: by 2002:a92:4019:: with SMTP id n25mr10872145ila.25.1607635393092;
-        Thu, 10 Dec 2020 13:23:13 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id v13sm4178797ili.16.2020.12.10.13.23.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Dec 2020 13:23:12 -0800 (PST)
-Subject: Re: [PATCH 4.19 00/39] 4.19.163-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <28bf5a79-30c1-29b8-e188-59ed0020d800@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 14:23:11 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:cc;
+        bh=6FBEBqC9O9xCIGCxCBvAdo9hn7EHmsB+dt3e8j6643g=;
+        b=o1F9V+2VBgYi6qQv9+mQpq8H19AUIMAfJn0h1hVsboLOA3pYPQbSCkFjxA7hfuoFCX
+         DHZ1Cp3nKzKU8mgLIcq/UmGniqhr0KOJpcnalO7q2ilUkEgCBZTly/3+gkCNb2sSvkbA
+         um0b9i99EQPWqKuuiZlPlWmhQmYQOHDU3iYMJq72VeleNeMG+Yy54m8rhQYnr/LYJole
+         HbgvK0qmtacQtKBgwvUoXc0P0q5R5eccrZjjqj86X/mKs82ZTiwoMHJClfilFMJv1OIs
+         wCYsymnCVGAQLXpAPDqmm6jQrPb8xYpfwIIaxuROF2QqYK8Jg6Ez5rD+gHo/UF7n6xm+
+         XZdA==
+X-Gm-Message-State: AOAM5325dSrqHWoL7GByySQdLtXh4FsgtUmKL6MoZ7B/WrSOLpF1yhJ4
+        KsklYQvEYZ1kE9ttnMieH6tX/LRu8BNA7rHoph1y3g==
+X-Received: by 2002:a17:90b:1957:: with SMTP id nk23mt2904168pjb.32.1607635406232;
+ Thu, 10 Dec 2020 13:23:26 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <160750466017491@kroah.com>
+In-Reply-To: <160750466017491@kroah.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 10 Dec 2020 13:23:14 -0800
+Message-ID: <CAKwvOdn+zxenbh4UVosr=yO6U9Bhwd7CiVGZq9WaE5cXZ7WWTg@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] Kbuild: do not emit debug info for
+ assembly with LLVM_IAS=1" failed to apply to 5.9-stable tree
+Cc:     Dmitry Golovin <dima@golovin.in>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/10/20 7:26 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.163 release.
-> There are 39 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 12 Dec 2020 14:25:47 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.163-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
+On Wed, Dec 9, 2020 at 1:03 AM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 5.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+Cross referencing the thread where manual backports were provided:
+https://lore.kernel.org/stable/CAKwvOdnGDHn+Y+g5AsKvOFiuF7iVAJ8+x53SgWxH9ejqEZwY9w@mail.gmail.com/
+Sorry for the noise.
+
+>
 > thanks,
-> 
+>
 > greg k-h
-> 
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From b8a9092330da2030496ff357272f342eb970d51b Mon Sep 17 00:00:00 2001
+> From: Nick Desaulniers <ndesaulniers@google.com>
+> Date: Mon, 9 Nov 2020 10:35:28 -0800
+> Subject: [PATCH] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
+>
+> Clang's integrated assembler produces the warning for assembly files:
+>
+> warning: DWARF2 only supports one section per compilation unit
+>
+> If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
+> assembly sources (it is still emitted for C sources).  This will be
+> re-enabled for newer DWARF versions in a follow up patch.
+>
+> Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
+> LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
+>
+> Cc: <stable@vger.kernel.org>
+> Link: https://github.com/ClangBuiltLinux/linux/issues/716
+> Reported-by: Dmitry Golovin <dima@golovin.in>
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Suggested-by: Dmitry Golovin <dima@golovin.in>
+> Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> Reviewed-by: Fangrui Song <maskray@google.com>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+>
+> diff --git a/Makefile b/Makefile
+> index 87d659d3c8de..ae1592c1f5d6 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -828,7 +828,9 @@ else
+>  DEBUG_CFLAGS   += -g
+>  endif
+>
+> +ifneq ($(LLVM_IAS),1)
+>  KBUILD_AFLAGS  += -Wa,-gdwarf-2
+> +endif
+>
+>  ifdef CONFIG_DEBUG_INFO_DWARF4
+>  DEBUG_CFLAGS   += -gdwarf-4
+>
 
-Compiled and booted on my test system. No dmesg regressions.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-
-thanks,
--- Shuah
+-- 
+Thanks,
+~Nick Desaulniers
