@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A21582D6699
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DB82D669A
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390492AbgLJTeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390204AbgLJTeO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 10 Dec 2020 14:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37480 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390227AbgLJO32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:28 -0500
+        id S1726263AbgLJO3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:29:31 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenwenyong2@huawei.com,
-        "zhangyi (F)" <yi.zhang@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 4.9 15/45] spi: Fix controller unregister order harder
-Date:   Thu, 10 Dec 2020 15:26:29 +0100
-Message-Id: <20201210142603.116258683@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Di Zhu <zhudi21@huawei.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.9 16/45] RDMA/i40iw: Address an mmap handler exploit in i40iw
+Date:   Thu, 10 Dec 2020 15:26:30 +0100
+Message-Id: <20201210142603.165233619@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -32,36 +33,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-Commit c7e41e1caa71 sought to backport upstream commit 84855678add8 to
-the 4.9-stable tree but erroneously inserted a line at the wrong place.
-Fix it.
+commit 2ed381439e89fa6d1a0839ef45ccd45d99d8e915 upstream.
 
-Fixes: c7e41e1caa71 ("spi: Fix controller unregister order")
-Reported-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
+i40iw_mmap manipulates the vma->vm_pgoff to differentiate a push page mmap
+vs a doorbell mmap, and uses it to compute the pfn in remap_pfn_range
+without any validation. This is vulnerable to an mmap exploit as described
+in: https://lore.kernel.org/r/20201119093523.7588-1-zhudi21@huawei.com
+
+The push feature is disabled in the driver currently and therefore no push
+mmaps are issued from user-space. The feature does not work as expected in
+the x722 product.
+
+Remove the push module parameter and all VMA attribute manipulations for
+this feature in i40iw_mmap. Update i40iw_mmap to only allow DB user
+mmapings at offset = 0. Check vm_pgoff for zero and if the mmaps are bound
+to a single page.
+
+Cc: <stable@kernel.org>
+Fixes: d37498417947 ("i40iw: add files for iwarp interface")
+Link: https://lore.kernel.org/r/20201125005616.1800-2-shiraz.saleem@intel.com
+Reported-by: Di Zhu <zhudi21@huawei.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- drivers/spi/spi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/i40iw/i40iw_main.c  |    5 ----
+ drivers/infiniband/hw/i40iw/i40iw_verbs.c |   36 +++++-------------------------
+ 2 files changed, 7 insertions(+), 34 deletions(-)
 
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2025,13 +2025,13 @@ static int __unregister(struct device *d
-  */
- void spi_unregister_master(struct spi_master *master)
- {
-+	device_for_each_child(&master->dev, NULL, __unregister);
-+
- 	if (master->queued) {
- 		if (spi_destroy_queue(master))
- 			dev_err(&master->dev, "queue remove failed\n");
- 	}
+--- a/drivers/infiniband/hw/i40iw/i40iw_main.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_main.c
+@@ -54,10 +54,6 @@
+ #define DRV_VERSION	__stringify(DRV_VERSION_MAJOR) "."		\
+ 	__stringify(DRV_VERSION_MINOR) "." __stringify(DRV_VERSION_BUILD)
  
--	device_for_each_child(&master->dev, NULL, __unregister);
+-static int push_mode;
+-module_param(push_mode, int, 0644);
+-MODULE_PARM_DESC(push_mode, "Low latency mode: 0=disabled (default), 1=enabled)");
 -
- 	mutex_lock(&board_lock);
- 	list_del(&master->list);
- 	mutex_unlock(&board_lock);
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "debug flags: 0=disabled (default), 0x7fffffff=all");
+@@ -1524,7 +1520,6 @@ static enum i40iw_status_code i40iw_setu
+ 	if (status)
+ 		goto exit;
+ 	iwdev->obj_next = iwdev->obj_mem;
+-	iwdev->push_mode = push_mode;
+ 
+ 	init_waitqueue_head(&iwdev->vchnl_waitq);
+ 	init_waitqueue_head(&dev->vf_reqs);
+--- a/drivers/infiniband/hw/i40iw/i40iw_verbs.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_verbs.c
+@@ -208,38 +208,16 @@ static int i40iw_dealloc_ucontext(struct
+  */
+ static int i40iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
+ {
+-	struct i40iw_ucontext *ucontext;
+-	u64 db_addr_offset;
+-	u64 push_offset;
++	struct i40iw_ucontext *ucontext = to_ucontext(context);
++	u64 dbaddr;
+ 
+-	ucontext = to_ucontext(context);
+-	if (ucontext->iwdev->sc_dev.is_pf) {
+-		db_addr_offset = I40IW_DB_ADDR_OFFSET;
+-		push_offset = I40IW_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_PF_FIRST_PUSH_PAGE_INDEX - 1;
+-	} else {
+-		db_addr_offset = I40IW_VF_DB_ADDR_OFFSET;
+-		push_offset = I40IW_VF_PUSH_OFFSET;
+-		if (vma->vm_pgoff)
+-			vma->vm_pgoff += I40IW_VF_FIRST_PUSH_PAGE_INDEX - 1;
+-	}
++	if (vma->vm_pgoff || vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
+ 
+-	vma->vm_pgoff += db_addr_offset >> PAGE_SHIFT;
++	dbaddr = I40IW_DB_ADDR_OFFSET + pci_resource_start(ucontext->iwdev->ldev->pcidev, 0);
+ 
+-	if (vma->vm_pgoff == (db_addr_offset >> PAGE_SHIFT)) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		vma->vm_private_data = ucontext;
+-	} else {
+-		if ((vma->vm_pgoff - (push_offset >> PAGE_SHIFT)) % 2)
+-			vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-		else
+-			vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+-	}
+-
+-	if (io_remap_pfn_range(vma, vma->vm_start,
+-			       vma->vm_pgoff + (pci_resource_start(ucontext->iwdev->ldev->pcidev, 0) >> PAGE_SHIFT),
+-			       PAGE_SIZE, vma->vm_page_prot))
++	if (io_remap_pfn_range(vma, vma->vm_start, dbaddr >> PAGE_SHIFT, PAGE_SIZE,
++			       pgprot_noncached(vma->vm_page_prot)))
+ 		return -EAGAIN;
+ 
+ 	return 0;
 
 
