@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F572D5E13
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 898082D5E05
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391171AbgLJOin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:38:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45384 "EHLO mail.kernel.org"
+        id S2391061AbgLJOhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:37:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391164AbgLJOih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:38:37 -0500
+        id S2391046AbgLJOg6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.9 28/75] s390/pci: fix CPU address in MSI for directed IRQ
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 16/54] ALSA: hda/realtek - Add new codec supported for ALC897
 Date:   Thu, 10 Dec 2020 15:26:53 +0100
-Message-Id: <20201210142607.438201523@linuxfoundation.org>
+Message-Id: <20201210142602.840046508@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,72 +31,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit a2bd4097b3ec242f4de4924db463a9c94530e03a upstream.
+commit e5782a5d5054bf1e03cb7fbd87035037c2a22698 upstream.
 
-The directed MSIs are delivered to CPUs whose address is
-written to the MSI message address. The current code assumes
-that a CPU logical number (as it is seen by the kernel)
-is also the CPU address.
+Enable new codec supported for ALC897.
 
-The above assumption is not correct, as the CPU address
-is rather the value returned by STAP instruction. That
-value does not necessarily match the kernel logical CPU
-number.
-
-Fixes: e979ce7bced2 ("s390/pci: provide support for CPU directed interrupts")
-Cc: <stable@vger.kernel.org> # v5.2+
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3b00520f304842aab8291eb8d9191bd8@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/pci/pci_irq.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/s390/pci/pci_irq.c
-+++ b/arch/s390/pci/pci_irq.c
-@@ -103,9 +103,10 @@ static int zpci_set_irq_affinity(struct
- {
- 	struct msi_desc *entry = irq_get_msi_desc(data->irq);
- 	struct msi_msg msg = entry->msg;
-+	int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
- 
- 	msg.address_lo &= 0xff0000ff;
--	msg.address_lo |= (cpumask_first(dest) << 8);
-+	msg.address_lo |= (cpu_addr << 8);
- 	pci_write_msi_msg(data->irq, &msg);
- 
- 	return IRQ_SET_MASK_OK;
-@@ -238,6 +239,7 @@ int arch_setup_msi_irqs(struct pci_dev *
- 	unsigned long bit;
- 	struct msi_desc *msi;
- 	struct msi_msg msg;
-+	int cpu_addr;
- 	int rc, irq;
- 
- 	zdev->aisb = -1UL;
-@@ -287,9 +289,15 @@ int arch_setup_msi_irqs(struct pci_dev *
- 					 handle_percpu_irq);
- 		msg.data = hwirq - bit;
- 		if (irq_delivery == DIRECTED) {
-+			if (msi->affinity)
-+				cpu = cpumask_first(&msi->affinity->mask);
-+			else
-+				cpu = 0;
-+			cpu_addr = smp_cpu_get_cpu_address(cpu);
-+
- 			msg.address_lo = zdev->msi_addr & 0xff0000ff;
--			msg.address_lo |= msi->affinity ?
--				(cpumask_first(&msi->affinity->mask) << 8) : 0;
-+			msg.address_lo |= (cpu_addr << 8);
-+
- 			for_each_possible_cpu(cpu) {
- 				airq_iv_set_data(zpci_ibv[cpu], hwirq, irq);
- 			}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -436,6 +436,7 @@ static void alc_fill_eapd_coef(struct hd
+ 			alc_update_coef_idx(codec, 0x7, 1<<5, 0);
+ 		break;
+ 	case 0x10ec0892:
++	case 0x10ec0897:
+ 		alc_update_coef_idx(codec, 0x7, 1<<5, 0);
+ 		break;
+ 	case 0x10ec0899:
+@@ -10174,6 +10175,7 @@ static const struct hda_device_id snd_hd
+ 	HDA_CODEC_ENTRY(0x10ec0888, "ALC888", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec0889, "ALC889", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec0892, "ALC892", patch_alc662),
++	HDA_CODEC_ENTRY(0x10ec0897, "ALC897", patch_alc662),
+ 	HDA_CODEC_ENTRY(0x10ec0899, "ALC898", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec0900, "ALC1150", patch_alc882),
+ 	HDA_CODEC_ENTRY(0x10ec0b00, "ALCS1200A", patch_alc882),
 
 
