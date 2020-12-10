@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 972CC2D659C
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FACC2D6525
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725993AbgLJObw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:31:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S2389324AbgLJOdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389174AbgLJObo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:31:44 -0500
+        id S2390727AbgLJOdZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 09/31] USB: serial: option: add Fibocom NL668 variants
+Subject: [PATCH 4.19 07/39] USB: serial: option: add Fibocom NL668 variants
 Date:   Thu, 10 Dec 2020 15:26:46 +0100
-Message-Id: <20201210142602.559995433@linuxfoundation.org>
+Message-Id: <20201210142602.651408392@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -2048,12 +2048,13 @@ static const struct usb_device_id option
+@@ -2046,12 +2046,13 @@ static const struct usb_device_id option
  	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
  	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
  	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
