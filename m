@@ -2,153 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C262D6607
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:10:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A0B22D6640
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390463AbgLJTJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:09:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390458AbgLJObA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:31:00 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 45/45] x86/uprobes: Do not use prefixes.nbytes when looping over prefixes.bytes
-Date:   Thu, 10 Dec 2020 15:26:59 +0100
-Message-Id: <20201210142604.559310989@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S2393401AbgLJTVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:21:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389053AbgLJTVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 14:21:00 -0500
+Received: from mailout2.hostsharing.net (mailout2.hostsharing.net [IPv6:2a01:37:3000::53df:4ee9:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56237C0613D6
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 11:20:20 -0800 (PST)
+Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
+        by mailout2.hostsharing.net (Postfix) with ESMTPS id 909D710184818;
+        Thu, 10 Dec 2020 20:19:59 +0100 (CET)
+Received: from localhost (unknown [89.246.108.87])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by h08.hostsharing.net (Postfix) with ESMTPSA id 1E664603E128;
+        Thu, 10 Dec 2020 20:20:18 +0100 (CET)
+X-Mailbox-Line: From 6a940079e894346e8ee00878ef844decd216e695 Mon Sep 17 00:00:00 2001
+Message-Id: <6a940079e894346e8ee00878ef844decd216e695.1607626808.git.lukas@wunner.de>
+From:   Lukas Wunner <lukas@wunner.de>
+Date:   Thu, 10 Dec 2020 20:20:01 +0100
+Subject: [PATCH 4.19 4.14 4.9 4.4-stable 1/2] spi: bcm2835aux: Fix use-after-free on unbind
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.com>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+[ Upstream commit e13ee6cc4781edaf8c7321bee19217e3702ed481 ]
 
-commit 4e9a5ae8df5b3365183150f6df49e49dece80d8c upstream
+bcm2835aux_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Since insn.prefixes.nbytes can be bigger than the size of
-insn.prefixes.bytes[] when a prefix is repeated, the proper check must
-be
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-  insn.prefixes.bytes[i] != 0 and i < 4
-
-instead of using insn.prefixes.nbytes.
-
-Introduce a for_each_insn_prefix() macro for this purpose. Debugged by
-Kees Cook <keescook@chromium.org>.
-
- [ bp: Massage commit message, sync with the respective header in tools/
-   and drop "we". ]
-
-Fixes: 2b1444983508 ("uprobes, mm, x86: Add the ability to install and remove uprobes breakpoints")
-Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/160697103739.3146288.7437620795200799020.stgit@devnote2
-[sudip: adjust context, use old insn.h]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- arch/x86/include/asm/insn.h               |   15 +++++++++++++++
- arch/x86/kernel/uprobes.c                 |   10 ++++++----
- tools/objtool/arch/x86/include/asm/insn.h |   15 +++++++++++++++
- 3 files changed, 36 insertions(+), 4 deletions(-)
+ drivers/spi/spi-bcm2835aux.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
---- a/arch/x86/include/asm/insn.h
-+++ b/arch/x86/include/asm/insn.h
-@@ -208,6 +208,21 @@ static inline int insn_offset_immediate(
- 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
- }
+diff --git a/drivers/spi/spi-bcm2835aux.c b/drivers/spi/spi-bcm2835aux.c
+index 11895c98aae3..41980ee115da 100644
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -407,7 +407,7 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
+ 	unsigned long clk_hz;
+ 	int err;
  
-+/**
-+ * for_each_insn_prefix() -- Iterate prefixes in the instruction
-+ * @insn: Pointer to struct insn.
-+ * @idx:  Index storage.
-+ * @prefix: Prefix byte.
-+ *
-+ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
-+ * and the index is stored in @idx (note that this @idx is just for a cursor,
-+ * do not change it.)
-+ * Since prefixes.nbytes can be bigger than 4 if some prefixes
-+ * are repeated, it cannot be used for looping over the prefixes.
-+ */
-+#define for_each_insn_prefix(insn, idx, prefix)	\
-+	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
-+
- #define POP_SS_OPCODE 0x1f
- #define MOV_SREG_OPCODE 0x8e
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
+ 		return -ENOMEM;
+@@ -439,30 +439,26 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
+ 	/* the main area */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
  
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -268,10 +268,11 @@ static volatile u32 good_2byte_insns[256
- 
- static bool is_prefix_bad(struct insn *insn)
- {
-+	insn_byte_t p;
- 	int i;
- 
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
--		switch (insn->prefixes.bytes[i]) {
-+	for_each_insn_prefix(insn, i, p) {
-+		switch (p) {
- 		case 0x26:	/* INAT_PFX_ES   */
- 		case 0x2E:	/* INAT_PFX_CS   */
- 		case 0x36:	/* INAT_PFX_DS   */
-@@ -711,6 +712,7 @@ static const struct uprobe_xol_ops branc
- static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
- {
- 	u8 opc1 = OPCODE1(insn);
-+	insn_byte_t p;
- 	int i;
- 
- 	switch (opc1) {
-@@ -741,8 +743,8 @@ static int branch_setup_xol_ops(struct a
- 	 * Intel and AMD behavior differ in 64-bit mode: Intel ignores 66 prefix.
- 	 * No one uses these insns, reject any branch insns with such prefix.
- 	 */
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
--		if (insn->prefixes.bytes[i] == 0x66)
-+	for_each_insn_prefix(insn, i, p) {
-+		if (p == 0x66)
- 			return -ENOTSUPP;
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if ((!bs->clk) || (IS_ERR(bs->clk))) {
+-		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return PTR_ERR(bs->clk);
  	}
  
---- a/tools/objtool/arch/x86/include/asm/insn.h
-+++ b/tools/objtool/arch/x86/include/asm/insn.h
-@@ -208,4 +208,19 @@ static inline int insn_offset_immediate(
- 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ 	bs->irq = platform_get_irq(pdev, 0);
+ 	if (bs->irq <= 0) {
+ 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
++		return bs->irq ? bs->irq : -ENODEV;
+ 	}
+ 
+ 	/* this also enables the HW block */
+ 	err = clk_prepare_enable(bs->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	/* just checking if the clock returns a sane value */
+@@ -495,8 +491,6 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
+-	spi_master_put(master);
+ 	return err;
  }
  
-+/**
-+ * for_each_insn_prefix() -- Iterate prefixes in the instruction
-+ * @insn: Pointer to struct insn.
-+ * @idx:  Index storage.
-+ * @prefix: Prefix byte.
-+ *
-+ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
-+ * and the index is stored in @idx (note that this @idx is just for a cursor,
-+ * do not change it.)
-+ * Since prefixes.nbytes can be bigger than 4 if some prefixes
-+ * are repeated, it cannot be used for looping over the prefixes.
-+ */
-+#define for_each_insn_prefix(insn, idx, prefix)        \
-+	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
-+
- #endif /* _ASM_X86_INSN_H */
-
+-- 
+2.29.2
 
