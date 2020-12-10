@@ -2,29 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41272D5DF4
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 434B22D5DFB
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390949AbgLJOfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42534 "EHLO mail.kernel.org"
+        id S2390979AbgLJOgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733170AbgLJOfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:30 -0500
+        id S2390974AbgLJOf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:58 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Yang Shi <shy828301@gmail.com>,
+        stable@vger.kernel.org, Qian Cai <qcai@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 34/54] mm: list_lru: set shrinker map bit when child nr_items is not zero
-Date:   Thu, 10 Dec 2020 15:27:11 +0100
-Message-Id: <20201210142603.714134316@linuxfoundation.org>
+Subject: [PATCH 5.4 35/54] mm/swapfile: do not sleep with a spin lock held
+Date:   Thu, 10 Dec 2020 15:27:12 +0100
+Message-Id: <20201210142603.767045028@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -36,131 +33,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Qian Cai <qcai@redhat.com>
 
-commit 8199be001a470209f5c938570cc199abb012fe53 upstream.
+commit b11a76b37a5aa7b07c3e3eeeaae20b25475bddd3 upstream.
 
-When investigating a slab cache bloat problem, significant amount of
-negative dentry cache was seen, but confusingly they neither got shrunk
-by reclaimer (the host has very tight memory) nor be shrunk by dropping
-cache.  The vmcore shows there are over 14M negative dentry objects on
-lru, but tracing result shows they were even not scanned at all.
+We can't call kvfree() with a spin lock held, so defer it.  Fixes a
+might_sleep() runtime warning.
 
-Further investigation shows the memcg's vfs shrinker_map bit is not set.
-So the reclaimer or dropping cache just skip calling vfs shrinker.  So
-we have to reboot the hosts to get the memory back.
-
-I didn't manage to come up with a reproducer in test environment, and
-the problem can't be reproduced after rebooting.  But it seems there is
-race between shrinker map bit clear and reparenting by code inspection.
-The hypothesis is elaborated as below.
-
-The memcg hierarchy on our production environment looks like:
-
-                root
-               /    \
-          system   user
-
-The main workloads are running under user slice's children, and it
-creates and removes memcg frequently.  So reparenting happens very often
-under user slice, but no task is under user slice directly.
-
-So with the frequent reparenting and tight memory pressure, the below
-hypothetical race condition may happen:
-
-       CPU A                            CPU B
-reparent
-    dst->nr_items == 0
-                                 shrinker:
-                                     total_objects == 0
-    add src->nr_items to dst
-    set_bit
-                                     return SHRINK_EMPTY
-                                     clear_bit
-child memcg offline
-    replace child's kmemcg_id with
-    parent's (in memcg_offline_kmem())
-                                  list_lru_del() between shrinker runs
-                                     see parent's kmemcg_id
-                                     dec dst->nr_items
-reparent again
-    dst->nr_items may go negative
-    due to concurrent list_lru_del()
-
-                                 The second run of shrinker:
-                                     read nr_items without any
-                                     synchronization, so it may
-                                     see intermediate negative
-                                     nr_items then total_objects
-                                     may return 0 coincidently
-
-                                     keep the bit cleared
-    dst->nr_items != 0
-    skip set_bit
-    add scr->nr_item to dst
-
-After this point dst->nr_item may never go zero, so reparenting will not
-set shrinker_map bit anymore.  And since there is no task under user
-slice directly, so no new object will be added to its lru to set the
-shrinker map bit either.  That bit is kept cleared forever.
-
-How does list_lru_del() race with reparenting? It is because reparenting
-replaces children's kmemcg_id to parent's without protecting from
-nlru->lock, so list_lru_del() may see parent's kmemcg_id but actually
-deleting items from child's lru, but dec'ing parent's nr_items, so the
-parent's nr_items may go negative as commit 2788cf0c401c ("memcg:
-reparent list_lrus and free kmemcg_id on css offline") says.
-
-Since it is impossible that dst->nr_items goes negative and
-src->nr_items goes zero at the same time, so it seems we could set the
-shrinker map bit iff src->nr_items != 0.  We could synchronize
-list_lru_count_one() and reparenting with nlru->lock, but it seems
-checking src->nr_items in reparenting is the simplest and avoids lock
-contention.
-
-Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
-Suggested-by: Roman Gushchin <guro@fb.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
+Fixes: 873d7bcfd066 ("mm/swapfile.c: use kvzalloc for swap_info_struct allocation")
+Signed-off-by: Qian Cai <qcai@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>	[4.19]
-Link: https://lkml.kernel.org/r/20201202171749.264354-1-shy828301@gmail.com
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20201202151549.10350-1-qcai@redhat.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/list_lru.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ mm/swapfile.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -544,7 +544,6 @@ static void memcg_drain_list_lru_node(st
- 	struct list_lru_node *nlru = &lru->node[nid];
- 	int dst_idx = dst_memcg->kmemcg_id;
- 	struct list_lru_one *src, *dst;
--	bool set;
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2824,6 +2824,7 @@ late_initcall(max_swapfiles_check);
+ static struct swap_info_struct *alloc_swap_info(void)
+ {
+ 	struct swap_info_struct *p;
++	struct swap_info_struct *defer = NULL;
+ 	unsigned int type;
+ 	int i;
  
- 	/*
- 	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
-@@ -556,11 +555,12 @@ static void memcg_drain_list_lru_node(st
- 	dst = list_lru_from_memcg_idx(nlru, dst_idx);
+@@ -2852,7 +2853,7 @@ static struct swap_info_struct *alloc_sw
+ 		smp_wmb();
+ 		WRITE_ONCE(nr_swapfiles, nr_swapfiles + 1);
+ 	} else {
+-		kvfree(p);
++		defer = p;
+ 		p = swap_info[type];
+ 		/*
+ 		 * Do not memset this entry: a racing procfs swap_next()
+@@ -2865,6 +2866,7 @@ static struct swap_info_struct *alloc_sw
+ 		plist_node_init(&p->avail_lists[i], 0);
+ 	p->flags = SWP_USED;
+ 	spin_unlock(&swap_lock);
++	kvfree(defer);
+ 	spin_lock_init(&p->lock);
+ 	spin_lock_init(&p->cont_lock);
  
- 	list_splice_init(&src->list, &dst->list);
--	set = (!dst->nr_items && src->nr_items);
--	dst->nr_items += src->nr_items;
--	if (set)
-+
-+	if (src->nr_items) {
-+		dst->nr_items += src->nr_items;
- 		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
--	src->nr_items = 0;
-+		src->nr_items = 0;
-+	}
- 
- 	spin_unlock_irq(&nlru->lock);
- }
 
 
