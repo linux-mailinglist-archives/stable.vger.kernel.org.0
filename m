@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A80652D6887
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C88E2D688D
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390070AbgLJO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:27:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
+        id S2390103AbgLJUUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 15:20:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731968AbgLJO10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:27:26 -0500
+        id S2390065AbgLJO13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:27:29 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 11/39] Input: i8042 - add ByteSpeed touchpad to noloop table
-Date:   Thu, 10 Dec 2020 15:26:22 +0100
-Message-Id: <20201210142601.448139649@linuxfoundation.org>
+        Michal Suchanek <msuchanek@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 12/39] powerpc: Stop exporting __clear_user which is now inlined.
+Date:   Thu, 10 Dec 2020 15:26:23 +0100
+Message-Id: <20201210142601.497869378@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -31,38 +31,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Michal Suchanek <msuchanek@suse.de>
 
-commit a48491c65b513e5cdc3e7a886a4db915f848a5f5 upstream.
+Stable commit 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP
+enabled") redefines __clear_user as inline function but does not remove
+the export.
 
-It looks like the C15B laptop got another vendor: ByteSpeed LLC.
+Fixes: 452e2a83ea23 ("powerpc: Fix __clear_user() with KUAP enabled")
 
-Avoid AUX loopback on this touchpad as well, thus input subsystem will
-be able to recognize a Synaptics touchpad in the AUX port.
-
-BugLink: https://bugs.launchpad.net/bugs/1906128
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/lib/ppc_ksyms.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -223,6 +223,10 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
- 		},
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
-+		},
- 	},
- 	{ }
- };
+--- a/arch/powerpc/lib/ppc_ksyms.c
++++ b/arch/powerpc/lib/ppc_ksyms.c
+@@ -24,7 +24,6 @@ EXPORT_SYMBOL(csum_tcpudp_magic);
+ #endif
+ 
+ EXPORT_SYMBOL(__copy_tofrom_user);
+-EXPORT_SYMBOL(__clear_user);
+ EXPORT_SYMBOL(copy_page);
+ 
+ #ifdef CONFIG_PPC64
 
 
