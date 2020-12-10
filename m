@@ -2,401 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B94A32D4EE2
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 00:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F4C2D4F50
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 01:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732587AbgLIXnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 18:43:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60998 "EHLO mail.kernel.org"
+        id S1727776AbgLJAVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 19:21:45 -0500
+Received: from mga11.intel.com ([192.55.52.93]:36194 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731087AbgLIXnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Dec 2020 18:43:41 -0500
-Date:   Wed, 09 Dec 2020 15:42:59 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1607557380;
-        bh=DqEYbR9o2Nt4n8BzwqlZB2FU5Vtw3FtqRhZsDrwCAxM=;
-        h=From:To:Subject:From;
-        b=iPiBOhz39UxG/V9s5nJlKxV14lapiq9VJbE7IPHGVLMCq7wpjGCaAmPYaqK3tCdiW
-         kYgJppOEv72u6JxJFt9C9a6lbS6enlk313nhp5acSYOjEIsvN7IsRVMGY/CHwWEQnV
-         7Q/jPQA9Pt8+p9jeBU4hkIgkDE5G0coR6vIPCfSE=
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, efault@gmx.de,
-        bigeasy@linutronix.de, vitaly.wool@konsulko.com
-Subject:  + z3fold-stricter-locking-and-more-careful-reclaim.patch
- added to -mm tree
-Message-ID: <20201209234259.t55y1%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1727398AbgLJAVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Dec 2020 19:21:45 -0500
+IronPort-SDR: CYyZ9VI5IIH0+FxkxgZeQDry18bj6WRYU45AQlU8lBADPZszQm4SWKt5vN+Y/+BKMfjK4o/Fa4
+ vl/X3UFdTo2w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9830"; a="170663419"
+X-IronPort-AV: E=Sophos;i="5.78,407,1599548400"; 
+   d="scan'208";a="170663419"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2020 16:21:04 -0800
+IronPort-SDR: FEzWeizcvfYARXbqtdQBrILs6Vjy9Q2rQKgF29O6pmYYV2aoMKuK6DhFBiNMhakmsaeq+bg6UA
+ tIJQpBQogaCg==
+X-IronPort-AV: E=Sophos;i="5.78,407,1599548400"; 
+   d="scan'208";a="438054504"
+Received: from rchatre-mobl3.amr.corp.intel.com (HELO [10.209.138.37]) ([10.209.138.37])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2020 16:21:04 -0800
+Subject: Re: [PATCH 1/3] x86/resctrl: Move setting task's active CPU in a mask
+ into helpers
+To:     James Morse <james.morse@arm.com>, fenghua.yu@intel.com
+Cc:     tglx@linutronix.de, bp@alien8.de, tony.luck@intel.com,
+        kuo-lang.tseng@intel.com, shakeelb@google.com,
+        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
+        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <cover.1607036601.git.reinette.chatre@intel.com>
+ <77973e75a10bf7ef9b33c664544667deee9e1a8e.1607036601.git.reinette.chatre@intel.com>
+ <a782d2f3-d2f6-795f-f4b1-9462205fd581@arm.com>
+From:   Reinette Chatre <reinette.chatre@intel.com>
+Message-ID: <d38430c5-3d65-2c8a-d267-fb99b666d5ea@intel.com>
+Date:   Wed, 9 Dec 2020 16:21:03 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
+MIME-Version: 1.0
+In-Reply-To: <a782d2f3-d2f6-795f-f4b1-9462205fd581@arm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi James,
 
-The patch titled
-     Subject: z3fold: stricter locking and more careful reclaim
-has been added to the -mm tree.  Its filename is
-     z3fold-stricter-locking-and-more-careful-reclaim.patch
+Thank you very much for your review.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/z3fold-stricter-locking-and-more-careful-reclaim.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/z3fold-stricter-locking-and-more-careful-reclaim.patch
+On 12/9/2020 8:47 AM, James Morse wrote:
+> Hi Reinette, Fenghua,
+> 
+> On 03/12/2020 23:25, Reinette Chatre wrote:
+>> From: Fenghua Yu <fenghua.yu@intel.com>
+>>
+>> The code of setting the CPU on which a task is running in a CPU mask is
+>> moved into a couple of helpers. The new helper task_on_cpu() will be
+>> reused shortly.
+> 
+>> diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+>> index 6f4ca4bea625..68db7d2dec8f 100644
+>> --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+>> +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+>> @@ -525,6 +525,38 @@ static void rdtgroup_remove(struct rdtgroup *rdtgrp)
+> 
+>> +#ifdef CONFIG_SMP
+> 
+> (using IS_ENABLED(CONFIG_SMP) lets the compiler check all the code in one go, then
+> dead-code-remove the stuff that will never happen... its also easier on the eye!)
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Thank you for catching this. New fix (see below) uses this.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+>> +/* Get the CPU if the task is on it. */
+>> +static bool task_on_cpu(struct task_struct *t, int *cpu)
+>> +{
+>> +	/*
+>> +	 * This is safe on x86 w/o barriers as the ordering of writing to
+>> +	 * task_cpu() and t->on_cpu is reverse to the reading here. The
+>> +	 * detection is inaccurate as tasks might move or schedule before
+>> +	 * the smp function call takes place. In such a case the function
+>> +	 * call is pointless, but there is no other side effect.
+>> +	 */
+> 
+>> +	if (t->on_cpu) {
+> 
+> kernel/sched/core.c calls out that there can be two tasks on one CPU with this set.
+> (grep astute)
+> I think that means this series will falsely match the old task for a CPU while the
+> scheduler is running, and IPI it unnecessarily.
+> 
+> task_curr() is the helper that knows not to do this.
+> 
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Thank you very much for catching this. I did not know this. This exposes 
+an issue with the current implementation of moving tasks as part of 
+directory removal. I now plan to replace this patch with a new fix to 
+address this new issue you exposed: the fix will replace the current 
+usage of t->on_cpu with task_curr(). Since I also follow your suggestion 
+for patch #2 this original patch is no longer needed, which is something 
+Borislav also suggested but I could not see a way to do it at the time.
 
-------------------------------------------------------
-From: Vitaly Wool <vitaly.wool@konsulko.com>
-Subject: z3fold: stricter locking and more careful reclaim
+This new fix does seem to fall into the "This could be a problem.." 
+category of issues referred to in stable-kernel-rules.rst so while I 
+plan on adding a Fixes tag I plan to not cc the stable team on this one. 
+I am unsure about the right thing to do here so if you have an opinion I 
+would appreciate it.
 
-Use temporary slots in reclaim function to avoid possible race when
-freeing those.
+What do you think of this replacement patch (that will be moved to end 
+of series)?
 
-While at it, make sure we check CLAIMED flag under page lock in the
-reclaim function to make sure we are not racing with z3fold_alloc().
+Reinette
 
-Link: https://lkml.kernel.org/r/20201209145151.18994-4-vitaly.wool@konsulko.com
-Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
-Cc: <stable@vger.kernel.org>
-Cc: Mike Galbraith <efault@gmx.de>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+----8<------
+x86/resctrl: Replace t->on_cpu with task_curr() to prevent unnecessary IPI
+
+James reported in [1] that there could be two tasks running on the same CPU
+with t->on_cpu set. Using t->on_cpu as a test if a task is running on a
+CPU may thus match the old task for a CPU while the scheduler is
+running and IPI it unnecessarily.
+
+task_curr() is the correct helper to use. While doing so move the #ifdef
+check of the CONFIG_SMP symbol to be a C conditional used to determine
+if this helper should be used so ensure the code is always checked for
+correctness by the compiler.
+
+[1] 
+https://lore.kernel.org/lkml/a782d2f3-d2f6-795f-f4b1-9462205fd581@arm.com
+
+Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on 
+CPU in rmdir and unmount")
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
 ---
+  arch/x86/kernel/cpu/resctrl/rdtgroup.c | 14 ++------------
+  1 file changed, 2 insertions(+), 12 deletions(-)
 
- mm/z3fold.c |  143 +++++++++++++++++++++++++++++---------------------
- 1 file changed, 85 insertions(+), 58 deletions(-)
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c 
+b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 5e5a49f38fa1..c64fb37f0aec 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -2317,19 +2317,9 @@ static void rdt_move_group_tasks(struct rdtgroup 
+*from, struct rdtgroup *to,
+  			t->closid = to->closid;
+  			t->rmid = to->mon.rmid;
 
---- a/mm/z3fold.c~z3fold-stricter-locking-and-more-careful-reclaim
-+++ a/mm/z3fold.c
-@@ -182,6 +182,13 @@ enum z3fold_page_flags {
- };
- 
- /*
-+ * handle flags, go under HANDLE_FLAG_MASK
-+ */
-+enum z3fold_handle_flags {
-+	HANDLES_NOFREE = 0,
-+};
-+
-+/*
-  * Forward declarations
-  */
- static struct z3fold_header *__z3fold_alloc(struct z3fold_pool *, size_t, bool);
-@@ -311,6 +318,12 @@ static inline void free_handle(unsigned
- 	slots = handle_to_slots(handle);
- 	write_lock(&slots->lock);
- 	*(unsigned long *)handle = 0;
-+
-+	if (test_bit(HANDLES_NOFREE, &slots->pool)) {
-+		write_unlock(&slots->lock);
-+		return; /* simple case, nothing else to do */
-+	}
-+
- 	if (zhdr->slots != slots)
- 		zhdr->foreign_handles--;
- 
-@@ -621,6 +634,28 @@ static inline void add_to_unbuddied(stru
- 	}
- }
- 
-+static inline enum buddy get_free_buddy(struct z3fold_header *zhdr, int chunks)
-+{
-+	enum buddy bud = HEADLESS;
-+
-+	if (zhdr->middle_chunks) {
-+		if (!zhdr->first_chunks &&
-+		    chunks <= zhdr->start_middle - ZHDR_CHUNKS)
-+			bud = FIRST;
-+		else if (!zhdr->last_chunks)
-+			bud = LAST;
-+	} else {
-+		if (!zhdr->first_chunks)
-+			bud = FIRST;
-+		else if (!zhdr->last_chunks)
-+			bud = LAST;
-+		else
-+			bud = MIDDLE;
-+	}
-+
-+	return bud;
-+}
-+
- static inline void *mchunk_memmove(struct z3fold_header *zhdr,
- 				unsigned short dst_chunk)
- {
-@@ -682,18 +717,7 @@ static struct z3fold_header *compact_sin
- 		if (WARN_ON(new_zhdr == zhdr))
- 			goto out_fail;
- 
--		if (new_zhdr->first_chunks == 0) {
--			if (new_zhdr->middle_chunks != 0 &&
--					chunks >= new_zhdr->start_middle) {
--				new_bud = LAST;
--			} else {
--				new_bud = FIRST;
--			}
--		} else if (new_zhdr->last_chunks == 0) {
--			new_bud = LAST;
--		} else if (new_zhdr->middle_chunks == 0) {
--			new_bud = MIDDLE;
--		}
-+		new_bud = get_free_buddy(new_zhdr, chunks);
- 		q = new_zhdr;
- 		switch (new_bud) {
- 		case FIRST:
-@@ -815,9 +839,8 @@ static void do_compact_page(struct z3fol
- 		return;
- 	}
- 
--	if (unlikely(PageIsolated(page) ||
--		     test_bit(PAGE_CLAIMED, &page->private) ||
--		     test_bit(PAGE_STALE, &page->private))) {
-+	if (test_bit(PAGE_STALE, &page->private) ||
-+	    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
-@@ -826,13 +849,16 @@ static void do_compact_page(struct z3fol
- 	    zhdr->mapped_count == 0 && compact_single_buddy(zhdr)) {
- 		if (kref_put(&zhdr->refcount, release_z3fold_page_locked))
- 			atomic64_dec(&pool->pages_nr);
--		else
-+		else {
-+			clear_bit(PAGE_CLAIMED, &page->private);
- 			z3fold_page_unlock(zhdr);
-+		}
- 		return;
- 	}
- 
- 	z3fold_compact_page(zhdr);
- 	add_to_unbuddied(pool, zhdr);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
- }
- 
-@@ -1080,17 +1106,8 @@ static int z3fold_alloc(struct z3fold_po
- retry:
- 		zhdr = __z3fold_alloc(pool, size, can_sleep);
- 		if (zhdr) {
--			if (zhdr->first_chunks == 0) {
--				if (zhdr->middle_chunks != 0 &&
--				    chunks >= zhdr->start_middle)
--					bud = LAST;
--				else
--					bud = FIRST;
--			} else if (zhdr->last_chunks == 0)
--				bud = LAST;
--			else if (zhdr->middle_chunks == 0)
--				bud = MIDDLE;
--			else {
-+			bud = get_free_buddy(zhdr, chunks);
-+			if (bud == HEADLESS) {
- 				if (kref_put(&zhdr->refcount,
- 					     release_z3fold_page_locked))
- 					atomic64_dec(&pool->pages_nr);
-@@ -1236,7 +1253,6 @@ static void z3fold_free(struct z3fold_po
- 		pr_err("%s: unknown bud %d\n", __func__, bud);
- 		WARN_ON(1);
- 		put_z3fold_header(zhdr);
--		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 
-@@ -1251,8 +1267,7 @@ static void z3fold_free(struct z3fold_po
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
--	if (unlikely(PageIsolated(page)) ||
--	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
-+	if (test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
- 		put_z3fold_header(zhdr);
- 		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
-@@ -1316,6 +1331,10 @@ static int z3fold_reclaim_page(struct z3
- 	struct page *page = NULL;
- 	struct list_head *pos;
- 	unsigned long first_handle = 0, middle_handle = 0, last_handle = 0;
-+	struct z3fold_buddy_slots slots __attribute__((aligned(SLOTS_ALIGN)));
-+
-+	rwlock_init(&slots.lock);
-+	slots.pool = (unsigned long)pool | (1 << HANDLES_NOFREE);
- 
- 	spin_lock(&pool->lock);
- 	if (!pool->ops || !pool->ops->evict || retries == 0) {
-@@ -1330,35 +1349,36 @@ static int z3fold_reclaim_page(struct z3
- 		list_for_each_prev(pos, &pool->lru) {
- 			page = list_entry(pos, struct page, lru);
- 
--			/* this bit could have been set by free, in which case
--			 * we pass over to the next page in the pool.
+-#ifdef CONFIG_SMP
+-			/*
+-			 * This is safe on x86 w/o barriers as the ordering
+-			 * of writing to task_cpu() and t->on_cpu is
+-			 * reverse to the reading here. The detection is
+-			 * inaccurate as tasks might move or schedule
+-			 * before the smp function call takes place. In
+-			 * such a case the function call is pointless, but
+-			 * there is no other side effect.
 -			 */
--			if (test_and_set_bit(PAGE_CLAIMED, &page->private)) {
--				page = NULL;
--				continue;
--			}
--
--			if (unlikely(PageIsolated(page))) {
--				clear_bit(PAGE_CLAIMED, &page->private);
--				page = NULL;
--				continue;
--			}
- 			zhdr = page_address(page);
- 			if (test_bit(PAGE_HEADLESS, &page->private))
- 				break;
- 
-+			if (kref_get_unless_zero(&zhdr->refcount) == 0) {
-+				zhdr = NULL;
-+				break;
-+			}
- 			if (!z3fold_page_trylock(zhdr)) {
--				clear_bit(PAGE_CLAIMED, &page->private);
-+				if (kref_put(&zhdr->refcount,
-+						release_z3fold_page))
-+					atomic64_dec(&pool->pages_nr);
- 				zhdr = NULL;
- 				continue; /* can't evict at this point */
- 			}
--			if (zhdr->foreign_handles) {
--				clear_bit(PAGE_CLAIMED, &page->private);
--				z3fold_page_unlock(zhdr);
-+
-+			/* test_and_set_bit is of course atomic, but we still
-+			 * need to do it under page lock, otherwise checking
-+			 * that bit in __z3fold_alloc wouldn't make sense
-+			 */
-+			if (zhdr->foreign_handles ||
-+			    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
-+				if (kref_put(&zhdr->refcount,
-+						release_z3fold_page))
-+					atomic64_dec(&pool->pages_nr);
-+				else
-+					z3fold_page_unlock(zhdr);
- 				zhdr = NULL;
- 				continue; /* can't evict such page */
- 			}
--			kref_get(&zhdr->refcount);
- 			list_del_init(&zhdr->buddy);
- 			zhdr->cpu = -1;
- 			break;
-@@ -1380,12 +1400,16 @@ static int z3fold_reclaim_page(struct z3
- 			first_handle = 0;
- 			last_handle = 0;
- 			middle_handle = 0;
-+			memset(slots.slot, 0, sizeof(slots.slot));
- 			if (zhdr->first_chunks)
--				first_handle = encode_handle(zhdr, FIRST);
-+				first_handle = __encode_handle(zhdr, &slots,
-+								FIRST);
- 			if (zhdr->middle_chunks)
--				middle_handle = encode_handle(zhdr, MIDDLE);
-+				middle_handle = __encode_handle(zhdr, &slots,
-+								MIDDLE);
- 			if (zhdr->last_chunks)
--				last_handle = encode_handle(zhdr, LAST);
-+				last_handle = __encode_handle(zhdr, &slots,
-+								LAST);
- 			/*
- 			 * it's safe to unlock here because we hold a
- 			 * reference to this page
-@@ -1400,19 +1424,16 @@ static int z3fold_reclaim_page(struct z3
- 			ret = pool->ops->evict(pool, middle_handle);
- 			if (ret)
- 				goto next;
--			free_handle(middle_handle, zhdr);
- 		}
- 		if (first_handle) {
- 			ret = pool->ops->evict(pool, first_handle);
- 			if (ret)
- 				goto next;
--			free_handle(first_handle, zhdr);
- 		}
- 		if (last_handle) {
- 			ret = pool->ops->evict(pool, last_handle);
- 			if (ret)
- 				goto next;
--			free_handle(last_handle, zhdr);
- 		}
- next:
- 		if (test_bit(PAGE_HEADLESS, &page->private)) {
-@@ -1426,9 +1447,11 @@ next:
- 			spin_unlock(&pool->lock);
- 			clear_bit(PAGE_CLAIMED, &page->private);
- 		} else {
-+			struct z3fold_buddy_slots *slots = zhdr->slots;
- 			z3fold_page_lock(zhdr);
- 			if (kref_put(&zhdr->refcount,
- 					release_z3fold_page_locked)) {
-+				kmem_cache_free(pool->c_handle, slots);
- 				atomic64_dec(&pool->pages_nr);
- 				return 0;
- 			}
-@@ -1544,8 +1567,7 @@ static bool z3fold_page_isolate(struct p
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(PageIsolated(page), page);
- 
--	if (test_bit(PAGE_HEADLESS, &page->private) ||
--	    test_bit(PAGE_CLAIMED, &page->private))
-+	if (test_bit(PAGE_HEADLESS, &page->private))
- 		return false;
- 
- 	zhdr = page_address(page);
-@@ -1557,6 +1579,8 @@ static bool z3fold_page_isolate(struct p
- 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0)
- 		goto out;
- 
-+	if (test_and_set_bit(PAGE_CLAIMED, &page->private))
-+		goto out;
- 	pool = zhdr_to_pool(zhdr);
- 	spin_lock(&pool->lock);
- 	if (!list_empty(&zhdr->buddy))
-@@ -1583,16 +1607,17 @@ static int z3fold_page_migrate(struct ad
- 
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
-+	VM_BUG_ON_PAGE(!test_bit(PAGE_CLAIMED, &page->private), page);
- 	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
- 
- 	zhdr = page_address(page);
- 	pool = zhdr_to_pool(zhdr);
- 
--	if (!z3fold_page_trylock(zhdr)) {
-+	if (!z3fold_page_trylock(zhdr))
- 		return -EAGAIN;
--	}
- 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0) {
- 		z3fold_page_unlock(zhdr);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return -EBUSY;
- 	}
- 	if (work_pending(&zhdr->work)) {
-@@ -1634,6 +1659,7 @@ static int z3fold_page_migrate(struct ad
- 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
- 
- 	page_mapcount_reset(page);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	put_page(page);
- 	return 0;
- }
-@@ -1657,6 +1683,7 @@ static void z3fold_page_putback(struct p
- 	spin_lock(&pool->lock);
- 	list_add(&page->lru, &pool->lru);
- 	spin_unlock(&pool->lock);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
- }
- 
-_
+-			if (mask && t->on_cpu)
++			/* If the task is on a CPU, set the CPU in the mask. */
++			if (IS_ENABLED(CONFIG_SMP) && mask && task_curr(t))
+  				cpumask_set_cpu(task_cpu(t), mask);
+-#endif
+  		}
+  	}
+  	read_unlock(&tasklist_lock);
 
-Patches currently in -mm which might be from vitaly.wool@konsulko.com are
 
-z3fold-simplify-freeing-slots.patch
-z3fold-stricter-locking-and-more-careful-reclaim.patch
-z3fold-remove-preempt-disabled-sections-for-rt.patch
+
+
+
+
 
