@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6BC2D6871
+	by mail.lfdr.de (Postfix) with ESMTP id 3045B2D6870
 	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390108AbgLJUPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 15:15:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36498 "EHLO mail.kernel.org"
+        id S2393714AbgLJUPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 15:15:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728790AbgLJO2X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390116AbgLJO2X (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 10 Dec 2020 09:28:23 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 08/39] net: pasemi: fix error return code in pasemi_mac_open()
-Date:   Thu, 10 Dec 2020 15:26:19 +0100
-Message-Id: <20201210142601.305082512@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.4 09/39] dt-bindings: net: correct interrupt flags in examples
+Date:   Thu, 10 Dec 2020 15:26:20 +0100
+Message-Id: <20201210142601.346329618@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -32,48 +33,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit aba84871bd4f52c4dfcf3ad5d4501a6c9d2de90e ]
+[ Upstream commit 4d521943f76bd0d1e68ea5e02df7aadd30b2838a ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+GPIO_ACTIVE_x flags are not correct in the context of interrupt flags.
+These are simple defines so they could be used in DTS but they will not
+have the same meaning:
+1. GPIO_ACTIVE_HIGH = 0 = IRQ_TYPE_NONE
+2. GPIO_ACTIVE_LOW  = 1 = IRQ_TYPE_EDGE_RISING
 
-Fixes: 72b05b9940f0 ("pasemi_mac: RX/TX ring management cleanup")
-Fixes: 8d636d8bc5ff ("pasemi_mac: jumbo frame support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1606903035-1838-1-git-send-email-zhangchangzhong@huawei.com
+Correct the interrupt flags, assuming the author of the code wanted same
+logical behavior behind the name "ACTIVE_xxx", this is:
+  ACTIVE_LOW  => IRQ_TYPE_LEVEL_LOW
+  ACTIVE_HIGH => IRQ_TYPE_LEVEL_HIGH
+
+Fixes: a1a8b4594f8d ("NFC: pn544: i2c: Add DTS Documentation")
+Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
+Fixes: e3b329221567 ("dt-bindings: can: tcan4x5x: Update binding to use interrupt property")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for tcan4x5x.txt
+Link: https://lore.kernel.org/r/20201026153620.89268-1-krzk@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/pasemi/pasemi_mac.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/net/nfc/nxp-nci.txt |    2 +-
+ Documentation/devicetree/bindings/net/nfc/pn544.txt   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/pasemi/pasemi_mac.c
-+++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
-@@ -1129,16 +1129,20 @@ static int pasemi_mac_open(struct net_de
+--- a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
++++ b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
+@@ -27,7 +27,7 @@ Example (for ARM-based BeagleBone with N
+ 		clock-frequency = <100000>;
  
- 	mac->tx = pasemi_mac_setup_tx_resources(dev);
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <29 GPIO_ACTIVE_HIGH>;
++		interrupts = <29 IRQ_TYPE_LEVEL_HIGH>;
  
--	if (!mac->tx)
-+	if (!mac->tx) {
-+		ret = -ENOMEM;
- 		goto out_tx_ring;
-+	}
+ 		enable-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+--- a/Documentation/devicetree/bindings/net/nfc/pn544.txt
++++ b/Documentation/devicetree/bindings/net/nfc/pn544.txt
+@@ -27,7 +27,7 @@ Example (for ARM-based BeagleBone with P
+ 		clock-frequency = <400000>;
  
- 	/* We might already have allocated rings in case mtu was changed
- 	 * before interface was brought up.
- 	 */
- 	if (dev->mtu > 1500 && !mac->num_cs) {
- 		pasemi_mac_setup_csrings(mac);
--		if (!mac->num_cs)
-+		if (!mac->num_cs) {
-+			ret = -ENOMEM;
- 			goto out_tx_ring;
-+		}
- 	}
+ 		interrupt-parent = <&gpio1>;
+-		interrupts = <17 GPIO_ACTIVE_HIGH>;
++		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
  
- 	/* Zero out rmon counters */
+ 		enable-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+ 		firmware-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
 
 
