@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 149E52D62A2
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 915EB2D62A1
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391053AbgLJQyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 11:54:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44076 "EHLO mail.kernel.org"
+        id S2391025AbgLJOge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391051AbgLJOgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:36:52 -0500
+        id S2391022AbgLJOg2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:28 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 22/54] i2c: imx: Dont generate STOP condition if arbitration has been lost
-Date:   Thu, 10 Dec 2020 15:26:59 +0100
-Message-Id: <20201210142603.130425280@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Jason Ekstrand <jason@jlekstrand.net>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.4 24/54] drm/i915/gt: Program mocs:63 for cache eviction on gen9
+Date:   Thu, 10 Dec 2020 15:27:01 +0100
+Message-Id: <20201210142603.225606332@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -33,69 +35,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 61e6fe59ede155881a622f5901551b1cc8748f6a upstream.
+commit 777a7717d60ccdc9b84f35074f848d3f746fc3bf upstream.
 
-If arbitration is lost, the master automatically changes to slave mode.
-I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+Ville noticed that the last mocs entry is used unconditionally by the HW
+when it performs cache evictions, and noted that while the value is not
+meant to be writable by the driver, we should program it to a reasonable
+value nevertheless.
 
-So calling i2c_imx_bus_busy() is not required and would busy-wait until
-timeout.
+As it turns out, we can change the value of mocs:63 and the value we
+were programming into it would cause hard hangs in conjunction with
+atomic operations.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
-                           # the 3rd argument from the calls to
-                           # i2c_imx_bus_busy().
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+v2: Add details from bspec about how it is used by HW
+
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2707
+Fixes: 3bbaba0ceaa2 ("drm/i915: Added Programming of the MOCS")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jason Ekstrand <jason@jlekstrand.net>
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201126140841.1982-1-chris@chris-wilson.co.uk
+(cherry picked from commit 977933b5da7c16f39295c4c1d4259a58ece65dbe)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-imx.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_mocs.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -567,6 +567,8 @@ static void i2c_imx_stop(struct imx_i2c_
- 		/* Stop I2C transaction */
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		if (i2c_imx->dma)
- 			temp &= ~I2CR_DMAEN;
-@@ -732,9 +734,12 @@ static int i2c_imx_dma_read(struct imx_i
- 		 */
- 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		i2c_imx_bus_busy(i2c_imx, 0);
-+		if (!i2c_imx->stopped)
-+			i2c_imx_bus_busy(i2c_imx, 0);
- 	} else {
- 		/*
- 		 * For i2c master receiver repeat restart operation like:
-@@ -857,9 +862,12 @@ static int i2c_imx_read(struct imx_i2c_s
- 				dev_dbg(&i2c_imx->adapter.dev,
- 					"<%s> clear MSTA\n", __func__);
- 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+				if (!(temp & I2CR_MSTA))
-+					i2c_imx->stopped =  1;
- 				temp &= ~(I2CR_MSTA | I2CR_MTX);
- 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--				i2c_imx_bus_busy(i2c_imx, 0);
-+				if (!i2c_imx->stopped)
-+					i2c_imx_bus_busy(i2c_imx, 0);
- 			} else {
- 				/*
- 				 * For i2c master receiver repeat restart operation like:
+--- a/drivers/gpu/drm/i915/gt/intel_mocs.c
++++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
+@@ -130,7 +130,19 @@ static const struct drm_i915_mocs_entry
+ 	GEN9_MOCS_ENTRIES,
+ 	MOCS_ENTRY(I915_MOCS_CACHED,
+ 		   LE_3_WB | LE_TC_2_LLC_ELLC | LE_LRUM(3),
+-		   L3_3_WB)
++		   L3_3_WB),
++
++	/*
++	 * mocs:63
++	 * - used by the L3 for all of its evictions.
++	 *   Thus it is expected to allow LLC cacheability to enable coherent
++	 *   flows to be maintained.
++	 * - used to force L3 uncachable cycles.
++	 *   Thus it is expected to make the surface L3 uncacheable.
++	 */
++	MOCS_ENTRY(63,
++		   LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
++		   L3_1_UC)
+ };
+ 
+ /* NOTE: the LE_TGT_CACHE is not used on Broxton */
 
 
