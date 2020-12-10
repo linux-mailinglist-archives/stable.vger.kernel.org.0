@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF642D55E0
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0D82D55D6
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728631AbgLJI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 03:56:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48956 "EHLO mail.kernel.org"
+        id S2388428AbgLJIz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 03:55:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388373AbgLJIzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 03:55:37 -0500
-Subject: patch "staging: comedi: mf6x4: Fix AI end-of-conversion detection" added to staging-next
+        id S2388426AbgLJIzw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 03:55:52 -0500
+Subject: patch "usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK" added to usb-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607590496;
-        bh=6JINkBcoj+cM9Y9z2Qfe8XdvcPeAHprwGqz9T1xca6U=;
+        s=korg; t=1607590511;
+        bh=N0oGOCp5oV/W8k8NbRD/ehelw1aJzZ94YA8k0EKEGPk=;
         h=To:From:Date:From;
-        b=zezfpdGKlUDklUFZyjIDh3OKvVdS8cfDuRtTWOkVgSsQ0aE5SVnYGQu7iqLRqP4Vo
-         ojx1sZaEX82M6M4BdjMUaXTf94bObxPOpg75juKZ6dHh4+8YkrOx45wbclNJQaconf
-         uhW77meugmP6KJbbEFPwgCiryyS6uSWOSETWXVcA=
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org, lisovy@gmail.com,
+        b=lHxZciq4zGNieBwNpH+d/ABRXiSPDLZ/Fm2FRy1uPL14UAjhc+r2i6V9BfWHWwBTA
+         d3+dWHsCjSWJ8y9QSMnz2jvX4R8FKPIjecrngYP0Nhisvoip68byvvm/l4psAce5+Y
+         E75F00665WLg02uFtczJEQPoBhGjSxou7uxq7ryI=
+To:     Tejas.Joglekar@synopsys.com, gregkh@linuxfoundation.org,
+        joglekar@synopsys.com, mathias.nyman@linux.intel.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 09:56:00 +0100
-Message-ID: <1607590560243112@kroah.com>
+Date:   Thu, 10 Dec 2020 09:56:26 +0100
+Message-ID: <160759058620108@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,11 +35,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: mf6x4: Fix AI end-of-conversion detection
+    usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -49,53 +50,53 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 56c90457ebfe9422496aac6ef3d3f0f0ea8b2ec2 Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Mon, 7 Dec 2020 14:58:06 +0000
-Subject: staging: comedi: mf6x4: Fix AI end-of-conversion detection
+From bac1ec551434697ca3c5bb5d258811ba5446866a Mon Sep 17 00:00:00 2001
+From: Tejas Joglekar <Tejas.Joglekar@synopsys.com>
+Date: Tue, 8 Dec 2020 11:29:08 +0200
+Subject: usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK
 
-I have had reports from two different people that attempts to read the
-analog input channels of the MF624 board fail with an `ETIMEDOUT` error.
+This commit uses the private data passed by parent device
+to set the quirk for Synopsys xHC. This patch fixes the
+SNPS xHC hang issue when the data is scattered across
+small buffers which does not make atleast MPS size for
+given TRB cache size of SNPS xHC.
 
-After triggering the conversion, the code calls `comedi_timeout()` with
-`mf6x4_ai_eoc()` as the callback function to check if the conversion is
-complete.  The callback returns 0 if complete or `-EBUSY` if not yet
-complete.  `comedi_timeout()` returns `-ETIMEDOUT` if it has not
-completed within a timeout period which is propagated as an error to the
-user application.
-
-The existing code considers the conversion to be complete when the EOLC
-bit is high.  However, according to the user manuals for the MF624 and
-MF634 boards, this test is incorrect because EOLC is an active low
-signal that goes high when the conversion is triggered, and goes low
-when the conversion is complete.  Fix the problem by inverting the test
-of the EOLC bit state.
-
-Fixes: 04b565021a83 ("comedi: Humusoft MF634 and MF624 DAQ cards driver")
-Cc: <stable@vger.kernel.org> # v4.4+
-Cc: Rostislav Lisovy <lisovy@gmail.com>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20201207145806.4046-1-abbotti@mev.co.uk
+Signed-off-by: Tejas Joglekar <joglekar@synopsys.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20201208092912.1773650-2-mathias.nyman@linux.intel.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/mf6x4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-plat.c | 3 +++
+ drivers/usb/host/xhci.h      | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/staging/comedi/drivers/mf6x4.c b/drivers/staging/comedi/drivers/mf6x4.c
-index ea430237efa7..9da8dd748078 100644
---- a/drivers/staging/comedi/drivers/mf6x4.c
-+++ b/drivers/staging/comedi/drivers/mf6x4.c
-@@ -112,8 +112,9 @@ static int mf6x4_ai_eoc(struct comedi_device *dev,
- 	struct mf6x4_private *devpriv = dev->private;
- 	unsigned int status;
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index aa2d35f98200..4d34f6005381 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -333,6 +333,9 @@ static int xhci_plat_probe(struct platform_device *pdev)
+ 	if (priv && (priv->quirks & XHCI_SKIP_PHY_INIT))
+ 		hcd->skip_phy_initialization = 1;
  
-+	/* EOLC goes low at end of conversion. */
- 	status = ioread32(devpriv->gpioc_reg);
--	if (status & MF6X4_GPIOC_EOLC)
-+	if ((status & MF6X4_GPIOC_EOLC) == 0)
- 		return 0;
- 	return -EBUSY;
- }
++	if (priv && (priv->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK))
++		xhci->quirks |= XHCI_SG_TRB_CACHE_SIZE_QUIRK;
++
+ 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+ 	if (ret)
+ 		goto disable_usb_phy;
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index ebb359ebb261..d90c0d5df3b3 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1878,6 +1878,7 @@ struct xhci_hcd {
+ #define XHCI_RENESAS_FW_QUIRK	BIT_ULL(36)
+ #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
++#define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
+ 
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
 -- 
 2.29.2
 
