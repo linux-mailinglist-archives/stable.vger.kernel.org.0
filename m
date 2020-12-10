@@ -2,117 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBA72D5996
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 12:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69FD32D5A47
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 13:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388030AbgLJLpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 06:45:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        id S1726526AbgLJMSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 07:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732885AbgLJLo5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 06:44:57 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8E8C061793;
-        Thu, 10 Dec 2020 03:44:17 -0800 (PST)
-Date:   Thu, 10 Dec 2020 11:44:14 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607600655;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=y9ZggfT5Wgyj7L/mvbAGMIlzUrXCA6F2CAUaSPt1KRk=;
-        b=sQazjDxRl4zrmcSkTN6t0Cq12Xf0nBHgnx47vuHxCTeqmrSdzAj4eVCyrXIL1kqHAFbQxy
-        mwDMZoYUVOKSzpcMXUM3i1OTfxbjsf0BEfC6uxoRifFSE4ThVzDF14051AR5zhnvfDRmp6
-        AZtMaJ/Y3yIqWQUubL+snCbJsoCWtn69IDZauWUeqePnBf0936u7simHU+RUDOe1j6lE7y
-        9CR0HPKZAD/sWvF999z9HLK1w9slJlt/uq7ggJYbrdS49ELT8ScCihZXwT+IhOU/d15djY
-        6KWKu0cvEVYmbDQZR3DCIr8wmd/DzqvnrPK0hykcS5g/yWixcnzotcT9dMpaiA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607600655;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=y9ZggfT5Wgyj7L/mvbAGMIlzUrXCA6F2CAUaSPt1KRk=;
-        b=mGis3PyEnW+8c6X7LJ725VABMZEi9+mIMLv7Or+XM/YLh0yp6IFycFmACAY5a4CVHMtVe+
-        ZJP0vQNp7dlittAg==
-From:   "tip-bot2 for Arvind Sankar" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20201111160946.147341-1-nivedita@alum.mit.edu>
-References: <20201111160946.147341-1-nivedita@alum.mit.edu>
+        with ESMTP id S1732601AbgLJMQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 07:16:54 -0500
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA15C0613D6
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 04:16:08 -0800 (PST)
+Received: by mail-lf1-x143.google.com with SMTP id m12so7880341lfo.7
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 04:16:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0ar8hH53wYzV5EGYe8r+sxUlCl+f/5B2F1ztEQKsN1o=;
+        b=AUwfO51u4n2ZNY/p+jCIV9C7+WWCw2x3IN5oJuSbapM89leKpyPW1crbkTLx47kXPF
+         6Db/SCJlFb57eoPrDDv275hIkOUEhb7BQLSKEQGQpxeXSGSzb5D0EsgfnAuCM8MHApKt
+         i996WZRjVjbBXlo3XnusoTtrKAHb7I1OWadr/chmVHDUQXzjFDe3rj6OMvSH7l1AMPbf
+         lasBL0YaS9nRJoEW6MhRLsi+3v7CR0X0eg1n9BRxPMuTeooK2Nbf//WB/zrw43/VpgvW
+         3R9j0VkVKNWduT0aSW9Mz3DOqfIJY8eWmbrBcX/VZBVnAmNS0iVnbDn1rK01B5tnvLGG
+         qOcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0ar8hH53wYzV5EGYe8r+sxUlCl+f/5B2F1ztEQKsN1o=;
+        b=W+wpiVaWZkuF9hv1uD9AyAUbYn76Fds3NeD1Ye1f4kCMX8S9FbRQW1ERXqVTJZUbsO
+         eA5lhUSVYJzrwSQLijPR5rHEs/sYWQ2ScNCvKMyGs+/+S/Y6o2fq/2zsorhg6D/8WogX
+         BoXyC7nJnr7CBn19g7w845fEVg6foioXO2tCAxb5UJyvZPxhzTEsr5PQ5HUB+YHtEQuq
+         cPGNN41CD8k4svN4+F2/WDIGKPWkEm4Cgk1D/A1U3TsN9esyTW8UN6m5PW9/WcJRMBY3
+         VZNC9sqI4oqOXaoVRgcEMiaeRCL83bFhG8wblxq6OeZPFoo3QPYw5O4YtIhqjMf0kslY
+         8xIA==
+X-Gm-Message-State: AOAM532NCXKKvI6yWgsbzIgl0VpzkwH72LoLU7VSQ4YxoEPAd3gWakCZ
+        qwIlQ436v1DVXf/ffFAl0lCNmw==
+X-Google-Smtp-Source: ABdhPJxCHO95LPtqlAbB8kQDflAuKBEY7aL5wIPw3NQVdS0JmGyuMshrJuOweO/KpUjPPqsTVKM+7g==
+X-Received: by 2002:a05:6512:32ac:: with SMTP id q12mr2669530lfe.298.1607602567114;
+        Thu, 10 Dec 2020 04:16:07 -0800 (PST)
+Received: from localhost.localdomain (89-70-221-122.dynamic.chello.pl. [89.70.221.122])
+        by smtp.gmail.com with ESMTPSA id j25sm496090lfh.71.2020.12.10.04.16.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Dec 2020 04:16:06 -0800 (PST)
+From:   Lukasz Majczak <lma@semihalf.com>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Mateusz Gorski <mateusz.gorski@linux.intel.com>
+Cc:     Marcin Wojtas <mw@semihalf.com>,
+        Radoslaw Biernacki <rad@semihalf.com>,
+        Alex Levin <levinale@google.com>,
+        Guenter Roeck <groeck@google.com>, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ASoC: Intel: Skylake: Check the kcontrol against NULL
+Date:   Thu, 10 Dec 2020 13:14:38 +0100
+Message-Id: <20201210121438.7718-1-lma@semihalf.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Message-ID: <160760065470.3364.9118672083291010559.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+There is no check for the kcontrol against NULL and in some cases
+it causes kernel to crash.
 
-Commit-ID:     29ac40cbed2bc06fa218ca25d7f5e280d3d08a25
-Gitweb:        https://git.kernel.org/tip/29ac40cbed2bc06fa218ca25d7f5e280d3d08a25
-Author:        Arvind Sankar <nivedita@alum.mit.edu>
-AuthorDate:    Wed, 11 Nov 2020 11:09:45 -05:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Thu, 10 Dec 2020 12:28:06 +01:00
-
-x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
-
-The PAT bit is in different locations for 4k and 2M/1G page table
-entries.
-
-Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
-caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
-and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
-index for write-protected pages.
-
-Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
+Fixes: 2d744ecf2b984 ("ASoC: Intel: Skylake: Automatic DMIC format configuration according to information from NHLT")
+Cc: <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Lukasz Majczak <lma@semihalf.com>
 ---
- arch/x86/include/asm/pgtable_types.h | 1 +
- arch/x86/mm/mem_encrypt_identity.c   | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/intel/skylake/skl-topology.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-index 816b31c..394757e 100644
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -155,6 +155,7 @@ enum page_cache_mode {
- #define _PAGE_ENC		(_AT(pteval_t, sme_me_mask))
+diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
+index ae466cd592922..c9abbe4ff0ba3 100644
+--- a/sound/soc/intel/skylake/skl-topology.c
++++ b/sound/soc/intel/skylake/skl-topology.c
+@@ -3618,12 +3618,18 @@ static void skl_tplg_complete(struct snd_soc_component *component)
+ 	int i;
  
- #define _PAGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)
-+#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
+ 	list_for_each_entry(dobj, &component->dobj_list, list) {
+-		struct snd_kcontrol *kcontrol = dobj->control.kcontrol;
+-		struct soc_enum *se =
+-			(struct soc_enum *)kcontrol->private_value;
+-		char **texts = dobj->control.dtexts;
++		struct snd_kcontrol *kcontrol;
++		struct soc_enum *se;
++		char **texts;
+ 		char chan_text[4];
  
- #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
- #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index 733b983..6c5eb6f 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -45,8 +45,8 @@
- #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
- 
- #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
--#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
--				 (_PAGE_PAT | _PAGE_PWT))
-+#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
-+				 (_PAGE_PAT_LARGE | _PAGE_PWT))
- 
- #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
- 
++		kcontrol = dobj->control.kcontrol;
++		if(!kcontrol)
++			continue;
++
++		se = (struct soc_enum *)kcontrol->private_value;
++		texts = dobj->control.dtexts;
++
+ 		if (dobj->type != SND_SOC_DOBJ_ENUM ||
+ 		    dobj->control.kcontrol->put !=
+ 		    skl_tplg_multi_config_set_dmic)
+
+base-commit: 69fe63aa100220c8fd1f451dd54dd0895df1441d
+-- 
+2.25.1
+
