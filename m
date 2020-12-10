@@ -2,29 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA242D6521
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 478822D657B
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390806AbgLJSeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:34:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41826 "EHLO mail.kernel.org"
+        id S2390568AbgLJStK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 13:49:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390749AbgLJOdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:36 -0500
+        id S2389217AbgLJOcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:32:06 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <qcai@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 23/39] mm/swapfile: do not sleep with a spin lock held
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 25/31] spi: bcm2835: Fix use-after-free on unbind
 Date:   Thu, 10 Dec 2020 15:27:02 +0100
-Message-Id: <20201210142603.414894255@linuxfoundation.org>
+Message-Id: <20201210142603.354267181@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
+References: <20201210142602.099683598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,53 +34,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <qcai@redhat.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit b11a76b37a5aa7b07c3e3eeeaae20b25475bddd3 upstream.
+[ Upstream commit e1483ac030fb4c57734289742f1c1d38dca61e22 ]
 
-We can't call kvfree() with a spin lock held, so defer it.  Fixes a
-might_sleep() runtime warning.
+bcm2835_spi_remove() accesses the driver's private data after calling
+spi_unregister_controller() even though that function releases the last
+reference on the spi_controller and thereby frees the private data.
 
-Fixes: 873d7bcfd066 ("mm/swapfile.c: use kvzalloc for swap_info_struct allocation")
-Signed-off-by: Qian Cai <qcai@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201202151549.10350-1-qcai@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
+
+Fixes: f8043872e796 ("spi: add driver for BCM2835")
+Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v3.10+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v3.10+
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/ad66e0a0ad96feb848814842ecf5b6a4539ef35c.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/swapfile.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-bcm2835.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -2825,6 +2825,7 @@ late_initcall(max_swapfiles_check);
- static struct swap_info_struct *alloc_swap_info(void)
- {
- 	struct swap_info_struct *p;
-+	struct swap_info_struct *defer = NULL;
- 	unsigned int type;
- 	int i;
- 	int size = sizeof(*p) + nr_node_ids * sizeof(struct plist_node);
-@@ -2854,7 +2855,7 @@ static struct swap_info_struct *alloc_sw
- 		smp_wmb();
- 		WRITE_ONCE(nr_swapfiles, nr_swapfiles + 1);
- 	} else {
--		kvfree(p);
-+		defer = p;
- 		p = swap_info[type];
- 		/*
- 		 * Do not memset this entry: a racing procfs swap_next()
-@@ -2867,6 +2868,7 @@ static struct swap_info_struct *alloc_sw
- 		plist_node_init(&p->avail_lists[i], 0);
- 	p->flags = SWP_USED;
- 	spin_unlock(&swap_lock);
-+	kvfree(defer);
- 	spin_lock_init(&p->lock);
- 	spin_lock_init(&p->cont_lock);
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -737,7 +737,7 @@ static int bcm2835_spi_probe(struct plat
+ 	struct resource *res;
+ 	int err;
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
+ 		return -ENOMEM;
+@@ -759,23 +759,20 @@ static int bcm2835_spi_probe(struct plat
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
+ 
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(bs->clk)) {
+ 		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	bs->irq = platform_get_irq(pdev, 0);
+ 	if (bs->irq <= 0) {
+ 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
++		return bs->irq ? bs->irq : -ENODEV;
+ 	}
+ 
+ 	clk_prepare_enable(bs->clk);
+@@ -803,8 +800,6 @@ static int bcm2835_spi_probe(struct plat
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
+-	spi_master_put(master);
+ 	return err;
+ }
  
 
 
