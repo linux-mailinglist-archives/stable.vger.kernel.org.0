@@ -2,26 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2102D62DB
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABFB12D62FD
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 18:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390957AbgLJOfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
+        id S2389931AbgLJRFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 12:05:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390945AbgLJOfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:39 -0500
+        id S2390894AbgLJOfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kurz <groug@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 28/54] genirq/irqdomain: Add an irq_create_mapping_affinity() function
-Date:   Thu, 10 Dec 2020 15:27:05 +0100
-Message-Id: <20201210142603.416691849@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Subject: [PATCH 5.4 32/54] x86/uprobes: Do not use prefixes.nbytes when looping over prefixes.bytes
+Date:   Thu, 10 Dec 2020 15:27:09 +0100
+Message-Id: <20201210142603.612759048@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -33,104 +34,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit bb4c6910c8b41623104c2e64a30615682689a54d upstream.
+commit 4e9a5ae8df5b3365183150f6df49e49dece80d8c upstream.
 
-There is currently no way to convey the affinity of an interrupt
-via irq_create_mapping(), which creates issues for devices that
-expect that affinity to be managed by the kernel.
+Since insn.prefixes.nbytes can be bigger than the size of
+insn.prefixes.bytes[] when a prefix is repeated, the proper check must
+be
 
-In order to sort this out, rename irq_create_mapping() to
-irq_create_mapping_affinity() with an additional affinity parameter that
-can be passed down to irq_domain_alloc_descs().
+  insn.prefixes.bytes[i] != 0 and i < 4
 
-irq_create_mapping() is re-implemented as a wrapper around
-irq_create_mapping_affinity().
+instead of using insn.prefixes.nbytes.
 
-No functional change.
+Introduce a for_each_insn_prefix() macro for this purpose. Debugged by
+Kees Cook <keescook@chromium.org>.
 
-Fixes: e75eafb9b039 ("genirq/msi: Switch to new irq spreading infrastructure")
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
+ [ bp: Massage commit message, sync with the respective header in tools/
+   and drop "we". ]
+
+Fixes: 2b1444983508 ("uprobes, mm, x86: Add the ability to install and remove uprobes breakpoints")
+Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126082852.1178497-2-lvivier@redhat.com
+Link: https://lkml.kernel.org/r/160697103739.3146288.7437620795200799020.stgit@devnote2
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/irqdomain.h |   12 ++++++++++--
- kernel/irq/irqdomain.c    |   13 ++++++++-----
- 2 files changed, 18 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/insn.h       |   15 +++++++++++++++
+ arch/x86/kernel/uprobes.c         |   10 ++++++----
+ tools/arch/x86/include/asm/insn.h |   15 +++++++++++++++
+ 3 files changed, 36 insertions(+), 4 deletions(-)
 
---- a/include/linux/irqdomain.h
-+++ b/include/linux/irqdomain.h
-@@ -382,11 +382,19 @@ extern void irq_domain_associate_many(st
- extern void irq_domain_disassociate(struct irq_domain *domain,
- 				    unsigned int irq);
+--- a/arch/x86/include/asm/insn.h
++++ b/arch/x86/include/asm/insn.h
+@@ -195,6 +195,21 @@ static inline int insn_offset_immediate(
+ 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
+ }
  
--extern unsigned int irq_create_mapping(struct irq_domain *host,
--				       irq_hw_number_t hwirq);
-+extern unsigned int irq_create_mapping_affinity(struct irq_domain *host,
-+				      irq_hw_number_t hwirq,
-+				      const struct irq_affinity_desc *affinity);
- extern unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec);
- extern void irq_dispose_mapping(unsigned int virq);
- 
-+static inline unsigned int irq_create_mapping(struct irq_domain *host,
-+					      irq_hw_number_t hwirq)
-+{
-+	return irq_create_mapping_affinity(host, hwirq, NULL);
-+}
++/**
++ * for_each_insn_prefix() -- Iterate prefixes in the instruction
++ * @insn: Pointer to struct insn.
++ * @idx:  Index storage.
++ * @prefix: Prefix byte.
++ *
++ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
++ * and the index is stored in @idx (note that this @idx is just for a cursor,
++ * do not change it.)
++ * Since prefixes.nbytes can be bigger than 4 if some prefixes
++ * are repeated, it cannot be used for looping over the prefixes.
++ */
++#define for_each_insn_prefix(insn, idx, prefix)	\
++	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
 +
-+
- /**
-  * irq_linear_revmap() - Find a linux irq from a hw irq number.
-  * @domain: domain owning this hardware interrupt
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -638,17 +638,19 @@ unsigned int irq_create_direct_mapping(s
- EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
+ #define POP_SS_OPCODE 0x1f
+ #define MOV_SREG_OPCODE 0x8e
  
- /**
-- * irq_create_mapping() - Map a hardware interrupt into linux irq space
-+ * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
-  * @domain: domain owning this hardware interrupt or NULL for default domain
-  * @hwirq: hardware irq number in that domain space
-+ * @affinity: irq affinity
-  *
-  * Only one mapping per hardware interrupt is permitted. Returns a linux
-  * irq number.
-  * If the sense/trigger is to be specified, set_irq_type() should be called
-  * on the number returned from that call.
-  */
--unsigned int irq_create_mapping(struct irq_domain *domain,
--				irq_hw_number_t hwirq)
-+unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
-+				       irq_hw_number_t hwirq,
-+				       const struct irq_affinity_desc *affinity)
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -255,12 +255,13 @@ static volatile u32 good_2byte_insns[256
+ 
+ static bool is_prefix_bad(struct insn *insn)
  {
- 	struct device_node *of_node;
- 	int virq;
-@@ -674,7 +676,8 @@ unsigned int irq_create_mapping(struct i
++	insn_byte_t p;
+ 	int i;
+ 
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
++	for_each_insn_prefix(insn, i, p) {
+ 		insn_attr_t attr;
+ 
+-		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
++		attr = inat_get_opcode_attribute(p);
+ 		switch (attr) {
+ 		case INAT_MAKE_PREFIX(INAT_PFX_ES):
+ 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
+@@ -715,6 +716,7 @@ static const struct uprobe_xol_ops push_
+ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ {
+ 	u8 opc1 = OPCODE1(insn);
++	insn_byte_t p;
+ 	int i;
+ 
+ 	switch (opc1) {
+@@ -746,8 +748,8 @@ static int branch_setup_xol_ops(struct a
+ 	 * Intel and AMD behavior differ in 64-bit mode: Intel ignores 66 prefix.
+ 	 * No one uses these insns, reject any branch insns with such prefix.
+ 	 */
+-	for (i = 0; i < insn->prefixes.nbytes; i++) {
+-		if (insn->prefixes.bytes[i] == 0x66)
++	for_each_insn_prefix(insn, i, p) {
++		if (p == 0x66)
+ 			return -ENOTSUPP;
  	}
  
- 	/* Allocate a virtual interrupt number */
--	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node), NULL);
-+	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
-+				      affinity);
- 	if (virq <= 0) {
- 		pr_debug("-> virq allocation failed\n");
- 		return 0;
-@@ -690,7 +693,7 @@ unsigned int irq_create_mapping(struct i
- 
- 	return virq;
+--- a/tools/arch/x86/include/asm/insn.h
++++ b/tools/arch/x86/include/asm/insn.h
+@@ -195,6 +195,21 @@ static inline int insn_offset_immediate(
+ 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
  }
--EXPORT_SYMBOL_GPL(irq_create_mapping);
-+EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
  
- /**
-  * irq_create_strict_mappings() - Map a range of hw irqs to fixed linux irqs
++/**
++ * for_each_insn_prefix() -- Iterate prefixes in the instruction
++ * @insn: Pointer to struct insn.
++ * @idx:  Index storage.
++ * @prefix: Prefix byte.
++ *
++ * Iterate prefix bytes of given @insn. Each prefix byte is stored in @prefix
++ * and the index is stored in @idx (note that this @idx is just for a cursor,
++ * do not change it.)
++ * Since prefixes.nbytes can be bigger than 4 if some prefixes
++ * are repeated, it cannot be used for looping over the prefixes.
++ */
++#define for_each_insn_prefix(insn, idx, prefix)	\
++	for (idx = 0; idx < ARRAY_SIZE(insn->prefixes.bytes) && (prefix = insn->prefixes.bytes[idx]) != 0; idx++)
++
+ #define POP_SS_OPCODE 0x1f
+ #define MOV_SREG_OPCODE 0x8e
+ 
 
 
