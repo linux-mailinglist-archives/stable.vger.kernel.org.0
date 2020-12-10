@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AF52D5DDC
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 197CA2D5E04
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390730AbgLJOdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
+        id S2391058AbgLJOg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730436AbgLJOdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:04 -0500
+        id S2391054AbgLJOgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:53 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 21/39] dm: remove invalid sparse __acquires and __releases annotations
+        stable@vger.kernel.org,
+        Paulian Bogdan Marinca <paulian@marinca.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.4 23/54] thunderbolt: Fix use-after-free in remove_unplugged_switch()
 Date:   Thu, 10 Dec 2020 15:27:00 +0100
-Message-Id: <20201210142603.324330376@linuxfoundation.org>
+Message-Id: <20201210142603.177413238@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -30,40 +32,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit bde3808bc8c2741ad3d804f84720409aee0c2972 upstream.
+commit 600c0849cf86b75d86352f59745226273290986a upstream.
 
-Fixes sparse warnings:
-drivers/md/dm.c:508:12: warning: context imbalance in 'dm_prepare_ioctl' - wrong count at exit
-drivers/md/dm.c:543:13: warning: context imbalance in 'dm_unprepare_ioctl' - wrong count at exit
+Paulian reported a crash that happens when a dock is unplugged during
+hibernation:
 
-Fixes: 971888c46993f ("dm: hold DM table for duration of ioctl rather than use blkdev_get")
+[78436.228217] thunderbolt 0-1: device disconnected
+[78436.228365] BUG: kernel NULL pointer dereference, address: 00000000000001e0
+...
+[78436.228397] RIP: 0010:icm_free_unplugged_children+0x109/0x1a0
+...
+[78436.228432] Call Trace:
+[78436.228439]  icm_rescan_work+0x24/0x30
+[78436.228444]  process_one_work+0x1a3/0x3a0
+[78436.228449]  worker_thread+0x30/0x370
+[78436.228454]  ? process_one_work+0x3a0/0x3a0
+[78436.228457]  kthread+0x13d/0x160
+[78436.228461]  ? kthread_park+0x90/0x90
+[78436.228465]  ret_from_fork+0x1f/0x30
+
+This happens because remove_unplugged_switch() calls tb_switch_remove()
+that releases the memory pointed by sw so the following lines reference
+to a memory that might be released already.
+
+Fix this by saving pointer to the parent device before calling
+tb_switch_remove().
+
+Reported-by: Paulian Bogdan Marinca <paulian@marinca.net>
+Fixes: 4f7c2e0d8765 ("thunderbolt: Make sure device runtime resume completes before taking domain lock")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/thunderbolt/icm.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -462,7 +462,6 @@ static int dm_blk_getgeo(struct block_de
+--- a/drivers/thunderbolt/icm.c
++++ b/drivers/thunderbolt/icm.c
+@@ -1919,7 +1919,9 @@ static int complete_rpm(struct device *d
  
- static int dm_prepare_ioctl(struct mapped_device *md, int *srcu_idx,
- 			    struct block_device **bdev)
--	__acquires(md->io_barrier)
+ static void remove_unplugged_switch(struct tb_switch *sw)
  {
- 	struct dm_target *tgt;
- 	struct dm_table *map;
-@@ -496,7 +495,6 @@ retry:
+-	pm_runtime_get_sync(sw->dev.parent);
++	struct device *parent = get_device(sw->dev.parent);
++
++	pm_runtime_get_sync(parent);
+ 
+ 	/*
+ 	 * Signal this and switches below for rpm_complete because
+@@ -1930,8 +1932,10 @@ static void remove_unplugged_switch(stru
+ 	bus_for_each_dev(&tb_bus_type, &sw->dev, NULL, complete_rpm);
+ 	tb_switch_remove(sw);
+ 
+-	pm_runtime_mark_last_busy(sw->dev.parent);
+-	pm_runtime_put_autosuspend(sw->dev.parent);
++	pm_runtime_mark_last_busy(parent);
++	pm_runtime_put_autosuspend(parent);
++
++	put_device(parent);
  }
  
- static void dm_unprepare_ioctl(struct mapped_device *md, int srcu_idx)
--	__releases(md->io_barrier)
- {
- 	dm_put_live_table(md, srcu_idx);
- }
+ static void icm_free_unplugged_children(struct tb_switch *sw)
 
 
