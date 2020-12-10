@@ -2,30 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D14C2D5DC5
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 321832D5DD9
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390315AbgLJOai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:30:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38582 "EHLO mail.kernel.org"
+        id S2389310AbgLJOct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:32:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390291AbgLJOag (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:30:36 -0500
+        id S2389325AbgLJOco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:32:44 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 39/45] spi: bcm2835: Fix use-after-free on unbind
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 16/31] ftrace: Fix updating FTRACE_FL_TRAMP
 Date:   Thu, 10 Dec 2020 15:26:53 +0100
-Message-Id: <20201210142604.275692434@linuxfoundation.org>
+Message-Id: <20201210142602.911996912@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
-References: <20201210142602.361598591@linuxfoundation.org>
+In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
+References: <20201210142602.099683598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -34,80 +32,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit e1483ac030fb4c57734289742f1c1d38dca61e22 ]
+commit 4c75b0ff4e4bf7a45b5aef9639799719c28d0073 upstream.
 
-bcm2835_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+On powerpc, kprobe-direct.tc triggered FTRACE_WARN_ON() in
+ftrace_get_addr_new() followed by the below message:
+  Bad trampoline accounting at: 000000004222522f (wake_up_process+0xc/0x20) (f0000001)
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
+The set of steps leading to this involved:
+- modprobe ftrace-direct-too
+- enable_probe
+- modprobe ftrace-direct
+- rmmod ftrace-direct <-- trigger
 
-Fixes: f8043872e796 ("spi: add driver for BCM2835")
-Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v3.10+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v3.10+
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/ad66e0a0ad96feb848814842ecf5b6a4539ef35c.1605121038.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The problem turned out to be that we were not updating flags in the
+ftrace record properly. From the above message about the trampoline
+accounting being bad, it can be seen that the ftrace record still has
+FTRACE_FL_TRAMP set though ftrace-direct module is going away. This
+happens because we are checking if any ftrace_ops has the
+FTRACE_FL_TRAMP flag set _before_ updating the filter hash.
+
+The fix for this is to look for any _other_ ftrace_ops that also needs
+FTRACE_FL_TRAMP.
+
+Link: https://lkml.kernel.org/r/56c113aa9c3e10c19144a36d9684c7882bf09af5.1606412433.git.naveen.n.rao@linux.vnet.ibm.com
+
+Cc: stable@vger.kernel.org
+Fixes: a124692b698b0 ("ftrace: Enable trampoline when rec count returns back to one")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi-bcm2835.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -737,7 +737,7 @@ static int bcm2835_spi_probe(struct plat
- 	struct resource *res;
- 	int err;
+---
+ kernel/trace/ftrace.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1715,6 +1715,8 @@ static bool test_rec_ops_needs_regs(stru
+ static struct ftrace_ops *
+ ftrace_find_tramp_ops_any(struct dyn_ftrace *rec);
+ static struct ftrace_ops *
++ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude);
++static struct ftrace_ops *
+ ftrace_find_tramp_ops_next(struct dyn_ftrace *rec, struct ftrace_ops *ops);
  
--	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
-+	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
- 	if (!master) {
- 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
- 		return -ENOMEM;
-@@ -759,23 +759,20 @@ static int bcm2835_spi_probe(struct plat
+ static bool __ftrace_hash_rec_update(struct ftrace_ops *ops,
+@@ -1852,7 +1854,7 @@ static bool __ftrace_hash_rec_update(str
+ 			 * to it.
+ 			 */
+ 			if (ftrace_rec_count(rec) == 1 &&
+-			    ftrace_find_tramp_ops_any(rec))
++			    ftrace_find_tramp_ops_any_other(rec, ops))
+ 				rec->flags |= FTRACE_FL_TRAMP;
+ 			else
+ 				rec->flags &= ~FTRACE_FL_TRAMP;
+@@ -2274,6 +2276,24 @@ ftrace_find_tramp_ops_any(struct dyn_ftr
+ 			continue;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(bs->regs)) {
--		err = PTR_ERR(bs->regs);
--		goto out_master_put;
--	}
-+	if (IS_ERR(bs->regs))
-+		return PTR_ERR(bs->regs);
- 
- 	bs->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(bs->clk)) {
- 		err = PTR_ERR(bs->clk);
- 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
--		goto out_master_put;
-+		return err;
- 	}
- 
- 	bs->irq = platform_get_irq(pdev, 0);
- 	if (bs->irq <= 0) {
- 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
--		err = bs->irq ? bs->irq : -ENODEV;
--		goto out_master_put;
-+		return bs->irq ? bs->irq : -ENODEV;
- 	}
- 
- 	clk_prepare_enable(bs->clk);
-@@ -803,8 +800,6 @@ static int bcm2835_spi_probe(struct plat
- 
- out_clk_disable:
- 	clk_disable_unprepare(bs->clk);
--out_master_put:
--	spi_master_put(master);
- 	return err;
- }
+ 		if (hash_contains_ip(ip, op->func_hash))
++			return op;
++	} while_for_each_ftrace_op(op);
++
++	return NULL;
++}
++
++static struct ftrace_ops *
++ftrace_find_tramp_ops_any_other(struct dyn_ftrace *rec, struct ftrace_ops *op_exclude)
++{
++	struct ftrace_ops *op;
++	unsigned long ip = rec->ip;
++
++	do_for_each_ftrace_op(op, ftrace_ops_list) {
++
++		if (op == op_exclude || !op->trampoline)
++			continue;
++
++		if (hash_contains_ip(ip, op->func_hash))
+ 			return op;
+ 	} while_for_each_ftrace_op(op);
  
 
 
