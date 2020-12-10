@@ -2,28 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4F22D687D
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:18:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1553A2D6879
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728859AbgLJO2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:28:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S2390095AbgLJO2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390076AbgLJO2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390069AbgLJO2B (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 10 Dec 2020 09:28:01 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/39] vlan: consolidate VLAN parsing code and limit max parsing depth
-Date:   Thu, 10 Dec 2020 15:26:25 +0100
-Message-Id: <20201210142601.602997730@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 15/39] geneve: pull IP header before ECN decapsulation
+Date:   Thu, 10 Dec 2020 15:26:26 +0100
+Message-Id: <20201210142601.652963609@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -35,117 +32,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 469aceddfa3ed16e17ee30533fae45e90f62efd8 ]
+IP_ECN_decapsulate() and IP6_ECN_decapsulate() assume
+IP header is already pulled.
 
-Toshiaki pointed out that we now have two very similar functions to extract
-the L3 protocol number in the presence of VLAN tags. And Daniel pointed out
-that the unbounded parsing loop makes it possible for maliciously crafted
-packets to loop through potentially hundreds of tags.
+geneve does not ensure this yet.
 
-Fix both of these issues by consolidating the two parsing functions and
-limiting the VLAN tag parsing to a max depth of 8 tags. As part of this,
-switch over __vlan_get_protocol() to use skb_header_pointer() instead of
-pskb_may_pull(), to avoid the possible side effects of the latter and keep
-the skb pointer 'const' through all the parsing functions.
+Fixing this generically in IP_ECN_decapsulate() and
+IP6_ECN_decapsulate() is not possible, since callers
+pass a pointer that might be freed by pskb_may_pull()
 
-v2:
-- Use limit of 8 tags instead of 32 (matching XMIT_RECURSION_LIMIT)
+syzbot reported :
 
-Reported-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Fixes: d7bf2ebebc2b ("sched: consistently handle layer3 header accesses in the presence of VLANs")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: KMSAN: uninit-value in __INET_ECN_decapsulate include/net/inet_ecn.h:238 [inline]
+BUG: KMSAN: uninit-value in INET_ECN_decapsulate+0x345/0x1db0 include/net/inet_ecn.h:260
+CPU: 1 PID: 8941 Comm: syz-executor.0 Not tainted 5.10.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x21c/0x280 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
+ __msan_warning+0x5f/0xa0 mm/kmsan/kmsan_instr.c:197
+ __INET_ECN_decapsulate include/net/inet_ecn.h:238 [inline]
+ INET_ECN_decapsulate+0x345/0x1db0 include/net/inet_ecn.h:260
+ geneve_rx+0x2103/0x2980 include/net/inet_ecn.h:306
+ geneve_udp_encap_recv+0x105c/0x1340 drivers/net/geneve.c:377
+ udp_queue_rcv_one_skb+0x193a/0x1af0 net/ipv4/udp.c:2093
+ udp_queue_rcv_skb+0x282/0x1050 net/ipv4/udp.c:2167
+ udp_unicast_rcv_skb net/ipv4/udp.c:2325 [inline]
+ __udp4_lib_rcv+0x399d/0x5880 net/ipv4/udp.c:2394
+ udp_rcv+0x5c/0x70 net/ipv4/udp.c:2564
+ ip_protocol_deliver_rcu+0x572/0xc50 net/ipv4/ip_input.c:204
+ ip_local_deliver_finish net/ipv4/ip_input.c:231 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip_local_deliver+0x583/0x8d0 net/ipv4/ip_input.c:252
+ dst_input include/net/dst.h:449 [inline]
+ ip_rcv_finish net/ipv4/ip_input.c:428 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip_rcv+0x5c3/0x840 net/ipv4/ip_input.c:539
+ __netif_receive_skb_one_core net/core/dev.c:5315 [inline]
+ __netif_receive_skb+0x1ec/0x640 net/core/dev.c:5429
+ process_backlog+0x523/0xc10 net/core/dev.c:6319
+ napi_poll+0x420/0x1010 net/core/dev.c:6763
+ net_rx_action+0x35c/0xd40 net/core/dev.c:6833
+ __do_softirq+0x1a9/0x6fa kernel/softirq.c:298
+ asm_call_irq_on_stack+0xf/0x20
+ </IRQ>
+ __run_on_irqstack arch/x86/include/asm/irq_stack.h:26 [inline]
+ run_on_irqstack_cond arch/x86/include/asm/irq_stack.h:77 [inline]
+ do_softirq_own_stack+0x6e/0x90 arch/x86/kernel/irq_64.c:77
+ do_softirq kernel/softirq.c:343 [inline]
+ __local_bh_enable_ip+0x184/0x1d0 kernel/softirq.c:195
+ local_bh_enable+0x36/0x40 include/linux/bottom_half.h:32
+ rcu_read_unlock_bh include/linux/rcupdate.h:730 [inline]
+ __dev_queue_xmit+0x3a9b/0x4520 net/core/dev.c:4167
+ dev_queue_xmit+0x4b/0x60 net/core/dev.c:4173
+ packet_snd net/packet/af_packet.c:2992 [inline]
+ packet_sendmsg+0x86f9/0x99d0 net/packet/af_packet.c:3017
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ __sys_sendto+0x9dc/0xc80 net/socket.c:1992
+ __do_sys_sendto net/socket.c:2004 [inline]
+ __se_sys_sendto+0x107/0x130 net/socket.c:2000
+ __x64_sys_sendto+0x6e/0x90 net/socket.c:2000
+ do_syscall_64+0x9f/0x140 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20201201090507.4137906-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 ---
- include/linux/if_vlan.h | 29 ++++++++++++++++++++++-------
- include/net/inet_ecn.h  |  1 +
- 2 files changed, 23 insertions(+), 7 deletions(-)
+ drivers/net/geneve.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/if_vlan.h b/include/linux/if_vlan.h
-index dd676ba758ee7..40429b818b457 100644
---- a/include/linux/if_vlan.h
-+++ b/include/linux/if_vlan.h
-@@ -30,6 +30,8 @@
- #define VLAN_ETH_DATA_LEN	1500	/* Max. octets in payload	 */
- #define VLAN_ETH_FRAME_LEN	1518	/* Max. octets in frame sans FCS */
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index ee38299f9c578..e0384609fb84a 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -231,8 +231,20 @@ static void geneve_rx(struct geneve_sock *gs, struct sk_buff *skb)
  
-+#define VLAN_MAX_DEPTH	8		/* Max. number of nested VLAN tags parsed */
+ 	/* Ignore packet loops (and multicast echo) */
+ 	if (ether_addr_equal(eth_hdr(skb)->h_source, geneve->dev->dev_addr))
+-		goto drop;
+-
++		goto rx_error;
 +
- /*
-  * 	struct vlan_hdr - vlan header
-  * 	@h_vlan_TCI: priority and VLAN ID
-@@ -478,10 +480,10 @@ static inline int vlan_get_tag(const struct sk_buff *skb, u16 *vlan_tci)
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
-+static inline __be16 __vlan_get_protocol(const struct sk_buff *skb, __be16 type,
- 					 int *depth)
- {
--	unsigned int vlan_depth = skb->mac_len;
-+	unsigned int vlan_depth = skb->mac_len, parse_depth = VLAN_MAX_DEPTH;
++	switch (skb_protocol(skb, true)) {
++	case htons(ETH_P_IP):
++		if (pskb_may_pull(skb, sizeof(struct iphdr)))
++			goto rx_error;
++		break;
++	case htons(ETH_P_IPV6):
++		if (pskb_may_pull(skb, sizeof(struct ipv6hdr)))
++			goto rx_error;
++		break;
++	default:
++		goto rx_error;
++	}
+ 	skb_reset_network_header(skb);
  
- 	/* if type is 802.1Q/AD then the header should already be
- 	 * present at mac_len - VLAN_HLEN (if mac_len > 0), or at
-@@ -496,13 +498,12 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
- 			vlan_depth = ETH_HLEN;
- 		}
- 		do {
--			struct vlan_hdr *vh;
-+			struct vlan_hdr vhdr, *vh;
+ 	if (iph)
+@@ -269,6 +281,8 @@ static void geneve_rx(struct geneve_sock *gs, struct sk_buff *skb)
  
--			if (unlikely(!pskb_may_pull(skb,
--						    vlan_depth + VLAN_HLEN)))
-+			vh = skb_header_pointer(skb, vlan_depth, sizeof(vhdr), &vhdr);
-+			if (unlikely(!vh || !--parse_depth))
- 				return 0;
- 
--			vh = (struct vlan_hdr *)(skb->data + vlan_depth);
- 			type = vh->h_vlan_encapsulated_proto;
- 			vlan_depth += VLAN_HLEN;
- 		} while (type == htons(ETH_P_8021Q) ||
-@@ -522,11 +523,25 @@ static inline __be16 __vlan_get_protocol(struct sk_buff *skb, __be16 type,
-  * Returns the EtherType of the packet, regardless of whether it is
-  * vlan encapsulated (normal or hardware accelerated) or not.
-  */
--static inline __be16 vlan_get_protocol(struct sk_buff *skb)
-+static inline __be16 vlan_get_protocol(const struct sk_buff *skb)
- {
- 	return __vlan_get_protocol(skb, skb->protocol, NULL);
- }
- 
-+/* A getter for the SKB protocol field which will handle VLAN tags consistently
-+ * whether VLAN acceleration is enabled or not.
-+ */
-+static inline __be16 skb_protocol(const struct sk_buff *skb, bool skip_vlan)
-+{
-+	if (!skip_vlan)
-+		/* VLAN acceleration strips the VLAN header from the skb and
-+		 * moves it to skb->vlan_proto
-+		 */
-+		return skb_vlan_tag_present(skb) ? skb->vlan_proto : skb->protocol;
-+
-+	return vlan_get_protocol(skb);
-+}
-+
- static inline void vlan_set_encap_proto(struct sk_buff *skb,
- 					struct vlan_hdr *vhdr)
- {
-diff --git a/include/net/inet_ecn.h b/include/net/inet_ecn.h
-index dce2d586d9cec..245d999c0eac8 100644
---- a/include/net/inet_ecn.h
-+++ b/include/net/inet_ecn.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/ip.h>
- #include <linux/skbuff.h>
-+#include <linux/if_vlan.h>
- 
- #include <net/inet_sock.h>
- #include <net/dsfield.h>
+ 	gro_cells_receive(&geneve->gro_cells, skb);
+ 	return;
++rx_error:
++	geneve->dev->stats.rx_errors++;
+ drop:
+ 	/* Consume bad packet */
+ 	kfree_skb(skb);
 -- 
 2.27.0
 
