@@ -2,29 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCC02D5DE6
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 621A82D5E17
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389899AbgLJOeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:34:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42204 "EHLO mail.kernel.org"
+        id S2391212AbgLJOj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:39:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389517AbgLJOeE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:34:04 -0500
+        id S2391217AbgLJOjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:39:19 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 4.19 34/39] gfs2: check for empty rgrp tree in gfs2_ri_update
-Date:   Thu, 10 Dec 2020 15:27:13 +0100
-Message-Id: <20201210142603.961444296@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.9 50/75] dm: remove invalid sparse __acquires and __releases annotations
+Date:   Thu, 10 Dec 2020 15:27:15 +0100
+Message-Id: <20201210142608.530707638@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,37 +30,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 778721510e84209f78e31e2ccb296ae36d623f5e upstream.
+commit bde3808bc8c2741ad3d804f84720409aee0c2972 upstream.
 
-If gfs2 tries to mount a (corrupt) file system that has no resource
-groups it still tries to set preferences on the first one, which causes
-a kernel null pointer dereference. This patch adds a check to function
-gfs2_ri_update so this condition is detected and reported back as an
-error.
+Fixes sparse warnings:
+drivers/md/dm.c:508:12: warning: context imbalance in 'dm_prepare_ioctl' - wrong count at exit
+drivers/md/dm.c:543:13: warning: context imbalance in 'dm_unprepare_ioctl' - wrong count at exit
 
-Reported-by: syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 971888c46993f ("dm: hold DM table for duration of ioctl rather than use blkdev_get")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/rgrp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/dm.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1009,6 +1009,10 @@ static int gfs2_ri_update(struct gfs2_in
- 	if (error < 0)
- 		return error;
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -524,7 +524,6 @@ out:
  
-+	if (RB_EMPTY_ROOT(&sdp->sd_rindex_tree)) {
-+		fs_err(sdp, "no resource groups found in the file system.\n");
-+		return -ENOENT;
-+	}
- 	set_rgrp_preferences(sdp);
+ static int dm_prepare_ioctl(struct mapped_device *md, int *srcu_idx,
+ 			    struct block_device **bdev)
+-	__acquires(md->io_barrier)
+ {
+ 	struct dm_target *tgt;
+ 	struct dm_table *map;
+@@ -558,7 +557,6 @@ retry:
+ }
  
- 	sdp->sd_rindex_uptodate = 1;
+ static void dm_unprepare_ioctl(struct mapped_device *md, int srcu_idx)
+-	__releases(md->io_barrier)
+ {
+ 	dm_put_live_table(md, srcu_idx);
+ }
 
 
