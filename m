@@ -2,77 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92652D544F
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 08:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E412D5581
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 09:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387755AbgLJHCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 02:02:38 -0500
-Received: from bmailout2.hostsharing.net ([83.223.78.240]:48449 "EHLO
-        bmailout2.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726526AbgLJHC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 02:02:26 -0500
-Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
-        by bmailout2.hostsharing.net (Postfix) with ESMTPS id B2882280001A4;
-        Thu, 10 Dec 2020 08:01:24 +0100 (CET)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-        id 064305BEE; Thu, 10 Dec 2020 08:01:42 +0100 (CET)
-Date:   Thu, 10 Dec 2020 08:01:42 +0100
-From:   Lukas Wunner <lukas@wunner.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19-stable 4/5] spi: bcm2835aux: Fix use-after-free on
- unbind
-Message-ID: <20201210070142.GA20930@wunner.de>
-References: <b0fb1c8837b69d56de2004dce945d0aa33d88357.1607257456.git.lukas@wunner.de>
- <20201208004901.GB587492@ubuntu-m3-large-x86>
- <20201208073241.GA29998@wunner.de>
- <20201208134739.GJ643756@sasha-vm>
- <20201208171145.GA3241@wunner.de>
- <20201208211745.GL643756@sasha-vm>
- <20201209083747.GA7377@wunner.de>
- <X9Cat0z0YBZkXlvv@kroah.com>
- <20201209093818.GA3082@wunner.de>
- <X9Ccm7X1id8Jj9SH@kroah.com>
+        id S2388052AbgLJIcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 03:32:08 -0500
+Received: from mail.persuitflow.com ([89.46.74.132]:48848 "EHLO
+        server1.mail.persuitflow.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726439AbgLJIcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 03:32:07 -0500
+Received: by server1.mail.persuitflow.com (Postfix, from userid 1001)
+        id 7AAE8A5FA9; Thu, 10 Dec 2020 08:31:06 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=persuitflow.com;
+        s=mail; t=1607589080;
+        bh=LIG/EV9hZypKEB8e9JkxJFCirHVIBsQt3YrIS4TkXUA=;
+        h=Date:From:To:Subject:From;
+        b=Gn1WNlOyKaaf2XM5FncO6qKEj4owUcdR1G/DPokaITduBhbIeAcpKzxPrUGSUjc44
+         eisLnoaNesmiS1G86HXfE483zY9pcCGzaPbd66fSXvutAcZqy2m6z5eylZGZU03sU3
+         SxkUg8prW6pbhR89GFaZsaGX8Su8cji7uy7kFZ8yPXpWVcyQ0IlCvOM6vl8SJYmVa0
+         a0TFgWUafXb/b2g3o1mESvX5AVrfWOWKfT2iMg370/rfhWf2xUDJ2vjhCIA0BAUGDm
+         PsV5gMJmbm6oJO8agkMAAcuH9Rxs+rJAsmXkPLdxQAFV4LmPOpwCM+8yiy874OCNQ1
+         pdneol+AAVKmA==
+Received: by mail.persuitflow.com for <stable@vger.kernel.org>; Thu, 10 Dec 2020 08:30:40 GMT
+Message-ID: <20201210074501-0.1.1x.8y3u.0.qvl0l1wenj@persuitflow.com>
+Date:   Thu, 10 Dec 2020 08:30:40 GMT
+From:   "Raquel Carvalho" <raquel.carvalho@persuitflow.com>
+To:     <stable@vger.kernel.org>
+Subject: Desinfetante
+X-Mailer: mail.persuitflow.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X9Ccm7X1id8Jj9SH@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 09, 2020 at 10:44:59AM +0100, Greg KH wrote:
-> On Wed, Dec 09, 2020 at 10:38:18AM +0100, Lukas Wunner wrote:
-> > On Wed, Dec 09, 2020 at 10:36:55AM +0100, Greg KH wrote:
-> > > On Wed, Dec 09, 2020 at 09:37:47AM +0100, Lukas Wunner wrote:
-> > > > Then please apply the series sans bcm2835aux patch and I'll follow up
-> > > > with a two-patch series specifically for that driver.
-> > > 
-> > > Can you just resend the whole series so we know we got it correct?
-> > 
-> > The other patches in the series do not depend on the bcm2835aux patch,
-> > so you can apply them independently.
-> 
-> Ok, so I need to drop this patch from all of the other series you sent
-> out?  You can see how this is getting messy from my side :)
+Bom Dia,
 
-Is this workflow description still up-to-date?
+A demanda por desinfetantes eficazes que permitam a elimina=C3=A7=C3=A3o =
+de microrganismos prejudiciais =C3=A9 continuamente alta em todo o mundo.
 
-http://kroah.com/log/blog/2019/08/14/patch-workflow-with-mutt-2019/
+Expandir a oferta com uma gama profissional de produtos com atividade vir=
+icida e bactericida permite aumentar a posi=C3=A7=C3=A3o competitiva da e=
+mpresa e construir novas redes de vendas.
 
-So you just select all patches in Mutt sans the bcm2835aux one
-and apply them?
+Diversificamos a linha de atacadistas e distribuidores com sabonetes, l=C3=
+=ADquidos e g=C3=A9is para desinfec=C3=A7=C3=A3o das m=C3=A3os e outros p=
+rodutos de limpeza, entre eles: g=C3=A9is de banho, shampoos e condiciona=
+dores de cabelo, al=C3=A9m de detergentes concentrados.
 
-No I don't see how this is getting messy.
+Nossos parceiros de neg=C3=B3cios est=C3=A3o aumentando sua participa=C3=A7=
+=C3=A3o no mercado externo devido =C3=A0 crescente satisfa=C3=A7=C3=A3o d=
+o cliente e oferta diversificada.
 
-Thanks,
+O potencial de crescimento de nossas solu=C3=A7=C3=B5es resulta de pre=C3=
+=A7os acess=C3=ADveis, alto desempenho e versatilidade para se adaptar a =
+todos os tipos de pele.
 
-Lukas
+A extens=C3=A3o da gama de produtos proposta =C3=A9 um campo interessante=
+ para a coopera=C3=A7=C3=A3o?
+
+
+Cumprimentos,
+Raquel Carvalho
+Conselheiro do Cliente
