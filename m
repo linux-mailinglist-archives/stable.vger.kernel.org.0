@@ -2,28 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3609F2D5E1B
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:40:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91AF52D5DDC
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391277AbgLJOkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:40:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47494 "EHLO mail.kernel.org"
+        id S2390730AbgLJOdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:33:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391262AbgLJOj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:39:58 -0500
+        id S1730436AbgLJOdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:04 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boyuan Zhang <boyuan.zhang@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.9 35/75] drm/amdgpu/vcn3.0: stall DPG when WPTR/RPTR reset
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 21/39] dm: remove invalid sparse __acquires and __releases annotations
 Date:   Thu, 10 Dec 2020 15:27:00 +0100
-Message-Id: <20201210142607.790023229@linuxfoundation.org>
+Message-Id: <20201210142603.324330376@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,82 +30,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boyuan Zhang <boyuan.zhang@amd.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit ac2db9488cf21de0be7899c1e5963e5ac0ff351f upstream.
+commit bde3808bc8c2741ad3d804f84720409aee0c2972 upstream.
 
-Port from VCN2.5
-Add vcn dpg harware synchronization to fix race condition
-issue between vcn driver and hardware.
+Fixes sparse warnings:
+drivers/md/dm.c:508:12: warning: context imbalance in 'dm_prepare_ioctl' - wrong count at exit
+drivers/md/dm.c:543:13: warning: context imbalance in 'dm_unprepare_ioctl' - wrong count at exit
 
-Signed-off-by: Boyuan Zhang <boyuan.zhang@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.9.x
+Fixes: 971888c46993f ("dm: hold DM table for duration of ioctl rather than use blkdev_get")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/md/dm.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -1011,6 +1011,11 @@ static int vcn_v3_0_start_dpg_mode(struc
- 	tmp = REG_SET_FIELD(tmp, UVD_RBC_RB_CNTL, RB_RPTR_WR_EN, 1);
- 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_CNTL, tmp);
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -462,7 +462,6 @@ static int dm_blk_getgeo(struct block_de
  
-+	/* Stall DPG before WPTR/RPTR reset */
-+	WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
-+		UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
-+		~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
-+
- 	/* set the write pointer delay */
- 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR_CNTL, 0);
- 
-@@ -1033,6 +1038,10 @@ static int vcn_v3_0_start_dpg_mode(struc
- 	WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR,
- 		lower_32_bits(ring->wptr));
- 
-+	/* Unstall DPG */
-+	WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
-+		0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
-+
- 	return 0;
+ static int dm_prepare_ioctl(struct mapped_device *md, int *srcu_idx,
+ 			    struct block_device **bdev)
+-	__acquires(md->io_barrier)
+ {
+ 	struct dm_target *tgt;
+ 	struct dm_table *map;
+@@ -496,7 +495,6 @@ retry:
  }
  
-@@ -1556,8 +1565,14 @@ static int vcn_v3_0_pause_dpg_mode(struc
- 					UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK,
- 					UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK);
- 
-+				/* Stall DPG before WPTR/RPTR reset */
-+				WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
-+					UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
-+					~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
-+
- 				/* Restore */
- 				ring = &adev->vcn.inst[inst_idx].ring_enc[0];
-+				ring->wptr = 0;
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_LO, ring->gpu_addr);
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_HI, upper_32_bits(ring->gpu_addr));
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_SIZE, ring->ring_size / 4);
-@@ -1565,6 +1580,7 @@ static int vcn_v3_0_pause_dpg_mode(struc
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_WPTR, lower_32_bits(ring->wptr));
- 
- 				ring = &adev->vcn.inst[inst_idx].ring_enc[1];
-+				ring->wptr = 0;
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_LO2, ring->gpu_addr);
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_BASE_HI2, upper_32_bits(ring->gpu_addr));
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RB_SIZE2, ring->ring_size / 4);
-@@ -1574,6 +1590,10 @@ static int vcn_v3_0_pause_dpg_mode(struc
- 				WREG32_SOC15(VCN, inst_idx, mmUVD_RBC_RB_WPTR,
- 					RREG32_SOC15(VCN, inst_idx, mmUVD_SCRATCH2) & 0x7FFFFFFF);
- 
-+				/* Unstall DPG */
-+				WREG32_P(SOC15_REG_OFFSET(VCN, inst_idx, mmUVD_POWER_STATUS),
-+					0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
-+
- 				SOC15_WAIT_ON_RREG(VCN, inst_idx, mmUVD_POWER_STATUS,
- 					UVD_PGFSM_CONFIG__UVDM_UVDU_PWR_ON, UVD_POWER_STATUS__UVD_POWER_STATUS_MASK);
- 			}
+ static void dm_unprepare_ioctl(struct mapped_device *md, int srcu_idx)
+-	__releases(md->io_barrier)
+ {
+ 	dm_put_live_table(md, srcu_idx);
+ }
 
 
