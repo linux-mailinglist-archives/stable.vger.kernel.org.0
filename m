@@ -2,119 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 258E72D5F39
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 332062D5F75
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389313AbgLJPMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 10:12:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38494 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391754AbgLJPMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 10:12:41 -0500
-Subject: patch "usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus" added to usb-testing
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607613120;
-        bh=Zl1joK28VtjznSOfDjQdlcDRqxDqFFCIJEVhsl60D9A=;
-        h=To:From:Date:From;
-        b=GMHI6v0LZqxENfeLgspJt8ViUSVskT4lV4bRBvoJOUqB/r34i2Vl6m6BY9L0BCDet
-         piEvwCRnPQaXNxPWYVEEucuhobWCkf5SN/rNJ3rF9t2MtRufDFx/MMi0qQ6Tz7sby2
-         mcu7gWsxcB5sH+RLrct/jXwv1VwtRp0dZv/Wv1lI=
-To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Dec 2020 16:13:02 +0100
-Message-ID: <160761318218099@kroah.com>
+        id S2389430AbgLJPTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 10:19:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40006 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389893AbgLJPTC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 10:19:02 -0500
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B64C0613D6
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 07:18:22 -0800 (PST)
+Received: by mail-ej1-x641.google.com with SMTP id qw4so7783784ejb.12
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 07:18:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=blXIOyDK7ieYqlALF2nPKv5GmeIkK2wQ08lk7KSbvXw=;
+        b=YzcypfqDnurbJeh+wucAAtfNf0pvjpgyFmf7CNDuVsziQQL100Erbxe4mE2IWaj0zp
+         xahy3RSG23zulp2ICknD2F8ChZI8iR+2BpljU+CYz/2ivrMV867sLrBXaflR/kzEzmsV
+         oivFfvhLTdOeTiXZQ4P3c6B31e4Wdf42FMU4t85EPWfiMFSdP5yogsVo9Z5JZGgmyMhu
+         qIwZscXijMIrofkGxKGmQyndsrru7dDIGUK/5P8/f2Rx/LBpLzLFmGAU8ZMuzDqr3nko
+         8J0u1d8TuPyBDp5CQ4gF3ecFwlD4We25Uxj8TWz+d/TnCRUv9XGDYi9qvDy6F5IRNbOq
+         b3iQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=blXIOyDK7ieYqlALF2nPKv5GmeIkK2wQ08lk7KSbvXw=;
+        b=n7iCiamqJaEQz6RIuWQsO0phEFNn3HX8aAtIYXECm35lQETTa20ByZHEG5xMVGMK0S
+         NJ3bA/5VFqKQ03x3hQKfvj7YEgzNp56UiKLE/Mc2buNeNPjSyvhqD/qdyLo1ZArjdAEq
+         ZS+SxWEs4vCD/Lz+YeR02Du6v39FTybq3mZdaba8AJI+595rE1u2nKpzPI/iVRtP37R2
+         g52OwnRv/Fwfn4FwiUzmip0FYBPGa/47wLUWRAFuzdCYi11eA3ANdvPDcLD3opA9HCpm
+         AIZpqwtrblKB2psHKXPYLGH9XVLOg7hDXOlZ10UZRoJj9l47qTw8fMYuWEXFqqwJDRSf
+         PZCA==
+X-Gm-Message-State: AOAM530DrzYJAFYjQVxWUiFBQUw2u7FCopFfWoqTfYyO3BgabUizD6pV
+        E60ADRqmr+EVHbZeq+JKVBggl0cI3oBn9NI1+8DPYQ==
+X-Google-Smtp-Source: ABdhPJwpnnFgTsdsTklxoxKW9djD7iB5aOM84qiFgX3Wo2SEAnKWFHkO0QWJh2SejrS5D5XuyslmPgJNGdJ39jv2rh4=
+X-Received: by 2002:a17:906:edc8:: with SMTP id sb8mr6878017ejb.247.1607613500430;
+ Thu, 10 Dec 2020 07:18:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 10 Dec 2020 20:48:09 +0530
+Message-ID: <CA+G9fYsXCcmcJTVnNUu1Pb5j5gv4CCnSqTO79Uu3tKc=aECYTg@mail.gmail.com>
+Subject: [s390] pci_irq.c:106: error: implicit declaration of function 'smp_cpu_get_cpu_address'
+To:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+While building S390 the following kernel warning / error noticed
+on stable -rc 5.4 branch with gcc-8, gcc-9 and gcc-10 and defconfig
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/6/tmp ARCH=s390
+CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc'
+'HOSTCC=sccache gcc' vmlinux
+arch/s390/pci/pci_irq.c: In function 'zpci_set_irq_affinity':
+arch/s390/pci/pci_irq.c:106:17: error: implicit declaration of
+function 'smp_cpu_get_cpu_address'
+[-Werror=implicit-function-declaration]
+  106 |  int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~
 
 
-From a353397b0d5dfa3c99b372505db3378fc919c6c6 Mon Sep 17 00:00:00 2001
-From: Jack Pham <jackp@codeaurora.org>
-Date: Tue, 27 Oct 2020 16:07:31 -0700
-Subject: usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-In many cases a function that supports SuperSpeed can very well
-operate in SuperSpeedPlus, if a gadget controller supports it,
-as the endpoint descriptors (and companion descriptors) are
-generally identical and can be re-used. This is true for two
-commonly used functions: Android's ADB and MTP. So we can simply
-assign the usb_function's ssp_descriptors array to point to its
-ss_descriptors, if available. Similarly, we need to allow an
-epfile's ioctl for FUNCTIONFS_ENDPOINT_DESC to correctly
-return the corresponding SuperSpeed endpoint descriptor in case
-the connected speed is SuperSpeedPlus as well.
+steps to reproduce:
+--------------------------
+# TuxMake is a command line tool and Python library that provides
+# portable and repeatable Linux kernel builds across a variety of
+# architectures, toolchains, kernel configurations, and make targets.
+#
+# TuxMake supports the concept of runtimes.
+# See https://docs.tuxmake.org/runtimes/, for that to work it requires
+# that you install podman or docker on your system.
+#
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
 
-The only exception is if a function wants to implement an
-Isochronous endpoint capable of transferring more than 48KB per
-service interval when operating at greater than USB 3.1 Gen1
-speed, in which case it would require an additional SuperSpeedPlus
-Isochronous Endpoint Companion descriptor to be returned as part
-of the Configuration Descriptor. Support for that would need
-to be separately added to the userspace-facing FunctionFS API
-which may not be a trivial task--likely a new descriptor format
-(v3?) may need to be devised to allow for separate SS and SSP
-descriptors to be supplied.
+tuxmake --runtime docker --target-arch s390 --toolchain gcc-9
+--kconfig defconfig
 
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201027230731.9073-1-jackp@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/function/f_fs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 8f5ceacdc5f1..78c003fb05fd 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1330,6 +1330,7 @@ static long ffs_epfile_ioctl(struct file *file, unsigned code,
- 
- 		switch (epfile->ffs->gadget->speed) {
- 		case USB_SPEED_SUPER:
-+		case USB_SPEED_SUPER_PLUS:
- 			desc_idx = 2;
- 			break;
- 		case USB_SPEED_HIGH:
-@@ -3176,7 +3177,8 @@ static int _ffs_func_bind(struct usb_configuration *c,
- 	}
- 
- 	if (likely(super)) {
--		func->function.ss_descriptors = vla_ptr(vlabuf, d, ss_descs);
-+		func->function.ss_descriptors = func->function.ssp_descriptors =
-+			vla_ptr(vlabuf, d, ss_descs);
- 		ss_len = ffs_do_descs(ffs->ss_descs_count,
- 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
- 				d_raw_descs__sz - fs_len - hs_len,
-@@ -3586,6 +3588,7 @@ static void ffs_func_unbind(struct usb_configuration *c,
- 	func->function.fs_descriptors = NULL;
- 	func->function.hs_descriptors = NULL;
- 	func->function.ss_descriptors = NULL;
-+	func->function.ssp_descriptors = NULL;
- 	func->interfaces_nums = NULL;
- 
- 	ffs_event_add(ffs, FUNCTIONFS_UNBIND);
--- 
-2.29.2
+metadata:
+    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+    target_arch: s390
+    toolchain: gcc-9
+    git_short_log: 82a0751eb2d3 (\Linux 5.4.83-rc1\)
+    git_describe: v5.4.82-55-g82a0751eb2d3
+    kernel_version: 5.4.83-rc1
+    download_url: https://builds.tuxbuild.com/1lTC2KYDTwqeueHNt1eiSzoLiFb/
 
 
+full build log link,
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/903123659#L158
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
