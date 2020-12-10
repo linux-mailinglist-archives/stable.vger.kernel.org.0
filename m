@@ -2,118 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA152D5FC9
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4902D6005
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391625AbgLJPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 10:32:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
+        id S2391385AbgLJPgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 10:36:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391789AbgLJPb5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 10:31:57 -0500
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Solar Designer <solar@openwall.com>, Eddy_Wu@trendmicro.com,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 2/2] kprobes: Tell lockdep about kprobe nesting
-Date:   Fri, 11 Dec 2020 00:31:09 +0900
-Message-Id: <160761426940.3585575.9968752396885952490.stgit@devnote2>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <160761425763.3585575.15837172081484340228.stgit@devnote2>
-References: <160761425763.3585575.15837172081484340228.stgit@devnote2>
-User-Agent: StGit/0.19
+        id S2389899AbgLJPgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 10:36:10 -0500
+Date:   Thu, 10 Dec 2020 16:36:43 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607614529;
+        bh=Xwyc46kb9Zf+lrvn7bafHBDuobBRZsoyjP/r5kwNAgY=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Oyf4Lqt33B34eWf4Bh3GYyr66HdcYWvukSqFS15oh20JhF1728JtyGmJs/Zj9VHaO
+         hCHwKTWCO7/xmLs1VgGBVDmST8JZVjlqodUwY/d+3BdorPL5r5fYc9pi5om8uNUxDD
+         Rnb6g9k/U2ZmctuY2T8PYN1egZiTSODSFgjWFy0c=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Eric Dumazet <edumazet@google.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH 4.4 15/39] geneve: pull IP header before ECN decapsulation
+Message-ID: <X9JAi9wFusAi1VxC@kroah.com>
+References: <20201210142600.887734129@linuxfoundation.org>
+ <20201210142601.652963609@linuxfoundation.org>
+ <CANn89iK=kMSkT771iL0dybnWisXr9FWW-bffa5KB+McBYrxx4g@mail.gmail.com>
+ <X9Iy9EDh2gZgth+R@kroah.com>
+ <X9IzaHjsIjcn3XNX@kroah.com>
+ <CANn89iLFCBVOzPhwSxmAnT6dx8fnRD4TYRSJaX2ni7AxvXKEGg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANn89iLFCBVOzPhwSxmAnT6dx8fnRD4TYRSJaX2ni7AxvXKEGg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+On Thu, Dec 10, 2020 at 03:53:09PM +0100, Eric Dumazet wrote:
+> On Thu, Dec 10, 2020 at 3:40 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Thu, Dec 10, 2020 at 03:38:44PM +0100, Greg Kroah-Hartman wrote:
+> > > On Thu, Dec 10, 2020 at 03:32:12PM +0100, Eric Dumazet wrote:
+> > > > On Thu, Dec 10, 2020 at 3:26 PM Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > > > From: Eric Dumazet <edumazet@google.com>
+> > > > >
+> > > > > IP_ECN_decapsulate() and IP6_ECN_decapsulate() assume
+> > > > > IP header is already pulled.
+> > > > >
+> > > > > geneve does not ensure this yet.
+> > > > >
+> > > > > Fixing this generically in IP_ECN_decapsulate() and
+> > > > > IP6_ECN_decapsulate() is not possible, since callers
+> > > > > pass a pointer that might be freed by pskb_may_pull()
+> > > > >
+> > > > > syzbot reported :
+> > > > >
+> > > >
+> > > > Note that we had to revert this patch, so you can either scratp this
+> > > > backport, or make sure to backport the revert.
+> > >
+> > > I'll drop it thanks.  Odd I lost the upstream git id on this patch, let
+> > > me check what went wrong...
+> >
+> > What is the git id of the revert?  This ended up already in 4.19.y,
+> > 5.4.y, and 5.9.y so needs to be reverted there.
+> >
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=c02bd115b1d25931159f89c7d9bf47a30f5d4b41
 
-commit 645f224e7ba2f4200bf163153d384ceb0de5462e upstream.
+Thanks, I'll drop the patch from 4.4, 4.9, and 4.14, and queue up this
+revert for the other trees now.
 
-Since the kprobe handlers have protection that prohibits other handlers from
-executing in other contexts (like if an NMI comes in while processing a
-kprobe, and executes the same kprobe, it will get fail with a "busy"
-return). Lockdep is unaware of this protection. Use lockdep's nesting api to
-differentiate between locks taken in INT3 context and other context to
-suppress the false warnings.
-
-Link: https://lore.kernel.org/r/20201102160234.fa0ae70915ad9e2b21c08b85@kernel.org
-
-Cc: stable@vger.kernel.org # 5.9.x
-Cc: Peter Zijlstra <peterz@infradead.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/kprobes.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index b885d884603d..1b7fd1ab8ddc 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1250,7 +1250,13 @@ __acquires(hlist_lock)
- 
- 	*head = &kretprobe_inst_table[hash];
- 	hlist_lock = kretprobe_table_lock_ptr(hash);
--	raw_spin_lock_irqsave(hlist_lock, *flags);
-+	/*
-+	 * Nested is a workaround that will soon not be needed.
-+	 * There's other protections that make sure the same lock
-+	 * is not taken on the same CPU that lockdep is unaware of.
-+	 * Differentiate when it is taken in NMI context.
-+	 */
-+	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
- }
- NOKPROBE_SYMBOL(kretprobe_hash_lock);
- 
-@@ -1259,7 +1265,13 @@ static void kretprobe_table_lock(unsigned long hash,
- __acquires(hlist_lock)
- {
- 	raw_spinlock_t *hlist_lock = kretprobe_table_lock_ptr(hash);
--	raw_spin_lock_irqsave(hlist_lock, *flags);
-+	/*
-+	 * Nested is a workaround that will soon not be needed.
-+	 * There's other protections that make sure the same lock
-+	 * is not taken on the same CPU that lockdep is unaware of.
-+	 * Differentiate when it is taken in NMI context.
-+	 */
-+	raw_spin_lock_irqsave_nested(hlist_lock, *flags, !!in_nmi());
- }
- NOKPROBE_SYMBOL(kretprobe_table_lock);
- 
-@@ -1942,7 +1954,12 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
- 
- 	/* TODO: consider to only swap the RA after the last pre_handler fired */
- 	hash = hash_ptr(current, KPROBE_HASH_BITS);
--	raw_spin_lock_irqsave(&rp->lock, flags);
-+	/*
-+	 * Nested is a workaround that will soon not be needed.
-+	 * There's other protections that make sure the same lock
-+	 * is not taken on the same CPU that lockdep is unaware of.
-+	 */
-+	raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
- 	if (!hlist_empty(&rp->free_instances)) {
- 		ri = hlist_entry(rp->free_instances.first,
- 				struct kretprobe_instance, hlist);
-@@ -1953,7 +1970,7 @@ static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
- 		ri->task = current;
- 
- 		if (rp->entry_handler && rp->entry_handler(ri, regs)) {
--			raw_spin_lock_irqsave(&rp->lock, flags);
-+			raw_spin_lock_irqsave_nested(&rp->lock, flags, 1);
- 			hlist_add_head(&ri->hlist, &rp->free_instances);
- 			raw_spin_unlock_irqrestore(&rp->lock, flags);
- 			return 0;
-
+greg k-h
