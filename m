@@ -2,168 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35A3E2D5994
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 12:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CBA72D5996
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 12:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387479AbgLJLol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 06:44:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:49852 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732885AbgLJLo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 06:44:29 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1607600622; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        id S2388030AbgLJLpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 06:45:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732885AbgLJLo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 06:44:57 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8E8C061793;
+        Thu, 10 Dec 2020 03:44:17 -0800 (PST)
+Date:   Thu, 10 Dec 2020 11:44:14 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1607600655;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=yGdFSC6vhNlj7Cjz81kiyrgYpC2NwYDj5UvNibRURBs=;
-        b=kmmLh1/sfZItMSCD4nLELFytGw64VZ1fbtqV4JpZ+HRaW+Ruua7C7krsDKebJ3U0j4Usr4
-        +FIZObZbSYmvg30ke9sf/iKTyKRlx5e50Thgd6ADCjKFCaOfamuZHaB3+jGIxkvXLOvuHm
-        5hLSyrhw6XfXvofwmY1O8dSQxo9EoAc=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id EF2F5AD29;
-        Thu, 10 Dec 2020 11:43:41 +0000 (UTC)
-Subject: Re: [PATCH] btrfs: fix possible free space tree corruption with
- online conversion
-To:     Josef Bacik <josef@toxicpanda.com>, linux-btrfs@vger.kernel.org,
-        kernel-team@fb.com
-Cc:     stable@vger.kernel.org
-References: <0d49d6227962f3f3d34b6c7ccfd0c330f98517af.1607545035.git.josef@toxicpanda.com>
-From:   Nikolay Borisov <nborisov@suse.com>
-Autocrypt: addr=nborisov@suse.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <8e34ff2a-e63a-8259-a1d3-0736932cab22@suse.com>
-Date:   Thu, 10 Dec 2020 11:22:27 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+         in-reply-to:in-reply-to:references:references;
+        bh=y9ZggfT5Wgyj7L/mvbAGMIlzUrXCA6F2CAUaSPt1KRk=;
+        b=sQazjDxRl4zrmcSkTN6t0Cq12Xf0nBHgnx47vuHxCTeqmrSdzAj4eVCyrXIL1kqHAFbQxy
+        mwDMZoYUVOKSzpcMXUM3i1OTfxbjsf0BEfC6uxoRifFSE4ThVzDF14051AR5zhnvfDRmp6
+        AZtMaJ/Y3yIqWQUubL+snCbJsoCWtn69IDZauWUeqePnBf0936u7simHU+RUDOe1j6lE7y
+        9CR0HPKZAD/sWvF999z9HLK1w9slJlt/uq7ggJYbrdS49ELT8ScCihZXwT+IhOU/d15djY
+        6KWKu0cvEVYmbDQZR3DCIr8wmd/DzqvnrPK0hykcS5g/yWixcnzotcT9dMpaiA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1607600655;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=y9ZggfT5Wgyj7L/mvbAGMIlzUrXCA6F2CAUaSPt1KRk=;
+        b=mGis3PyEnW+8c6X7LJ725VABMZEi9+mIMLv7Or+XM/YLh0yp6IFycFmACAY5a4CVHMtVe+
+        ZJP0vQNp7dlittAg==
+From:   "tip-bot2 for Arvind Sankar" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20201111160946.147341-1-nivedita@alum.mit.edu>
+References: <20201111160946.147341-1-nivedita@alum.mit.edu>
 MIME-Version: 1.0
-In-Reply-To: <0d49d6227962f3f3d34b6c7ccfd0c330f98517af.1607545035.git.josef@toxicpanda.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Message-ID: <160760065470.3364.9118672083291010559.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
+Commit-ID:     29ac40cbed2bc06fa218ca25d7f5e280d3d08a25
+Gitweb:        https://git.kernel.org/tip/29ac40cbed2bc06fa218ca25d7f5e280d3d08a25
+Author:        Arvind Sankar <nivedita@alum.mit.edu>
+AuthorDate:    Wed, 11 Nov 2020 11:09:45 -05:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Thu, 10 Dec 2020 12:28:06 +01:00
 
-On 9.12.20 г. 22:17 ч., Josef Bacik wrote:
-> While running btrfs/011 in a loop I would often ASSERT() while trying to
-> add a new free space entry that already existed, or get an -EEXIST while
-> adding a new block to the extent tree, which is another indication of
-> double allocation.
-> 
-> This occurs because when we do the free space tree population, we create
-> the new root and then populate the tree and commit the transaction.
-> The problem is when you create a new root, the root node and commit root
-> node are the same.  This means that caching a block group before the
-> transaction is committed can race with other operations modifying the
-> free space tree, and thus you can get double adds and other sort of
+x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
 
-FST creation happens during mount so what would initiate block group
-caching at that time, the race scenario should be better described in
-the change log. E.g. what those other operations might be, considering
-we are in mount ?
+The PAT bit is in different locations for 4k and 2M/1G page table
+entries.
 
-> shenanigans.  This is only a problem for the first transaction, once
-> we've committed the transaction we created the free space tree in we're
-> OK to use the free space tree to cache block groups.
-> 
-> Fix this by marking the fs_info as unsafe to load the free space tree,
-> and fall back on the old slow method.  We could be smarter than this,
-> for example caching the block group while we're populating the free
-> space tree, but since this is a serious problem I've opted for the
-> simplest solution.
-> 
-> cc: stable@vger.kernel.org
-> Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> ---
->  fs/btrfs/block-group.c     | 11 ++++++++++-
->  fs/btrfs/ctree.h           |  3 +++
->  fs/btrfs/free-space-tree.c |  9 ++++++++-
->  3 files changed, 21 insertions(+), 2 deletions(-)
-> 
+Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
+caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
+and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
+index for write-protected pages.
 
-?<snip>
+Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
+---
+ arch/x86/include/asm/pgtable_types.h | 1 +
+ arch/x86/mm/mem_encrypt_identity.c   | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-
->  /*
-> diff --git a/fs/btrfs/free-space-tree.c b/fs/btrfs/free-space-tree.c
-> index e33a65bd9a0c..8fbda221f4b5 100644
-> --- a/fs/btrfs/free-space-tree.c
-> +++ b/fs/btrfs/free-space-tree.c
-> @@ -1150,6 +1150,7 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
->  		return PTR_ERR(trans);
->  
->  	set_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-> +	set_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
->  	free_space_root = btrfs_create_tree(trans,
->  					    BTRFS_FREE_SPACE_TREE_OBJECTID);
->  	if (IS_ERR(free_space_root)) {
-> @@ -1171,8 +1172,14 @@ int btrfs_create_free_space_tree(struct btrfs_fs_info *fs_info)
->  	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE);
->  	btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
->  	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-> +	ret = btrfs_commit_transaction(trans);
->  
-> -	return btrfs_commit_transaction(trans);
-> +	/*
-> +	 * Now that we've committed the transaction any reading of our commit
-> +	 * root will be safe, so we can caching from the free space tree now.
-> +	 */
-> +	clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
-> +	return ret;
-
-I guess you can't simply move the clearing of the
-BTRFS_FS_CREATING_FREE_SPACE_TREE after the commit since it blocks
-delayed refs running.
-
->  
->  abort:
->  	clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-
-Shouldn't the new flag be cleared on abort ?
-
-> 
+diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
+index 816b31c..394757e 100644
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -155,6 +155,7 @@ enum page_cache_mode {
+ #define _PAGE_ENC		(_AT(pteval_t, sme_me_mask))
+ 
+ #define _PAGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)
++#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
+ 
+ #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
+ #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index 733b983..6c5eb6f 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -45,8 +45,8 @@
+ #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
+ 
+ #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
+-#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
+-				 (_PAGE_PAT | _PAGE_PWT))
++#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
++				 (_PAGE_PAT_LARGE | _PAGE_PWT))
+ 
+ #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
+ 
