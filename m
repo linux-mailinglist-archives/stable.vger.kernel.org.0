@@ -2,125 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA882D5080
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 02:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 045642D52D1
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 05:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbgLJBwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Dec 2020 20:52:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49606 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726570AbgLJBws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 20:52:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607565081;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=yatyL7brUpdT9nN7wHFOuWownO2RnkXmQv5daJIQu4Q=;
-        b=XVzTJ/SXYwfCgh5a1SsPqAbxQT7Uldn7LuyfUUwcDsQQbxnlCfEOlFbLsu8LhpZzZzQX35
-        4zO/s7P//vDmYwgMxoGjDR+QWLuFQwk/E2ViVpzZqbF2pczb8UzYqxuYkXAKf5H5/1ps+i
-        CFdfIU2eUdlT5u5HOydXA/xenlsYmgw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-420-4P76lbMNO3u9kQ0cf8ISTg-1; Wed, 09 Dec 2020 20:51:13 -0500
-X-MC-Unique: 4P76lbMNO3u9kQ0cf8ISTg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 928711934102;
-        Thu, 10 Dec 2020 01:51:09 +0000 (UTC)
-Received: from mail (ovpn-119-164.rdu2.redhat.com [10.10.119.164])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0EE055D6BA;
-        Thu, 10 Dec 2020 01:51:06 +0000 (UTC)
-Date:   Wed, 9 Dec 2020 20:51:05 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Baoquan He <bhe@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] mm: fix initialization of struct page for holes
- in memory layout
-Message-ID: <X9F/Cc946aKaA8gr@redhat.com>
-References: <20201209214304.6812-1-rppt@kernel.org>
- <20201209214304.6812-3-rppt@kernel.org>
+        id S1730748AbgLJE3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Dec 2020 23:29:42 -0500
+Received: from slot0.kiandlow.ga ([23.254.224.243]:55221 "EHLO
+        slot0.kiandlow.ga" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728455AbgLJE3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Dec 2020 23:29:42 -0500
+X-Greylist: delayed 847 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Dec 2020 23:29:41 EST
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; s=dkim; d=kiandlow.ga;
+ h=Content-Type:MIME-Version:Content-Transfer-Encoding:Content-Description:Subject:To:From:Date:Reply-To:Message-ID; i=info@kiandlow.ga;
+ bh=SveZaLGmp3AQiwTTRGD6S/ERs7I=;
+ b=B8dvwb7Vuf9CqkBfghqc3uI9IHIiMibWk7NgmJhOrw/XRUSsqyuEpkmAIi10OCgrGnTf71N04SCa
+   xTBOVrtR4PiqcyBC0qPcbVaJPV/EY/DWDRZ4ppWB8oivrDpZV6AEK9Epruvg8XSnswLW/bCQDR4N
+   Mwp1t6GSDgZ+kTm3HVQdcCPD+oWmd5HwR2GrihCqwFEvidweb+Bke0/XZdCUlihUGmmOHOkBTBkq
+   5sqqG7VHnWTFZvbooIEo7zC+sAkGbfVcL46SSFcILUmsTIkinO/RJjlk8h5QjaYDJaUWOxQGcKOo
+   iqZAfihQpZ+ibeYZiRIZfNyuikbOvHYSFwP4Tg==
+DomainKey-Signature: a=rsa-sha1; c=nofws; q=dns; s=dkim; d=kiandlow.ga;
+ b=EYdseW04I6GcMW79+qNMtdfFULjpIicQX2S37qteWyzfep27tkzPY3fk3UrLh5rmWUfH4cKFvL2o
+   avBjvEShYZJjdADXYVpm08jyN3srpkkVt8JkGA4Qosq1C9ESn2QxdpCYwMF9lUIqd7QtsCHC91eS
+   +hW0nOadVbrySxMIuKHQXMomtHmFpWqqcF7ki+A1+C0Up3yWaB0eMVgflAKMKuPcXQwu4X9UW+Pr
+   VsmqBI21uawtWkLFpr8IcjMzyW8YqVqzWx/WFuIFFVYbXH/0HkolJQel34ESyuzlJaFf5J+3dVCE
+   ZYUNw38wHU7gck/5KFeTEq00cVTp37b+Qidw/A==;
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201209214304.6812-3-rppt@kernel.org>
-User-Agent: Mutt/2.0.2 (2020-11-20)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: New Inquiry
+To:     Recipients <info@kiandlow.ga>
+From:   "Evangeline Mulay" <info@kiandlow.ga>
+Date:   Wed, 09 Dec 2020 20:14:37 -0800
+Reply-To: Sales <sales-rej888-trading1@mail.ua>
+Message-ID: <0.0.0.33C.1D6CEAAF9CB0F5C.0@slot0.kiandlow.ga>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Hello,
 
-On Wed, Dec 09, 2020 at 11:43:04PM +0200, Mike Rapoport wrote:
-> +void __init __weak memmap_init(unsigned long size, int nid,
-> +			       unsigned long zone,
-> +			       unsigned long range_start_pfn)
-> +{
-> +	unsigned long start_pfn, end_pfn, hole_start_pfn = 0;
->  	unsigned long range_end_pfn = range_start_pfn + size;
-> +	u64 pgcnt = 0;
->  	int i;
->  
->  	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
->  		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
->  		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
-> +		hole_start_pfn = clamp(hole_start_pfn, range_start_pfn,
-> +				       range_end_pfn);
->  
->  		if (end_pfn > start_pfn) {
->  			size = end_pfn - start_pfn;
->  			memmap_init_zone(size, nid, zone, start_pfn,
->  					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
->  		}
-> +
-> +		if (hole_start_pfn < start_pfn)
-> +			pgcnt += init_unavailable_range(hole_start_pfn,
-> +							start_pfn, zone, nid);
-> +		hole_start_pfn = end_pfn;
->  	}
 
-After applying the new 1/2, the above loop seem to be functionally a
-noop compared to what was in -mm yesterday, so the above looks great
-as far as I'm concerned.
 
-Unlike the simple fix this will not loop over holes that aren't part
-of memblock.memory nor memblock.reserved and it drops the static
-variable which would have required ordering and serialization.
+I am Ms. evangeline mulay from Rej888 Int'l Trading Inc.I am the Commercial=
+ Manager. , We are interested in buying your products and we sincerely hope=
+ to establish a long-term business relation with your esteemed company.
 
-By being functionally equivalent, it looks it also suffers from the
-same dependency on pfn 0 (and not just pfn 0) being reserved that you
-pointed out earlier.
 
-I suppose to drop that further dependency we need a further round down
-in this logic to the start of the pageblock_order or max-order like
-mentioned yesterday?
+Please kindly send me your latest catalog. Also, inform me about the Minimu=
+m Order Quantity, Delivery time or FOB, and payment terms
+warranty.
 
-If the first pfn of a pageblock (or maybe better a max-order block) is
-valid, but not in memblock.reserved nor memblock.memory and any other
-pages in such pageblock is freed to the buddy allocator, we should
-make sure the whole pageblock gets initialized (or at least the pages
-with a pfn lower than the one that was added to the buddy). So
-applying a round down in the above loop might just do the trick.
+ =
 
-Since the removal of that extra dependency was mostly orthogonal with
-the above, I guess it's actually cleaner to do it incrementally.
+Your early reply is highly appreciated.
 
-I'd suggest to also document why we're doing it, in the code (not just
-commit header) of the incremental patch, by mentioning which are the
-specific VM invariants we're enforcing that the VM code always
-depended upon, that required the rundown etc...
 
-In the meantime I'll try to update all systems again with this
-implementation to test it.
 
-Thanks!
-Andrea
 
+contact person :Ms. evangeline mulay
+Commercial Manager of Rej888 Int'l Trading Inc.
+10th st.
+mabalacat
+pampanga
+Zip Code:2010
+Philippines
