@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D272D6682
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:32:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 914F12D66AE
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388934AbgLJTbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:31:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37904 "EHLO mail.kernel.org"
+        id S1733131AbgLJThu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:37:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729176AbgLJO37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:29:59 -0500
+        id S2390177AbgLJO2v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:28:51 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 07/45] ibmvnic: Fix TX completion error handling
-Date:   Thu, 10 Dec 2020 15:26:21 +0100
-Message-Id: <20201210142602.726842679@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 10/45] net: pasemi: fix error return code in pasemi_mac_open()
+Date:   Thu, 10 Dec 2020 15:26:24 +0100
+Message-Id: <20201210142602.874364915@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -31,37 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit ba246c175116e2e8fa4fdfa5f8e958e086a9a818 ]
+[ Upstream commit aba84871bd4f52c4dfcf3ad5d4501a6c9d2de90e ]
 
-TX completions received with an error return code are not
-being processed properly. When an error code is seen, do not
-proceed to the next completion before cleaning up the existing
-entry's data structures.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 72b05b9940f0 ("pasemi_mac: RX/TX ring management cleanup")
+Fixes: 8d636d8bc5ff ("pasemi_mac: jumbo frame support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1606903035-1838-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/pasemi/pasemi_mac.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1388,11 +1388,9 @@ restart_loop:
+--- a/drivers/net/ethernet/pasemi/pasemi_mac.c
++++ b/drivers/net/ethernet/pasemi/pasemi_mac.c
+@@ -1089,16 +1089,20 @@ static int pasemi_mac_open(struct net_de
  
- 		next = ibmvnic_next_scrq(adapter, scrq);
- 		for (i = 0; i < next->tx_comp.num_comps; i++) {
--			if (next->tx_comp.rcs[i]) {
-+			if (next->tx_comp.rcs[i])
- 				dev_err(dev, "tx error %x\n",
- 					next->tx_comp.rcs[i]);
--				continue;
--			}
- 			index = be32_to_cpu(next->tx_comp.correlators[i]);
- 			txbuff = &adapter->tx_pool[pool].tx_buff[index];
+ 	mac->tx = pasemi_mac_setup_tx_resources(dev);
  
+-	if (!mac->tx)
++	if (!mac->tx) {
++		ret = -ENOMEM;
+ 		goto out_tx_ring;
++	}
+ 
+ 	/* We might already have allocated rings in case mtu was changed
+ 	 * before interface was brought up.
+ 	 */
+ 	if (dev->mtu > 1500 && !mac->num_cs) {
+ 		pasemi_mac_setup_csrings(mac);
+-		if (!mac->num_cs)
++		if (!mac->num_cs) {
++			ret = -ENOMEM;
+ 			goto out_tx_ring;
++		}
+ 	}
+ 
+ 	/* Zero out rmon counters */
 
 
