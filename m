@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1EA72D624B
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040682D6291
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 17:54:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391118AbgLJOht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:37:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44542 "EHLO mail.kernel.org"
+        id S2391023AbgLJOgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391106AbgLJOhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:37:42 -0500
+        id S2391028AbgLJOgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:50 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.9 25/75] cifs: add NULL check for ses->tcon_ipc
-Date:   Thu, 10 Dec 2020 15:26:50 +0100
-Message-Id: <20201210142607.291085463@linuxfoundation.org>
+Subject: [PATCH 5.4 19/54] cifs: allow syscalls to be restarted in __smb_send_rqst()
+Date:   Thu, 10 Dec 2020 15:26:56 +0100
+Message-Id: <20201210142602.986507213@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,34 +33,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 59463eb88829f646aed13283fd84d02a475334fe upstream.
+commit 6988a619f5b79e4efadea6e19dcfe75fbcd350b5 upstream.
 
-In some scenarios (DFS and BAD_NETWORK_NAME) set_root_set() can be
-called with a NULL ses->tcon_ipc.
+A customer has reported that several files in their multi-threaded app
+were left with size of 0 because most of the read(2) calls returned
+-EINTR and they assumed no bytes were read.  Obviously, they could
+have fixed it by simply retrying on -EINTR.
 
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+We noticed that most of the -EINTR on read(2) were due to real-time
+signals sent by glibc to process wide credential changes (SIGRT_1),
+and its signal handler had been established with SA_RESTART, in which
+case those calls could have been automatically restarted by the
+kernel.
+
+Let the kernel decide to whether or not restart the syscalls when
+there is a signal pending in __smb_send_rqst() by returning
+-ERESTARTSYS.  If it can't, it will return -EINTR anyway.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/connect.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/cifs/transport.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4768,7 +4768,8 @@ static void set_root_ses(struct cifs_sb_
- 	if (ses) {
- 		spin_lock(&cifs_tcp_ses_lock);
- 		ses->ses_count++;
--		ses->tcon_ipc->remap = cifs_remap(cifs_sb);
-+		if (ses->tcon_ipc)
-+			ses->tcon_ipc->remap = cifs_remap(cifs_sb);
- 		spin_unlock(&cifs_tcp_ses_lock);
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -340,8 +340,8 @@ __smb_send_rqst(struct TCP_Server_Info *
+ 		return -EAGAIN;
+ 
+ 	if (signal_pending(current)) {
+-		cifs_dbg(FYI, "signal is pending before sending any data\n");
+-		return -EINTR;
++		cifs_dbg(FYI, "signal pending before send request\n");
++		return -ERESTARTSYS;
  	}
- 	*root_ses = ses;
+ 
+ 	/* cork the socket */
 
 
