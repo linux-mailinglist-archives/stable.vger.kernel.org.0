@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E562D6098
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:56:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6C62D6092
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 16:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391927AbgLJPzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 10:55:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45460 "EHLO mail.kernel.org"
+        id S2391155AbgLJOi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:38:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391168AbgLJOim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:38:42 -0500
+        id S2390080AbgLJOiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:38:21 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Baker <edward.baker@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
         Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@intel.com>,
-        Lyude Paul <lyude@redhat.com>,
+        Jason Ekstrand <jason@jlekstrand.net>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 38/75] drm/i915/gt: Limit frequency drop to RPe on parking
-Date:   Thu, 10 Dec 2020 15:27:03 +0100
-Message-Id: <20201210142607.941137005@linuxfoundation.org>
+Subject: [PATCH 5.9 39/75] drm/i915/gt: Program mocs:63 for cache eviction on gen9
+Date:   Thu, 10 Dec 2020 15:27:04 +0100
+Message-Id: <20201210142607.993914593@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
 References: <20201210142606.074509102@linuxfoundation.org>
@@ -36,53 +37,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit aff76ab795364569b1cac58c1d0bc7df956e3899 upstream.
+commit 777a7717d60ccdc9b84f35074f848d3f746fc3bf upstream.
 
-We treat idling the GT (intel_rps_park) as a downclock event, and reduce
-the frequency we intend to restart the GT with. Since the two workloads
-are likely related (e.g. a compositor rendering every 16ms), we want to
-carry the frequency and load information from across the idling.
-However, we do also need to update the frequencies so that workloads
-that run for less than 1ms are autotuned by RPS (otherwise we leave
-compositors running at max clocks, draining excess power). Conversely,
-if we try to run too slowly, the next workload has to run longer. Since
-there is a hysteresis in the power graph, below a certain frequency
-running a short workload for longer consumes more energy than running it
-slightly higher for less time. The exact balance point is unknown
-beforehand, but measurements with 30fps media playback indicate that RPe
-is a better choice.
+Ville noticed that the last mocs entry is used unconditionally by the HW
+when it performs cache evictions, and noted that while the value is not
+meant to be writable by the driver, we should program it to a reasonable
+value nevertheless.
 
-Reported-by: Edward Baker <edward.baker@intel.com>
-Tested-by: Edward Baker <edward.baker@intel.com>
-Fixes: 043cd2d14ede ("drm/i915/gt: Leave rps->cur_freq on unpark")
+As it turns out, we can change the value of mocs:63 and the value we
+were programming into it would cause hard hangs in conjunction with
+atomic operations.
+
+v2: Add details from bspec about how it is used by HW
+
+Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2707
+Fixes: 3bbaba0ceaa2 ("drm/i915: Added Programming of the MOCS")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Edward Baker <edward.baker@intel.com>
-Cc: Andi Shyti <andi.shyti@intel.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201124183521.28623-1-chris@chris-wilson.co.uk
-(cherry picked from commit f7ed83cc1925f0b8ce2515044d674354035c3af9)
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jason Ekstrand <jason@jlekstrand.net>
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201126140841.1982-1-chris@chris-wilson.co.uk
+(cherry picked from commit 977933b5da7c16f39295c4c1d4259a58ece65dbe)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_rps.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_mocs.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_rps.c
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.c
-@@ -882,6 +882,10 @@ void intel_rps_park(struct intel_rps *rp
- 		adj = -2;
- 	rps->last_adj = adj;
- 	rps->cur_freq = max_t(int, rps->cur_freq + adj, rps->min_freq);
-+	if (rps->cur_freq < rps->efficient_freq) {
-+		rps->cur_freq = rps->efficient_freq;
-+		rps->last_adj = 0;
-+	}
+--- a/drivers/gpu/drm/i915/gt/intel_mocs.c
++++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
+@@ -131,7 +131,19 @@ static const struct drm_i915_mocs_entry
+ 	GEN9_MOCS_ENTRIES,
+ 	MOCS_ENTRY(I915_MOCS_CACHED,
+ 		   LE_3_WB | LE_TC_2_LLC_ELLC | LE_LRUM(3),
+-		   L3_3_WB)
++		   L3_3_WB),
++
++	/*
++	 * mocs:63
++	 * - used by the L3 for all of its evictions.
++	 *   Thus it is expected to allow LLC cacheability to enable coherent
++	 *   flows to be maintained.
++	 * - used to force L3 uncachable cycles.
++	 *   Thus it is expected to make the surface L3 uncacheable.
++	 */
++	MOCS_ENTRY(63,
++		   LE_3_WB | LE_TC_1_LLC | LE_LRUM(3),
++		   L3_1_UC)
+ };
  
- 	GT_TRACE(rps_to_gt(rps), "park:%x\n", rps->cur_freq);
- }
+ /* NOTE: the LE_TGT_CACHE is not used on Broxton */
 
 
