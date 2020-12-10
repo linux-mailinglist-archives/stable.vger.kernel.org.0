@@ -2,23 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E0B2D64DF
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9DF2D64E4
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:27:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390878AbgLJOfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:35:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42936 "EHLO mail.kernel.org"
+        id S2388796AbgLJSZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 13:25:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390882AbgLJOfI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:35:08 -0500
+        id S2390885AbgLJOfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:35:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/54] Partially revert bpf: Zero-fill re-used per-cpu map element
-Date:   Thu, 10 Dec 2020 15:26:40 +0100
-Message-Id: <20201210142602.216723238@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.4 04/54] usb: gadget: f_fs: Use local copy of descriptors for userspace copy
+Date:   Thu, 10 Dec 2020 15:26:41 +0100
+Message-Id: <20201210142602.256968121@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
 References: <20201210142602.037095225@linuxfoundation.org>
@@ -30,278 +32,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Drop the added selftest as it depends on functionality that doesn't
-exist in 5.4.
+From: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+commit a4b98a7512f18534ce33a7e98e49115af59ffa00 upstream.
+
+The function may be unbound causing the ffs_ep and its descriptors
+to be freed while userspace is in the middle of an ioctl requesting
+the same descriptors. Avoid dangling pointer reference by first
+making a local copy of desctiptors before releasing the spinlock.
+
+Fixes: c559a3534109 ("usb: gadget: f_fs: add ioctl returning ep descriptor")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201130203453.28154-1-jackp@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../selftests/bpf/prog_tests/map_init.c       | 214 ------------------
- .../selftests/bpf/progs/test_map_init.c       |  33 ---
- 2 files changed, 247 deletions(-)
- delete mode 100644 tools/testing/selftests/bpf/prog_tests/map_init.c
- delete mode 100644 tools/testing/selftests/bpf/progs/test_map_init.c
+ drivers/usb/gadget/function/f_fs.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/map_init.c b/tools/testing/selftests/bpf/prog_tests/map_init.c
-deleted file mode 100644
-index 14a31109dd0e0..0000000000000
---- a/tools/testing/selftests/bpf/prog_tests/map_init.c
-+++ /dev/null
-@@ -1,214 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/* Copyright (c) 2020 Tessares SA <http://www.tessares.net> */
--
--#include <test_progs.h>
--#include "test_map_init.skel.h"
--
--#define TEST_VALUE 0x1234
--#define FILL_VALUE 0xdeadbeef
--
--static int nr_cpus;
--static int duration;
--
--typedef unsigned long long map_key_t;
--typedef unsigned long long map_value_t;
--typedef struct {
--	map_value_t v; /* padding */
--} __bpf_percpu_val_align pcpu_map_value_t;
--
--
--static int map_populate(int map_fd, int num)
--{
--	pcpu_map_value_t value[nr_cpus];
--	int i, err;
--	map_key_t key;
--
--	for (i = 0; i < nr_cpus; i++)
--		bpf_percpu(value, i) = FILL_VALUE;
--
--	for (key = 1; key <= num; key++) {
--		err = bpf_map_update_elem(map_fd, &key, value, BPF_NOEXIST);
--		if (!ASSERT_OK(err, "bpf_map_update_elem"))
--			return -1;
--	}
--
--	return 0;
--}
--
--static struct test_map_init *setup(enum bpf_map_type map_type, int map_sz,
--			    int *map_fd, int populate)
--{
--	struct test_map_init *skel;
--	int err;
--
--	skel = test_map_init__open();
--	if (!ASSERT_OK_PTR(skel, "skel_open"))
--		return NULL;
--
--	err = bpf_map__set_type(skel->maps.hashmap1, map_type);
--	if (!ASSERT_OK(err, "bpf_map__set_type"))
--		goto error;
--
--	err = bpf_map__set_max_entries(skel->maps.hashmap1, map_sz);
--	if (!ASSERT_OK(err, "bpf_map__set_max_entries"))
--		goto error;
--
--	err = test_map_init__load(skel);
--	if (!ASSERT_OK(err, "skel_load"))
--		goto error;
--
--	*map_fd = bpf_map__fd(skel->maps.hashmap1);
--	if (CHECK(*map_fd < 0, "bpf_map__fd", "failed\n"))
--		goto error;
--
--	err = map_populate(*map_fd, populate);
--	if (!ASSERT_OK(err, "map_populate"))
--		goto error_map;
--
--	return skel;
--
--error_map:
--	close(*map_fd);
--error:
--	test_map_init__destroy(skel);
--	return NULL;
--}
--
--/* executes bpf program that updates map with key, value */
--static int prog_run_insert_elem(struct test_map_init *skel, map_key_t key,
--				map_value_t value)
--{
--	struct test_map_init__bss *bss;
--
--	bss = skel->bss;
--
--	bss->inKey = key;
--	bss->inValue = value;
--	bss->inPid = getpid();
--
--	if (!ASSERT_OK(test_map_init__attach(skel), "skel_attach"))
--		return -1;
--
--	/* Let tracepoint trigger */
--	syscall(__NR_getpgid);
--
--	test_map_init__detach(skel);
--
--	return 0;
--}
--
--static int check_values_one_cpu(pcpu_map_value_t *value, map_value_t expected)
--{
--	int i, nzCnt = 0;
--	map_value_t val;
--
--	for (i = 0; i < nr_cpus; i++) {
--		val = bpf_percpu(value, i);
--		if (val) {
--			if (CHECK(val != expected, "map value",
--				  "unexpected for cpu %d: 0x%llx\n", i, val))
--				return -1;
--			nzCnt++;
--		}
--	}
--
--	if (CHECK(nzCnt != 1, "map value", "set for %d CPUs instead of 1!\n",
--		  nzCnt))
--		return -1;
--
--	return 0;
--}
--
--/* Add key=1 elem with values set for all CPUs
-- * Delete elem key=1
-- * Run bpf prog that inserts new key=1 elem with value=0x1234
-- *   (bpf prog can only set value for current CPU)
-- * Lookup Key=1 and check value is as expected for all CPUs:
-- *   value set by bpf prog for one CPU, 0 for all others
-- */
--static void test_pcpu_map_init(void)
--{
--	pcpu_map_value_t value[nr_cpus];
--	struct test_map_init *skel;
--	int map_fd, err;
--	map_key_t key;
--
--	/* max 1 elem in map so insertion is forced to reuse freed entry */
--	skel = setup(BPF_MAP_TYPE_PERCPU_HASH, 1, &map_fd, 1);
--	if (!ASSERT_OK_PTR(skel, "prog_setup"))
--		return;
--
--	/* delete element so the entry can be re-used*/
--	key = 1;
--	err = bpf_map_delete_elem(map_fd, &key);
--	if (!ASSERT_OK(err, "bpf_map_delete_elem"))
--		goto cleanup;
--
--	/* run bpf prog that inserts new elem, re-using the slot just freed */
--	err = prog_run_insert_elem(skel, key, TEST_VALUE);
--	if (!ASSERT_OK(err, "prog_run_insert_elem"))
--		goto cleanup;
--
--	/* check that key=1 was re-created by bpf prog */
--	err = bpf_map_lookup_elem(map_fd, &key, value);
--	if (!ASSERT_OK(err, "bpf_map_lookup_elem"))
--		goto cleanup;
--
--	/* and has expected values */
--	check_values_one_cpu(value, TEST_VALUE);
--
--cleanup:
--	test_map_init__destroy(skel);
--}
--
--/* Add key=1 and key=2 elems with values set for all CPUs
-- * Run bpf prog that inserts new key=3 elem
-- *   (only for current cpu; other cpus should have initial value = 0)
-- * Lookup Key=1 and check value is as expected for all CPUs
-- */
--static void test_pcpu_lru_map_init(void)
--{
--	pcpu_map_value_t value[nr_cpus];
--	struct test_map_init *skel;
--	int map_fd, err;
--	map_key_t key;
--
--	/* Set up LRU map with 2 elements, values filled for all CPUs.
--	 * With these 2 elements, the LRU map is full
--	 */
--	skel = setup(BPF_MAP_TYPE_LRU_PERCPU_HASH, 2, &map_fd, 2);
--	if (!ASSERT_OK_PTR(skel, "prog_setup"))
--		return;
--
--	/* run bpf prog that inserts new key=3 element, re-using LRU slot */
--	key = 3;
--	err = prog_run_insert_elem(skel, key, TEST_VALUE);
--	if (!ASSERT_OK(err, "prog_run_insert_elem"))
--		goto cleanup;
--
--	/* check that key=3 replaced one of earlier elements */
--	err = bpf_map_lookup_elem(map_fd, &key, value);
--	if (!ASSERT_OK(err, "bpf_map_lookup_elem"))
--		goto cleanup;
--
--	/* and has expected values */
--	check_values_one_cpu(value, TEST_VALUE);
--
--cleanup:
--	test_map_init__destroy(skel);
--}
--
--void test_map_init(void)
--{
--	nr_cpus = bpf_num_possible_cpus();
--	if (nr_cpus <= 1) {
--		printf("%s:SKIP: >1 cpu needed for this test\n", __func__);
--		test__skip();
--		return;
--	}
--
--	if (test__start_subtest("pcpu_map_init"))
--		test_pcpu_map_init();
--	if (test__start_subtest("pcpu_lru_map_init"))
--		test_pcpu_lru_map_init();
--}
-diff --git a/tools/testing/selftests/bpf/progs/test_map_init.c b/tools/testing/selftests/bpf/progs/test_map_init.c
-deleted file mode 100644
-index c89d28ead6737..0000000000000
---- a/tools/testing/selftests/bpf/progs/test_map_init.c
-+++ /dev/null
-@@ -1,33 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/* Copyright (c) 2020 Tessares SA <http://www.tessares.net> */
--
--#include "vmlinux.h"
--#include <bpf/bpf_helpers.h>
--
--__u64 inKey = 0;
--__u64 inValue = 0;
--__u32 inPid = 0;
--
--struct {
--	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
--	__uint(max_entries, 2);
--	__type(key, __u64);
--	__type(value, __u64);
--} hashmap1 SEC(".maps");
--
--
--SEC("tp/syscalls/sys_enter_getpgid")
--int sysenter_getpgid(const void *ctx)
--{
--	/* Just do it for once, when called from our own test prog. This
--	 * ensures the map value is only updated for a single CPU.
--	 */
--	int cur_pid = bpf_get_current_pid_tgid() >> 32;
--
--	if (cur_pid == inPid)
--		bpf_map_update_elem(&hashmap1, &inKey, &inValue, BPF_NOEXIST);
--
--	return 0;
--}
--
--char _license[] SEC("license") = "GPL";
--- 
-2.27.0
-
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1328,7 +1328,7 @@ static long ffs_epfile_ioctl(struct file
+ 	case FUNCTIONFS_ENDPOINT_DESC:
+ 	{
+ 		int desc_idx;
+-		struct usb_endpoint_descriptor *desc;
++		struct usb_endpoint_descriptor desc1, *desc;
+ 
+ 		switch (epfile->ffs->gadget->speed) {
+ 		case USB_SPEED_SUPER:
+@@ -1340,10 +1340,12 @@ static long ffs_epfile_ioctl(struct file
+ 		default:
+ 			desc_idx = 0;
+ 		}
++
+ 		desc = epfile->ep->descs[desc_idx];
++		memcpy(&desc1, desc, desc->bLength);
+ 
+ 		spin_unlock_irq(&epfile->ffs->eps_lock);
+-		ret = copy_to_user((void __user *)value, desc, desc->bLength);
++		ret = copy_to_user((void __user *)value, &desc1, desc1.bLength);
+ 		if (ret)
+ 			ret = -EFAULT;
+ 		return ret;
 
 
