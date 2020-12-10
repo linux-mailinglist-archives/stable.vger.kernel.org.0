@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B0E2D5E16
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCC02D5DE6
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391219AbgLJOjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46900 "EHLO mail.kernel.org"
+        id S2389899AbgLJOeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:34:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387589AbgLJOjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:39:13 -0500
+        id S2389517AbgLJOeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:34:04 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Shtepa <sergei.shtepa@veeam.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.9 48/75] dm: fix bug with RCU locking in dm_blk_report_zones
+        stable@vger.kernel.org,
+        syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.19 34/39] gfs2: check for empty rgrp tree in gfs2_ri_update
 Date:   Thu, 10 Dec 2020 15:27:13 +0100
-Message-Id: <20201210142608.431693504@linuxfoundation.org>
+Message-Id: <20201210142603.961444296@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,37 +33,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Shtepa <sergei.shtepa@veeam.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 89478335718c98557f10470a9bc5c555b9261c4e upstream.
+commit 778721510e84209f78e31e2ccb296ae36d623f5e upstream.
 
-The dm_get_live_table() function makes RCU read lock so
-dm_put_live_table() must be called even if dm_table map is not found.
+If gfs2 tries to mount a (corrupt) file system that has no resource
+groups it still tries to set preferences on the first one, which causes
+a kernel null pointer dereference. This patch adds a check to function
+gfs2_ri_update so this condition is detected and reported back as an
+error.
 
-Fixes: e76239a3748c9 ("block: add a report_zones method")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sergei Shtepa <sergei.shtepa@veeam.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: syzbot+e3f23ce40269a4c9053a@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/gfs2/rgrp.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -491,8 +491,10 @@ static int dm_blk_report_zones(struct ge
- 		return -EAGAIN;
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1009,6 +1009,10 @@ static int gfs2_ri_update(struct gfs2_in
+ 	if (error < 0)
+ 		return error;
  
- 	map = dm_get_live_table(md, &srcu_idx);
--	if (!map)
--		return -EIO;
-+	if (!map) {
-+		ret = -EIO;
-+		goto out;
++	if (RB_EMPTY_ROOT(&sdp->sd_rindex_tree)) {
++		fs_err(sdp, "no resource groups found in the file system.\n");
++		return -ENOENT;
 +	}
+ 	set_rgrp_preferences(sdp);
  
- 	do {
- 		struct dm_target *tgt;
+ 	sdp->sd_rindex_uptodate = 1;
 
 
