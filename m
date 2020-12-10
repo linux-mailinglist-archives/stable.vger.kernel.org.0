@@ -2,85 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 145F32D6C29
+	by mail.lfdr.de (Postfix) with ESMTP id ED2E82D6C2B
 	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 01:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389169AbgLJXrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 18:47:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389962AbgLJXqP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 18:46:15 -0500
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A771C0613CF
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 15:46:00 -0800 (PST)
-Received: by mail-qk1-x742.google.com with SMTP id w79so6849840qkb.5
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 15:46:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FdFk6ep810SJ3eW2awdN+7fW5jXQeIbyRy+2z7XYefU=;
-        b=m2RgoTvpw5loaf0KtfWX8cp58nUVgnzuBNJkY/7UtnXngBvnTzm0Rj1Xq8ndfXwEnw
-         LZSwoFTPDzqCG+2Er3sAzTM9XymiGfdwIwusG8S9FmKthELI1qIeiXfECAb+xhpf02gM
-         +Rlq4CBxLxLOwak43VEjQbmsEAVlRzSgLfPi6zAcew4ppzMyRjJJYKdG9Hmw568HVZ3d
-         OvMWJFpOSfZG6OITILJlsMWkTQP2uYi0osmTahcfRTRqBX0FWZiy7T++giQarZJovwcE
-         O8klHa0W/JHCUghBaJBkDlAIMHd4VLk0A1JMGEwUcCDM8hsrTveZ7lwyDaujaV4GWiIH
-         UoSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FdFk6ep810SJ3eW2awdN+7fW5jXQeIbyRy+2z7XYefU=;
-        b=n+Aw0+JyhdYeaHXhrEgFKn8iR4ZjkLma0xF/D/THaDlz6JmPNKfZZdV5oNzcIgIylu
-         +CZq3bS50F2jWWoSOY5Gkrb8x1BEtwAca+iqAGkl2XEpCNGysAFVtchy3gQf+9vIQajf
-         a0MBFdxIhA+1cf2e3C6EHUS6wvqy8rLPufAsXR9+Me4eIJpxB2KjrZU7FkPsXYz4ykDs
-         hZUheSQAk8X/gHeMXp32dsFsmr7ztKDGNvojNp1Q7vmEXWuMG5NjBBDTbmhqf/3sPDW1
-         3Wy90vkLVcYthS9wa+YK5tS/hzpuwbgHoWOPG4jz4pvtpS88aAA1Yi1ttTSC3Em4tfxX
-         TAJA==
-X-Gm-Message-State: AOAM530hPFUgzqlO1OANoeGgtctkc4647e0Jkd6+gvJ4OqOtlpY2uHMi
-        zsX5NFaraK88Vw+VjVXBZKs9GCycDKifl3YPDSEcEg==
-X-Google-Smtp-Source: ABdhPJyPcyPva8kLhHNvG5/aDjNCvjE8j7/c7lyiI0R4i5hVxGSwAIeGIl9HPeDWNytkyM3QGPPRufBArhmhOkZ1U74=
-X-Received: by 2002:ae9:e855:: with SMTP id a82mr12755017qkg.300.1607643959332;
- Thu, 10 Dec 2020 15:45:59 -0800 (PST)
+        id S2388996AbgLJXrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 18:47:36 -0500
+Received: from gproxy2-pub.mail.unifiedlayer.com ([69.89.18.3]:59788 "EHLO
+        gproxy2-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389463AbgLJXrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 18:47:16 -0500
+Received: from cmgw15.unifiedlayer.com (unknown [10.9.0.15])
+        by gproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 946CB1E60FB
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 16:46:25 -0700 (MST)
+Received: from bh-25.webhostbox.net ([208.91.199.152])
+        by cmsmtp with ESMTP
+        id nVdhkXQoWh41lnVdhkZ0ct; Thu, 10 Dec 2020 16:46:25 -0700
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.3 cv=JNUVTfCb c=1 sm=1 tr=0
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=kj9zAlcOel0A:10:nop_charset_1
+ a=zTNgK-yGK50A:10:nop_rcvd_month_year
+ a=evQFzbml-YQA:10:endurance_base64_authed_username_1 a=_jlGtV7tAAAA:8
+ a=kvk3kt7nRNyH8w8It4sA:9 a=CjuIK1q_8ugA:10:nop_charset_2
+ a=nlm17XC03S6CtCLSeiRr:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+        :Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+        :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=i8kUSeuv715kse3PbFIteUNOMNrQbQU5yphbekTMRMQ=; b=JsKOSZ2jXQ6NrSJQVYMS7vg0O7
+        r2ANH45dbIX4iCzT1MlpZQvYwVaCtl8lK+ee2fUoDi4mSHlQCYPI5B4ccl8Qfm9IpVQzeYaPF8fVC
+        lcA6BHXvaMi/0i1vZ9rlZLV1vH5nMSgl3Il66uN2IJzuXucpaXsRdXOPSVa7baVj7rLzkgXxDXarH
+        N7EZDLVkWAElP3I8N4zl7ee0ArrvsP+Yfr29ipyMo6cngOyvmljSIkOhO/9qFOY1HSVk3+bdVE2bl
+        sdqF+WmVkghNtWDcG6wJyh/5bJkBsbz37FJN9TxQ10tDoN12RvDKdWenxosmzgkX2PIpmpcI/dvWj
+        VXA0kKpA==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:34642 helo=localhost)
+        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <linux@roeck-us.net>)
+        id 1knVdg-0045ZJ-Li; Thu, 10 Dec 2020 23:46:24 +0000
+Date:   Thu, 10 Dec 2020 15:46:23 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 5.9 00/75] 5.9.14-rc1 review
+Message-ID: <20201210234623.GE259082@roeck-us.net>
+References: <20201210142606.074509102@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20201102180326.GA2416734@kroah.com> <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
- <20201208133532.GH643756@sasha-vm> <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
- <X9CuTjdgD3tDKWwo@kroah.com> <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
- <20201210154651.GV1551@shell.armlinux.org.uk> <CAPv3WKdWr0zfuTkK+x6u7C6FpFxkVtRFrEq1FvemVpLYw2+5ng@mail.gmail.com>
- <20201210175619.GW1551@shell.armlinux.org.uk> <CAPv3WKe+2UKedYXgFh++-OLrJwQAyCE1i53oRUgp28z6AbaXLg@mail.gmail.com>
- <20201210202650.GA2654274@lunn.ch>
-In-Reply-To: <20201210202650.GA2654274@lunn.ch>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Fri, 11 Dec 2020 00:45:48 +0100
-Message-ID: <CAPv3WKdGH8uVcdraV=oQZ7y68qPvq=XycZrw80MgwfiMpx3==g@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     Andrew Lunn <andrew@lunn.ch>
-Cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Jon Nettleton <jon@solid-run.com>,
-        Andrew Elwell <andrew.elwell@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1knVdg-0045ZJ-Li
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (localhost) [108.223.40.66]:34642
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 38
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-czw., 10 gru 2020 o 21:26 Andrew Lunn <andrew@lunn.ch> napisa=C5=82(a):
->
-> > +1. As soon as the MDIO+ACPI lands, I plan to do the rework.
->
-> Don't hold you breath. It has gone very quiet about ACPI in net
-> devices.
+On Thu, Dec 10, 2020 at 03:26:25PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.9.14 release.
+> There are 75 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 12 Dec 2020 14:25:47 +0000.
+> Anything received after that time might be too late.
+> 
 
-I saw the results of the upcoming next revision from NXP, so I'm
-rather optimistic.
+Build results:
+	total: 154 pass: 154 fail: 0
+Qemu test results:
+	total: 426 pass: 426 fail: 0
 
-Best regards,
-Marcin
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
