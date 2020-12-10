@@ -2,27 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3009B2D66B5
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25DEB2D66B7
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404191AbgLJThu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 14:37:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36932 "EHLO mail.kernel.org"
+        id S2404263AbgLJThv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:37:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390173AbgLJO2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390175AbgLJO2s (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 10 Dec 2020 09:28:48 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 32/39] spi: bcm2835: Fix use-after-free on unbind
-Date:   Thu, 10 Dec 2020 15:26:43 +0100
-Message-Id: <20201210142602.476094252@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Mark Brown <broonie@kernel.org>, Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.4 33/39] spi: bcm2835: Release the DMA channel if probe fails after dma_init
+Date:   Thu, 10 Dec 2020 15:26:44 +0100
+Message-Id: <20201210142602.519963173@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -34,80 +32,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit e1483ac030fb4c57734289742f1c1d38dca61e22 ]
+[ Upstream commit 666224b43b4bd4612ce3b758c038f9bc5c5e3fcb ]
 
-bcm2835_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+The DMA channel was not released if either devm_request_irq() or
+devm_spi_register_controller() failed.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
-
-Fixes: f8043872e796 ("spi: add driver for BCM2835")
-Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v3.10+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v3.10+
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/ad66e0a0ad96feb848814842ecf5b6a4539ef35c.1605121038.git.lukas@wunner.de
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Link: https://lore.kernel.org/r/20191212135550.4634-3-peter.ujfalusi@ti.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to 4.19-stable]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm2835.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/spi/spi-bcm2835.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 --- a/drivers/spi/spi-bcm2835.c
 +++ b/drivers/spi/spi-bcm2835.c
-@@ -742,7 +742,7 @@ static int bcm2835_spi_probe(struct plat
- 	struct resource *res;
- 	int err;
- 
--	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
-+	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
- 	if (!master) {
- 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
- 		return -ENOMEM;
-@@ -764,23 +764,20 @@ static int bcm2835_spi_probe(struct plat
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(bs->regs)) {
--		err = PTR_ERR(bs->regs);
--		goto out_master_put;
--	}
-+	if (IS_ERR(bs->regs))
-+		return PTR_ERR(bs->regs);
- 
- 	bs->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(bs->clk)) {
- 		err = PTR_ERR(bs->clk);
- 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
--		goto out_master_put;
-+		return err;
+@@ -792,18 +792,19 @@ static int bcm2835_spi_probe(struct plat
+ 			       dev_name(&pdev->dev), master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not request IRQ: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
  	}
  
- 	bs->irq = platform_get_irq(pdev, 0);
- 	if (bs->irq <= 0) {
- 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
--		err = bs->irq ? bs->irq : -ENODEV;
--		goto out_master_put;
-+		return bs->irq ? bs->irq : -ENODEV;
+ 	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+-		goto out_clk_disable;
++		goto out_dma_release;
  	}
  
- 	clk_prepare_enable(bs->clk);
-@@ -808,8 +805,6 @@ static int bcm2835_spi_probe(struct plat
+ 	return 0;
  
- out_clk_disable:
+-out_clk_disable:
++out_dma_release:
++	bcm2835_dma_release(master);
  	clk_disable_unprepare(bs->clk);
--out_master_put:
--	spi_master_put(master);
  	return err;
  }
- 
 
 
