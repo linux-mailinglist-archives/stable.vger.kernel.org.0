@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 678342D5DE4
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B706D2D5DFF
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389900AbgLJOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
+        id S2390989AbgLJOgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390777AbgLJOdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:52 -0500
+        id S2390982AbgLJOgI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:08 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 39/39] x86/insn-eval: Use new for_each_insn_prefix() macro to loop over prefixes bytes
-Date:   Thu, 10 Dec 2020 15:27:18 +0100
-Message-Id: <20201210142604.214845768@linuxfoundation.org>
+        syzbot+d5aa7e0385f6a5d0f4fd@syzkaller.appspotmail.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Hoang Huu Le <hoang.h.le@dektech.com.au>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 46/54] tipc: fix a deadlock when flushing scheduled work
+Date:   Thu, 10 Dec 2020 15:27:23 +0100
+Message-Id: <20201210142604.295102570@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142602.037095225@linuxfoundation.org>
+References: <20201210142602.037095225@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -34,55 +34,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Hoang Huu Le <hoang.h.le@dektech.com.au>
 
-commit 12cb908a11b2544b5f53e9af856e6b6a90ed5533 upstream
+commit d966ddcc38217a6110a6a0ff37ad2dee7d42e23e upstream.
 
-Since insn.prefixes.nbytes can be bigger than the size of
-insn.prefixes.bytes[] when a prefix is repeated, the proper check must
-be
+In the commit fdeba99b1e58
+("tipc: fix use-after-free in tipc_bcast_get_mode"), we're trying
+to make sure the tipc_net_finalize_work work item finished if it
+enqueued. But calling flush_scheduled_work() is not just affecting
+above work item but either any scheduled work. This has turned out
+to be overkill and caused to deadlock as syzbot reported:
 
-  insn.prefixes.bytes[i] != 0 and i < 4
+======================================================
+WARNING: possible circular locking dependency detected
+5.9.0-rc2-next-20200828-syzkaller #0 Not tainted
+------------------------------------------------------
+kworker/u4:6/349 is trying to acquire lock:
+ffff8880aa063d38 ((wq_completion)events){+.+.}-{0:0}, at: flush_workqueue+0xe1/0x13e0 kernel/workqueue.c:2777
 
-instead of using insn.prefixes.nbytes. Use the new
-for_each_insn_prefix() macro which does it correctly.
+but task is already holding lock:
+ffffffff8a879430 (pernet_ops_rwsem){++++}-{3:3}, at: cleanup_net+0x9b/0xb10 net/core/net_namespace.c:565
 
-Debugged by Kees Cook <keescook@chromium.org>.
+[...]
+ Possible unsafe locking scenario:
 
- [ bp: Massage commit message. ]
+       CPU0                    CPU1
+       ----                    ----
+  lock(pernet_ops_rwsem);
+                               lock(&sb->s_type->i_mutex_key#13);
+                               lock(pernet_ops_rwsem);
+  lock((wq_completion)events);
 
-Fixes: 32d0b95300db ("x86/insn-eval: Add utility functions to get segment selector")
-Reported-by: syzbot+9b64b619f10f19d19a7c@syzkaller.appspotmail.com
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/160697104969.3146288.16329307586428270032.stgit@devnote2
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+ *** DEADLOCK ***
+[...]
+
+v1:
+To fix the original issue, we replace above calling by introducing
+a bit flag. When a namespace cleaned-up, bit flag is set to zero and:
+- tipc_net_finalize functionial just does return immediately.
+- tipc_net_finalize_work does not enqueue into the scheduled work queue.
+
+v2:
+Use cancel_work_sync() helper to make sure ONLY the
+tipc_net_finalize_work() stopped before releasing bcbase object.
+
+Reported-by: syzbot+d5aa7e0385f6a5d0f4fd@syzkaller.appspotmail.com
+Fixes: fdeba99b1e58 ("tipc: fix use-after-free in tipc_bcast_get_mode")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Huu Le <hoang.h.le@dektech.com.au>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/lib/insn-eval.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -70,14 +70,15 @@ static int get_seg_reg_override_idx(stru
+---
+ net/tipc/core.c |    9 +++++----
+ net/tipc/core.h |    9 +++++++++
+ net/tipc/net.c  |   20 +++++---------------
+ net/tipc/net.h  |    1 +
+ 4 files changed, 20 insertions(+), 19 deletions(-)
+
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -59,6 +59,7 @@ static int __net_init tipc_init_net(stru
+ 	tn->trial_addr = 0;
+ 	tn->addr_trial_end = 0;
+ 	tn->capabilities = TIPC_NODE_CAPABILITIES;
++	INIT_WORK(&tn->final_work.work, tipc_net_finalize_work);
+ 	memset(tn->node_id, 0, sizeof(tn->node_id));
+ 	memset(tn->node_id_string, 0, sizeof(tn->node_id_string));
+ 	tn->mon_threshold = TIPC_DEF_MON_THRESHOLD;
+@@ -96,13 +97,13 @@ out_sk_rht:
+ 
+ static void __net_exit tipc_exit_net(struct net *net)
  {
- 	int idx = INAT_SEG_REG_DEFAULT;
- 	int num_overrides = 0, i;
-+	insn_byte_t p;
++	struct tipc_net *tn = tipc_net(net);
++
+ 	tipc_detach_loopback(net);
++	/* Make sure the tipc_net_finalize_work() finished */
++	cancel_work_sync(&tn->final_work.work);
+ 	tipc_net_stop(net);
  
- 	insn_get_prefixes(insn);
+-	/* Make sure the tipc_net_finalize_work stopped
+-	 * before releasing the resources.
+-	 */
+-	flush_scheduled_work();
+ 	tipc_bcast_stop(net);
+ 	tipc_nametbl_stop(net);
+ 	tipc_sk_rht_destroy(net);
+--- a/net/tipc/core.h
++++ b/net/tipc/core.h
+@@ -86,6 +86,12 @@ extern unsigned int tipc_net_id __read_m
+ extern int sysctl_tipc_rmem[3] __read_mostly;
+ extern int sysctl_tipc_named_timeout __read_mostly;
  
- 	/* Look for any segment override prefixes. */
--	for (i = 0; i < insn->prefixes.nbytes; i++) {
-+	for_each_insn_prefix(insn, i, p) {
- 		insn_attr_t attr;
++struct tipc_net_work {
++	struct work_struct work;
++	struct net *net;
++	u32 addr;
++};
++
+ struct tipc_net {
+ 	u8  node_id[NODE_ID_LEN];
+ 	u32 node_addr;
+@@ -134,6 +140,9 @@ struct tipc_net {
  
--		attr = inat_get_opcode_attribute(insn->prefixes.bytes[i]);
-+		attr = inat_get_opcode_attribute(p);
- 		switch (attr) {
- 		case INAT_MAKE_PREFIX(INAT_PFX_CS):
- 			idx = INAT_SEG_REG_CS;
+ 	/* Tracing of node internal messages */
+ 	struct packet_type loopback_pt;
++
++	/* Work item for net finalize */
++	struct tipc_net_work final_work;
+ };
+ 
+ static inline struct tipc_net *tipc_net(struct net *net)
+--- a/net/tipc/net.c
++++ b/net/tipc/net.c
+@@ -105,12 +105,6 @@
+  *     - A local spin_lock protecting the queue of subscriber events.
+ */
+ 
+-struct tipc_net_work {
+-	struct work_struct work;
+-	struct net *net;
+-	u32 addr;
+-};
+-
+ static void tipc_net_finalize(struct net *net, u32 addr);
+ 
+ int tipc_net_init(struct net *net, u8 *node_id, u32 addr)
+@@ -142,25 +136,21 @@ static void tipc_net_finalize(struct net
+ 			     TIPC_CLUSTER_SCOPE, 0, addr);
+ }
+ 
+-static void tipc_net_finalize_work(struct work_struct *work)
++void tipc_net_finalize_work(struct work_struct *work)
+ {
+ 	struct tipc_net_work *fwork;
+ 
+ 	fwork = container_of(work, struct tipc_net_work, work);
+ 	tipc_net_finalize(fwork->net, fwork->addr);
+-	kfree(fwork);
+ }
+ 
+ void tipc_sched_net_finalize(struct net *net, u32 addr)
+ {
+-	struct tipc_net_work *fwork = kzalloc(sizeof(*fwork), GFP_ATOMIC);
++	struct tipc_net *tn = tipc_net(net);
+ 
+-	if (!fwork)
+-		return;
+-	INIT_WORK(&fwork->work, tipc_net_finalize_work);
+-	fwork->net = net;
+-	fwork->addr = addr;
+-	schedule_work(&fwork->work);
++	tn->final_work.net = net;
++	tn->final_work.addr = addr;
++	schedule_work(&tn->final_work.work);
+ }
+ 
+ void tipc_net_stop(struct net *net)
+--- a/net/tipc/net.h
++++ b/net/tipc/net.h
+@@ -42,6 +42,7 @@
+ extern const struct nla_policy tipc_nl_net_policy[];
+ 
+ int tipc_net_init(struct net *net, u8 *node_id, u32 addr);
++void tipc_net_finalize_work(struct work_struct *work);
+ void tipc_sched_net_finalize(struct net *net, u32 addr);
+ void tipc_net_stop(struct net *net);
+ int tipc_nl_net_dump(struct sk_buff *skb, struct netlink_callback *cb);
 
 
