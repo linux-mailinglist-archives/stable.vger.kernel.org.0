@@ -2,25 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2736F2D666F
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862AD2D6661
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 20:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390271AbgLJOaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:30:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38072 "EHLO mail.kernel.org"
+        id S2390402AbgLJTXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 14:23:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390265AbgLJOaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:30:10 -0500
+        id S2390143AbgLJOam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:30:42 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Vamsi Krishna Samavedam <vskrishn@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.9 22/45] usb: gadget: f_fs: Use local copy of descriptors for userspace copy
-Date:   Thu, 10 Dec 2020 15:26:36 +0100
-Message-Id: <20201210142603.464476420@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 23/45] USB: serial: kl5kusb105: fix memleak on open
+Date:   Thu, 10 Dec 2020 15:26:37 +0100
+Message-Id: <20201210142603.504327215@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
 References: <20201210142602.361598591@linuxfoundation.org>
@@ -32,51 +30,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit a4b98a7512f18534ce33a7e98e49115af59ffa00 upstream.
+commit 3f203f057edfcf6bd02c6b942799262bfcf31f73 upstream.
 
-The function may be unbound causing the ffs_ep and its descriptors
-to be freed while userspace is in the middle of an ioctl requesting
-the same descriptors. Avoid dangling pointer reference by first
-making a local copy of desctiptors before releasing the spinlock.
+Fix memory leak of control-message transfer buffer on successful open().
 
-Fixes: c559a3534109 ("usb: gadget: f_fs: add ioctl returning ep descriptor")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Vamsi Krishna Samavedam <vskrishn@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201130203453.28154-1-jackp@codeaurora.org
+Fixes: 6774d5f53271 ("USB: serial: kl5kusb105: fix open error path")
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_fs.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/kl5kusb105.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1224,7 +1224,7 @@ static long ffs_epfile_ioctl(struct file
- 		case FUNCTIONFS_ENDPOINT_DESC:
- 		{
- 			int desc_idx;
--			struct usb_endpoint_descriptor *desc;
-+			struct usb_endpoint_descriptor desc1, *desc;
+--- a/drivers/usb/serial/kl5kusb105.c
++++ b/drivers/usb/serial/kl5kusb105.c
+@@ -293,12 +293,12 @@ static int  klsi_105_open(struct tty_str
+ 	priv->cfg.unknown2 = cfg->unknown2;
+ 	spin_unlock_irqrestore(&priv->lock, flags);
  
- 			switch (epfile->ffs->gadget->speed) {
- 			case USB_SPEED_SUPER:
-@@ -1236,10 +1236,12 @@ static long ffs_epfile_ioctl(struct file
- 			default:
- 				desc_idx = 0;
- 			}
++	kfree(cfg);
 +
- 			desc = epfile->ep->descs[desc_idx];
-+			memcpy(&desc1, desc, desc->bLength);
+ 	/* READ_ON and urb submission */
+ 	rc = usb_serial_generic_open(tty, port);
+-	if (rc) {
+-		retval = rc;
+-		goto err_free_cfg;
+-	}
++	if (rc)
++		return rc;
  
- 			spin_unlock_irq(&epfile->ffs->eps_lock);
--			ret = copy_to_user((void *)value, desc, sizeof(*desc));
-+			ret = copy_to_user((void *)value, &desc1, desc1.bLength);
- 			if (ret)
- 				ret = -EFAULT;
- 			return ret;
+ 	rc = usb_control_msg(port->serial->dev,
+ 			     usb_sndctrlpipe(port->serial->dev, 0),
+@@ -341,8 +341,6 @@ err_disable_read:
+ 			     KLSI_TIMEOUT);
+ err_generic_close:
+ 	usb_serial_generic_close(port);
+-err_free_cfg:
+-	kfree(cfg);
+ 
+ 	return retval;
+ }
 
 
