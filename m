@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C820A2D5DE3
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:34:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA132D5E0E
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390789AbgLJOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S2391138AbgLJOiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:38:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389519AbgLJOdz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:33:55 -0500
+        id S2391131AbgLJOiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:38:06 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giacinto Cifelli <gciofono@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 08/39] USB: serial: option: add support for Thales Cinterion EXS82
-Date:   Thu, 10 Dec 2020 15:26:47 +0100
-Message-Id: <20201210142602.702487162@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Rohith Surabattula <rohiths@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.9 24/75] cifs: refactor create_sd_buf() and and avoid corrupting the buffer
+Date:   Thu, 10 Dec 2020 15:26:49 +0100
+Message-Id: <20201210142607.242107216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
-References: <20201210142602.272595094@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+References: <20201210142606.074509102@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,322 +32,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giacinto Cifelli <gciofono@gmail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 6d6556c04ebaeaf4e7fa8b791c97e2a7c41b38a3 upstream.
+commit ea64370bcae126a88cd26a16f1abcc23ab2b9a55 upstream.
 
-There is a single option port in this modem, and it is used as debug port.
+When mounting with "idsfromsid" mount option, Azure
+corrupted the owner SIDs due to excessive padding
+caused by placing the owner fields at the end of the
+security descriptor on create.  Placing owners at the
+front of the security descriptor (rather than the end)
+is also safer, as the number of ACEs (that follow it)
+are variable.
 
-lsusb -v for this device:
-
-Bus 001 Device 002: ID 1e2d:006c
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass          239 Miscellaneous Device
-  bDeviceSubClass         2 ?
-  bDeviceProtocol         1 Interface Association
-  bMaxPacketSize0        64
-  idVendor           0x1e2d
-  idProduct          0x006c
-  bcdDevice            0.00
-  iManufacturer           4
-  iProduct                3
-  iSerial                 5
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength          243
-    bNumInterfaces          7
-    bConfigurationValue     1
-    iConfiguration          2
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         1
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          2
-      CDC Union:
-        bMasterInterface        1
-        bSlaveInterface         2
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         3
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        3
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      2 Abstract (modem)
-      bInterfaceProtocol      1 AT-commands (v.25ter)
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC ACM:
-        bmCapabilities       0x02
-          line coding and serial state
-      CDC Call Management:
-        bmCapabilities       0x03
-          call management
-          use DataInterface
-        bDataInterface          4
-      CDC Union:
-        bMasterInterface        3
-        bSlaveInterface         4
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x84  EP 4 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        4
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x85  EP 5 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         5
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass       2 Abstract (modem)
-      bFunctionProtocol       1 AT-commands (v.25ter)
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        5
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass      6 Ethernet Networking
-      bInterfaceProtocol      0
-      iInterface              0
-      CDC Header:
-        bcdCDC               1.10
-      CDC Ethernet:
-        iMacAddress                      1 (??)
-        bmEthernetStatistics    0x00000000
-        wMaxSegmentSize              16384
-        wNumberMCFilters            0x0001
-        bNumberPowerFilters              0
-      CDC Union:
-        bMasterInterface        5
-        bSlaveInterface         6
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x86  EP 6 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               5
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        6
-      bAlternateSetting       0
-      bNumEndpoints           0
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        6
-      bAlternateSetting       1
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x87  EP 7 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x04  EP 4 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-
-Signed-off-by: Giacinto Cifelli <gciofono@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Suggested-by: Rohith Surabattula <rohiths@microsoft.com>
+CC: Stable <stable@vger.kernel.org> # v5.8
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/smb2pdu.c |   69 ++++++++++++++++++++++++++++--------------------------
+ fs/cifs/smb2pdu.h |    2 -
+ 2 files changed, 37 insertions(+), 34 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -419,6 +419,7 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_PH8			0x0053
- #define CINTERION_PRODUCT_AHXX			0x0055
- #define CINTERION_PRODUCT_PLXX			0x0060
-+#define CINTERION_PRODUCT_EXS82			0x006c
- #define CINTERION_PRODUCT_PH8_2RMNET		0x0082
- #define CINTERION_PRODUCT_PH8_AUDIO		0x0083
- #define CINTERION_PRODUCT_AHXX_2RMNET		0x0084
-@@ -1902,6 +1903,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_AHXX_AUDIO, 0xff) },
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_CLS8, 0xff),
- 	  .driver_info = RSVD(0) | RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_EXS82, 0xff) },
- 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) },
- 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDMNET) },
- 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC25_MDM) },
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2237,17 +2237,15 @@ static struct crt_sd_ctxt *
+ create_sd_buf(umode_t mode, bool set_owner, unsigned int *len)
+ {
+ 	struct crt_sd_ctxt *buf;
+-	struct cifs_ace *pace;
+-	unsigned int sdlen, acelen;
++	__u8 *ptr, *aclptr;
++	unsigned int acelen, acl_size, ace_count;
+ 	unsigned int owner_offset = 0;
+ 	unsigned int group_offset = 0;
++	struct smb3_acl acl;
+ 
+-	*len = roundup(sizeof(struct crt_sd_ctxt) + (sizeof(struct cifs_ace) * 2), 8);
++	*len = roundup(sizeof(struct crt_sd_ctxt) + (sizeof(struct cifs_ace) * 4), 8);
+ 
+ 	if (set_owner) {
+-		/* offset fields are from beginning of security descriptor not of create context */
+-		owner_offset = sizeof(struct smb3_acl) + (sizeof(struct cifs_ace) * 2);
+-
+ 		/* sizeof(struct owner_group_sids) is already multiple of 8 so no need to round */
+ 		*len += sizeof(struct owner_group_sids);
+ 	}
+@@ -2256,26 +2254,22 @@ create_sd_buf(umode_t mode, bool set_own
+ 	if (buf == NULL)
+ 		return buf;
+ 
++	ptr = (__u8 *)&buf[1];
+ 	if (set_owner) {
++		/* offset fields are from beginning of security descriptor not of create context */
++		owner_offset = ptr - (__u8 *)&buf->sd;
+ 		buf->sd.OffsetOwner = cpu_to_le32(owner_offset);
+-		group_offset = owner_offset + sizeof(struct owner_sid);
++		group_offset = owner_offset + offsetof(struct owner_group_sids, group);
+ 		buf->sd.OffsetGroup = cpu_to_le32(group_offset);
++
++		setup_owner_group_sids(ptr);
++		ptr += sizeof(struct owner_group_sids);
+ 	} else {
+ 		buf->sd.OffsetOwner = 0;
+ 		buf->sd.OffsetGroup = 0;
+ 	}
+ 
+-	sdlen = sizeof(struct smb3_sd) + sizeof(struct smb3_acl) +
+-		 2 * sizeof(struct cifs_ace);
+-	if (set_owner) {
+-		sdlen += sizeof(struct owner_group_sids);
+-		setup_owner_group_sids(owner_offset + sizeof(struct create_context) + 8 /* name */
+-			+ (char *)buf);
+-	}
+-
+-	buf->ccontext.DataOffset = cpu_to_le16(offsetof
+-					(struct crt_sd_ctxt, sd));
+-	buf->ccontext.DataLength = cpu_to_le32(sdlen);
++	buf->ccontext.DataOffset = cpu_to_le16(offsetof(struct crt_sd_ctxt, sd));
+ 	buf->ccontext.NameOffset = cpu_to_le16(offsetof(struct crt_sd_ctxt, Name));
+ 	buf->ccontext.NameLength = cpu_to_le16(4);
+ 	/* SMB2_CREATE_SD_BUFFER_TOKEN is "SecD" */
+@@ -2284,6 +2278,7 @@ create_sd_buf(umode_t mode, bool set_own
+ 	buf->Name[2] = 'c';
+ 	buf->Name[3] = 'D';
+ 	buf->sd.Revision = 1;  /* Must be one see MS-DTYP 2.4.6 */
++
+ 	/*
+ 	 * ACL is "self relative" ie ACL is stored in contiguous block of memory
+ 	 * and "DP" ie the DACL is present
+@@ -2291,28 +2286,38 @@ create_sd_buf(umode_t mode, bool set_own
+ 	buf->sd.Control = cpu_to_le16(ACL_CONTROL_SR | ACL_CONTROL_DP);
+ 
+ 	/* offset owner, group and Sbz1 and SACL are all zero */
+-	buf->sd.OffsetDacl = cpu_to_le32(sizeof(struct smb3_sd));
+-	buf->acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
++	buf->sd.OffsetDacl = cpu_to_le32(ptr - (__u8 *)&buf->sd);
++	/* Ship the ACL for now. we will copy it into buf later. */
++	aclptr = ptr;
++	ptr += sizeof(struct cifs_acl);
+ 
+ 	/* create one ACE to hold the mode embedded in reserved special SID */
+-	pace = (struct cifs_ace *)(sizeof(struct crt_sd_ctxt) + (char *)buf);
+-	acelen = setup_special_mode_ACE(pace, (__u64)mode);
++	acelen = setup_special_mode_ACE((struct cifs_ace *)ptr, (__u64)mode);
++	ptr += acelen;
++	acl_size = acelen + sizeof(struct smb3_acl);
++	ace_count = 1;
+ 
+ 	if (set_owner) {
+ 		/* we do not need to reallocate buffer to add the two more ACEs. plenty of space */
+-		pace = (struct cifs_ace *)(acelen + (sizeof(struct crt_sd_ctxt) + (char *)buf));
+-		acelen += setup_special_user_owner_ACE(pace);
+-		/* it does not appear necessary to add an ACE for the NFS group SID */
+-		buf->acl.AceCount = cpu_to_le16(3);
+-	} else
+-		buf->acl.AceCount = cpu_to_le16(2);
++		acelen = setup_special_user_owner_ACE((struct cifs_ace *)ptr);
++		ptr += acelen;
++		acl_size += acelen;
++		ace_count += 1;
++	}
+ 
+ 	/* and one more ACE to allow access for authenticated users */
+-	pace = (struct cifs_ace *)(acelen + (sizeof(struct crt_sd_ctxt) +
+-		(char *)buf));
+-	acelen += setup_authusers_ACE(pace);
++	acelen = setup_authusers_ACE((struct cifs_ace *)ptr);
++	ptr += acelen;
++	acl_size += acelen;
++	ace_count += 1;
++
++	acl.AclRevision = ACL_REVISION; /* See 2.4.4.1 of MS-DTYP */
++	acl.AclSize = cpu_to_le16(acl_size);
++	acl.AceCount = cpu_to_le16(ace_count);
++	memcpy(aclptr, &acl, sizeof(struct cifs_acl));
+ 
+-	buf->acl.AclSize = cpu_to_le16(sizeof(struct cifs_acl) + acelen);
++	buf->ccontext.DataLength = cpu_to_le32(ptr - (__u8 *)&buf->sd);
++	*len = ptr - (__u8 *)buf;
+ 
+ 	return buf;
+ }
+--- a/fs/cifs/smb2pdu.h
++++ b/fs/cifs/smb2pdu.h
+@@ -900,8 +900,6 @@ struct crt_sd_ctxt {
+ 	struct create_context ccontext;
+ 	__u8	Name[8];
+ 	struct smb3_sd sd;
+-	struct smb3_acl acl;
+-	/* Followed by at least 4 ACEs */
+ } __packed;
+ 
+ 
 
 
