@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3045B2D6870
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:17:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A80652D6887
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 21:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393714AbgLJUPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 15:15:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36490 "EHLO mail.kernel.org"
+        id S2390070AbgLJO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:27:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390116AbgLJO2X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:28:23 -0500
+        id S1731968AbgLJO10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:27:26 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 09/39] dt-bindings: net: correct interrupt flags in examples
-Date:   Thu, 10 Dec 2020 15:26:20 +0100
-Message-Id: <20201210142601.346329618@linuxfoundation.org>
+        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 11/39] Input: i8042 - add ByteSpeed touchpad to noloop table
+Date:   Thu, 10 Dec 2020 15:26:22 +0100
+Message-Id: <20201210142601.448139649@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 References: <20201210142600.887734129@linuxfoundation.org>
@@ -33,56 +31,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 4d521943f76bd0d1e68ea5e02df7aadd30b2838a ]
+commit a48491c65b513e5cdc3e7a886a4db915f848a5f5 upstream.
 
-GPIO_ACTIVE_x flags are not correct in the context of interrupt flags.
-These are simple defines so they could be used in DTS but they will not
-have the same meaning:
-1. GPIO_ACTIVE_HIGH = 0 = IRQ_TYPE_NONE
-2. GPIO_ACTIVE_LOW  = 1 = IRQ_TYPE_EDGE_RISING
+It looks like the C15B laptop got another vendor: ByteSpeed LLC.
 
-Correct the interrupt flags, assuming the author of the code wanted same
-logical behavior behind the name "ACTIVE_xxx", this is:
-  ACTIVE_LOW  => IRQ_TYPE_LEVEL_LOW
-  ACTIVE_HIGH => IRQ_TYPE_LEVEL_HIGH
+Avoid AUX loopback on this touchpad as well, thus input subsystem will
+be able to recognize a Synaptics touchpad in the AUX port.
 
-Fixes: a1a8b4594f8d ("NFC: pn544: i2c: Add DTS Documentation")
-Fixes: 6be88670fc59 ("NFC: nxp-nci_i2c: Add I2C support to NXP NCI driver")
-Fixes: e3b329221567 ("dt-bindings: can: tcan4x5x: Update binding to use interrupt property")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for tcan4x5x.txt
-Link: https://lore.kernel.org/r/20201026153620.89268-1-krzk@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugs.launchpad.net/bugs/1906128
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20201201054723.5939-1-po-hsu.lin@canonical.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Documentation/devicetree/bindings/net/nfc/nxp-nci.txt |    2 +-
- Documentation/devicetree/bindings/net/nfc/pn544.txt   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
-+++ b/Documentation/devicetree/bindings/net/nfc/nxp-nci.txt
-@@ -27,7 +27,7 @@ Example (for ARM-based BeagleBone with N
- 		clock-frequency = <100000>;
- 
- 		interrupt-parent = <&gpio1>;
--		interrupts = <29 GPIO_ACTIVE_HIGH>;
-+		interrupts = <29 IRQ_TYPE_LEVEL_HIGH>;
- 
- 		enable-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
- 		firmware-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
---- a/Documentation/devicetree/bindings/net/nfc/pn544.txt
-+++ b/Documentation/devicetree/bindings/net/nfc/pn544.txt
-@@ -27,7 +27,7 @@ Example (for ARM-based BeagleBone with P
- 		clock-frequency = <400000>;
- 
- 		interrupt-parent = <&gpio1>;
--		interrupts = <17 GPIO_ACTIVE_HIGH>;
-+		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
- 
- 		enable-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
- 		firmware-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+---
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -223,6 +223,10 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_SYS_VENDOR, "PEGATRON CORPORATION"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "C15B"),
+ 		},
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ByteSpeed LLC"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ByteSpeed Laptop C15B"),
++		},
+ 	},
+ 	{ }
+ };
 
 
