@@ -2,66 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98002D5E1A
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07542D5E01
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 15:37:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391253AbgLJOjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 09:39:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47078 "EHLO mail.kernel.org"
+        id S2391005AbgLJOg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 09:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391246AbgLJOjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:39:44 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.9 69/75] i2c: qup: Fix error return code in qup_i2c_bam_schedule_desc()
-Date:   Thu, 10 Dec 2020 15:27:34 +0100
-Message-Id: <20201210142609.423063233@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
-References: <20201210142606.074509102@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2390985AbgLJOgM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:36:12 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 935CC23D9B;
+        Thu, 10 Dec 2020 14:35:31 +0000 (UTC)
+Date:   Thu, 10 Dec 2020 09:35:29 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] tracing: Fix userstacktrace option for
+ instances" failed to apply to 4.4-stable tree
+Message-ID: <20201210093529.1bd8905c@gandalf.local.home>
+In-Reply-To: <X9IZWcMVpAyBfTFQ@kroah.com>
+References: <16075030712612@kroah.com>
+        <20201209121938.50430114@gandalf.local.home>
+        <X9IZWcMVpAyBfTFQ@kroah.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+On Thu, 10 Dec 2020 13:49:29 +0100
+Greg KH <gregkh@linuxfoundation.org> wrote:
 
-commit e9acf0298c664f825e6f1158f2a97341bf9e03ca upstream.
+> On Wed, Dec 09, 2020 at 12:19:38PM -0500, Steven Rostedt wrote:
+> > 
+> > This should be the fix for 4.4.  
+> 
+> All now queued up, thanks for the backports.
 
-Fix to return the error code from qup_i2c_change_state()
-instaed of 0 in qup_i2c_bam_schedule_desc().
+My pleasure. This particular fix was needed for a tool I'm writing, and I'm
+hoping it gets pulled into all the distro kernels as well.
 
-Fixes: fbf9921f8b35d9b2 ("i2c: qup: Fix error handling")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/i2c/busses/i2c-qup.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -801,7 +801,8 @@ static int qup_i2c_bam_schedule_desc(str
- 	if (ret || qup->bus_err || qup->qup_err) {
- 		reinit_completion(&qup->xfer);
- 
--		if (qup_i2c_change_state(qup, QUP_RUN_STATE)) {
-+		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
-+		if (ret) {
- 			dev_err(qup->dev, "change to run state timed out");
- 			goto desc_err;
- 		}
-
-
+-- Steve
