@@ -2,27 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4C42D65A6
-	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437842D6522
+	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 19:35:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390539AbgLJS43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 13:56:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39018 "EHLO mail.kernel.org"
+        id S2393092AbgLJSeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 13:34:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390284AbgLJObf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:31:35 -0500
+        id S2390744AbgLJOdd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Dec 2020 09:33:33 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 23/31] spi: Introduce device-managed SPI controller allocation
-Date:   Thu, 10 Dec 2020 15:27:00 +0100
-Message-Id: <20201210142603.256629888@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 22/39] mm: list_lru: set shrinker map bit when child nr_items is not zero
+Date:   Thu, 10 Dec 2020 15:27:01 +0100
+Message-Id: <20201210142603.366919073@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201210142602.099683598@linuxfoundation.org>
-References: <20201210142602.099683598@linuxfoundation.org>
+In-Reply-To: <20201210142602.272595094@linuxfoundation.org>
+References: <20201210142602.272595094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,167 +36,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit 5e844cc37a5cbaa460e68f9a989d321d63088a89 ]
+commit 8199be001a470209f5c938570cc199abb012fe53 upstream.
 
-SPI driver probing currently comprises two steps, whereas removal
-comprises only one step:
+When investigating a slab cache bloat problem, significant amount of
+negative dentry cache was seen, but confusingly they neither got shrunk
+by reclaimer (the host has very tight memory) nor be shrunk by dropping
+cache.  The vmcore shows there are over 14M negative dentry objects on
+lru, but tracing result shows they were even not scanned at all.
 
-    spi_alloc_master()
-    spi_register_controller()
+Further investigation shows the memcg's vfs shrinker_map bit is not set.
+So the reclaimer or dropping cache just skip calling vfs shrinker.  So
+we have to reboot the hosts to get the memory back.
 
-    spi_unregister_controller()
+I didn't manage to come up with a reproducer in test environment, and
+the problem can't be reproduced after rebooting.  But it seems there is
+race between shrinker map bit clear and reparenting by code inspection.
+The hypothesis is elaborated as below.
 
-That's because spi_unregister_controller() calls device_unregister()
-instead of device_del(), thereby releasing the reference on the
-spi_controller which was obtained by spi_alloc_master().
+The memcg hierarchy on our production environment looks like:
 
-An SPI driver's private data is contained in the same memory allocation
-as the spi_controller struct.  Thus, once spi_unregister_controller()
-has been called, the private data is inaccessible.  But some drivers
-need to access it after spi_unregister_controller() to perform further
-teardown steps.
+                root
+               /    \
+          system   user
 
-Introduce devm_spi_alloc_master() and devm_spi_alloc_slave(), which
-release a reference on the spi_controller struct only after the driver
-has unbound, thereby keeping the memory allocation accessible.  Change
-spi_unregister_controller() to not release a reference if the
-spi_controller was allocated by one of these new devm functions.
+The main workloads are running under user slice's children, and it
+creates and removes memcg frequently.  So reparenting happens very often
+under user slice, but no task is under user slice directly.
 
-The present commit is small enough to be backportable to stable.
-It allows fixing drivers which use the private data in their ->remove()
-hook after it's been freed.  It also allows fixing drivers which neglect
-to release a reference on the spi_controller in the probe error path.
+So with the frequent reparenting and tight memory pressure, the below
+hypothetical race condition may happen:
 
-Long-term, most SPI drivers shall be moved over to the devm functions
-introduced herein.  The few that can't shall be changed in a treewide
-commit to explicitly release the last reference on the controller.
-That commit shall amend spi_unregister_controller() to no longer release
-a reference, thereby completing the migration.
+       CPU A                            CPU B
+reparent
+    dst->nr_items == 0
+                                 shrinker:
+                                     total_objects == 0
+    add src->nr_items to dst
+    set_bit
+                                     return SHRINK_EMPTY
+                                     clear_bit
+child memcg offline
+    replace child's kmemcg_id with
+    parent's (in memcg_offline_kmem())
+                                  list_lru_del() between shrinker runs
+                                     see parent's kmemcg_id
+                                     dec dst->nr_items
+reparent again
+    dst->nr_items may go negative
+    due to concurrent list_lru_del()
 
-As a result, the behaviour will be less surprising and more consistent
-with subsystems such as IIO, which also includes the private data in the
-allocation of the generic iio_dev struct, but calls device_del() in
-iio_device_unregister().
+                                 The second run of shrinker:
+                                     read nr_items without any
+                                     synchronization, so it may
+                                     see intermediate negative
+                                     nr_items then total_objects
+                                     may return 0 coincidently
 
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/272bae2ef08abd21388c98e23729886663d19192.1605121038.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+                                     keep the bit cleared
+    dst->nr_items != 0
+    skip set_bit
+    add scr->nr_item to dst
+
+After this point dst->nr_item may never go zero, so reparenting will not
+set shrinker_map bit anymore.  And since there is no task under user
+slice directly, so no new object will be added to its lru to set the
+shrinker map bit either.  That bit is kept cleared forever.
+
+How does list_lru_del() race with reparenting? It is because reparenting
+replaces children's kmemcg_id to parent's without protecting from
+nlru->lock, so list_lru_del() may see parent's kmemcg_id but actually
+deleting items from child's lru, but dec'ing parent's nr_items, so the
+parent's nr_items may go negative as commit 2788cf0c401c ("memcg:
+reparent list_lrus and free kmemcg_id on css offline") says.
+
+Since it is impossible that dst->nr_items goes negative and
+src->nr_items goes zero at the same time, so it seems we could set the
+shrinker map bit iff src->nr_items != 0.  We could synchronize
+list_lru_count_one() and reparenting with nlru->lock, but it seems
+checking src->nr_items in reparenting is the simplest and avoids lock
+contention.
+
+Fixes: fae91d6d8be5 ("mm/list_lru.c: set bit in memcg shrinker bitmap on first list_lru item appearance")
+Suggested-by: Roman Gushchin <guro@fb.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>	[4.19]
+Link: https://lkml.kernel.org/r/20201202171749.264354-1-shy828301@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi.c       |   58 +++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/spi/spi.h |   19 +++++++++++++++
- 2 files changed, 76 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2043,6 +2043,49 @@ struct spi_controller *__spi_alloc_contr
- }
- EXPORT_SYMBOL_GPL(__spi_alloc_controller);
+---
+ mm/list_lru.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+--- a/mm/list_lru.c
++++ b/mm/list_lru.c
+@@ -542,7 +542,6 @@ static void memcg_drain_list_lru_node(st
+ 	struct list_lru_node *nlru = &lru->node[nid];
+ 	int dst_idx = dst_memcg->kmemcg_id;
+ 	struct list_lru_one *src, *dst;
+-	bool set;
  
-+static void devm_spi_release_controller(struct device *dev, void *ctlr)
-+{
-+	spi_controller_put(*(struct spi_controller **)ctlr);
-+}
+ 	/*
+ 	 * Since list_lru_{add,del} may be called under an IRQ-safe lock,
+@@ -554,11 +553,12 @@ static void memcg_drain_list_lru_node(st
+ 	dst = list_lru_from_memcg_idx(nlru, dst_idx);
+ 
+ 	list_splice_init(&src->list, &dst->list);
+-	set = (!dst->nr_items && src->nr_items);
+-	dst->nr_items += src->nr_items;
+-	if (set)
 +
-+/**
-+ * __devm_spi_alloc_controller - resource-managed __spi_alloc_controller()
-+ * @dev: physical device of SPI controller
-+ * @size: how much zeroed driver-private data to allocate
-+ * @slave: whether to allocate an SPI master (false) or SPI slave (true)
-+ * Context: can sleep
-+ *
-+ * Allocate an SPI controller and automatically release a reference on it
-+ * when @dev is unbound from its driver.  Drivers are thus relieved from
-+ * having to call spi_controller_put().
-+ *
-+ * The arguments to this function are identical to __spi_alloc_controller().
-+ *
-+ * Return: the SPI controller structure on success, else NULL.
-+ */
-+struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
-+						   unsigned int size,
-+						   bool slave)
-+{
-+	struct spi_controller **ptr, *ctlr;
-+
-+	ptr = devres_alloc(devm_spi_release_controller, sizeof(*ptr),
-+			   GFP_KERNEL);
-+	if (!ptr)
-+		return NULL;
-+
-+	ctlr = __spi_alloc_controller(dev, size, slave);
-+	if (ctlr) {
-+		*ptr = ctlr;
-+		devres_add(dev, ptr);
-+	} else {
-+		devres_free(ptr);
++	if (src->nr_items) {
++		dst->nr_items += src->nr_items;
+ 		memcg_set_shrinker_bit(dst_memcg, nid, lru_shrinker_id(lru));
+-	src->nr_items = 0;
++		src->nr_items = 0;
 +	}
-+
-+	return ctlr;
-+}
-+EXPORT_SYMBOL_GPL(__devm_spi_alloc_controller);
-+
- #ifdef CONFIG_OF
- static int of_spi_register_master(struct spi_controller *ctlr)
- {
-@@ -2261,6 +2304,11 @@ int devm_spi_register_controller(struct
+ 
+ 	spin_unlock_irq(&nlru->lock);
  }
- EXPORT_SYMBOL_GPL(devm_spi_register_controller);
- 
-+static int devm_spi_match_controller(struct device *dev, void *res, void *ctlr)
-+{
-+	return *(struct spi_controller **)res == ctlr;
-+}
-+
- static int __unregister(struct device *dev, void *null)
- {
- 	spi_unregister_device(to_spi_device(dev));
-@@ -2300,7 +2348,15 @@ void spi_unregister_controller(struct sp
- 	list_del(&ctlr->list);
- 	mutex_unlock(&board_lock);
- 
--	device_unregister(&ctlr->dev);
-+	device_del(&ctlr->dev);
-+
-+	/* Release the last reference on the controller if its driver
-+	 * has not yet been converted to devm_spi_alloc_master/slave().
-+	 */
-+	if (!devres_find(ctlr->dev.parent, devm_spi_release_controller,
-+			 devm_spi_match_controller, ctlr))
-+		put_device(&ctlr->dev);
-+
- 	/* free bus id */
- 	mutex_lock(&board_lock);
- 	if (found == ctlr)
---- a/include/linux/spi/spi.h
-+++ b/include/linux/spi/spi.h
-@@ -638,6 +638,25 @@ static inline struct spi_controller *spi
- 	return __spi_alloc_controller(host, size, true);
- }
- 
-+struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
-+						   unsigned int size,
-+						   bool slave);
-+
-+static inline struct spi_controller *devm_spi_alloc_master(struct device *dev,
-+							   unsigned int size)
-+{
-+	return __devm_spi_alloc_controller(dev, size, false);
-+}
-+
-+static inline struct spi_controller *devm_spi_alloc_slave(struct device *dev,
-+							  unsigned int size)
-+{
-+	if (!IS_ENABLED(CONFIG_SPI_SLAVE))
-+		return NULL;
-+
-+	return __devm_spi_alloc_controller(dev, size, true);
-+}
-+
- extern int spi_register_controller(struct spi_controller *ctlr);
- extern int devm_spi_register_controller(struct device *dev,
- 					struct spi_controller *ctlr);
 
 
