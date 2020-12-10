@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CED2D69B0
+	by mail.lfdr.de (Postfix) with ESMTP id A33A52D69B1
 	for <lists+stable@lfdr.de>; Thu, 10 Dec 2020 22:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394023AbgLJVYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 16:24:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40636 "EHLO
+        id S2394025AbgLJVYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 16:24:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394028AbgLJVYG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 16:24:06 -0500
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76C4C0613D6
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:26 -0800 (PST)
-Received: by mail-pf1-x442.google.com with SMTP id 11so5348571pfu.4
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:26 -0800 (PST)
+        with ESMTP id S2390277AbgLJVYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 16:24:24 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F80C061793
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:44 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id c12so5335530pfo.10
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 13:23:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:cc;
-        bh=6FBEBqC9O9xCIGCxCBvAdo9hn7EHmsB+dt3e8j6643g=;
-        b=jF1hXSGSHVgZg+YJC2KFshhFf/ZN7/NoKkPBz9D9Zlui3n2GoMics8NyJO8gpJFrFQ
-         4e0Sc5VXRlLhf/08sVGoWiAZ8RgqUSltJOOKBQt3m4RNsJEJ8FGrRTYWZoPkfuQ3/4VQ
-         8047hFWwNmi7ugQn7VV73PtUyXNffvlJo1teY+dj7G/qoV4e2Bxz8KEZPEgE8vaJscVh
-         1jlbEIKhFo84e2isSUeP8Da5k038FXyfvc9nx8382wQ6AB2+WlK4r+KwJBiiVpLgZATk
-         r3EKLYn+NYn7tr80pvoQlgbxDfYkv2/xcCV4VR0EKAWwDzJWGWg2EqKBMg8ys5DZs0tj
-         9NTQ==
+        bh=N8l4WOGf0AE290AqR90NHKz2nZ7//k75F9W9fLOfN6M=;
+        b=qxjx02I3QhS8KruRibVH7Jn5mKd7eeoQrOpe+VBIixgZBeS4hUZJq3Yo7npqB03l6E
+         Uuq+0QhUW8pVv3Q4gUbdXDyF85EwDRb6LnCJ9e4Kp1NsXfgIExnRO5KGhwbsX6Zz8bWL
+         5XMFfm2yPU08STApk9VY8lZ36bSm6teRdUeDt8koAaYf7gGN0edRLk+gyHEmgXRfEtf0
+         vO0hbwz0XisUYo9dckbecMyTZZqq8bSvBKpMmyU2AHNMCMvmJE7xYbZlwLhWwyIoFq2x
+         m9Mn0QpEketfalZcVTcj/VENaFjS94HZKxALoo1B0W2VtbumT8iXijGaXPQy/YP85Jb4
+         zmBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:cc;
-        bh=6FBEBqC9O9xCIGCxCBvAdo9hn7EHmsB+dt3e8j6643g=;
-        b=o1F9V+2VBgYi6qQv9+mQpq8H19AUIMAfJn0h1hVsboLOA3pYPQbSCkFjxA7hfuoFCX
-         DHZ1Cp3nKzKU8mgLIcq/UmGniqhr0KOJpcnalO7q2ilUkEgCBZTly/3+gkCNb2sSvkbA
-         um0b9i99EQPWqKuuiZlPlWmhQmYQOHDU3iYMJq72VeleNeMG+Yy54m8rhQYnr/LYJole
-         HbgvK0qmtacQtKBgwvUoXc0P0q5R5eccrZjjqj86X/mKs82ZTiwoMHJClfilFMJv1OIs
-         wCYsymnCVGAQLXpAPDqmm6jQrPb8xYpfwIIaxuROF2QqYK8Jg6Ez5rD+gHo/UF7n6xm+
-         XZdA==
-X-Gm-Message-State: AOAM5325dSrqHWoL7GByySQdLtXh4FsgtUmKL6MoZ7B/WrSOLpF1yhJ4
-        KsklYQvEYZ1kE9ttnMieH6tX/LRu8BNA7rHoph1y3g==
-X-Received: by 2002:a17:90b:1957:: with SMTP id nk23mt2904168pjb.32.1607635406232;
- Thu, 10 Dec 2020 13:23:26 -0800 (PST)
+        bh=N8l4WOGf0AE290AqR90NHKz2nZ7//k75F9W9fLOfN6M=;
+        b=Zv7VR9AAXS4FhtHJPh5yPnLyjZq363hVX7IzWMuIGq2grEzJZ99yrOYsKX4Fj2kjNM
+         mwpTFatKsymSnKIrXivWwBuBvAUlQJyCEDHFSn3wcbZ1B7WgjkpDfxIdA7lZXN/I9oRy
+         b6PfOVzMkm2yHTNpiFcA/9PvkvZKHFtGGKDQVrZ1lZ8mN5C0C/2zkSGMNjZUzka+o+Mr
+         01CyRvXNIy1YYYycXN2NUR+Qugl+2oZkhEzBYDa5HzvKX6P7OY+LY/mv9MjoFHOhHwja
+         LuXGkjhE2p9gWFxE2/KILz9JHJaUzASpBxs51ADQi7eeAiPxxv72gDPvEkZ/bxS4qvEC
+         qiEw==
+X-Gm-Message-State: AOAM531ni96l+5O3cA73TgKwB5V/KRlfTYiiBaHq3HFILEuiroobS33Y
+        GGJLvMxYkV1h1PMzVTaS9wwPvEj3gTJuF2gapv2J301o5w5rLQ==
+X-Received: by 2002:a63:2242:: with SMTP id t2mt7765130pgm.428.1607635422943;
+ Thu, 10 Dec 2020 13:23:42 -0800 (PST)
 MIME-Version: 1.0
-References: <160750466017491@kroah.com>
-In-Reply-To: <160750466017491@kroah.com>
+References: <160750466162135@kroah.com>
+In-Reply-To: <160750466162135@kroah.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 10 Dec 2020 13:23:14 -0800
-Message-ID: <CAKwvOdn+zxenbh4UVosr=yO6U9Bhwd7CiVGZq9WaE5cXZ7WWTg@mail.gmail.com>
+Date:   Thu, 10 Dec 2020 13:23:31 -0800
+Message-ID: <CAKwvOdmemyowq_o39hiDL0-f++n0CFyyPshFT0hemOE42uZs9A@mail.gmail.com>
 Subject: Re: FAILED: patch "[PATCH] Kbuild: do not emit debug info for
- assembly with LLVM_IAS=1" failed to apply to 5.9-stable tree
+ assembly with LLVM_IAS=1" failed to apply to 5.4-stable tree
 Cc:     Dmitry Golovin <dima@golovin.in>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Fangrui Song <maskray@google.com>,
@@ -65,7 +65,7 @@ X-Mailing-List: stable@vger.kernel.org
 On Wed, Dec 9, 2020 at 1:03 AM <gregkh@linuxfoundation.org> wrote:
 >
 >
-> The patch below does not apply to the 5.9-stable tree.
+> The patch below does not apply to the 5.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
