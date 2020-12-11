@@ -2,76 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86AFE2D7897
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 16:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D442D78C0
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 16:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436918AbgLKPA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 10:00:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58332 "EHLO mail.kernel.org"
+        id S2403999AbgLKPFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 10:05:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406445AbgLKO7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Dec 2020 09:59:36 -0500
-Date:   Fri, 11 Dec 2020 15:23:39 +0100
+        id S2437579AbgLKPE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Dec 2020 10:04:27 -0500
+Date:   Fri, 11 Dec 2020 15:25:23 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607696551;
-        bh=iYTNuqr7BxsqNih90HgmmoD1eN6twbxAv/TFeWrlry4=;
+        s=korg; t=1607696660;
+        bh=bATZlkCI1CVLo8rB+Thvi7fBSnI1Y8jz0vLE9ryx04Y=;
         h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wM3zXNCet9abuHqGKLYsRmdlcispTx23/oCgpTlM7sqvoEdouleS5yDxEXf/GR7b2
-         Jd1b7vpPm6RhONbZABJP+OqNXGx6lI14VJmLiKO9VVQS9FV/gJ5zn/SNKXfehkn/Y8
-         PnOJ+ZB8KliowOGrSuwYlQ+g9wvnQ3UtieWBSvkg=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.9 00/75] 5.9.14-rc1 review
-Message-ID: <X9OA63ldYHLqqOIY@kroah.com>
-References: <20201210142606.074509102@linuxfoundation.org>
- <11690fcb20d24c01825bddeb0676b471@HQMAIL107.nvidia.com>
+        b=Zq53PehbLTN7Ur51LZg5ouH4Y3Kiu/jC7OtJHCmg+dQg4riBBsLXMHwqfBk9J8t7j
+         7WxDq3wo3b8Anh3IdAOBj1MlqeYGBOw3UoCGKZw7bRkeagSFPWUZ3FzCVaCywVQbhk
+         huYrQGpFHY3i70C3mAfuIzGQtz53ieZFNM4niIaI=
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
+        Dmitry Golovin <dima@golovin.in>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Jian Cai <jiancai@google.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Luis Lozano <llozano@google.com>
+Subject: Re: 5.4 and 4.19 warning fix for LLVM_IAS
+Message-ID: <X9OBU+Ey8xlrFv2F@kroah.com>
+References: <CAKwvOdnGDHn+Y+g5AsKvOFiuF7iVAJ8+x53SgWxH9ejqEZwY9w@mail.gmail.com>
+ <X9CuL4Kdl1dw2gws@kroah.com>
+ <CAKwvOdkN85dnAEUCvjULh8-gojwmK-e4-aVhNbO0RdyXsO_H2w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11690fcb20d24c01825bddeb0676b471@HQMAIL107.nvidia.com>
+In-Reply-To: <CAKwvOdkN85dnAEUCvjULh8-gojwmK-e4-aVhNbO0RdyXsO_H2w@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 09:04:52PM +0000, Jon Hunter wrote:
-> On Thu, 10 Dec 2020 15:26:25 +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.9.14 release.
-> > There are 75 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 12 Dec 2020 14:25:47 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.14-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Thu, Dec 10, 2020 at 01:21:00PM -0800, Nick Desaulniers wrote:
+> On Wed, Dec 9, 2020 at 2:58 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Dec 08, 2020 at 04:43:34PM -0800, Nick Desaulniers wrote:
+> > > Dear stable kernel maintainers,
+> > > (Woah, two in one day; have I exceeded my limit?)
+> > >
+> > > Please consider the attached patch for 5.4 and 4.19 for commit
+> > > b8a9092330da ("Kbuild: do not emit debug info for assembly with
+> > > LLVM_IAS=1"), which fixes a significant number of warnings under arch/
+> > > when assembling a kernel with Clang.
+> >
+> > I also need a version of this for 5.9.y before we can take this for
+> > older kernels.  Can you provide that as well?
 > 
-> All tests passing for Tegra ...
-> 
-> Test results for stable-v5.9:
->     15 builds:	15 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     64 tests:	64 pass, 0 fail
-> 
-> Linux version:	5.9.14-rc1-g81beabff31a7
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> Yes, apologies.  It's similar to the 5.4.y patch, but with a shorter
+> set of conflicts as noted in the commit message.  Attached.
+> -- 
+> Thanks,
+> ~Nick Desaulniers
 
-Thanks for testing them all!
+thanks, all now applied.
 
 greg k-h
