@@ -2,68 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D442D78C0
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 16:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC3592D789A
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 16:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403999AbgLKPFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 10:05:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33842 "EHLO mail.kernel.org"
+        id S2436890AbgLKPA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 10:00:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437579AbgLKPE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Dec 2020 10:04:27 -0500
-Date:   Fri, 11 Dec 2020 15:25:23 +0100
+        id S2436864AbgLKPAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Dec 2020 10:00:22 -0500
+Date:   Fri, 11 Dec 2020 15:41:26 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607696660;
-        bh=bATZlkCI1CVLo8rB+Thvi7fBSnI1Y8jz0vLE9ryx04Y=;
+        s=korg; t=1607697619;
+        bh=YZWjG44tGHvKO4V9UjSaMioY/KvLVesdB8kNjXXecx4=;
         h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Zq53PehbLTN7Ur51LZg5ouH4Y3Kiu/jC7OtJHCmg+dQg4riBBsLXMHwqfBk9J8t7j
-         7WxDq3wo3b8Anh3IdAOBj1MlqeYGBOw3UoCGKZw7bRkeagSFPWUZ3FzCVaCywVQbhk
-         huYrQGpFHY3i70C3mAfuIzGQtz53ieZFNM4niIaI=
+        b=E9cc2Uo11xdOwB6RLHYaLVlzlGN8GX2k23GEaoZYi/b4qJdisv6fRzOCBOO6hTDvX
+         +OXUTOhSzRoqb1GYB4OrQiUAWiKnTO1nMkA9yxGZc17uInGzuUbvsABDLswWLuFVTf
+         AmnIlg/T0RIjwAHkM5ozy1vOfJ4OIKwM4tVv0h80=
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
-        Dmitry Golovin <dima@golovin.in>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
+Cc:     Jiri Slaby <jirislaby@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        stable <stable@vger.kernel.org>, Jian Cai <jiancai@google.com>,
         Fangrui Song <maskray@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Jian Cai <jiancai@google.com>,
-        Manoj Gupta <manojgupta@google.com>,
-        Luis Lozano <llozano@google.com>
-Subject: Re: 5.4 and 4.19 warning fix for LLVM_IAS
-Message-ID: <X9OBU+Ey8xlrFv2F@kroah.com>
-References: <CAKwvOdnGDHn+Y+g5AsKvOFiuF7iVAJ8+x53SgWxH9ejqEZwY9w@mail.gmail.com>
- <X9CuL4Kdl1dw2gws@kroah.com>
- <CAKwvOdkN85dnAEUCvjULh8-gojwmK-e4-aVhNbO0RdyXsO_H2w@mail.gmail.com>
+        Sami Tolvanen <samitolvanen@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: Re: 5.4 and 4.19 fix for LLVM_IAS/clang-12
+Message-ID: <X9OFFjzAQQVN+qgm@kroah.com>
+References: <CAKwvOdkK1LgLC4ChptzUTC45WvE9-Sn0OqtgF7-odNSw8xLTYA@mail.gmail.com>
+ <a3b89f95-2635-ff9d-4248-4e5e3065ff85@kernel.org>
+ <e9695da9-8b83-39a5-8781-47ae4c7d2e51@kernel.org>
+ <CAKwvOdnUe3_fVCoxx2=bF=E8vsuOJMoZHzCfB0ES1dPU7q_PDw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKwvOdkN85dnAEUCvjULh8-gojwmK-e4-aVhNbO0RdyXsO_H2w@mail.gmail.com>
+In-Reply-To: <CAKwvOdnUe3_fVCoxx2=bF=E8vsuOJMoZHzCfB0ES1dPU7q_PDw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 01:21:00PM -0800, Nick Desaulniers wrote:
-> On Wed, Dec 9, 2020 at 2:58 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Thu, Dec 10, 2020 at 01:15:29PM -0800, Nick Desaulniers wrote:
+> On Tue, Dec 8, 2020 at 11:21 PM Jiri Slaby <jirislaby@kernel.org> wrote:
 > >
-> > On Tue, Dec 08, 2020 at 04:43:34PM -0800, Nick Desaulniers wrote:
-> > > Dear stable kernel maintainers,
-> > > (Woah, two in one day; have I exceeded my limit?)
-> > >
-> > > Please consider the attached patch for 5.4 and 4.19 for commit
-> > > b8a9092330da ("Kbuild: do not emit debug info for assembly with
-> > > LLVM_IAS=1"), which fixes a significant number of warnings under arch/
-> > > when assembling a kernel with Clang.
-> >
-> > I also need a version of this for 5.9.y before we can take this for
-> > older kernels.  Can you provide that as well?
+> > On 09. 12. 20, 8:20, Jiri Slaby wrote:
+> > > On 09. 12. 20, 1:12, Nick Desaulniers wrote:
+> > >> Dear stable kernel maintainers,
+> > >> Please consider accepting the following backport to 5.4 and 4.19 of
+> > >> commit 4d6ffa27b8e5 ("x86/lib: Change .weak to SYM_FUNC_START_WEAK for
+> > >> arch/x86/lib/mem*_64.S"), attached.
 > 
-> Yes, apologies.  It's similar to the 5.4.y patch, but with a shorter
-> set of conflicts as noted in the commit message.  Attached.
-> -- 
-> Thanks,
-> ~Nick Desaulniers
+> Also, first landed in v5.10-rc3. Exists in v5.9.7 as
+> 305da744c138487864a46b2fb0bd7cf54e1e03b4.
+> 
+> > >>
+> > >> The patch to 5.4 had a conflict due to 5.4 missing upstream commit
+> > >> e9b9d020c487 ("x86/asm: Annotate aliases") which first landed in
+> > >> v5.5-rc1.
+> > >>
+> > >> The patch to 4.19 had a conflict due to 4.19 missing the above commit
+> > >> and ffedeeb780dc ("linkage: Introduce new macros for assembler
+> > >> symbols") which also first landed in v5.5-rc1 but was backported to
+> > >> linux-5.4.y as commit 840d8c9b3e5f ("linkage: Introduce new macros for
+> > >> assembler symbols") which shipped in v5.4.76.
+> > >>
+> > >> This patch fixes a build error from clang's assembler when building
+> > >> with Clang-12, which now errors when symbols are redeclared with
+> > >> different bindings.  We're using clang's assembler in Android and
+> > >> ChromeOS for 4.19+.
+> > >>
+> > >> Jiri, would you mind reviewing the 4.19 patch (or both)?  It simply
+> > >> open codes what the upstream macros would expand to; this can be and
+> > >> was observed from running:
+> > >
+> > > You don't have to touch (expand) __memcpy, __memmove, and __memset, right?
+> 
+> Sure, attached a v2.  It's actually a little cleaner (smaller
+> diffstat) that way.
 
-thanks, all now applied.
+Applied, thanks.
 
 greg k-h
