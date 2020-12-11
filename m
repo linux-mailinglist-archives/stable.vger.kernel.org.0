@@ -2,272 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8AA2D8284
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 00:00:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6892D82BA
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 00:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436989AbgLKW6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 17:58:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38384 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2436984AbgLKW6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 17:58:11 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D902C0613D3
-        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 14:57:25 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id 11so7906687pfu.4
-        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 14:57:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=j/bJNFUWxVv+t/QZ2/Fezq9IbHQphw0A9NrmjuCZ6ik=;
-        b=0sEQ2FWYXSUvx1ZcKF3W+cuWhebn77nn08Js60dTGOE7kQSQVwpJ6apYPzayp3NhDz
-         RTexhimMTl7Af43Ds3VJ/lcd0h2UzO6Vj2Y0+2LaE9FsTc+rSDS3P0JqOJkXPjPDCWNO
-         ODjsqo57mSWHuGPrzEWUzNYnCw5xjb1IwKK96wvUZIXbd8hTcVoLEuYznMyNcNQoUP2N
-         Z1r8xPpr41QGgCtJ4btZkHEtE7rL3InQn8bAnNbL08hDzucEQb05+fUIhpjh9SMBfgE2
-         lEUXQ+oUixf5Ra6QCi4xHpO8QsHM0DfuW57h6QTS6AoBWO4qRQznStfGEx6dlsFNQNu0
-         E5lA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=j/bJNFUWxVv+t/QZ2/Fezq9IbHQphw0A9NrmjuCZ6ik=;
-        b=C09KKz0pfZ7Lxvc1UfCOeiPO+qB0IKAPRvk4ei3f+nXX7X17HoaHAxUx1EIjhfEVde
-         Tco6E0COQoMT9rExqp5JGeg0zbYEYmjDthQnLjWhCpKd/c1AfXNo18h6mHVLQanpezA6
-         hV7Vinspr1hyyp5b/aIiPSVxwf4vNeAzqoeaF2AGHxPaae9ukoQQWMGaJJ98zPc/Zamp
-         t1d1s9q7bR4WWARtd4Bp4DBODD5ronf7hceX0WkqiZlIpGBGxvw9XbGoI2ByEvsArOj1
-         w1EUx+6T0t5Rbug9yL2OstbNTsKXFRWwgIzW1vr6XZWmRNezUfT7TWKN7pUcL+Rw+JQu
-         Hyug==
-X-Gm-Message-State: AOAM531U7IAmhgCAMLuvAZJJkh9x5Cgk7gVF5dgehpEAzgX/wZaWWAU0
-        7QJvSZBkMeSbkAz+2oQjEBpMc8AMoXD+Eg==
-X-Google-Smtp-Source: ABdhPJzU1j3lnEoKDp4wM+7BWjjBpGxJcz6eOTElF/+spjQjJh4s/KOsM0C4yKRFZ81WRC5vM6orGg==
-X-Received: by 2002:a63:fb42:: with SMTP id w2mr14001967pgj.354.1607727444899;
-        Fri, 11 Dec 2020 14:57:24 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h11sm11737270pjg.46.2020.12.11.14.57.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Dec 2020 14:57:24 -0800 (PST)
-Message-ID: <5fd3f954.1c69fb81.15cb0.611e@mx.google.com>
-Date:   Fri, 11 Dec 2020 14:57:24 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S2407158AbgLKX33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 18:29:29 -0500
+Received: from aposti.net ([89.234.176.197]:56376 "EHLO aposti.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2407132AbgLKX3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Dec 2020 18:29:18 -0500
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Zhou Yanjie <zhouyanjie@zoho.com>, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] pinctrl: ingenic: Fix JZ4760 support
+Date:   Fri, 11 Dec 2020 23:28:09 +0000
+Message-Id: <20201211232810.261565-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.83-2-gdd7d43e86851
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 149 runs,
- 5 regressions (v5.4.83-2-gdd7d43e86851)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 149 runs, 5 regressions (v5.4.83-2-gdd7d43e86=
-851)
+- JZ4760 and JZ4760B have a similar register layout as the JZ4740, and
+  don't use the new register layout, which was introduced with the
+  JZ4770 SoC and not the JZ4760 or JZ4760B SoCs.
 
-Regressions Summary
--------------------
+- The JZ4740 code path only expected two function modes to be
+  configurable for each pin, and wouldn't work with more than two. Fix
+  it for the JZ4760, which has four configurable function modes.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+Fixes: 0257595a5cf4 ("pinctrl: Ingenic: Add pinctrl driver for JZ4760 and JZ4760B.")
+Cc: <stable@vger.kernel.org> # 5.3
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ drivers/pinctrl/pinctrl-ingenic.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+index 11f1bc90632d..a7804feb58c7 100644
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -1689,7 +1689,7 @@ static inline bool ingenic_gpio_get_value(struct ingenic_gpio_chip *jzgc,
+ static void ingenic_gpio_set_value(struct ingenic_gpio_chip *jzgc,
+ 				   u8 offset, int value)
+ {
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_PAT0, offset, !!value);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, offset, !!value);
+@@ -1719,7 +1719,7 @@ static void irq_set_type(struct ingenic_gpio_chip *jzgc,
+ 		break;
+ 	}
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760) {
++	if (jzgc->jzpc->info->version >= ID_JZ4770) {
+ 		reg1 = JZ4760_GPIO_PAT1;
+ 		reg2 = JZ4760_GPIO_PAT0;
+ 	} else {
+@@ -1759,7 +1759,7 @@ static void ingenic_gpio_irq_enable(struct irq_data *irqd)
+ 	struct ingenic_gpio_chip *jzgc = gpiochip_get_data(gc);
+ 	int irq = irqd->hwirq;
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, true);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, true);
+@@ -1775,7 +1775,7 @@ static void ingenic_gpio_irq_disable(struct irq_data *irqd)
+ 
+ 	ingenic_gpio_irq_mask(irqd);
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_INT, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_SELECT, irq, false);
+@@ -1800,7 +1800,7 @@ static void ingenic_gpio_irq_ack(struct irq_data *irqd)
+ 			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
+ 	}
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		ingenic_gpio_set_bit(jzgc, JZ4760_GPIO_FLAG, irq, false);
+ 	else
+ 		ingenic_gpio_set_bit(jzgc, JZ4740_GPIO_DATA, irq, true);
+@@ -1857,7 +1857,7 @@ static void ingenic_gpio_irq_handler(struct irq_desc *desc)
+ 
+ 	chained_irq_enter(irq_chip, desc);
+ 
+-	if (jzgc->jzpc->info->version >= ID_JZ4760)
++	if (jzgc->jzpc->info->version >= ID_JZ4770)
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4760_GPIO_FLAG);
+ 	else
+ 		flag = ingenic_gpio_read_reg(jzgc, JZ4740_GPIO_FLAG);
+@@ -1939,7 +1939,7 @@ static int ingenic_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
+ 	struct ingenic_pinctrl *jzpc = jzgc->jzpc;
+ 	unsigned int pin = gc->base + offset;
+ 
+-	if (jzpc->info->version >= ID_JZ4760) {
++	if (jzpc->info->version >= ID_JZ4770) {
+ 		if (ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_INT) ||
+ 		    ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PAT1))
+ 			return GPIO_LINE_DIRECTION_IN;
+@@ -1997,7 +1997,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, func & 0x1);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, false);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, func & 0x2);
+@@ -2005,7 +2005,7 @@ static int ingenic_pinmux_set_pin_fn(struct ingenic_pinctrl *jzpc,
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_FUNC, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_TRIG, func & 0x2);
+-		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func > 0);
++		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_SELECT, func & 0x1);
+ 	}
+ 
+ 	return 0;
+@@ -2062,7 +2062,7 @@ static int ingenic_pinmux_gpio_set_direction(struct pinctrl_dev *pctldev,
+ 		ingenic_shadow_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_shadow_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+ 		ingenic_shadow_config_pin_load(jzpc, pin);
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_INT, false);
+ 		ingenic_config_pin(jzpc, pin, GPIO_MSK, true);
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT1, input);
+@@ -2092,7 +2092,7 @@ static int ingenic_pinconf_get(struct pinctrl_dev *pctldev,
+ 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
+ 	bool pull;
+ 
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4760_GPIO_PEN);
+ 	else
+ 		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
+@@ -2142,7 +2142,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ 					REG_SET(X1830_GPIO_PEH), bias << idxh);
+ 		}
+ 
+-	} else if (jzpc->info->version >= ID_JZ4760) {
++	} else if (jzpc->info->version >= ID_JZ4770) {
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PEN, !bias);
+ 	} else {
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_PULL_DIS, !bias);
+@@ -2152,7 +2152,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ static void ingenic_set_output_level(struct ingenic_pinctrl *jzpc,
+ 				     unsigned int pin, bool high)
+ {
+-	if (jzpc->info->version >= ID_JZ4760)
++	if (jzpc->info->version >= ID_JZ4770)
+ 		ingenic_config_pin(jzpc, pin, JZ4760_GPIO_PAT0, high);
+ 	else
+ 		ingenic_config_pin(jzpc, pin, JZ4740_GPIO_DATA, high);
+-- 
+2.29.2
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.83-2-gdd7d43e86851/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.83-2-gdd7d43e86851
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dd7d43e868516795f14e987a90375da8a139e05c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd3c49aaafeb1b488c94ccb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd3c49aaafeb1b488c94=
-ccc
-        failing since 21 days (last pass: v5.4.78-5-g843222460ebea, first f=
-ail: v5.4.78-13-g81acf0f7c6ec) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd3c53e6f150e698dc94cdc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd3c53e6f150e698dc94=
-cdd
-        failing since 28 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd3cba40ed8bf7953c94ce6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd3cba40ed8bf7953c94=
-ce7
-        failing since 28 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd3c5667b6f97bd09c94cc5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
-tilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
-tilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd3c5667b6f97bd09c94=
-cc6
-        failing since 28 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd3c5335b2a97c2cac94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.83-2-=
-gdd7d43e86851/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd3c5335b2a97c2cac94=
-cba
-        failing since 28 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =20
