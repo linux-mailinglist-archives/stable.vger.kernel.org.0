@@ -2,135 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1932D7D3B
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 18:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A362D7D91
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 19:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405622AbgLKRry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 12:47:54 -0500
-Received: from bedivere.hansenpartnership.com ([96.44.175.130]:59906 "EHLO
-        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405633AbgLKRrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 12:47:18 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id A4A201280195;
-        Fri, 11 Dec 2020 09:46:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1607708796;
-        bh=eES7dkAWAETGlrB/U5ZcYdxiZYF5ERyWxz5zpk5XS54=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=aSCTaU08AIo2KulFz0YKW5uDbOoeqsKWNO8rT5OQkooKfvQgZoFprGW9Hij4XfqTn
-         U6PBJKECnnVooKjlRbbwv/O+OMIQxkgFYOrYx4KGngF+2bMuaHYc7bQbSrXlhucPGg
-         1E0wiTJzYVG7ZyXVanYziUzjN9e8C++KrjAVm4iI=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id wC4SYAMM1k4E; Fri, 11 Dec 2020 09:46:36 -0800 (PST)
-Received: from jarvis.int.hansenpartnership.com (unknown [IPv6:2601:600:8280:66d1::527])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 114BA1280193;
-        Fri, 11 Dec 2020 09:46:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=hansenpartnership.com; s=20151216; t=1607708796;
-        bh=eES7dkAWAETGlrB/U5ZcYdxiZYF5ERyWxz5zpk5XS54=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:From;
-        b=aSCTaU08AIo2KulFz0YKW5uDbOoeqsKWNO8rT5OQkooKfvQgZoFprGW9Hij4XfqTn
-         U6PBJKECnnVooKjlRbbwv/O+OMIQxkgFYOrYx4KGngF+2bMuaHYc7bQbSrXlhucPGg
-         1E0wiTJzYVG7ZyXVanYziUzjN9e8C++KrjAVm4iI=
-Message-ID: <76710d8ec58c440ed7a7b446696b8659f694d0db.camel@HansenPartnership.com>
-Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with
- kernel measurements
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
-        Bruno Meneguele <bmeneg@redhat.com>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Date:   Fri, 11 Dec 2020 09:46:35 -0800
-In-Reply-To: <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
-References: <20200708154116.3199728-1-sashal@kernel.org>
-         <20200708154116.3199728-3-sashal@kernel.org>
-         <1594224793.23056.251.camel@linux.ibm.com>
-         <20200709012735.GX2722994@sasha-vm>
-         <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
-         <20201211031008.GN489768@sequoia>
-         <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 
+        id S2388921AbgLKSE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 13:04:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390547AbgLKSEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Dec 2020 13:04:08 -0500
+Date:   Fri, 11 Dec 2020 10:03:26 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607709807;
+        bh=vIMyhl7sd6mVx4IlRszltySzPw7tdhmA7dkJ2CxtvMU=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ouStJnNQZOafvHqGTmZr9kEnnNbatY34bjiiiKFzqWz3TKTEjo9B5c8NS6H/x6hdf
+         fJ35kkigO50qem8eOztJGxAY4qK4m+ihZYW6a4t5nu56WDoLDCk+V8lleP7a4G+JOH
+         2tPBoJhF01QJ+TzNOZK2hHzUa0g7sWYekn47/QYh3+hHnlPE9+swqtnHDwpvusxSbU
+         jDb1vLJCxwumg20yfezAjfTsUtbC1HvKE3SRFGbEtGHWK/go/td8zIgAeGJwtT9UO+
+         DymEYZ+W5DSvG+fFroPxHgOfA8uJhLmxOymwkhS5MD/Bbr87iUxjFr+fzcBEIKfXCc
+         5qNZpWvp80xBA==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Suleiman Souhlal <suleiman@google.com>,
+        linux-fscrypt@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [stable] ext4 fscrypt_get_encryption_info() circular locking
+ dependency
+Message-ID: <X9O0brQ7junfZTfI@sol.localdomain>
+References: <20201211033657.GE1667627@google.com>
+ <X9LsDPsXdLNv0+va@sol.localdomain>
+ <20201211040807.GF1667627@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201211040807.GF1667627@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-12-11 at 06:01 -0500, Mimi Zohar wrote:
-> On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
-> > On 2020-11-29 08:17:38, Mimi Zohar wrote:
-> > > Hi Sasha,
+On Fri, Dec 11, 2020 at 01:08:07PM +0900, Sergey Senozhatsky wrote:
+> On (20/12/10 19:48), Eric Biggers wrote:
 > > > 
-> > > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
-> > > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
-> > > > > Hi Sasha,
-> > > > > 
-> > > > > On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
-> > > > > > From: Maurizio Drocco <maurizio.drocco@ibm.com>
-> > > > > > 
-> > > > > > [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c
-> > > > > > ]
-> > > > > > 
-> > > > > > Registers 8-9 are used to store measurements of the kernel
-> > > > > > and its command line (e.g., grub2 bootloader with tpm
-> > > > > > module enabled). IMA should include them in the boot
-> > > > > > aggregate. Registers 8-9 should be only included in non-
-> > > > > > SHA1 digests to avoid ambiguity.
-> > > > > 
-> > > > > Prior to Linux 5.8, the SHA1 template data hashes were padded
-> > > > > before being extended into the TPM.  Support for calculating
-> > > > > and extending the per TPM bank template data digests is only
-> > > > > being upstreamed in Linux 5.8.
-> > > > > 
-> > > > > How will attestation servers know whether to include PCRs 8 &
-> > > > > 9 in the the boot_aggregate calculation?  Now, there is a
-> > > > > direct relationship between the template data SHA1 padded
-> > > > > digest not including PCRs 8 & 9, and the new per TPM bank
-> > > > > template data digest including them.
-> > > > 
-> > > > Got it, I'll drop it then, thank you!
+> > > [  133.454836] Chain exists of:
+> > >                  jbd2_handle --> fscrypt_init_mutex --> fs_reclaim
 > > > 
-> > > After re-thinking this over, I realized that the attestation
-> > > server can verify the "boot_aggregate" based on the quoted PCRs
-> > > without knowing whether padded SHA1 hashes or per TPM bank hash
-> > > values were extended into the TPM[1], but non-SHA1 boot aggregate
-> > > values [2] should always include PCRs 8 & 9.
+> > > [  133.454840]  Possible unsafe locking scenario:
+> > > 
+> > > [  133.454841]        CPU0                    CPU1
+> > > [  133.454843]        ----                    ----
+> > > [  133.454844]   lock(fs_reclaim);
+> > > [  133.454846]                                lock(fscrypt_init_mutex);
+> > > [  133.454848]                                lock(fs_reclaim);
+> > > [  133.454850]   lock(jbd2_handle);
+> > > [  133.454851] 
 > > 
-> > I'm still not clear on how an attestation server would know to
-> > include PCRs 8 and 9 after this change came through a stable kernel
-> > update. It doesn't seem like something appropriate for stable since
-> > it requires code changes to attestation servers to handle the
-> > change.
+> > This actually got fixed by the patch series
+> > https://lkml.kernel.org/linux-fscrypt/20200913083620.170627-1-ebiggers@kernel.org/
+> > which went into 5.10.  The more recent patch to remove ext4_dir_open() isn't
+> > related.
 > > 
-> > I know this has already been released in some stable releases, so
-> > I'm too late, but perhaps I'm missing something.
+> > It's a hard patch series to backport.  Backporting it to 5.4 would be somewhat
+> > feasible, while 4.19 would be very difficult as there have been a lot of other
+> > fscrypt commits which would heavily conflict with cherry-picks.
+> > 
+> > How interested are you in having this fixed?  Did you encounter an actual
+> > deadlock or just the lockdep report?
 > 
-> The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
-> was to avoid affecting existing attestation servers.  The intention
-> was when attestation servers added support for the non-sha1
-> boot_aggregate values, they'd also include PCRs 8 & 9.  The existing
-> SHA1 boot_aggregate value remains PCRs 0 - 7.
+> Difficult to say. On one hand 'yes' I see lockups on my devices (4.19
+> kernel); I can't tell at the moment what's the root cause. So on the
+> other hand 'no' I can't say that it's because of ext4_dir_open().
 > 
-> To prevent this or something similar from happening again, what
-> should have been the proper way of including PCRs 8 & 9?
+> What I saw so far involved ext4, kswapd, khugepaged and lots of other things.
+> 
+> [ 1598.655901] INFO: task khugepaged:66 blocked for more than 122 seconds.
+> [ 1598.655914] Call Trace:
+> [ 1598.655920]  __schedule+0x506/0x1240
+> [ 1598.655924]  ? kvm_zap_rmapp+0x52/0x69
+> [ 1598.655927]  schedule+0x3f/0x78
+> [ 1598.655929]  __rwsem_down_read_failed_common+0x186/0x201
+> [ 1598.655933]  call_rwsem_down_read_failed+0x14/0x30
+> [ 1598.655936]  down_read+0x2e/0x45
+> [ 1598.655939]  rmap_walk_file+0x73/0x1ce
+> [ 1598.655941]  page_referenced+0x10d/0x154
+> [ 1598.655948]  shrink_active_list+0x1d4/0x475
+> 
+> [..]
+> 
+> [ 1598.655986] INFO: task kswapd0:79 blocked for more than 122 seconds.
+> [ 1598.655993] Call Trace:
+> [ 1598.655995]  __schedule+0x506/0x1240
+> [ 1598.655998]  schedule+0x3f/0x78
+> [ 1598.656000]  __rwsem_down_read_failed_common+0x186/0x201
+> [ 1598.656003]  call_rwsem_down_read_failed+0x14/0x30
+> [ 1598.656006]  down_read+0x2e/0x45
+> [ 1598.656008]  rmap_walk_file+0x73/0x1ce
+> [ 1598.656010]  page_referenced+0x10d/0x154
+> [ 1598.656015]  shrink_active_list+0x1d4/0x475
+> 
+> [..]
+> 
+> [ 1598.658233]  __rwsem_down_read_failed_common+0x186/0x201
+> [ 1598.658235]  call_rwsem_down_read_failed+0x14/0x30
+> [ 1598.658238]  down_read+0x2e/0x45
+> [ 1598.658240]  rmap_walk_file+0x73/0x1ce
+> [ 1598.658242]  page_referenced+0x10d/0x154
+> [ 1598.658247]  shrink_active_list+0x1d4/0x475
+> [ 1598.658250]  shrink_node+0x27e/0x661
+> [ 1598.658254]  try_to_free_pages+0x425/0x7ec
+> [ 1598.658258]  __alloc_pages_nodemask+0x80b/0x1514
+> [ 1598.658279]  __do_page_cache_readahead+0xd4/0x1a9
+> [ 1598.658282]  filemap_fault+0x346/0x573
+> [ 1598.658287]  ext4_filemap_fault+0x31/0x44
 
-Just to be pragmatic: this is going to happen again.  Shim is already
-measuring the Mok variables through PCR 14, so if we want an accurate
-boot aggregate, we're going to have to include PCR 14 as well (or
-persuade shim to measure through a PCR we're already including, which
-isn't impossible since I think shim should be measuring the Mok
-variables using the EV_EFI_VARIABLE_DRIVER_CONFIG event and, since it
-affects secure boot policy, that does argue it should be measured
-through PCR 7).
+Could you provide some more information about what is causing these actual
+lockups for you?  Are there more stack traces?
 
-James
+I'd be surprised if it's related to the fscrypt-related lockdep reports you're
+getting, as the fscrypt bug seemed unlikely to cause deadlocks in practice, as
+most of the time fscrypt_get_encryption_info() does *not* do or wait for a
+GFP_KERNEL allocation.  It's only in certain causes (generally, when things are
+being initialized as opposed to already running) that it could.
 
+See e.g. how the lockdep reports assume GFP_KERNEL done under
+fscrypt_init_mutex, but that only happens the first time an encrypted directory
+is accessed after boot.  So that path can't cause a deadlock after that.
 
+This was also a 5 years old bug, so it's unclear why it would suddenly be
+causing problems just now...
+
+Maybe something changed that exposed the bug more.  I don't know what it would
+be, though.
+
+As I said, the fix would be difficult to backport.  It required a redesign of
+how encrypted files get created, as there were lots of different ways in which
+fscrypt_get_encryption_info() could be called during a filesystem transaction.
+There's a nontrivial risk of regressions by backporting it.  (In fact I already
+found and fixed two regressions in it upstream...)
+
+So it would be helpful to know if this is important enough to you that you would
+be willing to accept a risk of regressions above that of a typical stable
+backport in order to get the re-design that fixes this issue backported.
+
+- Eric
