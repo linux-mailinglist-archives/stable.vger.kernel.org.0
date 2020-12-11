@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC3B2D81EB
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 23:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 204872D81EE
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 23:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389957AbgLKWXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391839AbgLKWXq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 11 Dec 2020 17:23:46 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27176 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20130 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388813AbgLKWXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 17:23:24 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BBM2m2n169769;
-        Fri, 11 Dec 2020 17:22:25 -0500
+        by vger.kernel.org with ESMTP id S2389930AbgLKWXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 17:23:23 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BBMEYsQ186323;
+        Fri, 11 Dec 2020 17:22:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=JlFw1VlwtLPl5QDtvhRbMMw2kQ1tZB6tPq+V7/YfDLA=;
- b=lN/zWAQCpQes1e5LwrYIcIjvv94H7Nxx3ELMXMOaphMULaWCLn0KMTHPJ46RUWs3YbDS
- rXs6Sr0cxoI510C/RwIvgux5emxBdrvMIzH8rtQ+GP2YKtyW7EMNwXJRpAIA8ee6s7Nq
- S385TPpgbhGN2wbZjRvFXC61oiOMI91WS2APOB5jkVpQWNEWq7p5P0o8zMHVqmtg3B+W
- X1AoUwoXWVozIBd2ZxoERSai9TilQmM7vI34ojzMFiY3tef1u/ezDkGJDCLsyQUaD9dW
- 1DCQHBtVzqZAekOcFk1oWgX2RZiE9V+deXkHHfiLNlLeUeIt3SRDfw6/owJlZprHQL1J IA== 
+ bh=CvZ6ed3lQl/BG9srwuIEWAY0PIXHO1HWpFDNCxW9pag=;
+ b=O1A4+xcyVxSnAEQKiPSe2hlzYeImTzZV3Jin+Qk45dU1NkxeRaECMnXVp0YKXkhqYscY
+ M5wJyJSZ1p9ixi9dyWmhmFRmxyZpnJ6xXjbZzcxB9kyJeWl1+acwVBT28fYd+SpN7IE+
+ oYiHIZTSAyEI51hCo/ir/lrC5ENNF5hHntacxeef58l3ulZUWU+dNzi+QGUPCji04O9M
+ tPaBea4vIIWKalw93NTWFc8QfGT2VT2hnPgszhwSmW6YabLFvCMzj1wIEczGj1gizH78
+ Dxa6NJlTZabuTWWnaR1mBOJamt1LvKL7SUkcn1uXpXBcqvLsetH0WfZB2cwNQ43tJbhx ZQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35ch7fgdb4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35chcrg51m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Dec 2020 17:22:24 -0500
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BBM4GJ4173569;
-        Fri, 11 Dec 2020 17:22:24 -0500
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35ch7fgdau-1
+        Fri, 11 Dec 2020 17:22:27 -0500
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BBMGK99191066;
+        Fri, 11 Dec 2020 17:22:26 -0500
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35chcrg51e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Dec 2020 17:22:24 -0500
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BBMCjsE002174;
-        Fri, 11 Dec 2020 22:22:23 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03dal.us.ibm.com with ESMTP id 3581ua7jbw-1
+        Fri, 11 Dec 2020 17:22:26 -0500
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BBMCSqr021964;
+        Fri, 11 Dec 2020 22:22:25 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma02dal.us.ibm.com with ESMTP id 3581uaqkf7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Dec 2020 22:22:23 +0000
+        Fri, 11 Dec 2020 22:22:25 +0000
 Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BBMMMlj23724332
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BBMMOtp24576384
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Dec 2020 22:22:22 GMT
+        Fri, 11 Dec 2020 22:22:24 GMT
 Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 160B2C6059;
+        by IMSVA (Postfix) with ESMTP id 11CEEC605A;
+        Fri, 11 Dec 2020 22:22:24 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 64776C6057;
         Fri, 11 Dec 2020 22:22:22 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8E5A7C6055;
-        Fri, 11 Dec 2020 22:22:20 +0000 (GMT)
 Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.193.150])
         by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri, 11 Dec 2020 22:22:20 +0000 (GMT)
+        Fri, 11 Dec 2020 22:22:22 +0000 (GMT)
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -62,9 +62,9 @@ Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         kwankhede@nvidia.com, pbonzini@redhat.com,
         alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
         Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 1/2] s390/vfio-ap: No need to disable IRQ after queue reset
-Date:   Fri, 11 Dec 2020 17:22:10 -0500
-Message-Id: <20201211222211.20869-2-akrowiak@linux.ibm.com>
+Subject: [PATCH v2 2/2] s390/vfio-ap: reverse group notifier actions when KVM pointer invalidated
+Date:   Fri, 11 Dec 2020 17:22:11 -0500
+Message-Id: <20201211222211.20869-3-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20201211222211.20869-1-akrowiak@linux.ibm.com>
 References: <20201211222211.20869-1-akrowiak@linux.ibm.com>
@@ -72,165 +72,133 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-11_06:2020-12-11,2020-12-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 suspectscore=11 adultscore=0 mlxlogscore=999
- malwarescore=0 phishscore=0 spamscore=0 clxscore=1015 bulkscore=0
- priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2012110142
+ definitions=2020-12-11_09:2020-12-11,2020-12-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ malwarescore=0 bulkscore=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 suspectscore=3 phishscore=0 clxscore=1015
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2012110145
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The queues assigned to a matrix mediated device are currently reset when:
+The vfio_ap device driver registers a group notifier with VFIO when the
+file descriptor for a VFIO mediated device for a KVM guest is opened to
+receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+event). When the KVM pointer is set, the vfio_ap driver takes the
+following actions:
+1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
+   of the mediated device.
+2. Calls the kvm_get_kvm() function to increment its reference counter.
+3. Sets the function pointer to the function that handles interception of
+   the instruction that enables/disables interrupt processing.
 
-* The VFIO_DEVICE_RESET ioctl is invoked
-* The mdev fd is closed by userspace (QEMU)
-* The mdev is removed from sysfs.
+When the notifier is called to make notification that the KVM pointer has
+been set to NULL, the driver should reverse the actions taken when the
+KVM pointer was set as well as unplugging the AP devices passed through
+to the KVM guest.
 
-Immediately after the reset of a queue, a call is made to disable
-interrupts for the queue. This is entirely unnecessary because the reset of
-a queue disables interrupts, so this will be removed.
-
+Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  1 -
- drivers/s390/crypto/vfio_ap_ops.c     | 40 +++++++++++++++++----------
- drivers/s390/crypto/vfio_ap_private.h |  1 -
- 3 files changed, 26 insertions(+), 16 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 40 ++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..ca18c91afec9 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -79,7 +79,6 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
- 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
--	vfio_ap_irq_disable(q);
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..c854d7ab2079 100644
+index c854d7ab2079..1c3c2a0898b9 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -25,6 +25,7 @@
- #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-+static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
- 
- static int match_apqn(struct device *dev, const void *data)
+@@ -1033,8 +1033,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
  {
-@@ -49,20 +50,15 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
- 					int apqn)
- {
- 	struct vfio_ap_queue *q;
--	struct device *dev;
+ 	struct ap_matrix_mdev *m;
  
- 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
- 		return NULL;
- 	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
- 		return NULL;
+-	mutex_lock(&matrix_dev->lock);
+-
+ 	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+ 		if ((m != matrix_mdev) && (m->kvm == kvm)) {
+ 			mutex_unlock(&matrix_dev->lock);
+@@ -1045,7 +1043,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ 	matrix_mdev->kvm = kvm;
+ 	kvm_get_kvm(kvm);
+ 	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+-	mutex_unlock(&matrix_dev->lock);
  
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
--		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
-+	q = vfio_ap_find_queue(apqn);
-+	if (q)
-+		q->matrix_mdev = matrix_mdev;
- 
- 	return q;
+ 	return 0;
  }
-@@ -1114,24 +1110,27 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
+@@ -1079,35 +1076,49 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+ 	return NOTIFY_DONE;
  }
  
--static void vfio_ap_irq_disable_apqn(int apqn)
-+static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
- {
- 	struct device *dev;
--	struct vfio_ap_queue *q;
-+	struct vfio_ap_queue *q = NULL;
- 
- 	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
- 				 &apqn, match_apqn);
- 	if (dev) {
- 		q = dev_get_drvdata(dev);
--		vfio_ap_irq_disable(q);
- 		put_device(dev);
- 	}
++static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
++{
++	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
++	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
++	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
++	kvm_put_kvm(matrix_mdev->kvm);
++	matrix_mdev->kvm = NULL;
++}
 +
-+	return q;
- }
- 
- int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
- 			     unsigned int retry)
+ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 				       unsigned long action, void *data)
  {
- 	struct ap_queue_status status;
-+	struct vfio_ap_queue *q;
-+	int ret;
- 	int retry2 = 2;
- 	int apqn = AP_MKQID(apid, apqi);
+-	int ret;
++	int ret, notify_rc = NOTIFY_DONE;
+ 	struct ap_matrix_mdev *matrix_mdev;
  
-@@ -1144,18 +1143,32 @@ int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
- 				status = ap_tapq(apqn, NULL);
- 			}
- 			WARN_ON_ONCE(retry2 <= 0);
--			return 0;
-+			ret = 0;
-+			goto free_aqic_resources;
- 		case AP_RESPONSE_RESET_IN_PROGRESS:
- 		case AP_RESPONSE_BUSY:
- 			msleep(20);
- 			break;
- 		default:
- 			/* things are really broken, give up */
--			return -EIO;
-+			ret = -EIO;
-+			goto free_aqic_resources;
- 		}
- 	} while (retry--);
+ 	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
+ 		return NOTIFY_OK;
  
- 	return -EBUSY;
-+
-+free_aqic_resources:
-+	/*
-+	 * In order to free the aqic resources, the queue must be linked to
-+	 * the matrix_mdev to which its APQN is assigned and the KVM pointer
-+	 * must be available.
-+	 */
-+	q = vfio_ap_find_queue(apqn);
-+	if (q && q->matrix_mdev && q->matrix_mdev->kvm)
-+		vfio_ap_free_aqic_resources(q);
-+
-+	return ret;
- }
+ 	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
++	mutex_lock(&matrix_dev->lock);
  
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
-@@ -1177,7 +1190,6 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 			 */
- 			if (ret)
- 				rc = ret;
--			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
- 		}
+ 	if (!data) {
+-		matrix_mdev->kvm = NULL;
+-		return NOTIFY_OK;
++		if (matrix_mdev->kvm)
++			vfio_ap_mdev_unset_kvm(matrix_mdev);
++		notify_rc = NOTIFY_OK;
++		goto notify_done;
  	}
  
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index f46dde56b464..0db6fb3d56d5 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -100,5 +100,4 @@ struct vfio_ap_queue {
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
- };
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ 	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
+ 	if (ret)
+-		return NOTIFY_DONE;
++		goto notify_done;
+ 
+ 	/* If there is no CRYCB pointer, then we can't copy the masks */
+ 	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+-		return NOTIFY_DONE;
++		goto notify_done;
+ 
+ 	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+ 				  matrix_mdev->matrix.aqm,
+ 				  matrix_mdev->matrix.adm);
+ 
+-	return NOTIFY_OK;
++notify_done:
++	mutex_unlock(&matrix_dev->lock);
++	return notify_rc;
+ }
+ 
+ static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+@@ -1234,13 +1245,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+ 	mutex_lock(&matrix_dev->lock);
+-	if (matrix_mdev->kvm) {
+-		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+-		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+-		vfio_ap_mdev_reset_queues(mdev);
+-		kvm_put_kvm(matrix_mdev->kvm);
+-		matrix_mdev->kvm = NULL;
+-	}
++	if (matrix_mdev->kvm)
++		vfio_ap_mdev_unset_kvm(matrix_mdev);
++	else
++		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
 -- 
 2.21.1
 
