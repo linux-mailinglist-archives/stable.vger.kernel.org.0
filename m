@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DE12D7005
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 07:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 525452D7007
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 07:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404536AbgLKGL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 01:11:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S2390863AbgLKGME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 01:12:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404611AbgLKGLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Dec 2020 01:11:48 -0500
-Subject: patch "USB: gadget: f_acm: add support for SuperSpeed Plus" added to usb-next
+        id S2404659AbgLKGLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Dec 2020 01:11:52 -0500
+Subject: patch "usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus" added to usb-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607667067;
-        bh=dQhnESaQHgAgyqUJy3G1X8nSRlfkHoOxplCZu9AmF0M=;
+        s=korg; t=1607667071;
+        bh=ceGgnbD/471e7M7J91aUSqVEpeLiTUOUTL12QCSkzWc=;
         h=To:From:Date:From;
-        b=PUNSVo7tWAP8g0LlOh1w+rjgIYA5BoiTCywon9HK/iVzzf2Wc9YuFx2TxELEQv0cW
-         eY8Fy9jJwC2a0ky4QC50OfMq0AHD+BHRAwSU+gcNSVkYNwt/HAyjqxAKQ5NX3jnVln
-         ncxw6M47vLnHI5nKsBp4rHJ6jnxj6xSQX4S0AWU4=
-To:     taehyun.cho@samsung.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, peter.chen@nxp.com,
-        stable@vger.kernel.org, willmcvicker@google.com
+        b=epsHnC7KnTSZfoEJlO+a3sK0A/9sjFaAqD8zbXXojFIAlM381rDL2tdrtqgqWSeq5
+         e2kBNwcxAhYXXEIcUqKJFeZfdW1mRiomEOiGoppTfTeviU+Ikp/F8WAwSSBZR5uc9M
+         D+xhpLB2swjVumX+nkI6L65bXOoMlR3E4ou8NP80=
+To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Dec 2020 07:10:03 +0100
-Message-ID: <16076670038206@kroah.com>
+Date:   Fri, 11 Dec 2020 07:10:05 +0100
+Message-ID: <160766700524103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: gadget: f_acm: add support for SuperSpeed Plus
+    usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -50,38 +49,71 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 3ee05c20656782387aa9eb010fdb9bb16982ac3f Mon Sep 17 00:00:00 2001
-From: "taehyun.cho" <taehyun.cho@samsung.com>
-Date: Fri, 27 Nov 2020 15:05:56 +0100
-Subject: USB: gadget: f_acm: add support for SuperSpeed Plus
+From a353397b0d5dfa3c99b372505db3378fc919c6c6 Mon Sep 17 00:00:00 2001
+From: Jack Pham <jackp@codeaurora.org>
+Date: Tue, 27 Oct 2020 16:07:31 -0700
+Subject: usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
 
-Setup the SuperSpeed Plus descriptors for f_acm.  This allows the gadget
-to work properly without crashing at SuperSpeed rates.
+In many cases a function that supports SuperSpeed can very well
+operate in SuperSpeedPlus, if a gadget controller supports it,
+as the endpoint descriptors (and companion descriptors) are
+generally identical and can be re-used. This is true for two
+commonly used functions: Android's ADB and MTP. So we can simply
+assign the usb_function's ssp_descriptors array to point to its
+ss_descriptors, if available. Similarly, we need to allow an
+epfile's ioctl for FUNCTIONFS_ENDPOINT_DESC to correctly
+return the corresponding SuperSpeed endpoint descriptor in case
+the connected speed is SuperSpeedPlus as well.
 
-Cc: Felipe Balbi <balbi@kernel.org>
+The only exception is if a function wants to implement an
+Isochronous endpoint capable of transferring more than 48KB per
+service interval when operating at greater than USB 3.1 Gen1
+speed, in which case it would require an additional SuperSpeedPlus
+Isochronous Endpoint Companion descriptor to be returned as part
+of the Configuration Descriptor. Support for that would need
+to be separately added to the userspace-facing FunctionFS API
+which may not be a trivial task--likely a new descriptor format
+(v3?) may need to be devised to allow for separate SS and SSP
+descriptors to be supplied.
+
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
-Signed-off-by: Will McVicker <willmcvicker@google.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201127140559.381351-3-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20201027230731.9073-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_acm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_fs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_acm.c b/drivers/usb/gadget/function/f_acm.c
-index 46647bfac2ef..349945e064bb 100644
---- a/drivers/usb/gadget/function/f_acm.c
-+++ b/drivers/usb/gadget/function/f_acm.c
-@@ -686,7 +686,7 @@ acm_bind(struct usb_configuration *c, struct usb_function *f)
- 	acm_ss_out_desc.bEndpointAddress = acm_fs_out_desc.bEndpointAddress;
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 8f5ceacdc5f1..78c003fb05fd 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1330,6 +1330,7 @@ static long ffs_epfile_ioctl(struct file *file, unsigned code,
  
- 	status = usb_assign_descriptors(f, acm_fs_function, acm_hs_function,
--			acm_ss_function, NULL);
-+			acm_ss_function, acm_ss_function);
- 	if (status)
- 		goto fail;
+ 		switch (epfile->ffs->gadget->speed) {
+ 		case USB_SPEED_SUPER:
++		case USB_SPEED_SUPER_PLUS:
+ 			desc_idx = 2;
+ 			break;
+ 		case USB_SPEED_HIGH:
+@@ -3176,7 +3177,8 @@ static int _ffs_func_bind(struct usb_configuration *c,
+ 	}
  
+ 	if (likely(super)) {
+-		func->function.ss_descriptors = vla_ptr(vlabuf, d, ss_descs);
++		func->function.ss_descriptors = func->function.ssp_descriptors =
++			vla_ptr(vlabuf, d, ss_descs);
+ 		ss_len = ffs_do_descs(ffs->ss_descs_count,
+ 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
+ 				d_raw_descs__sz - fs_len - hs_len,
+@@ -3586,6 +3588,7 @@ static void ffs_func_unbind(struct usb_configuration *c,
+ 	func->function.fs_descriptors = NULL;
+ 	func->function.hs_descriptors = NULL;
+ 	func->function.ss_descriptors = NULL;
++	func->function.ssp_descriptors = NULL;
+ 	func->interfaces_nums = NULL;
+ 
+ 	ffs_event_add(ffs, FUNCTIONFS_UNBIND);
 -- 
 2.29.2
 
