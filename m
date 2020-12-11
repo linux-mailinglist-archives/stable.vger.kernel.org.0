@@ -2,87 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 810CD2D6F82
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 06:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68A72D6FC4
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 06:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726789AbgLKFFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 00:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42610 "EHLO
+        id S2393915AbgLKFcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 00:32:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725275AbgLKFFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 00:05:15 -0500
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20300C0613CF
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 21:04:35 -0800 (PST)
-Received: by mail-ej1-x641.google.com with SMTP id bo9so10596001ejb.13
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 21:04:34 -0800 (PST)
+        with ESMTP id S2391822AbgLKFcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 00:32:24 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B321C0613D3
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 21:31:43 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id q16so8032485edv.10
+        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 21:31:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=solid-run-com.20150623.gappssmtp.com; s=20150623;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=19AnTq45CSZ2lUNFTFAhbgUOISoXYUKH+oHoFm5bIgI=;
-        b=k5YscS7vhEsmMUSSklcg+o6u/nbJHzc5M4YEK8l4cqZAHmw/x8i11872lVI7EfBz2B
-         YYMGeZNfQOLTzdFqldicmGNo+Uv69u7I1N7TxdUzoeCxBrbkkawnOKg07JiiQI1rUZBf
-         meWRbkftsAek9JIsFn6X3kAGNPf4xZdK+iG6R5tyLt9suwnHmUZKqf6jGFM4klHTAggM
-         LGpR2gvDYh/4/NpCqubu0XZj+4TgEAhsNJkgOtszEbVX42atd6ZpkWY+28YRh18ykIqw
-         9YsFApCR3GOyTpatAcTlunbWLEjzuzDckfa1GL9BGzC7D/gZ+rNiT7uovkPGy6pnW5wx
-         GZ1A==
+         :cc:content-transfer-encoding;
+        bh=hImzJTG1TeCVrpQ/62s06BDvZxebz7cWjIsblYCekcY=;
+        b=D2OVUxOTYW2vrneBuP16BMRldWA7mGoJaSofbOud/EqKktRwaJO+1AWlsI29F5h7t4
+         QTJRG6kD3Rn+LJyBkwKMYSnKVObjAoZcULI22ck/thIo90946vmbAnVTcU843s0g6+Gp
+         s0onylD8cyJJmU20ZEzeyUGY+oq0k+/LX9JkquwCqanTk7msoWie+S0Mo1XVw/8GuMzj
+         E1f2hc9dDUudqOlHaPr4SkiyILOzYfDC+evktHOZcl3r+fkWKH6E8+sZLssicu9j+m9F
+         cax1M/FGIY0PZfJGLpRgIGUCFTra5O25mLVXBLjcxSvB48tAZxxWyhkdQacJtX2/4MAs
+         MDUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=19AnTq45CSZ2lUNFTFAhbgUOISoXYUKH+oHoFm5bIgI=;
-        b=jplaPFneK20NbbAv6J11nS3MArwmrUoSWk9lRieiiddng+CFsI3oHmZ/t68uEcPflv
-         U53oPU+gxyNBlq6Z/XtPlvNijkDUvKoE57lcb5T+EAcR4VrHRkSQ4ji3svfbxlHibWgz
-         q9gRDAZSQis8tsiKACkYyLIInYtUph2eaUmNdudeKpJ+L1eTzVQhg3iPqEWSei4WFFZS
-         Hv0y9iYiXB/s4I2w77GL1N0QgV2MfkQibI4mTdHAa0wXl4QWRrzY30X7fEbIxgyvhC1A
-         nGQH/CmmQ1Wsjn9oYkgLochVHrxcbexU2XN8lrdzCm+8STYGgkmw6qNfpDfEoBCvxosc
-         qzBw==
-X-Gm-Message-State: AOAM531PrAKOFGFj7jP0ja31mCy9/r9WTopQRNH3uTfb6QOcYpRz2Eti
-        uHnNLG6AlYa3ExU5QXSY+gguN+BvnTpjWx+aD926gw==
-X-Google-Smtp-Source: ABdhPJwRrBhd2WxdtU4DWaOjuU1+PmSEKb2t71vPWLqO0S7exyuqZG9p5trAIiQqM4rXaEMpw7G38XfTdXx3aVdspdw=
-X-Received: by 2002:a17:906:17d0:: with SMTP id u16mr9277055eje.452.1607663073559;
- Thu, 10 Dec 2020 21:04:33 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=hImzJTG1TeCVrpQ/62s06BDvZxebz7cWjIsblYCekcY=;
+        b=IDsazrSjIe/jaQ+ZXOT4+EqsLcZL/WSAD3gzCLyjbVLZqEA8gAuKutL1lkb5pTgwgF
+         wFbvM27fCXGKlfMwtqwWoLMaC+CUJBKKu1njrUBkzcbNksp+bAepPcSEX/HKA6YdXUB8
+         AZhKcs16BKMUfUiLRQFmM3ijEMEws65Wk8oqasnpgV9QPxahA5NwVmlF81jOy4hrLbbS
+         wbjS0FnRXHzqAbA7/aMUqPidFTRwR1FcgEHd+akSOIok7p03kvyFnbnpukzsznG+wtxj
+         ZWAxNa/IsTug286w7E3fs4kV0HMPAQ19e1r0RxzXJkFwTau9PxO3iXZQftqXncpQTX08
+         XHuQ==
+X-Gm-Message-State: AOAM530tTFriSA2ddSm3fyK747O4piQAwfmXGtL5NxOCsVi0JS2Gvvau
+        y2KXE1jOxt2+7ZVCdTTocIMN/HRVC2X11cjb3y2JHw==
+X-Google-Smtp-Source: ABdhPJxjZHloKSP+HbWEKPjm0y4AaYXmEIOng4aiKxjXCoQpfuuKGyGgTt1fkbhXviGjAQzfofQgNHpbAHPgdKTDzKE=
+X-Received: by 2002:aa7:cdc3:: with SMTP id h3mr10045293edw.52.1607664702500;
+ Thu, 10 Dec 2020 21:31:42 -0800 (PST)
 MIME-Version: 1.0
-References: <20201102180326.GA2416734@kroah.com> <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
- <20201208133532.GH643756@sasha-vm> <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
- <X9CuTjdgD3tDKWwo@kroah.com> <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
- <20201210154651.GV1551@shell.armlinux.org.uk> <CAPv3WKdWr0zfuTkK+x6u7C6FpFxkVtRFrEq1FvemVpLYw2+5ng@mail.gmail.com>
- <20201210175619.GW1551@shell.armlinux.org.uk> <CAPv3WKe+2UKedYXgFh++-OLrJwQAyCE1i53oRUgp28z6AbaXLg@mail.gmail.com>
- <20201210202650.GA2654274@lunn.ch>
-In-Reply-To: <20201210202650.GA2654274@lunn.ch>
-From:   Jon Nettleton <jon@solid-run.com>
-Date:   Fri, 11 Dec 2020 06:03:57 +0100
-Message-ID: <CABdtJHuuRY-Oimx6DbEW4pLYdbBKKwV+1r3OpfS62skCJYWLkQ@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     Andrew Lunn <andrew@lunn.ch>
-Cc:     Marcin Wojtas <mw@semihalf.com>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Andrew Elwell <andrew.elwell@gmail.com>
+References: <20201210142606.074509102@linuxfoundation.org>
+In-Reply-To: <20201210142606.074509102@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 11 Dec 2020 11:01:31 +0530
+Message-ID: <CA+G9fYv-gar22WM8sdTSTmnda8+4ysyR2Lbdk0vFBwk2Hp2qGg@mail.gmail.com>
+Subject: Re: [PATCH 5.9 00/75] 5.9.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 9:27 PM Andrew Lunn <andrew@lunn.ch> wrote:
+On Thu, 10 Dec 2020 at 20:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> > +1. As soon as the MDIO+ACPI lands, I plan to do the rework.
+> This is the start of the stable review cycle for the 5.9.14 release.
+> There are 75 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Don't hold you breath. It has gone very quiet about ACPI in net
-> devices.
-
-NXP resources were re-allocated for their next internal BSP release.
-I have been working with Calvin over the past week and a half and the new
-patchset will be submitted early next week most likely.
-
--Jon
-
+> Responses should be made by Sat, 12 Dec 2020 14:25:47 +0000.
+> Anything received after that time might be too late.
 >
->         Andrew
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.9.14-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.9.14-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.9.y
+git commit: 81beabff31a7c60d2065f5711ffda6d97776a728
+git describe: v5.9.13-77-g81beabff31a7
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.=
+y/build/v5.9.13-77-g81beabff31a7
+
+No regressions (compared to build v5.9.13)
+
+No fixes (compared to build v5.9.13)
+
+Ran 57691 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-dio-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-tracing-tests
+* network-basic-tests
+* ltp-controllers-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-fcntl-locktests-tests
+* kunit
+* rcutorture
+* fwts
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
