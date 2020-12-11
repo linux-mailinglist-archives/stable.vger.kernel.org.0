@@ -2,196 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BC82D73DB
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 11:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B272B2D7474
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 12:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726831AbgLKKX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 05:23:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34916 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726075AbgLKKXU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 05:23:20 -0500
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4D4C0613CF;
-        Fri, 11 Dec 2020 02:22:40 -0800 (PST)
-Received: by mail-qk1-x743.google.com with SMTP id 1so7913016qka.0;
-        Fri, 11 Dec 2020 02:22:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc:content-transfer-encoding;
-        bh=YuPZHdVgAGWAofDwCNuBJINnSSjfEBVFS3IZCVIkx6U=;
-        b=d1ZCiEEgLdptNLqFv8mDobfBYlk/v8X+Io8lsFuiJCMowxvNM50C0ZM1FqQ5Ko2QUy
-         K1pAJiAXf2Mmp0EIpYkL3WogGrnillatMvHWOgcT+3O1rM99jgCIRNZ2bzQqWRL+dQ4t
-         KQJlfBR6Ophn6d32ND2Fa9REXt9kAnH+LIzMfaKk/vlz3QnF5T0KnAz20NjHbjJZXpF4
-         Zq7AGtoLO+R5iau0fcvfQ4yYeS1cj9EkjUyiD/gfWfq/q9iNUpv7EXtI59yjICLS/VEu
-         Kp6D67Hbs5/aqnD+7mWMG3eN9QoyTa8G0ikzUC0jOcWlfcvbqzoxe2TY2NZL5EI9mgUF
-         i2jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc:content-transfer-encoding;
-        bh=YuPZHdVgAGWAofDwCNuBJINnSSjfEBVFS3IZCVIkx6U=;
-        b=ozjggBIM6u+H+0ru4Qs7QMVbC9zkgKm3o6rW5SGxwc+tClRFUbKXXSihlhZJ1DpoId
-         hS8cEaonWA5//RblAl2IQ7uiNx/PLt1BoUfCtuSvuT+V5cyubjT/+2XoHuzstK7idKVR
-         R8Pm+Xh6YMDCqpioyWdh5M6s3PsTvb5elDpKD8fLk237eqT7mkvxRuADM7KBkvzKpyKz
-         LfFTkF9lApa4AlDLnGsWenaz4qM5+25Ax/dvx4wr9DwL03dfCUU0lnXy5W36XCMZetn9
-         ryn4FKvSBBWCqW68drsGMrNFS0S6OCtON/inCHi2/l0B3Dn41f+GyK09Br3pbVJoS2P3
-         fvbA==
-X-Gm-Message-State: AOAM5304KamrZzF+vN52JfaoFlTGWcFUVqjBHwcjGYV0MX87B9rRx5S6
-        mu5fizcpl/tLuuaB/DyJ0nEeI32YRzv8di88bkHBeDhj1q0=
-X-Google-Smtp-Source: ABdhPJzs4KX/niW7nAMdLSKD7XWJujp8iQkTOHNRORsm+Nj4X9Y+Ewklmo117YMhOKdLkLnYE+6pJLP27AJ6rV4PvUc=
-X-Received: by 2002:ae9:df47:: with SMTP id t68mr14541475qkf.438.1607682159614;
- Fri, 11 Dec 2020 02:22:39 -0800 (PST)
-MIME-Version: 1.0
-References: <e5f7fe3ad3a612efeda53f016904aff332db6f8a.1607610739.git.josef@toxicpanda.com>
-In-Reply-To: <e5f7fe3ad3a612efeda53f016904aff332db6f8a.1607610739.git.josef@toxicpanda.com>
-Reply-To: fdmanana@gmail.com
-From:   Filipe Manana <fdmanana@gmail.com>
-Date:   Fri, 11 Dec 2020 10:22:28 +0000
-Message-ID: <CAL3q7H56AvqWuA8gJsUdnz=QLg-yUTS6RbdZJVU4+EbnPFK_bQ@mail.gmail.com>
-Subject: Re: [PATCH v2] btrfs: fix possible free space tree corruption with
- online conversion
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs <linux-btrfs@vger.kernel.org>, kernel-team@fb.com,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S2389466AbgLKLC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 06:02:56 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29542 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389198AbgLKLCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 06:02:55 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BBB1uHl044220;
+        Fri, 11 Dec 2020 06:02:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=2UWdtsIqmeTCpDTpXt5VueVpDBTzEi7aN1IYg6RDpdA=;
+ b=ZOKHrGBDbNvIl0Sa1klVruC7a0MCf9kjMh++99ZBZ5L5XfT6V3K4F2QSU+nWWSMlDSr7
+ ZWIyZjtshjuWtdXdbU+j+nXCq03eGQyfA2y0Ur10nKSEiPduD4td3TP1peYZEUUT9CkX
+ DCD9B41g4oOcUxO4gMj8HEM9HCZBZga0esQirtU6fswHlUpOfe999SQmQu+qxREC71mG
+ GbUIs9KjI5pjCBWGT+2t93Vm+clsjvkOZyHz73TgaWASR378gdV6yonj6br6G7dWZs3l
+ c8ys5y5sYEVhuL3sfOFxES0xQGCIi7qiRcONlCIki/iolfTSsk6TRZmvmd8Ucks/9ifH Lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35c6ka9mhx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Dec 2020 06:02:12 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BBB2ALL045416;
+        Fri, 11 Dec 2020 06:02:10 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35c6ka9mbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Dec 2020 06:02:10 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BBAvTb2000783;
+        Fri, 11 Dec 2020 11:01:59 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3581u86wx6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Dec 2020 11:01:59 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BBB1vvD29950354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 11 Dec 2020 11:01:57 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E07B4A4062;
+        Fri, 11 Dec 2020 11:01:56 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4EE6DA4054;
+        Fri, 11 Dec 2020 11:01:55 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.117.114])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 11 Dec 2020 11:01:55 +0000 (GMT)
+Message-ID: <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
+Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with
+ kernel measurements
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
+        Bruno Meneguele <bmeneg@redhat.com>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date:   Fri, 11 Dec 2020 06:01:54 -0500
+In-Reply-To: <20201211031008.GN489768@sequoia>
+References: <20200708154116.3199728-1-sashal@kernel.org>
+         <20200708154116.3199728-3-sashal@kernel.org>
+         <1594224793.23056.251.camel@linux.ibm.com>
+         <20200709012735.GX2722994@sasha-vm>
+         <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
+         <20201211031008.GN489768@sequoia>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-11_01:2020-12-09,2020-12-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ clxscore=1031 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 spamscore=0 phishscore=0 mlxlogscore=999 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012110066
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 11, 2020 at 8:56 AM Josef Bacik <josef@toxicpanda.com> wrote:
->
-> While running btrfs/011 in a loop I would often ASSERT() while trying to
-> add a new free space entry that already existed, or get an -EEXIST while
-> adding a new block to the extent tree, which is another indication of
-> double allocation.
->
-> This occurs because when we do the free space tree population, we create
-> the new root and then populate the tree and commit the transaction.
-> The problem is when you create a new root, the root node and commit root
-> node are the same.  This means that caching a block group before the
-> transaction is committed can race with other operations modifying the
-> free space tree, and thus you can get double adds and other sort of
-> shenanigans.  This is only a problem for the first transaction, once
-> we've committed the transaction we created the free space tree in we're
-> OK to use the free space tree to cache block groups.
->
-> Fix this by marking the fs_info as unsafe to load the free space tree,
-> and fall back on the old slow method.  We could be smarter than this,
-> for example caching the block group while we're populating the free
-> space tree, but since this is a serious problem I've opted for the
-> simplest solution.
->
-> cc: stable@vger.kernel.org
-> Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
+> On 2020-11-29 08:17:38, Mimi Zohar wrote:
+> > Hi Sasha,
+> > 
+> > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
+> > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
+> > > >Hi Sasha,
+> > > >
+> > > >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
+> > > >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
+> > > >>
+> > > >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
+> > > >>
+> > > >> Registers 8-9 are used to store measurements of the kernel and its
+> > > >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
+> > > >> should include them in the boot aggregate. Registers 8-9 should be
+> > > >> only included in non-SHA1 digests to avoid ambiguity.
+> > > >
+> > > >Prior to Linux 5.8, the SHA1 template data hashes were padded before
+> > > >being extended into the TPM.  Support for calculating and extending
+> > > >the per TPM bank template data digests is only being upstreamed in
+> > > >Linux 5.8.
+> > > >
+> > > >How will attestation servers know whether to include PCRs 8 & 9 in the
+> > > >the boot_aggregate calculation?  Now, there is a direct relationship
+> > > >between the template data SHA1 padded digest not including PCRs 8 & 9,
+> > > >and the new per TPM bank template data digest including them.
+> > > 
+> > > Got it, I'll drop it then, thank you!
+> > 
+> > After re-thinking this over, I realized that the attestation server can
+> > verify the "boot_aggregate" based on the quoted PCRs without knowing
+> > whether padded SHA1 hashes or per TPM bank hash values were extended
+> > into the TPM[1], but non-SHA1 boot aggregate values [2] should always
+> > include PCRs 8 & 9.
+> 
+> I'm still not clear on how an attestation server would know to include
+> PCRs 8 and 9 after this change came through a stable kernel update. It
+> doesn't seem like something appropriate for stable since it requires
+> code changes to attestation servers to handle the change.
+> 
+> I know this has already been released in some stable releases, so I'm
+> too late, but perhaps I'm missing something.
 
-Looks good, but the explanation you gave in the reply to Nikolay's
-comment makes it easier to realize how the problem happens.
-I think it should be mentioned, in the changelog, that the operations
-that can concurrently modify the free space tree are the insertions
-from running delayed references.
+The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
+was to avoid affecting existing attestation servers.  The intention was
+when attestation servers added support for the non-sha1 boot_aggregate
+values, they'd also include PCRs 8 & 9.  The existing SHA1
+boot_aggregate value remains PCRs 0 - 7.
 
-Anyway,
+To prevent this or something similar from happening again, what should
+have been the proper way of including PCRs 8 & 9?
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
+thanks,
 
-Thanks.
+Mimi
 
-> ---
->  fs/btrfs/block-group.c     | 11 ++++++++++-
->  fs/btrfs/ctree.h           |  3 +++
->  fs/btrfs/free-space-tree.c | 10 +++++++++-
->  3 files changed, 22 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-> index 52f2198d44c9..b8bbdd95743e 100644
-> --- a/fs/btrfs/block-group.c
-> +++ b/fs/btrfs/block-group.c
-> @@ -673,7 +673,16 @@ static noinline void caching_thread(struct btrfs_wor=
-k *work)
->                 wake_up(&caching_ctl->wait);
->         }
->
-> -       if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE))
-> +       /*
-> +        * If we are in the transaction that populated the free space tre=
-e we
-> +        * can't actually cache from the free space tree as our commit ro=
-ot and
-> +        * real root are the same, so we could change the contents of the=
- blocks
-> +        * while caching.  Instead do the slow caching in this case, and =
-after
-> +        * the transaction has committed we will be safe.
-> +        */
-> +       if (btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
-> +           !(test_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
-> +                      &fs_info->flags)))
->                 ret =3D load_free_space_tree(caching_ctl);
->         else
->                 ret =3D load_extent_tree_free(caching_ctl);
-> diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-> index 3935d297d198..4a60d81da5cb 100644
-> --- a/fs/btrfs/ctree.h
-> +++ b/fs/btrfs/ctree.h
-> @@ -562,6 +562,9 @@ enum {
->
->         /* Indicate that we need to cleanup space cache v1 */
->         BTRFS_FS_CLEANUP_SPACE_CACHE_V1,
-> +
-> +       /* Indicate that we can't trust the free space tree for caching y=
-et. */
-> +       BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED,
->  };
->
->  /*
-> diff --git a/fs/btrfs/free-space-tree.c b/fs/btrfs/free-space-tree.c
-> index e33a65bd9a0c..a33bca94d133 100644
-> --- a/fs/btrfs/free-space-tree.c
-> +++ b/fs/btrfs/free-space-tree.c
-> @@ -1150,6 +1150,7 @@ int btrfs_create_free_space_tree(struct btrfs_fs_in=
-fo *fs_info)
->                 return PTR_ERR(trans);
->
->         set_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-> +       set_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
->         free_space_root =3D btrfs_create_tree(trans,
->                                             BTRFS_FREE_SPACE_TREE_OBJECTI=
-D);
->         if (IS_ERR(free_space_root)) {
-> @@ -1171,11 +1172,18 @@ int btrfs_create_free_space_tree(struct btrfs_fs_=
-info *fs_info)
->         btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE);
->         btrfs_set_fs_compat_ro(fs_info, FREE_SPACE_TREE_VALID);
->         clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-> +       ret =3D btrfs_commit_transaction(trans);
->
-> -       return btrfs_commit_transaction(trans);
-> +       /*
-> +        * Now that we've committed the transaction any reading of our co=
-mmit
-> +        * root will be safe, so we can cache from the free space tree no=
-w.
-> +        */
-> +       clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
-> +       return ret;
->
->  abort:
->         clear_bit(BTRFS_FS_CREATING_FREE_SPACE_TREE, &fs_info->flags);
-> +       clear_bit(BTRFS_FS_FREE_SPACE_TREE_UNTRUSTED, &fs_info->flags);
->         btrfs_abort_transaction(trans, ret);
->         btrfs_end_transaction(trans);
->         return ret;
-> --
-> 2.26.2
->
-
-
---=20
-Filipe David Manana,
-
-=E2=80=9CWhether you think you can, or you think you can't =E2=80=94 you're=
- right.=E2=80=9D
