@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA90E2D7544
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 13:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 728292D754B
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 13:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387723AbgLKMET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Dec 2020 07:04:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S1727321AbgLKMID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Dec 2020 07:08:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390595AbgLKMEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 07:04:15 -0500
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB37EC0613D6
-        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 04:03:34 -0800 (PST)
-Received: by mail-ej1-x641.google.com with SMTP id lt17so12002358ejb.3
-        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 04:03:34 -0800 (PST)
+        with ESMTP id S2391588AbgLKMHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Dec 2020 07:07:37 -0500
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B8BC0613D3
+        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 04:06:57 -0800 (PST)
+Received: by mail-ed1-x541.google.com with SMTP id k4so9106564edl.0
+        for <stable@vger.kernel.org>; Fri, 11 Dec 2020 04:06:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=XyvKOKf3WS7C3+cCZU/wllX3BMQJaXQiv6jHN6fWPKs=;
-        b=BKJA/YqATX+Tu3Zq80kQfakQ/IGTBjl4UxeSmGfFyaimbXq1vb+jNKXsV2FTAoehNO
-         DqrJ9mjUK+knnoyTn4HARgi3M4VkJGu16+qc4FVKcFL2E9JQCwV3PTl2qIL1jF4cvRcv
-         VtKP2bUwbtqlvkrkCMGn5nXxZJr15RT2k8hAV87VCFBYoPmCLhN7bnz1ze0LHOYE+FQ/
-         wM9R9ZaiEJYi6WU55/nZryfitAwpV4PtEwwEFkZog003VrQnV12aOJG2F7hENh8zIVJD
-         XPykb9t1vYvY341/NvLHbGwXsT0GgZtLC+CwOk70gjjOU+cbkoHWd1pcridGL3sFMlGG
-         nz6g==
+        bh=oXxORYWlJeTJ6foPxfuUrfc27BGi4BJpM/a57Gv3x/Q=;
+        b=OtulTNkb9jUEHUWYERO314Xq3VcnpUxkSZ27ReRfNqzilKFzEQM4u7gU6zXyePxAiP
+         6Kijhg5cn0EEogincBwMpPq6yP0ZhPxlQuNw5zWtBd6ayKOIRW4Qdo9UD6ajQHtmBKMm
+         g3Y/n8K1otP7EfX1rLCeJa2zcITGlSQYJS1QCdL/jSt6vKoOdUxc4oSC/HENrNxVK7A4
+         15HAmBzH7g1xtynALWCnSyubvWUd5ocR6/E8A0bORLTW++Uy5wJ47gX7kEglPdXajb0A
+         WtipOvrTrpeWDjSTLgFb54iQZkzkynvRHXRWUSkodu55dqyG/dEX4ej/JwuaM3wPs+pc
+         5Z0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=XyvKOKf3WS7C3+cCZU/wllX3BMQJaXQiv6jHN6fWPKs=;
-        b=pmvEeKTnVqIAcsshrWB2rhLJRMXdAVhgCR6DM4q1zl2mekQXTWMef71yElv4e4dQ6o
-         2zrKZdmClrrRY5Y2xLW2C506h6YSYbwOpQkLgLXJRWAc1B/kqLvKs/2geUJiJ3kRmBlV
-         7aINb6Q26SNoFlFjb0/0Kwvv9SElcGxKZozJnekpFbXRc8dKTI/vAvAd8/DjAO40qmEZ
-         U6MCctCmpZ/oHkkC+T4W2AkbbenrxxIqbWguJy7RgJMPI8rKi/0lD/Zscxf5nhKL1rk/
-         A23z7q9ucoBUDOmTFJB3Q8umz/P2H/Vd6oHxfymeTucjh/ZM1OmAfg3uWdnjvDXhLLfd
-         Tqhg==
-X-Gm-Message-State: AOAM532QtuwMMYts296nW0JfJAh3me7QJaGFdbMDRExVCQqRVzLwfO6s
-        9xi/ukI2cvhvOsQscJmdcZ0zxOfbarCHJUAr6CUcRg==
-X-Google-Smtp-Source: ABdhPJwAZJKxbcnHbNyr3uYJoJzI9wtdG7oTOeox31k+0orOubA3b8swnk6phsxeO36Jt2dUA0JHFwW38/teq8qHzAE=
-X-Received: by 2002:a17:906:edc8:: with SMTP id sb8mr10669772ejb.247.1607688213218;
- Fri, 11 Dec 2020 04:03:33 -0800 (PST)
+        bh=oXxORYWlJeTJ6foPxfuUrfc27BGi4BJpM/a57Gv3x/Q=;
+        b=VuRkaCnGoiSRpzUr34j0576fGkdZSL3bdstJdHfRKcSrwn9STHap2rqW3dxG8RtT7e
+         mGJkh7B2KBXQAz5Vqs5GdBz0cWZxfjDNn0bqk+RF8UMC8GPDrNFnSDrH/8k1KGdAHG2J
+         v/+AHmq6rSNxDicOkjZQpwwKvPthJkweDPcVBGegmPN3CcTbEjiOmTIuyPfMBaEFfjMt
+         THDXC6sL7pESq8nNVexMnXeOOkKgJyAt3ecoYtyngC8wtuFnIGEShDZ3X0uk3C34zweg
+         UY9FxjNn/VgPLHV49ywQ9ntMxJv33XRMvMYFK/JPDS6S1g3a9nIZ2KGhJzBNm2NTkCJ8
+         uI1Q==
+X-Gm-Message-State: AOAM532Ek119BfRRcZXimDvYwBlq6CJK91LJWNorQuKJILnmtrxGPrIY
+        FYvuy6yXwPifScyPZoh7nDth3lNwo58FE/REQCRrfQ==
+X-Google-Smtp-Source: ABdhPJw2UZxXj04msNF7iASVrNltc93EVvXNIASzKCjfhmaWhXIAkSLAPw43p06JR23HXeJmtOX5Cpf5WITV4A57uYU=
+X-Received: by 2002:a05:6402:3074:: with SMTP id bs20mr11440278edb.365.1607688415899;
+ Fri, 11 Dec 2020 04:06:55 -0800 (PST)
 MIME-Version: 1.0
-References: <20201210142602.361598591@linuxfoundation.org>
-In-Reply-To: <20201210142602.361598591@linuxfoundation.org>
+References: <20201210142600.887734129@linuxfoundation.org>
+In-Reply-To: <20201210142600.887734129@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 11 Dec 2020 17:33:21 +0530
-Message-ID: <CA+G9fYtvvKVaA6SALu0cn1o=nKn6ppF7obvtRA+kFomGecf_NQ@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/45] 4.9.248-rc1 review
+Date:   Fri, 11 Dec 2020 17:36:44 +0530
+Message-ID: <CA+G9fYs_5xr_yzQ-ny9-x_e-+x+sNmWAbU9BbmtnswVzuZDuxg@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/39] 4.4.248-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
@@ -64,11 +64,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Dec 2020 at 20:00, Greg Kroah-Hartman
+On Thu, 10 Dec 2020 at 19:58, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.9.248 release.
-> There are 45 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.4.248 release.
+> There are 39 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -77,10 +77,10 @@ On Thu, 10 Dec 2020 at 20:00, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.248-rc1.gz
+4.4.248-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
+-rc.git linux-4.4.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -90,32 +90,28 @@ On Thu, 10 Dec 2020 at 20:00, Greg Kroah-Hartman
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.9.248-rc1
+kernel: 4.4.248-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.9.y
-git commit: d6c029b435470eec6ccf5c2065b0512b75d92419
-git describe: v4.9.247-45-gd6c029b43547
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.=
-y/build/v4.9.247-45-gd6c029b43547
+git branch: linux-4.4.y
+git commit: 6564de77497b736985693950cf537add679bfa21
+git describe: v4.4.247-39-g6564de77497b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
+y/build/v4.4.247-39-g6564de77497b
 
-No regressions (compared to build v4.9.247)
+No regressions (compared to build v4.4.247)
 
-No fixes (compared to build v4.9.247)
+No fixes (compared to build v4.4.247)
 
-Ran 25777 total tests in the following environments and test suites.
+Ran 12094 total tests in the following environments and test suites.
 
 Environments
 --------------
 - arm
 - arm64
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
 - i386
 - juno-r2 - arm64
 - mips
@@ -130,46 +126,82 @@ Environments
 - sparc
 - x15 - arm
 - x86_64
-- x86-kasan
 
 Test Suites
 -----------
 * build
 * linux-log-parser
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* libhugetlbfs
 * ltp-cap_bounds-tests
+* ltp-commands-tests
 * ltp-containers-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
 * ltp-cve-tests
 * ltp-dio-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-commands-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
+* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
 * ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-controllers-tests
+* ltp-tracing-tests
+* libhugetlbfs
+* v4l2-compliance
+* install-android-platform-tools-r2600
+* network-basic-tests
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.248-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.248-rc1-hikey-20201210-875
+git commit: 16dc859ce8a7a0d97f1a9f71ecb185b4d5cf574b
+git describe: 4.4.248-rc1-hikey-20201210-875
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.248-rc1-hikey-20201210-875
+
+No regressions (compared to build 4.4.248-rc1-hikey-20201209-872)
+
+No fixes (compared to build 4.4.248-rc1-hikey-20201209-872)
+
+Ran 433 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
 * ltp-nptl-tests
 * ltp-pty-tests
 * ltp-securebits-tests
-* network-basic-tests
-* ltp-controllers-tests
-* ltp-syscalls-tests
-* fwts
-* ltp-open-posix-tests
+* spectre-meltdown-checker-test
 
 --=20
 Linaro LKFT
