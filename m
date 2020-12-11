@@ -2,94 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B32D2D6EFC
-	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 05:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BEB42D6F01
+	for <lists+stable@lfdr.de>; Fri, 11 Dec 2020 05:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387661AbgLKEBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Dec 2020 23:01:46 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:60481 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392205AbgLKEBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 23:01:35 -0500
-Received: from mail-pj1-f72.google.com ([209.85.216.72])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <nivedita.singhvi@canonical.com>)
-        id 1knZbw-0008J5-LD
-        for stable@vger.kernel.org; Fri, 11 Dec 2020 04:00:52 +0000
-Received: by mail-pj1-f72.google.com with SMTP id z21so1693258pjq.2
-        for <stable@vger.kernel.org>; Thu, 10 Dec 2020 20:00:52 -0800 (PST)
+        id S2395253AbgLKEJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Dec 2020 23:09:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34018 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726253AbgLKEIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Dec 2020 23:08:52 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E14C0613CF;
+        Thu, 10 Dec 2020 20:08:12 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id q22so6168942pfk.12;
+        Thu, 10 Dec 2020 20:08:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Ius18itnGQVstq9bqYZLUwNWbZ8T7njWch6EzxvjPsA=;
+        b=Qd/trmlZE61igq11WRWlvIXhwMKIGAzikr4i85zvqPvP0xZu3RPsj+GWkP7PWqYqbV
+         hKhnyA8nl0zK3Y7gS3Dx3zvWWER5pFfzo10n0asMk/GPUnexwT2IK/zJoFBacHO9n/Gr
+         qY0uY4Fig/b2Z9L00DDx7YKXxXA3X2735Ip1LrYRoq+nh71jxV9PddF7X63i0gI/qF2i
+         0erYwJVM1aO02gLsEjR9/MHMoO5+KLTyC48+qADFNqfjgc8NgPfE6jgbg0CLKlsNzzGx
+         WUxPoirrrHCK9E4xjQwcYhiYiPRvE/wxzKsEq9ZZdRyEJSPws1mXYkHP2LaT36f+KUDN
+         Fncg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=t8uVN7KLIEPUNJTf7G8pJTTWEvUUwF5HGPRIiWkPRNU=;
-        b=QxelG5j8LsS0pFtS393BgTvVDYjoRY9O1FPu4V3GTP6p2eXSwDKO7F3PB9HTIWvs13
-         U+fydbQuxbJ5ar9U/nbagMQHorzsbv1EIdXQzOQWmPPdmxUqB3VALT+iPfil1vfj9jEX
-         gbDSVVr3GFDWiPM0wGKOfBm56Hyj75IH+InhtumIb2JndFUandyJzULgTSB4fVlVXTOw
-         r98UwQOpwF4aj1acf4eHWR+SYJO8oV7y8X63xgR928pSjyDXQ/h+8ocE7/COTOPz5huq
-         tlsKj/x0kxSqK3o6lugLZfWLxFRJKQfCWfWcVfWc7jbz2xDU1HttR4Uu65RqFlmAFCz0
-         e6Pg==
-X-Gm-Message-State: AOAM533zJZK0gihEVNDewMt1kHSUZqdltnN8F8+wqQWAU+Znsn19KiFD
-        Z4qwTrRyA9Hzc/R9KA6xeE/PIA+OHeaKGCy7uiJlyVpWZL1r2S9FcyvN3bblThJ4HOn1B66Qf4y
-        AccvICB0BhPf6jYBUOuXbywhGzGc77BS2eg==
-X-Received: by 2002:a62:37c2:0:b029:19b:499e:cc5d with SMTP id e185-20020a6237c20000b029019b499ecc5dmr9717295pfa.17.1607659251095;
-        Thu, 10 Dec 2020 20:00:51 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzRk7Wh/PT7mZJCvGKZXEBJKIGa5Zt0HhJX4c23nqH/KqJWbc6cz08rdh6q2xAWBV3MD/VmOQ==
-X-Received: by 2002:a62:37c2:0:b029:19b:499e:cc5d with SMTP id e185-20020a6237c20000b029019b499ecc5dmr9717274pfa.17.1607659250791;
-        Thu, 10 Dec 2020 20:00:50 -0800 (PST)
-Received: from ?IPv6:2409:4042:705:3341:c41e:5777:32ad:5ae2? ([2409:4042:705:3341:c41e:5777:32ad:5ae2])
-        by smtp.gmail.com with ESMTPSA id e29sm7986570pfj.174.2020.12.10.20.00.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Dec 2020 20:00:49 -0800 (PST)
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-Cc:     Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        bsegall@google.com, pauld@redhat.com, zohooouoto@zoho.com.cn,
-        stable@vger.kernel.org, Gavin Guo <gavin.guo@canonical.com>,
-        halves@canonical.com
-References: <d3188913-ddb8-7198-8483-47d3031b01fe@canonical.com>
- <X8yrIKm/ODrrlwx5@kroah.com>
-From:   Nivedita Singhvi <nivedita.singhvi@canonical.com>
-Message-ID: <601f61a1-eabf-b29b-4928-535f8d31695d@canonical.com>
-Date:   Fri, 11 Dec 2020 09:30:41 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Ius18itnGQVstq9bqYZLUwNWbZ8T7njWch6EzxvjPsA=;
+        b=YfVxQ4K0dhW81MBw5sy0LpBNEgAKrsklKkmoXUEvLjY9XgMSnpDjrmLetY4Jm7znGa
+         hv/J7OExRnoaMHBdoiwdZrOxwl9p4sh6XJmY7NRR/ea9909u/hZMqrRzJ3tlAnKwupp2
+         Bd3VrL8WKIThZMo21evvsilc/IryNjiTV3Kc+Ahay1reCTw2u/1XLOJOYVqhTjWXssx7
+         e1NeXy5hYLCAQpMnU7R1o5tkuHeepcX01FDaPN+xRGxkJ0uKZRg1rvVZWhbnmC3SrPnc
+         DohbX5xJDLnObxzg5MvV3ByNE0oHP7yRWZy46Dpu+gO6Pv1w4hW0IOlbe38/0n4wrE7N
+         FJhQ==
+X-Gm-Message-State: AOAM533F+D9VGdAO8/FnW/Kda/iDn72osp9tHAhbApT2vnWxjAp2HVZ9
+        KR5qurC6AHkXShmheoIriyw=
+X-Google-Smtp-Source: ABdhPJy6X+B1ThgRb512lrgxQUK0VKgDoRZDc0qiKYGrIfhMfxa3FRkxaEj/zY8y9KLjoo8S+hWuzw==
+X-Received: by 2002:a62:7fc1:0:b029:19f:1dab:5029 with SMTP id a184-20020a627fc10000b029019f1dab5029mr3656993pfd.13.1607659691987;
+        Thu, 10 Dec 2020 20:08:11 -0800 (PST)
+Received: from localhost ([2401:fa00:8f:203:a6ae:11ff:fe11:4b46])
+        by smtp.gmail.com with ESMTPSA id b4sm8017019pju.33.2020.12.10.20.08.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Dec 2020 20:08:11 -0800 (PST)
+Date:   Fri, 11 Dec 2020 13:08:07 +0900
+From:   Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Suleiman Souhlal <suleiman@google.com>,
+        linux-fscrypt@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [stable] ext4 fscrypt_get_encryption_info() circular locking
+ dependency
+Message-ID: <20201211040807.GF1667627@google.com>
+References: <20201211033657.GE1667627@google.com>
+ <X9LsDPsXdLNv0+va@sol.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <X8yrIKm/ODrrlwx5@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X9LsDPsXdLNv0+va@sol.localdomain>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/6/20 3:27 PM, Greg KH wrote:
-> On Thu, Nov 19, 2020 at 11:56:01AM -0300, Guilherme G. Piccoli wrote:
->> Hi Sasha / Peter, is there anything blocking this backport from Vincent
->> to get merged in 5.4.y?
+On (20/12/10 19:48), Eric Biggers wrote:
+> > 
+> > [  133.454836] Chain exists of:
+> >                  jbd2_handle --> fscrypt_init_mutex --> fs_reclaim
+> > 
+> > [  133.454840]  Possible unsafe locking scenario:
+> > 
+> > [  133.454841]        CPU0                    CPU1
+> > [  133.454843]        ----                    ----
+> > [  133.454844]   lock(fs_reclaim);
+> > [  133.454846]                                lock(fscrypt_init_mutex);
+> > [  133.454848]                                lock(fs_reclaim);
+> > [  133.454850]   lock(jbd2_handle);
+> > [  133.454851] 
 > 
-> The backport doesn't apply to the tree.  How did you test this?
+> This actually got fixed by the patch series
+> https://lkml.kernel.org/linux-fscrypt/20200913083620.170627-1-ebiggers@kernel.org/
+> which went into 5.10.  The more recent patch to remove ext4_dir_open() isn't
+> related.
 > 
-> thanks,
+> It's a hard patch series to backport.  Backporting it to 5.4 would be somewhat
+> feasible, while 4.19 would be very difficult as there have been a lot of other
+> fscrypt commits which would heavily conflict with cherry-picks.
 > 
-> greg k-h
-> 
+> How interested are you in having this fixed?  Did you encounter an actual
+> deadlock or just the lockdep report?
 
-Thanks, Greg, Vincent, for sorting this out and committing
-to stable upstream..
+Difficult to say. On one hand 'yes' I see lockups on my devices (4.19
+kernel); I can't tell at the moment what's the root cause. So on the
+other hand 'no' I can't say that it's because of ext4_dir_open().
 
-sched/fair: Fix unthrottle_cfs_rq() for leaf_cfs_rq list
-commit	294de8933adbdda78acaa3935971d26bb6de745e
+What I saw so far involved ext4, kswapd, khugepaged and lots of other things.
 
-I don't have a reproducer but we'll be testing this
-to the extent we can beat up on it...
+[ 1598.655901] INFO: task khugepaged:66 blocked for more than 122 seconds.
+[ 1598.655914] Call Trace:
+[ 1598.655920]  __schedule+0x506/0x1240
+[ 1598.655924]  ? kvm_zap_rmapp+0x52/0x69
+[ 1598.655927]  schedule+0x3f/0x78
+[ 1598.655929]  __rwsem_down_read_failed_common+0x186/0x201
+[ 1598.655933]  call_rwsem_down_read_failed+0x14/0x30
+[ 1598.655936]  down_read+0x2e/0x45
+[ 1598.655939]  rmap_walk_file+0x73/0x1ce
+[ 1598.655941]  page_referenced+0x10d/0x154
+[ 1598.655948]  shrink_active_list+0x1d4/0x475
 
+[..]
 
-Nivedita
+[ 1598.655986] INFO: task kswapd0:79 blocked for more than 122 seconds.
+[ 1598.655993] Call Trace:
+[ 1598.655995]  __schedule+0x506/0x1240
+[ 1598.655998]  schedule+0x3f/0x78
+[ 1598.656000]  __rwsem_down_read_failed_common+0x186/0x201
+[ 1598.656003]  call_rwsem_down_read_failed+0x14/0x30
+[ 1598.656006]  down_read+0x2e/0x45
+[ 1598.656008]  rmap_walk_file+0x73/0x1ce
+[ 1598.656010]  page_referenced+0x10d/0x154
+[ 1598.656015]  shrink_active_list+0x1d4/0x475
 
+[..]
 
+[ 1598.658233]  __rwsem_down_read_failed_common+0x186/0x201
+[ 1598.658235]  call_rwsem_down_read_failed+0x14/0x30
+[ 1598.658238]  down_read+0x2e/0x45
+[ 1598.658240]  rmap_walk_file+0x73/0x1ce
+[ 1598.658242]  page_referenced+0x10d/0x154
+[ 1598.658247]  shrink_active_list+0x1d4/0x475
+[ 1598.658250]  shrink_node+0x27e/0x661
+[ 1598.658254]  try_to_free_pages+0x425/0x7ec
+[ 1598.658258]  __alloc_pages_nodemask+0x80b/0x1514
+[ 1598.658279]  __do_page_cache_readahead+0xd4/0x1a9
+[ 1598.658282]  filemap_fault+0x346/0x573
+[ 1598.658287]  ext4_filemap_fault+0x31/0x44
+
+	-ss
