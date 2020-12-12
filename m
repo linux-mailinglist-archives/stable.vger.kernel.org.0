@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A67C2D87DB
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 370462D87D8
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407507AbgLLQRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:17:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59610 "EHLO mail.kernel.org"
+        id S2407499AbgLLQRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:17:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405733AbgLLQK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2404803AbgLLQK7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:10:59 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 3/8] drm/tegra: sor: Disable clocks on error in tegra_sor_init()
-Date:   Sat, 12 Dec 2020 11:08:54 -0500
-Message-Id: <20201212160859.2335412-3-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Annika Wickert <annika.wickert@exaring.de>,
+        Annika Wickert <aw@awlnx.space>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 4/8] vxlan: Add needed_headroom for lower device
+Date:   Sat, 12 Dec 2020 11:08:55 -0500
+Message-Id: <20201212160859.2335412-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160859.2335412-1-sashal@kernel.org>
 References: <20201212160859.2335412-1-sashal@kernel.org>
@@ -32,50 +33,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit bf3a3cdcad40e5928a22ea0fd200d17fd6d6308d ]
+[ Upstream commit 0a35dc41fea67ac4495ce7584406bf9557a6e7d0 ]
 
-Fix the missing clk_disable_unprepare() before return from
-tegra_sor_init() in the error handling case.
+It was observed that sending data via batadv over vxlan (on top of
+wireguard) reduced the performance massively compared to raw ethernet or
+batadv on raw ethernet. A check of perf data showed that the
+vxlan_build_skb was calling all the time pskb_expand_head to allocate
+enough headroom for:
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+  min_headroom = LL_RESERVED_SPACE(dst->dev) + dst->header_len
+  		+ VXLAN_HLEN + iphdr_len;
+
+But the vxlan_config_apply only requested needed headroom for:
+
+  lowerdev->hard_header_len + VXLAN6_HEADROOM or VXLAN_HEADROOM
+
+So it completely ignored the needed_headroom of the lower device. The first
+caller of net_dev_xmit could therefore never make sure that enough headroom
+was allocated for the rest of the transmit path.
+
+Cc: Annika Wickert <annika.wickert@exaring.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Tested-by: Annika Wickert <aw@awlnx.space>
+Link: https://lore.kernel.org/r/20201126125247.1047977-1-sven@narfation.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/sor.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/vxlan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 7ab1d1dc7cd73..352ae52be3418 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -2378,17 +2378,23 @@ static int tegra_sor_init(struct host1x_client *client)
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
- 				err);
-+			clk_disable_unprepare(sor->clk);
- 			return err;
- 		}
- 	}
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 82efa5bbf568b..c21f28840f05b 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -3184,6 +3184,7 @@ static void vxlan_config_apply(struct net_device *dev,
+ 		dev->gso_max_segs = lowerdev->gso_max_segs;
  
- 	err = clk_prepare_enable(sor->clk_safe);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
+ 		needed_headroom = lowerdev->hard_header_len;
++		needed_headroom += lowerdev->needed_headroom;
  
- 	err = clk_prepare_enable(sor->clk_dp);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk_safe);
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	return 0;
- }
+ 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
+ 					   VXLAN_HEADROOM);
 -- 
 2.27.0
 
