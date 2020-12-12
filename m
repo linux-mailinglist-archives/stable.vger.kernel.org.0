@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9272D87F2
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0492D87F7
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407533AbgLLQWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:22:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
+        id S2407537AbgLLQWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:22:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439471AbgLLQKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439470AbgLLQKk (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:10:40 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 8/8] dm table: Remove BUG_ON(in_interrupt())
-Date:   Sat, 12 Dec 2020 11:08:59 -0500
-Message-Id: <20201212160859.2335412-8-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 1/5] kernel/cpu: add arch override for clear_tasks_mm_cpumask() mm handling
+Date:   Sat, 12 Dec 2020 11:09:05 -0500
+Message-Id: <20201212160910.2335511-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201212160859.2335412-1-sashal@kernel.org>
-References: <20201212160859.2335412-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -33,43 +31,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit e7b624183d921b49ef0a96329f21647d38865ee9 ]
+[ Upstream commit 8ff00399b153440c1c83e20c43020385b416415b ]
 
-The BUG_ON(in_interrupt()) in dm_table_event() is a historic leftover from
-a rework of the dm table code which changed the calling context.
+powerpc/64s keeps a counter in the mm which counts bits set in
+mm_cpumask as well as other things. This means it can't use generic code
+to clear bits out of the mask and doesn't adjust the arch specific
+counter.
 
-Issuing a BUG for a wrong calling context is frowned upon and
-in_interrupt() is deprecated and only covering parts of the wrong
-contexts. The sanity check for the context is covered by
-CONFIG_DEBUG_ATOMIC_SLEEP and other debug facilities already.
+Add an arch override that allows powerpc/64s to use
+clear_tasks_mm_cpumask().
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201126102530.691335-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-table.c | 6 ------
- 1 file changed, 6 deletions(-)
+ kernel/cpu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 777343cff5f1e..78d4e7347e2f3 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1295,12 +1295,6 @@ void dm_table_event_callback(struct dm_table *t,
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index a542b5e583503..e005209f279e1 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -815,6 +815,10 @@ void __unregister_cpu_notifier(struct notifier_block *nb)
+ EXPORT_SYMBOL(__unregister_cpu_notifier);
  
- void dm_table_event(struct dm_table *t)
- {
--	/*
--	 * You can no longer call dm_table_event() from interrupt
--	 * context, use a bottom half instead.
--	 */
--	BUG_ON(in_interrupt());
--
- 	mutex_lock(&_event_lock);
- 	if (t->event_fn)
- 		t->event_fn(t->event_context);
+ #ifdef CONFIG_HOTPLUG_CPU
++#ifndef arch_clear_mm_cpumask_cpu
++#define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
++#endif
++
+ /**
+  * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
+  * @cpu: a CPU id
+@@ -850,7 +854,7 @@ void clear_tasks_mm_cpumask(int cpu)
+ 		t = find_lock_task_mm(p);
+ 		if (!t)
+ 			continue;
+-		cpumask_clear_cpu(cpu, mm_cpumask(t->mm));
++		arch_clear_mm_cpumask_cpu(cpu, t->mm);
+ 		task_unlock(t);
+ 	}
+ 	rcu_read_unlock();
 -- 
 2.27.0
 
