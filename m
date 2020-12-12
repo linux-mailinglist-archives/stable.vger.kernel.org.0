@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64C9F2D8586
+	by mail.lfdr.de (Postfix) with ESMTP id DB9482D8587
 	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 11:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438525AbgLLKAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 05:00:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33428 "EHLO mail.kernel.org"
+        id S2438522AbgLLKAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 05:00:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438522AbgLLKAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Dec 2020 05:00:04 -0500
-Subject: patch "USB: serial: keyspan_pda: fix dropped unthrottle interrupts" added to usb-next
+        id S2438523AbgLLKAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Dec 2020 05:00:07 -0500
+Subject: patch "USB: serial: keyspan_pda: fix write deadlock" added to usb-next
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607767164;
-        bh=4cwWQQ9fCmaPrg/AJkqgIMijVjjyj4F8woVlNzs5QUU=;
+        s=korg; t=1607767166;
+        bh=xjIiat9r0StEwA9nfxjNRwoBdsiST2qjS0MDfBfVMV8=;
         h=To:From:Date:From;
-        b=BqUpRnIKwHhh03IBBoZyzSXdYAPOHu7mAyT9Jzq/149aNQazEX2YRAhMGcIK9UIV6
-         1eL2yXg5QZY4m8qDax2xBt+2HAjLT2eklNajrw1RY8wwGAVl5BBlL9/o5ZRG0TenoC
-         LfdfTeWRClw/4Pnv0ORapbXTG0kpgeE3f1beyL8Y=
+        b=DD7Nry1stE1HOBMEYo2qlt3laYdXZF1XavOj4WZqAnxqHSji/BYc1UYdkurh2lgKB
+         WauUOdE/1YPYb65yB4uYNR2plVUJ0hLEQuiCQ2296OyyvNlrBy62JDb+HRIUhw01YH
+         4vEE3/wu8wqbIUW8b4ZYufHYj9EaxryEu2BxMlOM=
 To:     johan@kernel.org, bigeasy@linutronix.de,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Dec 2020 10:59:17 +0100
-Message-ID: <160776715780157@kroah.com>
+Date:   Sat, 12 Dec 2020 10:59:18 +0100
+Message-ID: <160776715887181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: keyspan_pda: fix dropped unthrottle interrupts
+    USB: serial: keyspan_pda: fix write deadlock
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -49,47 +49,54 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 696c541c8c6cfa05d65aa24ae2b9e720fc01766e Mon Sep 17 00:00:00 2001
+From 7353cad7ee4deaefc16e94727e69285563e219f6 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Sun, 25 Oct 2020 18:45:47 +0100
-Subject: USB: serial: keyspan_pda: fix dropped unthrottle interrupts
+Date: Sun, 25 Oct 2020 18:45:48 +0100
+Subject: USB: serial: keyspan_pda: fix write deadlock
 
-Commit c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity
-checks") broke write-unthrottle handling by dropping well-formed
-unthrottle-interrupt packets which are precisely two bytes long. This
-could lead to blocked writers not being woken up when buffer space again
-becomes available.
+The write() callback can be called in interrupt context (e.g. when used
+as a console) so interrupts must be disabled while holding the port lock
+to prevent a possible deadlock.
 
-Instead, stop unconditionally printing the third byte which is
-(presumably) only valid on modem-line changes.
-
-Fixes: c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity checks")
-Cc: stable <stable@vger.kernel.org>     # 4.11
+Fixes: e81ee637e4ae ("usb-serial: possible irq lock inversion (PPP vs. usb/serial)")
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
 Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/keyspan_pda.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/keyspan_pda.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/serial/keyspan_pda.c b/drivers/usb/serial/keyspan_pda.c
-index c1333919716b..2d5ad579475a 100644
+index 2d5ad579475a..17b60e5a9f1f 100644
 --- a/drivers/usb/serial/keyspan_pda.c
 +++ b/drivers/usb/serial/keyspan_pda.c
-@@ -172,11 +172,11 @@ static void keyspan_pda_rx_interrupt(struct urb *urb)
- 		break;
- 	case 1:
- 		/* status interrupt */
--		if (len < 3) {
-+		if (len < 2) {
- 			dev_warn(&port->dev, "short interrupt message received\n");
- 			break;
- 		}
--		dev_dbg(&port->dev, "rx int, d1=%d, d2=%d\n", data[1], data[2]);
-+		dev_dbg(&port->dev, "rx int, d1=%d\n", data[1]);
- 		switch (data[1]) {
- 		case 1: /* modemline change */
- 			break;
+@@ -443,6 +443,7 @@ static int keyspan_pda_write(struct tty_struct *tty,
+ 	int request_unthrottle = 0;
+ 	int rc = 0;
+ 	struct keyspan_pda_private *priv;
++	unsigned long flags;
+ 
+ 	priv = usb_get_serial_port_data(port);
+ 	/* guess how much room is left in the device's ring buffer, and if we
+@@ -462,13 +463,13 @@ static int keyspan_pda_write(struct tty_struct *tty,
+ 	   the TX urb is in-flight (wait until it completes)
+ 	   the device is full (wait until it says there is room)
+ 	*/
+-	spin_lock_bh(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 	if (!test_bit(0, &port->write_urbs_free) || priv->tx_throttled) {
+-		spin_unlock_bh(&port->lock);
++		spin_unlock_irqrestore(&port->lock, flags);
+ 		return 0;
+ 	}
+ 	clear_bit(0, &port->write_urbs_free);
+-	spin_unlock_bh(&port->lock);
++	spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 	/* At this point the URB is in our control, nobody else can submit it
+ 	   again (the only sudden transition was the one from EINPROGRESS to
 -- 
 2.29.2
 
