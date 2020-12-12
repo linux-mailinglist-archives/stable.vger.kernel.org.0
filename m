@@ -2,25 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DE52D8853
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACED62D8858
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407650AbgLLQhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:37:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
+        id S2407656AbgLLQh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:37:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439374AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439377AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:09:36 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 08/23] drm/tegra: sor: Disable clocks on error in tegra_sor_init()
-Date:   Sat, 12 Dec 2020 11:07:49 -0500
-Message-Id: <20201212160804.2334982-8-sashal@kernel.org>
+Cc:     Davide Caratti <dcaratti@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 09/23] selftests: tc-testing: enable CONFIG_NET_SCH_RED as a module
+Date:   Sat, 12 Dec 2020 11:07:50 -0500
+Message-Id: <20201212160804.2334982-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -32,52 +31,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit bf3a3cdcad40e5928a22ea0fd200d17fd6d6308d ]
+[ Upstream commit e14038a7ead09faa180eb072adc4a2157a0b475f ]
 
-Fix the missing clk_disable_unprepare() before return from
-tegra_sor_init() in the error handling case.
+a proper kernel configuration for running kselftest can be obtained with:
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+ $ yes | make kselftest-merge
+
+enable compile support for the 'red' qdisc: otherwise, tdc kselftest fail
+when trying to run tdc test items contained in red.json.
+
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Link: https://lore.kernel.org/r/cfa23f2d4f672401e6cebca3a321dd1901a9ff07.1606416464.git.dcaratti@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/sor.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ tools/testing/selftests/tc-testing/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index f2a114f14a3db..b83a46df00584 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -3143,6 +3143,7 @@ static int tegra_sor_init(struct host1x_client *client)
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
- 				err);
-+			clk_disable_unprepare(sor->clk);
- 			return err;
- 		}
+diff --git a/tools/testing/selftests/tc-testing/config b/tools/testing/selftests/tc-testing/config
+index c33a7aac27ff7..b71828df5a6dd 100644
+--- a/tools/testing/selftests/tc-testing/config
++++ b/tools/testing/selftests/tc-testing/config
+@@ -59,6 +59,7 @@ CONFIG_NET_IFE_SKBPRIO=m
+ CONFIG_NET_IFE_SKBTCINDEX=m
+ CONFIG_NET_SCH_FIFO=y
+ CONFIG_NET_SCH_ETS=m
++CONFIG_NET_SCH_RED=m
  
-@@ -3150,12 +3151,17 @@ static int tegra_sor_init(struct host1x_client *client)
- 	}
- 
- 	err = clk_prepare_enable(sor->clk_safe);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	err = clk_prepare_enable(sor->clk_dp);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk_safe);
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	return 0;
- }
+ #
+ ## Network testing
 -- 
 2.27.0
 
