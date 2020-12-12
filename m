@@ -2,147 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5892D85A0
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 11:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 340DB2D8591
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 11:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438541AbgLLKDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 05:03:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58834 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407230AbgLLJy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Dec 2020 04:54:28 -0500
-From:   Ard Biesheuvel <ardb@kernel.org>
-Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-crypto@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/4] crypto: x86/gcm-aes-ni - prevent misaligned IV buffers on the stack
-Date:   Sat, 12 Dec 2020 10:16:57 +0100
-Message-Id: <20201212091700.11776-2-ardb@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201212091700.11776-1-ardb@kernel.org>
-References: <20201212091700.11776-1-ardb@kernel.org>
+        id S2438492AbgLLJ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 04:58:52 -0500
+Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.52]:35806 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2438467AbgLLJ6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Dec 2020 04:58:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1607766929;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=Message-Id:Date:Subject:Cc:To:From:From:Subject:Sender;
+        bh=g6bpl7WULr2ukmQidYOp2C0r5vm/laI1YjdSO2Z4mDY=;
+        b=WGnrZBALPPbamiiPMRkfsc49KHyr6BL/UIvbeiWw9K8Ik8UOaP4m2S0e5IzlrFXQL3
+        +FKM1JrBvM+vRxvNlhbtJCazTPGzLBN1CxzP3djUELk9SE4enmhRF8ojuykfzn/xfqO8
+        mACFdyE4l2db7qckI9Aqzrv3W1abmrwTOM2zZ165o3yX4JlhqF6t8FTZzhDrUWbeNVV5
+        90i/LhXBUwbtVO9UWDH763h0aUQ4Is696bJ8wtKVRrw67YCQBP8HaJ7T4frJfkAoCWkq
+        NtdcqBCu5L2lCUJhvDhiE8T1Lj66hsCkuaFty2fpMoLwWekwQHS7aJVQQO1C4PNnCxKu
+        Hmjw==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o1mfYzBGHXH4FpDwNN0="
+X-RZG-CLASS-ID: mo00
+Received: from iMac.fritz.box
+        by smtp.strato.de (RZmta 47.7.1 DYNA|AUTH)
+        with ESMTPSA id K0b553wBC9tQ2bo
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sat, 12 Dec 2020 10:55:26 +0100 (CET)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+To:     =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
+        Andreas Kemnade <andreas@kemnade.info>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
+Subject: [PATCH] DTS: ARM: gta04: remove legacy spi-cs-high to make display work again
+Date:   Sat, 12 Dec 2020 10:55:25 +0100
+Message-Id: <de8774e44a8f6402435e64034b8e7122157f5b52.1607766924.git.hns@goldelico.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The GCM mode driver uses 16 byte aligned buffers on the stack to pass
-the IV and other data to the asm helpers, but unfortunately, the x86
-port does not guarantee that the stack pointer is 16 byte aligned upon
-entry in the first place. Since the compiler is not aware of this, it
-will not emit the additional stack realignment sequence that is needed,
-and so the alignment is not guaranteed to be more than 8 bytes.
+This reverts
 
-So instead, allocate some padding on the stack, and realign the IV and
-data pointers by hand.
+commit f1f028ff89cb ("DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again")
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+which had to be intruduced after
+
+commit 6953c57ab172 ("gpio: of: Handle SPI chipselect legacy bindings")
+
+broke the GTA04 display. This contradicted the data sheet but was the only
+way to get it as an spi client operational again.
+
+The panel data sheet defines the chip-select to be active low.
+
+Now, with the arrival of
+
+commit 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+
+the logic of interaction between spi-cs-high and the gpio descriptor flags
+has been changed a second time, making the display broken again. So we have
+to remove the original fix which in retrospect was a workaround of a bug in
+the spi subsystem and not a feature of the panel or bug in the device tree.
+
+With this fix the device tree is back in sync with the data sheet and
+spi subsystem code.
+
+Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+CC: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- arch/x86/crypto/aesni-intel_glue.c | 28 +++++++++++---------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/omap3-gta04.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index 8bfc2bbc877d..223670feaffa 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -803,7 +803,8 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	unsigned long auth_tag_len = crypto_aead_authsize(tfm);
- 	const struct aesni_gcm_tfm_s *gcm_tfm = aesni_gcm_tfm;
--	struct gcm_context_data data AESNI_ALIGN_ATTR;
-+	u8 databuf[sizeof(struct gcm_context_data) + (AESNI_ALIGN - 8)] __aligned(8);
-+	struct gcm_context_data *data = PTR_ALIGN((void *)databuf, AESNI_ALIGN);
- 	struct scatter_walk dst_sg_walk = {};
- 	unsigned long left = req->cryptlen;
- 	unsigned long len, srclen, dstlen;
-@@ -852,8 +853,7 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 	}
+diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
+index c8745bc800f71..003202d129907 100644
+--- a/arch/arm/boot/dts/omap3-gta04.dtsi
++++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+@@ -124,7 +124,6 @@ lcd: td028ttec1@0 {
+ 			spi-max-frequency = <100000>;
+ 			spi-cpol;
+ 			spi-cpha;
+-			spi-cs-high;
  
- 	kernel_fpu_begin();
--	gcm_tfm->init(aes_ctx, &data, iv,
--		hash_subkey, assoc, assoclen);
-+	gcm_tfm->init(aes_ctx, data, iv, hash_subkey, assoc, assoclen);
- 	if (req->src != req->dst) {
- 		while (left) {
- 			src = scatterwalk_map(&src_sg_walk);
-@@ -863,10 +863,10 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			len = min(srclen, dstlen);
- 			if (len) {
- 				if (enc)
--					gcm_tfm->enc_update(aes_ctx, &data,
-+					gcm_tfm->enc_update(aes_ctx, data,
- 							     dst, src, len);
- 				else
--					gcm_tfm->dec_update(aes_ctx, &data,
-+					gcm_tfm->dec_update(aes_ctx, data,
- 							     dst, src, len);
- 			}
- 			left -= len;
-@@ -884,10 +884,10 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			len = scatterwalk_clamp(&src_sg_walk, left);
- 			if (len) {
- 				if (enc)
--					gcm_tfm->enc_update(aes_ctx, &data,
-+					gcm_tfm->enc_update(aes_ctx, data,
- 							     src, src, len);
- 				else
--					gcm_tfm->dec_update(aes_ctx, &data,
-+					gcm_tfm->dec_update(aes_ctx, data,
- 							     src, src, len);
- 			}
- 			left -= len;
-@@ -896,7 +896,7 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			scatterwalk_done(&src_sg_walk, 1, left);
- 		}
- 	}
--	gcm_tfm->finalize(aes_ctx, &data, authTag, auth_tag_len);
-+	gcm_tfm->finalize(aes_ctx, data, authTag, auth_tag_len);
- 	kernel_fpu_end();
- 
- 	if (!assocmem)
-@@ -945,7 +945,8 @@ static int helper_rfc4106_encrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct aesni_rfc4106_gcm_ctx *ctx = aesni_rfc4106_gcm_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	unsigned int i;
- 	__be32 counter = cpu_to_be32(1);
- 
-@@ -972,7 +973,8 @@ static int helper_rfc4106_decrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct aesni_rfc4106_gcm_ctx *ctx = aesni_rfc4106_gcm_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	unsigned int i;
- 
- 	if (unlikely(req->assoclen != 16 && req->assoclen != 20))
-@@ -1119,7 +1121,8 @@ static int generic_gcmaes_encrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct generic_gcmaes_ctx *ctx = generic_gcmaes_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	__be32 counter = cpu_to_be32(1);
- 
- 	memcpy(iv, req->iv, 12);
-@@ -1135,7 +1138,8 @@ static int generic_gcmaes_decrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct generic_gcmaes_ctx *ctx = generic_gcmaes_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 
- 	memcpy(iv, req->iv, 12);
- 	*((__be32 *)(iv+12)) = counter;
+ 			backlight= <&backlight>;
+ 			label = "lcd";
 -- 
-2.17.1
+2.26.2
 
