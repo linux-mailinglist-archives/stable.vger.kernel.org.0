@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA2F2D87E9
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E3B2D87BE
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439327AbgLLQUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:20:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
+        id S2405967AbgLLQLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:11:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439497AbgLLQKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439499AbgLLQKu (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:10:50 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/5] drm/tegra: sor: Disable clocks on error in tegra_sor_init()
-Date:   Sat, 12 Dec 2020 11:09:07 -0500
-Message-Id: <20201212160910.2335511-3-sashal@kernel.org>
+        MPT-FusionLinux.pdl@avagotech.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/5] scsi: mpt3sas: Increase IOCInit request timeout to 30s
+Date:   Sat, 12 Dec 2020 11:09:08 -0500
+Message-Id: <20201212160910.2335511-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160910.2335511-1-sashal@kernel.org>
 References: <20201212160910.2335511-1-sashal@kernel.org>
@@ -32,50 +32,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit bf3a3cdcad40e5928a22ea0fd200d17fd6d6308d ]
+[ Upstream commit 85dad327d9b58b4c9ce08189a2707167de392d23 ]
 
-Fix the missing clk_disable_unprepare() before return from
-tegra_sor_init() in the error handling case.
+Currently the IOCInit request message timeout is set to 10s. This is not
+sufficient in some scenarios such as during HBA FW downgrade operations.
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Increase the IOCInit request timeout to 30s.
+
+Link: https://lore.kernel.org/r/20201130082733.26120-1-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/sor.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 74d0540b8d4c7..76717d2f51e74 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -2375,17 +2375,23 @@ static int tegra_sor_init(struct host1x_client *client)
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
- 				err);
-+			clk_disable_unprepare(sor->clk);
- 			return err;
- 		}
- 	}
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 601a93953307d..16716b2644020 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -4477,7 +4477,7 @@ _base_send_ioc_init(struct MPT3SAS_ADAPTER *ioc)
  
- 	err = clk_prepare_enable(sor->clk_safe);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
+ 	r = _base_handshake_req_reply_wait(ioc,
+ 	    sizeof(Mpi2IOCInitRequest_t), (u32 *)&mpi_request,
+-	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 10);
++	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 30);
  
- 	err = clk_prepare_enable(sor->clk_dp);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk_safe);
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	return 0;
- }
+ 	if (r != 0) {
+ 		pr_err(MPT3SAS_FMT "%s: handshake failed (r=%d)\n",
 -- 
 2.27.0
 
