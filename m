@@ -2,23 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D61AC2D8810
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD62D2D880E
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439399AbgLLQJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:09:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57720 "EHLO mail.kernel.org"
+        id S2439392AbgLLQJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:09:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439378AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439379AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:09:36 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 11/23] habanalabs: put devices before driver removal
-Date:   Sat, 12 Dec 2020 11:07:52 -0500
-Message-Id: <20201212160804.2334982-11-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.9 12/23] arm64: syscall: exit userspace before unmasking exceptions
+Date:   Sat, 12 Dec 2020 11:07:53 -0500
+Message-Id: <20201212160804.2334982-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -30,60 +33,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 5555b7c56bdec7a29c789fec27f84d40f52fbdfa ]
+[ Upstream commit ca1314d73eed493c49bb1932c60a8605530db2e4 ]
 
-Driver never puts its device and control_device objects, hence
-a memory leak is introduced every driver removal.
+In el0_svc_common() we unmask exceptions before we call user_exit(), and
+so there's a window where an IRQ or debug exception can be taken while
+RCU is not watching. In do_debug_exception() we account for this in via
+debug_exception_{enter,exit}(), but in the el1_irq asm we do not and we
+call trace functions which rely on RCU before we have a guarantee that
+RCU is watching.
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Let's avoid this by having el0_svc_common() exit userspace before
+unmasking exceptions, matching what we do for all other EL0 entry paths.
+We can use user_exit_irqoff() to avoid the pointless save/restore of IRQ
+flags while we're sure exceptions are masked in DAIF.
+
+The workaround for Cortex-A76 erratum 1463225 may trigger a debug
+exception before this point, but the debug code invoked in this case is
+safe even when RCU is not watching.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20201130115950.22492-2-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm64/kernel/syscall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index 24b01cce0a384..39fa31d05d9cd 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -227,16 +227,16 @@ delete_cdev_device:
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index 5f0c04863d2c1..8a4bf00e538c3 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -120,8 +120,8 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	 */
  
- static void device_cdev_sysfs_del(struct hl_device *hdev)
- {
--	/* device_release() won't be called so must free devices explicitly */
--	if (!hdev->cdev_sysfs_created) {
--		kfree(hdev->dev_ctrl);
--		kfree(hdev->dev);
--		return;
--	}
-+	if (!hdev->cdev_sysfs_created)
-+		goto put_devices;
+ 	cortex_a76_erratum_1463225_svc_handler();
++	user_exit_irqoff();
+ 	local_daif_restore(DAIF_PROCCTX);
+-	user_exit();
  
- 	hl_sysfs_fini(hdev);
- 	cdev_device_del(&hdev->cdev_ctrl, hdev->dev_ctrl);
- 	cdev_device_del(&hdev->cdev, hdev->dev);
-+
-+put_devices:
-+	put_device(hdev->dev);
-+	put_device(hdev->dev_ctrl);
- }
- 
- /*
-@@ -1362,9 +1362,9 @@ sw_fini:
- early_fini:
- 	device_early_fini(hdev);
- free_dev_ctrl:
--	kfree(hdev->dev_ctrl);
-+	put_device(hdev->dev_ctrl);
- free_dev:
--	kfree(hdev->dev);
-+	put_device(hdev->dev);
- out_disabled:
- 	hdev->disabled = true;
- 	if (add_cdev_sysfs_on_err)
+ 	if (has_syscall_work(flags)) {
+ 		/*
 -- 
 2.27.0
 
