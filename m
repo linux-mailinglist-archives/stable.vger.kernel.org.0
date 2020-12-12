@@ -2,26 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 773302D87A7
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9171A2D87A5
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439396AbgLLQJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:09:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57714 "EHLO mail.kernel.org"
+        id S2439333AbgLLQJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:09:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439381AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439376AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:09:36 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 07/23] kernel/cpu: add arch override for clear_tasks_mm_cpumask() mm handling
-Date:   Sat, 12 Dec 2020 11:07:48 -0500
-Message-Id: <20201212160804.2334982-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 10/23] habanalabs: free host huge va_range if not used
+Date:   Sat, 12 Dec 2020 11:07:51 -0500
+Message-Id: <20201212160804.2334982-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -33,52 +30,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Ofir Bitton <obitton@habana.ai>
 
-[ Upstream commit 8ff00399b153440c1c83e20c43020385b416415b ]
+[ Upstream commit c8c39fbd01d42c30454e42c16bcd69c17260b90a ]
 
-powerpc/64s keeps a counter in the mm which counts bits set in
-mm_cpumask as well as other things. This means it can't use generic code
-to clear bits out of the mask and doesn't adjust the arch specific
-counter.
+If huge range is not valid, driver uses the host range also for
+huge page allocations, but driver never frees its allocation.
+This introduces a memory leak every time a user closes its context.
 
-Add an arch override that allows powerpc/64s to use
-clear_tasks_mm_cpumask().
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201126102530.691335-4-npiggin@gmail.com
+Signed-off-by: Ofir Bitton <obitton@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/common/memory.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 6ff2578ecf17d..2b8d7a5db3837 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -815,6 +815,10 @@ void __init cpuhp_threads_init(void)
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-+#ifndef arch_clear_mm_cpumask_cpu
-+#define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
-+#endif
-+
- /**
-  * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
-  * @cpu: a CPU id
-@@ -850,7 +854,7 @@ void clear_tasks_mm_cpumask(int cpu)
- 		t = find_lock_task_mm(p);
- 		if (!t)
- 			continue;
--		cpumask_clear_cpu(cpu, mm_cpumask(t->mm));
-+		arch_clear_mm_cpumask_cpu(cpu, t->mm);
- 		task_unlock(t);
+diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
+index 5ff4688683fd3..7b839189c0161 100644
+--- a/drivers/misc/habanalabs/common/memory.c
++++ b/drivers/misc/habanalabs/common/memory.c
+@@ -1616,6 +1616,7 @@ static int vm_ctx_init_with_ranges(struct hl_ctx *ctx,
+ 			goto host_hpage_range_err;
+ 		}
+ 	} else {
++		kfree(ctx->host_huge_va_range);
+ 		ctx->host_huge_va_range = ctx->host_va_range;
  	}
- 	rcu_read_unlock();
+ 
 -- 
 2.27.0
 
