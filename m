@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98BB32D8844
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 963932D884F
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404566AbgLLQdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:33:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
+        id S2407571AbgLLQfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:35:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439405AbgLLQJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439406AbgLLQJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:09:56 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Golan Ben Ami <golan.ben.ami@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 19/23] iwlwifi: pcie: add some missing entries for AX210
-Date:   Sat, 12 Dec 2020 11:08:00 -0500
-Message-Id: <20201212160804.2334982-19-sashal@kernel.org>
+Cc:     Stephane Eranian <eranian@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 21/23] perf/x86/intel: Check PEBS status correctly
+Date:   Sat, 12 Dec 2020 11:08:02 -0500
+Message-Id: <20201212160804.2334982-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -33,39 +32,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Golan Ben Ami <golan.ben.ami@intel.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit 9b15596c5006d82b2f82810e8cbf80d8c6e7e7b4 ]
+[ Upstream commit fc17db8aa4c53cbd2d5469bb0521ea0f0a6dbb27 ]
 
-Some subsytem device IDs were missing from the list, so some AX210
-devices were not recognized.  Add them.
+The kernel cannot disambiguate when 2+ PEBS counters overflow at the
+same time. This is what the comment for this code suggests.  However,
+I see the comparison is done with the unfiltered p->status which is a
+copy of IA32_PERF_GLOBAL_STATUS at the time of the sample. This
+register contains more than the PEBS counter overflow bits. It also
+includes many other bits which could also be set.
 
-Signed-off-by: Golan Ben Ami <golan.ben.ami@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20201202143859.a06ba7540449.I7390305d088a49c1043c9b489154fe057989c18f@changeid
-Link: https://lore.kernel.org/r/20201121003411.9450-1-ikegami.t@gmail.com
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20201126110922.317681-2-namhyung@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/events/intel/ds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index 0a4c7d1b37f0e..2eeb644981417 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -540,6 +540,11 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
- 	{IWL_PCI_DEVICE(0x2725, 0x0310, iwlax210_2ax_cfg_ty_gf_a0)},
- 	{IWL_PCI_DEVICE(0x2725, 0x0510, iwlax210_2ax_cfg_ty_gf_a0)},
- 	{IWL_PCI_DEVICE(0x2725, 0x0A10, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0xE020, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0xE024, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x4020, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x6020, iwlax210_2ax_cfg_ty_gf_a0)},
-+	{IWL_PCI_DEVICE(0x2725, 0x6024, iwlax210_2ax_cfg_ty_gf_a0)},
- 	{IWL_PCI_DEVICE(0x2725, 0x00B0, iwlax411_2ax_cfg_sosnj_gf4_a0)},
- 	{IWL_PCI_DEVICE(0x2726, 0x0090, iwlax211_cfg_snj_gf_a0)},
- 	{IWL_PCI_DEVICE(0x2726, 0x00B0, iwlax411_2ax_cfg_sosnj_gf4_a0)},
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index 404315df1e167..cf12e5a956f7e 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -1913,7 +1913,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
+ 		 * that caused the PEBS record. It's called collision.
+ 		 * If collision happened, the record will be dropped.
+ 		 */
+-		if (p->status != (1ULL << bit)) {
++		if (pebs_status != (1ULL << bit)) {
+ 			for_each_set_bit(i, (unsigned long *)&pebs_status, size)
+ 				error[i]++;
+ 			continue;
 -- 
 2.27.0
 
