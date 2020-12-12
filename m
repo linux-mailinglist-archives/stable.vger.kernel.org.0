@@ -2,23 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9171A2D87A5
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4F82D87A6
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439333AbgLLQJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:09:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
+        id S2439386AbgLLQJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:09:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439376AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2439353AbgLLQJg (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 12 Dec 2020 11:09:36 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 10/23] habanalabs: free host huge va_range if not used
-Date:   Sat, 12 Dec 2020 11:07:51 -0500
-Message-Id: <20201212160804.2334982-10-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Annika Wickert <annika.wickert@exaring.de>,
+        Annika Wickert <aw@awlnx.space>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 13/23] vxlan: Add needed_headroom for lower device
+Date:   Sat, 12 Dec 2020 11:07:54 -0500
+Message-Id: <20201212160804.2334982-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -30,34 +33,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ofir Bitton <obitton@habana.ai>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit c8c39fbd01d42c30454e42c16bcd69c17260b90a ]
+[ Upstream commit 0a35dc41fea67ac4495ce7584406bf9557a6e7d0 ]
 
-If huge range is not valid, driver uses the host range also for
-huge page allocations, but driver never frees its allocation.
-This introduces a memory leak every time a user closes its context.
+It was observed that sending data via batadv over vxlan (on top of
+wireguard) reduced the performance massively compared to raw ethernet or
+batadv on raw ethernet. A check of perf data showed that the
+vxlan_build_skb was calling all the time pskb_expand_head to allocate
+enough headroom for:
 
-Signed-off-by: Ofir Bitton <obitton@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+  min_headroom = LL_RESERVED_SPACE(dst->dev) + dst->header_len
+  		+ VXLAN_HLEN + iphdr_len;
+
+But the vxlan_config_apply only requested needed headroom for:
+
+  lowerdev->hard_header_len + VXLAN6_HEADROOM or VXLAN_HEADROOM
+
+So it completely ignored the needed_headroom of the lower device. The first
+caller of net_dev_xmit could therefore never make sure that enough headroom
+was allocated for the rest of the transmit path.
+
+Cc: Annika Wickert <annika.wickert@exaring.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Tested-by: Annika Wickert <aw@awlnx.space>
+Link: https://lore.kernel.org/r/20201126125247.1047977-1-sven@narfation.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/memory.c | 1 +
+ drivers/net/vxlan.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
-index 5ff4688683fd3..7b839189c0161 100644
---- a/drivers/misc/habanalabs/common/memory.c
-+++ b/drivers/misc/habanalabs/common/memory.c
-@@ -1616,6 +1616,7 @@ static int vm_ctx_init_with_ranges(struct hl_ctx *ctx,
- 			goto host_hpage_range_err;
- 		}
- 	} else {
-+		kfree(ctx->host_huge_va_range);
- 		ctx->host_huge_va_range = ctx->host_va_range;
- 	}
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index b248d9e694254..85c4a6bfc7c06 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -3802,6 +3802,7 @@ static void vxlan_config_apply(struct net_device *dev,
+ 		dev->gso_max_segs = lowerdev->gso_max_segs;
  
+ 		needed_headroom = lowerdev->hard_header_len;
++		needed_headroom += lowerdev->needed_headroom;
+ 
+ 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
+ 					   VXLAN_HEADROOM);
 -- 
 2.27.0
 
