@@ -2,95 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340DB2D8591
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 11:02:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 700162D858B
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 11:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438492AbgLLJ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 04:58:52 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.52]:35806 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2438467AbgLLJ6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Dec 2020 04:58:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1607766929;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=Message-Id:Date:Subject:Cc:To:From:From:Subject:Sender;
-        bh=g6bpl7WULr2ukmQidYOp2C0r5vm/laI1YjdSO2Z4mDY=;
-        b=WGnrZBALPPbamiiPMRkfsc49KHyr6BL/UIvbeiWw9K8Ik8UOaP4m2S0e5IzlrFXQL3
-        +FKM1JrBvM+vRxvNlhbtJCazTPGzLBN1CxzP3djUELk9SE4enmhRF8ojuykfzn/xfqO8
-        mACFdyE4l2db7qckI9Aqzrv3W1abmrwTOM2zZ165o3yX4JlhqF6t8FTZzhDrUWbeNVV5
-        90i/LhXBUwbtVO9UWDH763h0aUQ4Is696bJ8wtKVRrw67YCQBP8HaJ7T4frJfkAoCWkq
-        NtdcqBCu5L2lCUJhvDhiE8T1Lj66hsCkuaFty2fpMoLwWekwQHS7aJVQQO1C4PNnCxKu
-        Hmjw==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o1mfYzBGHXH4FpDwNN0="
-X-RZG-CLASS-ID: mo00
-Received: from iMac.fritz.box
-        by smtp.strato.de (RZmta 47.7.1 DYNA|AUTH)
-        with ESMTPSA id K0b553wBC9tQ2bo
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Sat, 12 Dec 2020 10:55:26 +0100 (CET)
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-To:     =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
-        Andreas Kemnade <andreas@kemnade.info>,
-        "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
-Subject: [PATCH] DTS: ARM: gta04: remove legacy spi-cs-high to make display work again
-Date:   Sat, 12 Dec 2020 10:55:25 +0100
-Message-Id: <de8774e44a8f6402435e64034b8e7122157f5b52.1607766924.git.hns@goldelico.com>
-X-Mailer: git-send-email 2.26.2
+        id S2438529AbgLLKA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 05:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34560 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2438527AbgLLKAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Dec 2020 05:00:48 -0500
+Subject: patch "USB: serial: mos7720: fix parallel-port state restore" added to usb-next
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1607767208;
+        bh=Q1QMo8Byh+EJo4JXRE32rZcaWgtm0czIDy4D1A/eID4=;
+        h=To:From:Date:From;
+        b=2Ido6Rr6HMlhgq5W2v6f6DqZov5XddvCen9CgObmnjL1cYtr+Fmzb4mMmn/asGsXb
+         UXceFnm9qi876+kVMw7XKMukSH2I+ZGRbROLpqHpEp3MOshORmSuY1nOsFVlLwJ7Bm
+         XA/plLeMMgkS/sJnPU85kTW+V9kkQWbV0SBCirVk=
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 12 Dec 2020 10:59:28 +0100
+Message-ID: <1607767168790@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts
 
-commit f1f028ff89cb ("DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again")
+This is a note to let you know that I've just added the patch titled
 
-which had to be intruduced after
+    USB: serial: mos7720: fix parallel-port state restore
 
-commit 6953c57ab172 ("gpio: of: Handle SPI chipselect legacy bindings")
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-broke the GTA04 display. This contradicted the data sheet but was the only
-way to get it as an spi client operational again.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-The panel data sheet defines the chip-select to be active low.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-Now, with the arrival of
+If you have any questions about this process, please let me know.
 
-commit 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
 
-the logic of interaction between spi-cs-high and the gpio descriptor flags
-has been changed a second time, making the display broken again. So we have
-to remove the original fix which in retrospect was a workaround of a bug in
-the spi subsystem and not a feature of the panel or bug in the device tree.
+From 975323ab8f116667676c30ca3502a6757bd89e8d Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Wed, 4 Nov 2020 17:47:27 +0100
+Subject: USB: serial: mos7720: fix parallel-port state restore
 
-With this fix the device tree is back in sync with the data sheet and
-spi subsystem code.
+The parallel-port restore operations is called when a driver claims the
+port and is supposed to restore the provided state (e.g. saved when
+releasing the port).
 
-Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
-CC: stable@vger.kernel.org
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Fixes: b69578df7e98 ("USB: usbserial: mos7720: add support for parallel port on moschip 7715")
+Cc: stable <stable@vger.kernel.org>     # 2.6.35
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/serial/mos7720.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index c8745bc800f71..003202d129907 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -124,7 +124,6 @@ lcd: td028ttec1@0 {
- 			spi-max-frequency = <100000>;
- 			spi-cpol;
- 			spi-cpha;
--			spi-cs-high;
- 
- 			backlight= <&backlight>;
- 			label = "lcd";
+diff --git a/drivers/usb/serial/mos7720.c b/drivers/usb/serial/mos7720.c
+index 5eed1078fac8..5a5d2a95070e 100644
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -639,6 +639,8 @@ static void parport_mos7715_restore_state(struct parport *pp,
+ 		spin_unlock(&release_lock);
+ 		return;
+ 	}
++	mos_parport->shadowDCR = s->u.pc.ctr;
++	mos_parport->shadowECR = s->u.pc.ecr;
+ 	write_parport_reg_nonblock(mos_parport, MOS7720_DCR,
+ 				   mos_parport->shadowDCR);
+ 	write_parport_reg_nonblock(mos_parport, MOS7720_ECR,
 -- 
-2.26.2
+2.29.2
+
 
