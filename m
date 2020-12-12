@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130FE2D87B6
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E402D2D87A8
+	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 17:11:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439466AbgLLQKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 11:10:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59454 "EHLO mail.kernel.org"
+        id S2439410AbgLLQKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 11:10:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439444AbgLLQKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Dec 2020 11:10:21 -0500
+        id S2439407AbgLLQJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Dec 2020 11:09:56 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org,
-        Saruhan Karademir <skarade@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org
-Subject: [PATCH AUTOSEL 5.9 15/23] scsi: storvsc: Validate length of incoming packet in storvsc_on_channel_callback()
-Date:   Sat, 12 Dec 2020 11:07:56 -0500
-Message-Id: <20201212160804.2334982-15-sashal@kernel.org>
+Cc:     Brandon Syu <Brandon.Syu@amd.com>, Tony Cheng <Tony.Cheng@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.9 20/23] drm/amd/display: Init clock value by current vbios CLKs
+Date:   Sat, 12 Dec 2020 11:08:01 -0500
+Message-Id: <20201212160804.2334982-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201212160804.2334982-1-sashal@kernel.org>
 References: <20201212160804.2334982-1-sashal@kernel.org>
@@ -34,41 +33,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+From: Brandon Syu <Brandon.Syu@amd.com>
 
-[ Upstream commit 3b8c72d076c42bf27284cda7b2b2b522810686f8 ]
+[ Upstream commit 7e0b367db85ef7b91399006253759a024eab7653 ]
 
-Check that the packet is of the expected size at least, don't copy data
-past the packet.
+[Why]
+While booting into OS, driver updates DPP/DISP CLKs.
+But init clock value is zero which is invalid.
 
-Link: https://lore.kernel.org/r/20201118145348.109879-1-parri.andrea@gmail.com
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org
-Reported-by: Saruhan Karademir <skarade@microsoft.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[How]
+Get current clocks value to update init clocks.
+To avoid underflow.
+
+Signed-off-by: Brandon Syu <Brandon.Syu@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c   | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 8f5f5dc863a4a..6779ee4edfee3 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1246,6 +1246,11 @@ static void storvsc_on_channel_callback(void *context)
- 		request = (struct storvsc_cmd_request *)
- 			((unsigned long)desc->trans_id);
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 2f8fee05547ac..c001307b0a59a 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -163,8 +163,17 @@ void rn_update_clocks(struct clk_mgr *clk_mgr_base,
+ 			new_clocks->dppclk_khz = 100000;
+ 	}
  
-+		if (hv_pkt_datalen(desc) < sizeof(struct vstor_packet) - vmscsi_size_delta) {
-+			dev_err(&device->device, "Invalid packet len\n");
-+			continue;
-+		}
+-	if (should_set_clock(safe_to_lower, new_clocks->dppclk_khz, clk_mgr->base.clks.dppclk_khz)) {
+-		if (clk_mgr->base.clks.dppclk_khz > new_clocks->dppclk_khz)
++	/*
++	 * Temporally ignore thew 0 cases for disp and dpp clks.
++	 * We may have a new feature that requires 0 clks in the future.
++	 */
++	if (new_clocks->dppclk_khz == 0 || new_clocks->dispclk_khz == 0) {
++		new_clocks->dppclk_khz = clk_mgr_base->clks.dppclk_khz;
++		new_clocks->dispclk_khz = clk_mgr_base->clks.dispclk_khz;
++	}
 +
- 		if (request == &stor_device->init_request ||
- 		    request == &stor_device->reset_request) {
- 			memcpy(&request->vstor_packet, packet,
++	if (should_set_clock(safe_to_lower, new_clocks->dppclk_khz, clk_mgr_base->clks.dppclk_khz)) {
++		if (clk_mgr_base->clks.dppclk_khz > new_clocks->dppclk_khz)
+ 			dpp_clock_lowered = true;
+ 		clk_mgr_base->clks.dppclk_khz = new_clocks->dppclk_khz;
+ 		update_dppclk = true;
 -- 
 2.27.0
 
