@@ -2,117 +2,267 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8362D90AD
-	for <lists+stable@lfdr.de>; Sun, 13 Dec 2020 21:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7033E2D910A
+	for <lists+stable@lfdr.de>; Sun, 13 Dec 2020 23:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbgLMU6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Dec 2020 15:58:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53440 "EHLO
+        id S1731214AbgLMW4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Dec 2020 17:56:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727294AbgLMU6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Dec 2020 15:58:22 -0500
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30274C0613CF;
-        Sun, 13 Dec 2020 12:57:42 -0800 (PST)
-Received: by mail-pj1-x1044.google.com with SMTP id l23so5385520pjg.1;
-        Sun, 13 Dec 2020 12:57:42 -0800 (PST)
+        with ESMTP id S1730613AbgLMW4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Dec 2020 17:56:03 -0500
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0193DC0613CF
+        for <stable@vger.kernel.org>; Sun, 13 Dec 2020 14:55:22 -0800 (PST)
+Received: by mail-lf1-x141.google.com with SMTP id r24so25539598lfm.8
+        for <stable@vger.kernel.org>; Sun, 13 Dec 2020 14:55:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=+C7df/JhpDNOhvRuvCv8MZFRD0LpPBGsO24mPtK2tQI=;
-        b=JAssQKBLdQSUpXX1qdsRhJs56Z8/S+6oAKAbc2F2UTnmO2I+q7uRH9uRh4kOH21iAu
-         /RyV5qbTL3/JHc4nWUw6rUycYHRekYUz26ozaJTKdun9or8Jn3ihWkW4HWXRirHD/RAm
-         Bbsa12k6y8jSu5N/XXdY4KEQINEtcq2Hhz6/gUW9AA0/zEtIA/9N6apB5ZLhh5oINcp6
-         J0s66SmiAsEB+r3QWzQw4NCzqABm2x/uWZN0/zWdfYMK3vHC4pDYVuZX3n4W04xHqH4a
-         jV3jwPifpbjlwWQrr0FHxTpwmXU1VBwzhzy21Hb9lY6JIQ6uNQ3lFXB7309yQV78olIj
-         jPYQ==
+        bh=EJzcPpylnKaiFhjUaTGCdHTSB4HDtxk1bXFCHW9lZ18=;
+        b=UNjGuQdEso2eA+quGXUi3dqpChaI3xl6pywwJHljSQn4Amqp6x7Sd37UVYaN8iIKK1
+         pD6VgfTfObaIg00FmW5G8pIySxGYjW6a/t2vk7fNNY1nPqa99PQpE3bCCuxuUY8gj85b
+         +rJuSvTQ2Sd/8mzzPTfzo8iuTokluufuWvYxhx7pUSzIb8zQ7LDLbGQd2OKQXDVsG+fw
+         3LG16SSkaIypmOdZN+85m1Zf5MUr2aaAt4cc6y488qm2nHO8rcg4UpgqIPTKMhrBlnDW
+         jc4cSg6z1Q3U8MEgNpW0Uzs/UnIj2H6lmjZ4Xh4xMACFP+30ZMUSaxrWK5ROeF6Um7NQ
+         doPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=+C7df/JhpDNOhvRuvCv8MZFRD0LpPBGsO24mPtK2tQI=;
-        b=Fa/W1iW65+hGVBqLl/t5cfWCOG3Zwf5SB/N8tPyY0E7Iv6cmxmFlXcWGsdEYx3EOvS
-         jhHYYae3bO52c5D+nROaE4x6VuX3BV/lnnCgq2a0dfn3JZGnS0XcLkxu330Bcs4zFm5s
-         jjHiz0lMJfag0DYgiAT1tt9+NX81AjEADyrJ1OcOQ38StHV/BS0oH5HJng6Vh71vcevV
-         mG4lPqyuw+ZOqeS1NKua23kcIZEwsHuLFRr9V+hdmEREoZjgCAJDm4kXTCK2e473kmak
-         6UYYxkvGZgLswPfnCsBIdv07oJ/oq0JfRBNF50hhjOFPcPSF6YlBOBH23DRnhYY6HllF
-         5+Ng==
-X-Gm-Message-State: AOAM531BDrlNXg93D9n8O8OsR18iSUXDpEcN/fjuR1ielylVsnwblWzH
-        LHuF5F8OV8f/sRI8ozA+TqKt8ha+fH4mgfsw
-X-Google-Smtp-Source: ABdhPJxlNQ9tZOYsryjlZNee15dnRjN02bQG+zSlcPfd2KePaHUVhVXhFDGFhfxyCkac3knOhN+0fQ==
-X-Received: by 2002:a17:90b:3698:: with SMTP id mj24mr21767123pjb.149.1607893061404;
-        Sun, 13 Dec 2020 12:57:41 -0800 (PST)
-Received: from glados.. ([2601:647:6000:3e5b::a27])
-        by smtp.gmail.com with ESMTPSA id 37sm14173930pjz.41.2020.12.13.12.57.40
+        bh=EJzcPpylnKaiFhjUaTGCdHTSB4HDtxk1bXFCHW9lZ18=;
+        b=am6SqJQI2ynwNZvnemXYu7cHLRMBvpF1R9Z8xGHriFvA2YxUK32eCxJXe+Dt2DEtST
+         isDu7mFjeLinPcFCwVkdFSFdsio2BLVWxAn36YlxXu0hMx2dmaM/79KPi7SAJ3asO6nD
+         AzB+e0Kdmz6MCyc9fLoK2RkcIszHMRKT0oJNQS4M1jpO9lFaoYVaBAZVjDITvWV2fkXv
+         +0/U9itn6BSwvo+tjqIRLexNqIe8OqmC7XEVPwdQTed8fXU0VieZNHeLgEzRUGXLDZKT
+         MgFt83iw1Jkr4CH6HF4ETFdU37JxrQnX2n18g4NSLWDGuNTzc3IBsceey2H3UkBBXsKh
+         64Xw==
+X-Gm-Message-State: AOAM5313ULjPBj8pqBdkXnJ+kensNHDNpFGtqiyXpE+LcQ9hn2ZnYtsX
+        3ucuR8nrt1jY7gYI0HL4CH7Hunv+IfNLgnUO
+X-Google-Smtp-Source: ABdhPJzIkRam6r3ZhdelkPNNTAZ2SBJCyzMf1RRdtAFLV12V8gU3HTlsHA6xTT5vGOz0RyAzFzXEAw==
+X-Received: by 2002:a19:848f:: with SMTP id g137mr3929696lfd.622.1607900121382;
+        Sun, 13 Dec 2020 14:55:21 -0800 (PST)
+Received: from localhost.bredbandsbolaget (c-92d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.146])
+        by smtp.gmail.com with ESMTPSA id q9sm1074545ljm.113.2020.12.13.14.55.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Dec 2020 12:57:40 -0800 (PST)
-From:   Thomas Hebb <tommyhebb@gmail.com>
-To:     linux-kernel@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>
-Cc:     Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        Sandy Huang <hjc@rock-chips.com>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [RESEND PATCH] drm/rockchip: dsi: remove extra component_del() call
-Date:   Sun, 13 Dec 2020 12:57:26 -0800
-Message-Id: <149477f8d5d5a76c624766cb8cbdfdb3fa416ee8.1607893019.git.tommyhebb@gmail.com>
-X-Mailer: git-send-email 2.29.2
+        Sun, 13 Dec 2020 14:55:20 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     arm@kernel.org, soc@kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Subject: [PATCH] ARM: dts: ux500: Reserve memory carveouts
+Date:   Sun, 13 Dec 2020 23:55:17 +0100
+Message-Id: <20201213225517.3838501-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support") added
-this devcnt field and call to component_del(). However, these both
-appear to be erroneous changes left over from an earlier version of the
-patch. In the version merged, nothing ever modifies devcnt, meaning
-component_del() runs unconditionally and in addition to the
-component_del() calls in dw_mipi_dsi_rockchip_host_detach(). The second
-call fails to delete anything and produces a warning in dmesg.
+The Ux500 platforms have some memory carveouts set aside for
+communicating with the modem and for the initial secure software
+(ISSW). These areas are protected by the memory controller
+and will result in an external abort if accessed like common
+read/write memory.
 
-If we look at the previous version of the patch[1], however, we see that
-it had logic to calculate devcnt and call component_add() in certain
-situations. This was removed in v6, and the fact that the deletion code
-was not appears to have been an oversight.
+On the legacy boot loaders, these were set aside by using
+cmdline arguments such as this:
 
-[1] https://patchwork.kernel.org/project/dri-devel/patch/20180821140515.22246-8-heiko@sntech.de/
+  mem=96M@0 mem_mtrace=15M@96M mem_mshared=1M@111M
+  mem_modem=16M@112M mali.mali_mem=32M@128M mem=96M@160M
+  hwmem=127M@256M mem_issw=1M@383M mem_ram_console=1M@384M
+  mem=638M@385M
 
-Fixes: cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support")
+Reserve the relevant areas in the device tree instead. The
+"mali", "hwmem", "mem_ram_console" and the trailing 1MB at the
+end of the memory reservations in the list are not relevant for
+the upstream kernel as these are nowadays replaced with
+upstream technologies such as CMA. The modem and ISSW
+reservations are necessary.
+
+This was manifested in a bug that surfaced in response to
+commit 7fef431be9c9 ("mm/page_alloc: place pages to tail in __free_pages_core()")
+which changes the behaviour of memory allocations
+in such a way that the platform will sooner run into these
+dangerous areas, with "Unhandled fault: imprecise external
+abort (0xc06) at 0xb6fd83dc" or similar: the real reason
+turns out to be that the PTE is pointing right into one of
+the reserved memory areas. We were just lucky until now.
+
+We need to augment the DB8500 and DB8520 SoCs similarly
+and also create a new include for the DB9500 used in the
+Snowball since this does not have a modem and thus does
+not need the modem memory reservation, albeit it needs
+the ISSW reservation.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
-Resending since I wasn't subscribed to dri-devel
+ARM SoC folks: please apply this directly for fixes.
 
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 4 ----
- 1 file changed, 4 deletions(-)
+David: just FYI if you run into more of these type of
+regressions. Actually the patch is unintentionally good
+at smoking out other bugs :D
+---
+ arch/arm/boot/dts/ste-db8500.dtsi  | 38 ++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/ste-db8520.dtsi  | 38 ++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/ste-db9500.dtsi  | 35 +++++++++++++++++++++++++++
+ arch/arm/boot/dts/ste-snowball.dts |  2 +-
+ 4 files changed, 112 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/boot/dts/ste-db9500.dtsi
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-index 542dcf7eddd6..ce044db8c97e 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -243,7 +243,6 @@ struct dw_mipi_dsi_rockchip {
- 	struct dw_mipi_dsi *dmd;
- 	const struct rockchip_dw_dsi_chip_data *cdata;
- 	struct dw_mipi_dsi_plat_data pdata;
--	int devcnt;
+diff --git a/arch/arm/boot/dts/ste-db8500.dtsi b/arch/arm/boot/dts/ste-db8500.dtsi
+index d309fad32229..344d29853bf7 100644
+--- a/arch/arm/boot/dts/ste-db8500.dtsi
++++ b/arch/arm/boot/dts/ste-db8500.dtsi
+@@ -12,4 +12,42 @@ cpu@300 {
+ 					    200000 0>;
+ 		};
+ 	};
++
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		/* Modem trace memory */
++		ram@06000000 {
++			reg = <0x06000000 0x00f00000>;
++			no-map;
++		};
++
++		/* Modem shared memory */
++		ram@06f00000 {
++			reg = <0x06f00000 0x00100000>;
++			no-map;
++		};
++
++		/* Modem private memory */
++		ram@07000000 {
++			reg = <0x07000000 0x01000000>;
++			no-map;
++		};
++
++		/*
++		 * Initial Secure Software ISSW memory
++		 *
++		 * This is probably only used if the kernel tries
++		 * to actually call into trustzone to run secure
++		 * applications, which the mainline kernel probably
++		 * will not do on this old chipset. But you can never
++		 * be too careful, so reserve this memory anyway.
++		 */
++		ram@17f00000 {
++			reg = <0x17f00000 0x00100000>;
++			no-map;
++		};
++	};
  };
+diff --git a/arch/arm/boot/dts/ste-db8520.dtsi b/arch/arm/boot/dts/ste-db8520.dtsi
+index 48bd8728ae27..287804e9e183 100644
+--- a/arch/arm/boot/dts/ste-db8520.dtsi
++++ b/arch/arm/boot/dts/ste-db8520.dtsi
+@@ -12,4 +12,42 @@ cpu@300 {
+ 					    200000 0>;
+ 		};
+ 	};
++
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		/* Modem trace memory */
++		ram@06000000 {
++			reg = <0x06000000 0x00f00000>;
++			no-map;
++		};
++
++		/* Modem shared memory */
++		ram@06f00000 {
++			reg = <0x06f00000 0x00100000>;
++			no-map;
++		};
++
++		/* Modem private memory */
++		ram@07000000 {
++			reg = <0x07000000 0x01000000>;
++			no-map;
++		};
++
++		/*
++		 * Initial Secure Software ISSW memory
++		 *
++		 * This is probably only used if the kernel tries
++		 * to actually call into trustzone to run secure
++		 * applications, which the mainline kernel probably
++		 * will not do on this old chipset. But you can never
++		 * be too careful, so reserve this memory anyway.
++		 */
++		ram@17f00000 {
++			reg = <0x17f00000 0x00100000>;
++			no-map;
++		};
++	};
+ };
+diff --git a/arch/arm/boot/dts/ste-db9500.dtsi b/arch/arm/boot/dts/ste-db9500.dtsi
+new file mode 100644
+index 000000000000..0afff703191c
+--- /dev/null
++++ b/arch/arm/boot/dts/ste-db9500.dtsi
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#include "ste-dbx5x0.dtsi"
++
++/ {
++	cpus {
++		cpu@300 {
++			/* cpufreq controls */
++			operating-points = <1152000 0
++					    800000 0
++					    400000 0
++					    200000 0>;
++		};
++	};
++
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		/*
++		 * Initial Secure Software ISSW memory
++		 *
++		 * This is probably only used if the kernel tries
++		 * to actually call into trustzone to run secure
++		 * applications, which the mainline kernel probably
++		 * will not do on this old chipset. But you can never
++		 * be too careful, so reserve this memory anyway.
++		 */
++		ram@17f00000 {
++			reg = <0x17f00000 0x00100000>;
++			no-map;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
+index be90e73c923e..27d8a07718a0 100644
+--- a/arch/arm/boot/dts/ste-snowball.dts
++++ b/arch/arm/boot/dts/ste-snowball.dts
+@@ -4,7 +4,7 @@
+  */
  
- struct dphy_pll_parameter_map {
-@@ -1121,9 +1120,6 @@ static int dw_mipi_dsi_rockchip_remove(struct platform_device *pdev)
- {
- 	struct dw_mipi_dsi_rockchip *dsi = platform_get_drvdata(pdev);
+ /dts-v1/;
+-#include "ste-db8500.dtsi"
++#include "ste-db9500.dtsi"
+ #include "ste-href-ab8500.dtsi"
+ #include "ste-href-family-pinctrl.dtsi"
  
--	if (dsi->devcnt == 0)
--		component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
--
- 	dw_mipi_dsi_remove(dsi->dmd);
- 
- 	return 0;
 -- 
-2.29.2
+2.26.2
 
