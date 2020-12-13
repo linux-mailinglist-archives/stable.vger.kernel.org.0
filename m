@@ -2,64 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD23A2D8A4C
-	for <lists+stable@lfdr.de>; Sat, 12 Dec 2020 23:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D45F42D8AD0
+	for <lists+stable@lfdr.de>; Sun, 13 Dec 2020 02:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408082AbgLLWYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Dec 2020 17:24:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44876 "EHLO
+        id S2439974AbgLMBVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Dec 2020 20:21:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727042AbgLLWYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Dec 2020 17:24:46 -0500
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 559BCC0613CF;
-        Sat, 12 Dec 2020 14:24:06 -0800 (PST)
-Received: by mail-pf1-x442.google.com with SMTP id p4so9534030pfg.0;
-        Sat, 12 Dec 2020 14:24:06 -0800 (PST)
+        with ESMTP id S2439971AbgLMBVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Dec 2020 20:21:05 -0500
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413C5C0613CF;
+        Sat, 12 Dec 2020 17:20:25 -0800 (PST)
+Received: by mail-pl1-x641.google.com with SMTP id y8so6712438plp.8;
+        Sat, 12 Dec 2020 17:20:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=QtJXBVt7gHI21bYFoZ1JoDV4VjhjgVIaaJDaUSnjM6k=;
-        b=pY6anJiq1VYF1jMzjF+dcOuysiwgKQDBjxl4pI8MvZXad/L5wQeiVvdBaxzIBH4eXF
-         I0u0mlSOK6Q1WgcgHP4nVk4j5+r9Fe7OHS/lRK5OMbfKq3aPDYcmkDpA2KR5OrRrdHJ5
-         kOMhOOGcT5JwrjmDUIutKsPkSxPFJdqC6jG22WHBKp34KLojdw+IeJ9eI2bOfk/NOenP
-         ckFJQvY6Nx+gkkerIPwjQn7qOmkWBz2Xpncl37I+ibqgkLWqhTTuA4Xznaikb0/Vs821
-         W+sq6zDvupwDluvrcNkKqZ8zrN6TrTapk3X6/IYF27VPMZaUCDKbH2C5j5WRaihImvDq
-         fLfg==
+        bh=5w7+jTgC8hBJiHtcsnmrY7j8FYxZ7rdBNlmPCyHcgzw=;
+        b=PD/47T/zAPbDNd2ZPt8k9Mv+Mn1VXpQeAhkbcM7VQMohbhTNvjyEtL4VFn1CvygL91
+         gqVBG/pL2SrfuMPfoVhZoZ/q27AuuyInxdJlSspeOgmUKlWMm0RoedXJTaL9jC3Blqxm
+         G/1OIT1XPqiem/SagfHaMK28261VXClzwspLymV+pq+9jXcZBUSTpgSODIM0OURxvdFv
+         VhTmvcHX7d5/nWBbFZoGuV4DCfZNf4jYOdAqJmQndy9lrcuL5WaZ67zXclw5SBokGary
+         iih14x1dGf2m8ftOA6y7oBY8mhDPZLnp58jYO5Elck51q3Y3BbVKO66ZUwqddLLVCy8N
+         yCUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=QtJXBVt7gHI21bYFoZ1JoDV4VjhjgVIaaJDaUSnjM6k=;
-        b=EWdm5Raks9aJf0B80+FLu1dJekxht5c4KORQeGc74aOOVOPaPuvLylf0yJ+ENpG++4
-         R8Su1cyWBFlqqyP449T43GRuFSJD/sSCbNdGlK4G1rghD2TFgEqx7KUs5OhfJKZZYgUN
-         FzbWZuJJv7BF0g0s2oxpavCxgiT6J3wNyyIT4U8ixi2/NqDbCNenxGTfT9CJqvjjM+Rd
-         tdf3zlCIMbzZYIbeQJabUDbQMHVhi53Ef6VPjmrw6qUijhe0aJduKp/AyWedJVwChI5n
-         8eOU8Dw1YKIO+Nk7/7aAdhTnEzQHd927gA0LS5HCzCo/19myeTdkreJAYyzXDAnEuQWo
-         8i1A==
-X-Gm-Message-State: AOAM533f1zPZcBE8VDO6FqebcuRhqaoiGM8ncg/phU5YmfNJUHjnP1Sn
-        WMSywUAzetlGIjfiMO25qwUhdm1niHDbv7rZ
-X-Google-Smtp-Source: ABdhPJzLYLeOuMQKOWMGgFp4pj8D4j+yoysIS0L8UZ95aYc/Z8WmvA33yxJuB5XMv5grTtczBMPB2A==
-X-Received: by 2002:aa7:9738:0:b029:19d:dce0:d8e7 with SMTP id k24-20020aa797380000b029019ddce0d8e7mr17276456pfg.14.1607811845359;
-        Sat, 12 Dec 2020 14:24:05 -0800 (PST)
+        bh=5w7+jTgC8hBJiHtcsnmrY7j8FYxZ7rdBNlmPCyHcgzw=;
+        b=OoSL4kpOFcFx16uzZulyatu6FeJMVF5rcrP6nvQZECg4g0iiYSivnr8OJsra79k+dc
+         WFJml4E6jQVfitdrqeS8/Ako5uM0hgkprsykbJKjX7x0danBZs62ADRRtHVrY9vzqDmm
+         s0CXc89ecF9ada9ByinqPqc3WeNlJPAzhKmAeFJyFeRT3LwG2jrmOZi4DouSVLBQfvrV
+         XR3t7YQ8r55UihaSoe7eq9SiqyTtcRBqzirLDiX6zDfUZi8LC6i38aA+x8lDJWmc2UpZ
+         MNrj5i2MCX3AQtJNya31BuAK7qZisUPCUppDID1T0Pe7tg82zu4McZsgXlJh/Gka/nW5
+         cRFA==
+X-Gm-Message-State: AOAM531M8hKSg/i48Lceghow65cZgk3ULePOH29BTMZ8cIB86zm4ZRpz
+        9hcoZXp1fYv268M/Sp0UI4W+DG1tTByQKTrL
+X-Google-Smtp-Source: ABdhPJxD7QxA9VZj9NvzLnEEK1zxJxuFW5VGThfbPVXjzDJ61BgCpHdj6MGvjGe97ihVxDShLrIOog==
+X-Received: by 2002:a17:902:9b97:b029:da:4299:2214 with SMTP id y23-20020a1709029b97b02900da42992214mr17124758plp.37.1607822424413;
+        Sat, 12 Dec 2020 17:20:24 -0800 (PST)
 Received: from glados.. ([2601:647:6000:3e5b::a27])
-        by smtp.gmail.com with ESMTPSA id na6sm13244256pjb.12.2020.12.12.14.24.03
+        by smtp.gmail.com with ESMTPSA id u189sm1642670pfb.51.2020.12.12.17.20.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Dec 2020 14:24:04 -0800 (PST)
+        Sat, 12 Dec 2020 17:20:24 -0800 (PST)
 From:   Thomas Hebb <tommyhebb@gmail.com>
-To:     linux-kernel@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>
+To:     linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
 Cc:     Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        Sandy Huang <hjc@rock-chips.com>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH] drm/rockchip: dsi: remove extra component_del() call
-Date:   Sat, 12 Dec 2020 14:23:55 -0800
-Message-Id: <b6fef187969c45c3153d90bfd1cba684b764a225.1607811826.git.tommyhebb@gmail.com>
+        Jaroslav Kysela <perex@perex.cz>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org
+Subject: [PATCH] ASoC: dapm: remove widget from dirty list on free
+Date:   Sat, 12 Dec 2020 17:20:12 -0800
+Message-Id: <f8b5f031d50122bf1a9bfc9cae046badf4a7a31a.1607822410.git.tommyhebb@gmail.com>
 X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -67,51 +63,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support") added
-this devcnt field and call to component_del(). However, these both
-appear to be erroneous changes left over from an earlier version of the
-patch. In the version merged, nothing ever modifies devcnt, meaning
-component_del() runs unconditionally and in addition to the
-component_del() calls in dw_mipi_dsi_rockchip_host_detach(). The second
-call fails to delete anything and produces a warning in dmesg.
+A widget's "dirty" list_head, much like its "list" list_head, eventually
+chains back to a list_head on the snd_soc_card itself. This means that
+the list can stick around even after the widget (or all widgets) have
+been freed. Currently, however, widgets that are in the dirty list when
+freed remain there, corrupting the entire list and leading to memory
+errors and undefined behavior when the list is next accessed or
+modified.
 
-If we look at the previous version of the patch[1], however, we see that
-it had logic to calculate devcnt and call component_add() in certain
-situations. This was removed in v6, and the fact that the deletion code
-was not appears to have been an oversight.
+I encountered this issue when a component failed to probe relatively
+late in snd_soc_bind_card(), causing it to bail out and call
+soc_cleanup_card_resources(), which eventually called
+snd_soc_dapm_free() with widgets that were still dirty from when they'd
+been added.
 
-[1] https://patchwork.kernel.org/project/dri-devel/patch/20180821140515.22246-8-heiko@sntech.de/
-
-Fixes: cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support")
+Fixes: db432b414e20 ("ASoC: Do DAPM power checks only for widgets changed since last run")
 Cc: stable@vger.kernel.org
 Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
 ---
 
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 4 ----
- 1 file changed, 4 deletions(-)
+ sound/soc/soc-dapm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-index 542dcf7eddd6..ce044db8c97e 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -243,7 +243,6 @@ struct dw_mipi_dsi_rockchip {
- 	struct dw_mipi_dsi *dmd;
- 	const struct rockchip_dw_dsi_chip_data *cdata;
- 	struct dw_mipi_dsi_plat_data pdata;
--	int devcnt;
- };
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 7f87b449f950..148c095df27b 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2486,6 +2486,7 @@ void snd_soc_dapm_free_widget(struct snd_soc_dapm_widget *w)
+ 	enum snd_soc_dapm_direction dir;
  
- struct dphy_pll_parameter_map {
-@@ -1121,9 +1120,6 @@ static int dw_mipi_dsi_rockchip_remove(struct platform_device *pdev)
- {
- 	struct dw_mipi_dsi_rockchip *dsi = platform_get_drvdata(pdev);
- 
--	if (dsi->devcnt == 0)
--		component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
--
- 	dw_mipi_dsi_remove(dsi->dmd);
- 
- 	return 0;
+ 	list_del(&w->list);
++	list_del(&w->dirty);
+ 	/*
+ 	 * remove source and sink paths associated to this widget.
+ 	 * While removing the path, remove reference to it from both
 -- 
 2.29.2
 
