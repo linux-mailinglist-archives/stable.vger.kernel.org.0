@@ -2,142 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B392DA257
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 22:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8DF2D9EEC
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:25:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503601AbgLNVIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 16:08:16 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:52230 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503603AbgLNVIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 16:08:15 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1kov46-0039ff-14; Mon, 14 Dec 2020 21:07:30 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Tue, 01 Dec 2020 15:20:02 +0000
-Subject: [git:media_tree/master] media: pulse8-cec: add support for FW v10 and up
-To:     linuxtv-commits@linuxtv.org
-Cc:     Maxime Ripard <mripard@kernel.org>, stable@vger.kernel.org,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1kov46-0039ff-14@www.linuxtv.org>
+        id S2408370AbgLNSYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:24:24 -0500
+Received: from 142-4-6-44.unifiedlayer.com ([142.4.6.44]:59942 "EHLO
+        142-4-6-44.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2408318AbgLNSYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 13:24:15 -0500
+Received: from aghogho239 by 142-4-6-44.ipage.com with local (Exim 4.93)
+        (envelope-from <aghogho239@142-4-6-44.ipage.com>)
+        id 1kopNt-0005e0-Ma; Mon, 14 Dec 2020 08:03:34 -0700
+To:     stanislaw.woronowicz@fuw.edu.pl
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: modproofread092.org/mail2/send.php for 129.205.124.249
+X-PHP-Originating-Script: 1001:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1kopNt-0005e0-Ma@142-4-6-44.ipage.com>
+Date:   Mon, 14 Dec 2020 08:03:33 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-6-44.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-6-44.ipage.com
+X-Get-Message-Sender-Via: 142-4-6-44.ipage.com: authenticated_id: aghogho239/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-6-44.ipage.com: aghogho239
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
-Subject: media: pulse8-cec: add support for FW v10 and up
-Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date:    Fri Nov 27 12:52:30 2020 +0100
 
-Starting with firmware version 10 the GET/SET_HDMI_VERSION message
-was removed and GET/SET_AUTO_POWER_ON was added.
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-The removal of GET/SET_HDMI_VERSION caused the probe of the
-Pulse-Eight to fail. Add a version check to handle this gracefully.
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author’s learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
-Also show (but do not set) the Auto Power On value.
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Maxime Ripard <mripard@kernel.org>
-Tested-by: Maxime Ripard <mripard@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Our charges are as follows: $25 per 1000 words, meaning
 
- drivers/media/cec/usb/pulse8/pulse8-cec.c | 43 +++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 13 deletions(-)
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
 
----
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
 
-diff --git a/drivers/media/cec/usb/pulse8/pulse8-cec.c b/drivers/media/cec/usb/pulse8/pulse8-cec.c
-index 5d3a3f775bc8..04b13cdc38d2 100644
---- a/drivers/media/cec/usb/pulse8/pulse8-cec.c
-+++ b/drivers/media/cec/usb/pulse8/pulse8-cec.c
-@@ -88,13 +88,15 @@ enum pulse8_msgcodes {
- 	MSGCODE_SET_PHYSICAL_ADDRESS,	/* 0x20 */
- 	MSGCODE_GET_DEVICE_TYPE,
- 	MSGCODE_SET_DEVICE_TYPE,
--	MSGCODE_GET_HDMI_VERSION,
-+	MSGCODE_GET_HDMI_VERSION,	/* Removed in FW >= 10 */
- 	MSGCODE_SET_HDMI_VERSION,
- 	MSGCODE_GET_OSD_NAME,
- 	MSGCODE_SET_OSD_NAME,
- 	MSGCODE_WRITE_EEPROM,
- 	MSGCODE_GET_ADAPTER_TYPE,	/* 0x28 */
- 	MSGCODE_SET_ACTIVE_SOURCE,
-+	MSGCODE_GET_AUTO_POWER_ON,	/* New for FW >= 10 */
-+	MSGCODE_SET_AUTO_POWER_ON,
- 
- 	MSGCODE_FRAME_EOM = 0x80,
- 	MSGCODE_FRAME_ACK = 0x40,
-@@ -143,6 +145,8 @@ static const char * const pulse8_msgnames[] = {
- 	"WRITE_EEPROM",
- 	"GET_ADAPTER_TYPE",
- 	"SET_ACTIVE_SOURCE",
-+	"GET_AUTO_POWER_ON",
-+	"SET_AUTO_POWER_ON",
- };
- 
- static const char *pulse8_msgname(u8 cmd)
-@@ -579,12 +583,14 @@ static int pulse8_cec_adap_log_addr(struct cec_adapter *adap, u8 log_addr)
- 	if (err)
- 		goto unlock;
- 
--	cmd[0] = MSGCODE_SET_HDMI_VERSION;
--	cmd[1] = adap->log_addrs.cec_version;
--	err = pulse8_send_and_wait(pulse8, cmd, 2,
--				   MSGCODE_COMMAND_ACCEPTED, 0);
--	if (err)
--		goto unlock;
-+	if (pulse8->vers < 10) {
-+		cmd[0] = MSGCODE_SET_HDMI_VERSION;
-+		cmd[1] = adap->log_addrs.cec_version;
-+		err = pulse8_send_and_wait(pulse8, cmd, 2,
-+					   MSGCODE_COMMAND_ACCEPTED, 0);
-+		if (err)
-+			goto unlock;
-+	}
- 
- 	if (adap->log_addrs.osd_name[0]) {
- 		size_t osd_len = strlen(adap->log_addrs.osd_name);
-@@ -691,6 +697,14 @@ static int pulse8_setup(struct pulse8 *pulse8, struct serio *serio,
- 	dev_dbg(pulse8->dev, "Autonomous mode: %s",
- 		data[0] ? "on" : "off");
- 
-+	if (pulse8->vers >= 10) {
-+		cmd[0] = MSGCODE_GET_AUTO_POWER_ON;
-+		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
-+		if (!err)
-+			dev_dbg(pulse8->dev, "Auto Power On: %s",
-+				data[0] ? "on" : "off");
-+	}
-+
- 	cmd[0] = MSGCODE_GET_DEVICE_TYPE;
- 	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
- 	if (err)
-@@ -752,12 +766,15 @@ static int pulse8_setup(struct pulse8 *pulse8, struct serio *serio,
- 	dev_dbg(pulse8->dev, "Physical address: %x.%x.%x.%x\n",
- 		cec_phys_addr_exp(*pa));
- 
--	cmd[0] = MSGCODE_GET_HDMI_VERSION;
--	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
--	if (err)
--		return err;
--	log_addrs->cec_version = data[0];
--	dev_dbg(pulse8->dev, "CEC version: %d\n", log_addrs->cec_version);
-+	log_addrs->cec_version = CEC_OP_CEC_VERSION_1_4;
-+	if (pulse8->vers < 10) {
-+		cmd[0] = MSGCODE_GET_HDMI_VERSION;
-+		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
-+		if (err)
-+			return err;
-+		log_addrs->cec_version = data[0];
-+		dev_dbg(pulse8->dev, "CEC version: %d\n", log_addrs->cec_version);
-+	}
- 
- 	cmd[0] = MSGCODE_GET_OSD_NAME;
- 	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 0);
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
+
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
+
