@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2822D9DEE
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 232AF2D9EA6
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502382AbgLNRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:39:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
+        id S2408535AbgLNRjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:39:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502375AbgLNRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502376AbgLNRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:39:09 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Subject: [PATCH 5.9 099/105] zonefs: fix page reference and BIO leak
-Date:   Mon, 14 Dec 2020 18:29:13 +0100
-Message-Id: <20201214172600.048551286@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.9 100/105] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
+Date:   Mon, 14 Dec 2020 18:29:14 +0100
+Message-Id: <20201214172600.097203955@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -32,67 +32,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 6bea0225a4bf14a58af71cb9677a756921469e46 upstream.
+commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
 
-In zonefs_file_dio_append(), the pages obtained using
-bio_iov_iter_get_pages() are not released on completion of the
-REQ_OP_APPEND BIO, nor when bio_iov_iter_get_pages() fails.
-Furthermore, a call to bio_put() is missing when
-bio_iov_iter_get_pages() fails.
+My patch caused kernel Oopses and delays in boot.  Revert it.
 
-Fix these resource leaks by adding BIO resource release code (bio_put()i
-and bio_release_pages()) at the end of the function after the BIO
-execution and add a jump to this resource cleanup code in case of
-bio_iov_iter_get_pages() failure.
+The problem was that I moved the "mem->dma = paddr;" before the call to
+be_fill_queue().  But the first thing that the be_fill_queue() function
+does is memset the whole struct to zero which overwrites the assignment.
 
-While at it, also fix the call to task_io_account_write() to be passed
-the correct BIO size instead of bio_iov_iter_get_pages() return value.
-
-Reported-by: Christoph Hellwig <hch@lst.de>
-Fixes: 02ef12a663c7 ("zonefs: use REQ_OP_ZONE_APPEND for sync DIO")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
+Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/zonefs/super.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/scsi/be2iscsi/be_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -628,21 +628,23 @@ static ssize_t zonefs_file_dio_append(st
- 		bio->bi_opf |= REQ_FUA;
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3020,7 +3020,6 @@ static int beiscsi_create_eqs(struct bei
+ 			goto create_eq_error;
+ 		}
  
- 	ret = bio_iov_iter_get_pages(bio, from);
--	if (unlikely(ret)) {
--		bio_io_error(bio);
--		return ret;
--	}
-+	if (unlikely(ret))
-+		goto out_release;
-+
- 	size = bio->bi_iter.bi_size;
--	task_io_account_write(ret);
-+	task_io_account_write(size);
+-		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3030,6 +3029,7 @@ static int beiscsi_create_eqs(struct bei
+ 			goto create_eq_error;
+ 		}
  
- 	if (iocb->ki_flags & IOCB_HIPRI)
- 		bio_set_polled(bio, iocb);
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    BEISCSI_EQ_DELAY_DEF);
+ 		if (ret) {
+@@ -3086,7 +3086,6 @@ static int beiscsi_create_cqs(struct bei
+ 			goto create_cq_error;
+ 		}
  
- 	ret = submit_bio_wait(bio);
+-		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3096,6 +3095,7 @@ static int beiscsi_create_cqs(struct bei
+ 			goto create_cq_error;
+ 		}
  
-+	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
-+
-+out_release:
-+	bio_release_pages(bio, false);
- 	bio_put(bio);
- 
--	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
- 	if (ret >= 0) {
- 		iocb->ki_pos += size;
- 		return size;
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
 
 
