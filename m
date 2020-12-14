@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0952D9EE7
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:25:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A18152D9DEA
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:39:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440816AbgLNSX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:23:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
+        id S2502334AbgLNRiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:38:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502325AbgLNRiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502329AbgLNRiO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:38:14 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Inki Dae <inki.dae@samsung.com>,
+        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
+        Ran Wang <ran.wang_1@nxp.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 055/105] drm/exynos: depend on COMMON_CLK to fix compile tests
-Date:   Mon, 14 Dec 2020 18:28:29 +0100
-Message-Id: <20201214172557.917758184@linuxfoundation.org>
+Subject: [PATCH 5.9 056/105] spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts
+Date:   Mon, 14 Dec 2020 18:28:30 +0100
+Message-Id: <20201214172557.965095879@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -33,39 +32,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Ran Wang <ran.wang_1@nxp.com>
 
-[ Upstream commit e2d3d2e904ad3d381753798dcd5cae03e3c47242 ]
+[ Upstream commit 71d80563b0760a411cd90a3680536f5d887fff6b ]
 
-The Exynos DRM uses Common Clock Framework thus it cannot be built on
-platforms without it (e.g. compile test on MIPS with RALINK and
-SOC_RT305X):
+Given the case that bootloader(such as UEFI)'s FSPI driver might not
+handle all interrupts before loading kernel, those legacy interrupts
+would assert immidiately once kernel's FSPI driver enable them. Further,
+if it was FSPI_INTR_IPCMDDONE, the irq handler nxp_fspi_irq_handler()
+would call complete(&f->c) to notify others. However, f->c might not be
+initialized yet at that time, then cause kernel panic.
 
-    /usr/bin/mips-linux-gnu-ld: drivers/gpu/drm/exynos/exynos_mixer.o: in function `mixer_bind':
-    exynos_mixer.c:(.text+0x958): undefined reference to `clk_set_parent'
+Of cause, we should fix this issue within bootloader. But it would be
+better to have this pacth to make dirver more robust (by clearing all
+interrupt status bits before enabling interrupts).
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Suggested-by: Han Xu <han.xu@nxp.com>
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Link: https://lore.kernel.org/r/20201123025715.14635-1-ran.wang_1@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-nxp-fspi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/Kconfig b/drivers/gpu/drm/exynos/Kconfig
-index 6417f374b923a..951d5f708e92b 100644
---- a/drivers/gpu/drm/exynos/Kconfig
-+++ b/drivers/gpu/drm/exynos/Kconfig
-@@ -1,7 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config DRM_EXYNOS
- 	tristate "DRM Support for Samsung SoC Exynos Series"
--	depends on OF && DRM && (ARCH_S3C64XX || ARCH_S5PV210 || ARCH_EXYNOS || ARCH_MULTIPLATFORM || COMPILE_TEST)
-+	depends on OF && DRM && COMMON_CLK
-+	depends on ARCH_S3C64XX || ARCH_S5PV210 || ARCH_EXYNOS || ARCH_MULTIPLATFORM || COMPILE_TEST
- 	depends on MMU
- 	select DRM_KMS_HELPER
- 	select VIDEOMODE_HELPERS
+diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
+index 1ccda82da2063..158e09470898b 100644
+--- a/drivers/spi/spi-nxp-fspi.c
++++ b/drivers/spi/spi-nxp-fspi.c
+@@ -991,6 +991,7 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct nxp_fspi *f;
+ 	int ret;
++	u32 reg;
+ 
+ 	ctlr = spi_alloc_master(&pdev->dev, sizeof(*f));
+ 	if (!ctlr)
+@@ -1017,6 +1018,12 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 		goto err_put_ctrl;
+ 	}
+ 
++	/* Clear potential interrupts */
++	reg = fspi_readl(f, f->iobase + FSPI_INTR);
++	if (reg)
++		fspi_writel(f, reg, f->iobase + FSPI_INTR);
++
++
+ 	/* find the resources - controller memory mapped space */
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fspi_mmap");
+ 	if (!res) {
 -- 
 2.27.0
 
