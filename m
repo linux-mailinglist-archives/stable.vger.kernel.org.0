@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C04DC2DA086
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C44C2D9F96
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732627AbgLNTbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:31:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S2440958AbgLNSvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:51:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502141AbgLNRgX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:36:23 -0500
+        id S2502251AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 5.4 32/36] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
+        stable@vger.kernel.org, Markus Reichl <m.reichl@fivetechno.de>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 042/105] arm64: dts: rockchip: Reorder LED triggers from mmc devices on rk3399-roc-pc.
 Date:   Mon, 14 Dec 2020 18:28:16 +0100
-Message-Id: <20201214172544.882888214@linuxfoundation.org>
+Message-Id: <20201214172557.307386114@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,53 +32,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Markus Reichl <m.reichl@fivetechno.de>
 
-commit 29ac40cbed2bc06fa218ca25d7f5e280d3d08a25 upstream.
+[ Upstream commit 7327c8b98e2e14c47021eea14d1ab268086a6408 ]
 
-The PAT bit is in different locations for 4k and 2M/1G page table
-entries.
+After patch [1] SD-card becomes mmc1 and eMMC becomes mmc2.
+Correct trigger of LEDs accordingly.
 
-Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
-caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
-and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
-index for write-protected pages.
+[1]
+https://patchwork.kernel.org/patch/11881427
 
-Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Markus Reichl <m.reichl@fivetechno.de>
+Link: https://lore.kernel.org/r/20201104192933.1001-1-m.reichl@fivetechno.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pgtable_types.h |    1 +
- arch/x86/mm/mem_encrypt_identity.c   |    4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -147,6 +147,7 @@ enum page_cache_mode {
- #endif
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
+index b85ec31cd2835..78ef0037ad4b5 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
+@@ -74,14 +74,14 @@
+ 			label = "red:diy";
+ 			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+ 			default-state = "off";
+-			linux,default-trigger = "mmc1";
++			linux,default-trigger = "mmc2";
+ 		};
  
- #define _PAGE_CACHE_MASK	(_PAGE_PAT | _PAGE_PCD | _PAGE_PWT)
-+#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
- #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
- #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
+ 		yellow_led: led-2 {
+ 			label = "yellow:yellow-led";
+ 			gpios = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
+ 			default-state = "off";
+-			linux,default-trigger = "mmc0";
++			linux,default-trigger = "mmc1";
+ 		};
+ 	};
  
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -45,8 +45,8 @@
- #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
- 
- #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
--#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
--				 (_PAGE_PAT | _PAGE_PWT))
-+#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
-+				 (_PAGE_PAT_LARGE | _PAGE_PWT))
- 
- #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
- 
+-- 
+2.27.0
+
 
 
