@@ -2,14 +2,14 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D09662D9F16
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF0B2D9F7B
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440355AbgLNS3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:29:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47838 "EHLO mail.kernel.org"
+        id S2387906AbgLNSoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:44:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502283AbgLNRh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502287AbgLNRh5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:37:57 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
@@ -17,9 +17,9 @@ To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 066/105] platform/x86: thinkpad_acpi: Do not report SW_TABLET_MODE on Yoga 11e
-Date:   Mon, 14 Dec 2020 18:28:40 +0100
-Message-Id: <20201214172558.448139331@linuxfoundation.org>
+Subject: [PATCH 5.9 067/105] platform/x86: thinkpad_acpi: Add BAT1 is primary battery quirk for Thinkpad Yoga 11e 4th gen
+Date:   Mon, 14 Dec 2020 18:28:41 +0100
+Message-Id: <20201214172558.495273574@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -33,62 +33,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f2eae1888cf22590c38764b8fa3c989c0283870e ]
+[ Upstream commit c986a7024916c92a775fc8d853fba3cae1d5fde4 ]
 
-The Yoga 11e series has 2 accelerometers described by a BOSC0200 ACPI node.
-This setup relies on a Windows service which reads both accelerometers and
-then calculates the angle between the 2 halves to determine laptop / tent /
-tablet mode and then reports the calculated mode back to the EC by calling
-special ACPI methods on the BOSC0200 node.
+The Thinkpad Yoga 11e 4th gen with the N3450 / Celeron CPU only has
+one battery which is named BAT1 instead of the expected BAT0, add a
+quirk for this. This fixes not being able to set the charging tresholds
+on this model; and this alsoe fixes the following errors in dmesg:
 
-The bmc150 iio driver does not support this (it involves double
-calculations requiring sqrt and arccos so this really needs to be done
-in userspace), as a result of this on the Yoga 11e the thinkpad_acpi
-code always reports SW_TABLET_MODE=0, starting with GNOME 3.38 reporting
-SW_TABLET_MODE=0 causes GNOME to:
+ACPI: \_SB_.PCI0.LPCB.EC__.HKEY: BCTG evaluated but flagged as error
+thinkpad_acpi: Error probing battery 2
+battery: extension failed to load: ThinkPad Battery Extension
+battery: extension unregistered: ThinkPad Battery Extension
 
-1. Not show the onscreen keyboard when a text-input field is focussed
-   with the touchscreen.
-2. Disable accelerometer based auto display-rotation.
-
-This makes sense when in laptop-mode but not when in tablet-mode. But
-since for the Yoga 11e the thinkpad_acpi code always reports
-SW_TABLET_MODE=0, GNOME does not know when the device is in tablet-mode.
-
-Stop reporting the broken (always 0) SW_TABLET_MODE on Yoga 11e models
-to fix this.
-
-Note there are plans for userspace to support 360 degree hinges style
-2-in-1s with 2 accelerometers and figure out the mode by itself, see:
-https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/issues/216
+Note that the added quirk is for the "R0K" BIOS versions which are
+used on the Thinkpad Yoga 11e 4th gen's with a Celeron CPU, there
+is a separate "R0L" BIOS for the i3/i5 based versions. This may also
+need the same quirk, but if that really is necessary is unknown.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201106140130.46820-1-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20201109103550.16265-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/platform/x86/thinkpad_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 4a5bb86d341ee..cd7e782791c71 100644
+index cd7e782791c71..c7e9c0d29ed93 100644
 --- a/drivers/platform/x86/thinkpad_acpi.c
 +++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -3214,7 +3214,14 @@ static int hotkey_init_tablet_mode(void)
+@@ -9704,6 +9704,7 @@ static const struct tpacpi_quirk battery_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('R', '0', 'B', true), /* Thinkpad 11e gen 3 */
+ 	TPACPI_Q_LNV3('R', '0', 'C', true), /* Thinkpad 13 */
+ 	TPACPI_Q_LNV3('R', '0', 'J', true), /* Thinkpad 13 gen 2 */
++	TPACPI_Q_LNV3('R', '0', 'K', true), /* Thinkpad 11e gen 4 celeron BIOS */
+ };
  
- 		in_tablet_mode = hotkey_gmms_get_tablet_mode(res,
- 							     &has_tablet_mode);
--		if (has_tablet_mode)
-+		/*
-+		 * The Yoga 11e series has 2 accelerometers described by a
-+		 * BOSC0200 ACPI node. This setup relies on a Windows service
-+		 * which calls special ACPI methods on this node to report
-+		 * the laptop/tent/tablet mode to the EC. The bmc150 iio driver
-+		 * does not support this, so skip the hotkey on these models.
-+		 */
-+		if (has_tablet_mode && !acpi_dev_present("BOSC0200", "1", -1))
- 			tp_features.hotkey_tablet = TP_HOTKEY_TABLET_USES_GMMS;
- 		type = "GMMS";
- 	} else if (acpi_evalf(hkey_handle, &res, "MHKG", "qd")) {
+ static int __init tpacpi_battery_init(struct ibm_init_struct *ibm)
 -- 
 2.27.0
 
