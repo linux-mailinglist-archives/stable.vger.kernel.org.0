@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C837F2D9DC9
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B712D9F95
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407310AbgLNRdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40802 "EHLO mail.kernel.org"
+        id S1732019AbgLNSvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:51:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440413AbgLNR2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:28:06 -0500
+        id S2502246AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
+        stable@vger.kernel.org, Dany Madden <drt@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/36] interconnect: qcom: qcs404: Remove GPU and display RPM IDs
+Subject: [PATCH 5.9 021/105] ibmvnic: reduce wait for completion time
 Date:   Mon, 14 Dec 2020 18:27:55 +0100
-Message-Id: <20201214172543.868020617@linuxfoundation.org>
+Message-Id: <20201214172556.293225821@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,43 +32,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Djakov <georgi.djakov@linaro.org>
+From: Dany Madden <drt@linux.ibm.com>
 
-[ Upstream commit 7ab1e9117607485df977bb6e271be5c5ad649a4c ]
+[ Upstream commit 98c41f04a67abf5e7f7191d55d286e905d1430ef ]
 
-The following errors are noticed during boot on a QCS404 board:
-[    2.926647] qcom_icc_rpm_smd_send mas 6 error -6
-[    2.934573] qcom_icc_rpm_smd_send mas 8 error -6
+Reduce the wait time for Command Response Queue response from 30 seconds
+to 20 seconds, as recommended by VIOS and Power Hypervisor teams.
 
-These errors show when we try to configure the GPU and display nodes.
-Since these particular nodes aren't supported on RPM and are purely
-local, we should just change their mas_rpm_id to -1 to avoid any
-requests being sent for these master IDs.
-
-Reviewed-by: Mike Tipton <mdtipton@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20201118111044.26056-1-georgi.djakov@linaro.org
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+Fixes: bd0b672313941 ("ibmvnic: Move login and queue negotiation into ibmvnic_open")
+Fixes: 53da09e92910f ("ibmvnic: Add set_link_state routine for setting adapter link state")
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/qcs404.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/interconnect/qcom/qcs404.c b/drivers/interconnect/qcom/qcs404.c
-index 8e0735a870400..3a3ce6ea65ff2 100644
---- a/drivers/interconnect/qcom/qcs404.c
-+++ b/drivers/interconnect/qcom/qcs404.c
-@@ -157,8 +157,8 @@ struct qcom_icc_desc {
- 	}
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index de25d1860f16f..a1556673300a0 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -846,7 +846,7 @@ static void release_napi(struct ibmvnic_adapter *adapter)
+ static int ibmvnic_login(struct net_device *netdev)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+-	unsigned long timeout = msecs_to_jiffies(30000);
++	unsigned long timeout = msecs_to_jiffies(20000);
+ 	int retry_count = 0;
+ 	int retries = 10;
+ 	bool retry;
+@@ -950,7 +950,7 @@ static void release_resources(struct ibmvnic_adapter *adapter)
+ static int set_link_state(struct ibmvnic_adapter *adapter, u8 link_state)
+ {
+ 	struct net_device *netdev = adapter->netdev;
+-	unsigned long timeout = msecs_to_jiffies(30000);
++	unsigned long timeout = msecs_to_jiffies(20000);
+ 	union ibmvnic_crq crq;
+ 	bool resend;
+ 	int rc;
+@@ -5081,7 +5081,7 @@ map_failed:
+ static int ibmvnic_reset_init(struct ibmvnic_adapter *adapter)
+ {
+ 	struct device *dev = &adapter->vdev->dev;
+-	unsigned long timeout = msecs_to_jiffies(30000);
++	unsigned long timeout = msecs_to_jiffies(20000);
+ 	u64 old_num_rx_queues, old_num_tx_queues;
+ 	int rc;
  
- DEFINE_QNODE(mas_apps_proc, QCS404_MASTER_AMPSS_M0, 8, 0, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
--DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, 6, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
--DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, 8, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
-+DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
-+DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
- DEFINE_QNODE(mas_snoc_bimc_1, QCS404_SNOC_BIMC_1_MAS, 8, 76, -1, QCS404_SLAVE_EBI_CH0);
- DEFINE_QNODE(mas_tcu_0, QCS404_MASTER_TCU_0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
- DEFINE_QNODE(mas_spdm, QCS404_MASTER_SPDM, 4, -1, -1, QCS404_PNOC_INT_3);
 -- 
 2.27.0
 
