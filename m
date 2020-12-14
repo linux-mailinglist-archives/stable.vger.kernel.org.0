@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B282D9EFD
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0BB2D9F4B
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408745AbgLNS1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:27:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S2440340AbgLNS33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:29:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502295AbgLNRiD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:38:03 -0500
+        id S2502297AbgLNRiC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:38:02 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 074/105] s390: fix irq state tracing
-Date:   Mon, 14 Dec 2020 18:28:48 +0100
-Message-Id: <20201214172558.828055689@linuxfoundation.org>
+Subject: [PATCH 5.9 075/105] intel_idle: Build fix
+Date:   Mon, 14 Dec 2020 18:28:49 +0100
+Message-Id: <20201214172558.877489118@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -33,113 +32,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b1cae1f84a0f609a34ebcaa087fbecef32f69882 ]
+[ Upstream commit 4d916140bf28ff027997144ea1bb4299e1536f87 ]
 
-With commit 58c644ba512c ("sched/idle: Fix arch_cpu_idle() vs
-tracing") common code calls arch_cpu_idle() with a lockdep state that
-tells irqs are on.
+Because CONFIG_ soup.
 
-This doesn't work very well for s390: psw_idle() will enable interrupts
-to wait for an interrupt. As soon as an interrupt occurs the interrupt
-handler will verify if the old context was psw_idle(). If that is the
-case the interrupt enablement bits in the old program status word will
-be cleared.
-
-A subsequent test in both the external as well as the io interrupt
-handler checks if in the old context interrupts were enabled. Due to
-the above patching of the old program status word it is assumed the
-old context had interrupts disabled, and therefore a call to
-TRACE_IRQS_OFF (aka trace_hardirqs_off_caller) is skipped. Which in
-turn makes lockdep incorrectly "think" that interrupts are enabled
-within the interrupt handler.
-
-Fix this by unconditionally calling TRACE_IRQS_OFF when entering
-interrupt handlers. Also call unconditionally TRACE_IRQS_ON when
-leaving interrupts handlers.
-
-This leaves the special psw_idle() case, which now returns with
-interrupts disabled, but has an "irqs on" lockdep state. So callers of
-psw_idle() must adjust the state on their own, if required. This is
-currently only __udelay_disabled().
-
-Fixes: 58c644ba512c ("sched/idle: Fix arch_cpu_idle() vs tracing")
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 6e1d2bc675bd ("intel_idle: Fix intel_idle() vs tracing")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20201130115402.GO3040@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S | 15 ---------------
- arch/s390/lib/delay.c    |  5 ++---
- 2 files changed, 2 insertions(+), 18 deletions(-)
+ drivers/idle/intel_idle.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index ca55db0823534..dd5cb6204335d 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -765,12 +765,7 @@ ENTRY(io_int_handler)
- 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
- 	TSTMSK	__LC_CPU_FLAGS,_CIF_IGNORE_IRQ
- 	jo	.Lio_restore
--#if IS_ENABLED(CONFIG_TRACE_IRQFLAGS)
--	tmhh	%r8,0x300
--	jz	1f
- 	TRACE_IRQS_OFF
--1:
--#endif
- 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
- .Lio_loop:
- 	lgr	%r2,%r11		# pass pointer to pt_regs
-@@ -793,12 +788,7 @@ ENTRY(io_int_handler)
- 	TSTMSK	__LC_CPU_FLAGS,_CIF_WORK
- 	jnz	.Lio_work
- .Lio_restore:
--#if IS_ENABLED(CONFIG_TRACE_IRQFLAGS)
--	tm	__PT_PSW(%r11),3
--	jno	0f
- 	TRACE_IRQS_ON
--0:
--#endif
- 	lg	%r14,__LC_VDSO_PER_CPU
- 	mvc	__LC_RETURN_PSW(16),__PT_PSW(%r11)
- 	tm	__PT_PSW+1(%r11),0x01	# returning to user ?
-@@ -980,12 +970,7 @@ ENTRY(ext_int_handler)
- 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
- 	TSTMSK	__LC_CPU_FLAGS,_CIF_IGNORE_IRQ
- 	jo	.Lio_restore
--#if IS_ENABLED(CONFIG_TRACE_IRQFLAGS)
--	tmhh	%r8,0x300
--	jz	1f
- 	TRACE_IRQS_OFF
--1:
--#endif
- 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
- 	lgr	%r2,%r11		# pass pointer to pt_regs
- 	lghi	%r3,EXT_INTERRUPT
-diff --git a/arch/s390/lib/delay.c b/arch/s390/lib/delay.c
-index daca7bad66de3..8c0c68e7770ea 100644
---- a/arch/s390/lib/delay.c
-+++ b/arch/s390/lib/delay.c
-@@ -33,7 +33,7 @@ EXPORT_SYMBOL(__delay);
+diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
+index cc6d1b12388e1..3a1617a3e5bf7 100644
+--- a/drivers/idle/intel_idle.c
++++ b/drivers/idle/intel_idle.c
+@@ -1136,6 +1136,20 @@ static bool __init intel_idle_max_cstate_reached(int cstate)
+ 	return false;
+ }
  
- static void __udelay_disabled(unsigned long long usecs)
++static bool __init intel_idle_state_needs_timer_stop(struct cpuidle_state *state)
++{
++	unsigned long eax = flg2MWAIT(state->flags);
++
++	if (boot_cpu_has(X86_FEATURE_ARAT))
++		return false;
++
++	/*
++	 * Switch over to one-shot tick broadcast if the target C-state
++	 * is deeper than C1.
++	 */
++	return !!((eax >> MWAIT_SUBSTATE_SIZE) & MWAIT_CSTATE_MASK);
++}
++
+ #ifdef CONFIG_ACPI_PROCESSOR_CSTATE
+ #include <acpi/processor.h>
+ 
+@@ -1206,20 +1220,6 @@ static bool __init intel_idle_acpi_cst_extract(void)
+ 	return false;
+ }
+ 
+-static bool __init intel_idle_state_needs_timer_stop(struct cpuidle_state *state)
+-{
+-	unsigned long eax = flg2MWAIT(state->flags);
+-
+-	if (boot_cpu_has(X86_FEATURE_ARAT))
+-		return false;
+-
+-	/*
+-	 * Switch over to one-shot tick broadcast if the target C-state
+-	 * is deeper than C1.
+-	 */
+-	return !!((eax >> MWAIT_SUBSTATE_SIZE) & MWAIT_CSTATE_MASK);
+-}
+-
+ static void __init intel_idle_init_cstates_acpi(struct cpuidle_driver *drv)
  {
--	unsigned long cr0, cr0_new, psw_mask, flags;
-+	unsigned long cr0, cr0_new, psw_mask;
- 	struct s390_idle_data idle;
- 	u64 end;
- 
-@@ -45,9 +45,8 @@ static void __udelay_disabled(unsigned long long usecs)
- 	psw_mask = __extract_psw() | PSW_MASK_EXT | PSW_MASK_WAIT;
- 	set_clock_comparator(end);
- 	set_cpu_flag(CIF_IGNORE_IRQ);
--	local_irq_save(flags);
- 	psw_idle(&idle, psw_mask);
--	local_irq_restore(flags);
-+	trace_hardirqs_off();
- 	clear_cpu_flag(CIF_IGNORE_IRQ);
- 	set_clock_comparator(S390_lowcore.clock_comparator);
- 	__ctl_load(cr0, 0, 0);
+ 	int cstate, limit = min_t(int, CPUIDLE_STATE_MAX, acpi_state_table.count);
 -- 
 2.27.0
 
