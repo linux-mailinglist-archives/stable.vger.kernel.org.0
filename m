@@ -2,92 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 025B32D96A1
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 11:52:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B81A2D9704
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 12:08:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726775AbgLNKvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 05:51:47 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:45035 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726237AbgLNKvr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 05:51:47 -0500
-Received: by mail-lf1-f68.google.com with SMTP id m25so28965401lfc.11;
-        Mon, 14 Dec 2020 02:51:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=SWhRX/NAZKOA9RtVoo0gk8MZ4dLnq8xQ/S9pdibaYEk=;
-        b=gy+bbSQm1srTUlSiW0bUZ3ELb6/QYReNjf66JcFXP2/ckmacnhQiVvUFQUns5SlUe9
-         4D8d8qePgW8p3r6VDaE5yvKFImBsTcx3ZWUDj3jl2g+8BB6gun9B92IeFy1gknnaHHtN
-         rYJouUhJ8ezoSuqN7HURjlkE3V7t1lZx8r7eRhp+oFkJh/0iUZntzVg8vxbJSPDLwnhI
-         i6lbzrFsMKQ8jZxea3hthFVKMQjGItqb6jzXf9SEBa3Ab/TWaFUhoNfk65os27PSBdL8
-         TDecA0r1Qj2r6rvvgaINVP10+1M+2UWFmDObJ8GuFWIccBSEhjiR9HNgqgKA0cLzbAB+
-         KTvQ==
-X-Gm-Message-State: AOAM531ViIndBzM9tz/5qTB+OF03NG56RKS5vQywgttIzFDqmNtF3F4P
-        CKrXy9jzwBx78d2Saw+1PqclpLjvm4ZcEQ==
-X-Google-Smtp-Source: ABdhPJymF8WJboilYFyBUUptp8FxMj8aIncNP75EjAKJMVbZZpYOJqxhUdTVDXGh4l6NGCuHFeDPNg==
-X-Received: by 2002:a2e:9ace:: with SMTP id p14mr4685863ljj.439.1607943064652;
-        Mon, 14 Dec 2020 02:51:04 -0800 (PST)
-Received: from xi.terra (c-b3cbe455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.203.179])
-        by smtp.gmail.com with ESMTPSA id p24sm1845434lfh.70.2020.12.14.02.51.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Dec 2020 02:51:03 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kolRT-0007RK-OH; Mon, 14 Dec 2020 11:50:59 +0100
-Date:   Mon, 14 Dec 2020 11:50:59 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com,
-        stable <stable@vger.kernel.org>, linux-usb@vger.kernel.org
-Subject: Re: [PATCH] USB: yurex: fix control-URB timeout handling
-Message-ID: <X9dDkwlOTFeo9eZ6@localhost>
-References: <000000000000e2186705b65e671f@google.com>
- <20201214104444.28386-1-johan@kernel.org>
+        id S2407709AbgLNLIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 06:08:23 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:54266 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407306AbgLNLIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 06:08:18 -0500
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BEAsJWA083722;
+        Mon, 14 Dec 2020 11:07:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=HHxooGdiL/XI/7m8xwtF2YV8gMtwgfBZLELsSxs0NrE=;
+ b=UWMixQbOq5orbLv7Ws22731ZB5yMPFL0K2JfQdwsMJR1xzDblAbqXUMDAe3ORQyBod0Q
+ feMt1/896z9Tox1zfWoE40pJELAWqWkQeandroH3KY0WWHDq8opwZZbjIa+BMiGr3Ly+
+ R25GkwGmQLbQ3KVPG0uFwxpWI63I7h6XrW58F4TlK7Sm44oTt2/Qg5mBI0LbLLNO/5z8
+ mU3X5ZzZb0hZiKP8vnBcigluWr3uZFpOp0rOSKH4+JmAYouB+g/ppkxrQlZ6LE8qs2gF
+ j/rR0V9y1xyjWJveCYLaO8U9wbp8moE8iPvogNs5CZbmWtWLLFK8rH9dTf4Ng9PCHpc2 Qg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2130.oracle.com with ESMTP id 35ckcb4ryg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 14 Dec 2020 11:07:24 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BEAo2QM034891;
+        Mon, 14 Dec 2020 11:07:23 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 35d7subn0r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 14 Dec 2020 11:07:23 +0000
+Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BEB7KoK023846;
+        Mon, 14 Dec 2020 11:07:20 GMT
+Received: from kadam (/102.36.221.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 14 Dec 2020 03:07:20 -0800
+Date:   Mon, 14 Dec 2020 14:07:11 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Andrea Parri <parri.andrea@gmail.com>,
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        devel@linuxdriverproject.org,
+        Saruhan Karademir <skarade@microsoft.com>
+Subject: Re: [PATCH AUTOSEL 5.9 15/23] scsi: storvsc: Validate length of
+ incoming packet in storvsc_on_channel_callback()
+Message-ID: <20201214110711.GB2831@kadam>
+References: <20201212160804.2334982-1-sashal@kernel.org>
+ <20201212160804.2334982-15-sashal@kernel.org>
+ <20201212180901.GA19225@andrea>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201214104444.28386-1-johan@kernel.org>
+In-Reply-To: <20201212180901.GA19225@andrea>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9834 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012140078
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9834 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 phishscore=0
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 clxscore=1031
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012140078
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 14, 2020 at 11:44:44AM +0100, Johan Hovold wrote:
-> Make sure to always cancel the control URB in write() so that it can be
-> reused after a timeout or spurious CMD_ACK.
+On Sat, Dec 12, 2020 at 07:09:01PM +0100, Andrea Parri wrote:
+> Hi Sasha,
 > 
-> Currently any further write requests after a timeout would fail after
-> triggering a WARN() in usb_submit_urb() when attempting to submit the
-> already active URB.
+> On Sat, Dec 12, 2020 at 11:07:56AM -0500, Sasha Levin wrote:
+> > From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+> > 
+> > [ Upstream commit 3b8c72d076c42bf27284cda7b2b2b522810686f8 ]
 > 
-> Reported-by: syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com
-> Fixes: 6bc235a2e24a ("USB: add driver for Meywa-Denki & Kayac YUREX")
-> Cc: stable <stable@vger.kernel.org>     # 2.6.37
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
-
-Forgot linux-usb...
-
-Let's try this too:
-
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
-
->  drivers/usb/misc/yurex.c | 3 +++
->  1 file changed, 3 insertions(+)
+> FYI, we found that this commit introduced a regression and posted a
+> revert:
 > 
-> diff --git a/drivers/usb/misc/yurex.c b/drivers/usb/misc/yurex.c
-> index 73ebfa6e9715..c640f98d20c5 100644
-> --- a/drivers/usb/misc/yurex.c
-> +++ b/drivers/usb/misc/yurex.c
-> @@ -496,6 +496,9 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
->  		timeout = schedule_timeout(YUREX_WRITE_TIMEOUT);
->  	finish_wait(&dev->waitq, &wait);
->  
-> +	/* make sure URB is idle after timeout or (spurious) CMD_ACK */
-> +	usb_kill_urb(dev->cntl_urb);
-> +
->  	mutex_unlock(&dev->io_mutex);
->  
->  	if (retval < 0) {
+>   https://lkml.kernel.org/r/20201211131404.21359-1-parri.andrea@gmail.com
+> 
+> Same comment for the AUTOSEL 5.4, 4.19 and 4.14 you've just posted.
+> 
+
+Konstantin, is there anyway we could make searching lore.kernel.org
+search all the mailing lists?  Right now we can only search one mailing
+list at a time.
+
+Part of the stable process should be to search lore.kernel.org for
+Fixes: 3b8c72d076c4 ("scsi: storvsc: Validate length of... ")
+
+But, unfortunately, git revert sets people up for failure by not
+including a fixes tag so we'd also have to search for:
+This reverts commit 3b8c72d076c42bf27284cda7b2b2b522810686f8.
+
+regards,
+dan carpenter
