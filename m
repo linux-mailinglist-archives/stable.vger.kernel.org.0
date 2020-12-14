@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C622DA053
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77B02D9DB8
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502617AbgLNTHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47736 "EHLO mail.kernel.org"
+        id S2440442AbgLNR2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:28:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408592AbgLNRhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:13 -0500
+        id S2440435AbgLNR2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:28:39 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dany Madden <drt@linux.ibm.com>,
-        Lijun Pan <ljp@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 015/105] ibmvnic: handle inconsistent login with reset
+Subject: [PATCH 5.4 05/36] iwlwifi: pcie: set LTR to avoid completion timeout
 Date:   Mon, 14 Dec 2020 18:27:49 +0100
-Message-Id: <20201214172556.004392623@linuxfoundation.org>
+Message-Id: <20201214172543.578735535@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,37 +33,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dany Madden <drt@linux.ibm.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 31d6b4036098f6b59bcfa20375626b500c7d7417 ]
+[ Upstream commit edb625208d84aef179e3f16590c1c582fc5fdae6 ]
 
-Inconsistent login with the vnicserver is causing the device to be
-removed. This does not give the device a chance to recover from error
-state. This patch schedules a FATAL reset instead to bring the adapter
-up.
+On some platforms, the preset values aren't correct and then we may
+get a completion timeout in the firmware. Change the LTR configuration
+to avoid that. The firmware will do some more complex reinit of this
+later, but for the boot process we use ~250usec.
 
-Fixes: 032c5e82847a2 ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201107104557.d83d591c05ba.I42885c9fb500bc08b9a4c07c4ff3d436cc7a3c84@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-csr.h  | 10 ++++++++++
+ .../intel/iwlwifi/pcie/ctxt-info-gen3.c       | 20 +++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 3654be5772c85..85c54c061ed91 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4400,7 +4400,7 @@ static int handle_login_rsp(union ibmvnic_crq *login_rsp_crq,
- 	     adapter->req_rx_add_queues !=
- 	     be32_to_cpu(login_rsp->num_rxadd_subcrqs))) {
- 		dev_err(dev, "FATAL: Inconsistent login and login rsp\n");
--		ibmvnic_remove(adapter->vdev);
-+		ibmvnic_reset(adapter, VNIC_RESET_FATAL);
- 		return -EIO;
- 	}
- 	release_login_buffer(adapter);
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+index 695bbaa86273d..12ef3a0420515 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+@@ -147,6 +147,16 @@
+ #define CSR_MAC_SHADOW_REG_CTL2		(CSR_BASE + 0x0AC)
+ #define CSR_MAC_SHADOW_REG_CTL2_RX_WAKE	0xFFFF
+ 
++/* LTR control (since IWL_DEVICE_FAMILY_22000) */
++#define CSR_LTR_LONG_VAL_AD			(CSR_BASE + 0x0D4)
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ	0x80000000
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE	0x1c000000
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL	0x03ff0000
++#define CSR_LTR_LONG_VAL_AD_SNOOP_REQ		0x00008000
++#define CSR_LTR_LONG_VAL_AD_SNOOP_SCALE		0x00001c00
++#define CSR_LTR_LONG_VAL_AD_SNOOP_VAL		0x000003ff
++#define CSR_LTR_LONG_VAL_AD_SCALE_USEC		2
++
+ /* GIO Chicken Bits (PCI Express bus link power management) */
+ #define CSR_GIO_CHICKEN_BITS    (CSR_BASE+0x100)
+ 
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+index 74980382e64c8..7a5b024a6d384 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+@@ -180,6 +180,26 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
+ 
+ 	iwl_set_bit(trans, CSR_CTXT_INFO_BOOT_CTRL,
+ 		    CSR_AUTO_FUNC_BOOT_ENA);
++
++	if (trans->trans_cfg->device_family == IWL_DEVICE_FAMILY_AX210) {
++		/*
++		 * The firmware initializes this again later (to a smaller
++		 * value), but for the boot process initialize the LTR to
++		 * ~250 usec.
++		 */
++		u32 val = CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ |
++			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
++					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE) |
++			  u32_encode_bits(250,
++					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL) |
++			  CSR_LTR_LONG_VAL_AD_SNOOP_REQ |
++			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
++					  CSR_LTR_LONG_VAL_AD_SNOOP_SCALE) |
++			  u32_encode_bits(250, CSR_LTR_LONG_VAL_AD_SNOOP_VAL);
++
++		iwl_write32(trans, CSR_LTR_LONG_VAL_AD, val);
++	}
++
+ 	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
+ 		iwl_write_umac_prph(trans, UREG_CPU_INIT_RUN, 1);
+ 	else
 -- 
 2.27.0
 
