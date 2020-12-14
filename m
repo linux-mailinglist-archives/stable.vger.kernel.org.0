@@ -2,164 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DFD2D9EAB
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:15:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C972D9E6D
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440551AbgLNSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:07:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50214 "EHLO mail.kernel.org"
+        id S2440528AbgLNSBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:01:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408622AbgLNRjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:39:21 -0500
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S2440020AbgLNSB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 13:01:27 -0500
+From:   Andy Lutomirski <luto@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 105/105] compiler.h: fix barrier_data() on clang
-Date:   Mon, 14 Dec 2020 18:29:19 +0100
-Message-Id: <20201214172600.338038310@linuxfoundation.org>
+To:     x86@kernel.org, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anton Blanchard <anton@ozlabs.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: [PATCH backport] membarrier: Explicitly sync remote cores when SYNC_CORE is requested
+Date:   Mon, 14 Dec 2020 10:00:43 -0800
+Message-Id: <b0ddbb1195c5b9851cb3e9d079870b4752fdadb6.1607968697.git.luto@kernel.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+commit 758c9373d84168dc7d039cf85a0e920046b17b41 upstream
 
-commit 3347acc6fcd4ee71ad18a9ff9d9dac176b517329 upstream.
+membarrier() does not explicitly sync_core() remote CPUs; instead, it
+relies on the assumption that an IPI will result in a core sync.  On x86,
+this may be true in practice, but it's not architecturally reliable.  In
+particular, the SDM and APM do not appear to guarantee that interrupt
+delivery is serializing.  While IRET does serialize, IPI return can
+schedule, thereby switching to another task in the same mm that was
+sleeping in a syscall.  The new task could then SYSRET back to usermode
+without ever executing IRET.
 
-Commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
-mutually exclusive") neglected to copy barrier_data() from
-compiler-gcc.h into compiler-clang.h.
+Make this more robust by explicitly calling sync_core_before_usermode()
+on remote cores.  (This also helps people who search the kernel tree for
+instances of sync_core() and sync_core_before_usermode() -- one might be
+surprised that the core membarrier code doesn't currently show up in a
+such a search.)
 
-The definition in compiler-gcc.h was really to work around clang's more
-aggressive optimization, so this broke barrier_data() on clang, and
-consequently memzero_explicit() as well.
-
-For example, this results in at least the memzero_explicit() call in
-lib/crypto/sha256.c:sha256_transform() being optimized away by clang.
-
-Fix this by moving the definition of barrier_data() into compiler.h.
-
-Also move the gcc/clang definition of barrier() into compiler.h,
-__memory_barrier() is icc-specific (and barrier() is already defined
-using it in compiler-intel.h) and doesn't belong in compiler.h.
-
-[rdunlap@infradead.org: fix ALPHA builds when SMP is not enabled]
-
-Link: https://lkml.kernel.org/r/20201101231835.4589-1-rdunlap@infradead.org
-Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201014212631.207844-1-nivedita@alum.mit.edu
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYNC_CORE")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/776b448d5f7bd6b12690707f5ed67bcda7f1d427.1607058304.git.luto@kernel.org
 ---
- include/asm-generic/barrier.h  |    1 +
- include/linux/compiler-clang.h |    6 ------
- include/linux/compiler-gcc.h   |   19 -------------------
- include/linux/compiler.h       |   18 ++++++++++++++++--
- 4 files changed, 17 insertions(+), 27 deletions(-)
 
---- a/include/asm-generic/barrier.h
-+++ b/include/asm-generic/barrier.h
-@@ -13,6 +13,7 @@
- 
- #ifndef __ASSEMBLY__
- 
-+#include <linux/compiler.h>
- #include <asm/rwonce.h>
- 
- #ifndef nop
---- a/include/linux/compiler-clang.h
-+++ b/include/linux/compiler-clang.h
-@@ -52,12 +52,6 @@
- #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
- #endif
- 
--/* The following are for compatibility with GCC, from compiler-gcc.h,
-- * and may be redefined here because they should not be shared with other
-- * compilers, like ICC.
-- */
--#define barrier() __asm__ __volatile__("" : : : "memory")
--
- #if __has_feature(shadow_call_stack)
- # define __noscs	__attribute__((__no_sanitize__("shadow-call-stack")))
- #endif
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -15,25 +15,6 @@
- # error Sorry, your compiler is too old - please upgrade it.
- #endif
- 
--/* Optimization barrier */
--
--/* The "volatile" is due to gcc bugs */
--#define barrier() __asm__ __volatile__("": : :"memory")
--/*
-- * This version is i.e. to prevent dead stores elimination on @ptr
-- * where gcc and llvm may behave differently when otherwise using
-- * normal barrier(): while gcc behavior gets along with a normal
-- * barrier(), llvm needs an explicit input variable to be assumed
-- * clobbered. The issue is as follows: while the inline asm might
-- * access any memory it wants, the compiler could have fit all of
-- * @ptr into memory registers instead, and since @ptr never escaped
-- * from that, it proved that the inline asm wasn't touching any of
-- * it. This version works well with both compilers, i.e. we're telling
-- * the compiler that the inline asm absolutely may see the contents
-- * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-- */
--#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
--
- /*
-  * This macro obfuscates arithmetic on a variable address so that gcc
-  * shouldn't recognize the original var, and make assumptions about it.
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -80,11 +80,25 @@ void ftrace_likely_update(struct ftrace_
- 
- /* Optimization barrier */
- #ifndef barrier
--# define barrier() __memory_barrier()
-+/* The "volatile" is due to gcc bugs */
-+# define barrier() __asm__ __volatile__("": : :"memory")
- #endif
- 
- #ifndef barrier_data
--# define barrier_data(ptr) barrier()
-+/*
-+ * This version is i.e. to prevent dead stores elimination on @ptr
-+ * where gcc and llvm may behave differently when otherwise using
-+ * normal barrier(): while gcc behavior gets along with a normal
-+ * barrier(), llvm needs an explicit input variable to be assumed
-+ * clobbered. The issue is as follows: while the inline asm might
-+ * access any memory it wants, the compiler could have fit all of
-+ * @ptr into memory registers instead, and since @ptr never escaped
-+ * from that, it proved that the inline asm wasn't touching any of
-+ * it. This version works well with both compilers, i.e. we're telling
-+ * the compiler that the inline asm absolutely may see the contents
-+ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-+ */
-+# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
- #endif
- 
- /* workaround for GCC PR82365 if needed */
+My stable membarrier series depends on commit 2a36ab717e8f
+("rseq/membarrier: Add MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ").  I don't
+think it makes much sense to backport that feature, so here's a backport of
+the patch that doesn't need it.
 
+
+ kernel/sched/membarrier.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
+index 168479a7d61b..be0ca3306be8 100644
+--- a/kernel/sched/membarrier.c
++++ b/kernel/sched/membarrier.c
+@@ -30,6 +30,23 @@ static void ipi_mb(void *info)
+ 	smp_mb();	/* IPIs should be serializing but paranoid. */
+ }
+ 
++static void ipi_sync_core(void *info)
++{
++	/*
++	 * The smp_mb() in membarrier after all the IPIs is supposed to
++	 * ensure that memory on remote CPUs that occur before the IPI
++	 * become visible to membarrier()'s caller -- see scenario B in
++	 * the big comment at the top of this file.
++	 *
++	 * A sync_core() would provide this guarantee, but
++	 * sync_core_before_usermode() might end up being deferred until
++	 * after membarrier()'s smp_mb().
++	 */
++	smp_mb();	/* IPIs should be serializing but paranoid. */
++
++	sync_core_before_usermode();
++}
++
+ static void ipi_sync_rq_state(void *info)
+ {
+ 	struct mm_struct *mm = (struct mm_struct *) info;
+@@ -134,6 +151,7 @@ static int membarrier_private_expedited(int flags)
+ 	int cpu;
+ 	cpumask_var_t tmpmask;
+ 	struct mm_struct *mm = current->mm;
++	smp_call_func_t ipi_func = ipi_mb;
+ 
+ 	if (flags & MEMBARRIER_FLAG_SYNC_CORE) {
+ 		if (!IS_ENABLED(CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE))
+@@ -141,6 +159,7 @@ static int membarrier_private_expedited(int flags)
+ 		if (!(atomic_read(&mm->membarrier_state) &
+ 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY))
+ 			return -EPERM;
++		ipi_func = ipi_sync_core;
+ 	} else {
+ 		if (!(atomic_read(&mm->membarrier_state) &
+ 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_READY))
+@@ -181,7 +200,7 @@ static int membarrier_private_expedited(int flags)
+ 	rcu_read_unlock();
+ 
+ 	preempt_disable();
+-	smp_call_function_many(tmpmask, ipi_mb, NULL, 1);
++	smp_call_function_many(tmpmask, ipi_func, NULL, 1);
+ 	preempt_enable();
+ 
+ 	free_cpumask_var(tmpmask);
+-- 
+2.29.2
 
