@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A73C2D9FF2
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C81C2D9FE7
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502641AbgLNTHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S2395235AbgLNRg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:36:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408585AbgLNRhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:10 -0500
+        id S2502229AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:36:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Timo Witte <timo.witte@gmail.com>,
+        "Lee, Chun-Yi" <jlee@suse.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 028/105] can: kvaser_pciefd: kvaser_pciefd_open(): fix error handling
-Date:   Mon, 14 Dec 2020 18:28:02 +0100
-Message-Id: <20201214172556.633733426@linuxfoundation.org>
+Subject: [PATCH 5.4 19/36] platform/x86: acer-wmi: add automatic keyboard background light toggle key as KEY_LIGHTS_TOGGLE
+Date:   Mon, 14 Dec 2020 18:28:03 +0100
+Message-Id: <20201214172544.245143616@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,38 +33,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Timo Witte <timo.witte@gmail.com>
 
-[ Upstream commit 13a84cf37a4cf1155a41684236c2314eb40cd65c ]
+[ Upstream commit 9e7a005ad56aa7d6ea5830c5ffcc60bf35de380b ]
 
-If kvaser_pciefd_bus_on() failed, we should call close_candev() to avoid
-reference leak.
+Got a dmesg message on my AMD Renoir based Acer laptop:
+"acer_wmi: Unknown key number - 0x84" when toggling keyboard
+background light
 
-Fixes: 26ad340e582d3 ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201128133922.3276973-3-zhangqilong3@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Timo Witte <timo.witte@gmail.com>
+Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+Link: https://lore.kernel.org/r/20200804001423.36778-1-timo.witte@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/kvaser_pciefd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/acer-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/kvaser_pciefd.c b/drivers/net/can/kvaser_pciefd.c
-index 72acd1ba162d2..43151dd6cb1c3 100644
---- a/drivers/net/can/kvaser_pciefd.c
-+++ b/drivers/net/can/kvaser_pciefd.c
-@@ -692,8 +692,10 @@ static int kvaser_pciefd_open(struct net_device *netdev)
- 		return err;
- 
- 	err = kvaser_pciefd_bus_on(can);
--	if (err)
-+	if (err) {
-+		close_candev(netdev);
- 		return err;
-+	}
- 
- 	return 0;
- }
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 60c18f21588dd..7fa27e7536917 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -111,6 +111,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
+ 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+ 	{KE_IGNORE, 0x81, {KEY_SLEEP} },
+ 	{KE_KEY, 0x82, {KEY_TOUCHPAD_TOGGLE} },	/* Touch Pad Toggle */
++	{KE_IGNORE, 0x84, {KEY_KBDILLUMTOGGLE} }, /* Automatic Keyboard background light toggle */
+ 	{KE_KEY, KEY_TOUCHPAD_ON, {KEY_TOUCHPAD_ON} },
+ 	{KE_KEY, KEY_TOUCHPAD_OFF, {KEY_TOUCHPAD_OFF} },
+ 	{KE_IGNORE, 0x83, {KEY_TOUCHPAD_TOGGLE} },
 -- 
 2.27.0
 
