@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B561E2DA055
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7122C2D9DDC
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502637AbgLNTHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S2408595AbgLNRhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:37:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408581AbgLNRhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2408582AbgLNRhK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:37:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 006/105] tools/bootconfig: Fix to check the write failure correctly
-Date:   Mon, 14 Dec 2020 18:27:40 +0100
-Message-Id: <20201214172555.591383855@linuxfoundation.org>
+Subject: [PATCH 5.9 007/105] net, xsk: Avoid taking multiple skbuff references
+Date:   Mon, 14 Dec 2020 18:27:41 +0100
+Message-Id: <20201214172555.632033722@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -34,86 +33,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Björn Töpel <bjorn.topel@intel.com>
 
-[ Upstream commit a995e6bc0524450adfd6181dfdcd9d0520cfaba5 ]
+[ Upstream commit 36ccdf85829a7dd6936dba5d02fa50138471f0d3 ]
 
-Fix to check the write(2) failure including partial write
-correctly and try to rollback the partial write, because
-if there is no BOOTCONFIG_MAGIC string, we can not remove it.
+Commit 642e450b6b59 ("xsk: Do not discard packet when NETDEV_TX_BUSY")
+addressed the problem that packets were discarded from the Tx AF_XDP
+ring, when the driver returned NETDEV_TX_BUSY. Part of the fix was
+bumping the skbuff reference count, so that the buffer would not be
+freed by dev_direct_xmit(). A reference count larger than one means
+that the skbuff is "shared", which is not the case.
 
-Link: https://lkml.kernel.org/r/160576521135.320071.3883101436675969998.stgit@devnote2
+If the "shared" skbuff is sent to the generic XDP receive path,
+netif_receive_generic_xdp(), and pskb_expand_head() is entered the
+BUG_ON(skb_shared(skb)) will trigger.
 
-Fixes: 85c46b78da58 ("bootconfig: Add bootconfig magic word for indicating bootconfig explicitly")
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+This patch adds a variant to dev_direct_xmit(), __dev_direct_xmit(),
+where a user can select the skbuff free policy. This allows AF_XDP to
+avoid bumping the reference count, but still keep the NETDEV_TX_BUSY
+behavior.
+
+Fixes: 642e450b6b59 ("xsk: Do not discard packet when NETDEV_TX_BUSY")
+Reported-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20201123175600.146255-1-bjorn.topel@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bootconfig/main.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ include/linux/netdevice.h | 14 +++++++++++++-
+ net/core/dev.c            |  8 ++------
+ net/xdp/xsk.c             |  8 +-------
+ 3 files changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
-index e0878f5f74b1b..ffd6a358925da 100644
---- a/tools/bootconfig/main.c
-+++ b/tools/bootconfig/main.c
-@@ -274,6 +274,7 @@ static void show_xbc_error(const char *data, const char *msg, int pos)
- 
- int apply_xbc(const char *path, const char *xbc_path)
- {
-+	struct stat stat;
- 	u32 size, csum;
- 	char *buf, *data;
- 	int ret, fd;
-@@ -330,16 +331,26 @@ int apply_xbc(const char *path, const char *xbc_path)
- 		return fd;
- 	}
- 	/* TODO: Ensure the @path is initramfs/initrd image */
-+	if (fstat(fd, &stat) < 0) {
-+		pr_err("Failed to get the size of %s\n", path);
-+		goto out;
-+	}
- 	ret = write(fd, data, size + 8);
--	if (ret < 0) {
-+	if (ret < size + 8) {
-+		if (ret < 0)
-+			ret = -errno;
- 		pr_err("Failed to apply a boot config: %d\n", ret);
--		goto out;
-+		if (ret < 0)
-+			goto out;
-+		goto out_rollback;
- 	}
- 	/* Write a magic word of the bootconfig */
- 	ret = write(fd, BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_LEN);
--	if (ret < 0) {
-+	if (ret < BOOTCONFIG_MAGIC_LEN) {
-+		if (ret < 0)
-+			ret = -errno;
- 		pr_err("Failed to apply a boot config magic: %d\n", ret);
--		goto out;
-+		goto out_rollback;
- 	}
- 	ret = 0;
- out:
-@@ -347,6 +358,17 @@ out:
- 	free(data);
- 
- 	return ret;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 8fbdfae2c8c02..edc5fbd07c1ca 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2778,9 +2778,21 @@ u16 dev_pick_tx_zero(struct net_device *dev, struct sk_buff *skb,
+ 		     struct net_device *sb_dev);
+ u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
+ 		       struct net_device *sb_dev);
 +
-+out_rollback:
-+	/* Map the partial write to -ENOSPC */
-+	if (ret >= 0)
-+		ret = -ENOSPC;
-+	if (ftruncate(fd, stat.st_size) < 0) {
-+		ret = -errno;
-+		pr_err("Failed to rollback the write error: %d\n", ret);
-+		pr_err("The initrd %s may be corrupted. Recommend to rebuild.\n", path);
-+	}
-+	goto out;
+ int dev_queue_xmit(struct sk_buff *skb);
+ int dev_queue_xmit_accel(struct sk_buff *skb, struct net_device *sb_dev);
+-int dev_direct_xmit(struct sk_buff *skb, u16 queue_id);
++int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id);
++
++static inline int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
++{
++	int ret;
++
++	ret = __dev_direct_xmit(skb, queue_id);
++	if (!dev_xmit_complete(ret))
++		kfree_skb(skb);
++	return ret;
++}
++
+ int register_netdevice(struct net_device *dev);
+ void unregister_netdevice_queue(struct net_device *dev, struct list_head *head);
+ void unregister_netdevice_many(struct list_head *head);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 010de57488ce7..4a6241c0534d2 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4176,7 +4176,7 @@ int dev_queue_xmit_accel(struct sk_buff *skb, struct net_device *sb_dev)
  }
+ EXPORT_SYMBOL(dev_queue_xmit_accel);
  
- int usage(void)
+-int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
++int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
+ {
+ 	struct net_device *dev = skb->dev;
+ 	struct sk_buff *orig_skb = skb;
+@@ -4205,17 +4205,13 @@ int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
+ 	dev_xmit_recursion_dec();
+ 
+ 	local_bh_enable();
+-
+-	if (!dev_xmit_complete(ret))
+-		kfree_skb(skb);
+-
+ 	return ret;
+ drop:
+ 	atomic_long_inc(&dev->tx_dropped);
+ 	kfree_skb_list(skb);
+ 	return NET_XMIT_DROP;
+ }
+-EXPORT_SYMBOL(dev_direct_xmit);
++EXPORT_SYMBOL(__dev_direct_xmit);
+ 
+ /*************************************************************************
+  *			Receiver routines
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 6c5e09e7440a9..a1ec2c8fa70a9 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -377,11 +377,7 @@ static int xsk_generic_xmit(struct sock *sk)
+ 		skb_shinfo(skb)->destructor_arg = (void *)(long)desc.addr;
+ 		skb->destructor = xsk_destruct_skb;
+ 
+-		/* Hinder dev_direct_xmit from freeing the packet and
+-		 * therefore completing it in the destructor
+-		 */
+-		refcount_inc(&skb->users);
+-		err = dev_direct_xmit(skb, xs->queue_id);
++		err = __dev_direct_xmit(skb, xs->queue_id);
+ 		if  (err == NETDEV_TX_BUSY) {
+ 			/* Tell user-space to retry the send */
+ 			skb->destructor = sock_wfree;
+@@ -395,12 +391,10 @@ static int xsk_generic_xmit(struct sock *sk)
+ 		/* Ignore NET_XMIT_CN as packet might have been sent */
+ 		if (err == NET_XMIT_DROP) {
+ 			/* SKB completed but not sent */
+-			kfree_skb(skb);
+ 			err = -EBUSY;
+ 			goto out;
+ 		}
+ 
+-		consume_skb(skb);
+ 		sent_frame = true;
+ 	}
+ 
 -- 
 2.27.0
 
