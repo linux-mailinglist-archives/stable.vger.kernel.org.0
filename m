@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64FB2D9E08
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:45:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0386E2D9E24
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:49:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408697AbgLNRoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:44:19 -0500
-Received: from mga06.intel.com ([134.134.136.31]:30725 "EHLO mga06.intel.com"
+        id S2407504AbgLNRrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:47:52 -0500
+Received: from mga14.intel.com ([192.55.52.115]:19540 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408695AbgLNRoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:44:18 -0500
-IronPort-SDR: DvZcsX4BnXTXPs6h99s2JC84w2uOKuWZ+KHxnfNyEuWZ26dh3FXSnf9B8Uutjc2bjstCUh9MQg
- lOCmHOLSfs3Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9834"; a="236331379"
+        id S1732524AbgLNRro (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:47:44 -0500
+IronPort-SDR: 5UI4xznGNtkVOTKJkUG03b64/kXK2uyStJVnUsaNHzrMrUR1dLWVquPyBrGvVjMWvRt/dyymrD
+ JZmRQRfjNLBw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9834"; a="173977026"
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="236331379"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:43:36 -0800
-IronPort-SDR: 7mzp3Kt+Cs4ghcX5h++QnPlxPl3T9PnyA3UkI4R+PpI0j1k+XR0bBZDFMWtjlkymRu4MoEPlUW
- /SQ077a4ZdLA==
+   d="scan'208";a="173977026"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:47:04 -0800
+IronPort-SDR: bYxC9P1D5W5jixYLdnq7ggOsSl99k6PDZlIGELR09gwhpcB1xEeA6nqwg4GffYWdNo14iiaAIe
+ olNoKpKjOr5g==
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="411347854"
+   d="scan'208";a="333703977"
 Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:43:33 -0800
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:47:02 -0800
 From:   Xiaochen Shen <xiaochen.shen@intel.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         sashal@kernel.org, bp@suse.de, tony.luck@intel.com
 Cc:     fenghua.yu@intel.com, reinette.chatre@intel.com,
         pei.p.jia@intel.com, xiaochen.shen@intel.com
-Subject: [PATCH 5.9] x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
-Date:   Tue, 15 Dec 2020 02:05:56 +0800
-Message-Id: <1607969156-3365-1-git-send-email-xiaochen.shen@intel.com>
+Subject: [PATCH 5.4] x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
+Date:   Tue, 15 Dec 2020 02:09:25 +0800
+Message-Id: <1607969365-3704-1-git-send-email-xiaochen.shen@intel.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <160795595120091@kroah.com>
-References: <160795595120091@kroah.com>
+In-Reply-To: <1607955953140184@kroah.com>
+References: <1607955953140184@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -127,18 +127,18 @@ Link: https://lkml.kernel.org/r/1607063279-19437-1-git-send-email-xiaochen.shen@
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/resctrl/monitor.c b/arch/x86/kernel/cpu/resctrl/monitor.c
-index 837d7d0..fe19e67 100644
+index 0cf4f87..3f0fe8b 100644
 --- a/arch/x86/kernel/cpu/resctrl/monitor.c
 +++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -280,7 +280,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
+@@ -281,7 +281,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
  
- 	chunks = mbm_overflow_count(m->prev_bw_msr, tval, rr->r->mbm_width);
+ 	chunks = mbm_overflow_count(m->prev_bw_msr, tval);
  	m->chunks_bw += chunks;
 -	m->chunks = m->chunks_bw;
  	cur_bw = (chunks * r->mon_scale) >> 20;
  
  	if (m->delta_comp)
-@@ -451,15 +450,14 @@ static void mbm_update(struct rdt_resource *r, struct rdt_domain *d, int rmid)
+@@ -451,15 +450,14 @@ static void mbm_update(struct rdt_domain *d, int rmid)
  	}
  	if (is_mbm_local_enabled()) {
  		rr.evtid = QOS_L3_MBM_LOCAL_EVENT_ID;
