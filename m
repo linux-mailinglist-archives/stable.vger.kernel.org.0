@@ -2,29 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0295F2D9FC1
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99B832D9DCC
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502237AbgLNRha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:37:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
+        id S2440493AbgLNRfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:35:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502189AbgLNRhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:25 -0500
+        id S1730249AbgLNRfF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:35:05 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Sperbeck <jsperbeck@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 034/105] perf/x86/intel: Fix a warning on x86_pmu_stop() with large PEBS
-Date:   Mon, 14 Dec 2020 18:28:08 +0100
-Message-Id: <20201214172556.924588371@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 25/36] Input: i8042 - add Acer laptops to the i8042 reset list
+Date:   Mon, 14 Dec 2020 18:28:09 +0100
+Message-Id: <20201214172544.538935184@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,54 +31,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Chris Chiu <chiu@endlessos.org>
 
-[ Upstream commit 5debf02131227d39988e44adf5090fb796fa8466 ]
+commit ce6520b0eafad5962ffc21dc47cd7bd3250e9045 upstream.
 
-The commit 3966c3feca3f ("x86/perf/amd: Remove need to check "running"
-bit in NMI handler") introduced this.  It seems x86_pmu_stop can be
-called recursively (like when it losts some samples) like below:
+The touchpad operates in Basic Mode by default in the Acer BIOS
+setup, but some Aspire/TravelMate models require the i8042 to be
+reset in order to be correctly detected.
 
-  x86_pmu_stop
-    intel_pmu_disable_event  (x86_pmu_disable)
-      intel_pmu_pebs_disable
-        intel_pmu_drain_pebs_nhm  (x86_pmu_drain_pebs_buffer)
-          x86_pmu_stop
+Signed-off-by: Chris Chiu <chiu@endlessos.org>
+Link: https://lore.kernel.org/r/20201207071250.15021-1-chiu@endlessos.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-While commit 35d1ce6bec13 ("perf/x86/intel/ds: Fix x86_pmu_stop
-warning for large PEBS") fixed it for the normal cases, there's
-another path to call x86_pmu_stop() recursively when a PEBS error was
-detected (like two or more counters overflowed at the same time).
-
-Like in the Kan's previous fix, we can skip the interrupt accounting
-for large PEBS, so check the iregs which is set for PMI only.
-
-Fixes: 3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
-Reported-by: John Sperbeck <jsperbeck@google.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201126110922.317681-1-namhyung@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/ds.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h |   42 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index 404315df1e167..4c84b87904930 100644
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -1937,7 +1937,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
- 		if (error[bit]) {
- 			perf_log_lost_samples(event, error[bit]);
- 
--			if (perf_event_account_interrupt(event))
-+			if (iregs && perf_event_account_interrupt(event))
- 				x86_pmu_stop(event, 0);
- 		}
- 
--- 
-2.27.0
-
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -612,6 +612,48 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A114-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A314-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-132"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-332"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-432"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate Spin B118-RN"),
++		},
++	},
++	{
+ 		/* Advent 4211 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "DIXONSXP"),
 
 
