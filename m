@@ -2,31 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0073F2DA030
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3ED22D9FBD
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502656AbgLNTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46970 "EHLO mail.kernel.org"
+        id S2502042AbgLNS4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502199AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:36:55 -0500
+        id S2502245AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 36/36] compiler.h: fix barrier_data() on clang
-Date:   Mon, 14 Dec 2020 18:28:20 +0100
-Message-Id: <20201214172545.086134351@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 047/105] arm64: dts: broadcom: clear the warnings caused by empty dma-ranges
+Date:   Mon, 14 Dec 2020 18:28:21 +0100
+Message-Id: <20201214172557.546364677@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -35,120 +33,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 3347acc6fcd4ee71ad18a9ff9d9dac176b517329 upstream.
+[ Upstream commit 2013a4b684b6eb614ee5c9a3c07b0ae6f5ca96d9 ]
 
-Commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
-mutually exclusive") neglected to copy barrier_data() from
-compiler-gcc.h into compiler-clang.h.
+The scripts/dtc/checks.c requires that the node have empty "dma-ranges"
+property must have the same "#address-cells" and "#size-cells" values as
+the parent node. Otherwise, the following warnings is reported:
 
-The definition in compiler-gcc.h was really to work around clang's more
-aggressive optimization, so this broke barrier_data() on clang, and
-consequently memzero_explicit() as well.
+arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
+(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
+its #address-cells (1) differs from / (2)
+arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
+(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
+its #size-cells (1) differs from / (2)
 
-For example, this results in at least the memzero_explicit() call in
-lib/crypto/sha256.c:sha256_transform() being optimized away by clang.
+Arnd Bergmann figured out why it's necessary:
+Also note that the #address-cells=<1> means that any device under
+this bus is assumed to only support 32-bit addressing, and DMA will
+have to go through a slow swiotlb in the absence of an IOMMU.
 
-Fix this by moving the definition of barrier_data() into compiler.h.
-
-Also move the gcc/clang definition of barrier() into compiler.h,
-__memory_barrier() is icc-specific (and barrier() is already defined
-using it in compiler-intel.h) and doesn't belong in compiler.h.
-
-[rdunlap@infradead.org: fix ALPHA builds when SMP is not enabled]
-
-Link: https://lkml.kernel.org/r/20201101231835.4589-1-rdunlap@infradead.org
-Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201014212631.207844-1-nivedita@alum.mit.edu
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[nd: backport to account for missing
-  commit e506ea451254a ("compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h")
-  commit d08b9f0ca6605 ("scs: Add support for Clang's Shadow Call Stack (SCS)")]
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20201016090833.1892-2-thunder.leizhen@huawei.com'
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler-clang.h |    6 ------
- include/linux/compiler-gcc.h   |   19 -------------------
- include/linux/compiler.h       |   18 ++++++++++++++++--
- 3 files changed, 16 insertions(+), 27 deletions(-)
+ .../dts/broadcom/stingray/stingray-usb.dtsi   | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/include/linux/compiler-clang.h
-+++ b/include/linux/compiler-clang.h
-@@ -36,9 +36,3 @@
-     __has_builtin(__builtin_sub_overflow)
- #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
- #endif
--
--/* The following are for compatibility with GCC, from compiler-gcc.h,
-- * and may be redefined here because they should not be shared with other
-- * compilers, like ICC.
-- */
--#define barrier() __asm__ __volatile__("" : : : "memory")
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -14,25 +14,6 @@
- # error Sorry, your compiler is too old - please upgrade it.
- #endif
+diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
+index 55259f973b5a9..aef8f2b00778d 100644
+--- a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
++++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
+@@ -5,20 +5,20 @@
+ 	usb {
+ 		compatible = "simple-bus";
+ 		dma-ranges;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges = <0x0 0x0 0x68500000 0x00400000>;
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges = <0x0 0x0 0x0 0x68500000 0x0 0x00400000>;
  
--/* Optimization barrier */
--
--/* The "volatile" is due to gcc bugs */
--#define barrier() __asm__ __volatile__("": : :"memory")
--/*
-- * This version is i.e. to prevent dead stores elimination on @ptr
-- * where gcc and llvm may behave differently when otherwise using
-- * normal barrier(): while gcc behavior gets along with a normal
-- * barrier(), llvm needs an explicit input variable to be assumed
-- * clobbered. The issue is as follows: while the inline asm might
-- * access any memory it wants, the compiler could have fit all of
-- * @ptr into memory registers instead, and since @ptr never escaped
-- * from that, it proved that the inline asm wasn't touching any of
-- * it. This version works well with both compilers, i.e. we're telling
-- * the compiler that the inline asm absolutely may see the contents
-- * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-- */
--#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
--
- /*
-  * This macro obfuscates arithmetic on a variable address so that gcc
-  * shouldn't recognize the original var, and make assumptions about it.
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -80,11 +80,25 @@ void ftrace_likely_update(struct ftrace_
+ 		usbphy0: usb-phy@0 {
+ 			compatible = "brcm,sr-usb-combo-phy";
+-			reg = <0x00000000 0x100>;
++			reg = <0x0 0x00000000 0x0 0x100>;
+ 			#phy-cells = <1>;
+ 			status = "disabled";
+ 		};
  
- /* Optimization barrier */
- #ifndef barrier
--# define barrier() __memory_barrier()
-+/* The "volatile" is due to gcc bugs */
-+# define barrier() __asm__ __volatile__("": : :"memory")
- #endif
+ 		xhci0: usb@1000 {
+ 			compatible = "generic-xhci";
+-			reg = <0x00001000 0x1000>;
++			reg = <0x0 0x00001000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy0 1>, <&usbphy0 0>;
+ 			phy-names = "phy0", "phy1";
+@@ -28,7 +28,7 @@
  
- #ifndef barrier_data
--# define barrier_data(ptr) barrier()
-+/*
-+ * This version is i.e. to prevent dead stores elimination on @ptr
-+ * where gcc and llvm may behave differently when otherwise using
-+ * normal barrier(): while gcc behavior gets along with a normal
-+ * barrier(), llvm needs an explicit input variable to be assumed
-+ * clobbered. The issue is as follows: while the inline asm might
-+ * access any memory it wants, the compiler could have fit all of
-+ * @ptr into memory registers instead, and since @ptr never escaped
-+ * from that, it proved that the inline asm wasn't touching any of
-+ * it. This version works well with both compilers, i.e. we're telling
-+ * the compiler that the inline asm absolutely may see the contents
-+ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-+ */
-+# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
- #endif
+ 		bdc0: usb@2000 {
+ 			compatible = "brcm,bdc-v0.16";
+-			reg = <0x00002000 0x1000>;
++			reg = <0x0 0x00002000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy0 0>, <&usbphy0 1>;
+ 			phy-names = "phy0", "phy1";
+@@ -38,21 +38,21 @@
  
- /* workaround for GCC PR82365 if needed */
+ 		usbphy1: usb-phy@10000 {
+ 			compatible = "brcm,sr-usb-combo-phy";
+-			reg = <0x00010000 0x100>;
++			reg = <0x0 0x00010000 0x0 0x100>;
+ 			#phy-cells = <1>;
+ 			status = "disabled";
+ 		};
+ 
+ 		usbphy2: usb-phy@20000 {
+ 			compatible = "brcm,sr-usb-hs-phy";
+-			reg = <0x00020000 0x100>;
++			reg = <0x0 0x00020000 0x0 0x100>;
+ 			#phy-cells = <0>;
+ 			status = "disabled";
+ 		};
+ 
+ 		xhci1: usb@11000 {
+ 			compatible = "generic-xhci";
+-			reg = <0x00011000 0x1000>;
++			reg = <0x0 0x00011000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy1 1>, <&usbphy2>, <&usbphy1 0>;
+ 			phy-names = "phy0", "phy1", "phy2";
+@@ -62,7 +62,7 @@
+ 
+ 		bdc1: usb@21000 {
+ 			compatible = "brcm,bdc-v0.16";
+-			reg = <0x00021000 0x1000>;
++			reg = <0x0 0x00021000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 266 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy2>;
+ 			phy-names = "phy0";
+-- 
+2.27.0
+
 
 
