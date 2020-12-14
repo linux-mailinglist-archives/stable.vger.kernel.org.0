@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3ED22D9FBD
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F882D9FC0
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502042AbgLNS4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:56:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47736 "EHLO mail.kernel.org"
+        id S1731702AbgLNS7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:59:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502245AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502244AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 047/105] arm64: dts: broadcom: clear the warnings caused by empty dma-ranges
-Date:   Mon, 14 Dec 2020 18:28:21 +0100
-Message-Id: <20201214172557.546364677@linuxfoundation.org>
+Subject: [PATCH 5.9 048/105] ARC: stack unwinding: dont assume non-current task is sleeping
+Date:   Mon, 14 Dec 2020 18:28:22 +0100
+Message-Id: <20201214172557.592913321@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -33,109 +31,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 2013a4b684b6eb614ee5c9a3c07b0ae6f5ca96d9 ]
+[ Upstream commit e42404fa10fd11fe72d0a0e149a321d10e577715 ]
 
-The scripts/dtc/checks.c requires that the node have empty "dma-ranges"
-property must have the same "#address-cells" and "#size-cells" values as
-the parent node. Otherwise, the following warnings is reported:
+To start stack unwinding (SP, PC and BLINK) are needed. When the
+explicit execution context (pt_regs etc) is not available, unwinder
+assumes the task is sleeping (in __switch_to()) and fetches SP and BLINK
+from kernel mode stack.
 
-arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
-(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
-its #address-cells (1) differs from / (2)
-arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
-(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
-its #size-cells (1) differs from / (2)
+But this assumption is not true, specially in a SMP system, when top
+runs on 1 core, there may be active running processes on all cores.
 
-Arnd Bergmann figured out why it's necessary:
-Also note that the #address-cells=<1> means that any device under
-this bus is assumed to only support 32-bit addressing, and DMA will
-have to go through a slow swiotlb in the absence of an IOMMU.
+So when unwinding non courrent tasks, ensure they are NOT running.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20201016090833.1892-2-thunder.leizhen@huawei.com'
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+And while at it, handle the self unwinding case explicitly.
+
+This came out of investigation of a customer reported hang with
+rcutorture+top
+
+Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/31
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/broadcom/stingray/stingray-usb.dtsi   | 20 +++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arc/kernel/stacktrace.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-index 55259f973b5a9..aef8f2b00778d 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-@@ -5,20 +5,20 @@
- 	usb {
- 		compatible = "simple-bus";
- 		dma-ranges;
--		#address-cells = <1>;
--		#size-cells = <1>;
--		ranges = <0x0 0x0 0x68500000 0x00400000>;
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+		ranges = <0x0 0x0 0x0 0x68500000 0x0 0x00400000>;
+diff --git a/arch/arc/kernel/stacktrace.c b/arch/arc/kernel/stacktrace.c
+index b23986f984509..b2557f581ea8c 100644
+--- a/arch/arc/kernel/stacktrace.c
++++ b/arch/arc/kernel/stacktrace.c
+@@ -38,15 +38,15 @@
  
- 		usbphy0: usb-phy@0 {
- 			compatible = "brcm,sr-usb-combo-phy";
--			reg = <0x00000000 0x100>;
-+			reg = <0x0 0x00000000 0x0 0x100>;
- 			#phy-cells = <1>;
- 			status = "disabled";
- 		};
+ #ifdef CONFIG_ARC_DW2_UNWIND
  
- 		xhci0: usb@1000 {
- 			compatible = "generic-xhci";
--			reg = <0x00001000 0x1000>;
-+			reg = <0x0 0x00001000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0 1>, <&usbphy0 0>;
- 			phy-names = "phy0", "phy1";
-@@ -28,7 +28,7 @@
+-static void seed_unwind_frame_info(struct task_struct *tsk,
+-				   struct pt_regs *regs,
+-				   struct unwind_frame_info *frame_info)
++static int
++seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
++		       struct unwind_frame_info *frame_info)
+ {
+ 	/*
+ 	 * synchronous unwinding (e.g. dump_stack)
+ 	 *  - uses current values of SP and friends
+ 	 */
+-	if (tsk == NULL && regs == NULL) {
++	if (regs == NULL && (tsk == NULL || tsk == current)) {
+ 		unsigned long fp, sp, blink, ret;
+ 		frame_info->task = current;
  
- 		bdc0: usb@2000 {
- 			compatible = "brcm,bdc-v0.16";
--			reg = <0x00002000 0x1000>;
-+			reg = <0x0 0x00002000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0 0>, <&usbphy0 1>;
- 			phy-names = "phy0", "phy1";
-@@ -38,21 +38,21 @@
+@@ -65,11 +65,15 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->call_frame = 0;
+ 	} else if (regs == NULL) {
+ 		/*
+-		 * Asynchronous unwinding of sleeping task
+-		 *  - Gets SP etc from task's pt_regs (saved bottom of kernel
+-		 *    mode stack of task)
++		 * Asynchronous unwinding of a likely sleeping task
++		 *  - first ensure it is actually sleeping
++		 *  - if so, it will be in __switch_to, kernel mode SP of task
++		 *    is safe-kept and BLINK at a well known location in there
+ 		 */
  
- 		usbphy1: usb-phy@10000 {
- 			compatible = "brcm,sr-usb-combo-phy";
--			reg = <0x00010000 0x100>;
-+			reg = <0x0 0x00010000 0x0 0x100>;
- 			#phy-cells = <1>;
- 			status = "disabled";
- 		};
++		if (tsk->state == TASK_RUNNING)
++			return -1;
++
+ 		frame_info->task = tsk;
  
- 		usbphy2: usb-phy@20000 {
- 			compatible = "brcm,sr-usb-hs-phy";
--			reg = <0x00020000 0x100>;
-+			reg = <0x0 0x00020000 0x0 0x100>;
- 			#phy-cells = <0>;
- 			status = "disabled";
- 		};
+ 		frame_info->regs.r27 = TSK_K_FP(tsk);
+@@ -103,6 +107,8 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->regs.r63 = regs->ret;
+ 		frame_info->call_frame = 0;
+ 	}
++
++	return 0;
+ }
  
- 		xhci1: usb@11000 {
- 			compatible = "generic-xhci";
--			reg = <0x00011000 0x1000>;
-+			reg = <0x0 0x00011000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy1 1>, <&usbphy2>, <&usbphy1 0>;
- 			phy-names = "phy0", "phy1", "phy2";
-@@ -62,7 +62,7 @@
+ #endif
+@@ -116,7 +122,8 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
+ 	unsigned int address;
+ 	struct unwind_frame_info frame_info;
  
- 		bdc1: usb@21000 {
- 			compatible = "brcm,bdc-v0.16";
--			reg = <0x00021000 0x1000>;
-+			reg = <0x0 0x00021000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 266 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy2>;
- 			phy-names = "phy0";
+-	seed_unwind_frame_info(tsk, regs, &frame_info);
++	if (seed_unwind_frame_info(tsk, regs, &frame_info))
++		return 0;
+ 
+ 	while (1) {
+ 		address = UNW_PC(&frame_info);
 -- 
 2.27.0
 
