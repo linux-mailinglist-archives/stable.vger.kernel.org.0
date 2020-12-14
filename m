@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8CA2D9F8D
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CFE2DA083
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440560AbgLNSt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:49:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
+        id S2502655AbgLNT1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:27:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502265AbgLNRhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:45 -0500
+        id S2502188AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:36:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeroen Hofstee <jhofstee@victronenergy.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Hao Si <si.hao@zte.com.cn>,
+        Lin Chen <chen.lin5@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>, Li Yang <leoyang.li@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 025/105] can: sja1000: sja1000_err(): dont count arbitration lose as an error
+Subject: [PATCH 5.4 15/36] soc: fsl: dpio: Get the cpumask through cpumask_of(cpu)
 Date:   Mon, 14 Dec 2020 18:27:59 +0100
-Message-Id: <20201214172556.489074286@linuxfoundation.org>
+Message-Id: <20201214172544.053931063@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,38 +33,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeroen Hofstee <jhofstee@victronenergy.com>
+From: Hao Si <si.hao@zte.com.cn>
 
-[ Upstream commit bd0ccb92efb09c7da5b55162b283b42a93539ed7 ]
+[ Upstream commit 2663b3388551230cbc4606a40fabf3331ceb59e4 ]
 
-Losing arbitration is normal in a CAN-bus network, it means that a higher
-priority frame is being send and the pending message will be retried later.
-Hence most driver only increment arbitration_lost, but the sja1000 driver also
-incremeants tx_error, causing errors to be reported on a normal functioning
-CAN-bus. So stop counting them as errors.
+The local variable 'cpumask_t mask' is in the stack memory, and its address
+is assigned to 'desc->affinity' in 'irq_set_affinity_hint()'.
+But the memory area where this variable is located is at risk of being
+modified.
 
-Fixes: 8935f57e68c4 ("can: sja1000: fix network statistics update")
-Signed-off-by: Jeroen Hofstee <jhofstee@victronenergy.com>
-Link: https://lore.kernel.org/r/20201127095941.21609-1-jhofstee@victronenergy.com
-[mkl: split into two seperate patches]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+During LTP testing, the following error was generated:
+
+Unable to handle kernel paging request at virtual address ffff000012e9b790
+Mem abort info:
+  ESR = 0x96000007
+  Exception class = DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+Data abort info:
+  ISV = 0, ISS = 0x00000007
+  CM = 0, WnR = 0
+swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000075ac5e07
+[ffff000012e9b790] pgd=00000027dbffe003, pud=00000027dbffd003,
+pmd=00000027b6d61003, pte=0000000000000000
+Internal error: Oops: 96000007 [#1] PREEMPT SMP
+Modules linked in: xt_conntrack
+Process read_all (pid: 20171, stack limit = 0x0000000044ea4095)
+CPU: 14 PID: 20171 Comm: read_all Tainted: G    B   W
+Hardware name: NXP Layerscape LX2160ARDB (DT)
+pstate: 80000085 (Nzcv daIf -PAN -UAO)
+pc : irq_affinity_hint_proc_show+0x54/0xb0
+lr : irq_affinity_hint_proc_show+0x4c/0xb0
+sp : ffff00001138bc10
+x29: ffff00001138bc10 x28: 0000ffffd131d1e0
+x27: 00000000007000c0 x26: ffff8025b9480dc0
+x25: ffff8025b9480da8 x24: 00000000000003ff
+x23: ffff8027334f8300 x22: ffff80272e97d000
+x21: ffff80272e97d0b0 x20: ffff8025b9480d80
+x19: ffff000009a49000 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0000000000000000 x14: 0000000000000000
+x13: 0000000000000000 x12: 0000000000000040
+x11: 0000000000000000 x10: ffff802735b79b88
+x9 : 0000000000000000 x8 : 0000000000000000
+x7 : ffff000009a49848 x6 : 0000000000000003
+x5 : 0000000000000000 x4 : ffff000008157d6c
+x3 : ffff00001138bc10 x2 : ffff000012e9b790
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ irq_affinity_hint_proc_show+0x54/0xb0
+ seq_read+0x1b0/0x440
+ proc_reg_read+0x80/0xd8
+ __vfs_read+0x60/0x178
+ vfs_read+0x94/0x150
+ ksys_read+0x74/0xf0
+ __arm64_sys_read+0x24/0x30
+ el0_svc_common.constprop.0+0xd8/0x1a0
+ el0_svc_handler+0x34/0x88
+ el0_svc+0x10/0x14
+Code: f9001bbf 943e0732 f94066c2 b4000062 (f9400041)
+---[ end trace b495bdcb0b3b732b ]---
+Kernel panic - not syncing: Fatal exception
+SMP: stopping secondary CPUs
+SMP: failed to stop secondary CPUs 0,2-4,6,8,11,13-15
+Kernel Offset: disabled
+CPU features: 0x0,21006008
+Memory Limit: none
+---[ end Kernel panic - not syncing: Fatal exception ]---
+
+Fix it by using 'cpumask_of(cpu)' to get the cpumask.
+
+Signed-off-by: Hao Si <si.hao@zte.com.cn>
+Signed-off-by: Lin Chen <chen.lin5@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/sja1000/sja1000.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/soc/fsl/dpio/dpio-driver.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/sja1000/sja1000.c b/drivers/net/can/sja1000/sja1000.c
-index 9f107798f904b..25a4d7d0b3498 100644
---- a/drivers/net/can/sja1000/sja1000.c
-+++ b/drivers/net/can/sja1000/sja1000.c
-@@ -474,7 +474,6 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
- 		netdev_dbg(dev, "arbitration lost interrupt\n");
- 		alc = priv->read_reg(priv, SJA1000_ALC);
- 		priv->can.can_stats.arbitration_lost++;
--		stats->tx_errors++;
- 		cf->can_id |= CAN_ERR_LOSTARB;
- 		cf->data[0] = alc & 0x1f;
+diff --git a/drivers/soc/fsl/dpio/dpio-driver.c b/drivers/soc/fsl/dpio/dpio-driver.c
+index 7b642c330977f..7f397b4ad878d 100644
+--- a/drivers/soc/fsl/dpio/dpio-driver.c
++++ b/drivers/soc/fsl/dpio/dpio-driver.c
+@@ -95,7 +95,6 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
+ {
+ 	int error;
+ 	struct fsl_mc_device_irq *irq;
+-	cpumask_t mask;
+ 
+ 	irq = dpio_dev->irqs[0];
+ 	error = devm_request_irq(&dpio_dev->dev,
+@@ -112,9 +111,7 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
  	}
+ 
+ 	/* set the affinity hint */
+-	cpumask_clear(&mask);
+-	cpumask_set_cpu(cpu, &mask);
+-	if (irq_set_affinity_hint(irq->msi_desc->irq, &mask))
++	if (irq_set_affinity_hint(irq->msi_desc->irq, cpumask_of(cpu)))
+ 		dev_err(&dpio_dev->dev,
+ 			"irq_set_affinity failed irq %d cpu %d\n",
+ 			irq->msi_desc->irq, cpu);
 -- 
 2.27.0
 
