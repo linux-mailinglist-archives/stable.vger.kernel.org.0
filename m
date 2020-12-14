@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0BB2D9F4B
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 481D12D9EFE
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440340AbgLNS33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:29:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
+        id S2408782AbgLNS1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:27:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502297AbgLNRiC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502298AbgLNRiC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:38:02 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 075/105] intel_idle: Build fix
-Date:   Mon, 14 Dec 2020 18:28:49 +0100
-Message-Id: <20201214172558.877489118@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Maxime Ripard <mripard@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.9 076/105] media: pulse8-cec: fix duplicate free at disconnect or probe error
+Date:   Mon, 14 Dec 2020 18:28:50 +0100
+Message-Id: <20201214172558.926155685@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -32,69 +32,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 4d916140bf28ff027997144ea1bb4299e1536f87 ]
+commit 024e01dead12c2b9fbe31216f2099401ebb78a4a upstream.
 
-Because CONFIG_ soup.
+Commit 601282d65b96 ("media: pulse8-cec: use adap_free callback") used
+the adap_free callback to clean up on disconnect. What I forgot was that
+in the probe it will call cec_delete_adapter() followed by kfree(pulse8)
+if an error occurs. But by using the adap_free callback,
+cec_delete_adapter() is already freeing the pulse8 struct.
 
-Fixes: 6e1d2bc675bd ("intel_idle: Fix intel_idle() vs tracing")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20201130115402.GO3040@hirez.programming.kicks-ass.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This wasn't noticed since normally the probe works fine, but Pulse-Eight
+published a new firmware version that caused a probe error, so now it
+hits this bug. This affects firmware version 12, but probably any
+version >= 10.
+
+Commit aa9eda76129c ("media: pulse8-cec: close serio in disconnect, not
+adap_free") made this worse by adding the line 'pulse8->serio = NULL'
+right after the call to cec_unregister_adapter in the disconnect()
+function. Unfortunately, cec_unregister_adapter will typically call
+cec_delete_adapter (unless a filehandle to the cec device is still
+open), which frees the pulse8 struct. So now it will also crash on a
+simple unplug of the Pulse-Eight device.
+
+With this fix both the unplug issue and a probe() error situation are
+handled correctly again.
+
+It will still fail to probe() with a v12 firmware, that's something
+to look at separately.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Maxime Ripard <mripard@kernel.org>
+Tested-by: Maxime Ripard <mripard@kernel.org>
+Fixes: aa9eda76129c ("media: pulse8-cec: close serio in disconnect, not adap_free")
+Fixes: 601282d65b96 ("media: pulse8-cec: use adap_free callback")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/idle/intel_idle.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/media/cec/usb/pulse8/pulse8-cec.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
-index cc6d1b12388e1..3a1617a3e5bf7 100644
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -1136,6 +1136,20 @@ static bool __init intel_idle_max_cstate_reached(int cstate)
- 	return false;
+--- a/drivers/media/cec/usb/pulse8/pulse8-cec.c
++++ b/drivers/media/cec/usb/pulse8/pulse8-cec.c
+@@ -650,7 +650,6 @@ static void pulse8_disconnect(struct ser
+ 	struct pulse8 *pulse8 = serio_get_drvdata(serio);
+ 
+ 	cec_unregister_adapter(pulse8->adap);
+-	pulse8->serio = NULL;
+ 	serio_set_drvdata(serio, NULL);
+ 	serio_close(serio);
+ }
+@@ -830,8 +829,10 @@ static int pulse8_connect(struct serio *
+ 	pulse8->adap = cec_allocate_adapter(&pulse8_cec_adap_ops, pulse8,
+ 					    dev_name(&serio->dev), caps, 1);
+ 	err = PTR_ERR_OR_ZERO(pulse8->adap);
+-	if (err < 0)
+-		goto free_device;
++	if (err < 0) {
++		kfree(pulse8);
++		return err;
++	}
+ 
+ 	pulse8->dev = &serio->dev;
+ 	serio_set_drvdata(serio, pulse8);
+@@ -874,8 +875,6 @@ close_serio:
+ 	serio_close(serio);
+ delete_adap:
+ 	cec_delete_adapter(pulse8->adap);
+-free_device:
+-	kfree(pulse8);
+ 	return err;
  }
  
-+static bool __init intel_idle_state_needs_timer_stop(struct cpuidle_state *state)
-+{
-+	unsigned long eax = flg2MWAIT(state->flags);
-+
-+	if (boot_cpu_has(X86_FEATURE_ARAT))
-+		return false;
-+
-+	/*
-+	 * Switch over to one-shot tick broadcast if the target C-state
-+	 * is deeper than C1.
-+	 */
-+	return !!((eax >> MWAIT_SUBSTATE_SIZE) & MWAIT_CSTATE_MASK);
-+}
-+
- #ifdef CONFIG_ACPI_PROCESSOR_CSTATE
- #include <acpi/processor.h>
- 
-@@ -1206,20 +1220,6 @@ static bool __init intel_idle_acpi_cst_extract(void)
- 	return false;
- }
- 
--static bool __init intel_idle_state_needs_timer_stop(struct cpuidle_state *state)
--{
--	unsigned long eax = flg2MWAIT(state->flags);
--
--	if (boot_cpu_has(X86_FEATURE_ARAT))
--		return false;
--
--	/*
--	 * Switch over to one-shot tick broadcast if the target C-state
--	 * is deeper than C1.
--	 */
--	return !!((eax >> MWAIT_SUBSTATE_SIZE) & MWAIT_CSTATE_MASK);
--}
--
- static void __init intel_idle_init_cstates_acpi(struct cpuidle_driver *drv)
- {
- 	int cstate, limit = min_t(int, CPUIDLE_STATE_MAX, acpi_state_table.count);
--- 
-2.27.0
-
 
 
