@@ -2,30 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCA02D9EB5
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:18:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2822D9DEE
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:39:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440664AbgLNSQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:16:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49876 "EHLO mail.kernel.org"
+        id S2502382AbgLNRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:39:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502371AbgLNRjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:39:04 -0500
+        id S2502375AbgLNRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:39:09 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 098/105] mm/hugetlb: clear compound_nr before freeing gigantic pages
-Date:   Mon, 14 Dec 2020 18:29:12 +0100
-Message-Id: <20201214172559.997198117@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Subject: [PATCH 5.9 099/105] zonefs: fix page reference and BIO leak
+Date:   Mon, 14 Dec 2020 18:29:13 +0100
+Message-Id: <20201214172600.048551286@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -37,75 +32,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit ba9c1201beaa86a773e83be5654602a0667e4a4d upstream.
+commit 6bea0225a4bf14a58af71cb9677a756921469e46 upstream.
 
-Commit 1378a5ee451a ("mm: store compound_nr as well as compound_order")
-added compound_nr counter to first tail struct page, overlaying with
-page->mapping.  The overlay itself is fine, but while freeing gigantic
-hugepages via free_contig_range(), a "bad page" check will trigger for
-non-NULL page->mapping on the first tail page:
+In zonefs_file_dio_append(), the pages obtained using
+bio_iov_iter_get_pages() are not released on completion of the
+REQ_OP_APPEND BIO, nor when bio_iov_iter_get_pages() fails.
+Furthermore, a call to bio_put() is missing when
+bio_iov_iter_get_pages() fails.
 
-  BUG: Bad page state in process bash  pfn:380001
-  page:00000000c35f0856 refcount:0 mapcount:0 mapping:00000000126b68aa index:0x0 pfn:0x380001
-  aops:0x0
-  flags: 0x3ffff00000000000()
-  raw: 3ffff00000000000 0000000000000100 0000000000000122 0000000100000000
-  raw: 0000000000000000 0000000000000000 ffffffff00000000 0000000000000000
-  page dumped because: non-NULL mapping
-  Modules linked in:
-  CPU: 6 PID: 616 Comm: bash Not tainted 5.10.0-rc7-next-20201208 #1
-  Hardware name: IBM 3906 M03 703 (LPAR)
-  Call Trace:
-    show_stack+0x6e/0xe8
-    dump_stack+0x90/0xc8
-    bad_page+0xd6/0x130
-    free_pcppages_bulk+0x26a/0x800
-    free_unref_page+0x6e/0x90
-    free_contig_range+0x94/0xe8
-    update_and_free_page+0x1c4/0x2c8
-    free_pool_huge_page+0x11e/0x138
-    set_max_huge_pages+0x228/0x300
-    nr_hugepages_store_common+0xb8/0x130
-    kernfs_fop_write+0xd2/0x218
-    vfs_write+0xb0/0x2b8
-    ksys_write+0xac/0xe0
-    system_call+0xe6/0x288
-  Disabling lock debugging due to kernel taint
+Fix these resource leaks by adding BIO resource release code (bio_put()i
+and bio_release_pages()) at the end of the function after the BIO
+execution and add a jump to this resource cleanup code in case of
+bio_iov_iter_get_pages() failure.
 
-This is because only the compound_order is cleared in
-destroy_compound_gigantic_page(), and compound_nr is set to
-1U << order == 1 for order 0 in set_compound_order(page, 0).
+While at it, also fix the call to task_io_account_write() to be passed
+the correct BIO size instead of bio_iov_iter_get_pages() return value.
 
-Fix this by explicitly clearing compound_nr for first tail page after
-calling set_compound_order(page, 0).
-
-Link: https://lkml.kernel.org/r/20201208182813.66391-2-gerald.schaefer@linux.ibm.com
-Fixes: 1378a5ee451a ("mm: store compound_nr as well as compound_order")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Christoph Hellwig <hch@lst.de>
+Fixes: 02ef12a663c7 ("zonefs: use REQ_OP_ZONE_APPEND for sync DIO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/zonefs/super.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1227,6 +1227,7 @@ static void destroy_compound_gigantic_pa
- 	}
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -628,21 +628,23 @@ static ssize_t zonefs_file_dio_append(st
+ 		bio->bi_opf |= REQ_FUA;
  
- 	set_compound_order(page, 0);
-+	page[1].compound_nr = 0;
- 	__ClearPageHead(page);
- }
+ 	ret = bio_iov_iter_get_pages(bio, from);
+-	if (unlikely(ret)) {
+-		bio_io_error(bio);
+-		return ret;
+-	}
++	if (unlikely(ret))
++		goto out_release;
++
+ 	size = bio->bi_iter.bi_size;
+-	task_io_account_write(ret);
++	task_io_account_write(size);
  
+ 	if (iocb->ki_flags & IOCB_HIPRI)
+ 		bio_set_polled(bio, iocb);
+ 
+ 	ret = submit_bio_wait(bio);
+ 
++	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
++
++out_release:
++	bio_release_pages(bio, false);
+ 	bio_put(bio);
+ 
+-	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
+ 	if (ret >= 0) {
+ 		iocb->ki_pos += size;
+ 		return size;
 
 
