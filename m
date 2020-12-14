@@ -2,27 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1922D9DD2
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C53E2DA08B
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502204AbgLNRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:35:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
+        id S2502197AbgLNRfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502101AbgLNRfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502079AbgLNRfv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:35:51 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.4 28/36] drm/i915/display/dp: Compute the correct slice count for VDSC on DP
-Date:   Mon, 14 Dec 2020 18:28:12 +0100
-Message-Id: <20201214172544.684101995@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Kees Cook <keescook@chromium.org>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Marco Elver <elver@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 29/36] kbuild: avoid static_assert for genksyms
+Date:   Mon, 14 Dec 2020 18:28:13 +0100
+Message-Id: <20201214172544.733028722@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
 References: <20201214172543.302523401@linuxfoundation.org>
@@ -34,46 +38,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manasi Navare <manasi.d.navare@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit f6cbe49be65ed800863ac5ba695555057363f9c2 upstream.
+commit 14dc3983b5dff513a90bd5a8cc90acaf7867c3d0 upstream.
 
-This patch fixes the slice count computation algorithm
-for calculating the slice count based on Peak pixel rate
-and the max slice width allowed on the DSC engines.
-We need to ensure slice count > min slice count req
-as per DP spec based on peak pixel rate and that it is
-greater than min slice count based on the max slice width
-advertised by DPCD. So use max of these two.
-In the prev patch we were using min of these 2 causing it
-to violate the max slice width limitation causing a blank
-screen on 8K@60.
+genksyms does not know or care about the _Static_assert() built-in, and
+sometimes falls back to ignoring the later symbols, which causes
+undefined behavior such as
 
-Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
-Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
-Reviewed-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201204205804.25225-1-manasi.d.navare@intel.com
-(cherry picked from commit d371d6ea92ad2a47f42bbcaa786ee5f6069c9c14)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+  WARNING: modpost: EXPORT symbol "ethtool_set_ethtool_phy_ops" [vmlinux] version generation failed, symbol will not be versioned.
+  ld: net/ethtool/common.o: relocation R_AARCH64_ABS32 against `__crc_ethtool_set_ethtool_phy_ops' can not be used when making a shared object
+  net/ethtool/common.o:(_ftrace_annotated_branch+0x0): dangerous relocation: unsupported relocation
+
+Redefine static_assert for genksyms to avoid that.
+
+Link: https://lkml.kernel.org/r/20201203230955.1482058-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Michal Marek <michal.lkml@markovi.net>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Cc: Marco Elver <elver@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/display/intel_dp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/build_bug.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -567,7 +567,7 @@ static u8 intel_dp_dsc_get_slice_count(s
- 		return 0;
- 	}
- 	/* Also take into account max slice width */
--	min_slice_count = min_t(u8, min_slice_count,
-+	min_slice_count = max_t(u8, min_slice_count,
- 				DIV_ROUND_UP(mode_hdisplay,
- 					     max_slice_width));
+--- a/include/linux/build_bug.h
++++ b/include/linux/build_bug.h
+@@ -77,4 +77,9 @@
+ #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+ #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
  
++#ifdef __GENKSYMS__
++/* genksyms gets confused by _Static_assert */
++#define _Static_assert(expr, ...)
++#endif
++
+ #endif	/* _LINUX_BUILD_BUG_H */
 
 
