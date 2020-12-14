@@ -2,107 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B81A2D9704
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 12:08:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 479D42D9727
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 12:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407709AbgLNLIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 06:08:23 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:54266 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407306AbgLNLIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 06:08:18 -0500
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BEAsJWA083722;
-        Mon, 14 Dec 2020 11:07:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=HHxooGdiL/XI/7m8xwtF2YV8gMtwgfBZLELsSxs0NrE=;
- b=UWMixQbOq5orbLv7Ws22731ZB5yMPFL0K2JfQdwsMJR1xzDblAbqXUMDAe3ORQyBod0Q
- feMt1/896z9Tox1zfWoE40pJELAWqWkQeandroH3KY0WWHDq8opwZZbjIa+BMiGr3Ly+
- R25GkwGmQLbQ3KVPG0uFwxpWI63I7h6XrW58F4TlK7Sm44oTt2/Qg5mBI0LbLLNO/5z8
- mU3X5ZzZb0hZiKP8vnBcigluWr3uZFpOp0rOSKH4+JmAYouB+g/ppkxrQlZ6LE8qs2gF
- j/rR0V9y1xyjWJveCYLaO8U9wbp8moE8iPvogNs5CZbmWtWLLFK8rH9dTf4Ng9PCHpc2 Qg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2130.oracle.com with ESMTP id 35ckcb4ryg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 14 Dec 2020 11:07:24 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0BEAo2QM034891;
-        Mon, 14 Dec 2020 11:07:23 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 35d7subn0r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Dec 2020 11:07:23 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0BEB7KoK023846;
-        Mon, 14 Dec 2020 11:07:20 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 14 Dec 2020 03:07:20 -0800
-Date:   Mon, 14 Dec 2020 14:07:11 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Andrea Parri <parri.andrea@gmail.com>,
-        Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        devel@linuxdriverproject.org,
-        Saruhan Karademir <skarade@microsoft.com>
-Subject: Re: [PATCH AUTOSEL 5.9 15/23] scsi: storvsc: Validate length of
- incoming packet in storvsc_on_channel_callback()
-Message-ID: <20201214110711.GB2831@kadam>
-References: <20201212160804.2334982-1-sashal@kernel.org>
- <20201212160804.2334982-15-sashal@kernel.org>
- <20201212180901.GA19225@andrea>
+        id S2407306AbgLNLN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 06:13:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56544 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731657AbgLNLNK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 06:13:10 -0500
+Date:   Mon, 14 Dec 2020 13:12:21 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1607944349;
+        bh=GkRrfJbxH307o+eT9bWI7gk2D73iFU3r1RvrpZL02pM=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=R2ZYB6PBI6bnwZjdvz27i+v8m3w1cq6k3XJELsdi97OX8rTODm8XSm94tRVCbMJhd
+         VQeOUL22Sjqm0mzD6VMgmt42Gr8+x9BvZYd7whTBofFXpdhV0Ct2lIU4VweVfwhRuG
+         Tyogu3ZvPDKM6X6AcPjlwa5cUseISLUmhiEiM6liwYp24hADm2p9Nsiozh+J31t32b
+         zeVcgwRUbOuLFekmpw/5W57EkEdOp2cL/b4RBikd6JWi4k/rKm6Joj0RgM9BlMRPf5
+         LuTzfkY280axXFZmFpmuqdU91/Kr7JU2Y/2kLffUJcI7M7hse+3lNZ22T+UwBaoLkd
+         AzvOFu6ZELC8A==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v2 1/2] mm: memblock: enforce overlap of memory.memblock
+ and memory.reserved
+Message-ID: <20201214111221.GC198219@kernel.org>
+References: <20201209214304.6812-1-rppt@kernel.org>
+ <20201209214304.6812-2-rppt@kernel.org>
+ <522640a5-32ab-2247-4c2a-f248c2528f97@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201212180901.GA19225@andrea>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9834 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 mlxscore=0 suspectscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012140078
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9834 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 phishscore=0
- malwarescore=0 impostorscore=0 lowpriorityscore=0 clxscore=1031
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012140078
+In-Reply-To: <522640a5-32ab-2247-4c2a-f248c2528f97@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 12, 2020 at 07:09:01PM +0100, Andrea Parri wrote:
-> Hi Sasha,
-> 
-> On Sat, Dec 12, 2020 at 11:07:56AM -0500, Sasha Levin wrote:
-> > From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+On Mon, Dec 14, 2020 at 11:11:35AM +0100, David Hildenbrand wrote:
+> On 09.12.20 22:43, Mike Rapoport wrote:
+> > From: Mike Rapoport <rppt@linux.ibm.com>
 > > 
-> > [ Upstream commit 3b8c72d076c42bf27284cda7b2b2b522810686f8 ]
+> > memblock does not require that the reserved memory ranges will be a subset
+> > of memblock.memory.
+> > 
+> > As the result there maybe reserved pages that are not in the range of any
+> > zone or node because zone and node boundaries are detected based on
+> > memblock.memory and pages that only present in memblock.reserved are not
+> > taken into account during zone/node size detection.
+> > 
+> > Make sure that all ranges in memblock.reserved are added to memblock.memory
+> > before calculating node and zone boundaries.
+> > 
+> > Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> > Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  include/linux/memblock.h |  1 +
+> >  mm/memblock.c            | 24 ++++++++++++++++++++++++
+> >  mm/page_alloc.c          |  7 +++++++
+> >  3 files changed, 32 insertions(+)
+> > 
+> > diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+> > index ef131255cedc..e64dae2dd1ce 100644
+> > --- a/include/linux/memblock.h
+> > +++ b/include/linux/memblock.h
+> > @@ -120,6 +120,7 @@ int memblock_clear_nomap(phys_addr_t base, phys_addr_t size);
+> >  unsigned long memblock_free_all(void);
+> >  void reset_node_managed_pages(pg_data_t *pgdat);
+> >  void reset_all_zones_managed_pages(void);
+> > +void memblock_enforce_memory_reserved_overlap(void);
+> >  
+> >  /* Low level functions */
+> >  void __next_mem_range(u64 *idx, int nid, enum memblock_flags flags,
+> > diff --git a/mm/memblock.c b/mm/memblock.c
+> > index b68ee86788af..9277aca642b2 100644
+> > --- a/mm/memblock.c
+> > +++ b/mm/memblock.c
+> > @@ -1857,6 +1857,30 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
+> >  	}
+> >  }
+> >  
+> > +/**
+> > + * memblock_enforce_memory_reserved_overlap - make sure every range in
+> > + * @memblock.reserved is covered by @memblock.memory
+> > + *
+> > + * The data in @memblock.memory is used to detect zone and node boundaries
+> > + * during initialization of the memory map and the page allocator. Make
+> > + * sure that every memory range present in @memblock.reserved is also added
+> > + * to @memblock.memory even if the architecture specific memory
+> > + * initialization failed to do so
+> > + */
+> > +void __init memblock_enforce_memory_reserved_overlap(void)
+> > +{
+> > +	phys_addr_t start, end;
+> > +	int nid;
+> > +	u64 i;
+> > +
+> > +	__for_each_mem_range(i, &memblock.reserved, &memblock.memory,
+> > +			     NUMA_NO_NODE, MEMBLOCK_NONE, &start, &end, &nid) {
+> > +		pr_warn("memblock: reserved range [%pa-%pa] is not in memory\n",
+> > +			&start, &end);
+> > +		memblock_add_node(start, (end - start), nid);
+> > +	}
+> > +}
+> > +
+> >  void __init_memblock memblock_set_current_limit(phys_addr_t limit)
+> >  {
+> >  	memblock.current_limit = limit;
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index eaa227a479e4..dbc57dbbacd8 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -7436,6 +7436,13 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+> >  	memset(arch_zone_highest_possible_pfn, 0,
+> >  				sizeof(arch_zone_highest_possible_pfn));
+> >  
+> > +	/*
+> > +	 * Some architectures (e.g. x86) have reserved pages outside of
+> > +	 * memblock.memory. Make sure these pages are taken into account
+> > +	 * when detecting zone and node boundaries
+> > +	 */
+> > +	memblock_enforce_memory_reserved_overlap();
+> > +
+> >  	start_pfn = find_min_pfn_with_active_regions();
+> >  	descending = arch_has_descending_max_zone_pfns();
+> >  
+> > 
 > 
-> FYI, we found that this commit introduced a regression and posted a
-> revert:
+> CCing Dan.
 > 
->   https://lkml.kernel.org/r/20201211131404.21359-1-parri.andrea@gmail.com
+> This implies that any memory that is E820_TYPE_SOFT_RESERVED that was
+> reserved via memblock_reserve() will be added via memblock_add_node() as
+> well, resulting in all such memory getting a memmap allocated right when
+> booting up, right?
 > 
-> Same comment for the AUTOSEL 5.4, 4.19 and 4.14 you've just posted.
+> IIRC, there are use cases where that is absolutely not desired.
+
+Hmm, if this is the case we need entirely different solution to ensure
+that we don't have partial pageblocks in a zone and we have all the
+memory map initialized to a known state.
+
+> Am I missing something? (@Dan?)
+
+BTW, @Dan, why did you need to memblock_reserve(E820_TYPE_SOFT_RESERVED)
+without memblock_add()ing it?
+
+> -- 
+> Thanks,
+> 
+> David / dhildenb
 > 
 
-Konstantin, is there anyway we could make searching lore.kernel.org
-search all the mailing lists?  Right now we can only search one mailing
-list at a time.
-
-Part of the stable process should be to search lore.kernel.org for
-Fixes: 3b8c72d076c4 ("scsi: storvsc: Validate length of... ")
-
-But, unfortunately, git revert sets people up for failure by not
-including a fixes tag so we'd also have to search for:
-This reverts commit 3b8c72d076c42bf27284cda7b2b2b522810686f8.
-
-regards,
-dan carpenter
+-- 
+Sincerely yours,
+Mike.
