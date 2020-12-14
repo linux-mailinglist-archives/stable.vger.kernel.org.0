@@ -2,28 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D20D2D9DD7
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF1E2D9FAF
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502205AbgLNRgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:36:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S2501965AbgLNS4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502167AbgLNRgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:36:32 -0500
+        id S2502250AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: [PATCH 5.4 33/36] x86/membarrier: Get rid of a dubious optimization
+        stable@vger.kernel.org,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 043/105] iwlwifi: sta: set max HE max A-MPDU according to HE capa
 Date:   Mon, 14 Dec 2020 18:28:17 +0100
-Message-Id: <20201214172544.932545074@linuxfoundation.org>
+Message-Id: <20201214172557.354435589@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,70 +34,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-commit a493d1ca1a03b532871f1da27f8dbda2b28b04c4 upstream.
+[ Upstream commit c8a2e7a29702fe4626b7aa81149b7b7164e20606 ]
 
-sync_core_before_usermode() had an incorrect optimization.  If the kernel
-returns from an interrupt, it can get to usermode without IRET. It just has
-to schedule to a different task in the same mm and do SYSRET.  Fortunately,
-there were no callers of sync_core_before_usermode() that could have had
-in_irq() or in_nmi() equal to true, because it's only ever called from the
-scheduler.
+Currently, our max tpt is limited to max HT A-MPDU for LB,
+and max VHT A-MPDU for HB. Configure HE exponent value correctly to
+achieve HE max A-MPDU, both on LB and HB.
 
-While at it, clarify a related comment.
-
-Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYNC_CORE")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/5afc7632be1422f91eaf7611aaaa1b5b8580a086.1607058304.git.luto@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201107104557.4486852ebb56.I9eb0d028e31f183597fb90120e7d4ca87e0dd6cb@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/sync_core.h |    9 +++++----
- arch/x86/mm/tlb.c                |   10 ++++++++--
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ .../net/wireless/intel/iwlwifi/fw/api/sta.h    | 10 +++++-----
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c   | 18 ++++++++++++++++++
+ 2 files changed, 23 insertions(+), 5 deletions(-)
 
---- a/arch/x86/include/asm/sync_core.h
-+++ b/arch/x86/include/asm/sync_core.h
-@@ -16,12 +16,13 @@ static inline void sync_core_before_user
- 	/* With PTI, we unconditionally serialize before running user code. */
- 	if (static_cpu_has(X86_FEATURE_PTI))
- 		return;
-+
- 	/*
--	 * Return from interrupt and NMI is done through iret, which is core
--	 * serializing.
-+	 * Even if we're in an interrupt, we might reschedule before returning,
-+	 * in which case we could switch to a different thread in the same mm
-+	 * and return using SYSRET or SYSEXIT.  Instead of trying to keep
-+	 * track of our need to sync the core, just sync right away.
- 	 */
--	if (in_irq() || in_nmi())
--		return;
- 	sync_core();
- }
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/sta.h b/drivers/net/wireless/intel/iwlwifi/fw/api/sta.h
+index c010e6febbf47..6a071b3c8118c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/api/sta.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/api/sta.h
+@@ -5,10 +5,9 @@
+  *
+  * GPL LICENSE SUMMARY
+  *
+- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
+  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2012-2014, 2018 - 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -28,10 +27,9 @@
+  *
+  * BSD LICENSE
+  *
+- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
+  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2012-2014, 2018 - 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -128,7 +126,9 @@ enum iwl_sta_flags {
+ 	STA_FLG_MAX_AGG_SIZE_256K	= (5 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+ 	STA_FLG_MAX_AGG_SIZE_512K	= (6 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+ 	STA_FLG_MAX_AGG_SIZE_1024K	= (7 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+-	STA_FLG_MAX_AGG_SIZE_MSK	= (7 << STA_FLG_MAX_AGG_SIZE_SHIFT),
++	STA_FLG_MAX_AGG_SIZE_2M		= (8 << STA_FLG_MAX_AGG_SIZE_SHIFT),
++	STA_FLG_MAX_AGG_SIZE_4M		= (9 << STA_FLG_MAX_AGG_SIZE_SHIFT),
++	STA_FLG_MAX_AGG_SIZE_MSK	= (0xf << STA_FLG_MAX_AGG_SIZE_SHIFT),
  
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -327,8 +327,14 @@ void switch_mm_irqs_off(struct mm_struct
- 	/*
- 	 * The membarrier system call requires a full memory barrier and
- 	 * core serialization before returning to user-space, after
--	 * storing to rq->curr. Writing to CR3 provides that full
--	 * memory barrier and core serializing instruction.
-+	 * storing to rq->curr, when changing mm.  This is because
-+	 * membarrier() sends IPIs to all CPUs that are in the target mm
-+	 * to make them issue memory barriers.  However, if another CPU
-+	 * switches to/from the target mm concurrently with
-+	 * membarrier(), it can cause that CPU not to receive an IPI
-+	 * when it really should issue a memory barrier.  Writing to CR3
-+	 * provides that full memory barrier and core serializing
-+	 * instruction.
- 	 */
- 	if (real_prev == next) {
- 		VM_WARN_ON(this_cpu_read(cpu_tlbstate.ctxs[prev_asid].ctx_id) !=
+ 	STA_FLG_AGG_MPDU_DENS_SHIFT	= 23,
+ 	STA_FLG_AGG_MPDU_DENS_2US	= (4 << STA_FLG_AGG_MPDU_DENS_SHIFT),
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 9e124755a3cee..2158fd2eff736 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -196,6 +196,7 @@ int iwl_mvm_sta_send_to_fw(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+ 		mpdu_dens = sta->ht_cap.ampdu_density;
+ 	}
+ 
++
+ 	if (sta->vht_cap.vht_supported) {
+ 		agg_size = sta->vht_cap.cap &
+ 			IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_MASK;
+@@ -205,6 +206,23 @@ int iwl_mvm_sta_send_to_fw(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+ 		agg_size = sta->ht_cap.ampdu_factor;
+ 	}
+ 
++	/* D6.0 10.12.2 A-MPDU length limit rules
++	 * A STA indicates the maximum length of the A-MPDU preEOF padding
++	 * that it can receive in an HE PPDU in the Maximum A-MPDU Length
++	 * Exponent field in its HT Capabilities, VHT Capabilities,
++	 * and HE 6 GHz Band Capabilities elements (if present) and the
++	 * Maximum AMPDU Length Exponent Extension field in its HE
++	 * Capabilities element
++	 */
++	if (sta->he_cap.has_he)
++		agg_size += u8_get_bits(sta->he_cap.he_cap_elem.mac_cap_info[3],
++					IEEE80211_HE_MAC_CAP3_MAX_AMPDU_LEN_EXP_MASK);
++
++	/* Limit to max A-MPDU supported by FW */
++	if (agg_size > (STA_FLG_MAX_AGG_SIZE_4M >> STA_FLG_MAX_AGG_SIZE_SHIFT))
++		agg_size = (STA_FLG_MAX_AGG_SIZE_4M >>
++			    STA_FLG_MAX_AGG_SIZE_SHIFT);
++
+ 	add_sta_cmd.station_flags |=
+ 		cpu_to_le32(agg_size << STA_FLG_MAX_AGG_SIZE_SHIFT);
+ 	add_sta_cmd.station_flags |=
+-- 
+2.27.0
+
 
 
