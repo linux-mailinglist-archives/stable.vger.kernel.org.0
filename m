@@ -2,53 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B58D2D9D38
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3F72D9DA2
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502092AbgLNRHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:07:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56832 "EHLO mail.kernel.org"
+        id S2440354AbgLNR14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:27:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502088AbgLNRHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:07:05 -0500
-Date:   Mon, 14 Dec 2020 18:07:30 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1607965585;
-        bh=sSpcFbdnzuvMTQ/lfXXV0/Wgp2EzCSsm/RmX6/KXQ2k=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lJpwKD9bdcdQ9oHynst26e+ZjxF5SqCrlhvbpO1Kfkyj27sm5Zk77FinE9TueXvsC
-         DcR8KvXDnlhrvZxNo/nGCrm8tsO1Q2xxNR1nPPp22vaVeBYWKQTBRM79wDnICfIiN3
-         eD8VdPepKhkZavvML8tvME3u+xJXRpkigS16Kkao=
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     ansuelsmth@gmail.com, lorenzo.pieralisi@arm.com,
-        p.zabel@pengutronix.de, robh@kernel.org, smuthayy@codeaurora.org,
-        svarbanov@mm-sol.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] PCI: qcom: Add missing reset for ipq806x"
- failed to apply to 4.19-stable tree
-Message-ID: <X9eb0jCe+g/M8tuS@kroah.com>
-References: <159783260710161@kroah.com>
- <20201214162615.pes4lzpib4et3544@debian>
+        id S2439385AbgLNR14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:27:56 -0500
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.4 01/36] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
+Date:   Mon, 14 Dec 2020 18:27:45 +0100
+Message-Id: <20201214172543.382490935@linuxfoundation.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201214162615.pes4lzpib4et3544@debian>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 14, 2020 at 04:26:15PM +0000, Sudip Mukherjee wrote:
-> Hi Greg,
-> 
-> On Wed, Aug 19, 2020 at 12:23:27PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> Here is the backport.
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-Both backports now queued up, thanks!
+commit b8a9092330da2030496ff357272f342eb970d51b upstream.
 
-greg k-h
+Clang's integrated assembler produces the warning for assembly files:
+
+warning: DWARF2 only supports one section per compilation unit
+
+If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
+assembly sources (it is still emitted for C sources).  This will be
+re-enabled for newer DWARF versions in a follow up patch.
+
+Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
+LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
+
+Cc: <stable@vger.kernel.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/716
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Dmitry Golovin <dima@golovin.in>
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nd: backport to avoid conflicts from:
+  commit 10e68b02c861 ("Makefile: support compressed debug info")
+  commit 7b16994437c7 ("Makefile: Improve compressed debug info support detection")
+  commit 695afd3d7d58 ("kbuild: Simplify DEBUG_INFO Kconfig handling")]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/Makefile
++++ b/Makefile
+@@ -802,8 +802,11 @@ DEBUG_CFLAGS	+= -gsplit-dwarf
+ else
+ DEBUG_CFLAGS	+= -g
+ endif
++ifneq ($(LLVM_IAS),1)
+ KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+ endif
++endif
++
+ ifdef CONFIG_DEBUG_INFO_DWARF4
+ DEBUG_CFLAGS	+= -gdwarf-4
+ endif
+
+
