@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDD32DA09B
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0295F2D9FC1
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501915AbgLNTdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:33:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S2502237AbgLNRha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732289AbgLNRe5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:34:57 -0500
+        id S2502189AbgLNRhZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        syzbot+150f793ac5bc18eee150@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 24/36] Input: cm109 - do not stomp on control URB
+        stable@vger.kernel.org, John Sperbeck <jsperbeck@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 034/105] perf/x86/intel: Fix a warning on x86_pmu_stop() with large PEBS
 Date:   Mon, 14 Dec 2020 18:28:08 +0100
-Message-Id: <20201214172544.489294471@linuxfoundation.org>
+Message-Id: <20201214172556.924588371@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,42 +33,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-commit 82e06090473289ce63e23fdeb8737aad59b10645 upstream.
+[ Upstream commit 5debf02131227d39988e44adf5090fb796fa8466 ]
 
-We need to make sure we are not stomping on the control URB that was
-issued when opening the device when attempting to toggle buzzer.
-To do that we need to mark it as pending in cm109_open().
+The commit 3966c3feca3f ("x86/perf/amd: Remove need to check "running"
+bit in NMI handler") introduced this.  It seems x86_pmu_stop can be
+called recursively (like when it losts some samples) like below:
 
-Reported-and-tested-by: syzbot+150f793ac5bc18eee150@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  x86_pmu_stop
+    intel_pmu_disable_event  (x86_pmu_disable)
+      intel_pmu_pebs_disable
+        intel_pmu_drain_pebs_nhm  (x86_pmu_drain_pebs_buffer)
+          x86_pmu_stop
 
+While commit 35d1ce6bec13 ("perf/x86/intel/ds: Fix x86_pmu_stop
+warning for large PEBS") fixed it for the normal cases, there's
+another path to call x86_pmu_stop() recursively when a PEBS error was
+detected (like two or more counters overflowed at the same time).
+
+Like in the Kan's previous fix, we can skip the interrupt accounting
+for large PEBS, so check the iregs which is set for PMI only.
+
+Fixes: 3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
+Reported-by: John Sperbeck <jsperbeck@google.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20201126110922.317681-1-namhyung@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/cm109.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/ds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/misc/cm109.c
-+++ b/drivers/input/misc/cm109.c
-@@ -568,12 +568,15 @@ static int cm109_input_open(struct input
- 	dev->ctl_data->byte[HID_OR2] = dev->keybit;
- 	dev->ctl_data->byte[HID_OR3] = 0x00;
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index 404315df1e167..4c84b87904930 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -1937,7 +1937,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs)
+ 		if (error[bit]) {
+ 			perf_log_lost_samples(event, error[bit]);
  
-+	dev->ctl_urb_pending = 1;
- 	error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
--	if (error)
-+	if (error) {
-+		dev->ctl_urb_pending = 0;
- 		dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
- 			__func__, error);
--	else
-+	} else {
- 		dev->open = 1;
-+	}
+-			if (perf_event_account_interrupt(event))
++			if (iregs && perf_event_account_interrupt(event))
+ 				x86_pmu_stop(event, 0);
+ 		}
  
- 	mutex_unlock(&dev->pm_mutex);
- 
+-- 
+2.27.0
+
 
 
