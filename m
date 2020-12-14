@@ -2,186 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1CF12D9749
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 12:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B622D9888
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 14:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389597AbgLNLUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 06:20:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42233 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405890AbgLNLTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 06:19:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607944702;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=F4WpDOB82qi6h6t3jJ3tbxgH310VkOCKGTWeYt2UXbU=;
-        b=PFvMInvuc0ct/4fp46AE8YMLhRuFVWg+q27FRA2gBKA12IR6gdOBfFApV48Zsh1zrGw5Ne
-        XmsoDqiI9prW67LRHV6arKwixgSpIU704BmplOuD9ZE1LsfeH3f6+Ay7MgaRlDd+rsPcU1
-        G7Tlz2CDyWKoPPvfl+VCpFEefStciBI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-566-ADtyoSuNOkqdw6gonoTr8g-1; Mon, 14 Dec 2020 06:18:18 -0500
-X-MC-Unique: ADtyoSuNOkqdw6gonoTr8g-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 55801800D53;
-        Mon, 14 Dec 2020 11:18:12 +0000 (UTC)
-Received: from [10.36.114.184] (ovpn-114-184.ams2.redhat.com [10.36.114.184])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 18A935D9DC;
-        Mon, 14 Dec 2020 11:18:07 +0000 (UTC)
-Subject: Re: [PATCH v2 1/2] mm: memblock: enforce overlap of memory.memblock
- and memory.reserved
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Mel Gorman <mgorman@suse.de>,
-        Michal Hocko <mhocko@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
-        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, stable@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>
-References: <20201209214304.6812-1-rppt@kernel.org>
- <20201209214304.6812-2-rppt@kernel.org>
- <522640a5-32ab-2247-4c2a-f248c2528f97@redhat.com>
- <20201214111221.GC198219@kernel.org>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <a512bd63-b171-3ed5-6996-2c99b6c9a226@redhat.com>
-Date:   Mon, 14 Dec 2020 12:18:07 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+        id S2407799AbgLNNHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 08:07:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407802AbgLNNHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 08:07:09 -0500
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130AAC061793
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 05:06:29 -0800 (PST)
+Received: by mail-qk1-x744.google.com with SMTP id d14so14708013qkc.13
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 05:06:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=0WuvEppDleV+S7pcqpHxzCQflrbfbHnaCqqVzPSevY8=;
+        b=WB4x6JSvNaAdYyu5uKrfp9edqClNEBHeo80crhHJgzMSX7V+9akduyKk+G6dctmVp+
+         x9+JSCnFXt17Kea5ydmnhC/J8tM2e9zhPb+7i7UtRRQUikme8UaUdo9+OMBD0KiupAKB
+         SJCMUIjMzlxjUgCgpMXeDLPTnRTsyqqgfSZYY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=0WuvEppDleV+S7pcqpHxzCQflrbfbHnaCqqVzPSevY8=;
+        b=UlWcOpSdFc0+cGpv249nc1bK+FYubI3eZwDBEVVW1Q5Jaaz9GAu30tYNWi6fhfLflt
+         xbrzJaSzSiPJkySVEMCcV6Jh8kF3QQ7u3PqFKAWuzoXDVbgfepvJb/PI0hbGPOv33SIY
+         MXZdjmhqp0RYQyXu251wMkkx4EHqqBpC/nbU1OEaxkLaVz7IfXybW2PsmRjMMoyXu88J
+         ltaLNJLIxBJ19uELH8zBhF85BEhLxb/RNrBGdl+0YIIuv4TkBfpSEKW8nXGEo8yJhbO/
+         79BAbuhFqUwA4JZNZgbadJtyg67SXUyRgGc/AzMI6faD3h9dPHYcU26FNkoNDwqmCoP2
+         zO8A==
+X-Gm-Message-State: AOAM531NeMJBjex0ne3M3ay/GG5/afx0en5BMkWi/9cs76D0CUVu0dbf
+        aGox8orknBAST2xHsAnWMRWN0g==
+X-Google-Smtp-Source: ABdhPJw94VHAaeYO/S57fRpgTfG5neMu6DcTMz24l3inWNQg2cpmf5vYTNLAlzT1E3QnXvk8n5wLdg==
+X-Received: by 2002:a37:5242:: with SMTP id g63mr31559196qkb.317.1607951188064;
+        Mon, 14 Dec 2020 05:06:28 -0800 (PST)
+Received: from chatter.i7.local ([89.36.78.230])
+        by smtp.gmail.com with ESMTPSA id x47sm14799292qtb.86.2020.12.14.05.06.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Dec 2020 05:06:26 -0800 (PST)
+Date:   Mon, 14 Dec 2020 08:06:25 -0500
+From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Andrea Parri <parri.andrea@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        devel@linuxdriverproject.org,
+        Saruhan Karademir <skarade@microsoft.com>
+Subject: Re: [PATCH AUTOSEL 5.9 15/23] scsi: storvsc: Validate length of
+ incoming packet in storvsc_on_channel_callback()
+Message-ID: <20201214130625.x2v53xhx5xw6jp4o@chatter.i7.local>
+Mail-Followup-To: Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        devel@linuxdriverproject.org,
+        Saruhan Karademir <skarade@microsoft.com>
+References: <20201212160804.2334982-1-sashal@kernel.org>
+ <20201212160804.2334982-15-sashal@kernel.org>
+ <20201212180901.GA19225@andrea>
+ <20201214110711.GB2831@kadam>
 MIME-Version: 1.0
-In-Reply-To: <20201214111221.GC198219@kernel.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Disposition: inline
+In-Reply-To: <20201214110711.GB2831@kadam>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14.12.20 12:12, Mike Rapoport wrote:
-> On Mon, Dec 14, 2020 at 11:11:35AM +0100, David Hildenbrand wrote:
->> On 09.12.20 22:43, Mike Rapoport wrote:
->>> From: Mike Rapoport <rppt@linux.ibm.com>
->>>
->>> memblock does not require that the reserved memory ranges will be a subset
->>> of memblock.memory.
->>>
->>> As the result there maybe reserved pages that are not in the range of any
->>> zone or node because zone and node boundaries are detected based on
->>> memblock.memory and pages that only present in memblock.reserved are not
->>> taken into account during zone/node size detection.
->>>
->>> Make sure that all ranges in memblock.reserved are added to memblock.memory
->>> before calculating node and zone boundaries.
->>>
->>> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
->>> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
->>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->>> ---
->>>  include/linux/memblock.h |  1 +
->>>  mm/memblock.c            | 24 ++++++++++++++++++++++++
->>>  mm/page_alloc.c          |  7 +++++++
->>>  3 files changed, 32 insertions(+)
->>>
->>> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
->>> index ef131255cedc..e64dae2dd1ce 100644
->>> --- a/include/linux/memblock.h
->>> +++ b/include/linux/memblock.h
->>> @@ -120,6 +120,7 @@ int memblock_clear_nomap(phys_addr_t base, phys_addr_t size);
->>>  unsigned long memblock_free_all(void);
->>>  void reset_node_managed_pages(pg_data_t *pgdat);
->>>  void reset_all_zones_managed_pages(void);
->>> +void memblock_enforce_memory_reserved_overlap(void);
->>>  
->>>  /* Low level functions */
->>>  void __next_mem_range(u64 *idx, int nid, enum memblock_flags flags,
->>> diff --git a/mm/memblock.c b/mm/memblock.c
->>> index b68ee86788af..9277aca642b2 100644
->>> --- a/mm/memblock.c
->>> +++ b/mm/memblock.c
->>> @@ -1857,6 +1857,30 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
->>>  	}
->>>  }
->>>  
->>> +/**
->>> + * memblock_enforce_memory_reserved_overlap - make sure every range in
->>> + * @memblock.reserved is covered by @memblock.memory
->>> + *
->>> + * The data in @memblock.memory is used to detect zone and node boundaries
->>> + * during initialization of the memory map and the page allocator. Make
->>> + * sure that every memory range present in @memblock.reserved is also added
->>> + * to @memblock.memory even if the architecture specific memory
->>> + * initialization failed to do so
->>> + */
->>> +void __init memblock_enforce_memory_reserved_overlap(void)
->>> +{
->>> +	phys_addr_t start, end;
->>> +	int nid;
->>> +	u64 i;
->>> +
->>> +	__for_each_mem_range(i, &memblock.reserved, &memblock.memory,
->>> +			     NUMA_NO_NODE, MEMBLOCK_NONE, &start, &end, &nid) {
->>> +		pr_warn("memblock: reserved range [%pa-%pa] is not in memory\n",
->>> +			&start, &end);
->>> +		memblock_add_node(start, (end - start), nid);
->>> +	}
->>> +}
->>> +
->>>  void __init_memblock memblock_set_current_limit(phys_addr_t limit)
->>>  {
->>>  	memblock.current_limit = limit;
->>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->>> index eaa227a479e4..dbc57dbbacd8 100644
->>> --- a/mm/page_alloc.c
->>> +++ b/mm/page_alloc.c
->>> @@ -7436,6 +7436,13 @@ void __init free_area_init(unsigned long *max_zone_pfn)
->>>  	memset(arch_zone_highest_possible_pfn, 0,
->>>  				sizeof(arch_zone_highest_possible_pfn));
->>>  
->>> +	/*
->>> +	 * Some architectures (e.g. x86) have reserved pages outside of
->>> +	 * memblock.memory. Make sure these pages are taken into account
->>> +	 * when detecting zone and node boundaries
->>> +	 */
->>> +	memblock_enforce_memory_reserved_overlap();
->>> +
->>>  	start_pfn = find_min_pfn_with_active_regions();
->>>  	descending = arch_has_descending_max_zone_pfns();
->>>  
->>>
->>
->> CCing Dan.
->>
->> This implies that any memory that is E820_TYPE_SOFT_RESERVED that was
->> reserved via memblock_reserve() will be added via memblock_add_node() as
->> well, resulting in all such memory getting a memmap allocated right when
->> booting up, right?
->>
->> IIRC, there are use cases where that is absolutely not desired.
+On Mon, Dec 14, 2020 at 02:07:11PM +0300, Dan Carpenter wrote:
+> On Sat, Dec 12, 2020 at 07:09:01PM +0100, Andrea Parri wrote:
+> > Hi Sasha,
+> > 
+> > On Sat, Dec 12, 2020 at 11:07:56AM -0500, Sasha Levin wrote:
+> > > From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+> > > 
+> > > [ Upstream commit 3b8c72d076c42bf27284cda7b2b2b522810686f8 ]
+> > 
+> > FYI, we found that this commit introduced a regression and posted a
+> > revert:
+> > 
+> >   https://lkml.kernel.org/r/20201211131404.21359-1-parri.andrea@gmail.com
+> > 
+> > Same comment for the AUTOSEL 5.4, 4.19 and 4.14 you've just posted.
+> > 
 > 
-> Hmm, if this is the case we need entirely different solution to ensure
-> that we don't have partial pageblocks in a zone and we have all the
-> memory map initialized to a known state.
-> 
->> Am I missing something? (@Dan?)
-> 
-> BTW, @Dan, why did you need to memblock_reserve(E820_TYPE_SOFT_RESERVED)
-> without memblock_add()ing it?
+> Konstantin, is there anyway we could make searching lore.kernel.org
+> search all the mailing lists?  Right now we can only search one mailing
+> list at a time.
 
-I suspect to cover cases where it might partially span memory sections
-(or even sub-sections). Maybe we should focus on initializing that part
-only - meaning, not adding all memory to .memory but only !section
-aligned pieces.
+This functionality is coming in the next version of public-inbox and 
+should be available on lore.kernel.org within the next little while.
 
+https://lore.kernel.org/workflows/20201201184814.GA32272@dcvr/
 
--- 
-Thanks,
-
-David / dhildenb
-
+-K
