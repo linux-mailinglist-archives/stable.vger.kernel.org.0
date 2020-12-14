@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418EA2D9DCA
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731062D9FF5
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:10:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408482AbgLNRfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:35:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45342 "EHLO mail.kernel.org"
+        id S2502651AbgLNTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:07:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731370AbgLNRez (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:34:55 -0500
+        id S2408591AbgLNRhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:11 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Libo Chen <libo.chen@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 23/36] ktest.pl: Fix incorrect reboot for grub2bls
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 033/105] iwlwifi: pcie: invert values of NO_160 device config entries
 Date:   Mon, 14 Dec 2020 18:28:07 +0100
-Message-Id: <20201214172544.438579209@linuxfoundation.org>
+Message-Id: <20201214172556.876619579@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,46 +32,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libo Chen <libo.chen@oracle.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-commit 271e0c9dce1b02a825b3cc1a7aa1fab7c381d44b upstream.
+[ Upstream commit 568d3434178b00274615190a19d29c3d235b4e6d ]
 
-This issue was first noticed when I was testing different kernels on
-Oracle Linux 8 which as Fedora 30+ adopts BLS as default. Even though a
-kernel entry was added successfully and the index of that kernel entry was
-retrieved correctly, ktest still wouldn't reboot the system into
-user-specified kernel.
+The NO_160 flag specifies if the device doesn't have 160 MHz support,
+but we errorneously assumed the opposite.  If the flag was set, we
+were considering that 160 MHz was supported, but it's actually the
+opposite.  Fix it by inverting the bits, i.e. NO_160 is 0x1 and 160
+is 0x0.
 
-The bug was spotted in subroutine reboot_to where the if-statement never
-checks for REBOOT_TYPE "grub2bls", therefore the desired entry will not be
-set for the next boot.
-
-Add a check for "grub2bls" so that $grub_reboot $grub_number can
-be run before a reboot if REBOOT_TYPE is "grub2bls" then we can boot to
-the correct kernel.
-
-Link: https://lkml.kernel.org/r/20201121021243.1532477-1-libo.chen@oracle.com
-
-Cc: stable@vger.kernel.org
-Fixes: ac2466456eaa ("ktest: introduce grub2bls REBOOT_TYPE option")
-Signed-off-by: Libo Chen <libo.chen@oracle.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d6f2134a3831 ("iwlwifi: add mac/rf types and 160MHz to the device tables")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201202143859.375bec857ccb.I83884286b688965293e9810381808039bd7eedae@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/ktest/ktest.pl |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-config.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -2008,7 +2008,7 @@ sub reboot_to {
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
+index e27c13263a232..44abe44c04632 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
+@@ -488,8 +488,8 @@ struct iwl_cfg {
+ #define IWL_CFG_RF_ID_HR		0x7
+ #define IWL_CFG_RF_ID_HR1		0x4
  
-     if ($reboot_type eq "grub") {
- 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
--    } elsif ($reboot_type eq "grub2") {
-+    } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
- 	run_ssh "$grub_reboot $grub_number";
-     } elsif ($reboot_type eq "syslinux") {
- 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
+-#define IWL_CFG_NO_160			0x0
+-#define IWL_CFG_160			0x1
++#define IWL_CFG_NO_160			0x1
++#define IWL_CFG_160			0x0
+ 
+ #define IWL_CFG_CORES_BT		0x0
+ #define IWL_CFG_CORES_BT_GNSS		0x5
+-- 
+2.27.0
+
 
 
