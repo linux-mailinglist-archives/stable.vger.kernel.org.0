@@ -2,279 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF392D9521
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 10:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5792D9542
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 10:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388844AbgLNJXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 04:23:16 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:37491 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2407581AbgLNJXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 04:23:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1607937702;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/ExG60KKlF27+8sDgoAULeoQK5L/9Xh4S1a/pTyDpoc=;
-        b=bxrAMd5u4S/BmljlkT8o+5wIF7kbvzjAnQJb8CA0ifTkdV6xhNE6J6amrddyC1UK+KYSjD
-        veQwpKsYmOr9ION5vurM72Y4yycle65wN9YxQOQzvtxgD/yVHtnhWDFf4FplNT6syZ3Jc0
-        MSaC6yZqpHP8ChNuoq9cQobC8YpvzDw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-14-HC01vjxcOq2wGt7rQy6bSA-1; Mon, 14 Dec 2020 04:21:41 -0500
-X-MC-Unique: HC01vjxcOq2wGt7rQy6bSA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 671CD801817;
-        Mon, 14 Dec 2020 09:21:38 +0000 (UTC)
-Received: from [10.36.114.184] (ovpn-114-184.ams2.redhat.com [10.36.114.184])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 86E9210016F6;
-        Mon, 14 Dec 2020 09:21:35 +0000 (UTC)
+        id S1729627AbgLNJ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 04:28:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55080 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391739AbgLNJ2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 04:28:21 -0500
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1C89C0613D3
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 01:27:40 -0800 (PST)
+Received: by mail-lf1-x141.google.com with SMTP id m12so28430203lfo.7
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 01:27:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mlnOgRlYfdWWAtF0jT9VPpITSWK8EzRly1RHNCoFmLA=;
+        b=xr6HjhuGFyztbp4aNTyix9tdk+oG9PipBRVB5d1A9QYCuxTk5o8ERogp6kz9yPpsi8
+         YbC8XV+qRfA0o7FFGZgtsBUWYBuTQn6U0MWTZWNKK9U211wBbXgLzPIaNPVgS3DlziX1
+         7hYtnbfOlpkQmQbKfJXAZGTixMaMAD1htXm7z/4HEmErgO0dTe0Qro86Vmzr/DF+uE+e
+         DNUCMqMQxNik8oltpgib0H1gb3pwpP2vxc5Nu4O+6cPj5zcREApt++HW4JDG7Nr/0blT
+         MwGCQyUw2E6TtSJ1IoeRuwEkmobduSOksXdPhzaykVgeWO8ez3Xf5TPDYo5U9u/Ah74l
+         U7nQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mlnOgRlYfdWWAtF0jT9VPpITSWK8EzRly1RHNCoFmLA=;
+        b=E619LHDdugDlPfabkJVFy5PYDscuW162/lsBzBlegPCv6gilFQGCNwdb2hEldoA62g
+         Ic5WdtdAmkjAxrSjhEh9DfVTOh91irglqElhjfiVt4J/1BXODQs8fQK/Jpoat5yjeFW/
+         s8GADoXZQl/Igp4CLcRYUT6NeHMN1PLDb1NWs2b27bpr+MQyDTIH3NkaCAovvp1NZwJB
+         ppc3YYUUW4qp0ytqN9binc4uAm87Kz2bWmZ65c7LXdKlrRkW2PQiv77VHGdyQDqiul/s
+         GH1e3ELPicBTdIQMVe5QG8g08m1v0maw6Ccx/Wmi+9TwvcX/Qf5Ahk6TSjuPXIoIm7MK
+         cSBw==
+X-Gm-Message-State: AOAM532wqFhAG4VDMktlIjaXOCVeD1UHZd2hcmVzNaL85MGNoQ2zzpCt
+        tjwT2oAyojCGB4yVWEpBGi+9A5vhpC1FXLNgmvlEIw==
+X-Google-Smtp-Source: ABdhPJzGfF/vu7nSSKr0Z061mb6vkrp+fqfxWfVG1o+XueFjyYMpJ9Qse/CDkKG2bP6HvYJNDDf/q/VcH1TqwB7Wg4c=
+X-Received: by 2002:a19:6557:: with SMTP id c23mr8730637lfj.157.1607938059529;
+ Mon, 14 Dec 2020 01:27:39 -0800 (PST)
+MIME-Version: 1.0
+References: <20201213225517.3838501-1-linus.walleij@linaro.org> <cc06e06b-ff24-68a2-f5f3-c8533118a34d@redhat.com>
+In-Reply-To: <cc06e06b-ff24-68a2-f5f3-c8533118a34d@redhat.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 14 Dec 2020 10:27:28 +0100
+Message-ID: <CACRpkdZp+gnJAo02OJkiN_KUX3bOPc2vzQGWHLZF2hQHvuQQkw@mail.gmail.com>
 Subject: Re: [PATCH] ARM: dts: ux500: Reserve memory carveouts
-To:     Linus Walleij <linus.walleij@linaro.org>, arm@kernel.org,
-        soc@kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+To:     David Hildenbrand <david@redhat.com>
+Cc:     arm-soc <arm@kernel.org>, SoC Team <soc@kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Pavel Procopiuc <pavel.procopiuc@gmail.com>,
         Vlastimil Babka <vbabka@suse.cz>, wi nk <wink@technolu.st>
-References: <20201213225517.3838501-1-linus.walleij@linaro.org>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <cc06e06b-ff24-68a2-f5f3-c8533118a34d@redhat.com>
-Date:   Mon, 14 Dec 2020 10:21:34 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
-MIME-Version: 1.0
-In-Reply-To: <20201213225517.3838501-1-linus.walleij@linaro.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.12.20 23:55, Linus Walleij wrote:
-> The Ux500 platforms have some memory carveouts set aside for
-> communicating with the modem and for the initial secure software
-> (ISSW). These areas are protected by the memory controller
-> and will result in an external abort if accessed like common
-> read/write memory.
-> 
-> On the legacy boot loaders, these were set aside by using
-> cmdline arguments such as this:
-> 
->   mem=96M@0 mem_mtrace=15M@96M mem_mshared=1M@111M
->   mem_modem=16M@112M mali.mali_mem=32M@128M mem=96M@160M
->   hwmem=127M@256M mem_issw=1M@383M mem_ram_console=1M@384M
->   mem=638M@385M
-> 
-> Reserve the relevant areas in the device tree instead. The
-> "mali", "hwmem", "mem_ram_console" and the trailing 1MB at the
-> end of the memory reservations in the list are not relevant for
-> the upstream kernel as these are nowadays replaced with
-> upstream technologies such as CMA. The modem and ISSW
-> reservations are necessary.
-> 
-> This was manifested in a bug that surfaced in response to
-> commit 7fef431be9c9 ("mm/page_alloc: place pages to tail in __free_pages_core()")
-> which changes the behaviour of memory allocations
-> in such a way that the platform will sooner run into these
-> dangerous areas, with "Unhandled fault: imprecise external
-> abort (0xc06) at 0xb6fd83dc" or similar: the real reason
-> turns out to be that the PTE is pointing right into one of
-> the reserved memory areas. We were just lucky until now.
-> 
-> We need to augment the DB8500 and DB8520 SoCs similarly
-> and also create a new include for the DB9500 used in the
-> Snowball since this does not have a modem and thus does
-> not need the modem memory reservation, albeit it needs
-> the ISSW reservation.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ARM SoC folks: please apply this directly for fixes.
+On Mon, Dec 14, 2020 at 10:21 AM David Hildenbrand <david@redhat.com> wrote:
 
-Can we come up with a Fixes: tag or has this been broken forever?
-(assuming modern boot loaders)
+> > ARM SoC folks: please apply this directly for fixes.
+>
+> Can we come up with a Fixes: tag or has this been broken forever?
+> (assuming modern boot loaders)
 
-> 
-> David: just FYI if you run into more of these type of
-> regressions. Actually the patch is unintentionally good
-> at smoking out other bugs :D
+It's been broken forever :/
 
-Thanks for CCing - I'm adding some people that ran into similar issues,
-but not sure if the other bugreports are related (or have similar root
-causes).
+> > David: just FYI if you run into more of these type of
+> > regressions. Actually the patch is unintentionally good
+> > at smoking out other bugs :D
+>
+> Thanks for CCing - I'm adding some people that ran into similar issues,
+> but not sure if the other bugreports are related (or have similar root
+> causes).
 
-Thanks a lot!
+Yeah we first were convinced there was something wrong with
+the patch you made but I read it over and over again and there
+is nothing wrong with it at all. It just alters the behaviour pattern of
+memory management in some apparently drastic ways.
 
-> ---
->  arch/arm/boot/dts/ste-db8500.dtsi  | 38 ++++++++++++++++++++++++++++++
->  arch/arm/boot/dts/ste-db8520.dtsi  | 38 ++++++++++++++++++++++++++++++
->  arch/arm/boot/dts/ste-db9500.dtsi  | 35 +++++++++++++++++++++++++++
->  arch/arm/boot/dts/ste-snowball.dts |  2 +-
->  4 files changed, 112 insertions(+), 1 deletion(-)
->  create mode 100644 arch/arm/boot/dts/ste-db9500.dtsi
-> 
-> diff --git a/arch/arm/boot/dts/ste-db8500.dtsi b/arch/arm/boot/dts/ste-db8500.dtsi
-> index d309fad32229..344d29853bf7 100644
-> --- a/arch/arm/boot/dts/ste-db8500.dtsi
-> +++ b/arch/arm/boot/dts/ste-db8500.dtsi
-> @@ -12,4 +12,42 @@ cpu@300 {
->  					    200000 0>;
->  		};
->  	};
-> +
-> +	reserved-memory {
-> +		#address-cells = <1>;
-> +		#size-cells = <1>;
-> +		ranges;
-> +
-> +		/* Modem trace memory */
-> +		ram@06000000 {
-> +			reg = <0x06000000 0x00f00000>;
-> +			no-map;
-> +		};
-> +
-> +		/* Modem shared memory */
-> +		ram@06f00000 {
-> +			reg = <0x06f00000 0x00100000>;
-> +			no-map;
-> +		};
-> +
-> +		/* Modem private memory */
-> +		ram@07000000 {
-> +			reg = <0x07000000 0x01000000>;
-> +			no-map;
-> +		};
-> +
-> +		/*
-> +		 * Initial Secure Software ISSW memory
-> +		 *
-> +		 * This is probably only used if the kernel tries
-> +		 * to actually call into trustzone to run secure
-> +		 * applications, which the mainline kernel probably
-> +		 * will not do on this old chipset. But you can never
-> +		 * be too careful, so reserve this memory anyway.
-> +		 */
-> +		ram@17f00000 {
-> +			reg = <0x17f00000 0x00100000>;
-> +			no-map;
-> +		};
-> +	};
->  };
-> diff --git a/arch/arm/boot/dts/ste-db8520.dtsi b/arch/arm/boot/dts/ste-db8520.dtsi
-> index 48bd8728ae27..287804e9e183 100644
-> --- a/arch/arm/boot/dts/ste-db8520.dtsi
-> +++ b/arch/arm/boot/dts/ste-db8520.dtsi
-> @@ -12,4 +12,42 @@ cpu@300 {
->  					    200000 0>;
->  		};
->  	};
-> +
-> +	reserved-memory {
-> +		#address-cells = <1>;
-> +		#size-cells = <1>;
-> +		ranges;
-> +
-> +		/* Modem trace memory */
-> +		ram@06000000 {
-> +			reg = <0x06000000 0x00f00000>;
-> +			no-map;
-> +		};
-> +
-> +		/* Modem shared memory */
-> +		ram@06f00000 {
-> +			reg = <0x06f00000 0x00100000>;
-> +			no-map;
-> +		};
-> +
-> +		/* Modem private memory */
-> +		ram@07000000 {
-> +			reg = <0x07000000 0x01000000>;
-> +			no-map;
-> +		};
-> +
-> +		/*
-> +		 * Initial Secure Software ISSW memory
-> +		 *
-> +		 * This is probably only used if the kernel tries
-> +		 * to actually call into trustzone to run secure
-> +		 * applications, which the mainline kernel probably
-> +		 * will not do on this old chipset. But you can never
-> +		 * be too careful, so reserve this memory anyway.
-> +		 */
-> +		ram@17f00000 {
-> +			reg = <0x17f00000 0x00100000>;
-> +			no-map;
-> +		};
-> +	};
->  };
-> diff --git a/arch/arm/boot/dts/ste-db9500.dtsi b/arch/arm/boot/dts/ste-db9500.dtsi
-> new file mode 100644
-> index 000000000000..0afff703191c
-> --- /dev/null
-> +++ b/arch/arm/boot/dts/ste-db9500.dtsi
-> @@ -0,0 +1,35 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +
-> +#include "ste-dbx5x0.dtsi"
-> +
-> +/ {
-> +	cpus {
-> +		cpu@300 {
-> +			/* cpufreq controls */
-> +			operating-points = <1152000 0
-> +					    800000 0
-> +					    400000 0
-> +					    200000 0>;
-> +		};
-> +	};
-> +
-> +	reserved-memory {
-> +		#address-cells = <1>;
-> +		#size-cells = <1>;
-> +		ranges;
-> +
-> +		/*
-> +		 * Initial Secure Software ISSW memory
-> +		 *
-> +		 * This is probably only used if the kernel tries
-> +		 * to actually call into trustzone to run secure
-> +		 * applications, which the mainline kernel probably
-> +		 * will not do on this old chipset. But you can never
-> +		 * be too careful, so reserve this memory anyway.
-> +		 */
-> +		ram@17f00000 {
-> +			reg = <0x17f00000 0x00100000>;
-> +			no-map;
-> +		};
-> +	};
-> +};
-> diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
-> index be90e73c923e..27d8a07718a0 100644
-> --- a/arch/arm/boot/dts/ste-snowball.dts
-> +++ b/arch/arm/boot/dts/ste-snowball.dts
-> @@ -4,7 +4,7 @@
->   */
->  
->  /dts-v1/;
-> -#include "ste-db8500.dtsi"
-> +#include "ste-db9500.dtsi"
->  #include "ste-href-ab8500.dtsi"
->  #include "ste-href-family-pinctrl.dtsi"
->  
-> 
+After a lot of silent crashes I finally got an external abort with
+a reasonable backtrace showing the PTE pointing to this
+modem memory and then we figured it out.
 
-
--- 
-Thanks,
-
-David / dhildenb
-
+Yours,
+Linus Walleij
