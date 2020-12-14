@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B988E2D9F97
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68EC72D9FB8
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:59:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440985AbgLNSvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:51:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S2502249AbgLNS4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:56:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502249AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502248AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:37:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 045/105] iwlwifi: mvm: fix kernel panic in case of assert during CSA
-Date:   Mon, 14 Dec 2020 18:28:19 +0100
-Message-Id: <20201214172557.450802629@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?N=C3=A9meth=20M=C3=A1rton?= <nm127@freemail.hu>,
+        kernel test robot <lkp@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Scott Wood <oss@buserror.net>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 046/105] powerpc: Drop -me200 addition to build flags
+Date:   Mon, 14 Dec 2020 18:28:20 +0100
+Message-Id: <20201214172557.497771867@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -33,40 +35,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit fe56d05ee6c87f6a1a8c7267affd92c9438249cc ]
+[ Upstream commit e02152ba2810f7c88cb54e71cda096268dfa9241 ]
 
-During CSA, we briefly nullify the phy context, in __iwl_mvm_unassign_vif_chanctx.
-In case we have a FW assert right after it, it remains NULL though.
-We end up running into endless loop due to mac80211 trying repeatedly to
-move us to ASSOC state, and we keep returning -EINVAL. Later down the road
-we hit a kernel panic.
+Currently a build with CONFIG_E200=y will fail with:
 
-Detect and avoid this endless loop.
+  Error: invalid switch -me200
+  Error: unrecognized option -me200
 
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20201107104557.d64de2c17bff.Iedd0d2afa20a2aacba5259a5cae31cb3a119a4eb@changeid
+Upstream binutils has never supported an -me200 option. Presumably it
+was supported at some point by either a fork or Freescale internal
+binutils.
+
+We can't support code that we can't even build test, so drop the
+addition of -me200 to the build flags, so we can at least build with
+CONFIG_E200=y.
+
+Reported-by: Németh Márton <nm127@freemail.hu>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Scott Wood <oss@buserror.net>
+Link: https://lore.kernel.org/r/20201116120913.165317-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/Makefile | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 34362dc0d4612..f2d65e8384105 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -3057,7 +3057,7 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 3e8da9cf2eb9d..e6643d5699fef 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -249,7 +249,6 @@ KBUILD_CFLAGS		+= $(call cc-option,-mno-string)
+ cpu-as-$(CONFIG_40x)		+= -Wa,-m405
+ cpu-as-$(CONFIG_44x)		+= -Wa,-m440
+ cpu-as-$(CONFIG_ALTIVEC)	+= $(call as-option,-Wa$(comma)-maltivec)
+-cpu-as-$(CONFIG_E200)		+= -Wa,-me200
+ cpu-as-$(CONFIG_E500)		+= -Wa,-me500
  
- 	/* this would be a mac80211 bug ... but don't crash */
- 	if (WARN_ON_ONCE(!mvmvif->phy_ctxt))
--		return -EINVAL;
-+		return test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) ? 0 : -EINVAL;
- 
- 	/*
- 	 * If we are in a STA removal flow and in DQA mode:
+ # When using '-many -mpower4' gas will first try and find a matching power4
 -- 
 2.27.0
 
