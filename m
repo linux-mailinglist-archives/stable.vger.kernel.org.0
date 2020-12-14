@@ -2,28 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90A52D9FEE
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97D7A2D9DC2
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:33:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502634AbgLNTHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S2408530AbgLNRcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:32:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408583AbgLNRhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:10 -0500
+        id S2440426AbgLNR2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:28:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 013/105] batman-adv: Dont always reallocate the fragmentation skb head
+Subject: [PATCH 5.4 03/36] iwlwifi: pcie: limit memory read spin time
 Date:   Mon, 14 Dec 2020 18:27:47 +0100
-Message-Id: <20201214172555.910112049@linuxfoundation.org>
+Message-Id: <20201214172543.478587794@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,51 +34,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 992b03b88e36254e26e9a4977ab948683e21bd9f ]
+[ Upstream commit 04516706bb99889986ddfa3a769ed50d2dc7ac13 ]
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+When we read device memory, we lock a spinlock, write the address we
+want to read from the device and then spin in a loop reading the data
+in 32-bit quantities from another register.
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
+As the description makes clear, this is rather inefficient, incurring
+a PCIe bus transaction for every read. In a typical device today, we
+want to read 786k SMEM if it crashes, leading to 192k register reads.
+Occasionally, we've seen the whole loop take over 20 seconds and then
+triggering the soft lockup detector.
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Clearly, it is unreasonable to spin here for such extended periods of
+time.
+
+To fix this, break the loop down into an outer and an inner loop, and
+break out of the inner loop if more than half a second elapsed. To
+avoid too much overhead, check for that only every 128 reads, though
+there's no particular reason for that number. Then, unlock and relock
+to obtain NIC access again, reprogram the start address and continue.
+
+This will keep (interrupt) latencies on the CPU down to a reasonable
+time.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201022165103.45878a7e49aa.I3b9b9c5a10002915072312ce75b68ed5b3dc6e14@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ .../net/wireless/intel/iwlwifi/pcie/trans.c   | 36 ++++++++++++++-----
+ 1 file changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
-index dbd913bac9dd1..b7169c4147f55 100644
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -527,13 +527,14 @@ int batadv_frag_send_packet(struct sk_buff *skb,
- 		frag_header.no++;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index c76d26708e659..ef5a8ecabc60a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -2178,18 +2178,36 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 				   void *buf, int dwords)
+ {
+ 	unsigned long flags;
+-	int offs, ret = 0;
++	int offs = 0;
+ 	u32 *vals = buf;
+ 
+-	if (iwl_trans_grab_nic_access(trans, &flags)) {
+-		iwl_write32(trans, HBUS_TARG_MEM_RADDR, addr);
+-		for (offs = 0; offs < dwords; offs++)
+-			vals[offs] = iwl_read32(trans, HBUS_TARG_MEM_RDAT);
+-		iwl_trans_release_nic_access(trans, &flags);
+-	} else {
+-		ret = -EBUSY;
++	while (offs < dwords) {
++		/* limit the time we spin here under lock to 1/2s */
++		ktime_t timeout = ktime_add_us(ktime_get(), 500 * USEC_PER_MSEC);
++
++		if (iwl_trans_grab_nic_access(trans, &flags)) {
++			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
++				    addr + 4 * offs);
++
++			while (offs < dwords) {
++				vals[offs] = iwl_read32(trans,
++							HBUS_TARG_MEM_RDAT);
++				offs++;
++
++				/* calling ktime_get is expensive so
++				 * do it once in 128 reads
++				 */
++				if (offs % 128 == 0 && ktime_after(ktime_get(),
++								   timeout))
++					break;
++			}
++			iwl_trans_release_nic_access(trans, &flags);
++		} else {
++			return -EBUSY;
++		}
  	}
+-	return ret;
++
++	return 0;
+ }
  
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0) {
--		ret = -ENOMEM;
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	ret = skb_cow_head(skb, ETH_HLEN + header_size);
-+	if (ret < 0)
- 		goto put_primary_if;
--	}
- 
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
- 
- 	/* Send the last fragment */
+ static int iwl_trans_pcie_write_mem(struct iwl_trans *trans, u32 addr,
 -- 
 2.27.0
 
